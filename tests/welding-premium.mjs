@@ -211,6 +211,42 @@ console.log("\n# the profession is orthogonal to Premium — it is context, not 
   await ctx.close();
 }
 
+/* What Premium is SOLD as, per track. Premium is ONE subscription granting the
+   same capabilities on both tracks; the only thing that may differ is what can
+   honestly be advertised. The AI Coach is reached through Practice Partner,
+   which is General English only, so promising it on the Welding paywall sold a
+   door a Welding learner has no handle for (Apple 3.1.2 / 2.3.1). */
+console.log("\n# the paywall promises only what the OPEN track can actually reach");
+{
+  answer = FREE;
+  const g = await open("general-english");
+  const ge = await g.p.evaluate(() => ({
+    rows: premBenefitRows().map(r => t(r[0], r[2] || {})),
+    coachReachable: ppAvailable !== undefined ? isGeneralEnglish() : null,
+    paywall: (premBenHTML() || "").replace(/<[^>]+>/g, " "),
+  }));
+  ok("38 · General English keeps the AI Coach benefit — it is reachable there", /AI Coach/.test(ge.rows.join(" ")) && /AI Coach/.test(ge.paywall), JSON.stringify(ge.rows));
+  await g.ctx.close();
+
+  const w = await open("welding");
+  const wd = await w.p.evaluate(() => ({
+    rows: premBenefitRows().map(r => t(r[0], r[2] || {})),
+    paywall: (premBenHTML() || "").replace(/<[^>]+>/g, " "),
+    plan: (typeof entPlanCardHTML==="function" ? entPlanCardHTML() : "").replace(/<[^>]+>/g, " "),
+    coachReachable: isGeneralEnglish(),
+    savedPremium: planLimit("savedShadow", "premium"),
+    savedFree: planLimit("savedShadow", "free"),
+  }));
+  ok("39 · Welding: the AI Coach is NOT reachable there, so it is NOT sold there", wd.coachReachable === false && !/AI Coach/.test(wd.rows.join(" ")) && !/AI Coach/.test(wd.paywall), JSON.stringify(wd.rows));
+  ok(`40 · Welding is sold a benefit its Premium really grants instead: saved Shadow videos ${wd.savedFree} -> ${wd.savedPremium}`,
+    /Save up to 100 Shadow videos/.test(wd.rows.join(" ")) && wd.savedPremium === 100 && wd.savedFree === 1, JSON.stringify(wd));
+  ok("41 · the same four shared benefits are still sold on Welding — one subscription, not a lesser plan",
+    ["AI speaking analysis", "spoken back", "Advanced progress", "analytics"].every(x => wd.rows.join(" ").includes(x)), JSON.stringify(wd.rows));
+  ok("42 · App Setup's plan card says the same as the paywall — never two descriptions of Premium",
+    !/AI Coach/.test(wd.plan) && /Save up to 100 Shadow videos/.test(wd.plan), wd.plan.slice(0, 200));
+  await w.ctx.close();
+}
+
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n  ${pass}/${res.length} pass  (${BASE})`);

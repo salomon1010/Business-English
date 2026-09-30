@@ -296,6 +296,21 @@ console.log("\n# the App Store shell is not a developer machine");
     await ctx.close(); return o;
   }
   const BOTH = { ads_enabled: true, ads_mock_provider: true, billing_enabled: true, billing_preview_provider: true };
+  /* the other dev doors, with their override keys planted: a release build must
+     ignore every one of them (§3 of the readiness sprint) */
+  async function openIOSPlanted() {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    await ctx.addInitScript(([s, f]) => {
+      localStorage.setItem("be12_v1", s); localStorage.setItem("be_flags", JSON.stringify(f));
+      localStorage.setItem("be_ent_api", "http://ent.evil");          /* a planted entitlement service */
+      localStorage.setItem("be_partner_dev_user", "attacker");        /* a planted dev identity */
+      window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: () => ({}) };
+    }, [seed("general-english"), BOTH]);
+    await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights|ent\./.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+    const p = await ctx.newPage(); await p.goto(BASE + "index.html"); await sleep(1300);
+    const o = await p.evaluate(() => ({ ios: IS_IOS_APP, ent: entApiBase(), devUser: ppDevUser(), partner: ppApiBase(), build: !!window.BE_BUILD }));
+    await ctx.close(); return o;
+  }
 
   const i = await openIOS(true, BOTH);
   ok("X1 · the iOS shell really does look local: IS_IOS_APP true and hostname localhost/127.0.0.1", i.ios === true && /^(localhost|127\.0\.0\.1)$/.test(i.host), JSON.stringify(i));
@@ -312,6 +327,12 @@ console.log("\n# the App Store shell is not a developer machine");
   /* and with the flags at their production defaults, neither is available anywhere */
   const d = await openIOS(false, null);
   ok("X8 · production defaults on the web: no mock ads, no preview billing", d.adsFlag === false && d.mockAds === false && d.previewBilling === false, JSON.stringify(d));
+
+  /* the remaining dev doors named in the readiness audit */
+  const q = await openIOSPlanted();
+  ok("X9 · iOS production ignores a planted be_ent_api — the entitlement service is not redirectable there", q.ios === true && q.ent !== "http://ent.evil", JSON.stringify(q));
+  ok("X10 · iOS production ignores a planted be_partner_dev_user — no development authentication (the header is never sent)", q.devUser === null, JSON.stringify(q));
+  ok("X11 · …and it is a production bundle: no BE_BUILD, so no staging Workers and no staging-only UI", q.build === false && q.partner === "https://be-partner.nore-ngou.workers.dev", JSON.stringify(q));
 }
 
 await b.close(); srv.kill();

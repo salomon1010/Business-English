@@ -237,8 +237,14 @@ console.log("\n# account deletion and Welding");
   await f.ctx.close();
   const w = await open({ uid: "ij", track: "welding" });
   const ws = await sheet(w.p);
-  /* the same StoreKit product, the same sheet, on either track */
-  ok("W1 · Welding in the iOS app: the SAME Premium is offered — the five capabilities, one annual offer, no chooser", /AI speaking analysis/.test(ws.text) && /The AI Coach/.test(ws.text) && ws.plans.length === 0 && !!ws.offer, JSON.stringify({ offer: ws.offer, plans: ws.plans.length }));
+  /* The same StoreKit product and the same sheet on either track — ONE
+     subscription. What the sheet ADVERTISES follows the open track: the AI
+     Coach is reached through Practice Partner, which is General English only,
+     so Welding is sold the saved-video headroom its Premium really raises
+     instead (premBenefitRows in index.html). This asserted /The AI Coach/ on
+     Welding until 30 September 2026, which was the claim being corrected. */
+  ok("W1 · Welding in the iOS app: the SAME Premium is offered — one annual offer, no chooser, the shared capabilities", /AI speaking analysis/.test(ws.text) && ws.plans.length === 0 && !!ws.offer, JSON.stringify({ offer: ws.offer, plans: ws.plans.length }));
+  ok("W2 · …and it does not promise Welding the AI Coach, which Welding cannot reach", !/AI Coach/.test(ws.text) && /Save up to 100 Shadow videos/.test(ws.text), ws.text.replace(/\s+/g, " ").slice(0, 220));
   await w.ctx.close();
 }
 

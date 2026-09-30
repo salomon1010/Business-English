@@ -1,9 +1,22 @@
 # App Store Connect — listing, version 1.1.0 (paste by hand; nothing here is uploaded by code)
 
-Release decisions this listing reflects (owner, 29 Sep 2026): **Premium is not active**
-(no in-app purchases, no subscription wording); **live practice is on** (server
-`LIVE_ENABLED="1"`); **Home V2** is the iPhone app's Home (General English). French
-listing: `METADATA.fr.md`. Nothing may be claimed here that the build does not do.
+Release decisions this listing reflects (owner, 30 Sep 2026): **Premium IS active**
+— one auto-renewable subscription, the same one on both tracks (see
+`SUBSCRIPTIONS.md`, which is the configuration to enter in App Store Connect);
+**live practice is on** (server `LIVE_ENABLED="1"`); **Home V2** is the iPhone
+app's Home (General English). French listing: `METADATA.fr.md`. Nothing may be
+claimed here that the build does not do.
+
+> **OWNER ACTION — this listing is not submittable until all four are true.**
+> 1. `premium_annual` (and `premium_monthly`, recognised but never offered) are
+>    entered in App Store Connect exactly as `SUBSCRIPTIONS.md` sets them out.
+> 2. `be-entitlements` is deployed in production — it is **not** today, so the
+>    app cannot read a plan and `planOn()` stays false.
+> 3. `billing_enabled` is on for the shipped build (`FLAGS_IOS` in index.html
+>    carries only `home_v2_enabled` today, so Premium is **off** in the binary).
+> 4. The version below is bumped — 1.1.0 was submitted as a free release, and a
+>    build that adds in-app purchases is a new version. The number is yours; it
+>    is deliberately not guessed here.
 
 **Name** BE Mastery — Business English
 **Subtitle** (30) Speak English with confidence
@@ -15,7 +28,13 @@ listing: `METADATA.fr.md`. Nothing may be claimed here that the build does not d
 **Account deletion** inside the app (Profile → Backup & sync → *Delete account*, when signed in); also https://app.lomonec.com/delete-account.html — say so in the review notes.
 **Copyright** © 2026 Lomonec LLC
 **Content rights** The app's own lessons, audio and pictures are Lomonec LLC's; the practice photos are AI-generated (`rp-photos/SOURCES.md`). The Shadowing Studio **plays YouTube videos through YouTube's own embedded player** (streamed, not copied into the app). REQUIRES OWNER REVIEW when answering App Store Connect's "third-party content" question — the answer is not "no".
-**In-app purchases / subscriptions** none in 1.1.0.
+**In-app purchases / subscriptions** One auto-renewable subscription —
+`premium_annual`, **US$24.99/year**, with a **3-day free trial for new
+subscribers**. `premium_monthly` stays defined so an existing subscriber keeps
+Premium and can manage it, but it is never offered for purchase. Prices and the
+trial are read from StoreKit at runtime and are written nowhere in the app, so
+App Store Connect is the source of truth (Apple 3.1.2). Full set-up:
+`SUBSCRIPTIONS.md`.
 
 ## Promotional text (170)
 25 minutes a day of real spoken practice — with feedback on what you say and, when you want it, another learner to talk to.
@@ -50,7 +69,13 @@ PRIVACY
 Your recordings are kept on your phone. Audio you record for feedback, a voice turn you send to a partner and your own side of a live call are sent over an encrypted connection to be transcribed and scored; partner turns are deleted 14 days after a session ends. Reminders appear inside the app. You can delete your account and everything attached to it inside the app.
 Privacy policy: https://app.lomonec.com/privacy.html
 
-Everything in the app is free.
+BE MASTERY PREMIUM
+The 12-week programme, the daily sessions, the Shadowing Studio library, recording, playback and your own self-evaluation are free, on both tracks.
+Premium adds the AI on top of that practice: speaking analysis of what you said (pronunciation, grammar, vocabulary, fluency), that feedback spoken back to you, advanced progress with 30- and 90-day analytics, and more room for the videos and reports you keep. On General English it also opens the AI coach for a full four-turn practice whenever you want one.
+One subscription covers both General English and Welding English. US$24.99 per year with a 3-day free trial for new subscribers; it renews unless you cancel at least 24 hours before the period ends, and you can cancel any time in your App Store settings.
+Terms of Use (Apple standard EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy policy: https://app.lomonec.com/privacy.html
+
 Made by Lomonec LLC.
 
 ## Keywords (100)

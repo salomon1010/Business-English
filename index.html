@@ -23065,6 +23065,24 @@ const PLAN_LIMITS=Object.freeze({
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null})
 });
 function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){return false}}
+/* ---- what Premium is SOLD as, per track (owner, 30 September 2026) ----
+   Premium is ONE subscription and grants the same capabilities on both tracks;
+   this is not a second plan and never asks the server a different question.
+   What differs is only what can honestly be ADVERTISED. The AI Coach is reached
+   through Practice Partner, which is General English only (ppAvailable ->
+   isGeneralEnglish), so on Welding that row sold a door the learner has no
+   handle for. Welding is shown the saved-video headroom instead, which its
+   Premium really does raise — PLAN_LIMITS_TRACK gives Welding 1 free and the
+   premium row is the shared 100.
+   The paywall (premBenHTML) and App Setup's plan card both read THIS, so the
+   two can never describe Premium differently. */
+function premBenefitRows(){
+  const rows=[["prem.b_ai","mic"],["prem.b_verbal","play"],["prem.b_progress","chart"],["prem.b_analytics","calendar"]];
+  let ge=true;try{ge=isGeneralEnglish()}catch(e){}
+  if(ge)rows.push(["prem.b_coach","star"]);
+  else{let n=100;try{n=planLimit("savedShadow","premium")}catch(e){}rows.push(["prem.b_videos","bookmark",{n}])}
+  return rows;
+}
 function planKey(){try{return entApiBase()&&entIsPremiumForDisplay()?"premium":"free"}catch(e){return "free"}}
 /* ---- per-TRACK free limits (owner, 30 September 2026) ----
    Premium is ONE subscription and the plan itself never differs by track. What
@@ -23189,7 +23207,7 @@ function entPlanCardHTML(){
         <ul style="list-style:none;margin-top:10px">
           ${/* the same five capabilities the paywall sells, so App Setup and the
                 sheet never describe Premium differently */
-            planOn()?li("prem.b_ai","mic",prem?"var(--green)":"var(--mut)")+li("prem.b_verbal","play",prem?"var(--green)":"var(--mut)")+li("prem.b_progress","chart",prem?"var(--green)":"var(--mut)")+li("prem.b_analytics","calendar",prem?"var(--green)":"var(--mut)")+li("prem.b_coach","star",prem?"var(--green)":"var(--mut)"):""}${flag("ads_enabled")?li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)"):""}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
+            planOn()?premBenefitRows().map(r=>li(r[0],r[1],prem?"var(--green)":"var(--mut)",r[2])).join(""):""}${flag("ads_enabled")?li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)"):""}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
         </ul>${store}${note}
       </div>`;
 }
@@ -23817,8 +23835,7 @@ function premBenHTML(){
   const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
   const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")}catch(e){}   /* the five capabilities are granted on both tracks */
   const rows=[];
-  if(ge)rows.push(li("prem.b_ai","mic"),li("prem.b_verbal","play"),li("prem.b_progress","chart"),
-                  li("prem.b_analytics","calendar"),li("prem.b_coach","star"));
+  if(ge)premBenefitRows().forEach(r=>rows.push(li(r[0],r[1],r[2])));
   if(ads)rows.push(li("prem.b_noads","ban"));
   return rows.length?`<ul class="prem-ben">${rows.join("")}</ul>`:"";
 }
