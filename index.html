@@ -72,7 +72,10 @@
 <script src="career-center.js?v=80"></script>
 <script src="professional-skills-passport.js?v=85"></script>
 <script src="jurisdictions.js?v=79"></script>
-<script src="trades.js?v=79"></script>
+<!-- the standards registry loads BEFORE trades.js: trades.js derives each
+     profession's code chips from it at load time -->
+<script src="professional-standards.js?v=1"></script>
+<script src="trades.js?v=80"></script>
 <script src="answer-evaluator.js?v=84"></script>
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
@@ -1079,6 +1082,19 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .wprof-pop .sv-tr-opt.sel svg{color:#1b1300}
 .wprof-pop .wprof-none svg:first-child{width:14px;height:14px;color:var(--mut)}
 .wprof-pop .wprof-none.sel svg:first-child{color:#1b1300}
+/* The standards a profession is assessed against — shown on the profile card and
+   in every professional report, from the same registry (owner, 30 Sep 2026). */
+.career-std{margin:12px 0 6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
+.career-std .eyebrow{margin-bottom:6px}
+.career-std-list{list-style:none;margin:10px 0 6px;padding:0;display:grid;gap:8px}
+.career-std-list li{display:grid;gap:2px}
+.career-std-list b{font-size:13px}
+.career-std-list small{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut2)}
+.career-std-list span{font-size:12.5px;line-height:1.45;color:var(--mut)}
+.sim-ans-std{margin-top:8px;display:grid;gap:4px}
+.sim-ans-std b{font-size:12.5px}
+.sim-ans-std p{margin:0;font-size:12.5px;line-height:1.45;color:var(--mut)}
+.sim-ans-std .sim-ans-gen{color:var(--mut2);font-style:italic}
 .shl-chans{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
 .shl-chans::-webkit-scrollbar{display:none}
 .shl-chan{flex:none;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;font-family:inherit;color:var(--mut);font-size:11px;line-height:1.2;text-align:center;cursor:pointer}
@@ -6924,8 +6940,8 @@ const I18N_EN={
  "ob.track_sub":"Everything that follows — Start here, the fifteen Foundations days and every session — is built for the environment you choose. You can switch later; progress is kept separately for each.",
  "ob.track_general_sub":"For the office: meetings, presentations, calls and everyday professional English. Start here begins with three simple workplace sentences a day.",
  "ob.track_welding_sub":"For the workshop and the site: first day, safety, handovers, tool talk and job interviews for welders, pipefitters and boilermakers. Start here begins with three sentences from a real shift.",
- "ob.trade_title":"Which trade do you work in?",
- "ob.trade_sub":"This sets your codes, your vocabulary and what a good answer sounds like. You can change it later.",
+ "ob.trade_title":"Which job are you preparing for?",
+ "ob.trade_sub":"This sets the standards you are assessed against, your interviews, your vocabulary and what a good answer sounds like. You can change it later in Career Destination.",
  "ob.trade_pay_note":"typical range, varies by region and employer",
  "ob.trade_goal_sub":"We'll keep this in front of you, and shape your practice around it.",
  "wc.body_trade":"Twenty-five focused minutes a day is all it takes.",
@@ -8820,6 +8836,17 @@ const I18N_EN={
  "wprof.g_elec":"Electrical & Safety",
  "wprof.g_insp":"Inspection & Engineering",
  "wprof.g_mech":"Maintenance & Mechanical Trades",
+ "std.assessed_h":"Assessed against",
+ "std.verify_note":"Standards are named, not quoted, and editions change. Confirm the standard and edition in your project specification or with your awarding body.",
+ "std.pay_unknown":"Pay varies widely by region, employer, certification and overtime. Check local sources — this app does not hold a figure for this profession.",
+ "std.change_note":"Changing this changes the standards you are assessed against, the interviews you are asked, the vocabulary your answers are checked for, and the model answers you shadow.",
+ "std.focus_lbl":"Professional focus",
+ "std.readiness_scope":"Measured against the professional expectations for {{prof}}.",
+ "std.not_certification":"This measures how completely you explain yourself in English against those expectations. It is not a certification, an inspection, a regulatory determination or a professional qualification — those come from an awarding body.",
+ "std.why_lbl":"What the standard expects",
+ "std.none":"General professional guidance",
+ "std.none_note":"No published standard is mapped to this workshop for your profession, so this feedback is general professional practice rather than a standard.",
+ "std.judged":"{{who}} — judged against the standards for {{prof}}.",
  "sv.apply_lab":"Rework it in Phrase Lab",
  "sv.apply_sub_lab":"Put this line in your own words, about your own job. Phrase Lab's AI coach rebuilds it for the workplace.",
  "home.d_sim_t":"Workplace simulations",
@@ -10861,7 +10888,7 @@ window.goCareer=(from)=>{_careerFrom=from||(cur&&cur.v)||"profile";go("career")}
 window.careerBack=()=>go(_careerFrom==="practice"?"practice":"home");
 window.careerBackLabel=()=>_careerFrom==="practice"?t("bnav.practice"):t("nav.home_label");
 window.homeTradePick=(id)=>{
-  if(window.Trades&&Trades.setActive(S,id)){save();applyTrackIdentity();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
+  if(profSet(id)){toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
 };
 window.homeDestPick=(id)=>{
   S.careerCenter=S.careerCenter||{};S.careerCenter.destination=id;save();
@@ -14022,6 +14049,37 @@ function weldProf(){
   try{const id=((window.Trades&&Trades.active(S))||{}).id;if(WELD_PROFS.includes(id))return id}catch(e){}
   return "welder";
 }
+/* TWO lists that look the same and are not the same thing (owner, 30 Sep 2026).
+
+   The PROFESSION is `S.professionalTracks.tradeId`. It is set in exactly two
+   places — the onboarding step after Welding English, and the "Your profession"
+   card — and those two are linked, because they are the same question asked
+   twice. It decides the workshops, the standards, the interviews, the
+   evaluation and every report.
+
+   The Shadow library's "Videos for" list is NOT that question. Anyone can watch
+   anyone's videos, so it only filters the feed: picking Refinery Operator there
+   does not make the learner a refinery operator, and it must never rewrite the
+   profession. It lives in `S.profile.weldProf` and it can also say "no filter",
+   which a profession cannot.
+
+   They stay aligned without being coupled: weldProf() falls back to the
+   profession until the learner deliberately sets a filter of their own. */
+function profSet(id){
+  if(!id||!WELD_PROFS.includes(id))return false;
+  let changed=false;
+  try{if(window.Trades&&Trades.setActive(S,id))changed=true}catch(e){}
+  if(changed){save();if(typeof applyTrackIdentity==="function")applyTrackIdentity()}
+  return changed;
+}
+/** The profession the whole app is assessing this learner as. */
+function profActive(){try{return (window.Trades&&Trades.active(S))||null}catch(e){return null}}
+/** Its standards for one workshop — the registry, never a hand-written string. */
+function profStandards(moduleId){
+  const tr=profActive();
+  if(!tr||!window.Trades||!Trades.standardsFor)return {standards:[],primary:[],focus:"",verified:false};
+  return Trades.standardsFor(tr,moduleId);
+}
 function weldProfLabel(id){if(!id)return t("wprof.all");const k="sh.cat_"+id;if(I18N_EN[k])return t(k);const c=_shCat&&(_shCat.categories||[]).find(x=>x.id===id);return c?c.label:id}
 /* the categories in the order this learner should meet them: General English keeps the
    catalogue's order; Welding leads with the learner's profession, then the rest of its group */
@@ -14042,14 +14100,27 @@ function weldProfPopClose(){
 function weldProfPopOut(e){const pop=document.getElementById("weldProfOv");if(pop&&!pop.contains(e.target)&&!e.target.closest(".wprof-pill"))weldProfPopClose()}
 function weldProfPopKey(e){if(e.key==="Escape"){e.stopPropagation();weldProfPopClose()}}
 function weldProfPopScroll(e){const pop=document.getElementById("weldProfOv");if(pop&&!pop.contains(e.target))weldProfPopClose()}
-window.weldProfSheet=anchor=>{
+/* The same list in two places (owner, 30 Sep 2026: "the same drop list on this
+   picture put it here"). The library's copy keeps "No filter" at the top,
+   because browsing every video is a real thing to want. The profile's copy does
+   not: the app always assesses the learner as somebody, so there is no "no
+   profession". `mode:"profession"` is that second copy. */
+window.weldProfSheet=(anchor,opts)=>{
   if(document.getElementById("weldProfOv")){weldProfPopClose();return}
-  const c=_shCat,groups=(c&&c.groups)||[],me=weldProf();
+  opts=opts||{};
+  const prof=opts.mode==="profession";
+  const c=_shCat,me=prof?((profActive()||{}).id||""):weldProf();
+  /* the catalogue is the group order when it is loaded; Trades carries the same
+     four groups so the profile picker works before the library has been opened */
+  let groups=(c&&c.groups)||[];
+  if(!groups.length&&window.Trades&&Trades.groups)
+    groups=Trades.groups().map(g=>({id:g.id,cats:g.trades.map(t=>t.id)}));
   const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||document.querySelector(".wprof-pill");
   const pop=document.createElement("div");pop.id="weldProfOv";pop.className="sv-tr-pop wprof-pop";
   pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("wprof.h"));
   /* "No filter" is pinned above the list: the list scrolls to the current profession, so a row inside it would be out of sight */
-  pop.innerHTML=`<div class="wprof-head"><button class="sv-tr-opt wprof-none ${!me?"sel":""}" aria-pressed="${!me}" onclick="weldProfSet('none')">${ic("close")}<span class="sv-tr-nm">${esc(t("wprof.none"))}</span>${!me?ic("check"):""}</button></div><div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}">${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
+  const set=prof?"profPick":"weldProfSet";
+  pop.innerHTML=`${prof?"":`<div class="wprof-head"><button class="sv-tr-opt wprof-none ${!me?"sel":""}" aria-pressed="${!me}" onclick="weldProfSet('none')">${ic("close")}<span class="sv-tr-nm">${esc(t("wprof.none"))}</span>${!me?ic("check"):""}</button></div>`}<div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}">${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="${set}('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
   document.body.appendChild(pop);
   const vw=innerWidth,vh=innerHeight,w=Math.min(220,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
   const below=vh-r.bottom-12,above=r.top-12,h=Math.min(300,Math.max(below,above));
@@ -14061,22 +14132,22 @@ window.weldProfSheet=anchor=>{
   const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;
   setTimeout(()=>{document.addEventListener("pointerdown",weldProfPopOut,true);document.addEventListener("keydown",weldProfPopKey,true);window.addEventListener("scroll",weldProfPopScroll,true);window.addEventListener("resize",weldProfPopClose)},0);
 };
-/* Which of the ten professions the app has a TRADE OVERLAY for. A trade brings
-   its own governing codes, vocabulary, benchmarks and model answers
-   (trades.js), and that is what drives interviews, simulations, competencies
-   and career readiness. The other seven professions exist in the Shadow
-   catalogue but have no overlay, so nothing in this file can make them govern
-   professional content without inventing standards — which is forbidden. See
-   docs/release/WELDING_PREMIUM_REPORT.md. */
-function weldProfTrade(id){try{return (window.Trades&&Trades.get(id))?id:null}catch(e){return null}}
+/* Choosing from the profile card. Changes the profession everywhere — workshops,
+   standards, interviews, feedback and the library — and says what it changed. */
+window.profPick=id=>{
+  weldProfPopClose();
+  if(!WELD_PROFS.includes(id))return;
+  const was=(profActive()||{}).id;
+  if(!profSet(id)&&was===id)return;
+  const nm=(window.Trades&&Trades.get(id)&&Trades.get(id).name)||weldProfLabel(id);
+  toast(t("home.profession_set",{name:nm}));
+  try{if(cur&&cur.v==="career")go("career");else if(cur&&cur.v==="shadow")shLibMount();else go(cur&&cur.v||"home")}catch(e){}
+};
 window.weldProfSet=id=>{
   if(id!=="none"&&!WELD_PROFS.includes(id))return;
-  S.profile=S.profile||{};S.profile.weldProf=id;
-  /* the profession is authoritative where a trade exists: picking Pipefitter
-     must change the codes a question is judged against, not only the videos */
-  const tr=weldProfTrade(id);
-  if(tr&&window.Trades&&Trades.setActive(S,tr)){try{applyTrackIdentity()}catch(e){}}
-  save();
+  /* Filter only. This list does not change who the learner is — the profession
+     is set in onboarding and on the profile card, nowhere else. */
+  S.profile=S.profile||{};S.profile.weldProf=id;save();
   weldProfPopClose();
   /* the chip follows the list: the trade's own chip, or For you when the filter is cleared */
   _shLibCat=id==="none"?"foryou":id;_shLibCh="";_shLibMore=false;
@@ -19879,11 +19950,19 @@ async function simEnrichAnalysis(run,sc,rubricOf){
   const sys=`You are a spoken-English coach for tradespeople. A learner answered a workplace or interview question aloud. Rewrite THEIR answer as the answer they should have given.
 Rules: keep every fact they gave (their job title, years, materials, processes, employers, sites, numbers) and build the whole answer around the subject THEY chose — if they said they work on pipes, the answer is about their pipe work. Cover each MISSING point in one clear sentence using only their facts; where a detail is unknown, write a short slot in square brackets, e.g. [how many] years, [which process]. Use 2 to 4 of the vocabulary words only where they fit naturally. 40 to 90 words, first person, spoken, plain, professional. The style reference shows tone and shape only — never copy its facts, names or numbers.
 Also list which of the point ids the learner's ORIGINAL answer already covered in meaning. Be strict: only an id whose meaning is really there.
+Never invent a standard, a code number, a clause or a certification requirement. The standards below are the only ones you may name, and you name them as given \u2014 no clause numbers, no editions. If none are given, write general professional advice and cite nothing.
 Return JSON only: {"reply":"the rebuilt answer","covered":["id"]}`;
   let changed=false;
   const one=async a=>{
     const rubric=(rubricOf&&rubricOf(a))||(sc.questions||{})[a.q];if(!rubric)return;
-    const body={question:a.ask||"",said:a.said,points:(rubric.points||[]).map(p=>({id:p.id,means:p.label})),missing:a.missed.map(m=>m.id),vocab:(a.vocabMissed||[]).concat(a.vocabUsed||[]).slice(0,10),style_reference:a.model||"",trade:tr&&tr.name||""};
+    /* The profession and the standards it is held to travel with the answer, so
+       the rewrite is grounded in the learner's actual trade rather than in the
+       model's idea of a tradesperson. `standards` are names and subjects only —
+       the prompt above forbids inventing anything beyond them. */
+    const _mid=(sc&&sc.regulatory&&sc.regulatory.moduleId)||0;
+    const _std=(tr&&window.ProfessionalStandards)?ProfessionalStandards.promptLines(tr.id,_mid):[];
+    const _focus=(tr&&window.ProfessionalStandards)?ProfessionalStandards.focusFor(tr.id,_mid):"";
+    const body={question:a.ask||"",said:a.said,points:(rubric.points||[]).map(p=>({id:p.id,means:p.label})),missing:a.missed.map(m=>m.id),vocab:(a.vocabMissed||[]).concat(a.vocabUsed||[]).slice(0,10),style_reference:a.model||"",trade:tr&&tr.name||"",profession:tr&&tr.name||"",professional_focus:_focus,standards:_std};
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{purpose:"report",system:sys,messages:[{role:"user",content:JSON.stringify(body).slice(0,4000)}]}})});
       if(!r.ok)return;
@@ -19988,18 +20067,33 @@ function simAnalysisParts(run,sc,opts){
       /* Which standards apply depends on where the learner is applying. The
          benchmarks are the same everywhere; only the citation changes. */
       const j=window.Jurisdictions?Jurisdictions.active(S):null;
-      /* Trade first — a pipefitter is held to B31.3, not to D1.1 — then the
-         jurisdiction, then the pack's own default. */
+      /* Profession first — a pipefitter is held to B31.3, not to D1.1, and an
+         HSE officer to neither — then the jurisdiction, then the pack's own
+         default. The profession's citations come from the standards registry,
+         which also carries what each document expects of a person, so the card
+         can answer "why does this apply to me?" instead of printing a number.
+
+         Honesty rule: when the profession contributes no mapped standard for
+         this workshop, the card says so and calls the feedback general
+         professional guidance rather than implying a standard was applied. No
+         clause is ever printed that the registry does not hold. */
       const tr=window.Trades?Trades.active(S):null;
+      const ctx=tr&&window.Trades&&Trades.standardsFor?Trades.standardsFor(tr,reg.moduleId):null;
       const tradeCodes=tr&&window.Trades?Trades.codesFor(tr,reg.moduleId):null;
       const codes=tradeCodes||(j?Jurisdictions.codesFor(j,reg.moduleId,reg.codes):(reg.codes||[]).map(c=>c.code+" — "+c.title));
       const note=j?Jurisdictions.emphasisFor(j,reg.moduleId):"";
       if(!codes.length)return "";
+      const verified=!!(ctx&&ctx.verified);
+      const expects=verified?ctx.standards.slice(0,3):[];
       return `<div class="sim-ans-regs">
-        <b>Assessed against${tr?" · "+esc(tr.name):""}${j?" · "+esc(j.label):""}</b>
+        <b>${esc(t("std.assessed_h"))}${tr?" · "+esc(tr.name):""}${j?" · "+esc(j.label):""}</b>
         <div class="sim-skill-chips">${codes.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
+        ${ctx&&ctx.focus?`<p class="sim-ans-std"><b>${esc(t("std.focus_lbl"))}</b><span>${esc(ctx.focus)}</span></p>`:""}
+        ${expects.length?`<div class="sim-ans-std"><b>${esc(t("std.why_lbl"))}</b>${expects.map(x=>`<p><b>${esc(x.code)}</b> — ${esc(x.expects)}</p>`).join("")}</div>`:""}
+        ${verified?"":`<p class="sim-ans-std sim-ans-gen">${esc(t("std.none"))} — ${esc(t("std.none_note"))}</p>`}
         <p>${esc(reg.requirement)}</p>
         ${note?`<p class="sim-ans-emph">${esc(note)}</p>`:""}
+        <p class="sim-ans-src">${esc(t("std.verify_note"))}</p>
         ${j?`<p class="sim-ans-src">${esc(j.verify)}</p>`:""}
       </div>`;
     })()}
@@ -30880,7 +30974,7 @@ function rpRepListHTML(sc,rows,cls){
 function rpRepKey(sc){return recCtx("rp:"+sc.id+":"+_rpLastTs)}
 function rpRepCtx(sc){
   return {track:isGeneralEnglish()?"general":"welding",focus:String(sc.title+" — "+(sc.persona?sc.persona+", ":"")+(sc.role||"")).slice(0,160),
-    task:String([sc.scenario,sc.greet?'They opened with: "'+sc.greet+'"':""].filter(Boolean).join(" ")).slice(0,300),
+    task:(()=>{const g=typeof rpGreet==="function"?rpGreet(sc):sc.greet;return String([rpScenarioText(sc)||sc.scenario,g?'They opened with: "'+g+'"':""].filter(Boolean).join(" ")).slice(0,300)})(),
     out:String((sc.points||[]).join("; ")).slice(0,200),phrases:[]};
 }
 function rpRepPrev(sc,key){
@@ -31168,8 +31262,9 @@ window.rpStart=(id)=>{
   document.body.appendChild(w);
   manIconizeInline(w);
   document.body.style.overflow="hidden";
-  rpConv.history.push({role:"assistant",content:sc.greet});
-  rpAddBubble("ai",sc.greet); rpVoice(sc.greet);
+  const _g=rpGreet(sc);
+  rpConv.history.push({role:"assistant",content:_g});
+  rpAddBubble("ai",_g); rpVoice(_g);
   rpResetIdle();
 };
 function rpCloseWork(){
@@ -31521,6 +31616,15 @@ window.rpBackSummary=()=>{ exCoachStop();exHost=null; if(_rpLast)rpReplaySummary
    for a pipefitter or a boilermaker. Without this the interviews stay welding —
    the exact split the simulations were fixed for. */
 function rpModuleId(sc){const m=/-mentor-(\d+)$/.exec((sc&&sc.id)||"");return m?Number(m[1]):0}
+/* The coach's opening question is the interview. Three of the twelve name the
+   trade in it ("your welding background"), so an HSE officer was being asked
+   about welding by a recruiter and then judged on the answer. `greets` on the
+   mentor carries the profession's own wording; the pack's `greet` stands for
+   the welder and for any profession that has nothing to change. */
+function rpGreet(sc){
+  const tr=rpTrade();
+  return (tr&&sc&&sc.greets&&sc.greets[tr.id])||(sc&&sc.greet)||"";
+}
 function rpTrade(){return window.Trades&&isProfessionalJourney()?Trades.active(S):null}
 /* The learner's own trade decides the wording. A boilermaker shown "I mostly run
    MIG on structural steel" is being handed someone else's job as their model. */
@@ -31572,7 +31676,7 @@ function rpWeldWorkshop(sc){
 }
 function rpWeldRubric(sc){
   const rb=sc.rubric,tr=rpTrade();
-  return Object.assign({},rb,{ask:sc.greet||sc.title,model:rpModel(sc)||rb.model||"",
+  return Object.assign({},rb,{ask:rpGreet(sc)||sc.title,model:rpModel(sc)||rb.model||"",
     vocab:Array.from(new Set((rb.vocab||[]).concat(tr&&window.Trades?Trades.vocabFor(tr):[]))).slice(0,10)});
 }
 function rpWeldScreen(sc,turns,ts,covered){
@@ -31605,7 +31709,7 @@ function rpWeldScreen(sc,turns,ts,covered){
       ${rpAvatar(sc,64)}
       <div class="eyebrow">Interview report</div>
       <h1 class="big" style="margin:4px 0 4px">${esc(rpTitleText(sc))}</h1>
-      <p class="sub" style="margin-bottom:14px">${esc(sc.persona||"")}${sc.role?" · "+esc(sc.role):""} — judged against the welding standards and what a competent answer needs.</p>
+      <p class="sub" style="margin-bottom:14px">${esc(t("std.judged",{who:(sc.persona||"")+(sc.role?" · "+sc.role:""),prof:((rpTrade()||{}).name||t("tracks.welding"))}))}</p>
     </div>
     ${body}`;
   manIconizeInline(el);
@@ -32426,13 +32530,15 @@ function obRender(){
      ?`<div class="ob-logo ob-logo-weld">${ic("briefcase")}</div>
        <h1>${t("ob.trade_title")}</h1>
        <p class="sub">${t("ob.trade_sub")}</p>
-       <div class="ob-tracks">${(window.Trades?Trades.all():[]).map(tr=>`
+       <div class="ob-tracks">${((window.Trades&&Trades.groups)?Trades.groups():[]).map(g=>`
+         <div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>
+         ${g.trades.map(tr=>`
          <button class="ob-track ob-track-weld" onclick="obTradePick('${esc(tr.id)}')">
            <span class="ob-track-ic">${ic("briefcase")}</span>
-           <span class="ob-track-t"><b>${esc(tr.name)}</b><small>${esc(tr.focus)}</small>
-             <small class="ob-track-pay">${esc(tr.pay)} · ${esc(t("ob.trade_pay_note"))}</small></span>
+           <span class="ob-track-t"><b>${esc(weldProfLabel(tr.id))}</b><small>${esc(tr.focus)}</small>
+             ${tr.pay?`<small class="ob-track-pay">${esc(tr.pay)} · ${esc(t("ob.trade_pay_note"))}</small>`:""}</span>
            <span class="ob-track-go">→</span>
-         </button>`).join("")}</div>`
+         </button>`).join("")}`).join("")}</div>`
      :`<div class="ob-logo">${ic("briefcase")}</div>
      <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
      <p class="sub">${t("ob.role_sub")}</p>
@@ -32517,7 +32623,12 @@ window.obTrackPick=(id)=>{
    against, so it is asked before anything else is tailored. */
 window.obTradePick=(id)=>{
   OB.trade=id;
-  if(window.Trades)Trades.setActive(S,id);
+  /* Onboarding and the "Your profession" card are the same question asked
+     twice, so they set it the same way (owner, 30 Sep 2026). profSet is the one
+     writer; it does not touch the Shadow library's filter, which is a separate
+     choice the learner has not made yet. */
+  if(typeof profSet==="function")profSet(id);
+  else if(window.Trades)Trades.setActive(S,id);
   OB.goal="";
   obNext();
 };
