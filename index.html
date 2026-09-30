@@ -14061,9 +14061,22 @@ window.weldProfSheet=anchor=>{
   const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;
   setTimeout(()=>{document.addEventListener("pointerdown",weldProfPopOut,true);document.addEventListener("keydown",weldProfPopKey,true);window.addEventListener("scroll",weldProfPopScroll,true);window.addEventListener("resize",weldProfPopClose)},0);
 };
+/* Which of the ten professions the app has a TRADE OVERLAY for. A trade brings
+   its own governing codes, vocabulary, benchmarks and model answers
+   (trades.js), and that is what drives interviews, simulations, competencies
+   and career readiness. The other seven professions exist in the Shadow
+   catalogue but have no overlay, so nothing in this file can make them govern
+   professional content without inventing standards — which is forbidden. See
+   docs/release/WELDING_PREMIUM_REPORT.md. */
+function weldProfTrade(id){try{return (window.Trades&&Trades.get(id))?id:null}catch(e){return null}}
 window.weldProfSet=id=>{
   if(id!=="none"&&!WELD_PROFS.includes(id))return;
-  S.profile=S.profile||{};S.profile.weldProf=id;save();
+  S.profile=S.profile||{};S.profile.weldProf=id;
+  /* the profession is authoritative where a trade exists: picking Pipefitter
+     must change the codes a question is judged against, not only the videos */
+  const tr=weldProfTrade(id);
+  if(tr&&window.Trades&&Trades.setActive(S,tr)){try{applyTrackIdentity()}catch(e){}}
+  save();
   weldProfPopClose();
   /* the chip follows the list: the trade's own chip, or For you when the filter is cleared */
   _shLibCat=id==="none"?"foryou":id;_shLibCh="";_shLibMore=false;
@@ -14746,7 +14759,7 @@ const SH_OWN_MAX=5;
    only new saves of that kind wait. */
 const SH_OWN_TITLE_MAX=300;
 function shCatHas(vid){return !!(vid&&_shCat&&_shCat.videos&&_shCat.videos[vid])}
-function shOwnSplit(){return isGeneralEnglish()&&planOn()}
+function shOwnSplit(){return planOn()}   /* both tracks: one subscription, and shLibOn() already covers Welding */
 function shOwnKind(o){return o&&(o.src==="lib"||o.src==="yt")?o.src:(shCatHas(o&&o.vid)?"lib":"yt")}
 function shOwnCap(kind){return shOwnSplit()?planLimit(kind==="lib"?"savedShadow":"youtubeImports"):SH_OWN_MAX}
 function shOwnCount(kind){const L=shOwn().filter(Boolean);return shOwnSplit()?L.filter(o=>shOwnKind(o)===kind).length:L.length}
@@ -21279,7 +21292,7 @@ function exIdleHTML(){
    are listed as waiting for Premium, never deleted. */
 function exRepBits(r){const m=(r&&r.m)||{},b=[];if(m.wpm)b.push(t("ex.last_wpm",{n:m.wpm}));if(m.hes!=null)b.push(t("ex.last_hes",{n:m.hes}));b.push(t("ex.last_fill",{n:m.fillerN||0}));return b.join(" · ")}
 function exHistBtnHTML(){
-  if(!isGeneralEnglish()||!planOn())return "";
+  if(!planOn())return "";
   const n=exReps().length;if(!n)return "";
   return `<button class="ex-last ex-hist-btn" onclick="exHistSheet()"><span class="btn-ic">${ic("clock")}</span><span><b>${esc(t("ex.hist_btn",{n}))}</b></span><span class="ex-last-go">›</span></button>`;
 }
@@ -22898,7 +22911,15 @@ function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v
    Nothing here is a security boundary. A learner who edits localStorage can
    change what THIS screen draws, never what a Worker does: every paid AI route
    verifies the same entitlement server-side before it spends anything. */
-function entGated(){try{return planOn()&&isGeneralEnglish()}catch(e){return false}}
+/* ONE BE Mastery Premium subscription covers BOTH tracks (owner, 30 September
+   2026). A gate is in force wherever Premium can be bought — which is now
+   everywhere, because the same purchase, the same StoreKit product and the same
+   entitlement serve General English and Welding alike. There is deliberately no
+   track term here: a second condition would be a second Premium.
+
+   What stays track-specific is WHICH capabilities a screen offers, not whether
+   the learner has them. That is each caller's own business. */
+function entGated(){try{return planOn()}catch(e){return false}}
 function hasEntitlement(cap){
   if(ENT_CAPS.indexOf(cap)<0)return false;        /* an unknown name is refused, never silently allowed */
   if(!entGated())return true;                     /* no gate in force here */
@@ -22947,7 +22968,21 @@ const PLAN_LIMITS=Object.freeze({
 });
 function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){return false}}
 function planKey(){try{return entApiBase()&&entIsPremiumForDisplay()?"premium":"free"}catch(e){return "free"}}
-function planLimit(name,plan){const v=PLAN_LIMITS[plan||planKey()][name];return v===undefined?null:v}
+/* ---- per-TRACK free limits (owner, 30 September 2026) ----
+   Premium is ONE subscription and the plan itself never differs by track. What
+   a track's FREE tier keeps is its own decision, and the owner set Welding's at
+   one saved video and one saved clip. General English keeps the numbers it
+   already had, so nothing there changes.
+   Premium rows are deliberately absent: a paying learner gets the same headroom
+   on either track. */
+const PLAN_LIMITS_TRACK=Object.freeze({
+  welding:Object.freeze({free:Object.freeze({savedShadow:1,savedClips:1,youtubeImports:1})})
+});
+function planLimit(name,plan){
+  const k=plan||planKey();
+  try{const o=PLAN_LIMITS_TRACK[areaId()];if(o&&o[k]&&o[k][name]!==undefined)return o[k][name]}catch(e){}
+  const v=PLAN_LIMITS[k][name];return v===undefined?null:v;
+}
 function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
 /* Plan changes for release analytics (Phase 12A): compare the server's new
    answer with the LAST one this account saw (memory, else the raw cache — the
@@ -23020,7 +23055,7 @@ function entApply(){
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
 function entPlanCardHTML(){
   const prem=entIsPremiumForDisplay(),v=entView();
-  if(!prem&&!isGeneralEnglish())return "";          /* Welding: nothing is offered (General English boundary) */
+  if(!premOffered())return "";                      /* one account-level plan; both tracks show it */
   let B=null;try{B=Billing}catch(e){}   /* a const defined further down: never touch it before it exists */
   const live=!!(B&&B.provider);
   const date=ms=>new Date(ms).toLocaleDateString();
@@ -23621,7 +23656,9 @@ const Billing={
 let _premSel=null;   /* the product id the CTA will buy — the one offer, kept so premBuy is explicit */
 /* Premium is offered on General English only (its benefits are General English
    ones); a paying learner keeps the management surfaces on either track */
-function premOffered(){try{return (planOn()&&isGeneralEnglish())||entIsPremiumForDisplay()}catch(e){return false}}
+/* one paywall, one product: offered wherever Premium can be bought, and the
+   management surfaces stay for a paying learner on either track */
+function premOffered(){try{return planOn()||entIsPremiumForDisplay()}catch(e){return false}}
 function premIso(p){const m=/^P(\d+)([DWMY])$/.exec(String(p||""));return m?{n:+m[1],u:m[2]}:null}
 function premTrialDays(p){const x=premIso(p);return !x?0:x.u==="D"?x.n:x.u==="W"?x.n*7:0}
 function premFmt(a,c){try{return new Intl.NumberFormat(undefined,{style:"currency",currency:c}).format(a)}catch(e){return (Math.round(a*100)/100)+" "+c}}
@@ -23669,7 +23706,7 @@ function premHeadHTML(str){const m=/^(.*?[.!?。؟])\s+(\S[\s\S]*)$/.exec(String
    removal of an ad nobody sees would not be true. */
 function premBenHTML(){
   const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
-  const ge=isGeneralEnglish()&&planOn();let ads=false;try{ads=!!flag("ads_enabled")}catch(e){}
+  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")}catch(e){}   /* the five capabilities are granted on both tracks */
   const rows=[];
   if(ge)rows.push(li("prem.b_ai","mic"),li("prem.b_verbal","play"),li("prem.b_progress","chart"),
                   li("prem.b_analytics","calendar"),li("prem.b_coach","star"));
@@ -23739,7 +23776,7 @@ function premFootHTML(){
    comparison are drawn there only — Welding's sheet is as it was. Every number
    comes from PLAN_LIMITS; nothing here promises what is not built. */
 function premCmpHTML(){
-  if(!isGeneralEnglish()||!planOn())return "";          /* only where the limits are in force */
+  if(!planOn())return "";                               /* only where the limits are in force — now both tracks */
   const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
   const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
@@ -23805,7 +23842,7 @@ let _premLaunchOn=false;
 function premLaunchReady(){
   try{
     if(!planOn()||!Billing.provider||!FBUser||!S||!S.profile)return false;
-    if(!isGeneralEnglish())return false;      /* today's Premium benefits are General English ones */
+    /* the offer is the same on both tracks now, so no track test here */
     if(!(_entView&&_entUid===FBUser.uid))return false;
     if(entIsPremiumForDisplay())return false;
     if(sessionStorage.getItem(PREM_LAUNCH_SS))return false;
@@ -23846,7 +23883,6 @@ function subStoreName(src){return src==="app_store"?"App Store":src==="google_pl
 function subCardHTML(){
   let prem=false;try{prem=entIsPremiumForDisplay()}catch(e){}
   if(!premOffered())return "";
-  if(!prem&&!isGeneralEnglish())return "";
   const v=entView();let B=null;try{B=Billing}catch(e){}
   const live=!!(B&&B.provider),busy=!!(B&&(B.state==="purchasing"||B.state==="restoring")),mine=live&&v.source===B.provider.id;
   const date=ms=>{try{return new Date(ms).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"})}catch(e){return ""}};
@@ -29975,7 +30011,10 @@ function pgWindowHTML(w){
    real panel is still drawn — dimmed, inert, behind the offer — so the learner
    sees the shape of what they would get instead of an empty box. */
 function pgWindowsHTML(){
-  if(!isGeneralEnglish())return "";
+  /* Both tracks (owner, 30 September 2026). The figures come from areaDayLog()
+     and areaFbHist(), which are already per-area, so a Welding learner sees
+     their Welding record and a General English learner sees theirs — one
+     subscription, separate evidence. */
   const body=`<div class="pg-wins">${pgWindowHTML(pgWindow(30))}${pgWindowHTML(pgWindow(90))}</div>`;
   const lock=premLockHTML("advanced_progress","progress_windows",{kept:false});
   return `<div class="card" style="margin-top:16px">

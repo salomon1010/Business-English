@@ -106,15 +106,21 @@ console.log("\n# a PREMIUM account loses nothing");
   await ctx.close();
 }
 
-console.log("\n# Welding is untouched (Phase 12 — Premium is sold on General English only)");
+console.log("\n# Welding shares the ONE subscription (owner, 30 September 2026 — reverses the General-English-only boundary)");
 {
   const { ctx, p, errs } = await open({ track: "welding", plan: FREE });
   const g = await gates(p);
-  ok("22 · a Welding learner on the Free plan keeps every capability", CAPABILITIES.every(k => g.has[k] === true), JSON.stringify(g.has));
-  ok("23 · no gate is in force there, so nothing can be taken away it cannot buy back", g.gated === false && g.aiOffAnalysis === false);
-  ok("24 · the 30/90-day panel is General English only: Welding's Progress screen is as it was", await p.evaluate(() => pgWindowsHTML() === ""));
-  ok("25 · Premium is not offered on Welding", await p.evaluate(() => premOffered() === false));
+  ok("22 · a Welding learner on the Free plan is gated by the SAME rule as General English", g.gated === true && CAPABILITIES.every(k => g.has[k] === false), JSON.stringify(g.has));
+  ok("23 · the AI gate is closed on Welding too", g.aiOffAnalysis === true);
+  ok("24 · the 30/90-day panel is drawn on Welding, from Welding's own record", await p.evaluate(() => /Your last 30 days/.test(pgWindowsHTML())));
+  ok("25 · Premium IS offered on Welding — one product, one paywall", await p.evaluate(() => premOffered() === true));
   ok("26 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open({ track: "welding", plan: PREMIUM });
+  const g = await gates(p);
+  ok("26b · the same purchase makes Welding Premium — no second subscription", CAPABILITIES.every(k => g.has[k] === true) && g.aiOffAnalysis === false, JSON.stringify(g.has));
   await ctx.close();
 }
 
