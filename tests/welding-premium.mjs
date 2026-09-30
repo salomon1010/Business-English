@@ -166,26 +166,48 @@ console.log("\n# Premium ends — the learning stays, the AI stops");
   await ctx.close();
 }
 
-console.log("\n# the profession drives the professional context where a trade exists");
+console.log("\n# the profession drives the professional context (all ten, after session 42's overlays)");
 {
   answer = PREMIUM;
   const { ctx, p } = await open("welding");
   const r = await p.evaluate(() => {
     const out = { list: WELD_PROFS.slice(), overlays: [], noOverlay: [] };
     for (const id of WELD_PROFS) ((window.Trades && Trades.get(id)) ? out.overlays : out.noOverlay).push(id);
-    const before = Trades.active(S).id;
-    weldProfSet("pipefitter");
-    const afterTrade = Trades.active(S).id, codes = (Trades.active(S).codes || []).slice();
-    const welderCodes = (Trades.get("welder").codes || []).slice();
-    weldProfSet("hse");
-    const afterHse = Trades.active(S).id, hseProf = weldProf();
-    return { ...out, before, afterTrade, codes, welderCodes, afterHse, hseProf };
+    const before = profActive().id;
+    profSet("pipefitter");
+    const pipe = { id: profActive().id, codes: (profActive().codes || []).slice() };
+    profSet("hse");
+    const hse = { id: profActive().id, codes: (profActive().codes || []).slice() };
+    const welder = (Trades.get("welder").codes || []).slice();
+    /* the standards registry, for the profession now active */
+    let std = null; try { std = profStandards("w1"); } catch (e) { std = { err: String(e) }; }
+    return { ...out, before, pipe, hse, welder, std };
   });
   ok("30 · the profession list is the ten the Shadow catalogue defines", r.list.length === 10 && r.list.includes("hse") && r.list.includes("millwright"), JSON.stringify(r.list));
-  ok("31 · exactly three of them have a trade overlay (welder, pipefitter, boilermaker)", JSON.stringify(r.overlays.sort()) === JSON.stringify(["boilermaker", "pipefitter", "welder"]), JSON.stringify(r.overlays));
-  ok("32 · picking Pipefitter now CHANGES the governing trade, not just the label", r.before === "welder" && r.afterTrade === "pipefitter", JSON.stringify({ before: r.before, after: r.afterTrade }));
-  ok("33 · and the GOVERNING CODES change with it — Pipefitter is not judged against the welder's", r.codes.length > 0 && JSON.stringify(r.codes) !== JSON.stringify(r.welderCodes), JSON.stringify({ pipefitter: r.codes.slice(0, 2), welder: r.welderCodes.slice(0, 2) }));
-  ok("34 · picking HSE Officer changes the videos but leaves the trade — NO overlay exists, and none is invented", r.hseProf === "hse" && r.afterHse === "pipefitter", JSON.stringify({ prof: r.hseProf, trade: r.afterHse }));
+  ok("31 · ALL TEN now carry a trade overlay — the seven-profession gap this branch found is closed", r.noOverlay.length === 0 && r.overlays.length === 10, JSON.stringify({ noOverlay: r.noOverlay }));
+  ok("32 · choosing Pipefitter changes the governing profession, not just the label", r.before !== "pipefitter" && r.pipe.id === "pipefitter");
+  ok("33 · and its codes are its own — not the welder's", r.pipe.codes.length > 0 && JSON.stringify(r.pipe.codes) !== JSON.stringify(r.welder), JSON.stringify({ pipefitter: r.pipe.codes.slice(0, 2), welder: r.welder.slice(0, 2) }));
+  ok("34 · HSE Officer is now a real profession with its own codes, not a video filter", r.hse.id === "hse" && r.hse.codes.length > 0 && JSON.stringify(r.hse.codes) !== JSON.stringify(r.pipe.codes), JSON.stringify(r.hse.codes.slice(0, 2)));
+  ok("35 · the standards registry answers for the active profession", r.std && Array.isArray(r.std.standards), JSON.stringify(r.std).slice(0, 160));
+  await ctx.close();
+}
+
+console.log("\n# the profession is orthogonal to Premium — it is context, not entitlement");
+{
+  const { ctx, p } = await open("welding");
+  const r = await p.evaluate(async () => {
+    const seen = [];
+    for (const id of ["welder", "hse", "millwright", "process"]) { profSet(id); seen.push({ id: profActive().id, ai: hasEntitlement("ai_analysis"), prem: entIsPremiumForDisplay() }); }
+    return seen;
+  });
+  ok("36 · Premium stays Premium through every profession change", r.every(x => x.prem === true && x.ai === true) && r.length === 4, JSON.stringify(r));
+  await ctx.close();
+}
+{
+  answer = FREE;
+  const { ctx, p } = await open("welding");
+  const r = await p.evaluate(() => { profSet("ndt"); return { id: profActive().id, ai: hasEntitlement("ai_analysis"), gated: entGated() }; });
+  ok("37 · and Free stays Free — changing profession never grants a capability", r.id === "ndt" && r.ai === false && r.gated === true, JSON.stringify(r));
   await ctx.close();
 }
 

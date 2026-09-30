@@ -23181,7 +23181,7 @@ function entPlanCardHTML(){
         <ul style="list-style:none;margin-top:10px">
           ${/* the same five capabilities the paywall sells, so App Setup and the
                 sheet never describe Premium differently */
-            isGeneralEnglish()&&planOn()?li("prem.b_ai","mic",prem?"var(--green)":"var(--mut)")+li("prem.b_verbal","play",prem?"var(--green)":"var(--mut)")+li("prem.b_progress","chart",prem?"var(--green)":"var(--mut)")+li("prem.b_analytics","calendar",prem?"var(--green)":"var(--mut)")+li("prem.b_coach","star",prem?"var(--green)":"var(--mut)"):""}${flag("ads_enabled")?li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)"):""}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
+            planOn()?li("prem.b_ai","mic",prem?"var(--green)":"var(--mut)")+li("prem.b_verbal","play",prem?"var(--green)":"var(--mut)")+li("prem.b_progress","chart",prem?"var(--green)":"var(--mut)")+li("prem.b_analytics","calendar",prem?"var(--green)":"var(--mut)")+li("prem.b_coach","star",prem?"var(--green)":"var(--mut)"):""}${flag("ads_enabled")?li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)"):""}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
         </ul>${store}${note}
       </div>`;
 }
@@ -23994,7 +23994,7 @@ function subCardHTML(){
     body=`<dl class="sub-dl">${row(t("sub.plan"),t("prem.cmp_prem")+(plan?" · "+plan:""))}${info&&info.price?row(t("sub.price"),info.price+(info.per?" "+info.per:"")):""}${when}${sn?row(t("sub.store"),sn):""}</dl>
       ${warn?`<p class="sub sub-warn">${esc(warn)}</p>`:""}<div class="sub-acts">${manage}${restore}</div>${note}`;
   }else{
-    const ge=isGeneralEnglish()&&planOn(),P=k=>planLimit(k,"premium");
+    const ge=planOn(),P=k=>planLimit(k,"premium");   /* both tracks: one plan, one set of capabilities */
     body=`<dl class="sub-dl">${row(t("sub.plan"),t("prem.cmp_free"))}</dl>
       <p class="sub-up"><b>${esc(t("sub.unlock"))}</b>${ge?` — ${esc(t("sub.up_ge",{n:P("savedShadow"),y:P("youtubeImports"),p:P("polishHistory")}))}`:""}</p>
       <div class="sub-acts"><button type="button" class="btn-primary sub-plans" onclick="premiumOpen('settings')">${esc(t("prem.compare"))}</button>${restore}</div>${note}`;
