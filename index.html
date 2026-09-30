@@ -991,8 +991,10 @@ body::before{background-image:none!important}
 nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .ph-speech{background:var(--card2)!important}
 .shl{display:flex;flex-direction:column;gap:14px}
-.shl-stick{position:sticky;top:62px;z-index:39;display:flex;flex-direction:column;gap:10px;
-  background:var(--bg);margin:0 -16px;padding:4px 16px 10px}
+/* stuck flush under the header (owner, 30 Sep 2026): the header is 56 px, not 62, and the old
+   6 px strip let the page scroll through between the two. --nav-h is measured (syncNavH). */
+.shl-stick{position:sticky;top:var(--nav-h,56px);z-index:39;display:flex;flex-direction:column;gap:10px;
+  background:var(--bg);margin:0 -16px;padding:0 16px 10px}
 .shl-quick{display:flex;gap:8px}
 .shl-search{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:0 12px;min-height:44px}
 .shl-search svg{width:18px;height:18px;flex:none;color:var(--mut)}
@@ -13942,7 +13944,8 @@ window.weldProfSet=id=>{
   if(id!=="none"&&!WELD_PROFS.includes(id))return;
   S.profile=S.profile||{};S.profile.weldProf=id;save();
   weldProfPopClose();
-  _shLibCat="all";_shLibCh="";_shLibMore=false;
+  /* the chip follows the list: the trade's own chip, or For you when the filter is cleared */
+  _shLibCat=id==="none"?"foryou":id;_shLibCh="";_shLibMore=false;
   try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
   toast(t("wprof.set",{p:weldProfLabel(id==="none"?"":id)}));
 };
@@ -14152,7 +14155,12 @@ window.shv3Jump=id=>{
   try{el.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}
   if(el.tagName==="TEXTAREA")el.focus();
 };
-function shLibMount(){shCatLoad().then(()=>{const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
+/* the chip the library opens on: on Welding the learner's own trade, so the page agrees with
+   "Videos for <trade>" and with the Change list; "For you" when they chose No filter */
+/* no "All videos" chip in either area (owner, 30 Sep 2026): a stale "all" lands on For you (General
+   English) or the learner's trade (Welding) */
+function shLibCatSync(){if(!weldStudioOn()&&_shLibCat==="all")_shLibCat="foryou";if(weldStudioOn()&&(_shLibCat==="all"||(_shLibCat!=="foryou"&&_shLibCat!=="mine"&&!(_shCat&&(_shCat.categories||[]).some(c=>c.id===_shLibCat)))))_shLibCat=weldProf()||"foryou"}
+function shLibMount(){shCatLoad().then(()=>{shLibCatSync();const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
 function shLibWire(){
   shLibAllWatch();   /* "All videos" keeps adding rows as the learner scrolls */
   shlHeroStop();_shlHeroI=0;
@@ -14171,7 +14179,7 @@ window.shLibQ=v=>{
   shLibSync();
 };
 window.shLibClear=()=>{const i=document.getElementById("shLibIn");if(i){i.value="";i.focus()}shLibQ("")};
-function shlHeroShown(){return !_shLibCh&&(_shLibCat==="all"||_shLibCat==="foryou")&&!_shLibQ.trim()}
+function shlHeroShown(){return !_shLibCh&&(_shLibCat==="all"||_shLibCat==="foryou"||(weldStudioOn()&&WELD_PROFS.includes(_shLibCat)))&&!_shLibQ.trim()}
 function shLibSync(){
   document.querySelectorAll("#shLib .shl-chip").forEach(b=>{
     const on=b.dataset.cat===_shLibCat&&!_shLibCh;
@@ -14192,10 +14200,19 @@ function shLibSync(){
   }
   const n=document.querySelector("#shLib .shl-chip.mine .shl-own-n");
   if(n)n.textContent=shOwn().length;
+  const pb=document.querySelector("#shLib .wprof-pill b");
+  if(pb)pb.textContent=weldProfLabel(weldProf());
   const feed=document.getElementById("shLibFeed");
   if(feed){feed.innerHTML=shLibFeedHTML();shLibAllWatch()}
 }
-window.shLibCat=id=>{_shLibCat=id;_shLibCh="";_shLibMore=false;shLibSync();
+window.shLibCat=id=>{
+  _shLibCat=id;_shLibCh="";_shLibMore=false;
+  /* a trade chip and the Change list are one control: picking the chip moves the list's tick too */
+  if(weldStudioOn()&&WELD_PROFS.includes(id)&&weldProf()!==id){S.profile=S.profile||{};S.profile.weldProf=id;save()}
+  /* …and "For you" is the list's "No filter" (owner, 30 Sep 2026): tapping it clears the trade, as
+     choosing No filter lands on For you (weldProfSet) */
+  if(weldStudioOn()&&id==="foryou"&&weldProf()){S.profile=S.profile||{};S.profile.weldProf="none";save()}
+  shLibSync();
   /* the chosen chip slides into view: the row scrolls sideways, and a chip past
      the edge (Movies, Songs on a phone) was chosen but out of sight */
   try{const b=document.querySelector(`.shl-chip[data-cat="${id}"]`),row=b&&b.parentElement;if(row){const l=b.offsetLeft-row.offsetLeft,r=l+b.offsetWidth;if(l<row.scrollLeft||r>row.scrollLeft+row.clientWidth)row.scrollTo({left:Math.max(0,l-24),behavior:shlReduced()?"auto":"smooth"})}}catch(e){}};
@@ -14516,6 +14533,7 @@ function shLibFeedHTML(){
   return scnFeedRowsHTML()+show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
 }
 function shLibHTML(){
+  shLibCatSync();   /* every draw, not only shLibMount: "all" is only a start value now, never a chip */
   const c=_shCat,heroes=shLibHeroes();
   /* the learner's own links sit second in the rail, right after "For you" —
      tinted apart so it reads as theirs, not ours, and reachable without
@@ -14524,7 +14542,11 @@ function shLibHTML(){
      icon and colour (owner, 27 Sep 2026); the rest keep the catalogue's order */
   const FUN={tv:"tv",movies:"film",songs:"music"};
   const cats=c?shLibCatsOrdered(c).filter(x=>FUN[x.id]).concat(shLibCatsOrdered(c).filter(x=>!FUN[x.id])):[];
-  const chips=[{id:"all",label:t("sh.lib_all"),all:true,n:c?shLibAll().length:0},{id:"foryou",label:t("sh.lib_foryou")},
+  /* Welding (owner, 30 Sep 2026): no "All videos" chip — the ten trade chips are the filter, and each
+     one IS the profession in the Change list: tap either and both follow. "For you" is every video,
+     ordered for the learner, so nothing is out of reach. General English lost the chip the same day
+     (owner): For you leads and is where its library opens; Show more reaches every video. */
+  const chips=[{id:"foryou",label:t("sh.lib_foryou")},
     {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
     .concat(cats.filter(x=>(x.vids||[]).some(shLibHasTx)).map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
@@ -23466,9 +23488,11 @@ window.premiumOpen=(from)=>{
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };
 /* the header Premium badge (owner, 28 Sep 2026): shown where Premium is offered (premOffered), and
-   on the staging host so the owner can review it before billing is switched on */
+   on the staging host so the owner can review it before billing is switched on — in both areas
+   since 30 Sep 2026 (owner: "add the premium logo on the Welding side"). premOffered itself is
+   still General English only: selling Premium on Welding is a separate decision. */
 function hdrPremSync(){const b=document.getElementById("hdrPrem");if(!b)return;let on=false;
-  try{on=premOffered()||(!!beEnv()&&isGeneralEnglish())}catch(e){}
+  try{on=premOffered()||!!beEnv()}catch(e){}
   b.hidden=!on;const l=t("prem.cmp_prem");b.setAttribute("aria-label",l);b.title=l}
 setTimeout(()=>{try{hdrPremSync()}catch(e){}},0);
 /* ---- the launch offer (owner, 25 Sep 2026) ----
@@ -29986,6 +30010,8 @@ addEventListener("resize",syncEyebrowH);
 /* The bottom bar's measured height, so offer sheets can stop exactly above it. */
 function syncBnavH(){try{const b=document.querySelector(".bottom-nav");const h=b?Math.ceil(b.getBoundingClientRect().height):0;if(h>0)document.documentElement.style.setProperty("--bnav-h",h+"px")}catch(e){}}
 addEventListener("resize",syncBnavH);setTimeout(syncBnavH,0);setTimeout(syncBnavH,1500);
+function syncNavH(){try{const n=document.querySelector("nav");const h=n?Math.floor(n.getBoundingClientRect().height):0;if(h>0)document.documentElement.style.setProperty("--nav-h",h+"px")}catch(e){}}
+addEventListener("resize",syncNavH);setTimeout(syncNavH,0);setTimeout(syncNavH,1500);
 /* Marks a sticky pill the moment it stops travelling with the page and starts
    floating over it. Compared against its own computed top rather than a
    constant, because .stick-eb resolves to a measured offset. */
