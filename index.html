@@ -1048,10 +1048,16 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .wprof-pill .shl-lbl{flex:0 0 auto}
 .wprof-pill b{flex:1 1 auto;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wprof-chg{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--accent-text,var(--accent))}
-.wprof-pop .sv-tr-list{padding-top:4px}
-.wprof-pop .wprof-g+.wprof-g{margin-top:2px}
-.wprof-gl{padding:8px 8px 3px;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2)}
-.wprof-pop .sv-tr-opt{min-height:40px}
+/* the profession list (owner, 30 Sep 2026: smaller, the choice in yellow, a no-filter row) */
+.wprof-pop{border-radius:12px}
+.wprof-pop .sv-tr-list{padding:4px 4px 6px}
+.wprof-pop .wprof-g{margin-top:4px;padding-top:2px;border-top:1px solid var(--line)}
+.wprof-gl{padding:6px 8px 2px;font-size:9.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut2)}
+.wprof-pop .sv-tr-opt{min-height:34px;padding:3px 10px;font-size:13px;font-weight:600;border-radius:8px}
+.wprof-pop .sv-tr-opt.sel{background:var(--acc);color:#1b1300}
+.wprof-pop .sv-tr-opt.sel svg{color:#1b1300}
+.wprof-pop .wprof-none svg:first-child{width:14px;height:14px;color:var(--mut)}
+.wprof-pop .wprof-none.sel svg:first-child{color:#1b1300}
 .shl-chans{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
 .shl-chans::-webkit-scrollbar{display:none}
 .shl-chan{flex:none;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;font-family:inherit;color:var(--mut);font-size:11px;line-height:1.2;text-align:center;cursor:pointer}
@@ -8664,6 +8670,8 @@ const I18N_EN={
  "wprof.lbl":"Videos for",
  "wprof.change":"Change",
  "wprof.set":"Videos now follow: {{p}}",
+ "wprof.none":"No filter",
+ "wprof.all":"All professions",
  "wprof.g_ops":"Operations & Control",
  "wprof.g_elec":"Electrical & Safety",
  "wprof.g_insp":"Inspection & Engineering",
@@ -11919,7 +11927,7 @@ function weldTopics(){
   const esc2=w=>String(w).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
   const T=cats.map(k=>{const words=[k.label].concat(k.vocab||[]).map(w=>String(w).toLowerCase());return {id:"p_"+k.id,re:new RegExp(words.map(esc2).join("|"),"i"),terms:words,cat:k.id,scen:[]}});
   const mine=cats.find(k=>k.id===me)||{vocab:[]},mw=(mine.vocab||[]).map(w=>String(w).toLowerCase());
-  const gen=(id,re,terms)=>({id,re,terms,cat:me,scen:[]});
+  const gen=(id,re,terms)=>({id,re,terms,cat:me||null,scen:[]});
   return T.concat([
     gen("introductions",/introduc|yourself|career|day in the life|what does|job|apprentice/i,["career","day in the life","what does","job","apprentice"]),
     gen("pronunciation",/pronunc|shadow|stress|accent|speech|intonation|sound|rhythm|baseline/i,mw),
@@ -13829,17 +13837,18 @@ function shCatLoad(){
    changed to any of the ten from the Shadow library (weldProfSheet). Stored on the profile:
    it describes the person, like their role. */
 const WELD_PROFS=["operator","instrumentation","electrician","hse","ndt","process","pipefitter","welder","boilermaker","millwright"];
+/* "" = no filter: the learner chose every profession (owner, 30 Sep 2026) — nothing is put first */
 function weldProf(){
-  const p=S&&S.profile&&S.profile.weldProf;if(p&&WELD_PROFS.includes(p))return p;
+  const p=S&&S.profile&&S.profile.weldProf;if(p==="none")return "";if(p&&WELD_PROFS.includes(p))return p;
   try{const id=((window.Trades&&Trades.active(S))||{}).id;if(WELD_PROFS.includes(id))return id}catch(e){}
   return "welder";
 }
-function weldProfLabel(id){const k="sh.cat_"+id;if(I18N_EN[k])return t(k);const c=_shCat&&(_shCat.categories||[]).find(x=>x.id===id);return c?c.label:id}
+function weldProfLabel(id){if(!id)return t("wprof.all");const k="sh.cat_"+id;if(I18N_EN[k])return t(k);const c=_shCat&&(_shCat.categories||[]).find(x=>x.id===id);return c?c.label:id}
 /* the categories in the order this learner should meet them: General English keeps the
    catalogue's order; Welding leads with the learner's profession, then the rest of its group */
 function shLibCatsOrdered(c){
   const L=(c&&c.categories)||[];if(!weldStudioOn())return L;
-  const me=weldProf(),g=(L.find(x=>x.id===me)||{}).group;
+  const me=weldProf();if(!me)return L;const g=(L.find(x=>x.id===me)||{}).group;
   const rank=x=>x.id===me?0:x.group&&x.group===g?1:2;
   return L.map((x,i)=>({x,i})).sort((a,b)=>rank(a.x)-rank(b.x)||a.i-b.i).map(o=>o.x);
 }
@@ -13860,25 +13869,25 @@ window.weldProfSheet=anchor=>{
   const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||document.querySelector(".wprof-pill");
   const pop=document.createElement("div");pop.id="weldProfOv";pop.className="sv-tr-pop wprof-pop";
   pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("wprof.h"));
-  pop.innerHTML=`<div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}">${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
+  pop.innerHTML=`<div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}"><button class="sv-tr-opt wprof-none ${!me?"sel":""}" role="option" aria-selected="${!me}" onclick="weldProfSet('none')">${ic("close")}<span class="sv-tr-nm">${esc(t("wprof.none"))}</span>${!me?ic("check"):""}</button>${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
   document.body.appendChild(pop);
-  const vw=innerWidth,vh=innerHeight,w=Math.min(264,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
-  const below=vh-r.bottom-12,above=r.top-12,h=Math.min(360,Math.max(below,above));
+  const vw=innerWidth,vh=innerHeight,w=Math.min(220,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
+  const below=vh-r.bottom-12,above=r.top-12,h=Math.min(300,Math.max(below,above));
   pop.style.width=w+"px";pop.style.maxHeight=h+"px";
   /* the list opens under "Change", at the row's end (its start in right-to-left) */
   pop.style.left=Math.max(12,Math.min(vw-w-12,(document.documentElement.dir==="rtl"?r.left:r.right-w)))+"px";
-  if(below>=Math.min(360,above))pop.style.top=(r.bottom+6)+"px";else pop.style.bottom=(vh-r.top+6)+"px";
+  if(below>=Math.min(300,above))pop.style.top=(r.bottom+6)+"px";else pop.style.bottom=(vh-r.top+6)+"px";
   if(a)a.setAttribute("aria-expanded","true");
   const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;
   setTimeout(()=>{document.addEventListener("pointerdown",weldProfPopOut,true);document.addEventListener("keydown",weldProfPopKey,true);window.addEventListener("scroll",weldProfPopScroll,true);window.addEventListener("resize",weldProfPopClose)},0);
 };
 window.weldProfSet=id=>{
-  if(!WELD_PROFS.includes(id))return;
+  if(id!=="none"&&!WELD_PROFS.includes(id))return;
   S.profile=S.profile||{};S.profile.weldProf=id;save();
   weldProfPopClose();
   _shLibCat="all";_shLibCh="";_shLibMore=false;
   try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
-  toast(t("wprof.set",{p:weldProfLabel(id)}));
+  toast(t("wprof.set",{p:weldProfLabel(id==="none"?"":id)}));
 };
 /* "Continue your last clip" is per area (owner, 29 Sep 2026): General English keeps
    S.lastClip exactly as before; every other area keeps its own in S.lastClipA, so a
@@ -14317,7 +14326,7 @@ function shLibHeroes(opt){
   const all=Object.keys(c.videos);
   const plan=shlPlanVid(w);
   if(plan&&good(plan))push(plan,"plan");
-  else{const wc=c.categories.find(x=>x.id===(weldStudioOn()?weldProf():SHL_WEEK_CAT[w]))||c.categories[0];if(wc)push(pick(wc.vids),"plan",wc.id)}
+  else{const wc=c.categories.find(x=>x.id===(weldStudioOn()?(weldProf()||(c.categories[0]||{}).id):SHL_WEEK_CAT[w]))||c.categories[0];if(wc)push(pick(wc.vids),"plan",wc.id)}
   push(pick(all.filter(v=>c.videos[v].toon)),"toon");
   const cats=c.categories.slice();
   for(let i=cats.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[cats[i],cats[j]]=[cats[j],cats[i]]}

@@ -3307,5 +3307,7 @@
  "home.d_sim_t": "Simulations de chantier",
  "home.d_sim": "Parlez avec les gens du chantier",
  "home.bc_level_pro": "Recommandé pour votre métier",
- "home.bc_level_pro_s": "De vraies voix de votre métier, assez claires pour commencer à les imiter."
+ "home.bc_level_pro_s": "De vraies voix de votre métier, assez claires pour commencer à les imiter.",
+ "wprof.none": "Aucun filtre",
+ "wprof.all": "Tous les métiers"
 }

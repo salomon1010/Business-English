@@ -3307,5 +3307,7 @@
  "home.d_sim_t": "Simulações de trabalho",
  "home.d_sim": "Fale com as pessoas do trabalho",
  "home.bc_level_pro": "Recomendado para sua profissão",
- "home.bc_level_pro_s": "Vozes reais da sua profissão, claras o bastante para começar a imitar."
+ "home.bc_level_pro_s": "Vozes reais da sua profissão, claras o bastante para começar a imitar.",
+ "wprof.none": "Sem filtro",
+ "wprof.all": "Todas as profissões"
 }

@@ -3307,5 +3307,7 @@
  "home.d_sim_t": "Workplace simulations",
  "home.d_sim": "Speak with the people on the job",
  "home.bc_level_pro": "Recommended for your profession",
- "home.bc_level_pro_s": "Real voices from your trade, clear enough to shadow first."
+ "home.bc_level_pro_s": "Real voices from your trade, clear enough to shadow first.",
+ "wprof.none": "No filter",
+ "wprof.all": "All professions"
 }

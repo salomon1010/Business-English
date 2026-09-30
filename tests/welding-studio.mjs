@@ -85,15 +85,19 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   console.log("\n# the profession choice");
   await p.evaluate(() => go("shadow")); await sleep(1000);
   await p.evaluate(() => weldProfSheet()); await sleep(200);
-  const sh = await p.evaluate(() => { const pop = document.getElementById("weldProfOv"), r = pop.getBoundingClientRect(), a = document.querySelector(".wprof-pill").getBoundingClientRect(); return { groups: [...pop.querySelectorAll(".wprof-gl")].map(x => x.textContent), n: pop.querySelectorAll(".sv-tr-opt").length, w: Math.round(r.width), h: Math.round(r.height), under: r.top >= a.bottom - 1, tick: !!pop.querySelector(".sv-tr-opt.sel svg"), inView: r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight }; });
+  const sh = await p.evaluate(() => { const pop = document.getElementById("weldProfOv"), r = pop.getBoundingClientRect(), a = document.querySelector(".wprof-pill").getBoundingClientRect(); return { groups: [...pop.querySelectorAll(".wprof-gl")].map(x => x.textContent), n: pop.querySelectorAll(".wprof-g .sv-tr-opt").length, none: !!pop.querySelector(".wprof-none"), yellow: getComputedStyle(pop.querySelector(".sv-tr-opt.sel")).backgroundColor, w: Math.round(r.width), h: Math.round(r.height), under: r.top >= a.bottom - 1, tick: !!pop.querySelector(".sv-tr-opt.sel svg"), inView: r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight }; });
   ok("10 · the profession list lists the ten professions in the four groups", sh.n === 10 && sh.groups.length === 4, JSON.stringify(sh));
-  ok("10a · it is a small popover under the row (≤264×360, like Translate's list), on screen, the current one ticked", sh.w <= 264 && sh.h <= 360 && sh.under && sh.inView && sh.tick, JSON.stringify(sh));
+  ok("10a · it is a small popover under the row (≤220×300), on screen, the current one ticked", sh.w <= 220 && sh.h <= 300 && sh.under && sh.inView && sh.tick, JSON.stringify(sh));
+  ok("10d · the chosen profession is filled with the Welding yellow, and a 'No filter' row leads the list", sh.none && /rgb\(212, 151, 23\)|rgb\(155, 98, 0\)/.test(sh.yellow), JSON.stringify(sh));
   await p.mouse.click(5, 5); await sleep(150);
   ok("10c · a tap outside closes it", await p.evaluate(() => !document.getElementById("weldProfOv")));
   await p.evaluate(() => weldProfSheet()); await sleep(200);
   await p.evaluate(() => weldProfSet("ndt")); await sleep(800);
-  const ndt = await p.evaluate(() => ({ p: S.profile.weldProf, chip: [...document.querySelectorAll(".shl-chip")][2].dataset.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 3).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
+  const ndt = await p.evaluate(() => ({ p: S.profile.weldProf, chip: [...document.querySelectorAll(".shl-chip")].filter(c => !["all", "foryou", "mine"].includes(c.dataset.cat))[0].dataset.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 3).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
   ok("10b · choosing NDT Technician reorders the library (chip and For you)", ndt.p === "ndt" && ndt.chip === "ndt" && ndt.first.every(v => WELD.videos[v] && WELD.videos[v].prof === "ndt"), JSON.stringify(ndt));
+  await p.evaluate(() => weldProfSet("none")); await sleep(700);
+  const nf = await p.evaluate(() => ({ p: S.profile.weldProf, prof: weldProf(), pill: (document.querySelector(".wprof-pill b") || {}).textContent, order: shLibCatsOrdered(_shCat).map(c => c.id).join() }));
+  ok("10e · 'No filter' clears the profession: the library keeps the catalogue's order and says All professions", nf.p === "none" && nf.prof === "" && nf.pill === "All professions" && nf.order === WELD.categories.map(c => c.id).join(), JSON.stringify(nf));
   await ctx.close();
 }
 
@@ -173,7 +177,7 @@ for (const [w, h, lang] of [[375, 812, "en"], [390, 844, "fr"], [400, 860, "en"]
   for (const v of ["home", "shadow", "lines", "practice"]) { await p.evaluate(v => go(v), v); await sleep(v === "home" || v === "shadow" ? 1500 : 600); o[v] = await overflow(p); }
   if (w === 390) await p.screenshot({ path: "/tmp/claude-501/shots/ws-fr-shadow.png" });
   await p.evaluate(() => go("shadow")); await sleep(1200);
-  const txt = await p.evaluate(() => ({ dir: document.documentElement.dir, chip: ([...document.querySelectorAll(".shl-chip")][2] || {}).textContent }));
+  const txt = await p.evaluate(() => ({ dir: document.documentElement.dir, chip: ([...document.querySelectorAll(".shl-chip")].filter(c => !["all", "foryou", "mine"].includes(c.dataset.cat))[0] || {}).textContent }));
   ok(`20 · ${w}px ${lang}: no horizontal overflow on Home / Shadow / lines / Practice`, Object.values(o).every(x => x <= 1), JSON.stringify(o));
   if (lang === "fr") ok("20b · French: professions are translated", txt.chip && txt.chip.trim() === "Soudeur", txt.chip);
   if (lang === "ar") ok("20c · Arabic: RTL, professions translated", txt.dir === "rtl" && /[؀-ۿ]/.test(txt.chip || ""), JSON.stringify(txt));
