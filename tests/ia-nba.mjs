@@ -99,7 +99,7 @@ for (const [lang, word, pos] of [["fr", "Semaine 1", "Séance 4 sur 7"], ["ar", 
   const r = await today(p); const dir = await p.evaluate(() => { const e = document.querySelector("#v-journey .rm2-today"); return e && getComputedStyle(e).direction });
   const flip = await p.evaluate(() => { const a = document.querySelector("#v-journey .rm2-cta .go-arrow"); return a ? getComputedStyle(a).transform : null });
   ok(`17a · ${lang}: the button's arrow ${lang === "ar" ? "is mirrored" : "is not mirrored"}`, lang === "ar" ? /matrix\(-1/.test(flip || "") : (flip === "none"), String(flip));
-  ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥44px${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 44 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
+  ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥26px (the phone card is scaled down)${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 26 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
   if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-journey .rm2").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/today-${lang}.png` }) }
   await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F() } }), { w: 375, lang: "fr", flags: { welding_studio_enabled: false } }); await view(p, "home");
