@@ -23524,7 +23524,10 @@ const Billing={
     if(uid!==this._uid){this._uid=uid;this.state="idle";this.note=""}
     if(!flag("billing_enabled")||!entApiBase()){this.provider=null;return}
     if(!this.provider)for(const p of [BillingProviders.storekit,BillingProviders.play,BillingProviders.preview])if(await p.available()){this.provider=p;break}
-    if(!this.provider||!FBUser)return this._draw();
+    /* a real store is only asked once there is an account to attach a purchase
+       to; the staging preview has no purchase, so it lists its products either
+       way — otherwise the offer it exists to show never loads */
+    if(!this.provider||(!FBUser&&this.provider.id!=="preview"))return this._draw();
     this.state="loading";this._draw();
     try{this.products=await this.provider.products();this.state="ready";
       if(!this.products.length){this.state="failed";this.note=t("acc.prem_unavailable")}
