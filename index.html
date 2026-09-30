@@ -991,8 +991,10 @@ body::before{background-image:none!important}
 nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .ph-speech{background:var(--card2)!important}
 .shl{display:flex;flex-direction:column;gap:14px}
-.shl-stick{position:sticky;top:62px;z-index:39;display:flex;flex-direction:column;gap:10px;
-  background:var(--bg);margin:0 -16px;padding:4px 16px 10px}
+/* stuck flush under the header (owner, 30 Sep 2026): the header is 56 px, not 62, and the old
+   6 px strip let the page scroll through between the two. --nav-h is measured (syncNavH). */
+.shl-stick{position:sticky;top:var(--nav-h,56px);z-index:39;display:flex;flex-direction:column;gap:10px;
+  background:var(--bg);margin:0 -16px;padding:0 16px 10px}
 .shl-quick{display:flex;gap:8px}
 .shl-search{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:0 12px;min-height:44px}
 .shl-search svg{width:18px;height:18px;flex:none;color:var(--mut)}
@@ -29948,6 +29950,8 @@ addEventListener("resize",syncEyebrowH);
 /* The bottom bar's measured height, so offer sheets can stop exactly above it. */
 function syncBnavH(){try{const b=document.querySelector(".bottom-nav");const h=b?Math.ceil(b.getBoundingClientRect().height):0;if(h>0)document.documentElement.style.setProperty("--bnav-h",h+"px")}catch(e){}}
 addEventListener("resize",syncBnavH);setTimeout(syncBnavH,0);setTimeout(syncBnavH,1500);
+function syncNavH(){try{const n=document.querySelector("nav");const h=n?Math.floor(n.getBoundingClientRect().height):0;if(h>0)document.documentElement.style.setProperty("--nav-h",h+"px")}catch(e){}}
+addEventListener("resize",syncNavH);setTimeout(syncNavH,0);setTimeout(syncNavH,1500);
 /* Marks a sticky pill the moment it stops travelling with the page and starts
    floating over it. Compared against its own computed top rather than a
    constant, because .stick-eb resolves to a measured offset. */
