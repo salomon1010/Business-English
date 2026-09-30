@@ -604,7 +604,13 @@ button.ph-wk-bar:focus-visible{outline:2px solid var(--focus);outline-offset:2px
 .pg-sub>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Fluid display type: scales smoothly with the screen instead of jumping at
    breakpoints. Lower floor than before so it doesn't dominate a small phone. */
-h1.big{font-size:clamp(23px,5.4vw,40px);font-weight:800;line-height:1.15;margin-bottom:10px;letter-spacing:-.4px}
+/* owner, 30 Sep 2026: a page title is two lines at most, everywhere, and the
+   ramp is smaller — a three-line title pushed the day list below the fold.
+   The clamp keeps the promise for a long title in any of the 16 languages. */
+h1.big{font-size:clamp(19px,4.5vw,30px);font-weight:800;line-height:1.18;margin-bottom:8px;padding-bottom:2px;letter-spacing:-.3px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;text-wrap:balance}
+/* .h-info turns the h1 into a flex row (title + info button), so the clamp
+   has to sit on the text span. The home hero is one ellipsised line already. */
+h1.big.h-info:not(.home-hero-h)>.h-info-t{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
 /* was gradient-clipped text — 1.69:1 in light. One accent, and it passes. */
 h1.big em{font-style:italic;color:var(--accent-text)}
 .sub{color:var(--mut);font-size:clamp(13.5px,3.6vw,15.5px);max-width:720px;line-height:1.6}
@@ -3338,7 +3344,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
    Textareas stay at 16px: below that iOS zooms the page on focus. Tap targets keep 44px. */
 html[data-view="session"] .view.on .sess-back{font-size:12.5px}
 html[data-view="session"] .view.on .sess-head .chip{font-size:10.5px}
-html[data-view="session"] .view.on h1.big{font-size:22px!important;margin-bottom:6px}
+html[data-view="session"] .view.on h1.big{font-size:19px!important;margin-bottom:6px}
 html[data-view="session"] .view.on>p.sub{font-size:12.5px;line-height:1.5}
 html[data-view="session"] .view.on>p[style*="--gold"]{font-size:11.5px!important}
 html[data-view="session"] .view.on .sess-jump{font-size:12px}
@@ -5909,7 +5915,7 @@ h1.big{letter-spacing:-.025em}
    sign-in bar's secondary button, the design system's floor). */
 :root{
   --fs-display:clamp(26px,7vw,30px);   /* hero figures and the one display line */
-  --fs-title:clamp(22px,5.8vw,24px);   /* a screen's h1 */
+  --fs-title:clamp(19px,4.8vw,22px);   /* a screen's h1 — owner, 30 Sep 2026: smaller, and never past two lines */
   --fs-section:17px;                    /* a section inside a screen */
   --fs-card:15.5px;                     /* a card or row title */
   --fs-body:15px;                       /* primary reading text */
@@ -13156,7 +13162,7 @@ function rWeek(el,w){
     <span class="chip ${phases[wk.phase].cls}">${phaseLabel(wk.phase)} · ${wk.phase in phases?phases[wk.phase].wk:""}</span>
     <span class="chip ${weekDone(w)===7?'done':''}">${t("week.sessions_done",{done:weekDone(w)})}</span>
   </div>
-  <h1 class="big" style="font-size:30px">${isProfessionalJourney()?`${esc(wk.stage||("Stage "+w))} — <em>${esc(wk.theme)}</em>`:t("week.title",{w,theme:esc(wk.theme)})}</h1>
+  <h1 class="big">${isProfessionalJourney()?(()=>{const st=String(wk.stage||("Stage "+w+" — "+wk.theme)),i=st.indexOf(" — ");return i<0?esc(st):`${esc(st.slice(0,i+3))}<em>${esc(st.slice(i+3))}</em>`})():t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.mission||wk.goal)})}</p>
   <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrasebank',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
   ${(()=>{const p=currentPos();return trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
@@ -13203,7 +13209,7 @@ function rSession(el,w,d){
     <span class="chip"><span class="inl-ic">${ic(dayMeta[d].k)}</span>${dayTypeLabel(d)}</span>
     ${S.days[key]?`<span class="chip done">${t("sess.completed_chip")}</span>`:''}
   </div>
-  <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
+  <h1 class="big">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
   ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
@@ -13313,7 +13319,7 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
     <span class="chip"><span class="inl-ic">${ic(dayMeta[d].k)}</span>${dayTypeLabel(d)}</span>
     ${done?`<span class="chip done">${t("sess.completed_chip")}</span>`:""}
   </div>
-  <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
+  <h1 class="big">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <section class="card mv-dayhand">
     <div class="eyebrow">${t("sess.v2_eyebrow")}</div>
