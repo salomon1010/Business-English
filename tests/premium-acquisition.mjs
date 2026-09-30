@@ -192,7 +192,10 @@ console.log("\n# J · the General English boundary: Welding");
 {
   const { ctx, p } = await open({ track: "welding", uid: "j1", keepLaunch: true }); await sleep(2800);
   const w = await p.evaluate(async () => { const launch = !!document.getElementById("premOv"); go("profile"); await new Promise(r => setTimeout(r, 400)); const prof = !!document.querySelector(".pf-prem"); go("data"); await new Promise(r => setTimeout(r, 600)); return { launch, prof, offered: premOffered(), card: !!document.getElementById("entPlan"), sub: !!document.getElementById("subCard") && !document.getElementById("subCard").hidden, ads: !!premRemoveAdsHTML("x") }; });
-  ok("J1 · Welding, Free: no launch offer, no Premium row in Profile, no Premium card or Subscription card in App Setup, no 'Remove ads' link", !w.launch && !w.prof && !w.offered && !w.card && !w.sub && !w.ads, JSON.stringify(w));
+  /* Owner, 30 September 2026: ONE subscription covers both tracks, so Welding
+     now carries the same offer and the same management surfaces. This asserted
+     the opposite while Premium was General-English-only. */
+  ok("J1 · Welding, Free: the SAME offer and management surfaces as General English — one subscription, one paywall", w.prof && w.offered && w.card && w.sub, JSON.stringify(w));
   await ctx.close();
   grant("j2"); const o = await open({ track: "welding", uid: "j2", owned: [{ itemId: "premium_monthly", purchaseToken: "tok_j2_" + "j".repeat(20) }] });
   const v = await o.p.evaluate(async () => { go("profile"); await new Promise(r => setTimeout(r, 400)); const row = document.querySelector(".pf-prem .pf-row"); go("data"); await new Promise(r => setTimeout(r, 600)); const c = document.getElementById("subCard"); return { row: row && row.textContent.replace(/\s+/g, " "), sub: c ? c.innerText.replace(/\s+/g, " ") : null }; });

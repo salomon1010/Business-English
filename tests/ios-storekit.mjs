@@ -237,7 +237,8 @@ console.log("\n# account deletion and Welding");
   await f.ctx.close();
   const w = await open({ uid: "ij", track: "welding" });
   const ws = await sheet(w.p);
-  ok("W1 · Welding in the iOS app: the sheet sells nothing General-English-only (no Shadow/YouTube/Polish lines, no AI-capability lines)", !/Shadow videos|YouTube|Polish|AI speaking analysis/.test(ws.text) && ws.plans.length === 0, ws.text);
+  /* the same StoreKit product, the same sheet, on either track */
+  ok("W1 · Welding in the iOS app: the SAME Premium is offered — the five capabilities, one annual offer, no chooser", /AI speaking analysis/.test(ws.text) && /The AI Coach/.test(ws.text) && ws.plans.length === 0 && !!ws.offer, JSON.stringify({ offer: ws.offer, plans: ws.plans.length }));
   await w.ctx.close();
 }
 

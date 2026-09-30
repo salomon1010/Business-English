@@ -128,7 +128,8 @@ console.log("\n# billing off, Welding, layout");
   const same = await o.p.evaluate(() => ({ plan: !!document.querySelector("details.set-plan"), entPlan: !!document.getElementById("entPlan"), prof: (go("profile"), !!document.querySelector(".pf-prem")) }));
   ok("21 · billing off (production today): no Subscription card, no Profile row; App Setup's plan section as before", !c && same.plan && same.entPlan && !same.prof, JSON.stringify({ c, same })); await o.ctx.close();
   o = await open({ track: "welding", uid: "wf" }); c = await settings(o.p);
-  ok("22 · Welding, Free: no Subscription card (App Setup unchanged)", !c, JSON.stringify(c)); await o.ctx.close();
+  /* one account-level subscription: the card belongs to the account, not a track */
+  ok("22 · Welding, Free: the Subscription card IS shown — the plan is account-level", !!c && /Free/.test(c.text) && c.plans === true, JSON.stringify(c)); await o.ctx.close();
   grant("wp");
   o = await open({ track: "welding", uid: "wp", owned: "premium_annual" }); c = await settings(o.p);
   ok("23 · Welding, paying: the card lets them manage their account's subscription, with no General English benefit copy", c && c.manage && c.rows["Current plan"] === "Premium · Annual" && !/Shadow|YouTube|Polish/.test(c.text), JSON.stringify(c)); await o.ctx.close();

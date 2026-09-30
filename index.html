@@ -23149,7 +23149,11 @@ function entApply(){
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
 function entPlanCardHTML(){
   const prem=entIsPremiumForDisplay(),v=entView();
-  if(!premOffered())return "";                      /* one account-level plan; both tracks show it */
+  /* The plan card is account-level and always drawn. It was previously hidden
+     on Welding, where Premium was not sold; now one subscription serves both
+     tracks, so both show it. It must NOT be gated on premOffered(): with
+     billing off — production today — that would remove the card from General
+     English as well, which is what it did until monetization-qa caught it. */
   let B=null;try{B=Billing}catch(e){}   /* a const defined further down: never touch it before it exists */
   const live=!!(B&&B.provider);
   const date=ms=>new Date(ms).toLocaleDateString();
