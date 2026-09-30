@@ -11983,7 +11983,12 @@ function homeContent(){
   try{const mp=curriculumOrEmpty().missions;((mp&&mp.competencies)||[]).forEach(c=>{if(c&&c.week&&c.shadow&&c.shadow.vid)missions[c.week]={vid:c.shadow.vid}})}catch(e){}
   /* Welding inherits General English's shadow starters through the curriculum merge (TED,
      Stanford): on Welding only a starter that is in the Welding library may be offered */
-  if(weldStudioOn())return {videos,weeks,starters:starters.filter(x=>x&&videos[x.vid]),days,scenarios:[],missions:{},topics:weldTopics(),levelTopics:["introductions","fluency"],levelVariant:"pro"};
+  if(weldStudioOn())return {videos,weeks,starters:starters.filter(x=>x&&videos[x.vid]),days,scenarios:[],missions:{},topics:weldTopics(),levelTopics:["introductions","fluency"],levelVariant:"pro",
+    /* the row is named "Recommended for your profession", so it may only carry that profession's
+       clips. Ranking alone stopped being enough once one trade's chip grew past the others
+       (TimWelds and AWS, 30 Sep 2026): a title term like "career" or "basics" scores higher than
+       the +1 for the matching category, and a Boilermaker was shown Welder clips. */
+    levelProf:(function(){try{return weldProf()||""}catch(e){return ""}})()};
   return {videos,weeks,starters,days,scenarios,missions};
 }
 /* Welding's relationship table — the same shape as NudgeEngine.TOPICS, built from the library

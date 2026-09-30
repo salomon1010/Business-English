@@ -311,8 +311,10 @@
     const evidence = out.filter(r => r.id !== "learning").length;
     if (evidence < 2) {
       const items = [];
-      (c.starters || []).filter(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid)).slice(0, 1).forEach(st => { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); });
-      rel({ topics: c.levelTopics || ["introductions", "fluency"] }, { short: true, take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
+      /* levelProf (Welding): the row names one profession, so only that profession's clips go in it */
+      const mine = c.levelProf ? v => { const x = (c.videos || {})[v && v.vid ? v.vid : v]; return !!x && x.cat === c.levelProf } : () => true;
+      (c.starters || []).filter(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid) && mine(x.vid)).slice(0, 1).forEach(st => { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); });
+      rel({ topics: c.levelTopics || ["introductions", "fluency"] }, { short: true, n: c.levelProf ? 40 : 8, take: MAX_ITEMS - items.length + (c.levelProf ? 40 : 0) }).filter(mine).slice(0, MAX_ITEMS - items.length).forEach(v => items.push(vidItem(v, false)));
       push({ id: "level", variant: c.levelVariant || "", reason: "level", score: 30, vars: {}, items });
     }
     /* the learner's weakest competency lifts the rows that train it — the same +15/+8 logic as rank() */

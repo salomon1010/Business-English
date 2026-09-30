@@ -44,6 +44,11 @@ ok("1c · every Welding video names its profession and topic, and ships a captio
      the rest — tool and machine reviews, shop builds — are channel-only, shorts included */
   ok("1h · TimWelds (owner, 30 Sep 2026): the channel carries its English-spoken videos, in the Welder chip and channel-only", tw && tv.length > 150 && tv.some(v => v.prof === "welder") && tv.some(v => v.chan) && tv.some(v => v.dur < 60), tv.length);
   ok("1i · a short clip can be in the library: the channel-only floor is 20 s, not the professions’ 60 s", tv.some(v => v.chan && v.dur >= 20 && v.dur < 60), tv.filter(v => v.dur < 60).map(v => v.dur)); }
+{ const aw = WELD.channels.find(c => /american welding society/i.test(c.name || "")), av = Object.values(WELD.videos).filter(v => aw && v.chId === aw.id);
+  /* AWS in full (owner, 30 Sep 2026): ARCademy and the career profiles carry the professions,
+     the association's own news and events are channel-only. It brings most of the library's shorts. */
+  ok("1j · the American Welding Society carries its English-spoken videos across the professions and channel-only", aw && av.length > 150 && av.some(v => v.prof === "welder") && av.some(v => v.prof === "ndt") && av.some(v => v.chan), av.length);
+  ok("1k · every clip under a minute is channel-only — no profession chip takes one", Object.values(WELD.videos).filter(v => v.dur < 60).every(v => v.chan && !v.prof), Object.values(WELD.videos).filter(v => v.dur < 60 && !v.chan).length); }
 ok("1d · every channel in the row has at least one video", WELD.channels.every(c => Object.values(WELD.videos).some(v => v.chId === c.id)), WELD.channels.map(c => c.name));
 
 console.log("\n# Welding · Shadow = the video Shadow Studio");
