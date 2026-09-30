@@ -5790,6 +5790,9 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 
 /* ── type: eyebrows speak in the accent, not in cyan; tighter tracking ── */
 .eyebrow{color:var(--accent-text);letter-spacing:.09em;font-size:11px;font-weight:700}
+/* the Road map header sits on its own tinted panel: a stronger shade of the accent keeps AA there (4.34 / 4.48:1 otherwise) */
+.rm-head-txt .eyebrow{color:color-mix(in srgb,var(--accent-text) 70%,#fff)}
+:root[data-theme="light"] .rm-head-txt .eyebrow{color:color-mix(in srgb,var(--accent-text) 80%,#000)}
 h1,h2,h3,.prac-sec{letter-spacing:-.01em}
 .stat .n,.pcal-title,.ht-dig{font-variant-numeric:tabular-nums}
 
@@ -5814,7 +5817,7 @@ html[dir="rtl"] .path-tool.rec{box-shadow:inset -3px 0 0 var(--accent)}
 /* ── controls ── */
 .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px -8px var(--cta-tint)}
 @media (hover:hover){.btn-primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 10px 22px -8px var(--cta-tint)}}
-.btn-outline{border-width:1px;border-color:color-mix(in srgb,var(--accent) 60%,transparent);background:color-mix(in srgb,var(--accent) 6%,transparent);border-radius:var(--vi-r)}
+.btn-outline{border-width:1px;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);border-radius:var(--vi-r)}
 .chip{min-height:var(--chip-h);box-sizing:border-box}
 /* fields: the base rule (top of the sheet) carries the shape; the focus ring is
    zero-specificity so a composed field (the Shadow search, Executive Polish)
