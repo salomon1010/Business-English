@@ -22,8 +22,8 @@
  "ob.track_sub": "Tudo o que se segue — Comece aqui, os quinze dias dos Fundamentos e cada sessão — é feito para o ambiente que escolher. Pode mudar depois; o progresso fica guardado separadamente para cada um.",
  "ob.track_general_sub": "Para o escritório: reuniões, apresentações, chamadas e inglês profissional do dia a dia. Comece aqui arranca com três frases simples do trabalho por dia.",
  "ob.track_welding_sub": "Para a oficina e a obra: primeiro dia, segurança, passagens de turno, linguagem das ferramentas e entrevistas de emprego para soldadores, encanadores industriais e caldeireiros. Comece aqui arranca com três frases de um turno real.",
- "ob.trade_title": "Em que ofício trabalha?",
- "ob.trade_sub": "Define as suas normas, o vocabulário e o que é uma boa resposta. Pode mudar depois.",
+ "ob.trade_title": "Para que profissão se está a preparar?",
+ "ob.trade_sub": "Isto define as normas segundo as quais é avaliado, as suas entrevistas, o seu vocabulário e como soa uma boa resposta. Poderá alterá-lo mais tarde em Destino de carreira.",
  "ob.trade_pay_note": "intervalo típico, varia por região e empregador",
  "ob.trade_goal_sub": "Mantemos isto à vista e adaptamos a sua prática.",
  "wc.body_trade": "Vinte e cinco minutos por dia é tudo o que precisa.",
@@ -3310,5 +3310,16 @@
  "home.bc_level_pro": "Recomendado para sua profissão",
  "home.bc_level_pro_s": "Vozes reais da sua profissão, claras o bastante para começar a imitar.",
  "wprof.none": "Sem filtro",
- "wprof.all": "Todas as profissões"
+ "wprof.all": "Todas as profissões",
+ "std.assessed_h": "Avaliado segundo",
+ "std.verify_note": "As normas são nomeadas, não citadas, e as edições mudam. Confirme a norma e a edição na especificação do projeto ou junto do seu organismo certificador.",
+ "std.pay_unknown": "A remuneração varia muito consoante a região, o empregador, as certificações e as horas extra. Consulte fontes locais — a aplicação não tem um valor para esta profissão.",
+ "std.change_note": "Alterar isto altera as normas segundo as quais é avaliado, as entrevistas que lhe são feitas, o vocabulário verificado nas suas respostas e as respostas-modelo que pratica.",
+ "std.focus_lbl": "Foco profissional",
+ "std.readiness_scope": "Medido segundo as expectativas profissionais de: {{prof}}.",
+ "std.not_certification": "Isto mede a clareza com que se explica em inglês face a essas expectativas. Não é uma certificação, uma inspeção, uma decisão regulamentar nem uma qualificação profissional — essas vêm de um organismo acreditado.",
+ "std.why_lbl": "O que a norma espera",
+ "std.none": "Orientação profissional geral",
+ "std.none_note": "Nenhuma norma publicada está associada a esta oficina para a sua profissão, pelo que este comentário é prática profissional geral e não uma norma.",
+ "std.judged": "{{who}} — avaliado segundo as normas de: {{prof}}."
 }
