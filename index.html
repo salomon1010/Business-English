@@ -1046,10 +1046,10 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .wprof-pill .shl-lbl{flex:0 0 auto}
 .wprof-pill b{flex:1 1 auto;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wprof-chg{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--accent-text,var(--accent))}
-.wprof-sheet .sub{color:var(--mut);font-size:13.5px;margin:4px 0 12px}
-.wprof-sheet .wprof-g{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.wprof-sheet .pf-row{min-height:44px}
-.wprof-sheet{max-height:min(86vh,720px);overflow-y:auto}
+.wprof-pop .sv-tr-list{padding-top:4px}
+.wprof-pop .wprof-g+.wprof-g{margin-top:2px}
+.wprof-gl{padding:8px 8px 3px;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2)}
+.wprof-pop .sv-tr-opt{min-height:40px}
 .shl-chans{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
 .shl-chans::-webkit-scrollbar{display:none}
 .shl-chan{flex:none;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;font-family:inherit;color:var(--mut);font-size:11px;line-height:1.2;text-align:center;cursor:pointer}
@@ -13838,22 +13838,39 @@ function shLibCatsOrdered(c){
   const rank=x=>x.id===me?0:x.group&&x.group===g?1:2;
   return L.map((x,i)=>({x,i})).sort((a,b)=>rank(a.x)-rank(b.x)||a.i-b.i).map(o=>o.x);
 }
-window.weldProfSheet=()=>{
-  const old=document.getElementById("weldProfOv");if(old)old.remove();
+/* the profession list is a small popover by the row that opens it — the same look and size as
+   Translate's language list (owner, 30 Sep 2026: "too large, make it small like this one") */
+function weldProfPopClose(){
+  const pop=document.getElementById("weldProfOv");if(!pop)return;
+  pop.remove();document.removeEventListener("pointerdown",weldProfPopOut,true);document.removeEventListener("keydown",weldProfPopKey,true);
+  window.removeEventListener("scroll",weldProfPopScroll,true);window.removeEventListener("resize",weldProfPopClose);
+  const a=document.querySelector(".wprof-pill");if(a)a.setAttribute("aria-expanded","false");
+}
+function weldProfPopOut(e){const pop=document.getElementById("weldProfOv");if(pop&&!pop.contains(e.target)&&!e.target.closest(".wprof-pill"))weldProfPopClose()}
+function weldProfPopKey(e){if(e.key==="Escape"){e.stopPropagation();weldProfPopClose()}}
+function weldProfPopScroll(e){const pop=document.getElementById("weldProfOv");if(pop&&!pop.contains(e.target))weldProfPopClose()}
+window.weldProfSheet=anchor=>{
+  if(document.getElementById("weldProfOv")){weldProfPopClose();return}
   const c=_shCat,groups=(c&&c.groups)||[],me=weldProf();
-  const ov=document.createElement("div");ov.id="weldProfOv";ov.className="lang-modal-ov pp-sheet-ov";
-  ov.onclick=e=>{if(e.target===ov)ov.remove()};
-  ov.innerHTML=`<div class="lang-modal pp-sheet wprof-sheet" role="dialog" aria-modal="true" aria-labelledby="wprofH">
-    <button class="shv3-more-x" onclick="document.getElementById('weldProfOv').remove()" aria-label="${esc(t("wc.close"))}">${ic("close")}</button>
-    <h2 id="wprofH">${esc(t("wprof.h"))}</h2><p class="sub">${esc(t("wprof.sub"))}</p>
-    ${groups.map(g=>`<div class="wprof-g"><div class="shl-lbl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="pf-row ${id===me?"has":""}" aria-pressed="${id===me}" onclick="weldProfSet('${id}')"><span class="pf-txt"><b>${esc(weldProfLabel(id))}</b></span>${id===me?`<span class="chip done">${ic("check")}</span>`:""}</button>`).join("")}</div>`).join("")}
-  </div>`;
-  document.body.appendChild(ov);manIconizeInline(ov);
+  const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||document.querySelector(".wprof-pill");
+  const pop=document.createElement("div");pop.id="weldProfOv";pop.className="sv-tr-pop wprof-pop";
+  pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("wprof.h"));
+  pop.innerHTML=`<div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}">${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
+  document.body.appendChild(pop);
+  const vw=innerWidth,vh=innerHeight,w=Math.min(264,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
+  const below=vh-r.bottom-12,above=r.top-12,h=Math.min(360,Math.max(below,above));
+  pop.style.width=w+"px";pop.style.maxHeight=h+"px";
+  /* the list opens under "Change", at the row's end (its start in right-to-left) */
+  pop.style.left=Math.max(12,Math.min(vw-w-12,(document.documentElement.dir==="rtl"?r.left:r.right-w)))+"px";
+  if(below>=Math.min(360,above))pop.style.top=(r.bottom+6)+"px";else pop.style.bottom=(vh-r.top+6)+"px";
+  if(a)a.setAttribute("aria-expanded","true");
+  const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;
+  setTimeout(()=>{document.addEventListener("pointerdown",weldProfPopOut,true);document.addEventListener("keydown",weldProfPopKey,true);window.addEventListener("scroll",weldProfPopScroll,true);window.addEventListener("resize",weldProfPopClose)},0);
 };
 window.weldProfSet=id=>{
   if(!WELD_PROFS.includes(id))return;
   S.profile=S.profile||{};S.profile.weldProf=id;save();
-  const o=document.getElementById("weldProfOv");if(o)o.remove();
+  weldProfPopClose();
   _shLibCat="foryou";_shLibCh="";_shLibMore=false;
   try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
   toast(t("wprof.set",{p:weldProfLabel(id)}));
@@ -14416,7 +14433,7 @@ function shLibHTML(){
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>
   <div class="shl-chans">${c.channels.map(ch=>`<button class="shl-chan ${_shLibCh===ch.id?"on":""}" data-ch="${esc(ch.id)}" onclick="shLibChan('${esc(ch.id)}')" aria-pressed="${_shLibCh===ch.id}"><i>${ch.avatar?`<img src="${esc(ch.avatar)}" alt="" loading="lazy" decoding="async" width="52" height="52" onerror="this.remove()">`:""}${ch.avatar?"":esc(initials(ch.name))}</i><span>${esc(ch.name)}</span></button>`).join("")}</div></div>`:""}
-  ${weldStudioOn()?`<button class="wprof-pill" onclick="weldProfSheet()" aria-label="${esc(t("wprof.h"))}: ${esc(weldProfLabel(weldProf()))}"><span class="shl-lbl">${esc(t("wprof.lbl"))}</span><b>${esc(weldProfLabel(weldProf()))}</b><span class="wprof-chg">${esc(t("wprof.change"))}</span></button>`:""}
+  ${weldStudioOn()?`<button class="wprof-pill" onclick="weldProfSheet(this)" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(t("wprof.h"))}: ${esc(weldProfLabel(weldProf()))}"><span class="shl-lbl">${esc(t("wprof.lbl"))}</span><b>${esc(weldProfLabel(weldProf()))}</b><span class="wprof-chg">${esc(t("wprof.change"))}</span></button>`:""}
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
