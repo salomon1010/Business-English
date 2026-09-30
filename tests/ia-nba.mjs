@@ -25,7 +25,7 @@ const view = async (p, v) => { await p.evaluate(v => { document.querySelectorAll
 /* the Road map card (30 Sep 2026): today's session is a line in the current-stage panel (.rm2-today),
    and the card's one button (.rm2-cta) is worded as a place on the journey — "Start Week 1" */
 const today = p => p.evaluate(() => { const r = document.querySelector("#v-journey .rm2-today"); if (!r) return null; const b = document.querySelector("#v-journey .rm2-cta"), q = document.querySelector("#v-journey .rm2").getBoundingClientRect();
-  return { k: r.querySelector(".rm2-today-k").innerText, pos: (r.querySelector(".rm2-today-pos") || {}).innerText || "", t: r.querySelector("b").innerText, cta: b.querySelector(".rm2-cta-l").innerText.trim(), go: b.getAttribute("onclick"), h: Math.round(b.getBoundingClientRect().height), fits: q.left >= 0 && q.right <= innerWidth, primaries: document.querySelectorAll("#v-journey .rm2 .btn-primary").length } });
+  return { k: r.querySelector(".rm2-today-k").innerText, pos: (r.querySelector(".rm2-today-pos") || {}).innerText || "", t: r.querySelector("b").innerText, cta: b.querySelector(".rm2-cta-l").innerText.trim(), go: b.getAttribute("onclick"), h: Math.round(b.getBoundingClientRect().height), fits: q.left >= 0 && q.right <= innerWidth, primaries: document.querySelectorAll("#v-journey .rm2 .btn-primary, #v-journey .rm2 .rm2-cta").length } });
 const heroGo = p => p.evaluate(() => { const c = document.querySelector(".hx .hx-cta"); return c && c.getAttribute("onclick") });
 const jsErr = errs => errs.filter(e => !/MIME type/.test(e));
 
