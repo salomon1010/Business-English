@@ -447,14 +447,6 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 .hdr-prem::after{content:"";position:absolute;width:46px;height:46px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(220,236,255,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-badge.png?v=3) center/contain no-repeat;mask:url(premium-badge.png?v=3) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
 .hdr-prem:active{transform:scale(.92)}
 .hdr-prem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
-.hdr-ava{flex:none;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-size:15px;font-weight:800;line-height:1;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:.15s}
-/* the badge is hidden for a learner who is offered nothing, and a hidden flex item keeps
-   its margin-left:auto out of play — so the avatar takes the free space in that case */
-.hdr-prem[hidden]+.hdr-ava{margin-left:auto}
-html[dir="rtl"] .hdr-prem[hidden]+.hdr-ava{margin-left:0;margin-right:auto}
-.hdr-ava:active{transform:scale(.92)}
-.hdr-ava.on{box-shadow:0 0 0 2px var(--acc)}
-.hdr-ava:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 @keyframes hdrPremTurn{0%,70%{transform:rotateY(0) translateY(0);animation-timing-function:cubic-bezier(.5,0,1,1)}75%{transform:rotateY(90deg) translateY(-2px) scale(1.06);animation-timing-function:step-end}75.01%{transform:rotateY(-90deg) translateY(-2px) scale(1.06);animation-timing-function:cubic-bezier(0,0,.3,1)}81%{transform:rotateY(0) translateY(0)}84%{transform:translateY(-1.5px)}87%,100%{transform:translateY(0)}}
 @keyframes hdrPremShine{0%,86%{background-position:150% 0;opacity:0}88%{opacity:1}97%{background-position:-50% 0;opacity:1}100%{background-position:-50% 0;opacity:0}}
 @media (prefers-reduced-motion:reduce){.hdr-prem img,.hdr-prem::after{animation:none}}
@@ -5982,7 +5974,7 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 /* the header Premium button: the owner's badge (kept, 30 Sep 2026) at 32px, beside the 34px logo; its turn and shine are unchanged */
 .hdr-prem{width:40px;height:40px}
 .hdr-prem img,.hdr-prem::after{width:32px;height:32px}
-@media(max-width:820px){.hdr-prem{width:40px;height:40px}.hdr-ava{width:34px;height:34px;font-size:14px}}
+@media(max-width:820px){.hdr-prem{width:40px;height:40px}}
 
 /* ── Premium surfaces ── */
 .prem-tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;background:var(--prem-bg);color:var(--prem);border:1px solid var(--prem-line);letter-spacing:.1em}
@@ -6081,10 +6073,9 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   </button>
   <!-- Premium badge (owner, 28 Sep 2026): the owner's artwork, turns now and then, opens the plans sheet. hdrPremSync shows it -->
   <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-badge.png?v=3" alt="" width="46" height="46" decoding="async"></button>
-  <!-- the learner, top right (owner, 30 Sep 2026): the avatar Profile already draws, in the
-       header, so Profile is one tap from any page. The app stores no profile photo, so it is
-       the same initial tile — circular, because people are circles. hdrAvaSync fills it. -->
-  <button type="button" class="hdr-ava" id="hdrAva" onclick="go('profile')" aria-label="Profile" title="Profile"><span id="hdrAvaIn" aria-hidden="true"></span></button>
+  <!-- a header avatar was tried on 30 Sep 2026 and removed the same day (owner): the app
+       stores no profile photo, so it could only ever be an initial, and Profile already has
+       its own tab in the bottom bar. Do not add it back without a photo to put in it. -->
   <!-- the header's Road map button was removed on 14 Sep 2026: the road map has its own tab in the bar -->
   <!-- the header streak pill was removed on 22 Sep 2026 (owner: a simpler header); the streak lives on Progress -->
 </div></nav>
@@ -10353,20 +10344,6 @@ function brandSync(v){
      and the area switch do (area.name_gen / area.name_pro, already in 15 languages),
      so it reads "General English" / "Welding English" and not the job title */
   if(tr){let n="";try{n=t(isGeneralEnglish()?"area.name_gen":"area.name_pro")}catch(e){}tr.textContent=n||""}
-  hdrAvaSync(v);
-}
-/* The header avatar: the learner's initial, and the Profile pages light it the way a
-   bottom-bar tab lights (data is the Settings page, which lives under Profile). */
-function hdrAvaSync(v){
-  const a=document.getElementById("hdrAva");if(!a)return;
-  const in_=a.querySelector("#hdrAvaIn");
-  let nm="";try{nm=(S.profile&&S.profile.name)||""}catch(e){}
-  if(in_)in_.textContent=nm?nm.trim()[0].toUpperCase():"";
-  let l="Profile";try{l=t("nav.profile")}catch(e){}
-  a.setAttribute("aria-label",l);a.title=l;
-  const on=v==="profile"||v==="data";
-  a.classList.toggle("on",on);
-  if(on)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
 }
 function bnavSync(v){
   /* the same page → tab mapping as the desktop header in go() (tv): a page with
