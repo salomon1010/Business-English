@@ -3339,5 +3339,6 @@
  "pg.win_score": "متوسط درجة التحدث",
  "pg.win_prev": "{{n}} قبل ذلك",
  "pg.win_none": "لا توجد درجة بعد",
- "pg.win_scoren": "متوسط {{n}} تسجيلات مُقيَّمة ما زالت محفوظة على هذا الجهاز."
+ "pg.win_scoren": "متوسط {{n}} تسجيلات مُقيَّمة ما زالت محفوظة على هذا الجهاز.",
+ "prem.preview": "Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app."
 }

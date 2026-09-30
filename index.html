@@ -5853,6 +5853,8 @@ h1.big{letter-spacing:-.025em}
 .prem-prev>.prem-prev-in{filter:blur(3px) saturate(.6);opacity:.5;pointer-events:none;user-select:none}
 .prem-prev::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 78%,transparent))}
 @media (prefers-reduced-motion:reduce){.prem-prev>.prem-prev-in{filter:saturate(.6)}}
+.prem-preview{display:flex;gap:9px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border:1px dashed color-mix(in srgb,var(--gold) 46%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 9%,transparent);color:var(--mut);font-size:12.5px;line-height:1.45}
+.prem-preview svg{width:16px;height:16px;flex:none;color:var(--gold);margin-top:1px}
 .prem-offer{display:grid;gap:4px;text-align:center;padding:20px 16px 18px;border:1.5px solid var(--acc);border-radius:18px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 0 0 1px var(--acc) inset,0 10px 26px var(--cta-tint,transparent)}
 .prem-offer-trial{margin:0;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
 .prem-offer-name{margin:0;font-size:16px;font-weight:700;color:var(--txt)}
@@ -7256,6 +7258,7 @@ const I18N_EN={
  "prem.cmp_prem":"Premium",
  "prem.cmp_upto":"Up to {{n}}",
  "prem.offer_annual":"Annual Premium",
+ "prem.preview":"Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app.",
  "prem.then":"Then {{price}} / {{per}}. Cancel anytime in {{store}}.",
  "prem.b_ai":"AI speaking analysis — pronunciation, grammar, vocabulary and fluency",
  "prem.b_verbal":"AI feedback spoken back to you, so you hear it as well as read it",
@@ -22743,7 +22746,8 @@ const FLAGS_DEFAULT={
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
-  billing_enabled:false                // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
+  billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
+  billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -22765,7 +22769,13 @@ const FLAGS_STAGING={
   welding_studio_enabled:true,
   ads_enabled:false,
   ads_mock_provider:false,
-  billing_enabled:false
+  /* Premium is ON for review on staging (owner, 30 September 2026). beEnv()
+     already points entApiBase() at be-entitlements-staging, so planOn() is
+     true here and every gate is live: the offer, the lock cards, the locked
+     Progress preview, the Premium recommendations. Production keeps
+     FLAGS_DEFAULT and is untouched. */
+  billing_enabled:true,
+  billing_preview_provider:true
 };
 /* The App Store app's own release defaults (owner, 29 Sep 2026). Its web code is
    bundled into the binary, so these ship with that build and change only with a
@@ -23445,6 +23455,56 @@ const BillingProviders={
       try{if(N.pendingTransactions)N.pendingTransactions().then(send).catch(()=>{})}catch(e){}
     },
   },
+  /* ---- PREVIEW — staging and localhost only. NOT a store. ----
+     It exists so the Premium offer can be reviewed in a browser, where neither
+     Play Billing nor StoreKit exists and the sheet would otherwise only say
+     "can't be bought on this device". It can do exactly one thing: LIST the
+     products. purchase() always cancels and restore() always finds nothing, so
+     no plan is ever granted, nothing is sent to the server, and no money is
+     ever involved.
+
+     Its products come from the repository's own StoreKit configuration file,
+     mobile/ios/ios/App/App/BEMastery.storekit — the same file Xcode reads — so
+     the sheet shows what the store is CONFIGURED to charge instead of a number
+     typed into this file. If that file and App Store Connect ever disagree,
+     this preview is the wrong one and App Store Connect is right.
+
+     Three independent locks, all of which must hold:
+       · the flag billing_preview_provider, which is false in FLAGS_DEFAULT
+       · the host: beEnv() (staging) or localhost — never production
+       · it is tried LAST in Billing.init, so a real store always wins, and it
+         refuses outright inside the App Store shell. */
+  preview:{
+    id:"preview",_cache:null,
+    async available(){
+      try{
+        if(!flag("billing_preview_provider"))return false;
+        if(IS_IOS_APP)return false;                                   /* the real StoreKit bridge owns that build */
+        if(typeof window.getDigitalGoodsService==="function")return false;   /* a Play-billed TWA owns that one */
+        return !!beEnv()||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+      }catch(e){return false}
+    },
+    async products(){
+      if(this._cache)return this._cache;
+      const r=await fetch("mobile/ios/ios/App/App/BEMastery.storekit",{cache:"no-store"});
+      if(!r.ok)throw new Error("storekit "+r.status);
+      const j=await r.json(),out=[];
+      for(const g of (j.subscriptionGroups||[]))for(const x of (g.subscriptions||[])){
+        const io=x.introductoryOffer,amount=Number(x.displayPrice);
+        out.push({id:x.productID,
+          title:(x.localizations&&x.localizations[0]&&x.localizations[0].displayName)||x.referenceName||x.productID,
+          price:premFmt(amount,"USD"),amount,currency:"USD",
+          period:x.recurringSubscriptionPeriod||"",
+          trial:(io&&io.paymentMode==="free")?(io.subscriptionPeriod||""):""});
+      }
+      this._cache=out;return out;
+    },
+    /* nothing is ever bought here — the sheet says so above the offer */
+    async purchase(){return {cancelled:true}},
+    async restore(){return []},
+    async owned(){return []},
+    manage(){},
+  },
 };
 async function billingApi(method,path,body){
   const base=entApiBase();if(!base||!FBUser)throw Object.assign(new Error("off"),{code:"off"});
@@ -23463,7 +23523,7 @@ const Billing={
     const uid=FBUser?FBUser.uid:null;
     if(uid!==this._uid){this._uid=uid;this.state="idle";this.note=""}
     if(!flag("billing_enabled")||!entApiBase()){this.provider=null;return}
-    if(!this.provider)for(const p of [BillingProviders.storekit,BillingProviders.play])if(await p.available()){this.provider=p;break}
+    if(!this.provider)for(const p of [BillingProviders.storekit,BillingProviders.play,BillingProviders.preview])if(await p.available()){this.provider=p;break}
     if(!this.provider||!FBUser)return this._draw();
     this.state="loading";this._draw();
     try{this.products=await this.provider.products();this.state="ready";
@@ -23650,7 +23710,9 @@ function premMainHTML(){
   /* no products from the store: one message, a retry, the benefits above stay — no prices are invented */
   if(!o)return premUnavailHTML(t("acc.prem_unavailable"),t("prem.unavail_hint",{store:premStore()}),true);
   _premSel=o.p.id;
-  return `${premOfferHTML(o)}${note}${premMoreHTML()}${premLegalHTML(busy)}`;
+  /* on staging the offer is a preview, and says so before it is tapped */
+  const prev=B.provider&&B.provider.id==="preview"?`<p class="prem-preview" role="status">${ic("alert")}<span>${esc(t("prem.preview"))}</span></p>`:"";
+  return `${prev}${premOfferHTML(o)}${note}${premMoreHTML()}${premLegalHTML(busy)}`;
 }
 /* the pinned foot: one primary action for the state, and the cancel line under a purchase CTA */
 function premFootHTML(){

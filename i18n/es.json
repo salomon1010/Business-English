@@ -3339,5 +3339,6 @@
  "pg.win_score": "Puntuación oral media",
  "pg.win_prev": "{{n}} antes",
  "pg.win_none": "Aún sin puntuación",
- "pg.win_scoren": "Media de las {{n}} grabaciones puntuadas que siguen guardadas en este dispositivo."
+ "pg.win_scoren": "Media de las {{n}} grabaciones puntuadas que siguen guardadas en este dispositivo.",
+ "prem.preview": "Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app."
 }
