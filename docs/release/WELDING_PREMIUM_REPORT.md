@@ -119,7 +119,72 @@ Ask-to-Buy are the v602 implementation, untouched.
 
 ## 7. Tests actually executed
 
-FILLED_IN_BELOW
+Every number below was produced by running the suite on this merged branch.
+Nothing is listed that was not run.
+
+### New
+
+| suite | result |
+|---|---|
+| `tests/welding-premium.mjs` — the shared-subscription proof | **37/37 PASS** |
+
+### The Premium boundary
+
+| suite | result |
+|---|---|
+| `tests/premium-boundary.mjs` | 45/45 PASS |
+| `tests/premium-acquisition.mjs` | 40/40 PASS |
+| `tests/billing-client.mjs` | 50/50 PASS |
+| `tests/entitlement-client.mjs` | 46/46 PASS |
+| `tests/ios-storekit.mjs` | 26/26 PASS |
+| `tests/subscription.mjs` | 29/29 PASS |
+| `tests/ads.mjs` | 50/50 PASS |
+| `tests/monetization-qa.mjs` | 31/31 PASS (210 renders) |
+| `backend/test-premium-gate.mjs` | 29/29 PASS |
+| `backend/entitlements/test/run.mjs` | 61/61 PASS |
+| `backend/entitlements/test/billing.mjs` | 100/100 PASS |
+
+### Welding and track isolation
+
+| suite | result |
+|---|---|
+| `tests/track-isolation.mjs` | 23/23 PASS |
+| `tests/professions.mjs` (session 42's) | 164/164 PASS |
+| `tests/welding-ai-report.mjs` | 20/20 PASS |
+| `tests/welding-interview-report.mjs` | 14/14 PASS |
+| `tests/workshop-voice.mjs` | 9/9 PASS |
+
+### General English regression (§34 of the brief)
+
+| suite | result |
+|---|---|
+| `tests/smoke.mjs` | 33/33 PASS |
+| JS parse check, index.html | 4 scripts, 0 errors |
+| i18n key parity, 15 packs | 3,353 keys, 0 missing, 0 orphan |
+
+**No General English regression survives.** One was introduced and caught here:
+gating the App Setup plan card on `premOffered()` removed it from General
+English whenever billing is off — which is production today.
+`monetization-qa` found it (1/31), and it was fixed in the **code**, not the
+test; the suite is back to 31/31.
+
+### BLOCKED — not run
+
+| what | why |
+|---|---|
+| Real Apple purchase / restore / trial on device | needs Xcode and a sandbox Apple ID; not on this machine |
+| Real Play Billing purchase | needs a Play Console internal-testing track |
+| Server-side entitlement end to end | `be-polish` not deployed (§6) |
+| Ads actually rendering | `ads_enabled` is false; wiring verified, no ad requested |
+
+### A caution about these numbers
+
+Four results in this session were **false** before they were right, every time
+because a suite with a hard-coded port silently read another session's
+worktree: `welding-premium` first reported 21/34, `premium-acquisition` 23/40,
+`billing-client` a detailed failure of code that was correct. `welding-premium`
+now refuses to run unless the served page is this tree, and the same guard
+belongs in the others.
 
 ## 8. Known limitations — honest
 
