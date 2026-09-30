@@ -1052,8 +1052,9 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .wprof-chg{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--accent-text,var(--accent))}
 /* the profession list (owner, 30 Sep 2026: smaller, the choice in yellow, a no-filter row) */
 .wprof-pop{border-radius:12px}
-.wprof-pop .sv-tr-list{padding:4px 4px 6px}
-.wprof-pop .wprof-g{margin-top:4px;padding-top:2px;border-top:1px solid var(--line)}
+.wprof-pop .sv-tr-list{padding:2px 4px 6px}
+.wprof-head{flex:none;padding:4px 4px 2px;border-bottom:1px solid var(--line)}
+.wprof-pop .wprof-g+.wprof-g{margin-top:4px;padding-top:2px;border-top:1px solid var(--line)}
 .wprof-gl{padding:6px 8px 2px;font-size:9.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut2)}
 .wprof-pop .sv-tr-opt{min-height:34px;padding:3px 10px;font-size:13px;font-weight:600;border-radius:8px}
 .wprof-pop .sv-tr-opt.sel{background:var(--acc);color:#1b1300}
@@ -13875,7 +13876,8 @@ window.weldProfSheet=anchor=>{
   const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||document.querySelector(".wprof-pill");
   const pop=document.createElement("div");pop.id="weldProfOv";pop.className="sv-tr-pop wprof-pop";
   pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("wprof.h"));
-  pop.innerHTML=`<div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}"><button class="sv-tr-opt wprof-none ${!me?"sel":""}" role="option" aria-selected="${!me}" onclick="weldProfSet('none')">${ic("close")}<span class="sv-tr-nm">${esc(t("wprof.none"))}</span>${!me?ic("check"):""}</button>${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
+  /* "No filter" is pinned above the list: the list scrolls to the current profession, so a row inside it would be out of sight */
+  pop.innerHTML=`<div class="wprof-head"><button class="sv-tr-opt wprof-none ${!me?"sel":""}" aria-pressed="${!me}" onclick="weldProfSet('none')">${ic("close")}<span class="sv-tr-nm">${esc(t("wprof.none"))}</span>${!me?ic("check"):""}</button></div><div class="sv-tr-list" role="listbox" aria-label="${esc(t("wprof.h"))}">${groups.map(g=>`<div class="wprof-g"><div class="wprof-gl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="sv-tr-opt ${id===me?"sel":""}" role="option" aria-selected="${id===me}" onclick="weldProfSet('${id}')"><span class="sv-tr-nm">${esc(weldProfLabel(id))}</span>${id===me?ic("check"):""}</button>`).join("")}</div>`).join("")}</div>`;
   document.body.appendChild(pop);
   const vw=innerWidth,vh=innerHeight,w=Math.min(220,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
   const below=vh-r.bottom-12,above=r.top-12,h=Math.min(300,Math.max(below,above));
