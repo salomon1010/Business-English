@@ -2744,13 +2744,6 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
    and readable in both themes. Motion is decorative only and stops under
    prefers-reduced-motion. ---- */
 .rm{margin:6px 0 26px;position:relative}
-.rm-head{display:flex;gap:18px;align-items:center;padding:18px;border:1px solid var(--line2);border-radius:20px;
-  background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--acc) 22%,transparent),transparent 55%),
-             radial-gradient(90% 120% at 100% 100%,color-mix(in srgb,var(--acc2) 16%,transparent),transparent 60%),var(--card);
-  box-shadow:var(--sh-2);overflow:hidden}
-.rm-head::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:26px 26px;mask-image:linear-gradient(135deg,rgba(0,0,0,.55),transparent 70%);-webkit-mask-image:linear-gradient(135deg,rgba(0,0,0,.55),transparent 70%)}
 .rm-ring{position:relative;width:104px;height:104px;flex:0 0 104px}
 .rm-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .rm-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
@@ -2760,21 +2753,177 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .rm-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1}
 .rm-ring-txt b{display:block;font-size:26px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .rm-ring-txt span{display:block;margin-top:4px;font-size:8.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--mut);font-weight:700;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rm-head-txt{min-width:0;flex:1;position:relative;z-index:1}
-.rm-head-txt .eyebrow{margin-bottom:4px}
-.rm-head-txt h2{font-size:clamp(17px,4.4vw,21px);margin:0 0 6px;line-height:1.25}
-.rm-line{font-size:13px;color:var(--mut);margin:2px 0;line-height:1.45}
-.rm-line b{color:var(--txt)}
-.rm-line.now b{color:var(--accent-text)}
-.rm-jump{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;font-weight:800;color:var(--accent-text);
-  background:none;border:0;padding:0;cursor:pointer;min-height:auto}
-.rm-jump svg{width:14px;height:14px}
-.rm-legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.rm-legend .chip{font-size:11px;padding:3px 9px;gap:6px}
-.rm-legend .chip i{font-style:normal;font-weight:800;opacity:.85}
-.rm-legend .chip.off{filter:grayscale(1);opacity:.55}
 .chip.p4{color:#86efac;border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.09)}
 :root[data-theme="light"] .chip.p4{color:#065f46;background:rgba(52,211,153,.16);border-color:rgba(6,95,70,.35)}
+
+/* ---- ROAD MAP CARD — one design for General English and Welding (owner, 30 Sep 2026) ----
+   Mobile first: header, progress, where you are, what is next, the journey, one
+   button. From 760px: progress on the left over the area's photo, the rest on the
+   right. Colours are the area's own tokens (--acc / --acc2 / --accent-text), so
+   the same rules are indigo on General English and amber on Welding. Only the
+   photo and two icons change per area (rmLook). */
+.rm2{--rm2-pad:14px;--rm2-r:22px;--rm2-r-in:16px;--rm2-gap:8px;
+  --rm2-edge:color-mix(in srgb,var(--acc) 34%,var(--line2));
+  --rm2-in:color-mix(in srgb,var(--bg) 55%,var(--card));
+  --rm2-tint:color-mix(in srgb,var(--acc) 14%,transparent);
+  position:relative;isolation:isolate;overflow:hidden;display:grid;gap:var(--rm2-gap);
+  grid-template-areas:"head" "prog" "cur" "next" "jour" "cta";
+  padding:var(--rm2-pad);border:1px solid var(--rm2-edge);border-radius:var(--rm2-r);
+  background:radial-gradient(90% 60% at 0% 0%,color-mix(in srgb,var(--acc) 12%,transparent),transparent 60%),var(--card);
+  box-shadow:var(--sh-2)}
+/* the blueprint grid, as texture only: faint, and faded out before the content */
+.rm2::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:28px 28px;opacity:.35;
+  mask-image:radial-gradient(70% 55% at 100% 0%,#000,transparent 75%);-webkit-mask-image:radial-gradient(70% 55% at 100% 0%,#000,transparent 75%)}
+/* the area's photo: behind the progress, faded into the card so it never competes with text */
+.rm2-art{position:absolute;z-index:-1;pointer-events:none;background-size:cover;background-position:center;
+  inset-inline-end:0;top:0;width:62%;height:250px;opacity:.5;
+  -webkit-mask-image:linear-gradient(to bottom,#000 15%,transparent 90%);mask-image:linear-gradient(to bottom,#000 15%,transparent 90%)}
+html[dir="rtl"] .rm2-art{transform:scaleX(-1)}
+.rm2-art::after{content:"";position:absolute;inset:0;background:linear-gradient(to left,transparent 45%,var(--card))}
+:root[data-theme="light"] .rm2-art{opacity:.22}
+.rm2::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(to right,var(--card) 25%,color-mix(in srgb,var(--card) 55%,transparent) 70%,transparent)}
+html[dir="rtl"] .rm2::after{background:linear-gradient(to left,var(--card) 25%,color-mix(in srgb,var(--card) 55%,transparent) 70%,transparent)}
+
+.rm2-head{grid-area:head;display:flex;gap:12px;align-items:flex-start}
+.rm2-head-ic{flex:none;width:30px;height:30px;color:var(--accent-text);margin-top:1px}
+.rm2-head-ic svg{width:100%;height:100%}
+.rm2-title{margin:0;font-size:13px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent-text);line-height:1.3}
+.rm2-sub{margin:3px 0 0;font-size:12.5px;line-height:1.45;color:var(--mut);max-width:46ch}
+
+.rm2-prog{grid-area:prog;display:flex;align-items:center;gap:16px}
+.rm2 .rm2-ring{width:80px;height:80px;flex:0 0 80px}
+.rm2 .rm2-ring circle{stroke-width:7}
+.rm2 .rm-ring-bg{stroke:color-mix(in srgb,var(--txt) 12%,transparent)}
+.rm2 .rm-ring-txt b{font-size:22px}
+.rm2 .rm-ring-txt span{font-size:8px;letter-spacing:1.4px;max-width:80px}
+.rm2-knob{transform-origin:60px 60px;transition:transform 1.3s cubic-bezier(.2,.8,.2,1)}
+.rm2 .rm2-knob circle{fill:var(--acc2);stroke:var(--card);stroke-width:3}
+.rm2 .rm2-knob .rm2-knob-halo{fill:color-mix(in srgb,var(--acc2) 30%,transparent);stroke:none}
+.rm2-prog-t{min-width:0;flex:1;display:flex;flex-direction:column;gap:8px}
+.rm2-count{margin:0;font-size:16px;font-weight:800;line-height:1.3}
+.rm2-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rm2-stat>span:last-child{min-width:0}
+.rm2-stat{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;border:1px solid var(--line2);
+  background:color-mix(in srgb,var(--card) 70%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);min-width:0}
+.rm2-stat-ic{flex:none;width:30px;height:30px;display:none!important;border-radius:50%;display:grid;place-items:center;background:var(--rm2-tint);color:var(--accent-text)}
+.rm2-stat-ic svg{width:16px;height:16px}
+.rm2-stat b{display:block;font-size:17px;line-height:1.1;font-variant-numeric:tabular-nums}
+.rm2-stat small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm2-stat .rm2-stat-s{font-weight:600;letter-spacing:.6px;opacity:.8;display:none}
+.rm2-stat>span:last-child{display:flex;align-items:baseline;gap:6px;min-width:0}
+
+/* where you are: the strongest surface on the card */
+.rm2-cur{grid-area:cur;display:grid;grid-template-columns:auto 1fr;gap:7px 12px;align-items:center;
+  padding:11px 13px;border-radius:var(--rm2-r-in);background:var(--rm2-in);
+  border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line2));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 5%,transparent),0 10px 24px -18px var(--acc)}
+.rm2-cur-ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;align-self:start;
+  background:color-mix(in srgb,var(--acc) 16%,var(--card));color:var(--accent-text);border:1px solid color-mix(in srgb,var(--acc) 22%,transparent)}
+.rm2-cur-ic svg{width:24px;height:24px}
+.rm2-cur-h{min-width:0}
+.rm2-badge{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid color-mix(in srgb,var(--accent-text) 60%,transparent);
+  background:var(--rm2-tint);color:var(--accent-text);font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;line-height:1.6}
+.rm2-cur h3{margin:5px 0 0;font-size:clamp(17px,4.6vw,24px);line-height:1.2;font-weight:800;overflow-wrap:anywhere}
+.rm2-cur-sub{margin:2px 0 0;font-size:14px;color:var(--accent-text);opacity:.85;font-weight:600}
+.rm2-cur-p{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:13.5px}
+.rm2-cur-n{flex:none;font-weight:700}
+.rm2-cur-p>b{flex:none;font-variant-numeric:tabular-nums;min-width:3ch;text-align:end}
+.rm2-segs{flex:1;display:flex;gap:3px;min-width:0;padding:3px;border-radius:99px;border:1px solid var(--line2);background:color-mix(in srgb,var(--bg) 60%,transparent)}
+.rm2-segs i{flex:1;height:7px;border-radius:99px;background:color-mix(in srgb,var(--txt) 10%,transparent)}
+.rm2-segs i.done{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.rm2-segs i.now{background:color-mix(in srgb,var(--acc2) 55%,transparent);box-shadow:0 0 8px color-mix(in srgb,var(--acc2) 55%,transparent)}
+.rm2-bar{flex:1;height:9px;border-radius:99px;background:color-mix(in srgb,var(--txt) 10%,transparent);overflow:hidden}
+.rm2-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.rm2-cur-d{grid-column:1/-1;margin:0;font-size:13px;line-height:1.45;color:var(--mut)}
+.rm2-today{grid-column:1/-1;display:flex;gap:8px;align-items:flex-start;padding-top:8px;border-top:1px solid var(--line);font-size:13px;line-height:1.4}
+.rm2-today-pin{flex:none;width:18px;height:18px;color:var(--accent-text);margin-top:1px}.rm2-today-pin svg{width:100%;height:100%}
+.rm2-today-k{font-weight:700;color:var(--accent-text)}
+.rm2-today-t b{font-weight:700}
+.rm2-today-pos{display:block;color:var(--mut);font-size:12px}
+.rm2-cur.fin .rm2-cur-h h3{font-size:18px}
+
+.rm2-next{grid-area:next;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"go k" "go t";align-items:center;column-gap:12px;row-gap:1px;width:100%;min-height:50px;padding:7px 14px;text-align:start;cursor:pointer;
+  border-radius:var(--rm2-r-in);border:1px solid var(--line2);background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--txt);font:inherit}
+.rm2-next:hover{border-color:var(--rm2-edge)}
+.rm2-next-go{grid-area:go;flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--txt) 8%,transparent);font-size:20px;line-height:1;padding-bottom:2px}
+html[dir="rtl"] .rm2-next-go,html[dir="rtl"] .rm2-chev{transform:scaleX(-1)}
+.rm2-next-k{grid-area:k;flex:none;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut)}
+.rm2-next-t{grid-area:t;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rm2-next-t b{font-size:14px;line-height:1.3}
+.rm2-next-t small{font-size:12px;color:var(--mut);line-height:1.35}
+
+.rm2-jour{grid-area:jour;min-width:0}
+.rm2-jour-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 4px}
+.rm2-jour-h h3{margin:0;font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut)}
+.rm2-all{flex:none;background:none;border:0;padding:6px 0;min-height:auto;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap;font-weight:700;color:var(--accent-text)}
+.rm2-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rm2-row{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:6px 12px 6px 8px;text-align:start;cursor:pointer;font:inherit;color:var(--txt);
+  border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 75%,transparent)}
+.rm2-row:hover{border-color:var(--line2)}
+.rm2-num{flex:none;min-width:38px;height:28px;padding:0 8px;border-radius:99px;display:grid;place-items:center;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:color-mix(in srgb,var(--txt) 9%,transparent);color:var(--mut)}
+.rm2-num svg{width:15px;height:15px}
+.rm2-row-t{flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm2-row-p{flex:none;font-size:13px;font-weight:700;color:var(--mut);font-variant-numeric:tabular-nums}
+.rm2-chev{flex:none;color:var(--mut);font-size:18px;line-height:1}
+.rm2-row.now{border-color:color-mix(in srgb,var(--acc2) 70%,transparent);background:linear-gradient(90deg,var(--rm2-tint),transparent 70%);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc2) 18%,transparent)}
+html[dir="rtl"] .rm2-row.now{background:linear-gradient(270deg,var(--rm2-tint),transparent 70%)}
+.rm2-row.now .rm2-num{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--on-accent,#111)}
+.rm2-row.now .rm2-row-t{font-weight:800}
+.rm2-row.now .rm2-row-p,.rm2-row.now .rm2-chev{color:var(--txt)}
+.rm2-row.done .rm2-num{background:var(--rm2-tint);color:var(--accent-text)}
+.rm2-row.locked .rm2-row-t{color:color-mix(in srgb,var(--txt) 78%,transparent)}
+
+.rm2-cta{grid-area:cta;min-height:50px;margin:2px 0 0;font-size:16.5px;font-weight:800;border-radius:14px;gap:12px}
+.rm2-cta-l{flex:1;text-align:center}
+.rm2-cta-play{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#000 78%,transparent);color:#fff}
+.rm2-cta-play svg{width:13px;height:13px;margin-inline-start:2px}
+html[dir="rtl"] .rm2-cta-play svg{transform:scaleX(-1);margin-inline-start:0;margin-inline-end:2px}
+.rm2-cta .go-arrow{margin:0;font-size:20px}
+.rm2 button:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px}
+
+/* two columns where there is room: progress (over the photo) left, the stage right */
+@media(min-width:760px){
+  .rm2{--rm2-pad:24px;--rm2-gap:14px;grid-template-columns:minmax(220px,.78fr) 1.5fr;column-gap:28px;
+    grid-template-rows:auto auto auto 1fr auto;
+    grid-template-areas:"head head" "prog cur" "prog next" "prog jour" "prog cta"}
+  .rm2-title{font-size:15px}
+  .rm2-sub{font-size:14px}
+  .rm2-head-ic{width:34px;height:34px}
+  .rm2-prog{flex-direction:column;align-self:stretch;justify-content:flex-start;gap:14px;padding-top:6px;text-align:center}
+  .rm2 .rm2-ring{width:min(100%,214px);height:auto;aspect-ratio:1;flex:none}
+  .rm2 .rm2-ring circle{stroke-width:6}
+  .rm2 .rm-ring-txt b{font-size:54px;letter-spacing:-2px}
+  .rm2 .rm-ring-txt span{font-size:11px;letter-spacing:2.2px;margin-top:8px;max-width:none}
+  .rm2-prog-t{width:100%;align-items:center;gap:14px}
+  .rm2-count{font-size:18px;padding-top:12px;border-top:1px solid var(--line2);width:100%}
+  .rm2-stats{width:100%;text-align:start;grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+  .rm2-stat small{letter-spacing:1px}
+  .rm2-stat{padding:10px 12px}
+  .rm2-stat b{font-size:22px}
+  .rm2-stat-ic{display:grid!important}
+  .rm2 .rm2-stat .rm2-stat-s{display:block}
+  .rm2-stat>span:last-child{display:block}
+  .rm2-art{top:auto;bottom:0;inset-inline-start:0;inset-inline-end:auto;width:42%;height:48%;opacity:.62;
+    -webkit-mask-image:linear-gradient(to top,#000 35%,transparent);mask-image:linear-gradient(to top,#000 35%,transparent)}
+  .rm2-art::after{background:linear-gradient(to right,transparent 40%,var(--card))}
+  .rm2::after,html[dir="rtl"] .rm2::after{background:linear-gradient(to top,color-mix(in srgb,var(--card) 25%,transparent),var(--card) 55%)}
+  .rm2-cur{grid-template-columns:auto 1fr;padding:18px 20px;gap:12px 18px}
+  .rm2-cur-ic{width:64px;height:64px;border-radius:16px}.rm2-cur-ic svg{width:30px;height:30px}
+  .rm2-cur h3{font-size:clamp(20px,2.4vw,28px)}
+  .rm2-next{display:flex;gap:14px;min-height:60px;padding:10px 16px}
+  .rm2-next-k{display:block;font-size:10.5px;padding-inline-end:14px;border-inline-end:1px solid var(--line2);align-self:stretch;display:flex;align-items:center}
+  .rm2-next-t b{font-size:15px}.rm2-next-t small{font-size:12.5px}
+  .rm2-row{min-height:46px}.rm2-row-t{font-size:14.5px}
+  .rm2-jour-h h3{font-size:11.5px;letter-spacing:1.5px}
+  .rm2-cur-d{font-size:13.5px}
+  .rm2-cta{min-height:56px;font-size:18px}
+  .rm2-rows{gap:6px}.rm2-jour-h{margin-bottom:8px}
+}
+@media(prefers-reduced-motion:reduce){.rm2-knob{transition:none}}
 
 /* the road: an S-curve down the page, pins alternating sides — the classic
    learning-roadmap poster, drawn from live data */
@@ -2884,7 +3033,6 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 .rm-sub-h{font-size:13px;font-weight:800;letter-spacing:.4px;color:var(--mut);margin:4px 0 12px;text-transform:uppercase}
 .wk-card.wk-here{border-color:var(--accent)}
 @media (min-width:720px){
-  .rm-head{padding:22px 24px;gap:24px}
   .rm-ring{width:124px;height:124px;flex-basis:124px}
   .rm-ring-txt b{font-size:31px}
   .rm-lbl h3{font-size:15px}
@@ -5683,14 +5831,6 @@ h1.big{letter-spacing:-.025em}
 .pg-rec-list .btn-ic svg{width:15px;height:15px;color:var(--acc)}
 .pg-rec-note{margin:0 0 6px;font-size:12.5px;color:var(--mut);line-height:1.45}
 .pg-rec-go{margin-top:8px}
-.rm-today{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);border-inline-start:3px solid var(--accent);background:var(--card)}
-.rm-today-pin{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent-text)}.rm-today-pin svg{width:18px;height:18px}
-.rm-today-pos{font-size:12px;color:var(--mut)}
-.rm-today-t{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px}
-.rm-today-k{font-size:12px;font-weight:700;color:var(--accent-text);letter-spacing:.02em}
-.rm-today-t b{font-size:15.5px;line-height:1.3}
-.rm-today-go{width:auto;flex:0 0 auto;margin:0}
-@media(max-width:480px){.rm-today-t{flex:1 1 calc(100% - 46px)}.rm-today-go{flex:1 1 100%}}
 .career-dash-why{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--mut);font-weight:400}
 /* a fact keeps its own height: the milestone's explanation made the card beside
    it stretch to match, with empty space (real-device QA, 29 Sep 2026) */
@@ -5793,8 +5933,8 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 /* ── type: eyebrows speak in the accent, not in cyan; tighter tracking ── */
 .eyebrow{color:var(--accent-text);letter-spacing:.09em;font-size:11px;font-weight:700}
 /* the Road map header sits on its own tinted panel: a stronger shade of the accent keeps AA there (4.34 / 4.48:1 otherwise) */
-.rm-head-txt .eyebrow{color:color-mix(in srgb,var(--accent-text) 70%,#fff)}
-:root[data-theme="light"] .rm-head-txt .eyebrow{color:color-mix(in srgb,var(--accent-text) 80%,#000)}
+.rm2 .rm2-title{color:color-mix(in srgb,var(--accent-text) 70%,#fff)}
+:root[data-theme="light"] .rm2 .rm2-title{color:color-mix(in srgb,var(--accent-text) 80%,#000)}
 h1,h2,h3,.prac-sec{letter-spacing:-.01em}
 .stat .n,.pcal-title,.ht-dig{font-variant-numeric:tabular-nums}
 
@@ -7163,6 +7303,26 @@ const I18N_EN={
  "pg.start_btn":"Start your first session",
  "pg.milestone":"Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
  "rm.today_pos":"Session {{i}} of {{n}} in Week {{w}}",
+ "rm.sub_ge":"Build the English skills you need for real workplace success.",
+ "rm.sub_pro":"Track your progress and build the skills you need for a successful career in {{career}}.",
+ "rm.unit_of":"{{unit}} of {{n}}",
+ "rm.week_n":"Week {{n}}",
+ "rm.next_week":"Next week",
+ "rm.next_stage":"Next stage",
+ "rm.journey_ge":"Your learning journey",
+ "rm.journey_pro":"Your professional journey",
+ "rm.view_weeks":"View all {{n}} weeks",
+ "rm.view_stages":"View all {{n}} stages",
+ "rm.stat_weeks":"Weeks",
+ "rm.stat_stages":"Stages",
+ "rm.stat_map":"Road map",
+ "rm.stat_sessions":"Sessions",
+ "rm.stat_total":"Total",
+ "rm.cta_start":"Start {{unit}}",
+ "rm.cta_continue":"Continue {{unit}}",
+ "rm.cta_resume":"Resume {{unit}}",
+ "rm.cta_next":"Continue to {{unit}}",
+ "rm.cta_review":"Review your journey",
  "rm.after_check":"Your first mission appears after the one-minute check above.",
  "rm.after_fnd":"Your first mission opens when Foundations is finished.",
  "pg.rec_prem_h":"Your full history is part of Premium",
@@ -12385,52 +12545,127 @@ function rmPhase(steps,p){
   const d=ws.reduce((n,s)=>n+Math.round(s.pct/100*per),0),tot=ws.length*per;
   return {d,tot,state:ws.every(s=>s.state==="done")?"done":ws.some(s=>s.state==="now")?"now":"locked"};
 }
-/* Learn answers "what is today?" as well as "where am I?" (IA audit, 29 Sep
-   2026): one row with today's step and one button, from the same state Home
-   uses — the gate cards first (placement check, Foundations day), then the
-   curriculum day currentPos() points at, worded like Home's button (Start /
-   Resume). Curriculum only: Home is where other kinds of recommendation lead.
-   Nothing when the programme is finished or the next day is still locked. */
-function rmTodayHTML(){
-  try{
-    /* Home asks "what should I do next?"; the map answers "where am I?" — so this
-       row is the pin on the journey (the day, and session i of n in the week),
-       not a second copy of Home's card (IA decision, 29 Sep 2026) */
-    const row=(k,title,cta,act,pos)=>`<div class="rm-today"><span class="rm-today-pin" aria-hidden="true">${ic("map")}</span><div class="rm-today-t"><span class="rm-today-k">${esc(k)}</span><b>${esc(title)}</b>${pos?`<small class="rm-today-pos">${esc(pos)}</small>`:""}</div><button class="btn-primary rm-today-go" onclick="rmClose();${act}">${esc(cta)}<span class="go-arrow" aria-hidden="true">→</span></button></div>`;
-    const g=homeGateCard();
-    if(g)return row(g.eyebrow,g.title,g.cta,g.go);
-    if(totalDone()>=trackSessionCount())return "";
-    const p=currentPos();if(pathLocked(p.w,p.d))return "";
-    const wk=trackWeeks().find(x=>x.n===p.w)||{},day=(wk.days||{})[p.d]||{};
-    const begun=((S.steps||{})[dayKey(p.w,p.d)]||[]).length>0;
-    const cta=t(totalDone()===0&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today");
-    const order=Object.keys(wk.days||{}),i=order.indexOf(p.d)+1,n=order.length||trackDays().length;
-    return row(t("home.kicker_week",{w:p.w,day:homeDayName(p.d)}),day.focus||wk.theme||"",cta,`go('session',${p.w},'${p.d}')`,i>0?t("rm.today_pos",{i,n,w:p.w}):"");
-  }catch(e){return ""}
+/* ---- The Road map card (owner, 30 Sep 2026: one design for both areas) ----
+   ONE presentation, fed by track data. rmData() reads only what the week cards
+   and the board already read — rmSteps / trackWeeks / trackPhases / weekDone /
+   currentPos / fndState — so the card cannot disagree with them, and nothing
+   here is written to S. rmLook() is the only thing that differs by area: the
+   photo behind the progress and two icons. Everything else is shared markup and
+   shared tokens (--acc / --acc2 / --accent-text already differ per data-track).
+   Home asks "what next?"; this answers "where am I?" — so the day and its place
+   in the week stay on the card (rm2-today), and the button is worded as a
+   place on the journey (Start / Continue / Resume Week 3), not a copy of Home. */
+function rmUnitName(n){return isProfessionalJourney()?rmUnit(n):t("rm.week_n",{n})}
+function rmLook(){
+  return isProfessionalJourney()
+    ?{id:"pro",img:"sim-photos/welding-sim-1.jpg",hIcon:"map",stIcon:"briefcase"}
+    :{id:"ge",img:"rp-photos/oneone.jpg",hIcon:"book",stIcon:"chat"};
 }
-function rmHTML(){
-  const {steps,total,done,pct,iNow}=rmSteps(),phases=trackPhases(),per=trackDays().length;
-  const now=steps[iNow],next=steps.find(s=>s.state==="next");
-  const phaseOf=p=>rmPhase(steps,p);
-  const line=now?`<span>${esc(t("rm.here"))}:</span> <b>${esc(now.k+" — "+now.title)}</b>`:`<b>${esc(t("rm.finished_line"))}</b>`;
-  const nextLine=next?`<span>${esc(t("rm.next"))}:</span> <b>${esc(next.k+" — "+next.title)}</b>`:"";
-  return `<section class="rm" aria-label="${esc(t("rm.label"))}">
-    <div class="rm-head">
-      <div class="rm-ring" role="img" aria-label="${esc(t("rm.sessions",{done,total}))}">
+function rmData(){
+  const pro=isProfessionalJourney(),{steps,total,done,pct,iNow}=rmSteps();
+  const weeks=trackWeeks(),days=trackDays(),per=days.length,phases=trackPhases();
+  const now=steps[iNow],pos=currentPos(),finished=done>=total&&total>0;
+  let current,next=null,today=null,cta;
+  if(now&&now.kind==="fnd"){
+    const n=fndDaysDone();
+    current={badge:t("rm.stage0"),title:t("fnd.title"),sub:now.sub,d:n,tot:FND_TOTAL_DAYS,segs:null,desc:t("home.why_foundations")};
+  }else if(now&&now.kind==="week"){
+    const w=+now.num,wk=weeks[w-1]||{},cd=S.days||{};
+    current={badge:t("rm.unit_of",{unit:rmUnitName(w),n:weeks.length}),title:wk.theme||"",sub:phaseLabel(wk.phase),
+      d:weekDone(w),tot:per,desc:wk.goal||"",
+      segs:days.map(d=>cd[dayKey(w,d)]?"done":(w===pos.w&&d===pos.d?"now":""))};
+  }else{
+    current={badge:t("rm.cert"),title:t("rm.finished_line"),sub:"",d:total,tot:total,segs:null,desc:"",done:true};
+  }
+  /* the next WEEK (a review checkpoint is not a stage); after the last week, the certificate */
+  const after=iNow>=0?steps.slice(iNow+1):[];
+  const nw=after.find(s=>s.kind==="week"),nc=after.find(s=>s.kind==="cert");
+  if(nw){const w=+nw.num,wk=weeks[w-1]||{};next={k:t(pro?"rm.next_stage":"rm.next_week"),title:`${rmUnitName(w)} — ${wk.theme||""}`,desc:wk.goal||"",go:`go('journey',${w})`}}
+  else if(nc)next={k:t("rm.next"),title:t("rm.cert"),desc:t("rm.cert_sub",{n:total}),go:"go('review')"};
+  else if(finished)next={k:t("rm.cert"),title:t("rm.cert_ready"),desc:"",go:"go('review');setTimeout(certOpen,350)"};
+  /* the button: the gate first (placement check, a Foundations day), then the
+     curriculum day currentPos() points at — the state Home reads, worded as a place */
+  const g=homeGateCard();
+  if(g){cta={label:g.cta,go:g.go};today={k:g.eyebrow,t:g.title,pos:g.kicker||""}}
+  else if(finished)cta={label:t("rm.cta_review"),go:"go('review')"};
+  else if(pathLocked(pos.w,pos.d))cta={label:t("rm.cta_continue",{unit:rmUnitName(pos.w)}),go:`go('journey',${pos.w})`};
+  else{
+    const wk=weeks[pos.w-1]||{},day=(wk.days||{})[pos.d]||{};
+    const begun=((S.steps||{})[dayKey(pos.w,pos.d)]||[]).length>0;
+    const key=begun?"rm.cta_resume":totalDone()===0?"rm.cta_start":(weekDone(pos.w)===0&&pos.w>1)?"rm.cta_next":"rm.cta_continue";
+    cta={label:t(key,{unit:rmUnitName(pos.w)}),go:`go('session',${pos.w},'${pos.d}')`};
+    const order=Object.keys(wk.days||{}),i=order.indexOf(pos.d)+1,n=order.length||per;
+    today={k:t("home.kicker_week",{w:pos.w,day:homeDayName(pos.d)}),t:day.focus||wk.theme||"",pos:i>0?t("rm.today_pos",{i,n,w:pos.w}):""};
+  }
+  const journey=Object.keys(phases).map((p,i)=>{const st=rmPhase(steps,p);
+    return {p,num:String(i+1).padStart(2,"0"),label:phaseLabel(p),pct:Math.round(st.d/Math.max(1,st.tot)*100),state:st.state}});
+  const career=pro?((window.Trades&&Trades.active(S)&&Trades.active(S).career)||"welding"):"";
+  return {pro,pct,done,total,units:weeks.length,
+    head:{title:t("rm.eyebrow"),sub:pro?t("rm.sub_pro",{career}):t("rm.sub_ge")},
+    stats:[{n:weeks.length,l:t(pro?"rm.stat_stages":"rm.stat_weeks"),s:t("rm.stat_map"),ic:"calendar"},{n:total,l:t("rm.stat_sessions"),s:t("rm.stat_total"),ic:"chart"}],
+    current,next,today,cta,journey,
+    journeyH:t(pro?"rm.journey_pro":"rm.journey_ge"),viewAll:t(pro?"rm.view_stages":"rm.view_weeks",{n:weeks.length})};
+}
+function rmCardHTML(D,L){
+  const c=D.current,cp=Math.round(c.d/Math.max(1,c.tot)*100);
+  const bar=c.segs
+    ?`<span class="rm2-segs" aria-hidden="true">${c.segs.map(s=>`<i class="${s}"></i>`).join("")}</span>`
+    :`<span class="rm2-bar" aria-hidden="true"><i style="width:${cp}%"></i></span>`;
+  return `<div class="rm2" data-look="${L.id}">
+    <div class="rm2-art" aria-hidden="true" style="background-image:url('${L.img}')"></div>
+    <header class="rm2-head">
+      <span class="rm2-head-ic" aria-hidden="true">${ic(L.hIcon)}</span>
+      <div><h2 class="rm2-title">${esc(D.head.title)}</h2><p class="rm2-sub">${esc(D.head.sub)}</p></div>
+    </header>
+    <div class="rm2-prog">
+      <div class="rm-ring rm2-ring" role="img" aria-label="${esc(t("rm.sessions",{done:D.done,total:D.total}))}">
         <svg viewBox="0 0 120 120"><defs><linearGradient id="rmGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--acc)"/><stop offset="1" stop-color="var(--acc2)"/></linearGradient></defs>
-          <circle class="rm-ring-bg" cx="60" cy="60" r="50"/><circle class="rm-ring-fg" cx="60" cy="60" r="50" data-p="${pct}"/></svg>
-        <div class="rm-ring-txt"><b data-count="${pct}">0%</b><span>${esc(t("rm.complete"))}</span></div>
+          <circle class="rm-ring-bg" cx="60" cy="60" r="50"/><circle class="rm-ring-fg" cx="60" cy="60" r="50" data-p="${D.pct}"/>
+          <g class="rm2-knob" data-p="${D.pct}"><circle class="rm2-knob-halo" cx="110" cy="60" r="11"/><circle cx="110" cy="60" r="6.5"/></g></svg>
+        <div class="rm-ring-txt"><b data-count="${D.pct}">0%</b><span>${esc(t("rm.complete"))}</span></div>
       </div>
-      <div class="rm-head-txt">
-        <div class="eyebrow">${t("rm.eyebrow")}</div>
-        <h2>${esc(t("rm.sessions",{done,total}))}</h2>
-        <p class="rm-line ${now?"now":""}">${line}</p>
-        ${nextLine?`<p class="rm-line">${nextLine}</p>`:""}
-        <div class="rm-legend">${Object.keys(phases).map(p=>{const st=phaseOf(p);return `<span class="chip ${esc(phases[p].cls||"")} ${st.state==="locked"?"off":""}">${esc(phaseLabel(p))}<i>${Math.round(st.d/Math.max(1,st.tot)*100)}%</i></span>`}).join("")}</div>
-        ${now?`<button class="rm-jump" onclick="rmJump()">${ic("compass")} ${esc(t("rm.jump"))}</button>`:""}
+      <div class="rm2-prog-t">
+        <p class="rm2-count">${esc(t("rm.sessions",{done:D.done,total:D.total}))}</p>
+        <div class="rm2-stats">${D.stats.map(s=>`<div class="rm2-stat"><span class="rm2-stat-ic" aria-hidden="true">${ic(s.ic)}</span><span><b>${s.n}</b><small>${esc(s.l)}</small><small class="rm2-stat-s">${esc(s.s)}</small></span></div>`).join("")}</div>
       </div>
     </div>
-    ${rmTodayHTML()}
+    <section class="rm2-cur ${c.done?"fin":""}" aria-label="${esc(c.badge+" — "+c.title)}">
+      <span class="rm2-cur-ic" aria-hidden="true">${ic(c.done?"trophy":L.stIcon)}</span>
+      <div class="rm2-cur-h">
+        <span class="rm2-badge">${esc(c.badge)}</span>
+        <h3><bdi>${esc(c.title)}</bdi></h3>
+        ${c.sub?`<p class="rm2-cur-sub"><bdi>${esc(c.sub)}</bdi></p>`:""}
+      </div>
+      <div class="rm2-cur-p"><span class="rm2-cur-n">${esc(t("rm.week_sub",{done:c.d,total:c.tot}))}</span>${bar}<b>${cp}%</b></div>
+      ${c.desc?`<p class="rm2-cur-d"><bdi>${esc(c.desc)}</bdi></p>`:""}
+      ${D.today?`<div class="rm2-today"><span class="rm2-today-pin" aria-hidden="true">${ic("map")}</span><span class="rm2-today-t"><span class="rm2-today-k">${esc(D.today.k)}</span> <b><bdi>${esc(D.today.t)}</bdi></b>${D.today.pos?` <small class="rm2-today-pos">${esc(D.today.pos)}</small>`:""}</span></div>`:""}
+    </section>
+    ${D.next?`<button class="rm2-next" onclick="rmClose();${D.next.go}">
+      <span class="rm2-next-go" aria-hidden="true">›</span>
+      <span class="rm2-next-k">${esc(D.next.k)}</span>
+      <span class="rm2-next-t"><b><bdi>${esc(D.next.title)}</bdi></b>${D.next.desc?`<small><bdi>${esc(D.next.desc)}</bdi></small>`:""}</span>
+    </button>`:""}
+    <div class="rm2-jour">
+      <div class="rm2-jour-h"><h3>${esc(D.journeyH)}</h3><button class="rm2-all" onclick="rmViewAll(this)">${esc(D.viewAll)}<span class="go-arrow" aria-hidden="true">→</span></button></div>
+      <ol class="rm2-rows">${D.journey.map(r=>`<li><button class="rm2-row ${r.state}" onclick="rmPhaseGo('${esc(r.p)}')" ${r.state==="now"?'aria-current="step"':""} aria-label="${esc(r.num+" "+r.label+" — "+r.pct+"%")}">
+        <span class="rm2-num">${r.state==="done"?ic("check"):r.num}</span><span class="rm2-row-t"><bdi>${esc(r.label)}</bdi></span><span class="rm2-row-p">${r.pct}%</span><span class="rm2-chev" aria-hidden="true">›</span>
+      </button></li>`).join("")}</ol>
+    </div>
+    <button class="btn-primary rm2-cta" onclick="rmClose();${D.cta.go}"><span class="rm2-cta-play" aria-hidden="true">${ic("play")}</span><span class="rm2-cta-l">${esc(D.cta.label)}</span><span class="go-arrow" aria-hidden="true">→</span></button>
+  </div>`;
+}
+/* a journey row opens that phase's weeks below the board; from the full-screen
+   sheet it closes the sheet and lands on the Road map tab */
+window.rmPhaseGo=p=>{
+  const inSheet=!!document.getElementById("rmOv");rmClose();_jPhase=p;
+  if(cur.v!=="journey"||inSheet)go("journey");else{const el=document.getElementById("v-journey");if(el)rJourney(el)}
+  setTimeout(()=>{const d=document.querySelector("#v-journey #rmDetail");if(d)try{d.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},inSheet?320:60);
+};
+/* "View all" = the board under the card, which already draws every stage */
+window.rmViewAll=btn=>{const r=btn&&btn.closest(".rm")&&btn.closest(".rm").querySelector(".rm-road");if(r)try{r.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}};
+function rmHTML(){
+  return `<section class="rm" aria-label="${esc(t("rm.label"))}">
+    ${rmCardHTML(rmData(),rmLook())}
     ${rmBoardHTML()}
   </section>`;
 }
@@ -12536,6 +12771,7 @@ function rmMount(root){
   requestAnimationFrame(()=>{
     draw();
     const ring=rm.querySelector(".rm-ring-fg");if(ring){const p=+ring.dataset.p||0;ring.style.strokeDashoffset=String(314.16*(1-p/100))}
+    const knob=rm.querySelector(".rm2-knob");if(knob)knob.style.transform=`rotate(${3.6*(+knob.dataset.p||0)}deg)`;
     const num=rm.querySelector("[data-count]");
     if(num){const to=+num.dataset.count||0;if(reduce){num.textContent=to+"%"}else{const t0=performance.now();const tick=n=>{const k=Math.min(1,(n-t0)/1100),e=1-Math.pow(1-k,3);num.textContent=Math.round(to*e)+"%";if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}}
   });
