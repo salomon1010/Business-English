@@ -40,7 +40,7 @@ console.log("\n# Learn (Road map) answers 'what is today?' with one button — t
   const r = await today(p);
   /* the row is the map's pin (29 Sep 2026): the day and its place in the week — Home keeps "what next?" */
   ok("3 · placed, nothing done: 'Week 1 · Monday', 'Session 1 of 7 in Week 1', the day's focus, 'Start Week 1' → Week 1 Monday", r && r.k === "Week 1 · Monday" && r.pos === "Session 1 of 7 in Week 1" && r.t === "Pronunciation baseline" && r.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(r.go), JSON.stringify(r));
-  ok("3b · one primary button in the Road map header, ≥44px, inside the screen", r.primaries === 1 && r.h >= 44 && r.fits, JSON.stringify(r));
+  ok("3b · one primary button in the Road map header, ≥28px (the phone card is scaled down — owner, 30 Sep 2026), inside the screen", r.primaries === 1 && r.h >= 28 && r.fits, JSON.stringify(r));
   await view(p, "home");
   ok("3c · Home's hero points at the same session", /go\('session',1,'Mon'\)/.test(await heroGo(p) || ""), await heroGo(p));
   ok("3d · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
