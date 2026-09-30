@@ -64,7 +64,7 @@ async function pool(items, n, fn) {
   return out;
 }
 const isEn = k => k === 'en' || k.startsWith('en-');
-function judge(info) {
+function judge(info, minSec = rules.minSec) {
   if (info._err) return { skip: ['unavailable: ' + info._err] };
   const subs = Object.keys(info.subtitles || {}), autos = Object.keys(info.automatic_captions || {});
   const human = subs.some(isEn);
@@ -79,7 +79,7 @@ function judge(info) {
   if (info.playable_in_embed === false) why.push('not embeddable');
   if (info.availability && info.availability !== 'public') why.push(info.availability);
   const dur = Math.round(info.duration || 0);
-  if (dur < rules.minSec) why.push('short');
+  if (dur < minSec) why.push('short');
   if (dur > rules.maxSec) why.push('too long');
   if (!subs.length && !autos.length) why.push('no captions at all');
   else if (!spokenEn) why.push('not spoken in English');
@@ -94,9 +94,13 @@ function judge(info) {
 
 const cands = [];
 for (const c of src.categories) for (const [vid, topic] of c.videos) cands.push({ vid, topic, cat: c.id });
+/* channelOnly: a channel the owner wants in full (PetroCertif, 30 Sep 2026) — its English videos that fit no
+   single profession are listed under the channel and in search only (cat "" = in no profession chip) */
+const CH_ONLY = src.channelOnly || { videos: [] };
+for (const [vid, topic] of CH_ONLY.videos) cands.push({ vid, topic, cat: '', chanOnly: true });
 console.error(`checking ${cands.length} curated videos…`);
 const judged = await pool(cands, 2, async (c, k) => {
-  const r = judge(await info(c.vid));
+  const r = judge(await info(c.vid), c.chanOnly && CH_ONLY.minSec ? CH_ONLY.minSec : rules.minSec);
   process.stderr.write(`${k + 1}/${cands.length} ${r.skip ? '✗' : '✓'} ${c.vid} ${r.skip ? r.skip.join(', ') : ''}\n`);
   return Object.assign({}, c, r);
 });
@@ -168,7 +172,9 @@ for (const v of kept) {
     const cap = JSON.parse(fs.readFileSync(path.join(CAP_DIR, v.vid + '.json'), 'utf8'));
     const words = (cap.cues || []).reduce((n, q) => n + String(q.txt || '').split(/\s+/).filter(Boolean).length, 0);
     const wpm = Math.round(words / Math.max(1, v.dur / 60));
-    if (wpm < MIN_WPM) v.skip = [`mostly silent (${wpm} words a minute)`];
+    /* a channel asked for in full keeps its short clips (a 25-second intro reads slower than a lesson) */
+    const min = v.chanOnly && CH_ONLY.minWpm ? CH_ONLY.minWpm : MIN_WPM;
+    if (wpm < min) v.skip = [`mostly silent (${wpm} words a minute)`];
   } catch { v.skip = ['caption file unreadable']; }
 }
 
@@ -194,6 +200,8 @@ for (const c of src.categories) {
   for (const v of judged.filter(v => v.cat === c.id && !v.skip))
     videos[v.vid] = { title: v.title, ch: v.ch, chId: v.chId, dur: v.dur, cap: v.cap, up: v.up, prof: c.id, topic: v.topic };
 }
+for (const v of judged.filter(v => v.chanOnly && !v.skip && !videos[v.vid]))
+  videos[v.vid] = { title: v.title, ch: v.ch, chId: v.chId, dur: v.dur, cap: v.cap, up: v.up, prof: '', topic: v.topic, chan: true };
 const out = { built: new Date().toISOString().slice(0, 10), area: 'welding', groups: src.groups, categories: cats,
   /* a channel chip filters the library by channel: one with no video in it would open an empty list */
   channels: channels.filter(c => c.id && Object.values(videos).some(v => v.chId === c.id)), hero: src.hero || {}, videos };

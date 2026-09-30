@@ -34,7 +34,9 @@ const overflow = p => p.evaluate(() => document.documentElement.scrollWidth - do
 console.log("\n# catalogue: ten professions, real content only");
 ok("1 · catalogue/welding.json has the ten professions in four groups", WELD.categories.length === 10 && WELD.groups.length === 4 && WELD.groups.flatMap(g => g.cats).length === 10, WELD.categories.map(c => c.id));
 ok("1b · no Welding video is a General English video", [...WV].every(v => !GV.has(v)), [...WV].filter(v => GV.has(v)));
-ok("1c · every Welding video names its profession and topic, and ships a caption file", Object.entries(WELD.videos).every(([v, x]) => x.prof && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json")), Object.entries(WELD.videos).filter(([v, x]) => !(x.prof && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json"))).map(([v]) => v));
+ok("1c · every Welding video names its profession and topic, and ships a caption file", Object.entries(WELD.videos).every(([v, x]) => (x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json")), Object.entries(WELD.videos).filter(([v, x]) => !((x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json"))).map(([v]) => v));
+{ const pc = WELD.channels.find(c => /petrocertif/i.test(c.handle || c.name)), pv = Object.values(WELD.videos).filter(v => pc && v.chId === pc.id);
+  ok("1e · PetroCertif (owner, 30 Sep 2026): the channel carries all ten of its English-spoken videos", pc && pv.length === 10, pv.length); }
 ok("1d · every channel in the row has at least one video", WELD.channels.every(c => Object.values(WELD.videos).some(v => v.chId === c.id)), WELD.channels.map(c => c.name));
 
 console.log("\n# Welding · Shadow = the video Shadow Studio");
@@ -53,6 +55,9 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   for (const cat of ["hse", "ndt", "operator"]) { await p.evaluate(c => shLibCat(c), cat); await sleep(150); }
   const v2 = await shownVids(p);
   ok("3b · …on every profession chip", v2.every(v => WV.has(v)), v2.filter(v => !WV.has(v)));
+  { const pc = WELD.channels.find(c => /petrocertif/i.test(c.handle || c.name)); await p.evaluate(id => shLibChan(id), pc.id); await sleep(200);
+    const n = await p.evaluate(() => { shLibMoreToggle(); return document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']").length });
+    ok("3d · tapping the PetroCertif channel lists all ten of its videos", n === 10, n); await p.evaluate(id => shLibChan(id), pc.id); await sleep(150); }
   await p.evaluate(() => shLibQ("steve jobs")); await sleep(150);
   ok("3c · searching for a General English video finds nothing on Welding", (await p.evaluate(() => document.querySelectorAll("#shLibFeed .shl-row").length)) === 0);
   await p.evaluate(() => shLibQ("")); await sleep(100);
