@@ -142,6 +142,23 @@ for (const v of kept) {
   console.error(' ok'); made++;
 }
 try { fs.rmSync(TMP, { recursive: true, force: true }) } catch {}
+/* auto-captions mark music and noise ("♪ Music ♪", "[Applause]"): not words anyone says, so
+   they must never become a Challenge blank or a line to shadow — stripped from every Welding file */
+const NOISE = /^(♪+|\[[^\]]*\]|\([^)]*\))$/;
+for (const v of kept) {
+  const f = path.join(CAP_DIR, v.vid + '.json');
+  try {
+    const cap = JSON.parse(fs.readFileSync(f, 'utf8'));
+    const clean = t => String(t || '').replace(/♪[^♪]*♪|♪|\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
+    const ws = cap.words || [];
+    const keepW = ws.filter((w, i) => { const x = String(w.w || ''); if (NOISE.test(x)) return false; if (/^music$/i.test(x) && ((ws[i - 1] && /♪/.test(ws[i - 1].w)) || (ws[i + 1] && /♪/.test(ws[i + 1].w)))) return false; return true; })
+      .map(w => Object.assign({}, w, { w: String(w.w).replace(/[♪\[\]]/g, '') })).filter(w => w.w);
+    const keepC = (cap.cues || []).map(q => Object.assign({}, q, { txt: clean(q.txt) })).filter(q => q.txt);
+    if (keepW.length !== ws.length || keepC.length !== (cap.cues || []).length || keepC.some((q, i) => q.txt !== cap.cues[i].txt)) {
+      cap.words = keepW; cap.cues = keepC; fs.writeFileSync(f, JSON.stringify(cap));
+    }
+  } catch {}
+}
 /* speech density: a clip that is mostly silent footage or music gives nothing to shadow.
    Under 50 words a minute (the library's median is ~150) it is left out, and says so. */
 const MIN_WPM = 50;
@@ -166,6 +183,10 @@ const channels = await pool(src.channels || [], 4, async h => {
   return { handle: h, id: info.channel_id || '', name: info.channel || info.title || h, avatar: av ? av.url : '' };
 });
 
+/* a caption file for a video that did not make it in is dead weight in the app — removed,
+   unless the General English library uses the same video */
+{ let gen = {}; try { gen = JSON.parse(fs.readFileSync(path.join(ROOT, 'catalogue', 'general.json'), 'utf8')).videos || {} } catch {}
+  for (const v of judged) if (v.skip && !gen[v.vid]) { try { fs.unlinkSync(path.join(CAP_DIR, v.vid + '.json')) } catch {} } }
 const videos = {}, cats = [];
 for (const c of src.categories) {
   const vids = judged.filter(v => v.cat === c.id && !v.skip).map(v => v.vid);
