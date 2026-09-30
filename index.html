@@ -337,13 +337,12 @@ window.FB_CONFIG={
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
-/* The background wash is sized to the VIEWPORT, not the document. Painted on
-   <body> it stretched with the page, so a long list (Business idioms) blew the
-   ellipses up and washed the whole screen lighter. A fixed layer behind the
-   content keeps every page the same shade. */
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,var(--wash1),transparent),
-  radial-gradient(ellipse 60% 40% at 90% 110%,var(--wash2),transparent)}
+/* The app background is ONE flat colour (owner, 30 Sep 2026). The viewport
+   wash that used to live here, and the three "light fields" the design system
+   painted on <body>, both banded on a phone: over a near-black background a
+   10-18% tint has too few 8-bit steps, so the edge of the top-right field read
+   as a visible line under the header. Decorative surfaces that are NOT the app
+   background (onboarding, the games overlay, the Premium sheet) keep theirs. */
 a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 /* min-height keeps every text control at the 44px floor. Without it they were
@@ -4636,8 +4635,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .prac-add input{flex:1;min-width:0}
 @media(max-width:520px){.prac-ex{gap:7px}.prac-ex-card{padding:11px 5px;border-radius:12px}.prac-ex-card .pex-ic{width:30px;height:30px;margin-bottom:2px}.prac-ex-card .pex-ic svg{width:17px;height:17px}.prac-ex-card b{font-size:11px}.prac-ex-card small{font-size:9px;line-height:1.2}}
 /* ===== PRACTICE GAMES OVERLAY ===== */
-.pv-game{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 18px 28px;
-  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent)}
+.pv-game{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 18px 28px}
 .pv-game.show{display:block;animation:fade .2s}
 .pv-inner{max-width:640px;margin:0 auto}
 .pv-top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
@@ -4763,8 +4761,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;
   overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:max(24px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right))
-          max(24px,calc(env(safe-area-inset-bottom) + 16px)) max(20px,env(safe-area-inset-left));
-  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
+          max(24px,calc(env(safe-area-inset-bottom) + 16px)) max(20px,env(safe-area-inset-left))}
 .ob-card{max-width:520px;width:100%;margin:auto;text-align:center;animation:fade .4s}
 .ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px color-mix(in srgb,var(--acc) 45%,transparent);color:#fff}
 .ob-logo svg{width:40px;height:40px}
@@ -5566,12 +5563,8 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 
 /* ═════════ SHELL COMPONENTS — tokens only, identical in both tracks ═════════ */
-/* depth: three static light fields behind everything */
-body{background:
-  radial-gradient(60vw 60vw at -10% -12%,var(--field-1),transparent 62%) fixed,
-  radial-gradient(52vw 52vw at 112% 6%,var(--field-2),transparent 64%) fixed,
-  radial-gradient(70vw 50vw at 60% 110%,var(--field-3),transparent 70%) fixed,
-  var(--bg)}
+/* depth: the fields are gone — see the body::before note. One flat --bg. */
+body{background:var(--bg)}
 /* surfaces: one card language */
 .card{border-radius:var(--ds-r);background:linear-gradient(162deg,color-mix(in srgb,var(--card) 100%,#fff 2%),var(--card));box-shadow:var(--hair),var(--sh-1)}
 /* buttons: one primary per screen, label colour from the theme (white on Signal, dark on Forge) */
