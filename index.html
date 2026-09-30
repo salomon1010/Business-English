@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=88"></script>
-<script src="nudge-engine.js?v=3"></script>
+<script src="nudge-engine.js?v=5"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=84"></script>
 <script src="shadow-sync.js?v=8"></script>
@@ -75,7 +75,7 @@
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=84"></script>
 <script src="mission-engine.js?v=4"></script>
-<script src="shadow-lines.js?v=86"></script>
+<script src="shadow-lines.js?v=87"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -1041,6 +1041,15 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
    top of the avatars (owner, 22 Sep 2026). Each section is its own column now. */
 #shLibStatic{display:flex;flex-direction:column;gap:14px}
 .shl-sec{display:flex;flex-direction:column;gap:7px}
+/* Welding: which profession the library follows (owner, 29 Sep 2026) — one quiet row, one tap to change */
+.wprof-pill{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--txt);font:inherit;text-align:left;cursor:pointer}
+.wprof-pill .shl-lbl{flex:0 0 auto}
+.wprof-pill b{flex:1 1 auto;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wprof-chg{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--accent-text,var(--accent))}
+.wprof-sheet .sub{color:var(--mut);font-size:13.5px;margin:4px 0 12px}
+.wprof-sheet .wprof-g{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.wprof-sheet .pf-row{min-height:44px}
+.wprof-sheet{max-height:min(86vh,720px);overflow-y:auto}
 .shl-chans{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
 .shl-chans::-webkit-scrollbar{display:none}
 .shl-chan{flex:none;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;font-family:inherit;color:var(--mut);font-size:11px;line-height:1.2;text-align:center;cursor:pointer}
@@ -8637,6 +8646,31 @@ const I18N_EN={
  "sh.cat_tv":"TV shows",
  "sh.cat_movies":"Movies",
  "sh.cat_songs":"Songs",
+ "sh.cat_operator":"Refinery Operator",
+ "sh.cat_instrumentation":"Instrumentation Technician",
+ "sh.cat_electrician":"Industrial Electrician",
+ "sh.cat_hse":"HSE Officer",
+ "sh.cat_ndt":"NDT Technician",
+ "sh.cat_process":"Process Engineer",
+ "sh.cat_pipefitter":"Pipefitter",
+ "sh.cat_welder":"Welder",
+ "sh.cat_boilermaker":"Boilermaker",
+ "sh.cat_millwright":"Millwright",
+ "wprof.h":"Your profession",
+ "wprof.sub":"Your videos and recommendations follow the job you do, or the one you want.",
+ "wprof.lbl":"Videos for",
+ "wprof.change":"Change",
+ "wprof.set":"Videos now follow: {{p}}",
+ "wprof.g_ops":"Operations & Control",
+ "wprof.g_elec":"Electrical & Safety",
+ "wprof.g_insp":"Inspection & Engineering",
+ "wprof.g_mech":"Maintenance & Mechanical Trades",
+ "sv.apply_lab":"Rework it in Phrase Lab",
+ "sv.apply_sub_lab":"Put this line in your own words, about your own job. Phrase Lab's AI coach rebuilds it for the workplace.",
+ "home.d_sim_t":"Workplace simulations",
+ "home.d_sim":"Speak with the people on the job",
+ "home.bc_level_pro":"Recommended for your profession",
+ "home.bc_level_pro_s":"Real voices from your trade, clear enough to shadow first.",
  "sh.shadow_this_btn":"▶ Shadow this",
  "sh.copy_btn":"📋 Copy",
  "sh.copy_title":"Copy the YouTube link",
@@ -10294,7 +10328,7 @@ function bnavSync(v){
   /* the same page → tab mapping as the desktop header in go() (tv): a page with
      no tab of its own lights the tab it belongs to — the phrase bank lit nothing
      on a phone while it lit Phrase Lab on a desktop (nav audit, 29 Sep 2026) */
-  const map=v==="session"?"journey":(v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
+  const map=v==="session"?"journey":(v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
   document.querySelectorAll(".bnav-item").forEach(b=>navOn(b,b.dataset.v===map));
 }
 /* the lit tab is also the one a screen reader announces as the current page
@@ -10352,10 +10386,10 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="session"&&v!=="session"){exCoachStop();exHost=null}}catch(e){}
   try{if(cur&&cur.v==="mission"&&v!=="mission"){exCoachStop();exHost=null}}catch(e){}
   try{if(cur&&cur.v==="roleplay"&&v!=="roleplay"){exCoachStop();exHost=null}}catch(e){}
-  try{if(cur&&(cur.v==="shadow"||cur.v==="simulation")&&v!==cur.v){exCoachStop();exHost=null}}catch(e){}
+  try{if(cur&&(cur.v==="shadow"||cur.v==="lines"||cur.v==="simulation")&&v!==cur.v){exCoachStop();exHost=null}}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
+  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -10369,8 +10403,11 @@ function go(v,arg1,arg2){
      or removes the card on every navigation. */
   rmNoticeSync(v);
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
-  document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
-  const el=document.getElementById("v-"+v);el.classList.add("on");
+  /* "lines" (Practise text shadowing) is drawn by rShadow into the Shadow view's own box:
+     every workplace-line control, the history and the trouble words look for #v-shadow */
+  const vid=v==="lines"?"shadow":v;
+  document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+vid)x.innerHTML=""});
+  const el=document.getElementById("v-"+vid);el.classList.add("on");
   /* A renderer that throws must not take navigation down with it. Before, the
      exception left this function here — view cleared, page blank, the hash and
      the sticky header never updated — and a second tap on the same icon threw
@@ -10381,7 +10418,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -11754,7 +11791,7 @@ window.mvHistPlay=async i=>{
 window.mvShadow=()=>{
   const comp=mvComp(_mv&&_mv.compId);if(!comp||!comp.shadow)return;
   SESS_RETURN=null;
-  S.lastClip={vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title};save();
+  lastClipSet({vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title});save();
   go("shadow");
 };
 
@@ -11799,14 +11836,23 @@ function mvHomeCardHTML(){
    server is put first, so Home and the notification never disagree. The hero shows
    the one next step; every other recommendation follows, ranked; then the places to
    practise. Welding keeps rHome's Career Dashboard exactly as it is. */
-function homeV2On(){try{return flag("home_v2_enabled")&&isGeneralEnglish()}catch(e){return false}}
+function homeV2On(){try{return flag("home_v2_enabled")&&(isGeneralEnglish()||weldStudioOn())}catch(e){return false}}
+/* The engine's inputs for Home, whichever area is open. General English is exactly nudgeSignals();
+   Welding adds `home` (the engine's Home rows and ranking run for it) and has NO partner and NO
+   AI coach — those are General English features and must never be offered on Welding. The push
+   nudges never read this: they keep nudgeSignals() and stay General English only. */
+function homeSignals(){
+  const sig=nudgeSignals();
+  if(!isGeneralEnglish()){sig.home=true;sig.partner={};sig.aiCoach=false}
+  return sig;
+}
 const HOME_KIND_ICON={lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
 function homeReasonKey(r){const x=String(r&&r.reason||"");return x.startsWith("inactive_")?"inactive":x.startsWith("words_due")?"words_due":x.startsWith("trouble_words")?"trouble_words":x.startsWith("partner_waiting")?"partner_waiting":x.startsWith("streak_at_risk")?"streak_at_risk":x.startsWith("no_partner")?"no_partner":x}
 /* every recommendation for this learner now, best first — the push engine's own ranking */
 function homeRecs(){
-  if(!isGeneralEnglish()||!window.NudgeEngine)return [];
+  if(!homeV2On()||!window.NudgeEngine)return [];
   let sig=null,list=[];
-  try{sig=nudgeSignals();const n=S.nudge||{},h=(n.hist&&n.hist.done)?{done:n.hist.done}:{};list=NudgeEngine.rank(sig,h)}catch(e){return []}
+  try{sig=homeSignals();const n=S.nudge||{},h=(n.hist&&n.hist.done)?{done:n.hist.done}:{};list=NudgeEngine.rank(sig,h)}catch(e){return []}
   /* the nudge the server holds for this phone, if it is still true, leads */
   try{const p=S.nudge&&S.nudge.pending;if(p&&Date.now()<p.expiresAt&&!NudgeEngine.satisfied(p,sig)){const i=list.findIndex(r=>r.kind===p.kind);if(i>0)list.unshift(list.splice(i,1)[0])}}catch(e){}
   return list;
@@ -11855,11 +11901,33 @@ function homeContent(){
   try{scenarios=trackScenarios().map(x=>({id:x.id,title:x.title||"",persona:x.persona||"",cat:x.cat||""}))}catch(e){}
   /* the week's own clip: the mission pack names one for six weeks (read as data — the missions stay hidden) */
   try{const mp=curriculumOrEmpty().missions;((mp&&mp.competencies)||[]).forEach(c=>{if(c&&c.week&&c.shadow&&c.shadow.vid)missions[c.week]={vid:c.shadow.vid}})}catch(e){}
+  /* Welding inherits General English's shadow starters through the curriculum merge (TED,
+     Stanford): on Welding only a starter that is in the Welding library may be offered */
+  if(weldStudioOn())return {videos,weeks,starters:starters.filter(x=>x&&videos[x.vid]),days,scenarios:[],missions:{},topics:weldTopics(),levelTopics:["introductions","fluency"],levelVariant:"pro"};
   return {videos,weeks,starters,days,scenarios,missions};
 }
+/* Welding's relationship table — the same shape as NudgeEngine.TOPICS, built from the library
+   itself: one topic per profession (its words = the catalogue's vocabulary for it), and the
+   generic topics the engine asks for (introductions, pronunciation, fluency, vocabulary,
+   conversation) pointed at the learner's own profession, so every row the engine builds for a
+   Welding learner lands in their trade, never in General English content. */
+function weldTopics(){
+  const c=_shCat,me=weldProf(),cats=(c&&c.categories)||[];
+  const esc2=w=>String(w).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  const T=cats.map(k=>{const words=[k.label].concat(k.vocab||[]).map(w=>String(w).toLowerCase());return {id:"p_"+k.id,re:new RegExp(words.map(esc2).join("|"),"i"),terms:words,cat:k.id,scen:[]}});
+  const mine=cats.find(k=>k.id===me)||{vocab:[]},mw=(mine.vocab||[]).map(w=>String(w).toLowerCase());
+  const gen=(id,re,terms)=>({id,re,terms,cat:me,scen:[]});
+  return T.concat([
+    gen("introductions",/introduc|yourself|career|day in the life|what does|job|apprentice/i,["career","day in the life","what does","job","apprentice"]),
+    gen("pronunciation",/pronunc|shadow|stress|accent|speech|intonation|sound|rhythm|baseline/i,mw),
+    gen("fluency",/fluen|explain|describe|report|hand-?over|talk/i,["explained","how to","basics"]),
+    gen("vocabulary",/\bwords?\b|vocab|phrase|term|expression/i,mw),
+    gen("conversation",/conversation|interview|toolbox|supervisor|team|question/i,["interview","toolbox","supervisor","questions"])
+  ]);
+}
 function homeRows(heroCid){
-  if(!isGeneralEnglish()||!window.NudgeEngine||typeof NudgeEngine.rows!=="function")return [];
-  try{const sig=nudgeSignals();sig.heroCid=heroCid||"";return NudgeEngine.rows(sig,homeContent())}catch(e){return []}
+  if(!homeV2On()||!window.NudgeEngine||typeof NudgeEngine.rows!=="function")return [];
+  try{const sig=homeSignals();sig.heroCid=heroCid||"";return NudgeEngine.rows(sig,homeContent())}catch(e){return []}
 }
 const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
 /* the row's own mark: what kind of evidence it rests on */
@@ -11925,7 +11993,7 @@ function homeRowsHTML(rows){
    (a library video id, a session day like w3Tue, a scenario id, ph-w3, trouble, words-due,
    partner, ai), the content type, the area and the curriculum position. Never a word, a
    title or anything the learner said. General English only (the rows do not exist elsewhere). */
-function homeRecTrack(name,props){try{if(!isGeneralEnglish())return;const p=currentPos();track(name,Object.assign({track:areaId(),week:String(p.w),day:String(p.d)},props||{}))}catch(e){}}
+function homeRecTrack(name,props){try{if(!homeV2On())return;const p=currentPos();track(name,Object.assign({track:areaId(),week:String(p.w),day:String(p.d)},props||{}))}catch(e){}}
 function homeRecProps(r,it){return {kind:r.id,variant:String(r.variant||"").slice(0,24),reason:String(r.reason||"").slice(0,24),cid:String((it&&it.cid)||"").slice(0,24),to:(it&&it.type)||"",n:String(r.items.length)}}
 function homeRecImpress(rows){
   homeRecImpress._seen=homeRecImpress._seen||{};
@@ -11957,14 +12025,14 @@ function homeRecDoneNow(o){
   return false;
 }
 function homeRecCheckDone(){
-  const o=S.rec&&S.rec.opened;if(!o||o.completed||!isGeneralEnglish())return;if(Date.now()-o.at>NUDGE_DAY)return;
+  const o=S.rec&&S.rec.opened;if(!o||o.completed||!homeV2On())return;if(Date.now()-o.at>NUDGE_DAY)return;
   if(!homeRecDoneNow(o))return;
   o.completed=true;save();
   homeRecTrack("recommendation_completed",{kind:o.kind||o.id,variant:o.variant||"",reason:o.reason||"",cid:o.cid||"",to:o.type,n:o.n||""});
 }
 window.homeRecWordsDone=()=>{const o=S.rec&&S.rec.opened;if(o&&o.type==="words"&&!o.completed){o.wordsDone=true;save();homeRecCheckDone()}};
 /* the first practice action within two hours of opening a recommendation */
-function homeRecPracticed(){setTimeout(()=>{try{homeRecCheckDone()}catch(e){}},0);const o=S.rec&&S.rec.opened;if(!o||o.started||!isGeneralEnglish())return;if(Date.now()-o.at>2*3600000)return;o.started=true;save();homeRecTrack("recommendation_started",{kind:o.kind||o.id,variant:o.variant||"",reason:o.reason||"",cid:o.cid||"",to:o.type,n:o.n||""})}
+function homeRecPracticed(){setTimeout(()=>{try{homeRecCheckDone()}catch(e){}},0);const o=S.rec&&S.rec.opened;if(!o||o.started||!homeV2On())return;if(Date.now()-o.at>2*3600000)return;o.started=true;save();homeRecTrack("recommendation_started",{kind:o.kind||o.id,variant:o.variant||"",reason:o.reason||"",cid:o.cid||"",to:o.type,n:o.n||""})}
 /* "Mon" → the learner's own weekday name (2024-01-01 was a Monday) */
 function homeDayName(d){const i=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].indexOf(d);if(i<0)return d;try{return new Date(2024,0,1+i).toLocaleDateString((S.profile&&S.profile.lang)||"en",{weekday:"long"})}catch(e){return d}}
 /* a small greeting inside the hero — the name never competes with the next step */
@@ -11990,7 +12058,7 @@ function homeDoneCard(){
    table for the hero's pictures, the "Because you…" rows and the push nudges */
 const HV_PHOTOS={introductions:["iv-tellme","oneone","coffee"],pronunciation:["standup","oneone"],meetings:["standup","oneone"],presentations:["standup"],interviews:["interview","iv-tellme","iv-salary"],persuasion:["oneone"],vocabulary:["coffee","checkin"],conversation:["partner","coffee","neighbour"]};
 function homeVisuals(card){
-  const txt=String(card.topic||""),tops=(window.NudgeEngine?NudgeEngine.TOPICS:[]).filter(x=>x.re.test(txt)).slice(0,2),out=[],seen=new Set();
+  const txt=String(card.topic||""),tops=(weldStudioOn()?weldTopics():(window.NudgeEngine?NudgeEngine.TOPICS:[])).filter(x=>x.re.test(txt)).slice(0,2),out=[],seen=new Set();
   const add=v=>{if(out.length<3&&!seen.has(v.key)){seen.add(v.key);out.push(v)}};
   if(card.vid&&/^[A-Za-z0-9_-]{11}$/.test(card.vid))add({key:card.vid,vid:card.vid,title:(_shCat&&_shCat.videos[card.vid]&&_shCat.videos[card.vid].title)||""});
   if(tops.length&&_shCat&&_shCat.videos){
@@ -11999,7 +12067,7 @@ function homeVisuals(card){
       tops.forEach(tp=>{tp.terms.forEach(w=>{if(ti.includes(w)){s+=3;hit=true}});if(cats[v]===tp.cat)s+=1});return {v,s,hit,i}}).filter(x=>x.hit).sort((a,b)=>b.s-a.s||a.i-b.i);
     sc.forEach(x=>add({key:x.v,vid:x.v,title:_shCat.videos[x.v].title||""}));
   }
-  tops.forEach(tp=>(HV_PHOTOS[tp.id]||[]).forEach(ph=>add({key:ph,photo:"rp-photos/"+ph+".jpg"})));
+  if(isGeneralEnglish())tops.forEach(tp=>(HV_PHOTOS[tp.id]||[]).forEach(ph=>add({key:ph,photo:"rp-photos/"+ph+".jpg"})));
   return out;
 }
 /* ---- the highlight reel (owner, 27 Sep 2026: "six slides, the best videos, tap one and it opens").
@@ -12025,7 +12093,7 @@ function homeHighlights(card,rows,seed){
   const skip=new Set(),seen=new Set();
   (rows||[]).forEach(r=>(r.items||[]).forEach(it=>{if(it&&it.vid)skip.add(it.vid)}));
   try{[].concat(aList("clips"),aList("chHist")).forEach(x=>{if(x&&x.vid)seen.add(x.vid)})}catch(e){}
-  if(S.lastClip&&S.lastClip.vid)seen.add(S.lastClip.vid);
+  {const lc=lastClip();if(lc&&lc.vid)seen.add(lc.vid)}
   let r=((seed!=null?seed:hxDaySeed())>>>0)||1;const rnd=()=>{r=(Math.imul(r,1103515245)+12345)>>>0;return (r>>>8)/16777216};
   const pick=ids=>{
     const ok=ids.filter(v=>V[v]&&V[v].cap&&V[v].cap!=="player"&&!used.has(v));
@@ -12045,6 +12113,7 @@ function hxIsNew(up){const d=Date.parse(up||"");return !isNaN(d)&&Date.now()-d<H
 function hxTagLabel(v){
   if(v.tag==="plan")return t("sh.lib_fits_plan");
   if(v.tag==="film")return t("home.hl_film");
+  if(v.cat&&weldStudioOn())return weldProfLabel(v.cat);
   return v.cat&&I18N_EN["sh.cat_"+v.cat]?t("sh.cat_"+v.cat):t("home.hl_tag");
 }
 function homeSlideHTML(v,i){
@@ -12145,7 +12214,7 @@ function homeRecDest(c){
 function homeDestHTML(top,cards,vis){
   let words=0;try{words=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
   let st=0;try{st=streak()}catch(e){}
-  const p=currentPos(),weeks=trackWeeks().length||12,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
+  const p=currentPos(),weeks=trackWeeks().length||12,lc=lastClip()&&lastClip().vid?lastClip():null;
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
   const D={
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?esc(vidThumb(firstVid,"hqdefault")):""},
@@ -12155,7 +12224,8 @@ function homeDestHTML(top,cards,vis){
        home-photos/*.jpg fill the picture (.art = cover, no badge). The rows keep home-shots. */
     practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-photos/vocab.jpg",art:1},
     journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-photos/roadmap.jpg",art:1},
-    convo:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
+    convo:weldStudioOn()?{ic:"chat",t:t("home.d_sim_t"),s:t("home.d_sim"),go:"go('simulation')",img:"sim-photos/welding-sim-1.jpg",art:1}:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
+    lines:weldStudioOn()?{ic:"doc",t:t("tools.lines"),s:t("tools.lines_sub"),go:"go('lines')",img:"home-shots/trouble.jpg",art:0}:null,
     grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:"home-photos/grammar.jpg?v=3",art:1},
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-photos/progress.jpg",art:1}
   };
@@ -12165,7 +12235,7 @@ function homeDestHTML(top,cards,vis){
   /* every Explore card is the same size (owner, 28 Sep 2026): the primary recommendation's
      place leads the grid with its deep link and its words — no big card, no tag line. */
   const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
-  const order=["shadow","partner","practice","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
+  const order=["shadow","partner","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
   const rank=id=>id===primId?2:taken[id]?1:0;
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}"${r?` aria-label="${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}: ${esc(d.t)}"`:""} onclick="${r?r.go:d.go}">
@@ -12270,6 +12340,8 @@ function rHome(el){
      career milestone — showing them a Career Dashboard with "Current
      destination: United Kingdom" invented a career path they never chose. */
   if(!isProfessionalJourney())return rHomeGeneral(el);
+  /* Welding with its studio on: the same Home V2 as General English, with Welding content */
+  if(homeV2On())return rHomeV2(el);
   const c=careerDashboardContext(),trackName=t(c.track.nameKey),missionTitle=`${c.stage} · ${c.day.focus||c.wk.theme||"Today's mission"}`;
   /* Home is the Career Dashboard: it makes one decision visible. The existing
      session stays intact while later Experience Layers connect its activities
@@ -13418,6 +13490,9 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    and is tied to the stage the learner is on. */
 let _shTab="create",_shAdd=false;   /* the link box is folded behind the Add link tab: the page opens on the videos */
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}};
+/* the old Welding Shadow page was the workplace lines: a learner who reaches for them (the
+   History / trouble words, a debrief's "shadow these lines") is sent to their new home */
+window.goLines=()=>go(weldStudioOn()?"lines":"shadow");
 /* The row sits at the foot of a long library: open the page at its top, or
    the tabs and the X stay scrolled up under the header (owner, 23 Sep 2026). */
 window.shLibPage=()=>{shTab("clips");try{window.scrollTo(0,0)}catch(e){}};
@@ -13445,6 +13520,10 @@ function rShadow(el){
        which is where every other page without a headline puts it. */
     shLibOn()
       ? `<div class="eyebrow pg-eyebrow eb-info"><span>${t("sh.eyebrow")}</span>${subInfo(t("sh.sub"))}</div>`
+      : shLinesPage()
+      ? `<div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ ${esc(t("bnav.practice"))}</button><span>${t("tools.lines")}</span></div>
+  <h1 class="big">${t("sh.title_pro")}</h1>
+  ${subInfo(t("sh.sub_pro"))}`
       : `<div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
   ${subInfo(isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub"))}`}
@@ -13463,7 +13542,7 @@ ${(()=>{
     /* With the library on, My clips / History is a page of its own: the X
        takes the learner back to the videos, where they came from (owner,
        23 Sep 2026). */
-    if(!isProfessionalJourney())return `  ${shLibOn()?`<div class="sh-lib-top">`:""}<div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
+    if(!shProLines())return `  ${shLibOn()?`<div class="sh-lib-top">`:""}<div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     ${shLibOn()?"":`<button class="seg-tab ${_shTab==='create'&&_shAdd?'on':''}" role="tab" aria-selected="${_shTab==='create'&&_shAdd}" aria-expanded="${_shTab==='create'&&_shAdd}" onclick="shAddToggle()"><span class="btn-ic">${ic("link")}</span><span class="seg-lbl">${t("sh.tab_addlink")}</span></button>`}
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("clock")}</span><span class="seg-lbl">${t("sh.tab_history")}</span> <b>${aList("chHist").length}</b></button>
@@ -13476,8 +13555,8 @@ ${(()=>{
       <span class="pf-chev" aria-hidden="true">›</span>
     </button>`;
   })()}
-  ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
-  <div class="${shLibOn()?"shl-plain":"card"}" style="margin-bottom:16px;${_shTab==='create'&&!isProfessionalJourney()?'':'display:none'}">
+  ${_shTab==='create'&&shProLines()?shWorkplaceLinesHTML():""}
+  <div class="${shLibOn()?"shl-plain":"card"}" style="margin-bottom:16px;${_shTab==='create'&&!shProLines()?'':'display:none'}">
     <div id="shAddBox" ${_shAdd?'':'style="display:none"'}>
     <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="width:100%" onkeydown="if(event.key==='Enter')shLoadFromInput()">
     <textarea id="shPaste" class="grow-ta sh-paste" rows="3" placeholder="${esc(t("sh.paste_ph"))}" oninput="taGrow(this)"></textarea>
@@ -13652,7 +13731,7 @@ ${(()=>{
      than an empty slot that only fills if you record again. */
   try{shLinesRestore()}catch(e){}
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
-  if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
+  if(lastClip()&&lastClip().vid)shLoad(lastClip(),true);
   manIconizeInline(el);
 }
 function tbRender(){
@@ -13671,7 +13750,7 @@ function tbRender(){
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
   :emptyState("dumbbell",t("sh.empty_trouble_title"),t("sh.empty_trouble_body"),
-      isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");
+      shProLines()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");
   manIconizeInline(box);
 }
 window.tbTry=word=>{
@@ -13708,23 +13787,88 @@ window.tbTry=word=>{
    2026). The search is now first, and the resume button sits directly under it,
    still the brightest thing on the page. */
 function shResumeHTML(){
-  if(!(S.lastClip&&S.lastClip.vid))return "";
-  return `<button class="btn-primary sh-resume" onclick="shOpenWork()"><span class="sh-resume-l">${tIc("sh.resume_btn","play")}</span>${S.lastClip.title?`<span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`;
+  const lc=lastClip();if(!(lc&&lc.vid))return "";
+  return `<button class="btn-primary sh-resume" onclick="shOpenWork()"><span class="sh-resume-l">${tIc("sh.resume_btn","play")}</span>${lc.title?`<span class="sh-resume-t">· ${esc(String(lc.title).slice(0,48))}</span>`:""}</button>`;
 }
-let _shCat=null,_shCatP=null,_shLibQ="",_shLibCat="foryou",_shLibCh="",_shLibMore=false;
-function shLibOn(){return flag("shadow_library_enabled")&&isGeneralEnglish()}
+/* One library per area (owner, 29 Sep 2026). General English reads catalogue/general.json;
+   Welding Professional English reads catalogue/welding.json — refinery-trade clips, one
+   category per profession. `_shCat` is the OPEN area's catalogue and nothing else, so no
+   General English video can surface on Welding (or the reverse) through any of the ~40
+   places that read it: switching area switches what `_shCat` answers. */
+const SH_CAT_FILE={"general-english":"catalogue/general.json",welding:"catalogue/welding.json"};
+const _shCatA={},_shCatPA={};
+Object.defineProperty(window,"_shCat",{configurable:true,get(){try{return _shCatA[shCatArea()]||null}catch(e){return null}},set(v){try{_shCatA[shCatArea()]=v}catch(e){}}});
+function shCatArea(){const a=areaId();return a===AREA_GEN||weldStudioOn()?a:"-"}
+let _shLibQ="",_shLibCat="foryou",_shLibCh="",_shLibMore=false;
+/* Welding Professional English as a complete learning space (owner, 29 Sep 2026): the Shadow
+   tab is the same video Shadow Studio as General English, fed by the Welding library; the
+   workplace lines move to Practice ("Practise text shadowing", view "lines"); Home is Home V2
+   with Welding recommendations. One flag, Welding only — General English is untouched. */
+function weldStudioOn(){try{return flag("welding_studio_enabled")&&areaId()==="welding"}catch(e){return false}}
+/* the Practice page's text shadowing: the workplace lines, drawn by rShadow into #v-shadow */
+function shLinesPage(){try{return typeof cur!=="undefined"&&!!cur&&cur.v==="lines"}catch(e){return false}}
+function shLibOn(){return flag("shadow_library_enabled")&&(isGeneralEnglish()||weldStudioOn())&&!shLinesPage()}
+/* the workplace-lines layout: a Professional Track without its video library, or the lines page itself */
+function shProLines(){return isProfessionalJourney()&&!shLibOn()}
 function shCatLoad(){
-  if(_shCat)return Promise.resolve(_shCat);
-  if(_shCatP)return _shCatP;
-  _shCatP=fetch("catalogue/general.json").then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{_shCat=j;_shCatP=null;try{shOwnClassify()}catch(e){}return j});
-  return _shCatP;
+  const a=shCatArea(),f=SH_CAT_FILE[a];
+  if(!f)return Promise.resolve(null);
+  if(_shCatA[a])return Promise.resolve(_shCatA[a]);
+  if(_shCatPA[a])return _shCatPA[a];
+  _shCatPA[a]=fetch(f).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{_shCatA[a]=j;delete _shCatPA[a];try{shOwnClassify()}catch(e){}return j});
+  return _shCatPA[a];
 }
+/* ---- Welding: the ten refinery professions (catalogue/welding.json categories) ----
+   The learner's profession orders "For you", the week's picks and Home's rows. It starts
+   from the trade chosen for the Welding track (welder / pipefitter / boilermaker) and can be
+   changed to any of the ten from the Shadow library (weldProfSheet). Stored on the profile:
+   it describes the person, like their role. */
+const WELD_PROFS=["operator","instrumentation","electrician","hse","ndt","process","pipefitter","welder","boilermaker","millwright"];
+function weldProf(){
+  const p=S&&S.profile&&S.profile.weldProf;if(p&&WELD_PROFS.includes(p))return p;
+  try{const id=((window.Trades&&Trades.active(S))||{}).id;if(WELD_PROFS.includes(id))return id}catch(e){}
+  return "welder";
+}
+function weldProfLabel(id){const k="sh.cat_"+id;if(I18N_EN[k])return t(k);const c=_shCat&&(_shCat.categories||[]).find(x=>x.id===id);return c?c.label:id}
+/* the categories in the order this learner should meet them: General English keeps the
+   catalogue's order; Welding leads with the learner's profession, then the rest of its group */
+function shLibCatsOrdered(c){
+  const L=(c&&c.categories)||[];if(!weldStudioOn())return L;
+  const me=weldProf(),g=(L.find(x=>x.id===me)||{}).group;
+  const rank=x=>x.id===me?0:x.group&&x.group===g?1:2;
+  return L.map((x,i)=>({x,i})).sort((a,b)=>rank(a.x)-rank(b.x)||a.i-b.i).map(o=>o.x);
+}
+window.weldProfSheet=()=>{
+  const old=document.getElementById("weldProfOv");if(old)old.remove();
+  const c=_shCat,groups=(c&&c.groups)||[],me=weldProf();
+  const ov=document.createElement("div");ov.id="weldProfOv";ov.className="lang-modal-ov pp-sheet-ov";
+  ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  ov.innerHTML=`<div class="lang-modal pp-sheet wprof-sheet" role="dialog" aria-modal="true" aria-labelledby="wprofH">
+    <button class="shv3-more-x" onclick="document.getElementById('weldProfOv').remove()" aria-label="${esc(t("wc.close"))}">${ic("close")}</button>
+    <h2 id="wprofH">${esc(t("wprof.h"))}</h2><p class="sub">${esc(t("wprof.sub"))}</p>
+    ${groups.map(g=>`<div class="wprof-g"><div class="shl-lbl">${esc(t("wprof.g_"+g.id))}</div>${(g.cats||[]).map(id=>`<button class="pf-row ${id===me?"has":""}" aria-pressed="${id===me}" onclick="weldProfSet('${id}')"><span class="pf-txt"><b>${esc(weldProfLabel(id))}</b></span>${id===me?`<span class="chip done">${ic("check")}</span>`:""}</button>`).join("")}</div>`).join("")}
+  </div>`;
+  document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.weldProfSet=id=>{
+  if(!WELD_PROFS.includes(id))return;
+  S.profile=S.profile||{};S.profile.weldProf=id;save();
+  const o=document.getElementById("weldProfOv");if(o)o.remove();
+  _shLibCat="foryou";_shLibCh="";_shLibMore=false;
+  try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
+  toast(t("wprof.set",{p:weldProfLabel(id)}));
+};
+/* "Continue your last clip" is per area (owner, 29 Sep 2026): General English keeps
+   S.lastClip exactly as before; every other area keeps its own in S.lastClipA, so a
+   General English clip never offers itself on Welding. */
+function lastClip(){return isGeneralEnglish()?(S.lastClip||null):((S.lastClipA&&S.lastClipA[areaId()])||null)}
+function lastClipSet(v){if(isGeneralEnglish())S.lastClip=v;else{S.lastClipA=S.lastClipA||{};S.lastClipA[areaId()]=v}}
 /* The two things a learner reaches for without reading: the clip they were in
    the middle of, and a link they want to add. They live at the foot of the
    screen, over the feed, where a thumb already is (owner, 22 Sep 2026). The bar
    is part of the library, so it is absent on Welding and with the flag off. */
 function shLibDockHTML(){
-  const c=S.lastClip;
+  const c=lastClip();
   const cont=c&&c.vid?`<button class="shl-cont" onclick="shOpenWork()" aria-label="${esc(t("sh.resume_btn")+(c.title?" — "+c.title:""))}">
       <img src="${esc(vidThumb(c.vid,"default"))}" alt="" loading="lazy" decoding="async" width="64" height="48">
       <span class="shl-cont-t"><em>${esc(t("sh.cont_label"))}</em><b>${esc(String(c.title||c.vid).slice(0,44))}</b></span>
@@ -14133,7 +14277,7 @@ function shLibHeroes(opt){
   const all=Object.keys(c.videos);
   const plan=shlPlanVid(w);
   if(plan&&good(plan))push(plan,"plan");
-  else{const wc=c.categories.find(x=>x.id===SHL_WEEK_CAT[w])||c.categories[0];if(wc)push(pick(wc.vids),"plan",wc.id)}
+  else{const wc=c.categories.find(x=>x.id===(weldStudioOn()?weldProf():SHL_WEEK_CAT[w]))||c.categories[0];if(wc)push(pick(wc.vids),"plan",wc.id)}
   push(pick(all.filter(v=>c.videos[v].toon)),"toon");
   const cats=c.categories.slice();
   for(let i=cats.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[cats[i],cats[j]]=[cats[j],cats[i]]}
@@ -14208,8 +14352,10 @@ function shLibList(){
     ids=Object.keys(c.videos).filter(v=>c.videos[v].chId===_shLibCh);
   }else if(_shLibCat==="foryou"){
     const hs=new Set(shLibHeroes().map(h=>h.vid));   // the week's picks sit above the feed, not in it too
-    ids=[];for(const cat of c.categories){let n=0;for(const v of cat.vids){if(hs.has(v)||ids.includes(v))continue;if(c.videos[v]&&c.videos[v].cap&&c.videos[v].cap!=="player"&&n<2){ids.push(v);n++}}}
-    for(const cat of c.categories)for(const v of cat.vids)if(!hs.has(v)&&!ids.includes(v)&&c.videos[v])ids.push(v);
+    /* Welding: the learner's own profession gives the first four, then two from each other one */
+    const cats=shLibCatsOrdered(c),lead=weldStudioOn()?weldProf():"";
+    ids=[];for(const cat of cats){let n=0;const max=cat.id===lead?4:2;for(const v of cat.vids){if(hs.has(v)||ids.includes(v))continue;if(c.videos[v]&&c.videos[v].cap&&c.videos[v].cap!=="player"&&n<max){ids.push(v);n++}}}
+    for(const cat of cats)for(const v of cat.vids)if(!hs.has(v)&&!ids.includes(v)&&c.videos[v])ids.push(v);
   }else{
     const cat=c.categories.find(x=>x.id===_shLibCat);ids=cat?cat.vids.filter(v=>c.videos[v]):[];
   }
@@ -14258,10 +14404,10 @@ function shLibHTML(){
   /* TV shows / Movies / Songs sit first after Your videos, each with its own
      icon and colour (owner, 27 Sep 2026); the rest keep the catalogue's order */
   const FUN={tv:"tv",movies:"film",songs:"music"};
-  const cats=c?c.categories.filter(x=>FUN[x.id]).concat(c.categories.filter(x=>!FUN[x.id])):[];
+  const cats=c?shLibCatsOrdered(c).filter(x=>FUN[x.id]).concat(shLibCatsOrdered(c).filter(x=>!FUN[x.id])):[];
   const chips=[{id:"foryou",label:t("sh.lib_foryou")},
     {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
-    .concat(cats.map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
+    .concat(cats.filter(x=>(x.vids||[]).some(shLibHasTx)).map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
   return `<div class="shl-stick">
   <label class="shl-search ${_shLibQ.trim()?"has":""}">${ic("search")}<input id="shLibIn" type="search" autocomplete="off" placeholder="${esc(t("sh.lib_search_ph"))}" value="${esc(_shLibQ)}" oninput="shLibQ(this.value)" aria-label="${esc(t("sh.lib_search_ph"))}"><button type="button" class="shl-x" onclick="shLibClear()" aria-label="${esc(t("sh.clear_inputs"))}">${ic("close")}</button></label>
@@ -14270,6 +14416,7 @@ function shLibHTML(){
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>
   <div class="shl-chans">${c.channels.map(ch=>`<button class="shl-chan ${_shLibCh===ch.id?"on":""}" data-ch="${esc(ch.id)}" onclick="shLibChan('${esc(ch.id)}')" aria-pressed="${_shLibCh===ch.id}"><i>${ch.avatar?`<img src="${esc(ch.avatar)}" alt="" loading="lazy" decoding="async" width="52" height="52" onerror="this.remove()">`:""}${ch.avatar?"":esc(initials(ch.name))}</i><span>${esc(ch.name)}</span></button>`).join("")}</div></div>`:""}
+  ${weldStudioOn()?`<button class="wprof-pill" onclick="weldProfSheet()" aria-label="${esc(t("wprof.h"))}: ${esc(weldProfLabel(weldProf()))}"><span class="shl-lbl">${esc(t("wprof.lbl"))}</span><b>${esc(weldProfLabel(weldProf()))}</b><span class="wprof-chg">${esc(t("wprof.change"))}</span></button>`:""}
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
@@ -14402,7 +14549,7 @@ window.shOwnDel=async(i,ev)=>{
   if(!await askConfirm({title:t("cf.own_title"),body:t("cf.own_body",{name:shOwnTitle(o)}),confirmLabel:t("cf.delete")}))return;
   shOwn().splice(i,1);
   if(S.shTx)delete S.shTx[o.vid];                     // the transcript was theirs too
-  if(S.lastClip&&S.lastClip.vid===o.vid)S.lastClip=null;   // "Continue your last clip" must not resurrect it
+  if(lastClip()&&lastClip().vid===o.vid)lastClipSet(null);   // "Continue your last clip" must not resurrect it
   save();shOwnRender();toast(t("sh.own_removed_toast"));
 };
 function shOwnCard(o,i){
@@ -14442,7 +14589,7 @@ function shOwnHTML(top){
    pre-library rule, so every add or remove put a second "Your videos" above
    the library, and the library's own row (count, feed) stayed stale until the
    next full render — only the bookmark resynced it (fixed 26 Sep 2026). */
-function shOwnTopHTML(){return isProfessionalJourney()||shLibOn()?"":shOwnHTML(true)}
+function shOwnTopHTML(){return shProLines()||shLibOn()?"":shOwnHTML(true)}
 function shOwnListHTML(){return shLibOn()?"":shOwnHTML(false)}
 function shOwnRender(){
   const top=document.getElementById("shOwnTop"),el=document.getElementById("shOwn");
@@ -14467,7 +14614,7 @@ async function shLoad(c,quiet){
   if(scene&&!scnOn()){if(!quiet)toast(t("scn.unavailable"));return}
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
   /* remember the last clip so a page refresh restores the player, transcript and recordings */
-  S.lastClip={vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title};save();
+  lastClipSet({vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title});save();
   shCounting=false;shPing={};
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   const seg0=document.getElementById("shSeg");if(seg0)seg0.classList.remove("has-clip");
@@ -14494,7 +14641,7 @@ async function shLoad(c,quiet){
   if(scene){scnCastLoad();scnListLoad();scnStatusStart()}
   ytPlayer=new (scene?ShadowScenes.ScenePlayer:YT.Player)("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
-    events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shv3Title")||document.getElementById("shWorkTitle");if(wt)wt.textContent=t;const oi=shOwnFind(shClip.vid);if(oi>=0&&shOwn()[oi].title!==t){shOwn()[oi].title=t;save();shOwnRender()}}}catch(_){}
+    events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(lastClip())lastClip().title=t;const wt=document.getElementById("shv3Title")||document.getElementById("shWorkTitle");if(wt)wt.textContent=t;const oi=shOwnFind(shClip.vid);if(oi>=0&&shOwn()[oi].title!==t){shOwn()[oi].title=t;save();shOwnRender()}}}catch(_){}
       if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick();
       if(svAsset&&(svAsset.level==="text"||svAsset.level==="none"))shV2Load();   /* a pasted transcript spread over the length needs the duration, known only now */},
       /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or
@@ -14768,7 +14915,7 @@ window.shMark=w=>{
     shPull(true); /* auto-fill transcript from bundled captions (only if box is empty) */
   }
   shSegUI();
-  if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=shClip.start;S.lastClip.end=shClip.end;save()}
+  {const lc=lastClip();if(lc&&lc.vid===shClip.vid){lc.start=shClip.start;lc.end=shClip.end;save()}}
 };
 window.shClearMarks=async()=>{
   const box0=document.getElementById("shNote");
@@ -14776,7 +14923,7 @@ window.shClearMarks=async()=>{
   shClip.start=0;shClip.end=0;shCounting=false;shPing={};
   const c=document.getElementById("shCount");if(c){c.style.display="none";c.textContent="0s";c.className="sh-count"}
   const box=document.getElementById("shNote");if(box){box.value="";delete box.dataset.userSized;taGrow(box)} /* fresh clip → next Mark end auto-pulls */
-  if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=0;S.lastClip.end=0;save()}
+  {const lc=lastClip();if(lc&&lc.vid===shClip.vid){lc.start=0;lc.end=0;save()}}
   shSegUI();
   toast(t("sh.clip_cleared_toast"));
 };
@@ -16778,7 +16925,7 @@ function nudgeSignals(){
   try{
     const area=areaId(),DAYMS=NUDGE_DAY,okVid=v=>/^[A-Za-z0-9_-]{11}$/.test(String(v||""));
     const hist=aList("chHist").filter(x=>x&&okVid(x.vid));
-    const lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
+    const lc=lastClip()&&lastClip().vid?lastClip():null;
     let weekDoneN=0;try{const n=trackDays().length;trackWeeks().forEach(w=>{if(weekDone(w.n)>=n&&w.n===weekDoneN+1)weekDoneN=w.n})}catch(e){}
     /* session reports (the Record-yourself card on a session day), this area only */
     const reps=[];try{Object.keys(S.notes||{}).forEach(k=>{const r=S.notes[k],m=/^exrep:w(\d+)(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/.exec(k);if(m&&r&&r.m&&r.kind!=="conversation"&&(!r.tk||r.tk===area))reps.push({w:+m[1],d:m[2],at:r.at||0,r})})}catch(e){}
@@ -21840,7 +21987,7 @@ const HOW={
   },
   /* Two shadowing screens, one button. General English pastes a clip; a trade
      track shadows the lines from its own workshops and never sees a URL box. */
-  shadow:{pick:()=>isProfessionalJourney()?HOW._shadowPro:HOW._shadowGen},
+  shadow:{pick:()=>shProLines()?HOW._shadowPro:HOW._shadowGen},
   _shadowPro:{
     title:"how.shw_title", lead:"how.shw_lead",
     view:"shadow", point:".sh-line",
@@ -22289,6 +22436,7 @@ const FLAGS_DEFAULT={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
+  welding_studio_enabled:false,        // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Staging on, OFF in production until the owner releases it
   home_v2_enabled:false,               // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; staging on)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
@@ -22312,6 +22460,7 @@ const FLAGS_STAGING={
   shadow_scenes_enabled:true,
   learning_nudges_enabled:true,
   home_v2_enabled:true,
+  welding_studio_enabled:true,
   ads_enabled:false,
   ads_mock_provider:false,
   billing_enabled:false
@@ -22568,7 +22717,7 @@ const AD_POLICY=Object.freeze({
 });
 /* views where learning is interactive — an interstitial or native ad never
    shows while one of these is on screen (natural breaks happen on the way out) */
-const AD_PROTECTED_VIEWS=Object.freeze(["session","shadow","partner","roleplay","simulation","foundations","mission","pron"]);
+const AD_PROTECTED_VIEWS=Object.freeze(["session","shadow","lines","partner","roleplay","simulation","foundations","mission","pron"]);
 const AD_LOG_KEY="be_ad_log";
 let AD_BOOT=Date.now();   /* the visit's start, for the quiet period (let: tests move it back instead of waiting minutes) */
 const _adHolds=new Set();let _adSession={};
@@ -23224,7 +23373,7 @@ function premLaunchReady(){
 function premLaunchBusy(){
   if(document.querySelector("#obWrap,#fndCheckOv,.lang-modal-ov,.cf-ov,#wcOv,.wc-ov,#coachSummary,#rmCel"))return true;
   const w=document.getElementById("shWork");if(w&&w.style.display!=="none"&&w.offsetParent!==null)return true;
-  try{if(cur&&["session","shadow","roleplay","pron","simulation","partner","foundations"].indexOf(cur.v)>=0)return true}catch(e){}
+  try{if(cur&&["session","shadow","lines","roleplay","pron","simulation","partner","foundations"].indexOf(cur.v)>=0)return true}catch(e){}
   return false;
 }
 function premLaunchMaybe(){
@@ -23302,14 +23451,15 @@ function premRemoveAdsHTML(from){return premOffered()&&!entIsPremiumForDisplay()
    untouched) when there is no text. Engine: shadow-sync.js. General English
    only, behind shadow_studio_v2_enabled. */
 let svAsset=null,svMode="watch",svRaf=null,svLast={seg:-1,word:-1},svUserScrollAt=0,svRepeat=null,svPick=-1,svRevealed=false;
-function svOn(){return flag("shadow_studio_v2_enabled")&&isGeneralEnglish()}
+function svOn(){return flag("shadow_studio_v2_enabled")&&(isGeneralEnglish()||weldStudioOn())}
 /* ---------- Animated scenes (shadow-scenes.js) ----------
    General English only, on the library page only, behind shadow_scenes_enabled.
    A scene plays in this same workspace: ScenePlayer takes YT.Player's place, so
    everything below (Watch / Shadow / Challenge, reports, History) is the same
    code. These helpers are the scene's own additions: who is speaking, the
    stage's status line, line actions in Watch, the word card in Shadow. */
-function scnOn(){return svOn()&&shLibOn()&&flag("shadow_scenes_enabled")&&!!window.ShadowScenes}
+/* the animated scenes are General English content (Daniel & Maya at the office): never on Welding, whose Studio is on since 29 Sep 2026 */
+function scnOn(){return svOn()&&shLibOn()&&isGeneralEnglish()&&flag("shadow_scenes_enabled")&&!!window.ShadowScenes}
 function scnIs(vid){return !!(window.ShadowScenes&&ShadowScenes.is(vid))}
 /* a clip's picture: YouTube's thumbnail, or a scene's own poster (written by
    scripts/build_scene.mjs) — a scene id sent to i.ytimg.com is a broken image */
@@ -23569,7 +23719,7 @@ function svRender(){
   box.style.display="";
   const timed=a.level==="word"||a.level==="sentence";
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
-    .filter(([m])=>m!=="apply"||(flag("shadow_apply_phrase_enabled")&&(svApplyAIOn()||svApplyPartnerOn())))
+    .filter(([m])=>m!=="apply"||(flag("shadow_apply_phrase_enabled")&&(svApplyAIOn()||svApplyPartnerOn()||svApplyLabOn())))
     .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
   const segHTML=(s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
@@ -23692,10 +23842,11 @@ function svApplyHTML(){
   return `<div class="sv-apply">
     <div class="eyebrow">${t("sv.apply_eyebrow")}</div>
     <p class="sv-phrase">“${esc(phrase)}”</p>
-    <p class="sub">${t("sv.apply_sub")}</p>
+    <p class="sub">${t(svApplyLabOn()?"sv.apply_sub_lab":"sv.apply_sub")}</p>
     <div class="pp-row">
       ${svApplyAIOn()?`<button class="btn btn-g" onclick="svApplyAI()">${ic("sparkle")} ${t("sv.apply_ai")}</button>`:""}
       ${svApplyPartnerOn()?`<button class="btn-primary" onclick="svApplyPartner()">${ic("user")} ${t("sv.apply_partner")}</button>`:""}
+      ${svApplyLabOn()?`<button class="btn-primary" onclick="svApplyLab()">${ic("flask")} ${t("sv.apply_lab")}</button>`:""}
     </div>
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
@@ -25512,7 +25663,7 @@ let _shHistOpen=null;
 function shHistRender(){
   const box=document.getElementById("shHist");if(!box)return;
   const L=aList("chHist");
-  if(!L.length){box.innerHTML=emptyState("clock",t("sh.hist_empty_title"),t("sh.hist_empty_body"),isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");manIconizeInline(box);return}
+  if(!L.length){box.innerHTML=emptyState("clock",t("sh.hist_empty_title"),t("sh.hist_empty_body"),shProLines()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");manIconizeInline(box);return}
   const groups=[];L.forEach(e=>{const lbl=shHistDayLabel(e.ts);const g=groups[groups.length-1];if(g&&g.lbl===lbl)g.items.push(e);else groups.push({lbl,items:[e]})});
   const time=ts=>{try{return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch(e){return ""}};
   box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>e.kind==="shadow"?shHistShadowCard(e,time):(e.kind==="chsync"||e.kind==="chretell")?shHistRungCard(e,time):shHistChallengeCard(e,time)).join("")).join("");
@@ -25655,6 +25806,17 @@ window.svChUseDone=()=>{if(svCh)svCh.use=null;svChDraw()};
    /live). The AI button used to write S.applyPhrase and open Life
    Simulations, which never read it. General English only, like both targets. */
 function svApplyAIOn(){return svOn()&&ppAvailable()&&flag("practice_partner_ai_fallback_enabled")}
+/* Welding has no Practice Partner and no General English coach (the boundary): the line is
+   applied in Phrase Lab instead — it lands in the Executive Polish box, where the learner puts
+   it in their own words about their own job and the AI coach (tagged AI) rebuilds it */
+function svApplyLabOn(){return svOn()&&weldStudioOn()}
+window.svApplyLab=()=>{
+  if(!svApplyLabOn())return;
+  const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i>=0?i:0];if(!s)return;
+  try{ex.draft=s.text.slice(0,300)}catch(e){}
+  shCloseWork();go("phrases");
+  setTimeout(()=>{const ta=document.getElementById("exIn");if(ta){try{ta.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}ta.focus()}},200);
+};
 function svApplyPartnerOn(){return svOn()&&ppAvailable()}
 window.svApplyAI=()=>{
   if(!svApplyAIOn())return;
@@ -28290,7 +28452,7 @@ function pathTools(){
      Destination, which the header chip used to open. General English is
      untouched. */
   if(isProfessionalJourney())list.push(
-    {id:"lines",go:["shadow"],ic:"doc"},
+    {id:"lines",go:[weldStudioOn()?"lines":"shadow"],ic:"doc"},
     {id:"career",ic:"briefcase",fn:()=>goCareer("practice")}
   );
   if(fndBlocks())list.unshift({id:"fnd",go:fndNeedsPlacement()?["home"]:["foundations"],ic:"mic"});
@@ -31507,7 +31669,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","phrasebank","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist"];
+  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);

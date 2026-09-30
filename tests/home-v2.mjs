@@ -128,15 +128,17 @@ console.log("\n# signed out / signed in, flag, tracks, landing");
   const f = await p.evaluate(() => ({ hx: !!document.querySelector(".hx"), today: !!document.querySelector(".today-card") }));
   ok("25 · flag off (production today): the existing Home, unchanged", !f.hx && f.today, JSON.stringify(f)); await ctx.close(); }
 { const { ctx, p, errs } = await open({ professionalTracks: { activeId: "welding", tradeId: "welder" }, vocab: { w: { ts: 1, reps: 1, due: Date.now() - 1000, tk: ["welding"] } } });
-  const w = await p.evaluate(() => ({ hx: !!document.querySelector(".hx"), career: !!document.querySelector(".career-dashboard"), recs: homeRecs().length, partnerCard: !!document.querySelector(".hx-dcard[onclick*=partner]") }));
-  ok("26 · Welding: its own Career Dashboard Home, no General English recommendation, no Practice Partner card", !w.hx && w.career && w.recs === 0 && !w.partnerCard, JSON.stringify(w));
+  const w = await p.evaluate(() => ({ ws: typeof weldStudioOn === "function" && weldStudioOn(), hx: !!document.querySelector(".hx"), career: !!document.querySelector(".career-dashboard"), recs: homeRecs().length, kinds: homeRecs().map(r => r.kind), partnerCard: !!document.querySelector(".hx-dcard[onclick*=partner]") }));
+  /* welding_studio_enabled (staging): Welding gets Home V2 with its own recommendations — never a partner or the AI coach (tests/welding-studio.mjs checks the content) */
+  ok("26 · Welding: its own Home (Career Dashboard, or Home V2 with the Welding studio on), no General English recommendation, no Practice Partner card", w.ws ? (w.hx && !w.career && !w.kinds.some(k => /partner|ai_coach/.test(k)) && !w.partnerCard) : (!w.hx && w.career && w.recs === 0 && !w.partnerCard), JSON.stringify(w));
   ok("27 · Welding: no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 { const away = new Date(Date.now() - 6 * DAY).toISOString().slice(0, 10);
   const { ctx, p } = await open({ lastSeen: Date.now() - 6 * DAY, dates: [away], dayLog: { [away]: 1 }, dayLogA: { "general-english": { [away]: 1 } } });
   const v = await p.evaluate(() => ({ v: cur.v, kind: (document.querySelector(".hx") || {}).dataset && document.querySelector(".hx").dataset.kind }));
   ok("28 · opening the app after days away lands on Home (not the road map), led by the engine's comeback step", v.v === "home" && v.kind === "comeback", JSON.stringify(v)); await ctx.close(); }
 { const { ctx, p } = await open({ lastSeen: Date.now() - 6 * DAY, professionalTracks: { activeId: "welding", tradeId: "welder" } });
-  ok("29 · Welding keeps its own return rule (the road map after a gap), unchanged", await p.evaluate(() => cur.v === "journey"), await p.evaluate(() => cur.v)); await ctx.close(); }
+  /* with the Welding studio on, Welding has Home V2 and its return rule (Home after a gap) */
+  ok("29 · Welding's return rule: the road map after a gap — or Home when the Welding studio gives it Home V2", await p.evaluate(() => cur.v === (typeof weldStudioOn === "function" && weldStudioOn() && homeV2On() ? "home" : "journey")), await p.evaluate(() => cur.v)); await ctx.close(); }
 { const { ctx, p } = await open({}, { hash: "#journey" });
   ok("30 · a link to a page (here the road map) still opens that page — Home is only the default", await p.evaluate(() => cur.v === "journey")); await ctx.close(); }
 console.log("\n# who is online, beside the hero's button (owner, 28 Sep 2026)");

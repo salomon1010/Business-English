@@ -64,8 +64,8 @@ console.log("\n# Learn (Road map) answers 'what is today?' with one button — t
   const r = await p.evaluate(() => ({ failed: /could not be drawn/.test(document.getElementById("v-journey").innerText), pins: document.querySelectorAll("#v-journey .rm-lbl").length }));
   ok("7 · a Foundations record without its 'done' map no longer takes the Road map down", !r.failed && r.pins > 5, JSON.stringify(r)); await ctx.close(); }
 
-console.log("\n# Welding before placement: one decision — the check; then the mission");
-{ const { ctx, p, errs } = await open(seed("welding", { fnd: { "general-english": F() } }), { flags: {} }); await view(p, "home");
+console.log("\n# Welding before placement: one decision — the check; then the mission (Career Dashboard = welding_studio_enabled off, as in production; the studio's Home V2 is tests/welding-studio.mjs)");
+{ const { ctx, p, errs } = await open(seed("welding", { fnd: { "general-english": F() } }), { flags: { welding_studio_enabled: false } }); await view(p, "home");
   const r = await p.evaluate(() => { const v = document.getElementById("v-home"); return { check: !!v.querySelector(".fnd-home, [onclick*='fndOpenCheck']"), mission: !!v.querySelector(".career-dashboard-mission"), btn: [...v.querySelectorAll("button")].some(x => /Continue Today/.test(x.innerText)), coach: !!v.querySelector(".career-dashboard-coach"), gated: (v.querySelector(".career-dash-gated") || {}).innerText || "", why: (v.querySelector(".career-dash-why") || {}).innerText || "", pick: !!v.querySelector(".career-dash-pick select") } });
   ok("8 · the check is the one action; today's mission, its coach card and its button are not offered yet", r.check && !r.mission && !r.btn && !r.coach, JSON.stringify(r));
   ok("9 · one line says what comes next: 'Your first mission appears after the one-minute check above.'", /first mission appears after the one-minute check/.test(r.gated), r.gated);
@@ -74,16 +74,16 @@ console.log("\n# Welding before placement: one decision — the check; then the 
   const t = await today(p);
   ok("11 · Welding's Road map: Today = the check", t && /fndOpenCheck/.test(t.go), JSON.stringify(t));
   ok("11b · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
-{ const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F(), welding: F({ placed: "foundations", finished: false }) } }), { flags: {} }); await view(p, "home");
+{ const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F(), welding: F({ placed: "foundations", finished: false }) } }), { flags: { welding_studio_enabled: false } }); await view(p, "home");
   const g = await p.evaluate(() => (document.querySelector("#v-home .career-dash-gated") || {}).innerText || "");
   ok("12 · Welding in Foundations: 'Your first mission opens when Foundations is finished.'", /opens when Foundations is finished/.test(g), g); await ctx.close(); }
-{ const { ctx, p, errs } = await open(seed("welding", { days: { "welding:w1Mon": true } }), { flags: { home_v2_enabled: true } }); await view(p, "home");
+{ const { ctx, p, errs } = await open(seed("welding", { days: { "welding:w1Mon": true } }), { flags: { home_v2_enabled: true, welding_studio_enabled: false } }); await view(p, "home");
   const r = await p.evaluate(() => { const v = document.getElementById("v-home"); return { mission: !!v.querySelector(".career-dashboard-mission"), btn: [...v.querySelectorAll("button")].some(x => /Continue Today/.test(x.innerText)), gated: !!v.querySelector(".career-dash-gated") } });
   ok("13 · Welding placed: the mission and its button are back, no gated line", r.mission && r.btn && !r.gated, JSON.stringify(r));
   const iso = [];
   for (const v of ["home", "journey", "practice", "review", "profile"]) { await view(p, v);
     iso.push(await p.evaluate(() => ({ v: cur.v, hx: !!document.querySelector(".view.on .hx"), pill: !!document.querySelector("#hxOnline:not([hidden])"), fab: !!(document.getElementById("ppFab") && document.getElementById("ppFab").offsetParent), pp: /Practice Partner|in line|online now/.test(document.querySelector(".view.on").innerText) }))); }
-  ok("14 · Welding (with the General English Home V2 flag on): no Home V2 hero, online pill, partner button or Practice Partner on any tab", iso.every(x => !x.hx && !x.pill && !x.fab && !x.pp), JSON.stringify(iso.filter(x => x.hx || x.pill || x.fab || x.pp)));
+  ok("14 · Welding (General English Home V2 flag on, Welding studio flag off — production): no Home V2 hero, online pill, partner button or Practice Partner on any tab", iso.every(x => !x.hx && !x.pill && !x.fab && !x.pp), JSON.stringify(iso.filter(x => x.hx || x.pill || x.fab || x.pp)));
   ok("14b · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english")); await view(p, "home");
   ok("15 · General English Home has no Career Dashboard", !(await p.evaluate(() => !!document.querySelector("#v-home .career-dashboard")))); await ctx.close(); }
@@ -102,7 +102,7 @@ for (const [lang, word, pos] of [["fr", "Semaine 1", "Séance 4 sur 7"], ["ar", 
   ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥44px${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 44 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
   if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-journey .rm2").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/today-${lang}.png` }) }
   await ctx.close(); }
-{ const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F() } }), { w: 375, lang: "fr", flags: {} }); await view(p, "home");
+{ const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F() } }), { w: 375, lang: "fr", flags: { welding_studio_enabled: false } }); await view(p, "home");
   const g = await p.evaluate(() => (document.querySelector("#v-home .career-dash-gated") || {}).innerText || "");
   ok("18 · fr: the Welding gated line is translated", /Votre première mission apparaît après le test/.test(g), g);
   if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-home .career-dash-gated").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/weld-gated-fr.png` }) }
