@@ -61,8 +61,8 @@ console.log("\n# Learn (Road map) answers 'what is today?' with one button — t
   ok("6b · …and the button is 'Review your journey' → Progress", await p.evaluate(() => { const b = document.querySelector("#v-journey .rm2-cta"); return b && b.innerText.includes("Review your journey") && /go\('review'\)/.test(b.getAttribute("onclick")) })); await ctx.close(); }
 { const st = seed("general-english"); st.fnd["general-english"] = { placed: "full", finished: true };   // a state written without its done map
   const { ctx, p, errs } = await open(st); await view(p, "journey");
-  const r = await p.evaluate(() => ({ failed: /could not be drawn/.test(document.getElementById("v-journey").innerText), pins: document.querySelectorAll("#v-journey .rm-lbl").length }));
-  ok("7 · a Foundations record without its 'done' map no longer takes the Road map down", !r.failed && r.pins > 5, JSON.stringify(r)); await ctx.close(); }
+  const r = await p.evaluate(() => ({ failed: /could not be drawn/.test(document.getElementById("v-journey").innerText), rows: document.querySelectorAll("#v-journey .rm2-row").length, cta: !!document.querySelector("#v-journey .rm2-cta") }));
+  ok("7 · a Foundations record without its 'done' map no longer takes the Road map down", !r.failed && r.rows >= 3 && r.cta, JSON.stringify(r)); await ctx.close(); }
 
 console.log("\n# Welding before placement: one decision — the check; then the mission (Career Dashboard = welding_studio_enabled off, as in production; the studio's Home V2 is tests/welding-studio.mjs)");
 { const { ctx, p, errs } = await open(seed("welding", { fnd: { "general-english": F() } }), { flags: { welding_studio_enabled: false } }); await view(p, "home");

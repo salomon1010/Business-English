@@ -59,10 +59,13 @@ ok("An unshown modal sheet does not intercept taps; a shown one does", await pag
   g.remove(); return hit1 && !hit2;
 }));
 
-/* ── road map: fast, and drawn ── */
-const rm = await page.evaluate(async () => { go("journey"); await new Promise(r => setTimeout(r, 500)); const road = document.getElementById("rmRoad"); const a = performance.now(); rmDraw(road); return { ms: performance.now() - a, pins: road.querySelectorAll(".rm-pin").length, arrows: road.querySelectorAll(".rm-arw").length }; });
-ok("Road map draws in under 300 ms", rm.ms < 300, Math.round(rm.ms) + " ms");
-ok("Road map has pins and arrows", rm.pins > 5 && rm.arrows > 3, JSON.stringify(rm));
+/* ── road map: fast, and there is exactly ONE of it ── */
+const rm = await page.evaluate(async () => { const a = performance.now(); go("journey"); const ms = performance.now() - a; await new Promise(r => setTimeout(r, 500));
+  return { ms, cards: document.querySelectorAll("#v-journey .rm2").length,
+    legacy: document.querySelectorAll(".rm-road,#rmRoad,.rm-lbl,.rm-pin").length,
+    parts: ["\u002erm2-ring","\u002erm2-cur","\u002erm2-jour",".rm2-cta"].filter(q => document.querySelector("#v-journey " + q)).length }; });
+ok("Road map renders in under 300 ms", rm.ms < 300, Math.round(rm.ms) + " ms");
+ok("ONE road map — the card, with no legacy winding road", rm.cards === 1 && rm.legacy === 0 && rm.parts === 4, JSON.stringify(rm));
 ok("Every page opens in under 500 ms", await page.evaluate(async () => { let worst = 0; for (const v of ["home","journey","shadow","phrases","practice","review","profile","data"]) { const t0 = performance.now(); go(v); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); worst = Math.max(worst, performance.now() - t0); document.querySelectorAll(".cf-ov,.wc-ov,.lang-modal-ov").forEach(e => e.remove()); } return worst < 500; }));
 
 /* ── Home ── */
@@ -175,9 +178,9 @@ await page.evaluate(() => {
 await page.goto(BASE + "/index.html?back=" + Date.now(), { waitUntil: "load" }); await wait(1200);
 const back = await page.evaluate(() => {
   const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
-  return { hash: location.hash, now: inView(document.querySelector(".rm-lbl.now")), next: inView(document.querySelector(".rm-lbl.next")), strip: !!document.getElementById("rmCel") };
+  return { hash: location.hash, now: inView(document.querySelector(".rm2-cur")), next: inView(document.querySelector(".rm2-next")), strip: !!document.getElementById("rmCel") };
 });
-ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
+ok("Back after 3 h: opens the road map with the current stage and what is next on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
 
 /* ── switching area lands on the other area's HOME, with the "You're now in …" strip (owner, 28 Sep 2026) ── */
 const sw = await page.evaluate(async () => {
