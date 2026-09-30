@@ -2254,6 +2254,14 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .sv-sh-t{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-sh-t svg{width:15px;height:15px;flex:none}.sv-sh-t small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}
 .sv-tr-grp{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:99px;background:var(--bg2)}.sv-tr-grp .sv-sh-t{border:0;background:transparent;border-radius:99px 0 0 99px;padding:0 5px 0 9px;gap:5px}.sv-tr-grp.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-tr-grp.on .sv-sh-t{background:transparent}
 .sv-tr-lang{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-height:40px;min-width:36px;padding:0 8px 0 7px;border:0;border-left:1px solid var(--line2);background:transparent;color:var(--mut);font:inherit;cursor:pointer}.sv-tr-lang svg{width:14px;height:14px}.sv-tr-lang small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}.sv-tr-grp.on .sv-tr-lang{color:var(--accent-text);border-left-color:color-mix(in srgb,var(--acc) 45%,transparent)}.sv-tr-grp.on .sv-tr-lang small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-tr-lang:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+#pgClose{position:fixed;z-index:60;top:calc(var(--nav-h,56px) + 10px);inset-inline-end:12px;width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--line2);background:var(--card);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);padding:0}
+#pgClose svg{width:18px;height:18px}
+#pgClose:hover,#pgClose:focus-visible{color:var(--txt);border-color:var(--acc);outline:none}
+/* the leading heading keeps clear of it */
+html[data-view="lines"] .view.on>h1.big,html[data-view="career"] .view.on>h1.big,html[data-view="simulation"] .view.on>h1.big,
+html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.big+*,html[data-view="simulation"] .view.on>h1.big+*{padding-inline-end:48px}
 .sv-tr-pop{position:fixed;z-index:140;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line2);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45);overflow:hidden;animation:fade .15s}.sv-tr-q{margin:8px 8px 4px;height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;flex:none}.sv-tr-q:focus-visible{outline:2px solid var(--focus);outline-offset:0}.sv-tr-list{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:2px 4px 6px;min-height:0}.sv-tr-opt{display:flex;align-items:center;gap:9px;width:100%;min-height:40px;padding:4px 8px;border:0;border-radius:9px;background:transparent;color:var(--txt);font:inherit;font-size:13.5px;font-weight:600;text-align:start;cursor:pointer}.sv-tr-opt:hover,.sv-tr-opt:focus-visible{background:var(--bg2);outline:none}.sv-tr-opt.sel{background:color-mix(in srgb,var(--acc) 14%,transparent)}.sv-tr-opt .lang-ic{width:24px;height:24px;font-size:9px}.sv-tr-opt .lang-ic.lang-flag span{font-size:26px}.sv-tr-grp .lang-ic.sv-tr-bf{width:18px;height:18px}.sv-tr-grp .lang-ic.sv-tr-bf span{font-size:19px}.sv-tr-opt .sv-tr-nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sv-tr-opt small{font-size:11.5px;font-weight:500;color:var(--mut2);margin-inline-start:6px}.sv-tr-opt svg{flex:none;width:16px;height:16px;color:var(--acc)}.sv-tr-none{color:var(--mut);text-align:center;padding:12px 0;font-size:13px;margin:0}
 .sv-sh-t.on{border-color:var(--acc);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-sh-t.on small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-sh-t.na{opacity:.55}.sv-sh-t:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:4px 0 10px;font-size:12.5px;line-height:1.5;font-weight:400;color:var(--mut2)}.sv-para-tr.err{color:var(--red)}.sv-para-tr[dir="rtl"]{text-align:right}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
@@ -10452,12 +10460,17 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="mission"&&v!=="mission"){exCoachStop();exHost=null}}catch(e){}
   try{if(cur&&cur.v==="roleplay"&&v!=="roleplay"){exCoachStop();exHost=null}}catch(e){}
   try{if(cur&&(cur.v==="shadow"||cur.v==="lines"||cur.v==="simulation")&&v!==cur.v){exCoachStop();exHost=null}}catch(e){}
+  const _pgPrev=(typeof cur!=="undefined"&&cur)?cur:null;
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
+  /* on the very first draw after a launch there is no page behind this one: cur still reads
+     "home" because that is the view the shell starts on, and a relaunch restoring #lines has
+     the learner arriving cold — so the ✕ takes them to the page these tools belong to */
+  try{pgCloseSync(v,arg1,_pgNav?_pgPrev:null);_pgNav=true}catch(e){}
   /* The map tab glows until it has been opened once. Existing learners knew
      that tab as "Weeks"; the glow and the one-time toast are how they learn it
      is now the road map. */
@@ -29979,6 +29992,32 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
     _go(v,a1,a2);
   };
 })();
+/* ===== The way out of a page you opened from another page (owner, 30 Sep 2026) =====
+   Practice text shadowing, Career Destination, the workplace scenarios and the interview
+   coaches are all opened FROM another page, and each carried a "‹ Practice" button inside
+   .pg-eyebrow — which has been hidden app-wide since 22 Sep 2026, so on a phone there was
+   no way back at all. One floating ✕, drawn by go() for those pages, closes the page and
+   returns where the learner came from (the scenario list from a scenario, else the page
+   they left, else Practice). The bottom-bar tabs keep their own pages; they are never
+   "closed". */
+const PG_CLOSE={lines:1,career:1,simulation:1};
+let _pgBack=null,_pgNav=false;
+function pgCloseSync(v,a1,prev){
+  const want=!!PG_CLOSE[v];
+  let el=document.getElementById("pgClose");
+  if(!want){if(el)el.remove();_pgBack=null;return}
+  /* a scenario opened from its own list closes back to the list, not out of the page */
+  _pgBack=(prev&&prev.v===v&&a1!=null&&prev.arg1==null)?{v,a1:null}
+    :(prev&&prev.v!==v&&!PG_CLOSE[prev.v])?{v:prev.v,a1:prev.arg1,a2:prev.arg2}
+    :{v:"practice"};
+  if(!el){
+    el=document.createElement("button");el.id="pgClose";el.type="button";
+    el.onclick=()=>{const b=_pgBack||{v:"practice"};go(b.v,b.a1,b.a2)};
+    document.body.appendChild(el);
+  }
+  el.innerHTML=ic("close");
+  const lbl=t("wc.close");el.setAttribute("aria-label",lbl);el.title=lbl;
+}
 /* Publishes the sticky eyebrow's real height so anything stacking beneath it
    (.help-searchbar) can offset by a measured value instead of a guessed one.
    Measured, not hardcoded: the eyebrow grows when the translated label wraps. */
