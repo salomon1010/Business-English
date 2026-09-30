@@ -38,7 +38,7 @@ const state = p => p.evaluate(() => ({
   area: areaId(), context: ProfessionalTrackContext.active().id, ge: isGeneralEnglish(), journey: isProfessionalJourney() ? "professional" : "general",
   dataTrack: document.documentElement.getAttribute("data-track"), chip: !!(document.getElementById("trackIndicator") || {}).classList?.contains("show"),
   pp: ppAvailable(), sv: svOn(), polishArea: exAreaKey(), hist: ppHist().length, split: shOwnSplit() }));
-const agree = s => s.area === s.context && (s.area === "general-english") === s.ge && (s.journey === "general") === s.ge && (s.dataTrack === "general") === s.ge && s.chip === !s.ge;
+const agree = s => s.area === s.context && (s.area === "general-english") === s.ge && (s.journey === "general") === s.ge && (s.dataTrack === "general") === s.ge && s.chip === false; /* the header chip was removed on 29 Sep 2026 (Career Destination moved to Welding Practice): on NEITHER track now */
 
 /* sign-in on a device that is on one track, adopting an account copy on the other */
 async function adoptCloud(p, cloudTrack) {

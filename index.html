@@ -5857,7 +5857,9 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
 
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home"><span class="brand-home-ic" aria-hidden="true"></span><span data-i18n="nav.home_label">Home</span></small></span></div>
-  <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small id="trackIndicatorDest">Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
+  <!-- the Welding header chip ("International · Welder", which opened the Career Center) was removed on 29 Sep 2026
+       (owner): Career Destination is now the fifth tool on Welding Practice. applyTrackIdentity() is guarded and
+       still sets data-track; goCareer() and the #career route are unchanged. -->
   <button class="tab" data-v="journey" data-ic="route"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
   <button class="tab" data-v="phrases" data-ic="phrase"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="shadowing"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
@@ -8200,6 +8202,10 @@ const I18N_EN={
  "tools.sim_sub":"The AI colleague from Life Simulations — a full conversation, answer by answer.",
  "tools.fnd":"Foundations — today's three sentences",
  "tools.fnd_sub":"Hear it, understand it, say it, record it.",
+ "tools.lines":"Practice text shadowing",
+ "tools.lines_sub":"Real lines from your workshops. Hear each one, then say it back.",
+ "tools.career":"Career Destination",
+ "tools.career_sub":"Choose where you want to work and see what that destination asks of you.",
  "tools.why_shadow":"This step is about sound and rhythm. Shadowing gives you a native model to copy before you record.",
  "tools.why_phrases":"This step is a speaking task. Phrase Lab gives you the sentences to build it from, and Executive Polish upgrades what you say.",
  "tools.why_vocab":"This step is about words. Flashcards and quizzes make them stick before you have to use them.",
@@ -10085,7 +10091,7 @@ function bnavSync(v){
   /* the same page → tab mapping as the desktop header in go() (tv): a page with
      no tab of its own lights the tab it belongs to — the phrase bank lit nothing
      on a phone while it lit Phrase Lab on a desktop (nav audit, 29 Sep 2026) */
-  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
+  const map=v==="session"?"journey":(v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
   document.querySelectorAll(".bnav-item").forEach(b=>navOn(b,b.dataset.v===map));
 }
 /* the lit tab is also the one a screen reader announces as the current page
@@ -10146,7 +10152,7 @@ function go(v,arg1,arg2){
   try{if(cur&&(cur.v==="shadow"||cur.v==="simulation")&&v!==cur.v){exCoachStop();exHost=null}}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
+  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -10443,8 +10449,11 @@ window.goCareer=(from)=>{_careerFrom=from||(cur&&cur.v)||"profile";go("career")}
 /* Reached from Home, from the Profile row and now from the header chip, which
    sits on every screen. Back goes Home in all three cases — the owner asked for
    that explicitly, and it is the one destination that is never a surprise. */
-window.careerBack=()=>go("home");
-window.careerBackLabel=()=>t("nav.home_label");
+/* …except from Practice, its home since 29 Sep 2026 (owner): Practice → Career
+   Destination → back lands on Practice again. A deep link (#career) still opens
+   the page and goes Home. */
+window.careerBack=()=>go(_careerFrom==="practice"?"practice":"home");
+window.careerBackLabel=()=>_careerFrom==="practice"?t("bnav.practice"):t("nav.home_label");
 window.homeTradePick=(id)=>{
   if(window.Trades&&Trades.setActive(S,id)){save();applyTrackIdentity();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
 };
@@ -27983,6 +27992,15 @@ function pathTools(){
     {id:"vocab",go:["practice"],ic:"cards"},
     {id:"sim",go:[sim],ic:"user",locked:fndBlocks()}
   ];
+  /* Welding Practice is a five-tool box (owner, 29 Sep 2026): the three above,
+     then 4 · Practice text shadowing — the workplace lines, the same list the
+     Shadow tab shows on this track, not a second copy — and 5 · Career
+     Destination, which the header chip used to open. General English is
+     untouched. */
+  if(isProfessionalJourney())list.push(
+    {id:"lines",go:["shadow"],ic:"doc"},
+    {id:"career",ic:"briefcase",fn:()=>goCareer("practice")}
+  );
   if(fndBlocks())list.unshift({id:"fnd",go:fndNeedsPlacement()?["home"]:["foundations"],ic:"mic"});
   return list;
 }
@@ -27997,7 +28015,10 @@ function pathToolPick(){
 window.pathToolGo=(id)=>{
   const tool=pathTools().find(x=>x.id===id);if(!tool)return;
   if(tool.locked){pathNudge();return}
+  if(tool.fn){tool.fn();return}
   go(...tool.go);
+  /* text shadowing opens the Shadow page on its list of workplace lines */
+  if(id==="lines")setTimeout(()=>{try{shTab("create");const l=document.querySelector("#v-shadow .sh-lines");if(l)l.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},80);
   /* the vocabulary drills live on the Practice page itself, under the library */
   if(id==="vocab")setTimeout(()=>{try{libGroup("vocabulary");const kb=document.querySelector(".prac-kb");if(kb)kb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},80);
 };
@@ -28012,7 +28033,7 @@ function pathToolsHTML(){
     <div class="eyebrow">${t("tools.eyebrow")}</div>
     <h2>${s.next?esc(s.next.label):t("path.all_done")}</h2>
     <p class="sub">${esc(pick.why)}</p>
-    <div class="path-tool-list">${pathTools().filter(x=>x.id!=="sim"||x.id===pick.id).map(x=>`<button class="path-tool ${x.id===pick.id?"rec":""} ${x.locked?"locked":""}" onclick="pathToolGo('${x.id}')" ${x.locked?'aria-disabled="true"':""}>
+    <div class="path-tool-list">${pathTools().filter(x=>x.id!=="sim"||(x.id===pick.id&&!isProfessionalJourney())).map(x=>`<button class="path-tool ${x.id===pick.id?"rec":""} ${x.locked?"locked":""}" onclick="pathToolGo('${x.id}')" ${x.locked?'aria-disabled="true"':""}>
       <span class="pt-ic">${ic(x.locked?"lock":x.ic)}</span>
       <span class="pt-t"><b>${t("tools."+x.id)}</b><small>${t("tools."+x.id+"_sub")}</small></span>
       ${x.id===pick.id?`<span class="chip done">${t("tools.rec")}</span>`:(x.locked?`<span class="chip">${t("tools.locked")}</span>`:"")}
