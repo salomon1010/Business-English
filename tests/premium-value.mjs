@@ -109,14 +109,34 @@ console.log("\n# production default — billing off: the app is as it was");
 
 console.log("\n# A · curated library + saved Shadow videos (General English)");
 {
-  ok("A0 · the catalogue is intact: 301 videos, 5 categories, 295 caption files", LIB.length === 301 && CAT.categories.length === 5 && LIB.filter(v => { try { readFileSync(new URL("../captions/" + v + ".json", import.meta.url)); return true; } catch (e) { return false; } }).length === 295);
+  /* Derived from catalogue/general.json, not frozen: the counts were 301 / 5 /
+     295 when this was written and are 385 / 8 / 380 today, because content is
+     added. A hard number only ever proves when someone last edited this line.
+     What must stay true is the catalogue's INTEGRITY, so that is what is
+     asserted: every id a category lists exists, every video belongs to a
+     category, nothing is listed twice, and caption coverage does not quietly
+     collapse. */
+  {
+    const listed = CAT.categories.flatMap(c => c.vids);
+    const dangling = listed.filter(v => !CAT.videos[v]);
+    const orphan = LIB.filter(v => !listed.includes(v));
+    /* A video may sit in more than one category on purpose — 14 do
+       today, film and TV clips filed under both `everyday`/`skills` and
+       `movies`/`tv` — so sharing is not an error. Listing the same id twice
+       inside ONE category would be. */
+    const dupes = CAT.categories.filter(c => c.vids.length !== new Set(c.vids).size).map(c => c.id);
+    const caps = LIB.filter(v => { try { readFileSync(new URL("../captions/" + v + ".json", import.meta.url)); return true; } catch (e) { return false; } }).length;
+    ok(`A0 · the catalogue is internally consistent: ${LIB.length} videos over ${CAT.categories.length} categories, no dangling or orphan ids, ${caps} with captions (\u2265 90%)`,
+      LIB.length > 0 && CAT.categories.length > 0 && !dangling.length && !orphan.length && !dupes.length && caps >= LIB.length * 0.9,
+      JSON.stringify({ videos: LIB.length, cats: CAT.categories.length, dangling: dangling.slice(0, 3), orphan: orphan.slice(0, 3), dupesWithinACategory: dupes, caps }));
+  }
   const { ctx, p, errs, polish } = await open({ uid: "fa" });
   const r = []; for (let i = 0; i < 2; i++) r.push(await libSave(p, LIB[i]));
   ok("A1 · Free saves 1–2 library videos: 'Saved to Your videos (n/2)' (owner, 27 Sep 2026: 5 → 2)", r.every((x, i) => x.lib === i + 1 && x.toast === `Saved to Your videos (${i + 1}/2)`), JSON.stringify(r.map(x => x.toast)));
   const six = await libSave(p, LIB[2]);
   ok("A2 · the third is refused and explained: 'You've saved 2 Shadow videos' — Premium saves up to 100", six.lib === 2 && six.ask && six.ask.title === "You've saved 2 Shadow videos" && /Premium lets you save up to 100/.test(six.ask.body) && six.ask.confirmLabel === "See Premium plans", JSON.stringify(six));
   const all = await p.evaluate(async ids => { const out = []; for (const v of ids) { shLibOpen(v); } await new Promise(r => setTimeout(r, 50)); return { loads: __loads.length, cats: _shCat.categories.map(c => c.vids.length) }; }, LIB);
-  ok("A3 · with the saved list full, every one of the 301 library videos still opens", all.loads === 301 && JSON.stringify(all.cats) === JSON.stringify(CAT.categories.map(c => c.vids.length)), JSON.stringify(all));
+  ok(`A3 · with the saved list full, every one of the ${LIB.length} library videos still opens`, all.loads === LIB.length && JSON.stringify(all.cats) === JSON.stringify(CAT.categories.map(c => c.vids.length)), JSON.stringify(all));
   const rows = await p.evaluate(async () => { go("shadow"); await new Promise(r => setTimeout(r, 800)); const b = [...document.querySelectorAll(".shl-save")]; return { n: b.length, on: b.filter(x => x.getAttribute("aria-pressed") === "true").length, big: b.length && b[0].getBoundingClientRect().height >= 44 }; });
   ok("A4 · library rows carry a bookmark (44 px), saved ones pressed", rows.n > 0 && rows.on >= 1 && rows.big, JSON.stringify(rows));
   const un = await libSave(p, LIB[0]);
@@ -218,8 +238,17 @@ const histSheet = p => p.evaluate(() => { exHistSheet(); const o = document.getE
   ok("C3 · 'vs last time' survives: the newest report carries the previous numbers", await p.evaluate(() => !!exReps()[0].pm && exReps()[0].pm.words > 0));
   const many = await polishRuns(p, 9);
   ok("C4 · no daily limit: twelve reports in a row all produced; Free keeps its usual 5 stored", many.length === 9 && await p.evaluate(() => exReps().length === 5), JSON.stringify(many));
-  const open1 = await p.evaluate(() => { exHistOpen(0); const w = document.querySelector(".ex-rep-card"); return !!w && /report/i.test(w.innerText); });
-  ok("C5 · the latest report re-opens with its feedback", open1);
+  /* This matched /report/i on the card's text until the owner renamed the
+     heading to "How you came across" (28 Sep 2026, v566) and the card stopped
+     containing the word. The card itself never broke. Asserted now against the
+     heading the app actually prints — read through t(), so a copy change or a
+     translation does not make this fail again — plus the two things that make it
+     a re-OPENED report: the details element is open (exHistOpen sets repOpen,
+     "a history pick is that intent") and the entry's own measurements are on it. */
+  const open1 = await p.evaluate(() => { exHistOpen(0); const w = document.querySelector(".ex-rep-card");
+    return { has: !!w, open: !!(w && w.hasAttribute("open")), head: !!(w && w.innerText.includes(t("ex.report_h"))),
+      words: !!(w && /\d+\s+words/.test(w.innerText)) }; });
+  ok("C5 · the latest report re-opens, open, under its own heading and carrying its measurements", open1.has && open1.open && open1.head && open1.words, JSON.stringify(open1));
   ok("C6 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
   grant("pp");
@@ -243,14 +272,31 @@ const histSheet = p => p.evaluate(() => { exHistSheet(); const o = document.getE
   await W.ctx.close();
 }
 
-console.log("\n# E/H · Welding is unchanged even for a Premium account");
+/* ONE subscription across BOTH tracks (owner, 30 September 2026 — commit
+   184f3a0e). This section used to be titled "Welding is unchanged even for a
+   Premium account" and asserted that the plan limits did not reach Welding at
+   all. That rule was deliberately REVERSED: PLAN_LIMITS_TRACK gives Welding its
+   own FREE numbers and no premium row, precisely so "a paying learner gets the
+   same headroom on either track". The assertions below are the reversal, read
+   off the limits table rather than retyped, so they follow the owner's numbers
+   if those change again.
+
+   What did NOT change, and is still asserted: Welding entries carry no `src`
+   kind field (`shOwnAdd`: `if(ge)o.src=k`), because Welding keeps one shared
+   list per track and classifies a saved video on the fly. */
+console.log("\n# E/H · Welding gets the SAME Premium headroom — one subscription, both tracks");
 {
   grant("wp");
   const { ctx, p, errs, polish } = await open({ track: "welding", uid: "wp" });
+  const capYt = await p.evaluate(() => planLimit("youtubeImports", "premium"));
   const r = []; for (let i = 1; i <= 6; i++) r.push(await paste(p, wv(i)));
-  ok("W1 · Welding: 5 pasted links with '(n/5)', the sixth refused with the old message and still plays", r.slice(0, 5).every((x, i) => x.toast === `Saved to Your videos (${i + 1}/5)`) && r[5].n === 5 && r[5].toast === "You already have 5 of your own videos — remove one to keep this one" && r[5].loaded, JSON.stringify(r[5]));
-  ok("W2 · Welding entries carry no kind field; the plan limits do not apply there", await p.evaluate(() => S.shOwnA.welding.every(o => !("src" in o)) && !shOwnSplit() && shOwnCap("yt") === 5));
-  ok("W3 · Welding transcription is as before (a pasted link is not gated)", await p.evaluate(async () => (await shCapMayAsk("w0000000009")) === true));
+  ok(`W1 · a PREMIUM Welding learner imports against the PREMIUM cap (${capYt}), the same as General English — six pastes all saved, counted (n/${capYt})`,
+    capYt >= 6 && r.every((x, i) => x.n === i + 1 && x.toast === `Added to Your YouTube videos (${i + 1}/${capYt})`) && r[5].loaded,
+    JSON.stringify(r.map(x => x.toast)));
+  ok(`W2 · the plan limits DO apply on Welding now (split on, cap ${capYt}), while Welding entries still carry no kind field`,
+    await p.evaluate(c => S.shOwnA.welding.every(o => !("src" in o)) && shOwnSplit() === true && shOwnCap("yt") === c, capYt));
+  ok("W3 · Welding transcription follows the General English rule: offered for a catalogue video or one of the learner's own imports, refused for an id that is neither",
+    await p.evaluate(async () => (await shCapMayAsk("w0000000001")) === true && (await shCapMayAsk("w0000000009")) === false));
   const sheet = await p.evaluate(() => { premiumOpen("t"); const t = document.getElementById("premOv").innerText; premClose(); return t; });
   ok("W4 · Welding's Premium sheet has none of the General English lines or the comparison", !/Shadow videos|YouTube|Polish/.test(sheet), sheet);
   ok("W5 · no JavaScript errors", !errs.length, errs.join(" | "));
@@ -313,7 +359,9 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   o = await open({ uid: null, keepLaunch: true }); await sleep(3000);
   ok("D3 · signed out → no launch offer (a purchase needs an account)", !(await launchState(o.p))); await o.ctx.close();
   o = await open({ track: "welding", uid: "lw", keepLaunch: true }); await sleep(3000);
-  ok("D4 · Welding → no launch offer (today's Premium benefits are General English ones)", !(await launchState(o.p))); await o.ctx.close();
+  /* reversed with the rest of 184f3a0e: one subscription covers Welding, so the
+     launch offer belongs there too (premLaunchReady has no track condition) */
+  ok("D4 · Welding → the launch offer DOES appear: the same subscription is sold on both tracks", !!(await launchState(o.p))); await o.ctx.close();
 
   const L = await open({ uid: "lf", keepLaunch: true, theme: "dark" }); await sleep(2600);
   let s = await launchState(L.p);

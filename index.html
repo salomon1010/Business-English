@@ -23309,7 +23309,14 @@ const AdProviders={
   none:{id:"none",available:()=>true,supports:()=>false,preload(){},async load(){return false},isReady:()=>false,async show(){return {shown:false}},dismiss(){},async renderNative(){return false}},
   mock:{
     id:"mock",_ready:{},
-    available(){try{return flag("ads_mock_provider")&&(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||!!(beEnv()||{}).flags)}catch(e){return false}},
+    /* !IS_IOS_APP on the localhost half, the same guard entApiBase() uses: the
+       App Store shell runs at capacitor://localhost, so location.hostname IS
+       "localhost" there and this read as "a developer machine". The flag is
+       false in FLAGS_DEFAULT and in FLAGS_IOS, so no shipped build reached it —
+       but the host test was wrong, and a flag is a preview switch, not a
+       boundary. A STAGING iOS bundle still qualifies through beEnv(), which is
+       how it is meant to be reviewed. */
+    available(){try{return flag("ads_mock_provider")&&((!IS_IOS_APP&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname))||!!(beEnv()||{}).flags)}catch(e){return false}},
     supports:f=>f==="interstitial"||f==="native"||f==="rewarded",
     preload(f){this._ready[f]=true},
     async load(f){await new Promise(r=>setTimeout(r,120));this._ready[f]=true;return true},

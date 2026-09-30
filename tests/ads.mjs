@@ -266,6 +266,54 @@ console.log("\n# mobile, dark first, light borders");
   }
 }
 
+/* ============================================================================
+   The App Store shell is NOT a developer machine (30 Sep 2026)
+   ----------------------------------------------------------------------------
+   The iOS shell loads from capacitor://localhost, so location.hostname is
+   literally "localhost" there. Every host test written as "localhost means a
+   developer machine" therefore read a shipped iOS build as one. The flags are
+   false in FLAGS_DEFAULT and FLAGS_IOS so nothing shipped reached it, but a
+   flag is a preview switch, not a boundary — these force both flags ON and
+   prove the HOST test refuses anyway. The served page here is on 127.0.0.1,
+   which is exactly the trap: the hostname looks local and IS_IOS_APP is true.
+   ========================================================================== */
+console.log("\n# the App Store shell is not a developer machine");
+{
+  /* an iOS PRODUCTION build: Capacitor present, no BE_BUILD (that is staging only) */
+  async function openIOS(ios, flags) {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    await ctx.addInitScript(([s, f, isIos]) => {
+      localStorage.setItem("be12_v1", s); if (f) localStorage.setItem("be_flags", JSON.stringify(f));
+      if (isIos) window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: () => ({}) };
+    }, [seed("general-english"), flags, ios]);
+    await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights|ent\.test/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+    const p = await ctx.newPage(); await p.goto(BASE + "index.html"); await sleep(1300);
+    const o = await p.evaluate(async () => ({
+      ios: IS_IOS_APP, host: location.hostname, env: !!(window.beEnv && beEnv()),
+      adsFlag: flag("ads_mock_provider"), billFlag: flag("billing_preview_provider"),
+      mockAds: AdProviders.mock.available(), previewBilling: await BillingProviders.preview.available(),
+    }));
+    await ctx.close(); return o;
+  }
+  const BOTH = { ads_enabled: true, ads_mock_provider: true, billing_enabled: true, billing_preview_provider: true };
+
+  const i = await openIOS(true, BOTH);
+  ok("X1 · the iOS shell really does look local: IS_IOS_APP true and hostname localhost/127.0.0.1", i.ios === true && /^(localhost|127\.0\.0\.1)$/.test(i.host), JSON.stringify(i));
+  ok("X2 · …and it is NOT a staging build (beEnv null), so only the host test could have let it through", i.env === false, JSON.stringify(i));
+  ok("X3 · both preview flags are forced ON, so this tests the HOST guard and not the flag", i.adsFlag === true && i.billFlag === true, JSON.stringify(i));
+  ok("X4 · iOS production: mock ads are NOT available", i.mockAds === false, JSON.stringify(i));
+  ok("X5 · iOS production: preview billing is NOT available", i.previewBilling === false, JSON.stringify(i));
+
+  /* local web development must keep working exactly as before */
+  const w = await openIOS(false, BOTH);
+  ok("X6 · local web development is untouched: mock ads still available with the flag on", w.ios === false && w.mockAds === true, JSON.stringify(w));
+  ok("X7 · local web development: preview billing still available with the flag on", w.previewBilling === true, JSON.stringify(w));
+
+  /* and with the flags at their production defaults, neither is available anywhere */
+  const d = await openIOS(false, null);
+  ok("X8 · production defaults on the web: no mock ads, no preview billing", d.adsFlag === false && d.mockAds === false && d.previewBilling === false, JSON.stringify(d));
+}
+
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
