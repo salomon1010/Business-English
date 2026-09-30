@@ -13891,7 +13891,8 @@ window.weldProfSet=id=>{
   if(id!=="none"&&!WELD_PROFS.includes(id))return;
   S.profile=S.profile||{};S.profile.weldProf=id;save();
   weldProfPopClose();
-  _shLibCat="all";_shLibCh="";_shLibMore=false;
+  /* the chip follows the list: the trade's own chip, or For you when the filter is cleared */
+  _shLibCat=id==="none"?"foryou":id;_shLibCh="";_shLibMore=false;
   try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
   toast(t("wprof.set",{p:weldProfLabel(id==="none"?"":id)}));
 };
@@ -14101,7 +14102,10 @@ window.shv3Jump=id=>{
   try{el.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}
   if(el.tagName==="TEXTAREA")el.focus();
 };
-function shLibMount(){shCatLoad().then(()=>{const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
+/* the chip the library opens on: on Welding the learner's own trade, so the page agrees with
+   "Videos for <trade>" and with the Change list; "For you" when they chose No filter */
+function shLibCatSync(){if(weldStudioOn()&&(_shLibCat==="all"||(_shLibCat!=="foryou"&&_shLibCat!=="mine"&&!(_shCat&&(_shCat.categories||[]).some(c=>c.id===_shLibCat)))))_shLibCat=weldProf()||"foryou"}
+function shLibMount(){shCatLoad().then(()=>{shLibCatSync();const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
 function shLibWire(){
   shLibAllWatch();   /* "All videos" keeps adding rows as the learner scrolls */
   shlHeroStop();_shlHeroI=0;
@@ -14120,7 +14124,7 @@ window.shLibQ=v=>{
   shLibSync();
 };
 window.shLibClear=()=>{const i=document.getElementById("shLibIn");if(i){i.value="";i.focus()}shLibQ("")};
-function shlHeroShown(){return !_shLibCh&&(_shLibCat==="all"||_shLibCat==="foryou")&&!_shLibQ.trim()}
+function shlHeroShown(){return !_shLibCh&&(_shLibCat==="all"||_shLibCat==="foryou"||(weldStudioOn()&&WELD_PROFS.includes(_shLibCat)))&&!_shLibQ.trim()}
 function shLibSync(){
   document.querySelectorAll("#shLib .shl-chip").forEach(b=>{
     const on=b.dataset.cat===_shLibCat&&!_shLibCh;
@@ -14141,10 +14145,16 @@ function shLibSync(){
   }
   const n=document.querySelector("#shLib .shl-chip.mine .shl-own-n");
   if(n)n.textContent=shOwn().length;
+  const pb=document.querySelector("#shLib .wprof-pill b");
+  if(pb)pb.textContent=weldProfLabel(weldProf());
   const feed=document.getElementById("shLibFeed");
   if(feed){feed.innerHTML=shLibFeedHTML();shLibAllWatch()}
 }
-window.shLibCat=id=>{_shLibCat=id;_shLibCh="";_shLibMore=false;shLibSync();
+window.shLibCat=id=>{
+  _shLibCat=id;_shLibCh="";_shLibMore=false;
+  /* a trade chip and the Change list are one control: picking the chip moves the list's tick too */
+  if(weldStudioOn()&&WELD_PROFS.includes(id)&&weldProf()!==id){S.profile=S.profile||{};S.profile.weldProf=id;save()}
+  shLibSync();
   /* the chosen chip slides into view: the row scrolls sideways, and a chip past
      the edge (Movies, Songs on a phone) was chosen but out of sight */
   try{const b=document.querySelector(`.shl-chip[data-cat="${id}"]`),row=b&&b.parentElement;if(row){const l=b.offsetLeft-row.offsetLeft,r=l+b.offsetWidth;if(l<row.scrollLeft||r>row.scrollLeft+row.clientWidth)row.scrollTo({left:Math.max(0,l-24),behavior:shlReduced()?"auto":"smooth"})}}catch(e){}};
@@ -14473,8 +14483,11 @@ function shLibHTML(){
      icon and colour (owner, 27 Sep 2026); the rest keep the catalogue's order */
   const FUN={tv:"tv",movies:"film",songs:"music"};
   const cats=c?shLibCatsOrdered(c).filter(x=>FUN[x.id]).concat(shLibCatsOrdered(c).filter(x=>!FUN[x.id])):[];
-  const chips=[{id:"all",label:t("sh.lib_all"),all:true,n:c?shLibAll().length:0},{id:"foryou",label:t("sh.lib_foryou")},
-    {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
+  /* Welding (owner, 30 Sep 2026): no "All videos" chip — the ten trade chips are the filter, and each
+     one IS the profession in the Change list: tap either and both follow. "For you" is every video,
+     ordered for the learner, so nothing is out of reach. General English keeps its All videos chip. */
+  const chips=(weldStudioOn()?[]:[{id:"all",label:t("sh.lib_all"),all:true,n:c?shLibAll().length:0}]).concat([{id:"foryou",label:t("sh.lib_foryou")},
+    {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}])
     .concat(cats.filter(x=>(x.vids||[]).some(shLibHasTx)).map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
   return `<div class="shl-stick">

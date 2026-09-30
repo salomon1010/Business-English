@@ -44,12 +44,24 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   const { ctx, p, errs } = await open("welding", { trade: "pipefitter" });
   await p.evaluate(() => go("shadow")); await sleep(1500);
   ok("2f · no General English animated scene in the Welding library", await p.evaluate(() => !scnOn() && !document.querySelector("#shLibFeed [onclick*='scnOpen']")));
-  const s = await p.evaluate(() => ({ lib: !!document.querySelector("#v-shadow #shLib"), lines: !!document.querySelector("#v-shadow .sh-lines"), chips: [...document.querySelectorAll(".shl-chip")].map(x => x.dataset.cat), chans: document.querySelectorAll(".shl-chan").length, prof: (document.querySelector(".wprof-pill b") || {}).textContent, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 4).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
+  const s = await p.evaluate(() => ({ lib: !!document.querySelector("#v-shadow #shLib"), lines: !!document.querySelector("#v-shadow .sh-lines"), chips: [...document.querySelectorAll(".shl-chip")].map(x => x.dataset.cat), chans: document.querySelectorAll(".shl-chan").length, prof: (document.querySelector(".wprof-pill b") || {}).textContent, on: (document.querySelector(".shl-chip.on") || {}).dataset?.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 4).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
   ok("2 · the Shadow tab shows the video library, not the workplace lines", s.lib && !s.lines, JSON.stringify(s));
-  ok("2b · chips = All videos, For you, Your videos, then the professions — the learner's own (Pipefitter) first", s.chips[0] === "all" && s.chips[1] === "foryou" && s.chips[2] === "mine" && s.chips[3] === "pipefitter" && s.chips.every(c => ["all", "foryou", "mine"].includes(c) || WELD.categories.some(k => k.id === c)), s.chips);
+  ok("2b · chips = For you, Your videos, then the professions — the learner's own (Pipefitter) first, and NO All videos chip", !s.chips.includes("all") && s.chips[0] === "foryou" && s.chips[1] === "mine" && s.chips[2] === "pipefitter" && s.chips.every(c => ["all", "foryou", "mine"].includes(c) || WELD.categories.some(k => k.id === c)), s.chips);
   ok("2c · the Welding channels row is there", s.chans === WELD.channels.length, s.chans);
   ok("2d · the library (All videos, the default) leads with the learner's profession", s.first.length && s.first.every(v => WELD.videos[v] && WELD.videos[v].prof === "pipefitter"), JSON.stringify(s.first.map(v => WELD.videos[v] && WELD.videos[v].prof)));
   ok("2e · the profession row says Pipefitter", s.prof === "Pipefitter", s.prof);
+  ok("2g · the library opens on the learner's own trade chip", s.on === "pipefitter", s.on);
+  { /* one control: the chip and the Change list always agree, whichever the learner taps */
+    await p.evaluate(() => shLibCat("hse")); await sleep(300);
+    const a = await p.evaluate(() => ({ cat: _shLibCat, prof: weldProf(), pill: document.querySelector(".wprof-pill b").textContent, chip: (document.querySelector(".shl-chip.on") || {}).dataset?.cat }));
+    await p.locator(".wprof-pill").click(); await sleep(250);
+    const tick = await p.evaluate(() => { const ov = document.getElementById("weldProfOv"); const o = ov && ov.querySelector(".sv-tr-opt.sel"); const v = { txt: o ? o.textContent.trim() : null, rows: ov ? ov.querySelectorAll(".sv-tr-opt").length : -1 }; weldProfPopClose(); return v });
+    ok("2h · tapping a trade chip moves the Change row and the list's tick to it", a.cat === "hse" && a.prof === "hse" && a.pill === "HSE Officer" && a.chip === "hse" && /HSE Officer/.test(tick.txt || "") && tick.rows === 11, JSON.stringify({ a, tick }));
+    await p.evaluate(() => weldProfSet("millwright")); await sleep(500);
+    const b2 = await p.evaluate(() => ({ cat: _shLibCat, prof: weldProf(), chip: (document.querySelector(".shl-chip.on") || {}).dataset?.cat, hero: !!document.querySelector("#shlHeroBlock:not([hidden])") }));
+    ok("2i · picking a trade in the list lights that chip, and the week's picks stay", b2.cat === "millwright" && b2.prof === "millwright" && b2.chip === "millwright" && b2.hero, JSON.stringify(b2));
+    await p.evaluate(() => weldProfSet("pipefitter")); await sleep(500);
+  }
   const v1 = await shownVids(p);
   ok("3 · ISOLATION: every video on the Welding Shadow page is a Welding video", v1.length > 5 && v1.every(v => WV.has(v)), v1.filter(v => !WV.has(v)));
   for (const cat of ["hse", "ndt", "operator"]) { await p.evaluate(c => shLibCat(c), cat); await sleep(150); }
@@ -96,8 +108,8 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   const ndt = await p.evaluate(() => ({ p: S.profile.weldProf, chip: [...document.querySelectorAll(".shl-chip")].filter(c => !["all", "foryou", "mine"].includes(c.dataset.cat))[0].dataset.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 3).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
   ok("10b · choosing NDT Technician reorders the library (chip and For you)", ndt.p === "ndt" && ndt.chip === "ndt" && ndt.first.every(v => WELD.videos[v] && WELD.videos[v].prof === "ndt"), JSON.stringify(ndt));
   await p.evaluate(() => weldProfSet("none")); await sleep(700);
-  const nf = await p.evaluate(() => ({ p: S.profile.weldProf, prof: weldProf(), pill: (document.querySelector(".wprof-pill b") || {}).textContent, order: shLibCatsOrdered(_shCat).map(c => c.id).join() }));
-  ok("10e · 'No filter' clears the profession: the library keeps the catalogue's order and says All professions", nf.p === "none" && nf.prof === "" && nf.pill === "All professions" && nf.order === WELD.categories.map(c => c.id).join(), JSON.stringify(nf));
+  const nf = await p.evaluate(() => ({ p: S.profile.weldProf, prof: weldProf(), pill: (document.querySelector(".wprof-pill b") || {}).textContent, cat: _shLibCat, order: shLibCatsOrdered(_shCat).map(c => c.id).join() }));
+  ok("10e · 'No filter' clears the profession: For you, the catalogue's own order, and the row says All professions", nf.p === "none" && nf.prof === "" && nf.cat === "foryou" && nf.pill === "All professions" && nf.order === WELD.categories.map(c => c.id).join(), JSON.stringify(nf));
   await ctx.close();
 }
 

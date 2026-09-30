@@ -33,25 +33,34 @@ for (const tr of ["general-english", "welding"]) {
   const { ctx, p, errs } = await open(tr);
   const s = await p.evaluate(() => { const c = [...document.querySelectorAll("#shLib .shl-chip")]; return { first: c[0].dataset.cat, on: c.filter(x => x.classList.contains("on")).map(x => x.dataset.cat), label: c[0].childNodes[0].textContent.trim(), n: +(c[0].querySelector(".shl-all-n") || {}).textContent, more: !!document.querySelector("#shLibFeed .shl-more"), hero: !(document.getElementById("shlHeroBlock") || { hidden: true }).hidden } });
   const exp = EXPECT[tr];
-  ok(`${tag} · the first chip is 'All videos', it is the one selected, and it counts every video with a transcript (${exp.length})`, s.first === "all" && s.on.join() === "all" && s.label === "All videos" && s.n === exp.length, JSON.stringify(s));
-  ok(`${tag} · no 'Show more' button on All videos; the highlight reel is still on top`, !s.more && s.hero, JSON.stringify(s));
+  /* Welding has no All videos chip (owner, 30 Sep 2026): the ten trade chips are the filter and each one
+     is the profession in the Change list, so the library opens on the learner's own trade. */
+  const W = tr === "welding";
+  ok(W ? `${tag} · no All videos chip: the first chip is For you and the learner's own trade is the one selected`
+       : `${tag} · the first chip is 'All videos', it is the one selected, and it counts every video with a transcript (${exp.length})`,
+    W ? (s.first === "foryou" && s.on.join() === "welder") : (s.first === "all" && s.on.join() === "all" && s.label === "All videos" && s.n === exp.length), JSON.stringify(s));
+  if (!W) ok(`${tag} · no 'Show more' button on All videos; the highlight reel is still on top`, !s.more && s.hero, JSON.stringify(s));
+  else ok(`${tag} · the week's picks stay on top of a trade chip`, s.hero, JSON.stringify(s));
+  if (!W) {
   const r0 = await rows(p);
   for (let i = 0; i < 40; i++) { await p.mouse.wheel(0, 3000); await sleep(100); } await sleep(700);
   const r1 = await rows(p);
   ok(`${tag} · the page starts with 40 rows and scrolling brings in every video — each once, each from this area's catalogue`, r0.length === 40 && r1.length === exp.length && new Set(r1).size === r1.length && r1.every(v => exp.includes(v)), JSON.stringify({ first: r0.length, after: r1.length, expected: exp.length, foreign: r1.filter(v => !exp.includes(v)).slice(0, 3) }));
-  if (tr === "welding") ok("W  · All videos is ordered with the learner's own profession first (order only — every profession is there)", await p.evaluate(() => { const c = _shCat, first = shLibAll()[0], me = weldProf(); return c.videos[first] && (c.categories.find(k => k.id === me) || { vids: [] }).vids.includes(first) && new Set(shLibAll().map(v => c.videos[v].prof)).size > 1 }));
+  }
+  if (false) ok("W  · All videos is ordered with the learner's own profession first (order only — every profession is there)", await p.evaluate(() => { const c = _shCat, first = shLibAll()[0], me = weldProf(); return c.videos[first] && (c.categories.find(k => k.id === me) || { vids: [] }).vids.includes(first) && new Set(shLibAll().map(v => c.videos[v].prof)).size > 1 }));
   await p.evaluate(() => { scrollTo(0, 0); shLibCat("foryou") }); await sleep(400);
   const fy = await p.evaluate(() => ({ n: document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']").length, more: !!document.querySelector("#shLibFeed .shl-more"), on: document.querySelector("#shLib .shl-chip.on").dataset.cat }));
   ok(`${tag} · For you is still there as a filter: 8 rows and its Show more`, fy.on === "foryou" && fy.n === 8 && fy.more, JSON.stringify(fy));
   const cat = await p.evaluate(() => { const c = [...document.querySelectorAll("#shLib .shl-chip")].find(x => !["all", "foryou", "mine"].includes(x.dataset.cat)).dataset.cat; shLibCat(c); return c });
+  const total = W ? await p.evaluate(() => shLibAll().length) : exp.length;
   await sleep(300); const cr = await rows(p);
-  ok(`${tag} · a category chip filters (${cat}): fewer rows than All videos, all in that category`, cr.length > 0 && cr.length < exp.length && await p.evaluate(([ids, c]) => ids.every(v => (_shCat.categories.find(k => k.id === c) || { vids: [] }).vids.includes(v)), [cr, cat]), JSON.stringify({ cat, n: cr.length }));
-  await p.evaluate(() => shLibCat("all")); await sleep(300);
-  ok(`${tag} · back to All videos: the chip is on and the list starts again at the top`, await p.evaluate(() => document.querySelector("#shLib .shl-chip.on").dataset.cat === "all") && (await rows(p)).length >= 40);
+  ok(`${tag} · a category chip filters (${cat}): fewer rows than All videos, all in that category`, cr.length > 0 && cr.length < total && await p.evaluate(([ids, c]) => ids.every(v => (_shCat.categories.find(k => k.id === c) || { vids: [] }).vids.includes(v)), [cr, cat]), JSON.stringify({ cat, n: cr.length }));
+  await p.evaluate(() => shLibCat(typeof weldStudioOn === "function" && weldStudioOn() ? "foryou" : "all")); await sleep(300);
+  ok(`${tag} · back to the unfiltered list: the chip is on and the list starts again at the top`, await p.evaluate(() => document.querySelector("#shLib .shl-chip.on").dataset.cat === (typeof weldStudioOn === "function" && weldStudioOn() ? "foryou" : "all")) && (await rows(p)).length >= (W ? 8 : 40));
   await p.evaluate(() => shLibQ("welding")); await sleep(300);
   const q = await p.evaluate(() => ({ n: document.querySelectorAll("#shLibFeed .shl-row").length }));
   await p.evaluate(() => shLibQ("")); await sleep(300);
-  ok(`${tag} · search still works from All videos, and clearing it returns to All videos`, q.n >= 0 && await p.evaluate(() => document.querySelector("#shLib .shl-chip.on").dataset.cat === "all"));
+  ok(`${tag} · search still works, and clearing it returns to the chip that was on`, q.n >= 0 && await p.evaluate(() => document.querySelector("#shLib .shl-chip.on").dataset.cat === (typeof weldStudioOn === "function" && weldStudioOn() ? "foryou" : "all")));
   ok(`${tag} · no page errors`, !errs.length, errs.join(" | "));
   await ctx.close();
 }
