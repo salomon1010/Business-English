@@ -34,3 +34,22 @@ compatibility_date = "2026-07-31"
 [vars]
 PREMIUM_ENFORCED = "0"
 ENTITLEMENTS_URL = ""
+
+# ---- Staging (be-polish-staging) ----
+# A SEPARATE Worker, added 30 Sep 2026 so server-side Premium enforcement can be
+# reviewed without touching production. Until this existed, staging.lomonec.com
+# called the production be-polish, so PREMIUM_ENFORCED = "1" would have gated
+# every live learner — a production change wearing a staging label.
+#
+# Enforcement is ON here, and the entitlement service is the staging one
+# (be-entitlements-staging, which verifies be-mastery-test tokens). Nothing is
+# shared with production but the source file.
+#
+# Owner-run, once (the key is a secret, never committed):
+#   npx wrangler secret put OPENAI_KEY --env staging
+#   npx wrangler deploy --env staging
+[env.staging]
+name = "be-polish-staging"
+[env.staging.vars]
+PREMIUM_ENFORCED = "1"
+ENTITLEMENTS_URL = "https://be-entitlements-staging.nore-ngou.workers.dev"

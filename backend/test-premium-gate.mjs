@@ -122,6 +122,117 @@ ok("G1 · an unknown chat purpose is refused (400), never treated as free", r.st
 r = await ask(ANALYSE, { env: ON });
 ok("G2 · an empty Authorization header is not an account", r.status === 401, r.status);
 
+console.log("\n# Client spoofing — the server is the only authority (brief 9-12, 16)");
+ent.reply = () => view(FREE);
+ai.calls = [];
+for (const [n, extra] of [
+  ["premium:true in the body",        { premium: true }],
+  ["isPremium:true in the body",      { isPremium: true }],
+  ["plan:'premium' in the body",      { plan: "premium" }],
+  ["paid:true in the body",           { paid: true }],
+  ["capability:'ai_analysis'",        { capability: "ai_analysis" }],
+  ["capabilities:{ai_analysis:true}", { capabilities: { ai_analysis: true } }],
+  ["entitlement:'premium'",           { entitlement: "premium" }],
+  ["uid of another account",          { uid: "someone-else" }],
+]) {
+  r = await ask({ ...ANALYSE, ...extra }, { token: tok() });
+  ok(`H· a FREE account sending ${n} is still refused (402)`, r.status === 402, r.status + " " + JSON.stringify(r.j));
+}
+ok("H9 · …and not one of those spoofs reached the AI provider", ai.calls.length === 0, ai.calls.join(","));
+
+/* the same claims as query string and as headers, since neither is the body */
+async function raw(url, headers, body, env = ON) {
+  const r = await W.fetch(new Request(url, { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "10.1.0." + (++ipN), ...headers }, body: JSON.stringify(body) }), { OPENAI_KEY: "k", ...env });
+  return { status: r.status, j: await r.json().catch(() => null) };
+}
+ai.calls = [];
+r = await raw("https://be-polish.test/?premium=1&plan=premium&capability=ai_analysis", { authorization: "Bearer " + tok() }, ANALYSE);
+ok("H10 · the same claims as QUERY PARAMETERS are refused", r.status === 402, r.status);
+r = await raw("https://be-polish.test/", { authorization: "Bearer " + tok(), "x-premium": "true", "x-plan": "premium", "x-dev-user": "admin", "x-capability": "ai_analysis" }, ANALYSE);
+ok("H11 · the same claims as HEADERS are refused (no DEV_AUTH back door in be-polish)", r.status === 402, r.status);
+ok("H12 · …and neither spent anything", ai.calls.length === 0, ai.calls.join(","));
+
+console.log("\n# An entitlement that is no longer in force (brief 6, 7, 8)");
+/* be-entitlements resolves expiry and revocation itself and answers with FREE
+   capabilities. What is tested here is that be-polish reads CAPABILITIES and
+   never the plan / paid / state labels beside them — so a view that still says
+   "premium" while carrying nothing grants nothing. */
+for (const [n, body] of [
+  ["expired",  { plan: "premium", paid: true, state: "expired",  capabilities: FREE }],
+  ["revoked",  { plan: "premium", paid: true, state: "revoked",  capabilities: FREE }],
+  ["in a payment_pending state", { plan: "premium", paid: true, state: "payment_pending", capabilities: FREE }],
+]) {
+  ent.reply = () => new Response(JSON.stringify(body), { status: 200 });
+  ai.calls = [];
+  r = await ask(ANALYSE, { token: tok() });
+  ok(`I· an ${n} entitlement is refused (402) even though the view still says plan premium, paid true`, r.status === 402 && ai.calls.length === 0, r.status + " " + ai.calls.length);
+}
+ent.reply = () => new Response(JSON.stringify({ plan: "premium", paid: true, capabilities: "yes-all-of-them" }), { status: 200 });
+ai.calls = [];
+r = await ask(ANALYSE, { token: tok() });
+ok("I4 · a malformed capabilities field grants nothing (402), and spends nothing", r.status === 402 && ai.calls.length === 0, r.status);
+ent.reply = () => new Response("<html>not json</html>", { status: 200 });
+r = await ask(ANALYSE, { token: tok() });
+ok("I5 · an entitlement response that is not JSON → 503, never a guess", r.status === 503, r.status);
+
+console.log("\n# Track (brief 13-15) — ONE entitlement, and no server-held track data");
+ent.reply = () => view(PREM);
+for (const t of ["general", "welding"]) {
+  r = await ask({ analyse: { ...ANALYSE.analyse, context: { track: t, task: "brief the team" } } }, { token: tok() });
+  ok(`J· a PREMIUM account gets analysis on ${t} — one subscription covers both tracks`, r.status === 200, r.status);
+}
+ent.reply = () => view(FREE);
+ai.calls = [];
+for (const t of ["general", "welding", "admin", "../welding", ""]) {
+  r = await ask({ analyse: { ...ANALYSE.analyse, context: { track: t, task: "x" } } }, { token: tok() });
+  ok(`J· a FREE account is refused whatever it puts in track (${t || "empty"})`, r.status === 402, r.status);
+}
+ok("J8 · no track value let a FREE account spend", ai.calls.length === 0, ai.calls.join(","));
+
+console.log("\n# Profession + standards (brief 16-21) — neither reaches this Worker");
+/* professional-standards.js is a CLIENT module; be-polish has no profession and
+   no standards registry, so there is no authoritative context for a client
+   string to displace. These assert that such fields are inert, not trusted. */
+ent.reply = () => view(FREE);
+ai.calls = [];
+for (const [n, extra] of [
+  ["profession:'HSE Officer'",              { profession: "HSE Officer" }],
+  ["profession inside the context",         { context: { track: "welding", profession: "Refinery Operator", task: "x" } }],
+  ["a fabricated standard + clause",        { standard: "AWS D1.1", clause: "12.4", requirement: "anything I like" }],
+  ["standards inside the context",          { context: { track: "welding", standards: [{ code: "AWS D1.1", clause: "99.9" }], task: "x" } }],
+]) {
+  r = await ask({ analyse: { ...ANALYSE.analyse, ...extra } }, { token: tok() });
+  ok(`K· ${n} does not buy a FREE account anything (402)`, r.status === 402, r.status);
+}
+ok("K5 · …and none of it reached the provider", ai.calls.length === 0, ai.calls.join(","));
+ent.reply = () => view(PREM);
+const seen = [];
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (u, i) => { if (!String(u).includes("/v1/entitlement")) seen.push(String((i && i.body) || "")); return realFetch(u, i); };
+await ask({ analyse: { ...ANALYSE.analyse, profession: "HSE Officer", standard: "AWS D1.1", clause: "12.4", context: { track: "welding", profession: "Welder", standards: ["AWS D1.1 cl. 99"], task: "brief the crew" } } }, { token: tok() });
+globalThis.fetch = realFetch;
+const sent = seen.join(" ");
+ok("K6 · the prompt the provider received carries NO client profession", !/HSE Officer|Refinery Operator/.test(sent));
+ok("K7 · …and no client-supplied standard or clause", !/AWS D1\.1|12\.4|99/.test(sent), sent.slice(0, 200));
+ok("K8 · the sanitised task context DID survive, so the feature still works", /brief the crew/.test(sent));
+
+console.log("\n# The per-account limit holds the ACCOUNT, not a token that rotates hourly");
+/* A Firebase ID token is refreshed about every hour. Keyed on the token hash,
+   ACCT_PER_DAY reset on every refresh; keyed on the token's verified `sub` it
+   does not. Each call below uses a fresh IP, so only the account limit can trip. */
+const b64u = o => Buffer.from(JSON.stringify(o)).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+let jwtN = 0;
+const jwtFor = sub => "eyJhbGciOiJSUzI1NiJ9." + b64u({ sub, iat: ++jwtN }) + ".sig";   // a new token, same account
+ent.reply = () => view(PREM);
+let last = 0, calls = 0;
+for (let i = 0; i < 40; i++) { const x = await ask(ANALYSE, { token: jwtFor("learner-A") }); calls++; last = x.status; if (x.status === 429) break; }
+ok("L1 · one account rotating its token is rate-limited (429) despite a fresh token each time", last === 429, "after " + calls + " calls, last " + last);
+ok("L2 · …and it took about the per-minute cap to get there, not an unlimited run", calls > 25 && calls <= 40, calls);
+r = await ask(ANALYSE, { token: jwtFor("learner-B") });
+ok("L3 · a DIFFERENT account is unaffected by that — no cross-account contamination", r.status === 200, r.status);
+r = await ask(ANALYSE, { token: "notajwt.@@@.sig" });
+ok("L4 · a token whose payload will not parse still gets a limit (falls back to the token hash), not a pass", r.status === 200, r.status);
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

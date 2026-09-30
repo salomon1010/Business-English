@@ -141,7 +141,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -21189,7 +21189,11 @@ window.fbTry=(word,i)=>{
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
 const APP_VERSION="be12-v489";   /* bumped with sw.js on every deploy */
-const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
+/* Cloudflare Worker (holds the AI key + natural TTS). Staging has its OWN
+   Worker (beEnv), which is the only way PREMIUM_ENFORCED can be switched on for
+   review without gating every production learner: be-polish is what the live
+   app calls, so a var set there is a production change, not a staging one. */
+const POLISH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.polish)return e.polish}catch(x){}return "https://be-polish.nore-ngou.workers.dev"})();
 
 /* ---- one place that signs every AI request ----
    Every AI call in this file is written `fetch(POLISH_API, …)`, in more than

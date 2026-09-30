@@ -200,6 +200,25 @@ const ROUTE_CAP = {
    index.html keeps working exactly as it does now. */
 const CHAT_PURPOSE_CAP = { practice: null, coach: "ai_coach", report: "ai_analysis" };
 
+/* The account a token belongs to, for the rate-limit bucket ONLY.
+
+   This is the token's own `sub` claim, read without verifying the signature —
+   which is sound here and nowhere else: this function is reached only after
+   be-entitlements answered 200 for this same token, and be-entitlements
+   verifies it against Firebase's JWKS. A token it accepted is genuine, so the
+   `sub` inside it is the real uid. Nothing is authorised on this value; it
+   decides which counter a call is charged to. A token that cannot be parsed
+   falls back to the token hash, so a malformed one gets a limit, not a pass. */
+function tokenSub(tok) {
+  try {
+    const p = String(tok).split(".");
+    if (p.length !== 3) return null;
+    let b = p[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (b.length % 4) b += "=";
+    const sub = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b), c => c.charCodeAt(0)))).sub;
+    return (typeof sub === "string" && sub && sub.length <= 128) ? sub : null;
+  } catch (e) { return null; }
+}
 async function tokenKey(tok) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tok));
   return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join("");
@@ -211,8 +230,9 @@ async function capabilities(req, env) {
   if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
   const tok = auth.slice(7);
   const key = await tokenKey(tok);
+  const uid = tokenSub(tok);
   const hit = entCache.get(key);
-  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps };
+  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps, key, uid };
   let r;
   try {
     r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } });
@@ -226,8 +246,8 @@ async function capabilities(req, env) {
   const caps = {};
   for (const k of ["ad_free", "ai_analysis", "ai_verbal_feedback", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
   if (entCache.size > 5000) entCache.clear();
-  entCache.set(key, { at: Date.now(), caps, uid: typeof j.uid === "string" ? j.uid : null });
-  return { caps, key };
+  entCache.set(key, { at: Date.now(), caps, uid });
+  return { caps, key, uid };
 }
 /* Returns a Response to send instead, or null to carry on. */
 async function premiumGate(req, env, route, cors, purpose) {
@@ -251,12 +271,20 @@ async function premiumGate(req, env, route, cors, purpose) {
   return perAccount(a, cors);
 }
 /* per-ACCOUNT rate limit: an IP limit alone is useless behind carrier NAT, and
-   once every call carries a uid the account is the right unit to hold. */
+   once every call carries a uid the account is the right unit to hold.
+
+   Held against the UID, not the token. A Firebase ID token is refreshed about
+   every hour, so keying on its hash handed a learner a fresh ACCT_PER_DAY
+   allowance every refresh — roughly 24x the daily cap this file claims to set.
+   The uid is the `sub` of a token be-entitlements has just accepted (see
+   tokenSub), so it cannot be chosen by the caller. The token hash stays as the
+   fallback, so a token that will not parse gets a limit rather than none. */
 const acctHits = new Map();
 const ACCT_PER_MIN = 30, ACCT_PER_DAY = 600;
 function perAccount(a, cors) {
-  if (!a.key) return null;
-  return rateLimited(a.key, acctHits, ACCT_PER_MIN, ACCT_PER_DAY) ? json({ error: "rate_limited" }, 429, cors) : null;
+  const id = a.uid ? "u:" + a.uid : (a.key ? "t:" + a.key : null);
+  if (!id) return null;
+  return rateLimited(id, acctHits, ACCT_PER_MIN, ACCT_PER_DAY) ? json({ error: "rate_limited" }, 429, cors) : null;
 }
 
 function rateLimited(ip, map, perMin, perDay) {
