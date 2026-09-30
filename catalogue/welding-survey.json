@@ -1655,7 +1655,7 @@
    "cat": "operator",
    "topic": "control board",
    "skip": [
-    "unavailable: ERROR: [youtube] agjyapCBfCI: This video is available to this channel's members on level: W Club Member (or any higher level). Join this YouTube channel from yo"
+    "unavailable: ERROR: [youtube] agjyapCBfCI: This video is available to this channel's members on level: W Club Member (or any higher level). Join this channel to get access t"
    ]
   },
   {
@@ -1663,7 +1663,7 @@
    "cat": "operator",
    "topic": "interview",
    "skip": [
-    "unavailable: ERROR: [youtube] 3MV8F9IWqkY: This video is available to this channel's members on level: W Club Member (or any higher level). Join this YouTube channel from yo"
+    "unavailable: ERROR: [youtube] 3MV8F9IWqkY: This video is available to this channel's members on level: W Club Member (or any higher level). Join this channel to get access t"
    ]
   },
   {
@@ -1906,9 +1906,7 @@
    "ch": "Eaton",
    "dur": 724,
    "cap": "human",
-   "skip": [
-    "caption track could not be fetched"
-   ]
+   "skip": null
   },
   {
    "vid": "KO-Ff28M6CE",
@@ -2569,6 +2567,116 @@
    "title": "StocExpo Forty Under 40 Herve YIMGNA MENGOUO,  Petroleum Certification Consulting / PARLYM CAMEROON",
    "ch": "Petrocertif Construction Academy",
    "dur": 76,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "rXv50SdDCpQ",
+   "cat": "",
+   "topic": "industry",
+   "title": "Lead with purpose  Build with excellence",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 158,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "BRe6ckCFUg8",
+   "cat": "",
+   "topic": "construction management",
+   "title": "Non industrilized Construction process vs Industrilized Construction process",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 232,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "2TTVHBMCPZA",
+   "cat": "",
+   "topic": "construction management",
+   "title": "Construction Skills cross country conversion plan",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 185,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "RFTERUOe2G8",
+   "cat": "",
+   "topic": "construction management",
+   "title": "Continue and Augmented Training in Construction",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 561,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "S_Ap6qCITUA",
+   "cat": "",
+   "topic": "construction management",
+   "title": "Management facility survey for DAM",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 482,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "JzCyiPOCIOo",
+   "cat": "",
+   "topic": "industry",
+   "title": "Digitalisation vs Fabrication : Le Grand Mensonge du Développement en Afrique ?",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 711,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "fR5SsyLGacg",
+   "cat": "",
+   "topic": "industry",
+   "title": "Transition IA   Tech pour les domaines Industriels",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 344,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "WJU5ZCXFvyQ",
+   "cat": "",
+   "topic": "industry",
+   "title": "Intelligences artificielles et métier d’expérience",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 523,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "XCO62k2nOG8",
+   "cat": "",
+   "topic": "industry",
+   "title": "House Of Challenge   Holding d'Afrique",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 624,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "CeXLi24KSbw",
+   "cat": "",
+   "topic": "industry",
+   "title": "Storyboard d'instructeurs E‑learning",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 275,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "H4Lw7wJeV9U",
+   "cat": "",
+   "topic": "industry",
+   "title": "La vraie magie c'est le travail Histoire Herve",
+   "ch": "Petrocertif Construction Academy",
+   "dur": 249,
    "cap": "auto",
    "skip": null
   },

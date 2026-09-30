@@ -1028,6 +1028,7 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-src{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;margin:4px 0 2px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid}
 .shl-src svg{width:12px;height:12px}
 .shl-src.lib{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.shl-src.lang{color:var(--mut);border-color:var(--line2);background:transparent}   /* "Spoken in French" (owner, 30 Sep 2026) */
 .shl-src.yt{color:#ff6b6b;border-color:color-mix(in srgb,#ff4d4d 45%,transparent);background:color-mix(in srgb,#ff4d4d 10%,transparent)}
 .shl-thumb-btn{padding:0;border:0;background:none;cursor:pointer}
 .shl-row-del{align-self:center;background:none;border:0;color:var(--mut2);padding:8px;cursor:pointer}
@@ -8628,6 +8629,7 @@ const I18N_EN={
  "sh.no_video_yet":"✨ No video yet? Start with one of these",
  "sh.lib_search_ph":"What do you want to practise?",
  "sh.lib_foryou":"For you",
+ "sh.lib_spoken_fr":"Spoken in French",
  "sh.lib_all":"All videos",
  "sh.lib_channels":"Channels",
  "sh.lib_week_pick":"This week · Week {{n}}",
@@ -14512,7 +14514,7 @@ function shLibRow(vid){
   const has=v.cap&&v.cap!=="player";
   const row=`<button class="shl-row" onclick="shLibOpen('${vid}')" aria-label="${esc(v.title)}">
     <span class="shl-thumb ${has?"cap":""}"><img src="https://i.ytimg.com/vi/${vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(v.dur)}</span></span>
-    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small>${_shLibCat==="mine"?`<span class="shl-src lib">${ic("bookmark")}${esc(t("sh.src_lib"))}</span>`:""}</span>
+    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small>${v.lang==="fr"?`<span class="shl-src lang">${esc(t("sh.lib_spoken_fr"))}</span>`:""}${_shLibCat==="mine"?`<span class="shl-src lib">${ic("bookmark")}${esc(t("sh.src_lib"))}</span>`:""}</span>
   </button>`;
   if(!shOwnSplit())return row;
   const on=shOwnFind(vid)>=0,lab=t(on?"sh.lib_saved":"sh.lib_save");
@@ -15091,6 +15093,8 @@ let shSeek={t:0,at:0};
    loop, Start, back-5 or tap. Once the player reports a time near the
    target, the player is the truth again. */
 function shCurT(){
+  /* between two clips the new player exists before its API does (a fast switch threw here every frame) */
+  if(!ytPlayer||typeof ytPlayer.getCurrentTime!=="function")return shSeek.t||0;
   const p=ytPlayer.getCurrentTime(),age=Date.now()-shSeek.at;
   if(age>=1200)return p;
   if(p!==shSeek.p0&&p>=shSeek.t-0.05&&p-shSeek.t<2.5)return p;   // moved since the seek and near the target: landed
@@ -24106,7 +24110,12 @@ let svShPinned=false,svShPara=-1;   /* the paragraph on the Shadow page (its fir
    Caches hold public captions' translations and dictionary IPA — content, not
    the learner's work — so they are not evidence and are not per area. */
 function svShPref(){return aMap("svPref")}
-function svShTrOn(){return svOn()&&svShLang().ok&&!!svShPref().tr}
+/* the open video's spoken language when it is not English (PetroCertif's French talks, owner 30 Sep 2026) */
+function svSpokenLang(){try{const v=_shCat&&shClip&&shClip.vid&&_shCat.videos[shClip.vid];return v&&v.lang&&v.lang!=="en"?v.lang:""}catch(e){return ""}}
+/* no Translate on a video spoken in another language (owner, 30 Sep 2026): the pill is not drawn and the
+   helper stays off. The owner would allow it once the learner switches YouTube's audio track, but none of
+   these videos has another track and the embedded player does not report which one is playing. */
+function svShTrOn(){return svOn()&&svShLang().ok&&!!svShPref().tr&&!svSpokenLang()}
 function svShIpaOn(){return svOn()&&!!svShPref().ipa}
 /* --- translation: the Worker's chat route, one paragraph at a time, cached per
    video + paragraph + language (≤200 on this device), one request in flight per key --- */
@@ -24342,6 +24351,7 @@ function svShAfterDraw(){
    place of the globe), and the language tag (FR) that opens the list. No language yet: the tag is a plain ▾ and
    the switch opens the list too. */
 function svTrBtnHTML(id){
+  if(svSpokenLang())return "";
   const lang=svShLang(),on=svShTrOn(),nm=lang.native||lang.name;
   const lbl=lang.ok?t("sv.sh_tr_a11y",{lang:nm}):t("sv.sh_tr_choose");
   return `<span class="sv-tr-grp ${on?"on":""}"><button class="sv-sh-t ${on?"on":""}" id="${id}" onclick="svShTrToggle()" aria-pressed="${on}" aria-label="${esc(lbl)}" title="${esc(lbl)}">${lang.ok?svTrBtnIcon(lang.code,on):ic("globe")}<span>${t("sv.sh_translate")}</span></button><button class="sv-tr-lang" id="${id}Lang" onclick="svTrPick(this)" aria-haspopup="dialog" aria-expanded="false" aria-label="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}" title="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}">${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:ic("chevron")}</button></span>`;
