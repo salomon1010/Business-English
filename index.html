@@ -2883,7 +2883,13 @@ html[dir="rtl"] .rm2-art::after{background:linear-gradient(to right,transparent 
 .rm2-head{grid-area:head;display:flex;gap:11px;align-items:flex-start}
 .rm2-head-ic{flex:none;width:26px;height:26px;color:var(--rm2-a);margin-top:1px}
 .rm2-head-ic svg{width:100%;height:100%}
+.rm2-head-t{flex:1;min-width:0}
+.rm2-head-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .rm2-title{margin:0;font-size:13.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--rm2-a);line-height:1.3}
+/* the learner's profession, named beside the title (owner, 30 Sep 2026). Pushed to the
+   far end of the row, and when it will not fit it drops to its own line rather than
+   squeezing the title — the longest translations are well over 30 characters. */
+.rm2-prof{margin-inline-start:auto;min-width:0;font-size:12.5px;font-weight:700;line-height:1.3;color:var(--rm2-ink);overflow-wrap:anywhere}
 .rm2-sub{margin:2px 0 0;font-size:12px;line-height:1.4;color:var(--rm2-soft);max-width:44ch}
 
 .rm2-prog{grid-area:prog;display:flex;align-items:center;gap:14px}
@@ -3007,6 +3013,7 @@ html[dir="rtl"] .rm2-cta-play svg{transform:scaleX(-1)}
   .rm2-head{margin-bottom:12px}
   .rm2-head-ic{width:30px;height:30px}
   .rm2-title{font-size:16px;letter-spacing:2px}
+  .rm2-prof{font-size:14.5px}
   .rm2-sub{font-size:13px;margin-top:3px}
   .rm2-prog{flex-direction:column;align-self:start;gap:0;text-align:center}
   .rm2 .rm2-ring{width:min(100%,208px);height:auto;aspect-ratio:1;flex:none}
@@ -3053,6 +3060,8 @@ html[dir="rtl"] .rm2-cta-play svg{transform:scaleX(-1)}
   .rm2-head{margin-bottom:5px;gap:6px}
   .rm2-head-ic{width:16px;height:16px;margin-top:0}
   .rm2-title{font-size:9.5px;letter-spacing:1.1px}
+  .rm2-head-line{gap:6px}
+  .rm2-prof{font-size:8.5px}
   .rm2-sub{font-size:8px;line-height:1.3;margin-top:1px}
   .rm2 .rm2-ring{width:min(100%,94px)}
   .rm2 .rm-ring-txt b{font-size:23px;letter-spacing:-1px}
@@ -12939,9 +12948,19 @@ function rmData(){
   }
   const journey=Object.keys(phases).map((p,i)=>{const st=rmPhase(steps,p);
     return {p,num:String(i+1).padStart(2,"0"),label:phaseLabel(p),pct:Math.round(st.d/Math.max(1,st.tot)*100),state:st.state}});
-  const career=pro?((window.Trades&&Trades.active(S)&&Trades.active(S).career)||"welding"):"";
+  const trade=pro?((window.Trades&&Trades.active(S))||null):null;
+  const career=(trade&&trade.career)||(pro?"welding":"");
+  /* The profession the learner picked, named on the card (owner, 30 Sep 2026).
+     Trades.active() is the one source — the same answer the workshops, the
+     standards and the reports are built from — so changing it in onboarding or
+     on the "Your profession" card changes this line too. The short, translated
+     label the Shadow list already uses ("Instrumentation Technician"), not
+     trades.js's English "Professional Welder"; a track without one falls back to
+     its own name rather than printing a raw id. General English has no
+     profession, so the line is simply absent. */
+  const prof=trade?(I18N_EN["sh.cat_"+trade.id]?t("sh.cat_"+trade.id):(trade.name||"")):"";
   return {pro,pct,done,total,units:weeks.length,
-    head:{title:t("rm.eyebrow"),sub:pro?t("rm.sub_pro",{career}):t("rm.sub_ge")},
+    head:{title:t("rm.eyebrow"),prof,sub:pro?t("rm.sub_pro",{career}):t("rm.sub_ge")},
     stats:[{n:weeks.length,l:t(pro?"rm.stat_stages":"rm.stat_weeks"),s:t("rm.stat_map"),ic:"calendar"},{n:total,l:t("rm.stat_sessions"),s:t("rm.stat_total"),ic:"chart"}],
     current,next,today,cta,journey,
     journeyH:t(pro?"rm.journey_pro":"rm.journey_ge"),viewAll:t(pro?"rm.view_stages":"rm.view_weeks",{n:weeks.length})};
@@ -12962,7 +12981,9 @@ function rmCardHTML(D,L){
     <div class="rm2-art" aria-hidden="true" style="background-image:url('${L.img}')"></div>
     <header class="rm2-head">
       <span class="rm2-head-ic" aria-hidden="true">${ic(L.hIcon)}</span>
-      <div><h2 class="rm2-title">${esc(D.head.title)}</h2><p class="rm2-sub">${esc(D.head.sub)}</p></div>
+      <div class="rm2-head-t">
+        <div class="rm2-head-line"><h2 class="rm2-title">${esc(D.head.title)}</h2>${D.head.prof?`<span class="rm2-prof">${esc(D.head.prof)}</span>`:""}</div>
+        <p class="rm2-sub">${esc(D.head.sub)}</p></div>
     </header>
     <div class="rm2-prog">
       <div class="rm-ring rm2-ring" role="img" aria-label="${esc(t("rm.sessions",{done:D.done,total:D.total}))}">

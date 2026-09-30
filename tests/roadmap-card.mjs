@@ -29,7 +29,7 @@ async function open(state, { w = 390, h = 844, lang = "en", reduce = false } = {
 const card = p => p.evaluate(() => {
   const c = document.querySelector("#v-journey .rm2"); if (!c) return null;
   const q = s => c.querySelector(s), tx = s => (q(s) || {}).innerText?.trim() ?? null;
-  return { look: c.dataset.look, title: tx(".rm2-title"), sub: tx(".rm2-sub"), count: tx(".rm2-count"), pct: tx(".rm-ring-txt b"),
+  return { look: c.dataset.look, title: tx(".rm2-title"), prof: tx(".rm2-prof"), sub: tx(".rm2-sub"), count: tx(".rm2-count"), pct: tx(".rm-ring-txt b"),
     stats: [...c.querySelectorAll(".rm2-stat")].map(s => s.innerText.replace(/\s+/g, " ").trim()),
     badge: tx(".rm2-badge"), cur: tx(".rm2-cur h3"), curSub: tx(".rm2-cur-sub"), curN: tx(".rm2-cur-n"), curPct: tx(".rm2-cur-p > b"), desc: tx(".rm2-cur-d"),
     segs: [...c.querySelectorAll(".rm2-segs i")].map(i => i.className), today: tx(".rm2-today"),
@@ -175,6 +175,31 @@ console.log("\n# reduced motion");
 { const { ctx, p } = await open(seed("general-english", { days: { w1Mon: true, w1Tue: true, w1Wed: true } }), { reduce: true });
   const r = await p.evaluate(() => ({ pct: document.querySelector("#v-journey .rm-ring-txt b").innerText, tr: getComputedStyle(document.querySelector("#v-journey .rm2-knob")).transitionDuration }));
   ok("reduced motion: the figure is shown at once and the knob does not animate", r.pct === "4%" && parseFloat(r.tr) < 0.01, ser(r)); await ctx.close(); }
+
+/* The learner's profession, named on the card (owner, 30 Sep 2026). One source:
+   Trades.active() — the same answer the workshops, the standards and the reports
+   are built from — so these checks change the profession and read the card back. */
+console.log("\n# the profession the learner picked is named on the card");
+for (const [id, label, career] of [["welder", "Welder", "welding"], ["instrumentation", "Instrumentation Technician", "instrumentation and control"],
+  ["hse", "HSE Officer", "health, safety and environment"], ["millwright", "Millwright", "industrial mechanical maintenance"]]) {
+  const { ctx, p, errs } = await open(seed("welding", { professionalTracks: { activeId: "welding", tradeId: id } }));
+  const c = await card(p);
+  ok(`W · ${id}: the card names "${label}" and its career line follows`, c.prof === label && c.sub === `Track your progress and build the skills you need for a successful career in ${career}.`, ser({ prof: c.prof, sub: c.sub }));
+  ok(`W · ${id}: no page errors`, !errs.length, errs.join(" | "));
+  await ctx.close(); }
+{ const { ctx, p } = await open(seed("general-english"));
+  const c = await card(p);
+  ok("GE · no profession line — General English has no profession", c.prof === null && !/Welder|Technician|Officer/i.test(c.text), ser({ prof: c.prof }));
+  await ctx.close(); }
+{ const { ctx, p } = await open(seed("welding", { professionalTracks: { activeId: "welding", tradeId: "instrumentation" } }), { lang: "fr" });
+  const c = await card(p);
+  ok("fr · the profession is translated, not left in English", c.prof === "Technicien en instrumentation", ser({ prof: c.prof }));
+  await ctx.close(); }
+{ const { ctx, p } = await open(seed("welding", { professionalTracks: { activeId: "welding", tradeId: "instrumentation" } }), { w: 375 });
+  const r = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2"), e = c.querySelector(".rm2-prof"), cb = c.getBoundingClientRect(), eb = e.getBoundingClientRect();
+    return { inside: eb.right <= cb.right + 0.5 && eb.left >= cb.left - 0.5, hscroll: document.documentElement.scrollWidth > innerWidth, h: Math.round(cb.height) } });
+  ok("375px · the profession stays inside the card, no sideways scroll, the card is still compact", r.inside && !r.hscroll && r.h <= 400, ser(r));
+  await ctx.close(); }
 
 await b.close(); if (srv) srv.kill();
 const n = res.filter(Boolean).length; console.log(`\n${n}/${res.length} passed`); process.exit(n === res.length ? 0 : 1);
