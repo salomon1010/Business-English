@@ -76,8 +76,8 @@ console.log("\n# pages with no tab light the tab they belong to");
 
 console.log("\n# Road map: the same step as Home, told as a place on the journey");
 { const { ctx, p } = await open(seed("general-english", ge3)); await view(p, "journey");
-  const r = await p.evaluate(() => { const x = document.querySelector("#v-journey .rm2-today"); return { k: x.querySelector(".rm2-today-k").innerText, pos: x.querySelector(".rm2-today-pos").innerText, pin: !!x.querySelector(".rm2-today-pin svg"), hero: !!document.querySelector("#v-journey .hx") } });
-  ok("7 · 'Week 1 · Thursday', 'Session 4 of 7 in Week 1' (real counts), a map pin — not Home's hero card", r.k === "Week 1 · Thursday" && r.pos === "Session 4 of 7 in Week 1" && r.pin && !r.hero, JSON.stringify(r));
+  const r = await p.evaluate(() => { const x = document.querySelector("#v-journey .rm2-today"); return { k: x.querySelector(".rm2-today-k").innerText, pos: x.querySelector(".rm2-today-pos").innerText, pin: !!x.closest(".rm2-cta"), hero: !!document.querySelector("#v-journey .hx") } });
+  ok("7 · 'Week 1 · Thursday', 'Session 4 of 7 in Week 1' (real counts), carried by the Road map button — not Home's hero card", r.k === "Week 1 · Thursday" && r.pos === "Session 4 of 7 in Week 1" && r.pin && !r.hero, JSON.stringify(r));
   await ctx.close(); }
 
 console.log("\n# Phrase Lab: Executive Polish and the week's phrases, from the tab itself");
