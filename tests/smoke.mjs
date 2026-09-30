@@ -150,13 +150,14 @@ const land = await page.evaluate(async () => {
     if (tr === "welding") { S.professionalTracks = { activeId: "welding" }; ProfessionalTrackContext.setActive("welding"); OB.trade = "welder"; }
     else { S.professionalTracks = { activeId: "general-english" }; ProfessionalTrackContext.setActive("general-english"); }
     obFinish(); await new Promise(r => setTimeout(r, 300));
-    out[tr] = { v: cur.v, track: activeProfessionalTrack().id, homeFirst: document.getElementById("v-home").classList.contains("on"), welcome: !!document.getElementById("wcOv") };
+    out[tr] = { v: cur.v, hv2: typeof homeV2On === "function" && homeV2On(), track: activeProfessionalTrack().id, homeFirst: document.getElementById("v-home").classList.contains("on"), welcome: !!document.getElementById("wcOv") };
     try { wcClose(); } catch (e) {} document.querySelectorAll(".cf-ov,.wc-ov").forEach(e => e.remove()); await new Promise(r => setTimeout(r, 250));
   }
   return out;
 });
 ok("Onboarding lands on the road map, not Home — General English", land["general-english"].v === "journey" && !land["general-english"].homeFirst && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
-ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected", land["welding"].v === "journey" && !land["welding"].homeFirst && land["welding"].track === "welding", JSON.stringify(land["welding"]));
+/* with welding_studio_enabled (staging) Welding has Home V2, and Home V2 is where onboarding lands (the General English rule) */
+ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected (Home V2 when the Welding studio is on)", (land["welding"].hv2 ? land["welding"].v === "home" : (land["welding"].v === "journey" && !land["welding"].homeFirst)) && land["welding"].track === "welding", JSON.stringify(land["welding"]));
 
 /* ── coming back after hours lands on the road map, centred on done → here → next ── */
 await page.evaluate(() => {
