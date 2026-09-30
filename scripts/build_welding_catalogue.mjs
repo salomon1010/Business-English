@@ -64,8 +64,11 @@ async function pool(items, n, fn) {
   return out;
 }
 const isEn = k => k === 'en' || k.startsWith('en-');
-function judge(info, minSec = rules.minSec) {
+function judge(info, minSec = rules.minSec, lang = '') {
   if (info._err) return { skip: ['unavailable: ' + info._err] };
+  /* a channel-only entry may name another spoken language (PetroCertif's French talks, owner 30 Sep 2026):
+     it passes on that language's own original track, and is shadowed from it */
+  if (lang) return judgeLang(info, minSec, lang);
   const subs = Object.keys(info.subtitles || {}), autos = Object.keys(info.automatic_captions || {});
   const human = subs.some(isEn);
   /* YouTube's own language label wins when it names another language: a Hindi talk can still
@@ -92,15 +95,36 @@ function judge(info, minSec = rules.minSec) {
   };
 }
 
+function judgeLang(info, minSec, lang) {
+  const autos = info.automatic_captions || {}, subs = info.subtitles || {};
+  const human = Object.keys(subs).some(k => k === lang || k.startsWith(lang + '-'));
+  const orig = Object.keys(autos).some(k => new RegExp('^' + lang + '(-[A-Za-z]+)?-orig$').test(k));
+  const why = [];
+  if (info.is_live || /is_live|is_upcoming/.test(info.live_status || '')) why.push('live');
+  if (info.age_limit) why.push('age-limited');
+  if (info.playable_in_embed === false) why.push('not embeddable');
+  if (info.availability && info.availability !== 'public') why.push(info.availability);
+  const dur = Math.round(info.duration || 0);
+  if (dur < minSec) why.push('short');
+  if (dur > rules.maxSec) why.push('too long');
+  if (!human && !orig) why.push(`no ${lang} captions`);
+  return {
+    title: info.title || '', ch: info.channel || info.uploader || '', chId: info.channel_id || '',
+    handle: info.uploader_id || '', dur, cap: human ? 'human' : orig ? 'auto' : null, lang,
+    up: (info.upload_date || '').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'),
+    skip: why.length ? why : null,
+  };
+}
+
 const cands = [];
 for (const c of src.categories) for (const [vid, topic] of c.videos) cands.push({ vid, topic, cat: c.id });
 /* channelOnly: a channel the owner wants in full (PetroCertif, 30 Sep 2026) — its English videos that fit no
    single profession are listed under the channel and in search only (cat "" = in no profession chip) */
 const CH_ONLY = src.channelOnly || { videos: [] };
-for (const [vid, topic] of CH_ONLY.videos) cands.push({ vid, topic, cat: '', chanOnly: true });
+for (const [vid, topic, lang] of CH_ONLY.videos) cands.push({ vid, topic, cat: '', chanOnly: true, lang: lang || '' });
 console.error(`checking ${cands.length} curated videos…`);
 const judged = await pool(cands, 2, async (c, k) => {
-  const r = judge(await info(c.vid), c.chanOnly && CH_ONLY.minSec ? CH_ONLY.minSec : rules.minSec);
+  const r = judge(await info(c.vid), c.chanOnly && CH_ONLY.minSec ? CH_ONLY.minSec : rules.minSec, c.lang);
   process.stderr.write(`${k + 1}/${cands.length} ${r.skip ? '✗' : '✓'} ${c.vid} ${r.skip ? r.skip.join(', ') : ''}\n`);
   return Object.assign({}, c, r);
 });
@@ -120,7 +144,8 @@ for (const v of kept) {
      asking this machine to "confirm you're not a bot" for new page loads */
   try {
     const inf = await info(v.vid), subs = inf.subtitles || {}, autos = inf.automatic_captions || {};
-    const keys = v.cap === 'human' ? ['en', 'en-US', 'en-GB'].filter(k => subs[k]) : Object.keys(autos).filter(k => /^en(-[A-Za-z]+)?-orig$/.test(k)).concat(autos.en ? ['en'] : []);
+    const L = v.lang || 'en', re = new RegExp('^' + L + '(-[A-Za-z]+)?-orig$');
+    const keys = v.cap === 'human' ? Object.keys(subs).filter(k => k === L || k.startsWith(L + '-')) : Object.keys(autos).filter(k => re.test(k)).concat(!v.lang && autos.en ? ['en'] : []);
     const list = v.cap === 'human' ? subs : autos;
     for (const k of keys) {
       const f = (list[k] || []).find(x => x.ext === 'json3');
@@ -135,10 +160,10 @@ for (const v of kept) {
     await new Promise(z => setTimeout(z, 400));
   } catch {}
   if (!fs.readdirSync(TMP).some(n => n.startsWith(v.vid + '.') && n.endsWith('.json3'))) spawnSync('yt-dlp', ['--skip-download', '--no-warnings', '--force-ipv4', '--write-subs', '--write-auto-subs',
-    '--sub-lang', v.cap === 'human' ? 'en,en-US,en-GB' : 'en-orig,en-US-orig,en-GB-orig,en', '--sub-format', 'json3', '--sleep-requests', '2',
+    '--sub-lang', v.lang ? (v.cap === 'human' ? v.lang : v.lang + '-orig') : v.cap === 'human' ? 'en,en-US,en-GB' : 'en-orig,en-US-orig,en-GB-orig,en', '--sub-format', 'json3', '--sleep-requests', '2',
     '-o', path.join(TMP, '%(id)s'), 'https://www.youtube.com/watch?v=' + v.vid], { stdio: ['ignore', 'pipe', 'pipe'] });
   const pick = fs.readdirSync(TMP).filter(n => n.startsWith(v.vid + '.') && n.endsWith('.json3'));
-  const f = pick.find(n => /\.en(-[A-Za-z]+)?-orig\.json3$/.test(n)) || pick.find(n => /\.en\.json3$/.test(n)) || pick[0];
+  const f = pick.find(n => /-orig\.json3$/.test(n)) || pick.find(n => /\.en\.json3$/.test(n)) || pick[0];
   if (!f) { console.error(' none'); v.skip = ['caption track could not be fetched']; continue; }
   const conv = spawnSync('node', [path.join(ROOT, 'scripts', 'fetch_captions.js'), v.vid, path.join(TMP, f)], { stdio: ['ignore', 'pipe', 'pipe'] });
   for (const n of pick) { try { fs.unlinkSync(path.join(TMP, n)) } catch {} }
@@ -153,6 +178,8 @@ for (const v of kept) {
   const f = path.join(CAP_DIR, v.vid + '.json');
   try {
     const cap = JSON.parse(fs.readFileSync(f, 'utf8'));
+    /* fetch_captions.js labels every file "en"; a declared language (PetroCertif French) is labelled as spoken */
+    if (v.lang && cap.lang !== v.lang) { cap.lang = v.lang; fs.writeFileSync(f, JSON.stringify(cap)); }
     const clean = t => String(t || '').replace(/♪[^♪]*♪|♪|\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
     const ws = cap.words || [];
     const keepW = ws.filter((w, i) => { const x = String(w.w || ''); if (NOISE.test(x)) return false; if (/^music$/i.test(x) && ((ws[i - 1] && /♪/.test(ws[i - 1].w)) || (ws[i + 1] && /♪/.test(ws[i + 1].w)))) return false; return true; })
@@ -201,7 +228,7 @@ for (const c of src.categories) {
     videos[v.vid] = { title: v.title, ch: v.ch, chId: v.chId, dur: v.dur, cap: v.cap, up: v.up, prof: c.id, topic: v.topic };
 }
 for (const v of judged.filter(v => v.chanOnly && !v.skip && !videos[v.vid]))
-  videos[v.vid] = { title: v.title, ch: v.ch, chId: v.chId, dur: v.dur, cap: v.cap, up: v.up, prof: '', topic: v.topic, chan: true };
+  videos[v.vid] = Object.assign({ title: v.title, ch: v.ch, chId: v.chId, dur: v.dur, cap: v.cap, up: v.up, prof: '', topic: v.topic, chan: true }, v.lang ? { lang: v.lang } : {});
 const out = { built: new Date().toISOString().slice(0, 10), area: 'welding', groups: src.groups, categories: cats,
   /* a channel chip filters the library by channel: one with no video in it would open an empty list */
   channels: channels.filter(c => c.id && Object.values(videos).some(v => v.chId === c.id)), hero: src.hero || {}, videos };

@@ -36,7 +36,9 @@ ok("1 · catalogue/welding.json has the ten professions in four groups", WELD.ca
 ok("1b · no Welding video is a General English video", [...WV].every(v => !GV.has(v)), [...WV].filter(v => GV.has(v)));
 ok("1c · every Welding video names its profession and topic, and ships a caption file", Object.entries(WELD.videos).every(([v, x]) => (x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json")), Object.entries(WELD.videos).filter(([v, x]) => !((x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json"))).map(([v]) => v));
 { const pc = WELD.channels.find(c => /petrocertif/i.test(c.handle || c.name)), pv = Object.values(WELD.videos).filter(v => pc && v.chId === pc.id);
-  ok("1e · PetroCertif (owner, 30 Sep 2026): the channel carries all ten of its English-spoken videos", pc && pv.length === 10, pv.length); }
+  ok("1e · PetroCertif (owner, 30 Sep 2026): the channel carries all 21 of its videos — 11 spoken in English, 10 in French marked lang 'fr'", pc && pv.length === 21 && pv.filter(v => v.lang === "fr").length === 10 && pv.filter(v => !v.lang).length === 11, JSON.stringify({ n: pv.length, fr: pv.filter(v => v.lang === "fr").length }));
+  const frv = Object.entries(WELD.videos).filter(([, v]) => v.lang === "fr");
+  ok("1f · the French videos are channel-only (in no profession chip) and their caption files say fr", frv.every(([k, v]) => v.chan && !v.prof && !WELD.categories.some(c => c.vids.includes(k)) && JSON.parse(fs.readFileSync(root + "captions/" + k + ".json", "utf8")).lang === "fr"), frv.map(([k]) => k)); }
 ok("1d · every channel in the row has at least one video", WELD.channels.every(c => Object.values(WELD.videos).some(v => v.chId === c.id)), WELD.channels.map(c => c.name));
 
 console.log("\n# Welding · Shadow = the video Shadow Studio");
@@ -69,7 +71,9 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   ok("3b · …on every profession chip", v2.every(v => WV.has(v)), v2.filter(v => !WV.has(v)));
   { const pc = WELD.channels.find(c => /petrocertif/i.test(c.handle || c.name)); await p.evaluate(id => shLibChan(id), pc.id); await sleep(200);
     const n = await p.evaluate(() => { shLibMoreToggle(); return document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']").length });
-    ok("3d · tapping the PetroCertif channel lists all ten of its videos", n === 10, n); await p.evaluate(id => shLibChan(id), pc.id); await sleep(150); }
+    const tags = await p.evaluate(() => [...document.querySelectorAll("#shLibFeed .shl-src.lang")].map(x => x.textContent));
+    ok("3d · tapping the PetroCertif channel lists all 21 of its videos", n === 21, n);
+    ok("3e · the 10 French ones say 'Spoken in French' on their row", tags.length === 10 && tags.every(x => x === "Spoken in French"), JSON.stringify(tags)); await p.evaluate(id => shLibChan(id), pc.id); await sleep(150); }
   await p.evaluate(() => shLibQ("steve jobs")); await sleep(150);
   ok("3c · searching for a General English video finds nothing on Welding", (await p.evaluate(() => document.querySelectorAll("#shLibFeed .shl-row").length)) === 0);
   await p.evaluate(() => shLibQ("")); await sleep(100);
@@ -92,6 +96,15 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   await p.evaluate(() => svApplyLab()); await sleep(900);
   ok("7b · the line lands in the Executive Polish box", await p.evaluate(l => cur.v === "phrases" && (document.getElementById("exIn") || {}).value === l.slice(0, 300), line), line);
   ok("8 · Continue watching remembers the Welding clip on Welding", await p.evaluate(v => (lastClip() || {}).vid === v && !(S.lastClip && S.lastClip.vid === v), vid));
+  /* no Translate on a French-spoken video (owner, 30 Sep 2026) — English videos keep it */
+  const trCase = async v => { await p.evaluate(() => { if (cur.v !== "shadow") go("shadow") }); await sleep(1500);
+    await p.evaluate(v => { svShPref().tr = true; shLibOpen(v) }, v); await sleep(3500);
+    const r = {}; for (const m of ["watch", "shadow"]) { await p.evaluate(m => svSetMode(m), m); await sleep(700); r[m] = await p.evaluate(() => !!document.querySelector("#svWtTrBtn,#svShTrBtn")); }
+    return Object.assign(r, await p.evaluate(() => { const o = { on: svShTrOn(), box: !!document.querySelector(".sv-para-tr,#svShTr .sv-sh-tr-t") }; svShPref().tr = false; return o })); };
+  const frId = Object.keys(WELD.videos).find(k => WELD.videos[k].lang === "fr");
+  const enT = await trCase(vid), frT = await trCase(frId);
+  ok("9b · Translate is there on an English video (Watch and Shadow)", enT.watch && enT.shadow && enT.on, JSON.stringify(enT));
+  ok("9c · …and absent on a French-spoken one: no pill, and the helper stays off even when switched on before", !frT.watch && !frT.shadow && !frT.on && !frT.box, JSON.stringify(frT));
   ok("9 · no page errors on Welding Shadow", !errs.filter(e => !/network error/i.test(e)).length, errs.join(" | "));
 
   console.log("\n# the profession choice");

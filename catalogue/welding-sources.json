@@ -901,7 +901,7 @@
   "@ChemicalEngineeringGuy"
  ],
  "channelOnly": {
-  "about": "Videos that belong to a channel the owner asked for in full (PetroCertif, partner) but to no single profession: listed under the channel chip and in search, never in a profession chip or For you. Spoken English only — the Studio shadows English.",
+  "about": "Videos that belong to a channel the owner asked for in full (PetroCertif, partner) but to no single profession: listed under the channel chip and in search, never in a profession chip or For you. Spoken English, except entries with a third field naming the spoken language (\"fr\"): the owner asked for all of PetroCertif on 30 Sep 2026, French talks included, marked 'Spoken in French' in the app and shadowed from their French captions.",
   "minSec": 20,
   "videos": [
    [
@@ -927,6 +927,60 @@
    [
     "WbCr5pDY_2A",
     "industry"
+   ],
+   [
+    "rXv50SdDCpQ",
+    "industry"
+   ],
+   [
+    "BRe6ckCFUg8",
+    "construction management",
+    "fr"
+   ],
+   [
+    "2TTVHBMCPZA",
+    "construction management",
+    "fr"
+   ],
+   [
+    "RFTERUOe2G8",
+    "construction management",
+    "fr"
+   ],
+   [
+    "S_Ap6qCITUA",
+    "construction management",
+    "fr"
+   ],
+   [
+    "JzCyiPOCIOo",
+    "industry",
+    "fr"
+   ],
+   [
+    "fR5SsyLGacg",
+    "industry",
+    "fr"
+   ],
+   [
+    "WJU5ZCXFvyQ",
+    "industry",
+    "fr"
+   ],
+   [
+    "XCO62k2nOG8",
+    "industry",
+    "fr"
+   ],
+   [
+    "CeXLi24KSbw",
+    "industry",
+    "fr"
+   ],
+   [
+    "H4Lw7wJeV9U",
+    "industry",
+    "fr"
    ]
   ],
   "minWpm": 30
