@@ -2391,13 +2391,16 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
    circle"): a 52 px photo circle, the label at 8 px on the darker lower half,
    three short lines at most (pp.fab_small is kept short in every language for
    that). The full label (pp.fab) is the accessible name and the tooltip. */
-#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:68px;height:68px;padding:0 5px;border-radius:50%;border:2px solid rgba(84,108,196,.55);
+#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:60px;height:60px;padding:0 4px;border-radius:50%;border:2px solid rgba(84,108,196,.55);
   background:radial-gradient(circle at 50% 30%,#1a2246 0%,#121a38 55%,#0d1330 100%);color:#c6cbdb;font:inherit;cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
 /* owner's design, 2026-09-20: a navy disc with a blue ring, the people-and-chat
-   line-icon and a two-word label under it, both in a soft grey (not white) */
+   line-icon and a two-word label under it, both in a soft grey (not white).
+   Owner, 30 Sep 2026: the disc a little smaller (68 → 60px) and the label held
+   to two lines — every language's pp.fab_disc is two short words, so 52px of
+   label width breaks them one word per line inside the smaller circle. */
 #ppFab .pp-fab-ic{display:flex;align-items:center;justify-content:center;pointer-events:none}
-#ppFab .pp-fab-lbl{font-size:9.5px;font-weight:600;line-height:1.1;letter-spacing:.1px;text-align:center;max-width:58px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:break-word;pointer-events:none}
+#ppFab .pp-fab-lbl{font-size:9px;font-weight:600;line-height:1.1;letter-spacing:0;text-align:center;max-width:52px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:break-word;pointer-events:none}
 /* the same quiet breathing halo as "Practise live" (.pp-live-glow), not a beacon */
 #ppFab.on::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(150,150,180,.38);pointer-events:none;animation:pplivebreathe 3.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
@@ -2406,7 +2409,7 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
 /* the online-count badge (owner, 2026-09-19): how many learners are online right now — green like the presence dot, hidden at zero */
 #ppFab .pp-fab-n{position:absolute;top:-6px;right:-6px;min-width:12px;height:22px;padding:0 6px;border-radius:11px;background:#12a56a;color:#fff;font-size:12px;font-weight:800;line-height:22px;text-align:center;text-shadow:none;border:2px solid var(--bg,#0f1222);box-shadow:0 1px 3px rgba(0,0,0,.35);pointer-events:none}
 :root[data-theme="light"] #ppFab .pp-fab-n{border-color:#fff}
-#ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:29px;height:29px;stroke-width:1.5}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
+#ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:25px;height:25px;stroke-width:1.5}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 /* Desktop: the disc keeps company with the 880px column instead of drifting to
    the far edge of a wide window — its centre sits ~115px past the column's
@@ -28001,6 +28004,10 @@ function ppFabBadge(el){
   }else{if(b)b.remove();el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab")}
   ppPresencePoll();
 }
+/* Every pp.fab_disc is one or two short words. The break is put in by hand
+   after the first word, so the label reads as two tidy lines in every
+   language instead of one line here and two there (owner, 30 Sep 2026). */
+function ppFabLabelHTML(){const w=String(t("pp.fab_disc")).trim().split(/\s+/);return w.length>1?esc(w[0])+"<br>"+esc(w.slice(1).join(" ")):esc(w[0]||"")}
 function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
@@ -28016,7 +28023,7 @@ function ppFabSync(){
   let show=ppAvailable()&&(onTab||(onRec&&ppSignedIn()&&m&&m.consented))&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
-  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("realpeople")}</span><span class="pp-fab-lbl">${t("pp.fab_disc")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
+  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("realpeople")}</span><span class="pp-fab-lbl">${ppFabLabelHTML()}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
   el.classList.toggle("lift",lift);
   if(onRec&&ppFabOverlaps(el)){el.classList.remove("on");return}
   el.classList.add("on");
