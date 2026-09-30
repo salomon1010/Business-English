@@ -23402,7 +23402,8 @@ function svOn(){return flag("shadow_studio_v2_enabled")&&(isGeneralEnglish()||we
    everything below (Watch / Shadow / Challenge, reports, History) is the same
    code. These helpers are the scene's own additions: who is speaking, the
    stage's status line, line actions in Watch, the word card in Shadow. */
-function scnOn(){return svOn()&&shLibOn()&&flag("shadow_scenes_enabled")&&!!window.ShadowScenes}
+/* the animated scenes are General English content (Daniel & Maya at the office): never on Welding, whose Studio is on since 29 Sep 2026 */
+function scnOn(){return svOn()&&shLibOn()&&isGeneralEnglish()&&flag("shadow_scenes_enabled")&&!!window.ShadowScenes}
 function scnIs(vid){return !!(window.ShadowScenes&&ShadowScenes.is(vid))}
 /* a clip's picture: YouTube's thumbnail, or a scene's own poster (written by
    scripts/build_scene.mjs) — a scene id sent to i.ytimg.com is a broken image */

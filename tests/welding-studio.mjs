@@ -41,7 +41,8 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
 {
   const { ctx, p, errs } = await open("welding", { trade: "pipefitter" });
   await p.evaluate(() => go("shadow")); await sleep(1500);
-  const s = await p.evaluate(() => ({ lib: !!document.querySelector("#v-shadow #shLib"), lines: !!document.querySelector("#v-shadow .sh-lines"), chips: [...document.querySelectorAll(".shl-chip")].map(x => x.dataset.cat), chans: document.querySelectorAll(".shl-chan").length, prof: (document.querySelector(".wprof-pill b") || {}).textContent, first: [...document.querySelectorAll("#shLibFeed .shl-row")].slice(0, 4).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
+  ok("2f · no General English animated scene in the Welding library", await p.evaluate(() => !scnOn() && !document.querySelector("#shLibFeed [onclick*='scnOpen']")));
+  const s = await p.evaluate(() => ({ lib: !!document.querySelector("#v-shadow #shLib"), lines: !!document.querySelector("#v-shadow .sh-lines"), chips: [...document.querySelectorAll(".shl-chip")].map(x => x.dataset.cat), chans: document.querySelectorAll(".shl-chan").length, prof: (document.querySelector(".wprof-pill b") || {}).textContent, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 4).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
   ok("2 · the Shadow tab shows the video library, not the workplace lines", s.lib && !s.lines, JSON.stringify(s));
   ok("2b · chips = For you, Your videos, then the professions — the learner's own (Pipefitter) first", s.chips[0] === "foryou" && s.chips[1] === "mine" && s.chips[2] === "pipefitter" && s.chips.every(c => ["foryou", "mine"].includes(c) || WELD.categories.some(k => k.id === c)), s.chips);
   ok("2c · the Welding channels row is there", s.chans === WELD.channels.length, s.chans);
@@ -82,7 +83,7 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   const sh = await p.evaluate(() => ({ groups: [...document.querySelectorAll(".wprof-g .shl-lbl")].map(x => x.textContent), n: document.querySelectorAll(".wprof-g .pf-row").length }));
   ok("10 · the sheet lists the ten professions in the four groups", sh.n === 10 && sh.groups.length === 4, JSON.stringify(sh));
   await p.evaluate(() => weldProfSet("ndt")); await sleep(800);
-  const ndt = await p.evaluate(() => ({ p: S.profile.weldProf, chip: [...document.querySelectorAll(".shl-chip")][2].dataset.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row")].slice(0, 3).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
+  const ndt = await p.evaluate(() => ({ p: S.profile.weldProf, chip: [...document.querySelectorAll(".shl-chip")][2].dataset.cat, first: [...document.querySelectorAll("#shLibFeed .shl-row[onclick*='shLibOpen']")].slice(0, 3).map(x => (x.getAttribute("onclick") || "").match(/'([^']+)'/)?.[1]) }));
   ok("10b · choosing NDT Technician reorders the library (chip and For you)", ndt.p === "ndt" && ndt.chip === "ndt" && ndt.first.every(v => WELD.videos[v] && WELD.videos[v].prof === "ndt"), JSON.stringify(ndt));
   await ctx.close();
 }
@@ -146,7 +147,7 @@ console.log("\n# General English is unchanged, and sees nothing of Welding");
 
 console.log("\n# flag off (production default): Welding exactly as before");
 {
-  const { ctx, p, errs } = await open("welding", { flags: {} });
+  const { ctx, p, errs } = await open("welding", { flags: { welding_studio_enabled: false } });
   await p.evaluate(() => go("shadow")); await sleep(1200);
   ok("19 · without the flag, Welding Shadow is still the workplace lines", await p.evaluate(() => !document.querySelector("#shLib") && document.querySelectorAll("#v-shadow .sh-line").length > 3));
   await p.evaluate(() => go("home")); await sleep(1000);
