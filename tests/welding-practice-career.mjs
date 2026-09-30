@@ -52,7 +52,8 @@ console.log("\n# Welding header");
   await p.evaluate(() => go("practice")); await sleep(300);
   await p.locator("#v-practice .path-tool").nth(3).click(); await sleep(700);
   const ln = await p.evaluate(() => ({ v: cur.v, lines: !!document.querySelector("#v-shadow .sh-lines"), rows: document.querySelectorAll("#v-shadow .sh-lines .shl-row, #v-shadow .sh-lines [data-line], #v-shadow .sh-lines li, #v-shadow .sh-lines .sh-line").length, video: !!document.querySelector("#v-shadow #shLib") }));
-  ok("4 · opens the workplace lines (the same list the Shadow tab shows, not a copy)", ln.v === "shadow" && ln.lines, JSON.stringify(ln));
+  /* with welding_studio_enabled (staging) the lines have their own view, "lines", drawn into #v-shadow */
+  ok("4 · opens the workplace lines (the same list, not a copy)", (ln.v === "shadow" || ln.v === "lines") && ln.lines && !ln.video, JSON.stringify(ln));
 
   console.log("\n# 5 · Career Destination");
   await p.evaluate(() => go("practice")); await sleep(300);

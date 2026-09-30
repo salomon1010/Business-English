@@ -168,7 +168,7 @@ async function shLineReport(id,blob,secs){
     markPracticed();
     try{awardCompetency({activityType:"shadow_session",lesson:"Workplace line · "+line.scenario,duration:1,dedupeKey:"line:"+id+":"+rep.at})}catch(e){}
     save();
-    if(cur&&cur.v==="shadow"&&document.getElementById(shLineWrapId(id))){
+    if(cur&&(cur.v==="shadow"||cur.v==="lines")&&document.getElementById(shLineWrapId(id))){
       exHost=shLineHost(id,rep,true);exRenderReport(rep);
       /* "Your performance analysis" in the coach pop-up opens this report */
       window._shLastReport="shfb-"+id;
