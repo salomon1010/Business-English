@@ -110,6 +110,13 @@ console.log("\n# Welding · Shadow = the video Shadow Studio");
   await p.evaluate(() => weldProfSet("none")); await sleep(700);
   const nf = await p.evaluate(() => ({ p: S.profile.weldProf, prof: weldProf(), pill: (document.querySelector(".wprof-pill b") || {}).textContent, cat: _shLibCat, order: shLibCatsOrdered(_shCat).map(c => c.id).join() }));
   ok("10e · 'No filter' clears the profession: For you, the catalogue's own order, and the row says All professions", nf.p === "none" && nf.prof === "" && nf.cat === "foryou" && nf.pill === "All professions" && nf.order === WELD.categories.map(c => c.id).join(), JSON.stringify(nf));
+  /* the other way round (owner, 30 Sep 2026): tapping the For you chip is No filter */
+  await p.evaluate(() => shLibCat("pipefitter")); await sleep(500);
+  await p.click('.shl-chip[data-cat="foryou"]'); await sleep(600);
+  await p.evaluate(() => weldProfSheet()); await sleep(250);
+  const fy = await p.evaluate(() => ({ p: S.profile.weldProf, pill: (document.querySelector(".wprof-pill b") || {}).textContent, chip: (document.querySelector(".shl-chip.on") || {}).dataset?.cat, noneSel: !!document.querySelector("#weldProfOv .wprof-none.sel"), ticked: [...document.querySelectorAll("#weldProfOv .wprof-g .sel")].length }));
+  ok("10f · tapping For you after a trade chip clears the trade: the row says All professions and the list ticks No filter", fy.p === "none" && fy.pill === "All professions" && fy.chip === "foryou" && fy.noneSel && fy.ticked === 0, JSON.stringify(fy));
+  await p.evaluate(() => weldProfPopClose()); await sleep(150);
   await ctx.close();
 }
 

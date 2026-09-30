@@ -14156,6 +14156,9 @@ window.shLibCat=id=>{
   _shLibCat=id;_shLibCh="";_shLibMore=false;
   /* a trade chip and the Change list are one control: picking the chip moves the list's tick too */
   if(weldStudioOn()&&WELD_PROFS.includes(id)&&weldProf()!==id){S.profile=S.profile||{};S.profile.weldProf=id;save()}
+  /* …and "For you" is the list's "No filter" (owner, 30 Sep 2026): tapping it clears the trade, as
+     choosing No filter lands on For you (weldProfSet) */
+  if(weldStudioOn()&&id==="foryou"&&weldProf()){S.profile=S.profile||{};S.profile.weldProf="none";save()}
   shLibSync();
   /* the chosen chip slides into view: the row scrolls sideways, and a chip past
      the edge (Movies, Songs on a phone) was chosen but out of sight */
