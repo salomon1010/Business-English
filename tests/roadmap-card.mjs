@@ -118,8 +118,10 @@ console.log("\n# navigation");
   ok("a journey row shows that phase's weeks and scrolls to them", ph.v === "journey" && ph.ph === "2" && ph.top < 300 && /Workplace Fluency/.test(ph.tab), ser(ph));
   await p.evaluate(() => { _jPhase = null; go("journey"); scrollTo(0, 0) }); await sleep(800);
   await p.click("#v-journey .rm2-all"); await sleep(900);
-  const va = await p.evaluate(() => ({ y: scrollY, top: Math.round(document.querySelector("#v-journey #rmDetail").getBoundingClientRect().top) }));
-  ok("'View all 12 weeks' scrolls to the week list (the board is gone)", va.y > 200 && va.top < 250, ser(va));
+  const va = await p.evaluate(() => ({ y: scrollY, road: Math.round(document.querySelector("#v-journey #rmRoad").getBoundingClientRect().top) }));
+  /* the board came back on 30 Sep 2026 (owner), so "View all" scrolls to it again, as it did
+     before the morning's deletion — the board is the twelve weeks, laid out. */
+  ok("'View all 12 weeks' scrolls to the winding board", va.y > 200 && va.road < 250, ser(va));
   await p.evaluate(() => rmOpen()); await sleep(700);
   ok("the full-screen map sheet carries the same card", await p.evaluate(() => !!document.querySelector("#rmOv .rm2 .rm2-cta")));
   await p.locator("#rmOv .rm2-row").nth(2).click(); await sleep(900);

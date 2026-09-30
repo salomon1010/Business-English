@@ -62,10 +62,14 @@ ok("An unshown modal sheet does not intercept taps; a shown one does", await pag
 /* ── road map: fast, and there is exactly ONE of it ── */
 const rm = await page.evaluate(async () => { const a = performance.now(); go("journey"); const ms = performance.now() - a; await new Promise(r => setTimeout(r, 500));
   return { ms, cards: document.querySelectorAll("#v-journey .rm2").length,
-    legacy: document.querySelectorAll(".rm-road,#rmRoad,.rm-lbl,.rm-pin").length,
+    road: document.querySelectorAll("#v-journey #rmRoad").length, pins: document.querySelectorAll("#v-journey .rm-pin").length,
+    cardFirst: (() => { const c = document.querySelector("#v-journey .rm2"), r = document.querySelector("#v-journey #rmRoad"); return !!(c && r) && (c.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING) > 0 })(),
     parts: ["\u002erm2-ring","\u002erm2-cur","\u002erm2-jour",".rm2-cta"].filter(q => document.querySelector("#v-journey " + q)).length }; });
 ok("Road map renders in under 300 ms", rm.ms < 300, Math.round(rm.ms) + " ms");
-ok("ONE road map — the card, with no legacy winding road", rm.cards === 1 && rm.legacy === 0 && rm.parts === 4, JSON.stringify(rm));
+/* the owner restored the winding board on 30 Sep 2026 after it was deleted that morning: the
+   card answers "where am I" at a glance and the road is the journey behind it, in both areas.
+   One card, one road, the card first. */
+ok("One card and the winding road behind it, in that order", rm.cards === 1 && rm.road === 1 && rm.pins > 0 && rm.cardFirst && rm.parts === 4, JSON.stringify(rm));
 ok("Every page opens in under 500 ms", await page.evaluate(async () => { let worst = 0; for (const v of ["home","journey","shadow","phrases","practice","review","profile","data"]) { const t0 = performance.now(); go(v); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); worst = Math.max(worst, performance.now() - t0); document.querySelectorAll(".cf-ov,.wc-ov,.lang-modal-ov").forEach(e => e.remove()); } return worst < 500; }));
 
 /* ── Home ── */
