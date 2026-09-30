@@ -23704,7 +23704,10 @@ function premMainHTML(){
       <button type="button" class="btn btn-g prem-wide prem-subdetails" onclick="subOpen()">${esc(t("sub.details"))}</button>`;
   }
   if(!B.provider)return premUnavailHTML(t("prem.unavailable"),"",false);
-  if(!FBUser)return "";                                                        /* the foot asks to sign in */
+  /* A purchase needs an account, so every REAL store asks to sign in first and
+     the foot carries that button. The staging preview is not a purchase — it
+     exists to be looked at — so it draws the offer signed out too. */
+  if(!FBUser&&B.provider.id!=="preview")return "";                             /* the foot asks to sign in */
   if(B.state==="loading")return `<div aria-hidden="true"><div class="prem-skel"></div></div><p class="sub prem-loading" role="status">${esc(t("acc.prem_loading"))}</p>`;   /* one skeleton: one offer */
   const o=premOffer();
   /* no products from the store: one message, a retry, the benefits above stay — no prices are invented */
@@ -23719,7 +23722,7 @@ function premFootHTML(){
   const B=Billing,prem=entIsPremiumForDisplay(),busy=B.state==="purchasing"||B.state==="restoring";
   if(prem)return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-done" onclick="premClose()">${esc(t("prem.done"))}</button></div>`;
   if(!B.provider)return "";
-  if(!FBUser)return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-signin" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button></div>`;
+  if(!FBUser&&B.provider.id!=="preview")return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-signin" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button></div>`;
   if(B.state==="loading")return "";
   const o=premOffer();if(!o)return "";
   /* under the CTA, the renewal terms in the store's own words: what happens
