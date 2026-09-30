@@ -297,8 +297,15 @@ console.log("\n# E/H · Welding gets the SAME Premium headroom — one subscript
     await p.evaluate(c => S.shOwnA.welding.every(o => !("src" in o)) && shOwnSplit() === true && shOwnCap("yt") === c, capYt));
   ok("W3 · Welding transcription follows the General English rule: offered for a catalogue video or one of the learner's own imports, refused for an id that is neither",
     await p.evaluate(async () => (await shCapMayAsk("w0000000001")) === true && (await shCapMayAsk("w0000000009")) === false));
+  /* This asserted that Welding's sheet showed none of the storage lines and no
+     comparison — the General-English-only rule again. Welding Premium really
+     does raise its saved-video allowance (1 -> 100 here), premCmpHTML now runs
+     on both tracks with each track's own numbers, and the AI Coach row was
+     swapped out on Welding because Welding cannot reach it. So the sheet must
+     show the Welding benefit and must NOT show the coach. */
   const sheet = await p.evaluate(() => { premiumOpen("t"); const t = document.getElementById("premOv").innerText; premClose(); return t; });
-  ok("W4 · Welding's Premium sheet has none of the General English lines or the comparison", !/Shadow videos|YouTube|Polish/.test(sheet), sheet);
+  ok("W4 · Welding's Premium sheet sells the saved-video headroom its Premium really grants, and never the AI Coach it cannot reach",
+    /Save up to 100 Shadow videos/.test(sheet) && !/AI Coach/.test(sheet), sheet);
   ok("W5 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
