@@ -128,6 +128,10 @@ console.log("\n# Home = Home V2 with Welding recommendations");
   ok("14b · the ranking never recommends a partner or the AI coach on Welding", !recs.some(k => /partner|ai_coach/.test(k)), recs);
   const lvl = await p.evaluate(() => { const r = _homeRows.find(x => x.id === "level"); return r ? { h: document.querySelector('.hx-row[data-row="level"] h3').textContent, v: r.items.map(i => i.vid) } : null });
   ok("15 · 'Recommended for your profession' carries Boilermaker clips", lvl && /profession/i.test(lvl.h) && lvl.v.filter(Boolean).length >= 1 && lvl.v.filter(Boolean).every(v => WELD.videos[v] && WELD.videos[v].prof === "boilermaker"), JSON.stringify(lvl && { h: lvl.h, p: lvl.v.map(v => WELD.videos[v] && WELD.videos[v].prof) }));
+  const WPH = { practice: "vocab", phrases: "phrases", grammar: "grammar", journey: "roadmap", review: "progress" };
+  await p.evaluate(() => document.querySelectorAll(".hx-dimg img").forEach(i => i.loading = "eager")); await sleep(800);
+  const ph = await p.evaluate(k => Object.keys(k).map(d => { const i = document.querySelector(`.hx-dcard[data-dest="${d}"] .hx-dimg img`); return { d, src: i && i.getAttribute("src"), ok: !!(i && i.complete && i.naturalWidth > 0) }; }), WPH);
+  ok("15c · Explore on Welding (owner, 30 Sep 2026): Vocabulary, Phrase Lab, Grammar exercises, Road map and Progress show the Welding photos", ph.every(x => x.src === `home-photos/welding/${WPH[x.d]}.jpg` && x.ok), JSON.stringify(ph));
   ok("15b · no page errors on Welding Home", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -136,6 +140,8 @@ console.log("\n# General English is unchanged, and sees nothing of Welding");
 {
   const { ctx, p, errs } = await open("general-english", { extra: { lastClipA: { welding: { vid: Object.keys(WELD.videos)[0], title: "weld clip", start: 0, end: 0 } } } });
   await p.evaluate(() => go("home")); await sleep(1800);
+  const gph = await p.evaluate(() => [...document.querySelectorAll(".hx-dimg img")].map(i => i.getAttribute("src")));
+  ok("16c · General English keeps its own Explore photos", gph.some(x => /^home-photos\/[a-z]+\.jpg/.test(x)) && !gph.some(x => x.includes("/welding/")), JSON.stringify(gph));
   const hv = await shownVids(p);
   ok("16 · every video on General English Home is a General English video", hv.length >= 3 && hv.every(v => GV.has(v) || !WV.has(v)), hv.filter(v => WV.has(v)));
   await p.evaluate(() => go("shadow")); await sleep(1500);
