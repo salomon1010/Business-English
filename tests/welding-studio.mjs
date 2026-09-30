@@ -149,7 +149,26 @@ console.log("\n# Practice · tool 4 = Practise text shadowing (the workplace lin
   ok("12b · its History / trouble words still work there", await p.evaluate(() => cur.v === "lines" && !!document.getElementById("tbBox")));
   await p.evaluate(() => shTab("create")); await sleep(300);
   await p.reload(); await sleep(2000);
+  await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#coachSummary").forEach(e => e.remove()));
   ok("12c · a refresh on #lines comes back to the lines", await p.evaluate(() => cur.v === "lines" && document.querySelectorAll("#v-shadow .sh-line").length > 3));
+  /* the way out (owner, 30 Sep 2026): these pages are opened FROM Practice and their
+     "‹ Practice" button sits in .pg-eyebrow, which is hidden on a phone — so they carry a ✕ */
+  const xb = async () => p.evaluate(() => { const e = document.getElementById("pgClose"); if (!e) return null; const r = e.getBoundingClientRect(), st = getComputedStyle(e);
+    return { fixed: st.position === "fixed", vis: st.visibility !== "hidden" && st.display !== "none" && r.width > 0, w: Math.round(r.width), top: Math.round(r.top), right: Math.round(innerWidth - r.right), onTop: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === e || e.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)) } });
+  const x1 = await xb();
+  ok("12e · the lines page carries a ✕, fixed under the header and tappable", x1 && x1.fixed && x1.vis && x1.w >= 32 && x1.onTop && x1.right <= 20, JSON.stringify(x1));
+  await p.locator("#pgClose").click(); await sleep(700);
+  ok("12f · the ✕ closes it back to Practice, and does not follow to a tab page", await p.evaluate(() => cur.v === "practice" && !document.getElementById("pgClose")));
+  for (const [i, v] of [[4, "career"]]) { await p.evaluate(() => go("practice")); await sleep(400); await p.locator("#v-practice .path-tool").nth(i).click(); await sleep(900);
+    const xc = await xb();
+    ok(`12g · ${v} (Practice tool ${i + 1}) carries the same ✕`, (await p.evaluate(() => cur.v)) === v && xc && xc.vis && xc.onTop, JSON.stringify(xc));
+    await p.locator("#pgClose").click(); await sleep(700);
+    ok(`12h · …and it returns to Practice`, (await p.evaluate(() => cur.v)) === "practice"); }
+  await p.evaluate(() => go("simulation")); await sleep(1200);
+  const xs = await xb();
+  ok("12i · the workplace scenarios page carries it too", xs && xs.vis && xs.onTop, JSON.stringify(xs));
+  await p.locator("#pgClose").click(); await sleep(700);
+  ok("12j · …and closes back to Practice", (await p.evaluate(() => cur.v)) === "practice");
   ok("12d · no page errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }

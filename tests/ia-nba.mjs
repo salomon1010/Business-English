@@ -40,7 +40,7 @@ console.log("\n# Learn (Road map) answers 'what is today?' with one button — t
   const r = await today(p);
   /* the row is the map's pin (29 Sep 2026): the day and its place in the week — Home keeps "what next?" */
   ok("3 · placed, nothing done: 'Week 1 · Monday', 'Session 1 of 7 in Week 1', the day's focus, 'Start Week 1' → Week 1 Monday", r && r.k === "Week 1 · Monday" && r.pos === "Session 1 of 7 in Week 1" && r.t === "Pronunciation baseline" && r.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(r.go), JSON.stringify(r));
-  ok("3b · one primary button in the Road map header, ≥44px, inside the screen", r.primaries === 1 && r.h >= 44 && r.fits, JSON.stringify(r));
+  ok("3b · one primary button in the Road map header, ≥28px (the phone card is scaled down — owner, 30 Sep 2026), inside the screen", r.primaries === 1 && r.h >= 28 && r.fits, JSON.stringify(r));
   await view(p, "home");
   ok("3c · Home's hero points at the same session", /go\('session',1,'Mon'\)/.test(await heroGo(p) || ""), await heroGo(p));
   ok("3d · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
@@ -99,7 +99,7 @@ for (const [lang, word, pos] of [["fr", "Semaine 1", "Séance 4 sur 7"], ["ar", 
   const r = await today(p); const dir = await p.evaluate(() => { const e = document.querySelector("#v-journey .rm2-today"); return e && getComputedStyle(e).direction });
   const flip = await p.evaluate(() => { const a = document.querySelector("#v-journey .rm2-cta .go-arrow"); return a ? getComputedStyle(a).transform : null });
   ok(`17a · ${lang}: the button's arrow ${lang === "ar" ? "is mirrored" : "is not mirrored"}`, lang === "ar" ? /matrix\(-1/.test(flip || "") : (flip === "none"), String(flip));
-  ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥44px${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 44 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
+  ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥26px (the phone card is scaled down)${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 26 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
   if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-journey .rm2").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/today-${lang}.png` }) }
   await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F() } }), { w: 375, lang: "fr", flags: { welding_studio_enabled: false } }); await view(p, "home");

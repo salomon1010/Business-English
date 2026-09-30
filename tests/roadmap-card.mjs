@@ -139,8 +139,8 @@ for (const tr of ["general-english", "welding"]) for (const w of [375, 390, 400,
     const allH = r(c.querySelector(".rm2-all")); const cta = r(c.querySelector(".rm2-cta"));
     return { hscroll: document.documentElement.scrollWidth > innerWidth, fits: cr.left >= 0 && cr.right <= innerWidth, clipped, out, minTap: Math.min(...taps), two, h: Math.round(cr.height), ctaBottom: Math.round(cta.bottom), vh: innerHeight };
   });
-  /* phones keep 44px touch targets; from 760px the rows are the reference's 38px */
-  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ ${w >= 760 ? 36 : 44}px, ${w >= 760 ? "two columns" : "one column"}`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= (w >= 760 ? 36 : 44) && m.two === (w >= 760), ser(m));
+  /* the owner's call (30 Sep 2026): the phone shows the same two-column card, scaled down — rows ~24px, button ~30px */
+  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ ${w >= 760 ? 36 : 22}px, two columns`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= (w >= 760 ? 36 : 22) && m.two === true, ser(m));
   if (process.env.SHOTS) { await p.screenshot({ path: `${process.env.SHOTS}/rmc-${tr === "welding" ? "weld" : "ge"}-${w}.png` }) }
   await ctx.close();
 }
@@ -154,7 +154,7 @@ console.log("\n# French and Arabic");
   if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-fr-375.png` });
   ok("fr · no page errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 console.log("\n# compact — the reference's proportions");
-for (const [tr, w, maxH] of [["welding", 1280, 660], ["general-english", 1280, 660], ["welding", 390, 720], ["general-english", 390, 740]]) {
+for (const [tr, w, maxH] of [["welding", 1280, 660], ["general-english", 1280, 660], ["welding", 390, 400], ["general-english", 390, 400], ["welding", 375, 400]]) {
   const { ctx, p } = await open(seed(tr), { w, h: w > 700 ? 900 : 844 });
   const m = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2").getBoundingClientRect(), b = document.querySelector("#v-journey .rm2-cta").getBoundingClientRect(), nav = document.querySelector(".bnav"); return { h: Math.round(c.height), w: Math.round(c.width), ctaBottom: Math.round(b.bottom), navTop: nav && getComputedStyle(nav).display !== "none" ? Math.round(nav.getBoundingClientRect().top) : innerHeight } });
   ok(`${tr === "welding" ? "W " : "GE"} ${w}px: card ≤ ${maxH}px tall${w < 760 ? ", and its button is above the tab bar without scrolling" : ""}`, m.h <= maxH && (w >= 760 || m.ctaBottom <= m.navTop), ser(m));
