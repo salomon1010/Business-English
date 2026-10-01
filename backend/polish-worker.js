@@ -134,7 +134,15 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "content-type",
+    /* `authorization` carries the Firebase ID token that premiumGate() needs.
+       The client adds it to every POLISH_API call once the learner is signed in
+       (the one signing wrapper in index.html), which turns the request into a
+       PREFLIGHTED one — so if this does not name the header, the browser
+       refuses the call before this Worker ever runs, and every AI feature dies
+       with whatever generic "needs a connection" message that caller shows.
+       curl never sees it: curl sends no preflight. Found 2026-09-30 through the
+       Shadow Translate card on staging. */
+    "Access-Control-Allow-Headers": "content-type, authorization",
     "Vary": "Origin",
   };
 }

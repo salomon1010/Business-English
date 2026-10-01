@@ -279,6 +279,30 @@ console.log("\n# deployment configuration — the entitlements subrequest must b
     t.status === 503 && t.j.error === "entitlement_unavailable" && ai.calls.length === before, JSON.stringify(t.j));
 }
 
+/* ---------------------------------------------------------------- preflight
+   The gate only works if the browser is willing to SEND the token. Signing in
+   makes every AI call carry Authorization, which makes it a preflighted
+   request; a preflight that does not name `authorization` is refused by the
+   browser before the Worker runs. curl cannot catch this — it sends no
+   preflight — which is exactly how it survived a round of green curl checks. */
+console.log("\n# CORS preflight — the token must be allowed through the browser");
+{
+  const pre = async (origin, ask = "authorization,content-type") => {
+    const r = await W.fetch(new Request("https://be-polish.test/", { method: "OPTIONS",
+      headers: { origin, "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": ask } }), { OPENAI_KEY: "k", ...ON });
+    return { status: r.status, allow: r.headers.get("Access-Control-Allow-Headers") || "", origin: r.headers.get("Access-Control-Allow-Origin") || "" };
+  };
+  let r = await pre("https://app.lomonec.com");
+  ok("P1 · preflight names `authorization`, so a signed-in AI call is not blocked before it starts",
+    /\bauthorization\b/i.test(r.allow), r.allow);
+  ok("P2 · …and still names content-type", /\bcontent-type\b/i.test(r.allow), r.allow);
+  ok("P3 · the allowed origin is echoed, never '*'", r.origin === "https://app.lomonec.com", r.origin);
+  r = await pre("https://staging.lomonec.com");
+  ok("P4 · the same for the staging origin", /\bauthorization\b/i.test(r.allow) && r.origin === "https://staging.lomonec.com", r.allow + " | " + r.origin);
+  r = await pre("https://evil.example.com");
+  ok("P5 · a disallowed origin still gets no allow-origin", !r.origin);
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);
