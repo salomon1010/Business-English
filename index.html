@@ -7636,6 +7636,7 @@ const I18N_EN={
  "sess.report_short":"Speak for at least {{n}} seconds to get a report.",
  "sess.report_off":"The report needs a connection. Your recording is saved — come back online and tap Get my report.",
  "sess.report_prem":"The AI report is part of Premium. Your recording is saved, and your practice still counts.",
+ "ai.need_acct":"Sign in to use the AI features. Your recording is saved, and your practice still counts.",
  "sess.report_stt":"Could not write down what you said — check the connection and try again.",
  "sess.report_newer":"A newer recording is waiting for its report.",
  "sess.tap_to_record":"Tap to start recording",
@@ -20351,10 +20352,13 @@ async function simRecordFinish(){
   const blob=await simTakeBlob(r);
   try{r.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}
   if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;
-  let said="";
-  if(blob&&blob.size>1200){try{said=(await fbTranscribe(blob))||""}catch(e){}}
+  let said="",why=null;
+  if(blob&&blob.size>1200){try{said=(await fbTranscribe(blob))||""}catch(e){}why=fbTxWhy()}
   said=said.trim();
-  if(said)simProcessSpeech(said);else simReturnToReady(SIM_NOTHING_HEARD);
+  /* An empty transcript is not proof of silence. If the Worker refused the call
+     the recording was fine and the microphone is not the problem, so say which
+     it was — SIM_NOTHING_HEARD is kept for the case it actually describes. */
+  if(said)simProcessSpeech(said);else simReturnToReady((why&&fbTxWhyText())||SIM_NOTHING_HEARD);
 }
 function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.remember(S,simRun)}
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));
@@ -21081,16 +21085,47 @@ function fbWords(blob){
    The role-play uses this instead of the browser's recogniser, which garbled
    Android turns and went deaf on iOS. */
 const _fbTxCache=new WeakMap();
+/* WHY the last transcription produced nothing. An empty transcript used to mean
+   two completely different things — the learner said nothing, or the Worker
+   refused the call — and every caller reported the first. In a conversation that
+   is a lie with consequences: the turn said "Nothing came through", which reads
+   as a dead microphone, so the recording (which was perfect) got the blame and
+   the real cause, an unsigned or unentitled call, was invisible. null = the
+   microphone really was silent. */
+let _fbTxWhy=null;
+function fbTxWhy(){return _fbTxWhy}
+/* Plain English, matching the register of the conversation status line it
+   replaces (that whole surface is still untranslated — see the release report).
+   Every one of these CONTAINS "tap to", because simSetStatus reads the text to
+   decide how to paint the microphone: without it the mic is drawn busy and the
+   learner is left with no way back into the turn. */
+function fbTxWhyText(){
+  switch(_fbTxWhy){
+    case "restoring":return "Just restoring your session — your recording is saved. Tap to speak again in a moment.";
+    case "account":return "Sign in to have your answers heard — your recording is saved. Then tap to speak again.";
+    case "premium":return "Hearing your answers is part of Premium — your recording is saved. Tap to try again.";
+    case "offline":return "No connection — your recording is saved. Tap to try again once you are back online.";
+    case "busy":return "The service is busy — wait a moment, then tap to speak again.";
+    case "server":return "That did not reach the service — your recording is saved. Tap to try again.";
+    default:return null;
+  }
+}
 function fbTranscribe(blob){
   if(_fbTxCache.has(blob))return _fbTxCache.get(blob);
   const p=(async()=>{
-    if(aiOff("ai_analysis"))return "";
+    /* The plan is not knowable until the session has been restored, and
+       entView() reads FREE until then. Saying "Premium" to a paying learner in
+       that window is the same misreport as blaming the microphone, so the window
+       names itself and asks for one more tap. */
+    if(fbAuthPending()){_fbTxWhy="restoring";return ""}
+    if(aiOff("ai_analysis")){_fbTxWhy=aiNoAccount()?"account":entLocked("ai_analysis")?"premium":"offline";return ""}
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
-      if(!r.ok)return "";
+      if(!r.ok){_fbTxWhy=r.status===401?"account":r.status===402?"premium":r.status===429?"busy":"server";return ""}
       const j=await r.json();
+      _fbTxWhy=null;
       return String((j&&j.text)||"").replace(/\s+/g," ").trim();
-    }catch(e){return ""}
+    }catch(e){_fbTxWhy="offline";return ""}
   })();
   _fbTxCache.set(blob,p);
   return p;
@@ -21277,6 +21312,11 @@ const POLISH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.polish)return e
     if(!url||url.indexOf(base)!==0)return nat(input,init);
     let tok=null;
     try{if(typeof FBUser!=="undefined"&&FBUser&&typeof FBUser.getIdToken==="function")tok=await FBUser.getIdToken()}catch(e){}
+    /* No token yet, but this device has signed in before and the session is
+       still being restored: wait for it rather than send an unsigned call the
+       Worker will refuse. Bounded, and only ever on a device with an owner. */
+    if(!tok)try{if(fbAuthPending()){await fbAuthSettled(5000);
+      if(typeof FBUser!=="undefined"&&FBUser&&typeof FBUser.getIdToken==="function")tok=await FBUser.getIdToken()}}catch(e){}
     if(!tok)return nat(input,init);
     const o=Object.assign({},init||{});
     let h;try{h=new Headers((o.headers)||(input&&typeof input==="object"&&input.headers)||{})}catch(e){h=new Headers()}
@@ -23094,10 +23134,21 @@ window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
 
    It returns TRUE (AI off) if anything at all goes wrong, including being
    called before POLISH_API is initialised. */
-function aiOff(cap){try{return !POLISH_API||!navigator.onLine||entLocked(cap)}catch(e){return true}}
+/* Premium live here, but nobody is signed in. Once PREMIUM_ENFORCED is on, the
+   Worker requires a verified account for EVERY route — the free-capability ones
+   included (premiumGate's `cap === null` branch asks capabilities() so a call can
+   be attributed and limited). A signed-out call therefore comes back 401
+   auth_required, and before this check the app fired it anyway: the activity
+   started, the request failed at the network, and the learner was shown a
+   generic error with a Retry that could never succeed. Treating it as "AI off"
+   takes the path the app already takes offline — a tested path — and aiOffNote
+   says which of the three reasons it is. planOn() keeps this inert in production
+   today, where Premium is not on sale and nothing is enforced. */
+function aiNoAccount(){try{return planOn()&&!entUid()&&!fbAuthPending()}catch(e){return false}}
+function aiOff(cap){try{return !POLISH_API||!navigator.onLine||aiNoAccount()||entLocked(cap)}catch(e){return true}}
 function aiOn(cap){return !aiOff(cap)}
 /* why the AI did not run, for the message: a Free learner is not offline */
-function aiOffNote(cap){try{return entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
+function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
 window.aiOff=aiOff;window.aiOn=aiOn;
 /* ---- PLAN LIMITS: the one table every paid limit reads (owner, 25 Sep 2026) ----
    Premium launches progressively. The limits in force are STORAGE limits on
@@ -24659,6 +24710,11 @@ async function svShTrFetch(sg){
   if(_svTr[key])return _svTr[key];
   if(!lang.ok)throw new Error("nolang");
   if(!POLISH_API||!navigator.onLine)throw new Error("offline");
+  /* The chat route is free (purpose "practice" maps to no capability), but with
+     PREMIUM_ENFORCED on the Worker still requires a verified account, so a
+     signed-out request comes back 401. Stop here and say so, rather than drawing
+     a generic error beside a Retry that cannot ever succeed. */
+  if(aiNoAccount())throw new Error("acct");
   if(_svTrBusy.has(key))return _svTrBusy.get(key);
   const p=(async()=>{
     const r=await svAiChat(`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,sg.text.slice(0,600));
@@ -24683,6 +24739,7 @@ function svShTrInner(state,tx,bare){
   const lang=svShLang();
   return (bare?"":`<small class="sv-sh-tr-l">${esc(lang.native||lang.name)}</small>`)+(state==="ok"?`<span class="sv-sh-tr-x">${esc(tx)}</span>`
     :state==="wait"?`<span class="sv-sh-tr-x sv-sh-wait">${esc(t("sv.sh_tr_wait"))}</span>`
+    :tx==="acct"?`<span class="sv-sh-tr-x">${esc(t("ai.need_acct"))}</span>`
     :`<span class="sv-sh-tr-x">${esc(t(tx==="rate_limited"?"sv.sh_busy":"sv.sh_tr_err"))}</span> <button class="sv-sh-retry" onclick="svShTrRetry()">${esc(t("sh.cap_retry"))}</button>`);
 }
 function svShTrDraw(state,tx){
@@ -24694,7 +24751,8 @@ function svShTrDraw(state,tx){
 function svShSameCard(sg){const g=svShSeg();return !!(g&&sg&&svMode==="shadow"&&document.getElementById("svSh")&&g.id===sg.id&&shClip.vid===sg.vid)}
 function svShTrGo(sg){
   svShTrFetch(sg).then(tx=>{if(svShSameCard(sg)&&svShTrOn()){svShTrDraw("ok",tx);svShTrViewed(sg)}})
-    .catch(e=>{if(svShSameCard(sg)&&svShTrOn())svShTrDraw("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"")});
+    .catch(e=>{if(!svShSameCard(sg)||!svShTrOn())return;const m=String(e&&e.message||"");
+      svShTrDraw("err",/ 429$/.test(m)?"rate_limited":(m==="acct"||/ 401$/.test(m))?"acct":"")});
 }
 function svShTrViewed(sg){const key=svShTrKey(sg);if(_svTrSeen.has(key))return;_svTrSeen.add(key);try{track("shadow_translation_viewed",{lang:svShLang().code})}catch(e){}}
 /* --- pronunciation: General American IPA under each word. A word's IPA is a
@@ -32875,6 +32933,22 @@ try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
    Lives inside the main script so it can reassign S like the GitHub sync does.
    The whole app works with no Firebase config, no network, and no account. */
 let FBauth=null,FBdb=null,FBUser=null,fbPushTimer=null,fbSyncing=false;
+/* Restoring a session is asynchronous: fbLoad() fetches three SDK files in
+   sequence and FBUser is only set when onAuthStateChanged first reports. The app
+   is interactive long before that, so an AI call made in the gap carried no token
+   — which, with PREMIUM_ENFORCED on, the Worker answers 401. That is why the
+   failures looked intermittent: the same tap worked a few seconds later.
+   fbAuthPending() marks the gap on a device that HAS signed in before, so the
+   signing fetch can wait for the token instead of sending without it, and
+   aiNoAccount() does not tell a signed-in learner to sign in. */
+let _fbAuthSeen=false,_fbAuthSettle=null,_fbAuthSettleRes=null;
+function fbAuthPending(){try{return !_fbAuthSeen&&fbConfigured()&&!!localStorage.getItem(FB_OWNER_KEY)}catch(e){return false}}
+function fbAuthSettled(ms){
+  if(_fbAuthSeen)return Promise.resolve();
+  if(!_fbAuthSettle)_fbAuthSettle=new Promise(res=>{_fbAuthSettleRes=res});
+  /* bounded: a device that never answers must not freeze the feature for ever */
+  return Promise.race([_fbAuthSettle,new Promise(res=>setTimeout(res,ms||5000))]);
+}
 /* Which account the state in localStorage belongs to. Kept OUTSIDE S so it is
    never written into the cloud document. Without it there is no way to tell
    "this device is just behind its own account" from "this is somebody else's
@@ -32921,6 +32995,7 @@ function fbConfigured(){return !!(window.FB_CONFIG&&FB_CONFIG.apiKey)}
 
 function fbOnAuth(u){
   FBUser=u;
+  _fbAuthSeen=true;try{if(_fbAuthSettleRes){_fbAuthSettleRes();_fbAuthSettleRes=null}}catch(e){}
   try{entRefresh()}catch(e){}
   try{Billing.init()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}

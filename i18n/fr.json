@@ -3352,5 +3352,6 @@
  "std.why_lbl": "Ce que la norme attend",
  "std.none": "Conseils professionnels généraux",
  "std.none_note": "Aucune norme publiée n'est associée à cet atelier pour votre métier : ce retour relève de la pratique professionnelle générale et non d'une norme.",
- "std.judged": "{{who}} — évalué selon les normes du métier : {{prof}}."
+ "std.judged": "{{who}} — évalué selon les normes du métier : {{prof}}.",
+ "ai.need_acct": "Connectez-vous pour utiliser les fonctions IA. Votre enregistrement est conservé et votre pratique compte toujours."
 }

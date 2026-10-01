@@ -3352,5 +3352,6 @@
  "std.why_lbl": "Lo que espera la norma",
  "std.none": "Orientación profesional general",
  "std.none_note": "No hay ninguna norma publicada asociada a este taller para su profesión, así que este comentario es práctica profesional general y no una norma.",
- "std.judged": "{{who}} — evaluado según las normas de: {{prof}}."
+ "std.judged": "{{who}} — evaluado según las normas de: {{prof}}.",
+ "ai.need_acct": "Inicia sesión para usar las funciones de IA. Tu grabación se guarda y tu práctica sigue contando."
 }

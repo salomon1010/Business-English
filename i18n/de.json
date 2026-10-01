@@ -3352,5 +3352,6 @@
  "std.why_lbl": "What the standard expects",
  "std.none": "General professional guidance",
  "std.none_note": "No published standard is mapped to this workshop for your profession, so this feedback is general professional practice rather than a standard.",
- "std.judged": "{{who}} — judged against the standards for {{prof}}."
+ "std.judged": "{{who}} — judged against the standards for {{prof}}.",
+ "ai.need_acct": "Sign in to use the AI features. Your recording is saved, and your practice still counts."
 }
