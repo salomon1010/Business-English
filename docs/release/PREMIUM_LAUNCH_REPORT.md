@@ -1,5 +1,13 @@
 # Premium launch — implementation report
 
+> **HISTORICAL RECORD — not the current contract.** This document describes the
+> capability set as it stood when it was written, including
+> `ai_verbal_feedback`, which was **removed from the contract on 1 October 2026**
+> (advertised on the paywall, enforced at zero call sites, while TTS is free
+> because the natural voice reads *content*). The live contract is
+> `docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md`. Nothing below has been
+> edited — it is kept as evidence of what was true at the time.
+
 Date: 30 September 2026
 Branch: `feature/premium-launch-final`, cut from `origin/main` @ `1589ff0c`
 (the live 1.2.0 web release, `sw.js` = `be12-v489`)

@@ -5880,6 +5880,17 @@ h1.big{letter-spacing:-.025em}
 .pg-win-p.up{color:var(--green)}.pg-win-p.down{color:var(--mut)}
 .pg-win-n{margin:9px 0 0;font-size:11.5px;line-height:1.4;color:var(--mut)}
 /* the Premium gate card — used wherever a capability is locked */
+/* F7 account notice. Deliberately NOT gold and NOT lock-shaped: the Premium
+   card below is, and a learner must be able to tell a free sign-up from a paid
+   plan at a glance. */
+.ai-acct{border-color:color-mix(in srgb,var(--acc) 34%,transparent)}
+.ai-acct-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0;font-size:15px;font-weight:700;color:var(--txt)}
+.ai-acct-chip{display:inline-flex;align-items:center;gap:5px;color:var(--acc);background:color-mix(in srgb,var(--acc) 13%,transparent);border:1px solid color-mix(in srgb,var(--acc) 32%,transparent);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.ai-acct-chip svg{width:13px;height:13px}
+.ai-acct-b{margin:9px 0 0;font-size:13.5px;color:var(--mut);line-height:1.5}
+.ai-acct-kept{margin:7px 0 0;font-size:12.5px;color:var(--mut2)}
+.ai-acct-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}
+.ai-acct-fine{margin:10px 0 0;font-size:11.5px;color:var(--mut2)}
 .prem-lock{border-color:color-mix(in srgb,var(--gold) 38%,transparent)}
 .prem-lock-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0;font-size:15px;font-weight:700;color:var(--txt)}
 .prem-lock-chip{display:inline-flex;align-items:center;gap:5px;color:var(--gold);background:color-mix(in srgb,var(--gold) 13%,transparent);border:1px solid color-mix(in srgb,var(--gold) 34%,transparent);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
@@ -7633,6 +7644,12 @@ const I18N_EN={
  "sess.report_short":"Speak for at least {{n}} seconds to get a report.",
  "sess.report_off":"The report needs a connection. Your recording is saved — come back online and tap Get my report.",
  "sess.report_prem":"The AI report is part of Premium. Your recording is saved, and your practice still counts.",
+ "ai.acct_chip":"Free account",
+ "ai.acct_h":"The AI parts need a free account",
+ "ai.acct_b":"Transcription, translation and spoken feedback run on our servers, so they need an account to belong to. Creating one is free — there is no card and nothing to pay.",
+ "ai.acct_kept":"You can still record right now: the take is saved on this device and today still counts towards your streak.",
+ "ai.acct_cta":"Create a free account",
+ "ai.acct_notprem":"This is not Premium. Premium is separate, and only adds the advanced analysis.",
  "ai.need_acct":"Sign in to use the AI features. Your recording is saved, and your practice still counts.",
  "sess.report_stt":"Could not write down what you said — check the connection and try again.",
  "sess.report_newer":"A newer recording is waiting for its report.",
@@ -13409,6 +13426,7 @@ function rSession(el,w,d){
         <p style="font-size:12px;color:var(--mut);margin:8px 0">${t("sess.example_desc")}</p>
         <textarea rows="5" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||sessScaffold(dd,weekPhrases))}</textarea>
       </details>`}
+      ${aiAcctNoticeHTML("session")}
       <div class="rec-panel">
         <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
@@ -21473,6 +21491,7 @@ function exCardHTML(){
 function exIdleHTML(){
   const txt=ex.draft||"";
   return `${exPromptHTML()}
+    ${aiAcctNoticeHTML("polish")}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
       <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
@@ -23176,6 +23195,50 @@ function sttOff(){try{return !POLISH_API||!navigator.onLine||aiNoAccount()}catch
 function sttOn(){return !sttOff()}
 /* why the AI did not run, for the message: a Free learner is not offline */
 function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
+/* ---- F7: say an account is needed BEFORE the activity, not after a turn fails ----
+   The owner's model (1 Oct 2026): AI needs an AUTHENTICATED ACCOUNT, and a Free
+   account is enough. Anonymous learners get no AI. Premium is a separate thing
+   and buys only the advanced analysis.
+
+   Before this, the app was honest but late: the learner started a spoken
+   activity, spoke, and only then read "Sign in to use the AI features". That is
+   the right message at the wrong moment, and it is why the owner read the
+   behaviour as "sometimes it just does not work". This card says it first.
+
+   It is NOT a paywall and must never read like one. It carries no gold, no lock
+   and no price — `premLockHTML` is the Premium card and looks deliberately
+   different. It offers *Create a free account*, says in words that there is
+   nothing to pay, and says that Premium is a separate matter, because a learner
+   who cannot tell "free account" from "paid plan" will assume the worse one.
+
+   It never blocks the activity. Recording, replay and the day's credit are all
+   offline-first by design (phRecInto keeps the take and calls markPracticed
+   whatever the network or the plan is doing), so the card informs and the
+   learner may carry straight on. The honest runtime errors stay exactly where
+   they are as the second line of defence.
+
+   GENERAL ENGLISH ONLY, deliberately: the brief for this change was explicit
+   that Welding behaviour must not move. The same account requirement does apply
+   on Welding server-side, so a signed-out Welding learner still meets it as a
+   runtime message rather than a notice — see docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md.
+   Removing the isGeneralEnglish() term here is the whole of what extending it
+   to Welding would take, and it is the owner's call, not a bug. */
+function aiAcctNeeded(){try{return aiNoAccount()&&isGeneralEnglish()}catch(e){return false}}
+function aiAcctNoticeHTML(from){
+  if(!aiAcctNeeded())return "";
+  const f=esc(String(from||"ai"));
+  return `<div class="card ai-acct" data-from="${f}" role="note">
+    <p class="ai-acct-h"><span class="chip ai-acct-chip">${ic("user")} ${esc(t("ai.acct_chip"))}</span><span>${esc(t("ai.acct_h"))}</span></p>
+    <p class="ai-acct-b">${esc(t("ai.acct_b"))}</p>
+    <p class="ai-acct-kept">${esc(t("ai.acct_kept"))}</p>
+    <div class="ai-acct-row">
+      <button type="button" class="btn-primary ai-acct-go" onclick="fbOpenModal('up')">${esc(t("ai.acct_cta"))}</button>
+      <button type="button" class="btn btn-g btn-sm ai-acct-in" onclick="fbOpenModal('in')">${esc(t("auth.login_btn"))}</button>
+    </div>
+    <p class="ai-acct-fine">${esc(t("ai.acct_notprem"))}</p>
+  </div>`;
+}
+window.aiAcctNoticeHTML=aiAcctNoticeHTML;window.aiAcctNeeded=aiAcctNeeded;
 window.aiOff=aiOff;window.aiOn=aiOn;
 /* ---- PLAN LIMITS: the one table every paid limit reads (owner, 25 Sep 2026) ----
    Premium launches progressively. The limits in force are STORAGE limits on
@@ -25048,6 +25111,7 @@ function svShHTML(){
   const words=sg.text.split(/\s+/).filter(Boolean).map(svShWordHTML).join(" ");
   const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
   return `<div class="sv-sh" id="svSh">
+    ${aiAcctNoticeHTML("shadow")}
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
       ${a.spk&&scnWho(scnSpkOf(sg.from))?`<div class="sv-sh-who">${scnSpkHTML(sg.from)}<span class="sv-sh-with">${esc(t("scn.sh_with",{name:scnWho(scnSpkOf(sg.from)).name}))}</span></div>`:""}
@@ -25323,6 +25387,7 @@ function svChHTML(){
   return `<div class="sv-ch" id="svCh">
     <div class="sv-ch-head"><div class="sv-ch-hd1"><span class="eyebrow">${t("sv.ch_rung_"+c.rung+"_eyebrow")}</span>${nav}</div>
       ${svChRungStripHTML(c)}</div>
+    ${aiAcctNoticeHTML("challenge")}
     ${body}
     <p class="pp-fine">${t("sv.ch_pick_note")}</p>
   </div>`;
@@ -31439,6 +31504,7 @@ function rpIntro(el,sc){
      <p class="sub" style="margin-bottom:18px">${esc(rpScenarioText(sc))}</p>
      <h4 class="rp-h4">${t("rp.points_h")}</h4>
      <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+     ${aiAcctNoticeHTML("roleplay")}
      <div class="rp-start">
        <button class="btn btn-p" style="font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${tIc("rp.start","chat")}</button>
      </div>

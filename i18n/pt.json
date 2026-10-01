@@ -3354,5 +3354,11 @@
  "std.none": "Orientação profissional geral",
  "std.none_note": "Nenhuma norma publicada está associada a esta oficina para a sua profissão, pelo que este comentário é prática profissional geral e não uma norma.",
  "std.judged": "{{who}} — avaliado segundo as normas de: {{prof}}.",
+ "ai.acct_chip": "Conta gratuita",
+ "ai.acct_h": "As funções de IA precisam de uma conta gratuita",
+ "ai.acct_b": "A transcrição, a tradução e os comentários falados correm nos nossos servidores, por isso precisam de uma conta a que pertencer. Criar uma é gratuito — não há cartão nem nada a pagar.",
+ "ai.acct_kept": "Pode gravar agora mesmo: a gravação fica guardada neste aparelho e o dia continua a contar para a sua sequência.",
+ "ai.acct_cta": "Criar uma conta gratuita",
+ "ai.acct_notprem": "Isto não é Premium. O Premium é separado e só acrescenta a análise avançada.",
  "ai.need_acct": "Entre na sua conta para usar os recursos de IA. A sua gravação fica guardada e a sua prática continua a contar."
 }

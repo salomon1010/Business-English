@@ -28,8 +28,13 @@ const W = (await import(new URL("./polish-worker.js", import.meta.url))).default
 const OFF = {};                                                            // production today
 const ON  = { PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test", OPENAI_KEY: "k" };
 const view = caps => new Response(JSON.stringify({ plan: caps.ai_analysis ? "premium" : "free", paid: !!caps.ai_analysis, capabilities: caps }), { status: 200 });
-const FREE = { ad_free: false, ai_analysis: false, ai_verbal_feedback: false, advanced_progress: false, ai_coach: false, recommended_content: false };
-const PREM = { ad_free: true, ai_analysis: true, ai_verbal_feedback: true, advanced_progress: true, ai_coach: true, recommended_content: true };
+/* the FIVE capabilities of the current contract (entitlement-core CAPABILITIES).
+   ai_verbal_feedback was removed on 1 Oct 2026 — advertised, enforced nowhere,
+   and TTS is free because the natural voice reads CONTENT. It is deliberately
+   absent from these fixtures; section V below covers the separate question of
+   an OLDER entitlements Worker that still sends it. */
+const FREE = { ad_free: false, ai_analysis: false, advanced_progress: false, ai_coach: false, recommended_content: false };
+const PREM = { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true };
 
 let ipN = 0, tokN = 0;
 async function ask(body, { env = ON, token = null, ip = null } = {}) {
@@ -327,6 +332,29 @@ console.log("\n# CORS preflight — the token must be allowed through the browse
   r = await pre("https://evil.example.com");
   ok("P5 · a disallowed origin still gets no allow-origin", !r.origin);
 }
+
+console.log("\n# V. an OLDER entitlements Worker that still sends the removed capability");
+/* Real condition, not hypothetical: be-entitlements-staging (version 19cefc4d)
+   still returns `ai_verbal_feedback` in its capability block — measured against
+   the live Worker on 1 Oct 2026. be-polish must ignore a field that is no
+   longer in the contract, and must not let it grant anything, so the two
+   Workers can be deployed in either order. */
+ent.calls = []; ai.calls = [];
+const STALE_FREE = { ...FREE, ai_verbal_feedback: true, some_future_cap: true };
+ent.reply = () => view(STALE_FREE);
+r = await ask(ANALYSE, { token: tok() });
+ok("V1 · a stale answer carrying ai_verbal_feedback:true still cannot buy ai_analysis", r.status === 402 && r.j.error === "premium_required", JSON.stringify(r.j));
+ok("V2 · …and no provider call was made on the strength of an unknown field", ai.calls.length === 0, ai.calls.join(","));
+r = await askAudio({ token: tok() });
+ok("V3 · the free spoken turn is unaffected by the extra field", r.status === 200, r.status);
+const STALE_PREM = { ...PREM, ai_verbal_feedback: true, some_future_cap: true };
+ent.reply = () => view(STALE_PREM);
+r = await ask(ANALYSE, { token: tok() });
+ok("V4 · a Premium answer with extra fields is still Premium — the reader is additive-safe", r.status === 200, r.status);
+/* and the reverse: a capability the contract no longer knows cannot be demanded */
+ent.reply = () => view(FREE);
+r = await ask({ chat: { purpose: "verbal", system: "s", messages: [{ role: "user", content: "hi" }] } }, { token: tok() });
+ok("V5 · an unknown chat purpose is refused as a bad request, never silently treated as free", r.status === 400 && r.j.error === "bad_request", JSON.stringify(r.j));
 
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

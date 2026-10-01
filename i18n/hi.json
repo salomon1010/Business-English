@@ -3354,5 +3354,11 @@
  "std.none": "General professional guidance",
  "std.none_note": "No published standard is mapped to this workshop for your profession, so this feedback is general professional practice rather than a standard.",
  "std.judged": "{{who}} — judged against the standards for {{prof}}.",
+ "ai.acct_chip": "Free account",
+ "ai.acct_h": "The AI parts need a free account",
+ "ai.acct_b": "Transcription, translation and spoken feedback run on our servers, so they need an account to belong to. Creating one is free — there is no card and nothing to pay.",
+ "ai.acct_kept": "You can still record right now: the take is saved on this device and today still counts towards your streak.",
+ "ai.acct_cta": "Create a free account",
+ "ai.acct_notprem": "This is not Premium. Premium is separate, and only adds the advanced analysis.",
  "ai.need_acct": "Sign in to use the AI features. Your recording is saved, and your practice still counts."
 }

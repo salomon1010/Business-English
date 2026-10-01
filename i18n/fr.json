@@ -3354,5 +3354,11 @@
  "std.none": "Conseils professionnels généraux",
  "std.none_note": "Aucune norme publiée n'est associée à cet atelier pour votre métier : ce retour relève de la pratique professionnelle générale et non d'une norme.",
  "std.judged": "{{who}} — évalué selon les normes du métier : {{prof}}.",
+ "ai.acct_chip": "Compte gratuit",
+ "ai.acct_h": "Les fonctions IA demandent un compte gratuit",
+ "ai.acct_b": "La transcription, la traduction et les retours parlés tournent sur nos serveurs : il leur faut donc un compte auquel les rattacher. En créer un est gratuit — aucune carte, rien à payer.",
+ "ai.acct_kept": "Vous pouvez enregistrer dès maintenant : la prise est conservée sur cet appareil et la journée compte toujours pour votre série.",
+ "ai.acct_cta": "Créer un compte gratuit",
+ "ai.acct_notprem": "Ce n’est pas Premium. Premium est à part, et n’ajoute que l’analyse avancée.",
  "ai.need_acct": "Connectez-vous pour utiliser les fonctions IA. Votre enregistrement est conservé et votre pratique compte toujours."
 }

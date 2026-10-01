@@ -290,6 +290,117 @@ console.log("\n# 8. WELDING — one subscription, and the free loop whole on bot
   await prem.ctx.close(); await L.ctx.close();
 }
 
+console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity, not after a turn fails");
+{
+  /* Before this, every one of these screens let a signed-out learner start,
+     speak, and only then read "Sign in to use the AI features". The message was
+     right and the moment was wrong, which is how it was experienced as
+     "sometimes it just does not work". */
+  const OUT = await learner({ plan: null });          // signed out, billing on
+  const notice = await OUT.p.evaluate(() => ({
+    needed: aiAcctNeeded(),
+    html: aiAcctNoticeHTML("t"),
+  }));
+  ok("9.1 · a signed-out General English learner is one the notice applies to", notice.needed === true);
+  ok("9.2 · the notice says FREE ACCOUNT, names no price and carries no lock",
+    /Free account/i.test(notice.html) && /free/i.test(notice.html) && !/\$|£|€/.test(notice.html) && !/ic-lock|prem-lock/.test(notice.html), notice.html.slice(0, 300));
+  ok("9.3 · …and says in words that it is NOT Premium, so the two cannot be confused",
+    /not Premium/i.test(notice.html), notice.html);
+  ok("9.4 · …and offers creating an account, not a purchase",
+    /fbOpenModal\('up'\)/.test(notice.html) && !/premiumOpen/.test(notice.html));
+  ok("9.5 · …and says the recording still counts, because it does (offline-first)",
+    /still counts|saved on this device/i.test(notice.html));
+
+  /* every screen in the brief, drawn signed out */
+  const screens = await OUT.p.evaluate(async () => {
+    const out = {};
+    /* Executive Polish (the dictation mic and the rewrite both call the Worker) */
+    out.polish = /ai-acct/.test(exIdleHTML());
+    /* the daily session's Record yourself panel. NOTE the session renders into
+       #v-journey, not a #v-session of its own, so this looks for the panel and
+       the notice in the document and checks their ORDER — which is the property
+       F7 is actually about. */
+    go("session", 1, "Mon"); await new Promise(r => setTimeout(r, 700));
+    const recP = document.querySelector(".rec-panel"), na = document.querySelector(".ai-acct");
+    out.session = !!(recP && na);
+    out.sessionBeforeMic = !!(recP && na && (na.compareDocumentPosition(recP) & Node.DOCUMENT_POSITION_FOLLOWING));
+    /* role-play: the intro screen that carries the Start button */
+    go("roleplay", "iv-tellme"); await new Promise(r => setTimeout(r, 700));
+    const rp = document.getElementById("v-roleplay");
+    out.roleplay = !!(rp && rp.querySelector(".ai-acct"));
+    out.roleplayBeforeStart = !!(rp && rp.querySelector(".ai-acct") && rp.querySelector(".rp-start") &&
+      rp.querySelector(".ai-acct").compareDocumentPosition(rp.querySelector(".rp-start")) & Node.DOCUMENT_POSITION_FOLLOWING);
+    return out;
+  });
+  ok("9.6 · Executive Polish shows it", screens.polish === true);
+  ok("9.7 · the daily session's Record yourself panel shows it", screens.session === true, JSON.stringify(screens));
+  ok("9.7b · …above the microphone, not under it", screens.sessionBeforeMic === true, JSON.stringify(screens));
+  ok("9.8 · role-play shows it", screens.roleplay === true, JSON.stringify(screens));
+  ok("9.9 · …ABOVE the Start button — the point of F7 is that it comes first", screens.roleplayBeforeStart === true, JSON.stringify(screens));
+  await OUT.ctx.close();
+
+  /* Shadow and the Challenge, on a real clip */
+  const SH = await learner({ plan: null });
+  await toChallenge(SH);
+  const sh = await SH.p.evaluate(() => ({
+    challenge: !!document.querySelector("#svCh .ai-acct"),
+    mic: !!document.getElementById("svChRecBtn"),
+    shadowCard: (() => { try { svSetMode("shadow"); return /ai-acct/.test(svShHTML()); } catch (e) { return "ERR:" + e.message; } })(),
+  }));
+  ok("9.10 · the Shadow Challenge panel shows it, above the rung", sh.challenge === true, JSON.stringify(sh));
+  ok("9.11 · …and the microphone is still there: the notice informs, it does not block", sh.mic === true, JSON.stringify(sh));
+  ok("9.12 · the Shadow paragraph card shows it too (recording there is followed by AI)", sh.shadowCard === true, JSON.stringify(sh));
+
+  /* 2. no doomed request while signed out */
+  SH.calls.length = 0;
+  const fired = await SH.p.evaluate(async () => {
+    const blob = new Blob([new Uint8Array(4000)], { type: "audio/webm" });
+    const r = { said: await fbTranscribe(blob), words: await fbWords(blob), assess: await fbAssess(blob, "x") };
+    try { await svShTrFetch({ id: 9, text: "Hello." }); r.tr = "ok"; } catch (e) { r.tr = e.message; }
+    return r;
+  });
+  ok("9.13 · signed out, NOT ONE AI request is fired from any of those paths", SH.calls.length === 0, JSON.stringify(SH.calls));
+  ok("9.14 · …and each one returns its honest empty answer rather than a fabricated one",
+    fired.said === "" && fired.words === null && fired.assess === null && fired.tr === "acct", JSON.stringify(fired));
+  await SH.ctx.close();
+
+  /* 3. a Free authenticated learner may proceed, and sees no notice */
+  const FREEL = await learner({ plan: FREE });
+  const f = await FREEL.p.evaluate(() => ({ needed: aiAcctNeeded(), html: aiAcctNoticeHTML("t"), polish: /ai-acct/.test(exIdleHTML()) }));
+  ok("9.15 · a signed-in FREE learner sees NO account notice — the requirement is met", f.needed === false && f.html === "" && f.polish === false, JSON.stringify(f));
+  await FREEL.ctx.close();
+
+  /* 4. Premium-required functionality still says Premium, not "account" */
+  const PR = await learner({ plan: FREE });
+  const pr = await PR.p.evaluate(() => ({
+    lock: premLockHTML("ai_analysis", "t"),
+    note: aiOffNote("ai_analysis"),
+    acct: aiAcctNoticeHTML("t"),
+  }));
+  ok("9.16 · the Premium card is still the Premium card for a signed-in Free learner",
+    /prem-lock/.test(pr.lock) && /premiumOpen/.test(pr.lock) && !/ai-acct/.test(pr.lock), pr.lock.slice(0, 200));
+  ok("9.17 · …and the two messages are never both shown: the account one is empty here", pr.acct === "", pr.acct);
+  ok("9.18 · …and the Premium note does not mention an account or signing in",
+    !/sign in|create an account/i.test(pr.note), pr.note);
+  await PR.ctx.close();
+
+  /* 5. Welding is untouched */
+  const W = await learner({ track: "welding", plan: null });
+  const w = await W.p.evaluate(() => ({
+    area: areaId(),
+    needed: aiAcctNeeded(),
+    html: aiAcctNoticeHTML("t"),
+    noAcct: aiNoAccount(),
+    polish: /ai-acct/.test(exIdleHTML()),
+    stt: sttOff(),
+  }));
+  ok("9.19 · WELDING signed out: the notice does NOT render — behaviour unchanged, by instruction",
+    w.area === "welding" && w.needed === false && w.html === "" && w.polish === false, JSON.stringify(w));
+  ok("9.20 · …while the underlying account requirement is still TRUE there, so the runtime message still tells the truth",
+    w.noAcct === true && w.stt === true, JSON.stringify(w));
+  await W.ctx.close();
+}
+
 await browser.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n  ${pass}/${res.length} pass  (${BASE})\n`);

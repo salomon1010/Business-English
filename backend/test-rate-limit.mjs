@@ -78,6 +78,12 @@ globalThis.fetch = async (url, init) => {
   if (u.includes("/v1/entitlement")) return ent.reply();
   ai.calls.push(u);
   if (u.includes("/audio/transcriptions")) return new Response(JSON.stringify({ text: "hello", words: [] }), { status: 200 });
+  /* Gemini's own answer shape, so a ytai call that gets past the brakes really
+     succeeds (200) instead of failing to parse (502) — section E asserts the
+     difference between "allowed" and "refused", and a 502 would blur it. */
+  if (u.includes("generativelanguage")) return new Response(JSON.stringify({
+    candidates: [{ content: { parts: [{ text: JSON.stringify({ cues: [{ ts: "0:01", txt: "hello there" }, { ts: "0:20", txt: "and a second line" }] }) }] } }],
+  }), { status: 200 });
   return new Response(JSON.stringify({ choices: [{ message: { content: "{}" } }] }), { status: 200 });
 };
 const isolate = async n => (await import(new URL("./polish-worker.js?iso=" + n, import.meta.url))).default;
@@ -233,6 +239,94 @@ console.log("\n# D. ytai — the one free route that spends real money per call"
   const ns2 = makeNamespace();
   const off = env(ns2);
   ok("D4 · with enforcement off the call has no account, so only the per-IP brake applies (stated, not assumed)", await ytai(W1, "4.4.4.4", null) !== undefined);
+}
+
+console.log("\n# E. ytai — the bypass questions, answered deterministically (fake key, stubbed provider)");
+{
+  /* GEMINI_KEY is deliberately ABSENT from be-polish-staging, and the `no_key`
+     501 sits before the limiter, so none of this can be exercised against the
+     real Worker (measured 1 Oct 2026: six window requests, six 501s, no
+     limiting reached). It is exercised here instead, with a fake key and the
+     provider stubbed by the global fetch at the top of this file — the limiter
+     and ordering under test are the real ones. No live-provider claim is made. */
+  const tokOf = sub => "eyJhbGciOiJSUzI1NiJ9." + Buffer.from(JSON.stringify({ sub })).toString("base64url") + ".sig";
+  const call = (W, e, { ip, token, win = true } = {}) => W.fetch(new Request("https://be-polish.test/", { method: "POST",
+    headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip, ...(token ? { authorization: "Bearer " + token } : {}) },
+    body: JSON.stringify(win ? { ytai: "abcdefghijk", from: 0, to: 60 } : { ytai: "abcdefghijk" }) }), e);
+
+  /* --- can an unauthenticated caller spend on the paid route? --- */
+  { const ns = makeNamespace(), e = env(ns, true);
+    ai.calls = [];
+    const r = await call(W1, e, { ip: "20.0.0.1" });
+    ok("E1 · enforcement ON: an anonymous ytai call is 401 and reaches NO provider", r.status === 401 && ai.calls.length === 0, r.status + " provider=" + ai.calls.length); }
+  { const ns = makeNamespace(), e = env(ns, false);        // production shape today
+    ai.calls = [];
+    const r = await call(W1, e, { ip: "20.0.0.2" });
+    ok("E2 · enforcement OFF (production today): an anonymous ytai call DOES reach the provider — held only by the per-IP brake, stated not hidden", r.status === 200 && ai.calls.length === 1, r.status + " provider=" + ai.calls.length); }
+
+  /* --- the limiter runs before the money --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-y1");
+    ai.calls = [];
+    const out = [];
+    for (let i = 0; i < 6; i++) out.push((await call(i % 2 ? W1 : W2, e, { ip: "21.0.0." + i, token: tk })).status);
+    ok("E3 · YTAI_ACCT_PER_MIN 4: the 5th and 6th are 429 even from six different IPs", out.filter(x => x === 429).length === 2 && out.slice(0, 4).every(x => x === 200), JSON.stringify(out));
+    ok("E4 · …and the provider was called exactly 4 times, so a refusal costs nothing", ai.calls.length === 4, String(ai.calls.length));
+    ok("E5 · changing IP does NOT bypass the account cap (that is the carrier-NAT case)", out[4] === 429 && out[5] === 429, JSON.stringify(out)); }
+
+  /* --- changing account does not bypass the IP cap --- */
+  { const ns = makeNamespace(), e = env(ns, true);
+    ai.calls = [];
+    const out = [];
+    for (let i = 0; i < 14; i++) out.push((await call(W1, e, { ip: "22.0.0.9", token: tokOf("uid-z" + i) })).status);
+    ok("E6 · YTAI_WIN_PER_MIN 12 per IP: 13th and 14th refused although every call is a DIFFERENT account", out.filter(x => x === 429).length === 2 && out.slice(0, 12).every(x => x === 200), JSON.stringify(out));
+    ok("E7 · changing account does NOT bypass the IP cap", out[12] === 429 && out[13] === 429, JSON.stringify(out)); }
+
+  /* --- the IP brake is checked BEFORE the account brake --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-order");
+    ai.calls = [];
+    const whole = [];
+    for (let i = 0; i < 4; i++) whole.push((await call(W1, e, { ip: "23.0.0.1", token: tk, win: false })).status);
+    ok("E8 · whole-video path: YTAI_PER_MIN 2 per IP bites before the account's 4", whole.filter(x => x === 429).length === 2 && whole.slice(0, 2).every(x => x === 200), JSON.stringify(whole)); }
+
+  /* --- Free and Premium are treated identically: ytai carries no capability --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-free");
+    ent.reply = () => view(false); ai.calls = [];
+    const f = await call(W1, e, { ip: "24.0.0.1", token: tk });
+    ent.reply = () => view(true);
+    const pr = await call(W1, e, { ip: "24.0.0.2", token: tokOf("uid-prem") });
+    ent.reply = () => view(false);
+    ok("E9 · a FREE account may transcribe a pasted video — ROUTE_CAP.ytai is null, by decision", f.status === 200, f.status);
+    ok("E10 · and Premium gets no larger allowance: the limits are identical on both plans", pr.status === 200, pr.status); }
+
+  /* --- the one deliberate way past the brake: a cached answer --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-cache");
+    /* the body of a Response can be read ONCE, so a cache that hands the same
+       object back twice serves one hit and then silently misses. The real
+       caches.default returns a fresh Response per match; this one must too, or
+       the test measures the stub instead of the Worker. */
+    const store = new Map();
+    globalThis.caches = { default: {
+      async match(k) { const t = store.get(String(k.url)); return t === undefined ? undefined : new Response(t, { headers: { "content-type": "application/json" } }); },
+      async put(k, v) { store.set(String(k.url), await v.text()); },
+    } };
+    ai.calls = [];
+    const first = await call(W1, e, { ip: "25.0.0.1", token: tk });
+    const n1 = ai.calls.length;
+    const more = [];
+    for (let i = 0; i < 8; i++) more.push((await call(W2, e, { ip: "25.0.0.1", token: tk })).status);
+    ok("E11 · a cached video is served past the brake, deliberately — it costs nothing", first.status === 200 && more.every(x => x === 200), JSON.stringify(more));
+    ok("E12 · …and the provider was called ONCE for nine requests", ai.calls.length === n1 && n1 === 1, "provider calls=" + ai.calls.length);
+    delete globalThis.caches; }
+
+  /* --- the DAILY bucket. The per-minute bucket always bites first through the
+         Worker, so the day window is asserted on the object itself. --- */
+  { const ns = makeNamespace();
+    const DAY = [{ name: "ytaiacct:day", limit: 10, windowMs: 86_400_000 }];
+    const out = [];
+    for (let i = 0; i < 12; i++) out.push((await consume(env(ns), "acct:u:uid-day", DAY)).ok);
+    ok("E13 · the DAILY bucket is real: 10 allowed, then refused, on an 86,400,000 ms window", out.filter(Boolean).length === 10 && out.slice(10).every(x => x === false), JSON.stringify(out));
+    const st = ns.get(ns.idFromName("acct:u:uid-day"))._map.get("b:ytaiacct:day");
+    ok("E14 · …and its reset is a day away, so it is not a per-minute window wearing a day's name", st.resetAt - Date.now() > 86_000_000, JSON.stringify(st)); }
 }
 
 const pass = res.filter(Boolean).length;
