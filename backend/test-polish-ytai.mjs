@@ -12,8 +12,10 @@ globalThis.caches = { default: {
 } };
 /* Gemini: answers from `gem.reply(body)`; every call is recorded */
 const gem = { calls: [], reply: null };
+const JWKS = { keys: [] };                       // filled once the keypair exists
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init) => {
+  if (String(url).includes("/jwk/securetoken")) return new Response(JSON.stringify({ keys: JWKS.keys }), { status: 200 });
   if (String(url).includes("generativelanguage.googleapis.com")) {
     const body = JSON.parse(init.body); gem.calls.push(body);
     const cues = gem.reply(body);
@@ -22,10 +24,30 @@ globalThis.fetch = async (url, init) => {
   return realFetch(url, init);
 };
 const W = (await import(new URL("./polish-worker.js", import.meta.url))).default;
-const env = { GEMINI_KEY: "test-key" };
-let ipN = 0;
+/* `ytai` now requires a verified account — it is the one route that spends real
+   money per call. This suite is about WINDOWS and the EDGE CACHE, not about
+   authentication, so it signs every request with a real RS256 token served
+   through the stubbed JWKS above. backend/test-ytai-auth.mjs is where the
+   requirement itself is proved, including that an anonymous caller gets 401 and
+   spends nothing. */
+const { webcrypto } = await import("node:crypto");
+const kp = await webcrypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
+const jwk = await webcrypto.subtle.exportKey("jwk", kp.publicKey);
+jwk.kid = "ytaikid"; jwk.alg = "RS256"; jwk.use = "sig";
+JWKS.keys = [jwk];
+const b64u = x => Buffer.from(x).toString("base64url");
+const tokFor = async sub => {
+  const h = b64u(JSON.stringify({ alg: "RS256", kid: "ytaikid" }));
+  const pl = b64u(JSON.stringify({ sub, aud: "be-mastery", iss: "https://securetoken.google.com/be-mastery",
+    iat: Math.floor(Date.now() / 1e3) - 10, exp: Math.floor(Date.now() / 1e3) + 3600 }));
+  const sig = await webcrypto.subtle.sign({ name: "RSASSA-PKCS1-v1_5" }, kp.privateKey, new TextEncoder().encode(h + "." + pl));
+  return h + "." + pl + "." + b64u(sig);
+};
+const env = { GEMINI_KEY: "test-key", FIREBASE_PROJECT_ID: "be-mastery" };
+let ipN = 0, subN = 0;
 const ask = async (body, ip) => {
-  const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip || "10.0.0." + (++ipN) }, body: JSON.stringify(body) }), env);
+  const tok = await tokFor("uid-ytai-" + (++subN));
+  const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip || "10.0.0." + (++ipN), authorization: "Bearer " + tok }, body: JSON.stringify(body) }), env);
   return { status: r.status, j: await r.json().catch(() => null) };
 };
 const mmss = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");

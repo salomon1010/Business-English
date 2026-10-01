@@ -14,3 +14,27 @@
 name = "be-polish"
 main = "polish-worker.js"
 compatibility_date = "2026-07-31"
+
+# ---- ytai account requirement (1 October 2026) ----
+# The one route here that spends real money per call requires a verified
+# Firebase ID token, whatever plan the learner is on. be-polish verifies the
+# token itself against this project — there is no entitlement service in this
+# release and no plan check anywhere in the Worker.
+# It is a VAR, not a secret: it names a public Firebase project, and it is
+# committed so a deploy cannot forget it. Removing it makes the route answer
+# 503 auth_unavailable rather than opening: a configuration gap must stop the
+# spending, not the checking.
+[vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+
+# ---- Staging (be-polish-staging) ----
+# A SEPARATE Worker, so this release can be exercised against the real
+# Cloudflare runtime without touching production. Staging signs in to the
+# VALIDATION Firebase project (owner, 27 Sep 2026), never production, so the
+# project id differs and a production token is refused here by design.
+# The OPENAI_KEY secret already exists on it and survives a deploy.
+#   npx wrangler deploy --env staging
+[env.staging]
+name = "be-polish-staging"
+[env.staging.vars]
+FIREBASE_PROJECT_ID = "be-mastery-test"

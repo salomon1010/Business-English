@@ -31,6 +31,12 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",  "http://127.0.0.1:3000",
 ];
 
+/* The SAME Firebase ID-token verifier be-entitlements uses — RS256 against
+   Google's securetoken JWKS, checking aud, iss, exp and iat and returning the
+   `sub` and nothing else. Imported rather than copied so the backend has one
+   implementation of identity; esbuild bundles it at deploy. */
+import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
+
 const MAX_INPUT_CHARS = 400;   // bounds prompt size
 const MAX_OUTPUT_TOKENS = 320; // bounds reply size
 const RATE_PER_MIN = 15;       // max Polish clicks per IP per minute
@@ -134,9 +140,51 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "content-type",
+    /* `authorization` carries the Firebase ID token the ytai gate needs. The
+       client adds it to every POLISH_API call once the learner is signed in (the
+       one signing wrapper in index.html), which turns the request into a
+       PREFLIGHTED one — so if this does not name the header, the browser refuses
+       the call before this Worker ever runs, and every AI feature dies with
+       whatever generic "needs a connection" message that caller shows. curl
+       never sees it: curl sends no preflight. Measured on production
+       2026-10-01: allow-headers was `content-type` only, which is why the web
+       bundle must NOT ship before this Worker. */
+    "Access-Control-Allow-Headers": "content-type, authorization",
     "Vary": "Origin",
   };
+}
+
+/* ============================================================================
+   ytai REQUIRES AN ACCOUNT (1 October 2026)
+   ----------------------------------------------------------------------------
+   `ytai` is the only route here that spends real money per call — Gemini
+   transcription of a video the learner pasted, roughly $0.08 for 15 minutes —
+   and it was reachable with no account at all, held only by a per-IP brake that
+   a changed network defeats.
+
+   It stays FREE. An authenticated learner on any plan uses it exactly as
+   before; what ended is "free" meaning "anonymous" on this one route. No other
+   route gains a requirement, nothing becomes paid, and there is no plan or
+   entitlement check anywhere in this file.
+
+   FAILS CLOSED, deliberately: a missing FIREBASE_PROJECT_ID or an unreachable
+   JWKS answers 503 rather than letting the call through. For a route that
+   spends money a configuration gap must stop the spending, not the checking.
+   ============================================================================ */
+async function ytaiAccount(req, env, cors) {
+  const auth = req.headers.get("Authorization") || "";
+  if (!/^Bearer \S+$/.test(auth)) return { res: json({ error: "auth_required" }, 401, cors) };
+  if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
+  try {
+    await verifyIdToken(auth.slice(7), env.FIREBASE_PROJECT_ID);
+  } catch (e) {
+    /* a JWKS fetch that failed is OUR problem and retriable; everything else
+       (malformed, wrong project, expired, bad signature) is the caller's */
+    const m = String((e && e.message) || e);
+    if (/^jwks/.test(m) || m === "project") return { res: json({ error: "auth_unavailable" }, 503, cors) };
+    return { res: json({ error: "auth_required" }, 401, cors) };
+  }
+  return { ok: true };
 }
 
 function rateLimited(ip, map, perMin, perDay) {
@@ -998,6 +1046,14 @@ export default {
        ~$0.08 for a 15-minute video, so the answer is cached hard: a video's
        words do not change. Without GEMINI_KEY set this route simply says so. */
     if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
+      /* FIRST, before anything else on this route. Before the no_key check on
+         purpose: an anonymous caller should not be able to learn whether a
+         provider key is configured, and a 501 arriving ahead of the 401 would
+         make the route look open on an environment that simply has no key.
+         Before the CACHE lookup on purpose too: a kept answer is free to serve
+         but authentication must not be skippable by asking for a popular
+         video. */
+      { const a = await ytaiAccount(request, env, cors); if (a.res) return a.res; }
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
       const vid = body.ytai.trim(), win = ytaiWindow(body);
       if (win === false) return json({ error: "bad_window" }, 400, cors);

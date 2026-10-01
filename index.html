@@ -138,7 +138,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -8277,6 +8277,8 @@ const I18N_EN={
  "sh.link_ph":"https://www.youtube.com/watch?v=…",
  "sh.find_yt":"🔍 Find on YouTube",
  "sh.link_note":"We fetch the transcript for you. If YouTube won't give it up for this video, you can paste it yourself or shadow by ear.",
+ "sh.cap_acct_t":"Sign in to transcribe this video",
+ "sh.cap_acct_b":"Writing the words for a video you pasted runs on our servers, so it needs a free account. Nothing to pay — and the video itself is fine.",
  "sh.nocap_title":"No transcript for this video",
  "sh.nocap_body":"YouTube won't give us the words for this one. Paste them yourself, or shadow by ear — record, and we'll show you what we heard.",
  "sh.nocap_paste":"Paste the transcript",
@@ -14672,6 +14674,10 @@ const CAP_WIN_SEC=300, CAP_MAX_SEC=1800, CAP_PAR=2;   /* the rest: five-minute w
    22 Sep 2026). */
 async function shCapAsk(vid,dur,win){
   if(!await shCapMayAsk(vid)){_capErr[vid]="not_imported";return null}
+  /* the Worker answers 401 for this route without an account. Say so here
+     rather than firing a request that cannot succeed and then reporting it as
+     a video with no transcript. */
+  if(ytaiNoAccount()){_capErr[vid]="auth_required";return null}
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify(Object.assign({ytai:vid,dur:dur>0?Math.round(dur):0},win?{from:win.from,to:win.to}:{}))});
@@ -20239,8 +20245,54 @@ window.fbTry=(word,i)=>{
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
 const APP_VERSION="be12-v489";   /* bumped with sw.js on every deploy */
-const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
+/* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
+   like every other Worker URL, so a staging host talks to be-polish-staging and
+   production talks to production — without touching any of the ~50 call sites.
+   This matters for THIS release: the Worker now requires an account on `ytai`,
+   and a staging bundle pointed at the production Worker would be validating the
+   wrong thing. On app.lomonec.com beEnv() returns null and the fallback below is
+   used, so production behaviour is byte-for-byte what it was. */
+const POLISH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.polish)return e.polish}catch(x){}return "https://be-polish.nore-ngou.workers.dev"})();
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
+/* ---- the ONE place a Firebase ID token is attached to a POLISH_API call ----
+   Wrapping fetch rather than editing ~50 call sites is deliberate: a call site
+   that forgot the header would fail in a way that looks like a network problem,
+   and there is no way to be sure every one of them was found.
+
+   The Worker requires an account on the `ytai` route (it is the only free route
+   that spends money per call), and will require one on more routes if
+   PREMIUM_ENFORCED is ever switched on. This wrapper is what makes a signed-in
+   learner's call carry proof of who they are.
+
+   The shape matters: every pass-through `return nat(...)` happens BEFORE the
+   first await, so a request that is not for POLISH_API is still started
+   synchronously — the partner Worker's `keepalive` beacon on pagehide would not
+   survive being deferred to a microtask. */
+(function(){
+  const nat=window.fetch.bind(window);
+  if(window.fetch.bePolishSigned)return;
+  const signed=async function(input,init){
+    let base="";try{base=POLISH_API}catch(e){}            /* still in TDZ during boot: sign nothing */
+    if(!base)return nat(input,init);
+    let url="";try{url=typeof input==="string"?input:(input&&input.url)||""}catch(e){}
+    if(!url||url.indexOf(base)!==0)return nat(input,init);
+    let tok=null;
+    try{if(typeof FBUser!=="undefined"&&FBUser&&typeof FBUser.getIdToken==="function")tok=await FBUser.getIdToken()}catch(e){}
+    /* No token yet, but this device has signed in before and the session is
+       still being restored: wait for it rather than send an unsigned call the
+       Worker will refuse. Bounded, and only ever on a device with an owner. */
+    if(!tok)try{if(fbAuthPending()){await fbAuthSettled(5000);
+      if(typeof FBUser!=="undefined"&&FBUser&&typeof FBUser.getIdToken==="function")tok=await FBUser.getIdToken()}}catch(e){}
+    if(!tok)return nat(input,init);
+    const o=Object.assign({},init||{});
+    let h;try{h=new Headers((o.headers)||(input&&typeof input==="object"&&input.headers)||{})}catch(e){h=new Headers()}
+    h.set("authorization","Bearer "+tok);
+    o.headers=h;
+    return nat(input,o);
+  };
+  signed.bePolishSigned=true;
+  window.fetch=signed;
+})();
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
 /* Every voice the app speaks with comes from the list above — the same list the
    App voice setting offers. Characters need distinct voices, but a track pack,
@@ -21954,6 +22006,15 @@ let _entView=null,_entUid=null,_entBusy=null;
 /* the localStorage override is honoured only on localhost (tests, local
    wrangler dev) — a production page never lets a learner point it elsewhere */
 function entApiBase(){try{if(!IS_IOS_APP&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){const o=localStorage.getItem("be_ent_api");if(o!=null)return o.replace(/\/+$/,"")}}catch(e){}try{const env=beEnv();if(env&&env.entitlements)return env.entitlements}catch(e){}return ENT_API}
+/* `ytai` — AI transcription of a video the learner pasted — is the one route
+   be-polish requires an account for in EVERY configuration, because it is the
+   one that spends real money per call (~$0.08 for 15 minutes). This question
+   carries no plan term of any kind: it is true in production today, where
+   nothing is sold and every other AI route is open. Asked before the request so
+   a signed-out learner is told to sign in instead of reading "this video cannot
+   be transcribed" about a video that is perfectly fine. */
+function ytaiNoAccount(){try{return !entUid()&&!fbAuthPending()}catch(e){return false}}
+window.ytaiNoAccount=ytaiNoAccount;
 function entUid(){try{return (typeof FBUser!=="undefined"&&FBUser&&FBUser.uid)||null}catch(e){return null}}
 /* accept only the shape the server sends; anything else is FREE */
 function entSanitize(j){
@@ -23805,9 +23866,9 @@ let svNoCap=null;         // "paste" | "ear" — which way on the learner chose 
 function svNoCapWhy(){return _capErr[shClip&&shClip.vid]||null}
 function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)}
 function svNoCapTitle(){const w=svNoCapWhy();
-  return /rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_t"):/rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
 function svNoCapBody(){const w=svNoCapWhy();
-  return /rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_b"):/rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
 window.svNoCapRetry=()=>{
   const vid=shClip&&shClip.vid;if(!vid)return;
   delete _capCache[vid];delete _capErr[vid];
@@ -31454,6 +31515,21 @@ try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
    Lives inside the main script so it can reassign S like the GitHub sync does.
    The whole app works with no Firebase config, no network, and no account. */
 let FBauth=null,FBdb=null,FBUser=null,fbPushTimer=null,fbSyncing=false;
+/* Restoring a session is asynchronous: fbLoad() fetches three SDK files in
+   sequence and FBUser is only set when onAuthStateChanged first reports. The app
+   is interactive long before that, so an AI call made in the gap carries no
+   token — which the Worker answers 401 on any route that requires an account.
+   That is why such failures look intermittent: the same tap works seconds later.
+   fbAuthPending() marks the gap on a device that HAS signed in before, so the
+   signing fetch can wait for the token instead of sending without it. */
+let _fbAuthSeen=false,_fbAuthSettle=null,_fbAuthSettleRes=null;
+function fbAuthPending(){try{return !_fbAuthSeen&&fbConfigured()&&!!localStorage.getItem(FB_OWNER_KEY)}catch(e){return false}}
+function fbAuthSettled(ms){
+  if(_fbAuthSeen)return Promise.resolve();
+  if(!_fbAuthSettle)_fbAuthSettle=new Promise(res=>{_fbAuthSettleRes=res});
+  /* bounded: a device that never answers must not freeze the feature for ever */
+  return Promise.race([_fbAuthSettle,new Promise(res=>setTimeout(res,ms||5000))]);
+}
 /* Which account the state in localStorage belongs to. Kept OUTSIDE S so it is
    never written into the cloud document. Without it there is no way to tell
    "this device is just behind its own account" from "this is somebody else's
@@ -31500,6 +31576,7 @@ function fbConfigured(){return !!(window.FB_CONFIG&&FB_CONFIG.apiKey)}
 
 function fbOnAuth(u){
   FBUser=u;
+  _fbAuthSeen=true;try{if(_fbAuthSettleRes){_fbAuthSettleRes();_fbAuthSettleRes=null}}catch(e){}
   try{entRefresh()}catch(e){}
   try{Billing.init()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
