@@ -13,7 +13,16 @@ import { spawn } from "node:child_process";
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const WORKER = process.env.PARTNER_API || "http://127.0.0.1:8797";
 let workerUp = false; try { workerUp = (await fetch(WORKER + "/health")).ok; } catch (e) {}
-if (!workerUp) { console.log(`  SKIP  live rounds — local Worker not reachable at ${WORKER}`); process.exit(0); }
+/* A missing local Worker used to print SKIP and exit 0, which reads as a PASS in
+   any summary — the 1 Oct Critical QA found Practice Partner "green" while
+   nothing had been exercised. It now FAILS loudly. Set PARTNER_SKIP_OK=1 only
+   for a deliberate partial run, never in a release pass. */
+if (!workerUp) {
+  if (process.env.PARTNER_SKIP_OK === "1") { console.log(`  SKIP  live rounds — local Worker not reachable at ${WORKER}. PARTNER_SKIP_OK=1 was set.`); process.exit(0); }
+  console.log(`  FAIL  PREREQUISITE — the local Partner Worker is not reachable at ${WORKER}. live rounds was NOT tested.`);
+  console.log(`        cd backend/partner && npx wrangler dev --env dev --port ${new URL(WORKER).port} --local`);
+  process.exit(1);
+}
 await fetch(WORKER + "/__reset", { method: "POST" });
 let BASE = process.env.BASE, server = null;
 if (!BASE) { server = spawn("python3", ["-m", "http.server", "8773", "--bind", "127.0.0.1"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(700); BASE = "http://127.0.0.1:8773"; }

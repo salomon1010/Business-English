@@ -63,7 +63,7 @@ crons = ["17 3 * * *"]   # daily: expire week-old pairs, delete audio 14 days af
 [env.dev]
 [env.dev.vars]
 FIREBASE_PROJECT_ID = "be-mastery"
-ALLOWED_ORIGINS = "http://localhost:8011,http://127.0.0.1:8011,http://localhost:8765,http://127.0.0.1:8765,http://localhost:8000,http://127.0.0.1:8000"
+ALLOWED_ORIGINS = "http://localhost:8011,http://127.0.0.1:8011,http://localhost:8765,http://127.0.0.1:8765,http://localhost:8773,http://127.0.0.1:8773,http://localhost:8000,http://127.0.0.1:8000"   # 8773 added 1 Oct 2026: live-rounds.mjs and hidden-switch.mjs serve the site there, and its absence here is why they told you to start a SECOND Worker on 8797 with a --var override. Dev env only; additive, so it cannot break anything.
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
 PARTNER_ENABLED = "1"

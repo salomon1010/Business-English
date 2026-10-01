@@ -1,7 +1,8 @@
 /* Practice Partner + Shadow Studio V2 — browser end-to-end, two learners, mobile viewport.
    Needs the local Worker:  cd backend/partner && npx wrangler dev --env dev --port 8787
    Run:                     cd tests && node partner.mjs        (or npm run test:partner)
-   Skips with exit 0 when the Worker is not reachable. Uses Chromium's fake
+   FAILS (exit 1) when the Worker is not reachable — a silent skip reads as a
+   pass. Uses Chromium's fake
    microphone, so the real MediaRecorder path runs; flags are enabled through
    localStorage.be_flags exactly as an internal tester would. */
 import { chromium } from "playwright";
@@ -10,11 +11,42 @@ import { spawn } from "node:child_process";
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const WORKER = process.env.PARTNER_API || "http://127.0.0.1:8787";
 let workerUp = false; try { workerUp = (await fetch(WORKER + "/health")).ok; } catch (e) {}
-if (!workerUp) { console.log(`  SKIP  Practice Partner e2e — local Worker not reachable at ${WORKER} (start it with: cd backend/partner && npx wrangler dev --env dev --port 8787)`); process.exit(0); }
+/* A missing local Worker used to print SKIP and exit 0, which reads as a PASS in
+   any summary — the 1 Oct Critical QA found Practice Partner "green" while
+   nothing had been exercised. It now FAILS loudly. Set PARTNER_SKIP_OK=1 only
+   for a deliberate partial run, never in a release pass. */
+if (!workerUp) {
+  const how = "cd backend/partner && npx wrangler dev --env dev --port 8787  (and once: npx wrangler d1 migrations apply be-partner --local --env dev)";
+  if (process.env.PARTNER_SKIP_OK === "1") { console.log(`  SKIP  Practice Partner e2e — local Worker not reachable at ${WORKER}. PARTNER_SKIP_OK=1 was set.`); process.exit(0); }
+  console.log(`  FAIL  PREREQUISITE — the local Partner Worker is not reachable at ${WORKER}.`);
+  console.log(`        Practice Partner was NOT tested. Start it with:\n        ${how}`);
+  process.exit(1);
+}
 await fetch(WORKER + "/__reset", { method: "POST" });
 
 let BASE = process.env.BASE, server = null;
-if (!BASE) { server = spawn("python3", ["-m", "http.server", "8765"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(700); BASE = "http://localhost:8765"; }
+if (!BASE) { server = spawn("python3", ["-m", "http.server", "8765"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(900); BASE = "http://127.0.0.1:8765"; }
+/* PROVENANCE GUARD. spawn(..., stdio:"ignore") hides a bound port, so if another
+   checkout already holds 8765 this suite silently tests THAT tree and reports a
+   result about code nobody is releasing. It happened on 1 Oct 2026: port 8765
+   was held by another session and the Practice Partner result was meaningless.
+   Compare the served index.html with the one on disk before asserting anything. */
+{
+  const { readFileSync } = await import("node:fs");
+  let served = null;
+  try { served = await (await fetch(BASE + "/index.html")).text(); } catch (e) {}
+  const disk = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  if (served === null) {
+    console.log(`  FAIL  PREREQUISITE — nothing is serving ${BASE}. Practice Partner was NOT tested.`);
+    process.exit(1);
+  }
+  if (served.length !== disk.length) {
+    console.log(`  FAIL  PREREQUISITE — ${BASE} is serving a DIFFERENT index.html (${served.length} bytes served vs ${disk.length} on disk).`);
+    console.log("        Another checkout holds that port. Practice Partner was NOT tested against this tree.");
+    console.log("        Re-run with BASE=http://127.0.0.1:<a free port> and a server started from this worktree.");
+    process.exit(1);
+  }
+}
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 const FLAGS = { practice_partner_live_enabled: true, practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_ai_fallback_enabled: true, practice_partner_notifications_enabled: true, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: true };
@@ -206,7 +238,16 @@ ok("Back → the waiting card again, AI session closed", /looking for your partn
 for (const [u, n, g] of [["bob", "Bob", "m"], ["carla", "Carla", "f"]]) { await api(u, "POST", "/consent", { name: n, lang: "fr", adult: true, gender: g, goals: ["workplace"], avail: ["evening"], tz: 0 }); await api(u, "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1, goals: ["workplace"] }); }
 await A.page.click('button:has-text("Show me candidates")'); await sleep(1200);
 const cards = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
-ok("Match me → 1–3 candidate cards with first name, band, goal and a plain reason; no score, no uid", cards.length === 2 && cards.every(c => /Why: same level/.test(c) && !/\d+%/.test(c) && !/uid/.test(c)), JSON.stringify(cards));
+/* The reason is composed from the pp.why_* fragments, so it is not one fixed
+   sentence — the matcher may offer "same lesson + same level", "same goal: …",
+   "similar level" and so on. Asserting one literal pinned the suite to one
+   wording and broke when a second fragment was added. What must hold is the
+   CONTRACT: a Why line, built only from the plain human reasons, with no score
+   and no uid. */
+const PLAIN_WHY = /same lesson|same level|same stage|same goal|similar level|available now|both free|practised together before/;
+ok("Match me → 1–3 candidate cards with first name, band, goal and a plain reason; no score, no uid",
+  cards.length === 2 && cards.every(c => /Why:/.test(c) && PLAIN_WHY.test(c) && !/\d+%/.test(c) && !/uid/i.test(c) && !/[0-9a-f]{16,}/i.test(c)),
+  JSON.stringify(cards));
 await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Carla/.test(x.innerText)); [...c.querySelectorAll("button")].find(b => /Try a practice/.test(b.innerText)).click(); }); await sleep(1300);
 const waitTxt = await txt(A.page, "#v-partner");
 ok("Try a practice → a proposal: host sees 'Waiting for Carla to accept…' with Cancel, still in line; no session yet", waitTxt.includes("Waiting for Carla to accept") && waitTxt.includes("Cancel the invitation") && !waitTxt.includes("Round 1 of 4") && (await (await api("alice", "GET", "/me")).json()).pairInvite);
@@ -367,7 +408,18 @@ ok("Both sides connect (WebRTC audio, ICE through the Worker) and show 'Connecte
 const liveA = await A.page.evaluate(() => ({ head: document.querySelector(".pp-live-head").innerText, pc: ppLive.pc && ppLive.pc.connectionState, tracks: ppLive.stream ? ppLive.stream.getAudioTracks().length : 0, remote: !!document.getElementById("ppLiveAudio") && !!document.getElementById("ppLiveAudio").srcObject, timer: !!document.getElementById("ppLiveTimer") }));
 ok("Live connect shows the 3-2-1 countdown, then Start", await A.page.evaluate(() => ppLive.countdown != null || !!document.getElementById("ppLiveCount") || ppLive.startedAt > 0));
 ok("Live pill: away from the room, a fast-pulse 'Live practice with Carla · tap to return' pill; tapping returns to the call", await (async () => { await A.page.evaluate(() => go("home")); await sleep(500); const txtP = await A.page.evaluate(() => { ppPillSync(); const e = document.getElementById("ppPill"); return e && e.classList.contains("on") && e.className.includes("pp-pill-live") ? e.innerText : ""; }); await A.page.click("#ppPill"); await sleep(500); return txtP.includes("Live practice with Carla") && (await txt(A.page, ".pp-live-head")).includes("Live with Carla") && (await A.page.evaluate(() => ppLive.pc && ppLive.pc.connectionState === "connected")); })());
-ok("Room: partner first name only, human label, live timer, local mic track and remote audio attached; no uid, no transport words", liveA.head.includes("Live with Carla") && liveA.pc === "connected" && liveA.tracks === 1 && liveA.remote && liveA.timer && !/uid|webrtc|ice|turn/i.test(liveA.head), JSON.stringify(liveA));
+/* The old guard was /uid|webrtc|ice|turn/i, which rejected the room for saying
+   "Only your own voice is recorded" — "vo-ICE" — and would equally have rejected
+   "four short turns". Matching transport jargon as SUBSTRINGS was the bug. These
+   are the terms that would actually mean a leak, as whole words, plus a catch-all
+   for any long opaque identifier (a uid, a connection id, a session id) which is
+   stricter than the original: the uid in this fixture is "carla", indistinguishable
+   from the first name the room is supposed to show. */
+const TRANSPORT_WORDS = /\b(uid|webrtc|sdp|stun|peerconnection|rtcpeerconnection|icecandidate|candidate)\b|ice server|turn server|ice candidate/i;
+ok("Room: partner first name only, human label, live timer, local mic track and remote audio attached; no uid, no transport words",
+  liveA.head.includes("Live with Carla") && liveA.pc === "connected" && liveA.tracks === 1 && liveA.remote && liveA.timer
+    && !TRANSPORT_WORDS.test(liveA.head) && !/[0-9a-f]{16,}/i.test(liveA.head),
+  JSON.stringify(liveA));
 ok("Server state is active with a start time for both members", await (async () => { const s = await (await api("alice", "GET", "/me")).json(); const c = await (await api("carla", "GET", "/me")).json(); return s.live && s.live.state === "active" && s.live.startedAt > 0 && c.live && c.live.state === "active"; })());
 await A.page.click('.pp-lr button:has-text("Start round")'); await sleep(5500);
 ok("Timed rounds are shared: host starts round 1 → the guest's phone is in round 1 with the countdown on the next poll (full flow: live-rounds.mjs)", await C.page.evaluate(() => ppLive.phase === "talk" && ppLive.round === 1 && !!document.getElementById("ppLiveLeft")));
@@ -428,7 +480,22 @@ ok("After a rematch Bob is still offered while he is online (never hidden), and 
 /* ---------- History tab; block → unblock (a fresh start); clear my history ---------- */
 await A.page.evaluate(() => go("partner", "history")); await sleep(1200);
 const hist = await txt(A.page, "#v-partner");
-ok("History tab: tabs, summary tiles, the human sessions (Carla, Bob), the live call, the AI coach, the safety actions — grouped by day", /Practise\s+History/.test(hist) && hist.includes("Turns sent") && /Practice with Carla/.test(hist) && /Practice with Bob/.test(hist) && /Live call with Carla/.test(hist) && /AI coach practice/.test(hist) && /You ended the partnership with Carla/.test(hist) && /You looked for someone new after Bob/.test(hist) && /today/i.test(hist), hist.slice(0, 300));
+/* The tabs row is Practise · Visible/Hidden · History since 26 Sep 2026, so the
+   old /Practise\s+History/ literal can never match. Read the row from the DOM
+   instead and assert what actually matters: both tabs are there, the switch sits
+   between them, and HISTORY is the selected tab — which the literal never
+   checked at all. */
+const histTabs = await A.page.evaluate(() => {
+  const row = document.querySelector("#v-partner .pp-tabs");
+  if (!row) return null;
+  const tabs = [...row.querySelectorAll('[role="tab"]')].map(b => ({ label: b.innerText.trim(), selected: b.getAttribute("aria-selected") === "true" }));
+  return { labels: tabs.map(t => t.label), selected: tabs.filter(t => t.selected).map(t => t.label),
+           hasSwitch: !!row.querySelector('[role="switch"].pp-vis') };
+});
+ok("History tab: tabs (Practise · Visible/Hidden · History) with History selected, summary tiles, the human sessions (Carla, Bob), the live call, the AI coach, the safety actions — grouped by day",
+  !!histTabs && histTabs.labels.length === 2 && /Practise/.test(histTabs.labels[0]) && /History/.test(histTabs.labels[1])
+    && histTabs.hasSwitch && histTabs.selected.length === 1 && /History/.test(histTabs.selected[0])
+    && hist.includes("Turns sent") && /Practice with Carla/.test(hist) && /Practice with Bob/.test(hist) && /Live call with Carla/.test(hist) && /AI coach practice/.test(hist) && /You ended the partnership with Carla/.test(hist) && /You looked for someone new after Bob/.test(hist) && /today/i.test(hist), hist.slice(0, 300));
 ok("A session entry holds my own turns with scores and how many came back, never the partner's words; the cloud copy keeps scores and drops transcripts", await A.page.evaluate(() => { const e = (S.ppHist || []).find(x => x.kind === "session" && x.partner === "Carla"); const out = fbSyncPayload(S); const c = (out.ppHist || []).find(x => x.id === e.id); return !!e && e.turns.length >= 1 && e.theirs >= 1 && e.turns.some(t => t.score != null) && Object.keys(e).every(k => !/their.*(tx|transcript)/i.test(k)) && c.turns.every(t => !("tx" in t)); }));
 await A.page.click('.pp-hist-chips button:has-text("Safety")'); await sleep(200);
 ok("Filter chips narrow the list without a reload", await A.page.evaluate(() => { const rows = [...document.querySelectorAll(".pp-hist-row")]; return rows.length >= 2 && rows.every(r => /reported|blocked|unblocked|ended the partnership|looked for someone new/i.test(r.innerText)); }));
@@ -465,7 +532,10 @@ await A.page.evaluate(() => go("partner")); await sleep(800);
 /* ---------- Shadow Studio V2 → Apply it → partner mission ---------- */
 await A.page.evaluate(() => { ppCands = null; go("shadow"); }); await sleep(400);
 await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
-const sv = await A.page.evaluate(() => ({ level: svAsset && svAsset.level, tabs: [...document.querySelectorAll("#shV2 .seg-tab")].map(b => b.innerText.trim()), segs: document.querySelectorAll("#shV2 .sv-seg").length }));
+const sv = await A.page.evaluate(() => ({ level: svAsset && svAsset.level, /* the mode tabs render into #svTabs (the sticky header row), not inside #shV2 —
+   measured on this tree: #shV2 .seg-tab is 0 elements, #svTabs .seg-tab is the
+   four tabs, visible, with innerText intact */
+      tabs: [...document.querySelectorAll("#svTabs .seg-tab")].map(b => b.innerText.trim()), segs: document.querySelectorAll("#shV2 .sv-seg").length }));
 ok("Shadow V2: library clip → word-level asset, four modes, sentences rendered", sv.level === "word" && sv.tabs.join() === "Watch,Shadow,Challenge,Apply it" && sv.segs > 10, JSON.stringify(sv));
 const lit = await A.page.evaluate(() => { const s = svAsset.segments[5]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); return { seg: document.querySelector(".sv-seg.now")?.dataset.i, word: document.querySelector(".sv-w.now")?.innerText, expect: s.words[2].text }; });
 ok("Playback time lights the current sentence and word", lit.seg === "5" && lit.word === lit.expect, JSON.stringify(lit));

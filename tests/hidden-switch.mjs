@@ -7,7 +7,16 @@ import { chromium } from "playwright";
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const WORKER = process.env.PARTNER_API || "http://127.0.0.1:8797", BASE = process.env.BASE || "http://127.0.0.1:8773";
 let workerUp = false; try { workerUp = (await fetch(WORKER + "/health")).ok; } catch (e) {}
-if (!workerUp) { console.log(`  SKIP  hidden switch — local Worker not reachable at ${WORKER}`); process.exit(0); }
+/* A missing local Worker used to print SKIP and exit 0, which reads as a PASS in
+   any summary — the 1 Oct Critical QA found Practice Partner "green" while
+   nothing had been exercised. It now FAILS loudly. Set PARTNER_SKIP_OK=1 only
+   for a deliberate partial run, never in a release pass. */
+if (!workerUp) {
+  if (process.env.PARTNER_SKIP_OK === "1") { console.log(`  SKIP  hidden switch — local Worker not reachable at ${WORKER}. PARTNER_SKIP_OK=1 was set.`); process.exit(0); }
+  console.log(`  FAIL  PREREQUISITE — the local Partner Worker is not reachable at ${WORKER}. hidden switch was NOT tested.`);
+  console.log(`        cd backend/partner && npx wrangler dev --env dev --port ${new URL(WORKER).port} --local`);
+  process.exit(1);
+}
 await fetch(WORKER + "/__reset", { method: "POST" });
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 const api = (u, m, p, b) => fetch(WORKER + p, { method: m, headers: { "x-dev-user": u, ...(b ? { "content-type": "application/json" } : {}) }, body: b ? JSON.stringify(b) : undefined });

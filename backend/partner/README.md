@@ -116,10 +116,54 @@ deployed.
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0009
-npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 146 integration checks against the local Worker (REVIEW_STUB=1 in [env.dev])
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0010
+npx wrangler dev --env dev --port 8787 --local
+node test/run.mjs            # integration checks against the local Worker (REVIEW_STUB=1 in [env.dev])
 ```
+
+### Running the browser suites — the release checklist
+The three browser suites need **this Worker** and a **site server**, and a
+release pass is not valid without them: before 1 Oct 2026 all three reported
+SKIP/crash and were read as passes while exercising nothing.
+
+```
+# 1. once per machine — without this every request is D1_ERROR: no such table
+cd backend/partner && npx wrangler d1 migrations apply be-partner --local --env dev
+
+# 2. the Worker (any free port; the suites take it from PARTNER_API)
+npx wrangler dev --env dev --port 8847 --local
+
+# 3. the site, served from THIS worktree (any origin in [env.dev] ALLOWED_ORIGINS:
+#    8011, 8765, 8773 or 8000 — 8000 is the owner's own server, leave it alone)
+cd ../.. && python3 -m http.server 8773 --bind 127.0.0.1
+
+# 4. the suites — always pass BOTH variables explicitly
+cd tests
+PARTNER_API=http://127.0.0.1:8847 BASE=http://127.0.0.1:8773 node partner.mjs        # 158 checks
+PARTNER_API=http://127.0.0.1:8847 BASE=http://127.0.0.1:8773 node live-rounds.mjs    # 22
+PARTNER_API=http://127.0.0.1:8847 BASE=http://127.0.0.1:8773 node hidden-switch.mjs  # 15
+```
+
+| Variable | What it is | Default if unset |
+|---|---|---|
+| `PARTNER_API` | the local Worker's origin | `partner.mjs` 8787 · `live-rounds`/`hidden-switch` **8797** |
+| `BASE` | the site's origin; the suite spawns its own server when unset | `partner.mjs` 8765 · the other two 8773 |
+| `PARTNER_SKIP_OK=1` | permits the old SKIP-and-exit-0 behaviour | unset — a missing Worker **fails** |
+
+**Why the defaults differ, and why it does not matter.** There is one service:
+this Worker. The two live suites simply serve the site on 8773 instead of 8765,
+and because `[env.dev] ALLOWED_ORIGINS` did not list 8773 they instructed you to
+start a *second* Worker on 8797 with a `--var` override. 8773 is now in that
+list, so **one Worker serves all three suites** — pass `PARTNER_API` and stop
+thinking about 8797. The defaults were deliberately left alone: another session
+may already be running a Worker on either port, and changing a default would
+break their run.
+
+**Always pass `BASE` to a server you started yourself.** `partner.mjs` spawns on
+a hardcoded 8765 with `stdio:"ignore"`, so if another checkout holds that port
+the suite silently asserts against *their* code — it happened on 1 Oct 2026. The
+suite now compares the served `index.html` with the one on disk and refuses to
+run if they differ, but passing `BASE` avoids the collision entirely.
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and
 `localStorage.be_flags = '{"practice_partner_enabled":true,"practice_partner_matching_enabled":true,"practice_partner_voice_enabled":true,"practice_partner_notifications_enabled":true}'`.
