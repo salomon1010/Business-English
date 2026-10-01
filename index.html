@@ -29752,6 +29752,13 @@ function rReview(el,wArg){
   ${pfRecordCoreHTML(pgRecordLocked())}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
   <summary>${ic("chart")}<span>${t("rev.more")}</span></summary>
+  ${/* The whole fold is Premium (owner, 30 Sep 2026, pointing at "See all
+        details"): everything behind it — the charts, the growth panel, the
+        role-play metrics, the week and month tabs and their self-assessment —
+        belongs to the full record. The summary row stays so a Free learner can
+        see that the detail exists and what it would cost; the same one gate,
+        advanced_progress, that locks the record card above it. */""}
+  ${pgRecordLocked()?premLockHTML("advanced_progress","progress_more",{kept:false}):`
   ${progressHTML()}
   ${/* The weekly AI review and the growth dashboard both reprinted the same
         readiness counter this panel used to show — three copies of one invented
@@ -29765,7 +29772,7 @@ function rReview(el,wArg){
   </div>
   ${_revTab==='scores'?scores:written}
   ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}
-  ${pfRecordMoreHTML()}
+  ${pfRecordMoreHTML()}`}
   </details>`;
   manIconizeInline(el);
   drawTrend();

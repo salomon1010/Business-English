@@ -428,6 +428,60 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   await A.ctx.close();
 }
 
+/* ------------------------------------------- Progress → "See all details"
+   Owner, 30 Sep 2026, pointing at the fold on the Progress page: "this is part
+   of the premium too". The WHOLE fold is Premium — the charts, the growth
+   panel, the role-play metrics, the week and month tabs and the
+   self-assessment inside them. The summary row stays visible so a Free learner
+   can see that the detail exists; one gate, advanced_progress, the same one
+   that locks the record card above it. */
+console.log("\n# Progress — the whole \"See all details\" fold is Premium");
+{
+  const openProgress = async o => {
+    const H = await open(o);
+    await H.p.evaluate(() => go("review"));
+    await sleep(900);
+    return H;
+  };
+  const read = p => p.evaluate(() => {
+    const d = document.querySelector("details.pg-more");
+    return {
+      fold: !!d,
+      summary: !!(d && d.querySelector("summary")),
+      lock: !!(d && d.querySelector(".prem-lock[data-cap='advanced_progress']")),
+      /* the detail itself: the week tabs and the scores/written tabs only
+         exist when the fold actually rendered its contents */
+      weekTabs: d ? d.querySelectorAll(".cat-tab").length : -1,
+      segTabs: d ? d.querySelectorAll(".seg-tab").length : -1,
+      monthInputs: d ? d.querySelectorAll("input,textarea").length : -1,
+    };
+  });
+
+  let H = await openProgress({ uid: "pgf" });                     // Free
+  let v = await read(H.p);
+  ok("G1 · Free: the fold and its summary are still there, so the detail is discoverable", v.fold && v.summary, JSON.stringify(v));
+  ok("G2 · Free: the fold shows the advanced_progress lock", v.lock, JSON.stringify(v));
+  ok("G3 · Free: none of the detail is rendered — no week tabs, no scores/written tabs", v.weekTabs === 0 && v.segTabs === 0, JSON.stringify(v));
+  ok("G4 · Free: no self-assessment fields leak out of the locked fold", v.monthInputs === 0, JSON.stringify(v));
+  ok("G5 · Free: the page itself still renders without error", H.errs.length === 0, H.errs.join(" | "));
+  await H.ctx.close();
+
+  grant("pgp");
+  H = await openProgress({ uid: "pgp" });                         // Premium
+  v = await read(H.p);
+  ok("G6 · Premium: the fold opens onto the real detail", v.fold && v.weekTabs > 0 && v.segTabs === 2, JSON.stringify(v));
+  ok("G7 · Premium: no lock card inside the fold", !v.lock, JSON.stringify(v));
+  ok("G8 · Premium: the page renders without error", H.errs.length === 0, H.errs.join(" | "));
+  await H.ctx.close();
+
+  /* billing off (production today) is NOT a downgrade: entGated() is false, so
+     nothing on this page is locked for anyone. */
+  H = await openProgress({ uid: "pgo", billing: false });
+  v = await read(H.p);
+  ok("G9 · billing off: the fold is open to everyone, no lock — production is unchanged", v.fold && !v.lock && v.weekTabs > 0, JSON.stringify(v));
+  await H.ctx.close();
+}
+
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
