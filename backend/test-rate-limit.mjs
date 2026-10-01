@@ -394,6 +394,24 @@ console.log("\n# J1. ytai requires an ACCOUNT even with PREMIUM_ENFORCED off");
     ok("J1.3 · a verified FREE account is allowed — ytai stays free of capability", r.status === 200, r.status);
     ok("J1.3b · …and it did reach the provider, so the route still works", ai.calls.length === 1, String(ai.calls.length)); }
 
+  /* THE ORDERING DEFECT found on live staging, 1 Oct 2026, and pinned here.
+     With enforcement ON the gate used to accept a PRESENT Bearer header and
+     leave the verifying to premiumGate — which sat AFTER the `no_key` test. So
+     a junk token was answered 501, not 401: the header alone got past the one
+     function whose whole job is that nothing happens before verification.
+     The environment here has enforcement on and NO GEMINI_KEY, exactly as
+     be-polish-staging does, so a 501 means the gate was bypassed. */
+  { const ns = makeNamespace();
+    const noKeyEnv = { OPENAI_KEY: "k", RATE_LIMITER: ns, PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test", FIREBASE_PROJECT_ID: "be-mastery-test" };
+    ent.reply = () => new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 });
+    const junk = ["not.a.token", "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0.", await mint({ project: "someone-else" }), "x".repeat(40)];
+    const got = [];
+    for (const tk of junk) got.push((await ytai(W1, noKeyEnv, { ip: "40.0.0.1", token: tk })).status);
+    ok("J1.11 · enforcement ON and no provider key: a junk token is 401, NEVER 501 — nothing on the route runs before the token is verified", got.every(st => st === 401), JSON.stringify(got));
+    ent.reply = () => view(false);
+    const good = (await ytai(W1, noKeyEnv, { ip: "40.0.0.2", token: await mint({ sub: "uid-ok" }) })).status;
+    ok("J1.11b · …while a token the entitlement service accepts gets past the gate and reaches no_key (501), which is the next step", good === 501, String(good)); }
+
   /* 4 — Premium, through the enforcement-on path, unchanged */
   { const ns = makeNamespace(); ai.calls = [];
     ent.reply = () => view(true);

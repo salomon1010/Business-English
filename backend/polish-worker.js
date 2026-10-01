@@ -340,7 +340,22 @@ async function capabilities(req, env) {
 async function ytaiAccount(req, env, cors) {
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer \S+$/.test(auth)) return { res: json({ error: "auth_required" }, 401, cors) };
-  if (premiumOn(env)) return { ok: true, subject: null };   // premiumGate below verifies it; acctSubject reads the uid back
+  if (premiumOn(env)) {
+    /* Enforcement on: be-entitlements is the verifier, so premiumGate IS the
+       check and it has to run HERE — inside the gate — not further down the
+       route. It used to be called after the `no_key` test, which meant a
+       PRESENT but junk Bearer header passed this function and was answered 501
+       instead of 401: the header was taken as proof of an account. Measured on
+       be-polish-staging on 1 Oct 2026 — a malformed token, alg=none, a
+       self-signed one and a token for the wrong Firebase project all got 501.
+       No paid work was reachable that way (the key is absent on staging and
+       premiumGate still stood in front of the provider), but it leaked whether
+       a key is configured and it broke the one ordering rule this gate exists
+       to keep: nothing on this route happens before the token is verified. */
+    const g = await premiumGate(req, env, "ytai", cors);
+    if (g) return { res: g };
+    return { ok: true, subject: await acctSubject(req, env) };
+  }
   if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
   let uid;
   try {
@@ -1261,7 +1276,8 @@ export default {
       const acct = await ytaiAccount(request, env, cors);
       if (acct.res) return acct.res;
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
-      { const g = await premiumGate(request, env, "ytai", cors); if (g) return g; }
+      /* no premiumGate call here: ytaiAccount above already ran it in the
+         enforcement-on mode, which is what put the verification FIRST. */
       const vid = body.ytai.trim(), win = ytaiWindow(body);
       if (win === false) return json({ error: "bad_window" }, 400, cors);
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
