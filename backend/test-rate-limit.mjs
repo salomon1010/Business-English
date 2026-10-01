@@ -259,10 +259,16 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     ai.calls = [];
     const r = await call(W1, e, { ip: "20.0.0.1" });
     ok("E1 · enforcement ON: an anonymous ytai call is 401 and reaches NO provider", r.status === 401 && ai.calls.length === 0, r.status + " provider=" + ai.calls.length); }
+  /* This check used to assert the opposite — that with enforcement off an
+     anonymous ytai call DID reach the provider. That was the J1 exposure, and
+     it is now closed by ytaiAccount(): the route demands a verified account in
+     every configuration, while staying free of capability. The inversion is the
+     fix landing, not an assertion being relaxed; section J1 below proves the
+     whole behaviour, including that no OTHER route gained a requirement. */
   { const ns = makeNamespace(), e = env(ns, false);        // production shape today
     ai.calls = [];
     const r = await call(W1, e, { ip: "20.0.0.2" });
-    ok("E2 · enforcement OFF (production today): an anonymous ytai call DOES reach the provider — held only by the per-IP brake, stated not hidden", r.status === 200 && ai.calls.length === 1, r.status + " provider=" + ai.calls.length); }
+    ok("E2 · enforcement OFF (production shape): an anonymous ytai call is now 401 and spends NOTHING — the J1 hole is closed", r.status === 401 && ai.calls.length === 0, r.status + " provider=" + ai.calls.length); }
 
   /* --- the limiter runs before the money --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-y1");
@@ -327,6 +333,142 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     ok("E13 · the DAILY bucket is real: 10 allowed, then refused, on an 86,400,000 ms window", out.filter(Boolean).length === 10 && out.slice(10).every(x => x === false), JSON.stringify(out));
     const st = ns.get(ns.idFromName("acct:u:uid-day"))._map.get("b:ytaiacct:day");
     ok("E14 · …and its reset is a day away, so it is not a per-minute window wearing a day's name", st.resetAt - Date.now() > 86_000_000, JSON.stringify(st)); }
+}
+
+console.log("\n# J1. ytai requires an ACCOUNT even with PREMIUM_ENFORCED off");
+{
+  /* The hole: premiumGate returns immediately when enforcement is off, so in
+     production ytai was reachable with no account, held only by a per-IP brake,
+     with the per-account cap inert because there was no account. This section
+     signs REAL RS256 tokens with a generated keypair and serves them through a
+     stub JWKS, so the verifier under test is the actual imported one — not a
+     fake that always says yes. */
+  const { webcrypto } = await import("node:crypto");
+  const kp = await webcrypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
+  const jwk = await webcrypto.subtle.exportKey("jwk", kp.publicKey);
+  jwk.kid = "testkid"; jwk.alg = "RS256"; jwk.use = "sig";
+  const b64u = buf => Buffer.from(buf).toString("base64url");
+  async function mint({ sub = "uid-j1", project = "be-mastery", exp = Math.floor(Date.now() / 1e3) + 3600, kid = "testkid", alg = "RS256" } = {}) {
+    const h = b64u(JSON.stringify({ alg, kid })), pl = b64u(JSON.stringify({
+      sub, aud: project, iss: "https://securetoken.google.com/" + project,
+      iat: Math.floor(Date.now() / 1e3) - 10, exp }));
+    const sig = await webcrypto.subtle.sign({ name: "RSASSA-PKCS1-v1_5" }, kp.privateKey, new TextEncoder().encode(h + "." + pl));
+    return h + "." + pl + "." + b64u(sig);
+  }
+  /* the JWKS the Worker will fetch */
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    const u = String(url);
+    if (u.includes("/jwk/securetoken")) return new Response(JSON.stringify({ keys: [jwk] }), { status: 200 });
+    return realFetch(url, init);
+  };
+  const OFFENV = ns => ({ OPENAI_KEY: "k", GEMINI_KEY: "g", FIREBASE_PROJECT_ID: "be-mastery", ...(ns ? { RATE_LIMITER: ns } : {}) });
+  const ytai = (W, e, { ip = "30.0.0.1", token = null, win = true, vid = "abcdefghijk" } = {}) =>
+    W.fetch(new Request("https://be-polish.test/", { method: "POST",
+      headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip, ...(token ? { authorization: "Bearer " + token } : {}) },
+      body: JSON.stringify(win ? { ytai: vid, from: 0, to: 60 } : { ytai: vid }) }), e);
+
+  /* 1 + 2 — anonymous */
+  { const ns = makeNamespace(); ai.calls = [];
+    const r = await ytai(W1, OFFENV(ns));
+    ok("J1.1 · enforcement OFF, no token: 401 auth_required (was 200 before this change)", r.status === 401 && (await r.json()).error === "auth_required", r.status);
+    ok("J1.2 · …and ZERO provider calls — nothing was generated for an anonymous caller", ai.calls.length === 0, String(ai.calls.length)); }
+
+  /* a forged or wrong token is not an account */
+  { const ns = makeNamespace(); ai.calls = [];
+    const bad = [
+      ["a token with no signature", "eyJhbGciOiJSUzI1NiIsImtpZCI6InRlc3RraWQifQ.eyJzdWIiOiJ4In0.not-a-signature"],
+      ["a token for ANOTHER Firebase project", await mint({ project: "someone-else" })],
+      ["an expired token", await mint({ exp: Math.floor(Date.now() / 1e3) - 60 })],
+      ["an unknown signing key", await mint({ kid: "nope" })],
+      ["alg=none", "eyJhbGciOiJub25lIiwia2lkIjoidGVzdGtpZCJ9.eyJzdWIiOiJ4In0."],
+    ];
+    let allRefused = true;
+    for (const [, tk] of bad) { const r = await ytai(W1, OFFENV(ns), { token: tk }); if (r.status !== 401) allRefused = false; }
+    ok("J1.2b · a forged, foreign-project, expired, wrong-key or alg=none token is all refused 401", allRefused);
+    ok("J1.2c · …and not one of them reached the provider", ai.calls.length === 0, String(ai.calls.length)); }
+
+  /* 3 — authenticated FREE is allowed, and the route is still FREE */
+  { const ns = makeNamespace(); ai.calls = [];
+    const r = await ytai(W1, OFFENV(ns), { token: await mint({ sub: "uid-free" }) });
+    ok("J1.3 · a verified FREE account is allowed — ytai stays free of capability", r.status === 200, r.status);
+    ok("J1.3b · …and it did reach the provider, so the route still works", ai.calls.length === 1, String(ai.calls.length)); }
+
+  /* 4 — Premium, through the enforcement-on path, unchanged */
+  { const ns = makeNamespace(); ai.calls = [];
+    ent.reply = () => view(true);
+    const tk = "eyJhbGciOiJSUzI1NiJ9." + Buffer.from(JSON.stringify({ sub: "uid-prem-j1" })).toString("base64url") + ".sig";
+    const r = await ytai(W1, { ...ENV_BASE, RATE_LIMITER: ns, PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test", FIREBASE_PROJECT_ID: "be-mastery" }, { ip: "31.0.0.1", token: tk });
+    ok("J1.4 · PREMIUM (enforcement on) is allowed exactly as before", r.status === 200, r.status);
+    ent.reply = () => view(false);
+    const r2 = await ytai(W1, { ...ENV_BASE, RATE_LIMITER: ns, PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test", FIREBASE_PROJECT_ID: "be-mastery" }, { ip: "31.0.0.2", token: tk + "x" });
+    ok("J1.4b · …and a FREE account is allowed too under enforcement: ytai did NOT become Premium", r2.status === 200, r2.status); }
+
+  /* 5 — the per-account cap is no longer inert with enforcement OFF */
+  { const ns = makeNamespace(); ai.calls = [];
+    const tk = await mint({ sub: "uid-cap" });
+    const out = [];
+    for (let i = 0; i < 6; i++) out.push((await ytai(i % 2 ? W1 : W2, OFFENV(ns), { ip: "32.0.0." + i, token: tk })).status);
+    ok("J1.5 · YTAI_ACCT_PER_MIN 4 now bites with enforcement OFF, across six IPs and two isolates", out.filter(x => x === 429).length === 2 && out.slice(0, 4).every(x => x === 200), JSON.stringify(out));
+    ok("J1.5b · …and the provider was called 4 times, not 6", ai.calls.length === 4, String(ai.calls.length)); }
+
+  /* 6 — the IP cap still holds, across accounts */
+  { const ns = makeNamespace(); ai.calls = [];
+    const out = [];
+    for (let i = 0; i < 14; i++) out.push((await ytai(W1, OFFENV(ns), { ip: "33.0.0.9", token: await mint({ sub: "uid-ip" + i }) })).status);
+    ok("J1.6 · YTAI_WIN_PER_MIN 12 per IP still holds although every call is a different account", out.filter(x => x === 429).length === 2 && out.slice(0, 12).every(x => x === 200), JSON.stringify(out)); }
+
+  /* 7 — a cached answer does NOT bypass authentication */
+  { const ns = makeNamespace(); const store = new Map();
+    globalThis.caches = { default: {
+      async match(k) { const t = store.get(String(k.url)); return t === undefined ? undefined : new Response(t, { headers: { "content-type": "application/json" } }); },
+      async put(k, v) { store.set(String(k.url), await v.text()); } } };
+    ai.calls = [];
+    const warm = await ytai(W1, OFFENV(ns), { ip: "34.0.0.1", token: await mint({ sub: "uid-warm" }), vid: "cachedvid00" });
+    ok("J1.7 · a video is transcribed once and kept", warm.status === 200 && ai.calls.length === 1, warm.status + " provider=" + ai.calls.length);
+    const anon = await ytai(W2, OFFENV(ns), { ip: "34.0.0.2", vid: "cachedvid00" });
+    ok("J1.7b · …and an ANONYMOUS caller still gets 401 for it — the cache is behind authentication, not in front of it", anon.status === 401, anon.status);
+    const other = await ytai(W2, OFFENV(ns), { ip: "34.0.0.3", token: await mint({ sub: "uid-other" }), vid: "cachedvid00" });
+    ok("J1.7c · …while another signed-in learner is served the kept answer for free", other.status === 200 && (await other.json()).cached === true && ai.calls.length === 1, "provider=" + ai.calls.length);
+    delete globalThis.caches; }
+
+  /* 8 — nothing else changed */
+  { const ns = makeNamespace(); const e = OFFENV(ns); ai.calls = [];
+    const tries = {
+      "transcribe (audio)": (await W1.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "audio/webm", "CF-Connecting-IP": "35.0.0.1" }, body: new Uint8Array(2048) }), e)).status,
+      "chat practice": (await W1.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "35.0.0.2" }, body: JSON.stringify({ chat: { purpose: "practice", system: "s", messages: [{ role: "user", content: "hi" }] } }) }), e)).status,
+      "tts": (await W1.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "35.0.0.3" }, body: JSON.stringify({ tts: "a" }) }), e)).status,
+      "captions": (await W1.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "35.0.0.4" }, body: JSON.stringify({ captions: "abcdefghijk" }) }), e)).status,
+      "polish": (await W1.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "35.0.0.5" }, body: JSON.stringify({ text: "we should of done it" }) }), e)).status,
+    };
+    ok("J1.8 · every OTHER free route is still reachable with NO token, enforcement off — only ytai gained a requirement",
+      Object.values(tries).every(st => st !== 401), JSON.stringify(tries)); }
+
+  /* fails closed, not open, on a configuration gap */
+  { const ns = makeNamespace();
+    const r = await ytai(W1, { OPENAI_KEY: "k", GEMINI_KEY: "g", RATE_LIMITER: ns }, { token: await mint() });
+    ok("J1.9 · with FIREBASE_PROJECT_ID missing it answers 503, never an open route", r.status === 503 && (await r.json()).error === "auth_unavailable", r.status); }
+  /* The JWKS outage, told accurately. firebase-auth.js keeps Google's keys in
+     module scope for an hour, so the behaviour depends on whether the isolate
+     has them yet, and the two cases are opposite:
+       · a COLD isolate cannot verify anything and the route closes (503);
+       · a WARM one keeps verifying from the cached keys, which is resilience
+         and is why an outage does not take the feature down everywhere at once.
+     The first case cannot be produced through the Worker in this harness — Node
+     dedupes the shared firebase-auth import, so W1..W3 all share one warm
+     keyset — so it is asserted against a FRESH copy of the module directly, and
+     the Worker's mapping of a `jwks` error to 503 is the same line J1.9 covers. */
+  { globalThis.fetch = async (url, init) => { const u = String(url);
+      if (u.includes("/jwk/securetoken")) return new Response("nope", { status: 500 });
+      return realFetch(url, init); };
+    const cold = await import(new URL("./entitlements/src/firebase-auth.js?cold=1", import.meta.url));
+    let why = null;
+    try { await cold.verifyIdToken(await mint(), "be-mastery"); } catch (e) { why = String(e.message || e); }
+    ok("J1.10 · a COLD verifier with an unreachable JWKS throws `jwks …`, which this Worker maps to 503 — an auth outage must not open a paid provider", /^jwks/.test(why || ""), String(why));
+    const ns = makeNamespace(); ai.calls = [];
+    const warm = await ytai(W3, OFFENV(ns), { token: await mint({ sub: "uid-warm-jwks" }) });
+    ok("J1.10b · …while an isolate that already holds the keys keeps working through the same outage (deliberate: an hour of cache, not a single point of failure)", warm.status === 200 && ai.calls.length === 1, warm.status + " provider=" + ai.calls.length); }
+  globalThis.fetch = realFetch;
 }
 
 const pass = res.filter(Boolean).length;

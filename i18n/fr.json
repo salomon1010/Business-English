@@ -2595,6 +2595,8 @@
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
  "sh.find_yt": "🔍 Chercher sur YouTube",
  "sh.link_note": "Nous récupérons la transcription pour vous. Si YouTube ne la donne pas pour cette vidéo, vous pouvez la coller vous-même ou faire du shadowing à l'oreille.",
+ "sh.cap_acct_t": "Connectez-vous pour transcrire cette vidéo",
+ "sh.cap_acct_b": "Écrire les mots d’une vidéo que vous avez collée tourne sur nos serveurs : il faut donc un compte gratuit. Rien à payer — et la vidéo elle-même n’a aucun problème.",
  "sh.nocap_title": "Pas de transcription pour cette vidéo",
  "sh.nocap_body": "YouTube ne nous donne pas les mots de celle-ci. Collez-les vous-même, ou faites du shadowing à l'oreille — enregistrez, et nous vous montrerons ce que nous avons entendu.",
  "sh.nocap_paste": "Coller la transcription",

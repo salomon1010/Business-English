@@ -2595,6 +2595,8 @@
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
  "sh.find_yt": "🔍 Find on YouTube",
  "sh.link_note": "Мы получаем расшифровку за вас. Если YouTube не отдаёт её для этого видео, вставьте её сами или тренируйтесь на слух.",
+ "sh.cap_acct_t": "Sign in to transcribe this video",
+ "sh.cap_acct_b": "Writing the words for a video you pasted runs on our servers, so it needs a free account. Nothing to pay — and the video itself is fine.",
  "sh.nocap_title": "Для этого видео нет расшифровки",
  "sh.nocap_body": "YouTube не отдаёт нам слова этого ролика. Вставьте их сами или тренируйтесь на слух — запишите, и мы покажем, что услышали.",
  "sh.nocap_paste": "Вставить расшифровку",

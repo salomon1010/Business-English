@@ -14,6 +14,17 @@ globalThis.caches = { default: {
 const gem = { calls: [], reply: null };
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init) => {
+  /* J1 (1 Oct 2026): `ytai` now requires a verified account in EVERY
+     configuration, because it is the one free route that spends money per call.
+     This suite is about windows and the edge cache, not about authentication,
+     so it runs in the enforcement-on shape with be-entitlements stubbed — the
+     cheapest way to satisfy the new requirement without re-testing it here.
+     tests/../backend/test-rate-limit.mjs section J1 is where the requirement
+     itself is proved, including that an anonymous caller gets 401 and spends
+     nothing. */
+  if (String(url).includes("/v1/entitlement")) {
+    return new Response(JSON.stringify({ plan: "free", paid: false, capabilities: { ad_free: false, ai_analysis: false, advanced_progress: false, ai_coach: false, recommended_content: false } }), { status: 200 });
+  }
   if (String(url).includes("generativelanguage.googleapis.com")) {
     const body = JSON.parse(init.body); gem.calls.push(body);
     const cues = gem.reply(body);
@@ -22,10 +33,13 @@ globalThis.fetch = async (url, init) => {
   return realFetch(url, init);
 };
 const W = (await import(new URL("./polish-worker.js", import.meta.url))).default;
-const env = { GEMINI_KEY: "test-key" };
-let ipN = 0;
-const ask = async (body, ip) => {
-  const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip || "10.0.0." + (++ipN) }, body: JSON.stringify(body) }), env);
+const env = { GEMINI_KEY: "test-key", PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test" };
+let ipN = 0, tokN = 0;
+/* one account per call by default, so the per-account ytai cap (4/min) does not
+   become the thing this suite measures */
+const ask = async (body, ip, token) => {
+  const tok = token || ("eyJhbGciOiJSUzI1NiJ9." + Buffer.from(JSON.stringify({ sub: "uid-ytai-" + (++tokN) })).toString("base64url") + ".sig");
+  const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip || "10.0.0." + (++ipN), authorization: "Bearer " + tok }, body: JSON.stringify(body) }), env);
   return { status: r.status, j: await r.json().catch(() => null) };
 };
 const mmss = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");

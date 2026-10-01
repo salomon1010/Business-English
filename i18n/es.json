@@ -2595,6 +2595,8 @@
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
  "sh.find_yt": "🔍 Buscar en YouTube",
  "sh.link_note": "Recuperamos la transcripción por ti. Si YouTube no la da para este vídeo, puedes pegarla tú o practicar de oído.",
+ "sh.cap_acct_t": "Inicia sesión para transcribir este vídeo",
+ "sh.cap_acct_b": "Escribir las palabras de un vídeo que has pegado se ejecuta en nuestros servidores, así que necesita una cuenta gratuita. Nada que pagar: y el vídeo en sí está bien.",
  "sh.nocap_title": "Sin transcripción para este vídeo",
  "sh.nocap_body": "YouTube no nos da las palabras de este. Pégalas tú, o practica de oído: graba y te mostraremos lo que hemos oído.",
  "sh.nocap_paste": "Pegar la transcripción",

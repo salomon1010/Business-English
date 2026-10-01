@@ -8838,6 +8838,8 @@ const I18N_EN={
  "sh.link_ph":"https://www.youtube.com/watch?v=…",
  "sh.find_yt":"🔍 Find on YouTube",
  "sh.link_note":"We fetch the transcript for you. If YouTube won't give it up for this video, you can paste it yourself or shadow by ear.",
+ "sh.cap_acct_t":"Sign in to transcribe this video",
+ "sh.cap_acct_b":"Writing the words for a video you pasted runs on our servers, so it needs a free account. Nothing to pay — and the video itself is fine.",
  "sh.nocap_title":"No transcript for this video",
  "sh.nocap_body":"YouTube won't give us the words for this one. Paste them yourself, or shadow by ear — record, and we'll show you what we heard.",
  "sh.nocap_paste":"Paste the transcript",
@@ -15671,6 +15673,10 @@ const CAP_WIN_SEC=300, CAP_MAX_SEC=1800, CAP_PAR=2;   /* the rest: five-minute w
    22 Sep 2026). */
 async function shCapAsk(vid,dur,win){
   if(!await shCapMayAsk(vid)){_capErr[vid]="not_imported";return null}
+  /* the Worker answers 401 for this route without an account (J1). Say so here
+     rather than firing a request that cannot succeed and reporting it as a
+     video with no transcript. */
+  if(ytaiNoAccount()){_capErr[vid]="auth_required";return null}
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify(Object.assign({ytai:vid,dur:dur>0?Math.round(dur):0},win?{from:win.from,to:win.to}:{}))});
@@ -23184,6 +23190,15 @@ window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
    says which of the three reasons it is. planOn() keeps this inert in production
    today, where Premium is not on sale and nothing is enforced. */
 function aiNoAccount(){try{return planOn()&&!entUid()&&!fbAuthPending()}catch(e){return false}}
+/* J1: `ytai` — AI transcription of a pasted video — is the one route the Worker
+   requires an account for whatever PREMIUM_ENFORCED says, because it is the one
+   that spends real money per call. So this question carries NO planOn() term,
+   unlike aiNoAccount() above: it is true in production today, where billing is
+   off and every other AI route is open. Asked before the request so a signed-out
+   learner is told to sign in instead of reading "this video cannot be
+   transcribed" about a video that is perfectly fine. */
+function ytaiNoAccount(){try{return !entUid()&&!fbAuthPending()}catch(e){return false}}
+window.ytaiNoAccount=ytaiNoAccount;
 function aiOff(cap){try{return !POLISH_API||!navigator.onLine||aiNoAccount()||entLocked(cap)}catch(e){return true}}
 function aiOn(cap){return !aiOff(cap)}
 /* The speech-to-text route costs no capability (ROUTE_CAP.transcribe is null —
@@ -25219,9 +25234,9 @@ let svNoCap=null;         // "paste" | "ear" — which way on the learner chose 
 function svNoCapWhy(){return _capErr[shClip&&shClip.vid]||null}
 function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)}
 function svNoCapTitle(){const w=svNoCapWhy();
-  return /rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_t"):/rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
 function svNoCapBody(){const w=svNoCapWhy();
-  return /rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_b"):/rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
 window.svNoCapRetry=()=>{
   const vid=shClip&&shClip.vid;if(!vid)return;
   delete _capCache[vid];delete _capErr[vid];

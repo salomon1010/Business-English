@@ -129,6 +129,13 @@ const ASSESS_PER_DAY = 400;
    the mechanism, the fixed-window trade-off and the degraded fallback. The
    numbers themselves are unchanged; what changed is that they are true. */
 import { RateLimiter, consume } from "./rate-limit.js";
+/* The SAME Firebase ID-token verifier be-entitlements uses — RS256 against
+   Google's securetoken JWKS, checking aud, iss, exp, iat and returning the
+   `sub` and nothing else. Imported rather than copied so there is one
+   implementation of identity in the backend, and esbuild bundles it at deploy.
+   Needed because of J1 below: `ytai` must demand an account even where
+   PREMIUM_ENFORCED is off and there is no entitlement service to ask. */
+import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
 /* a DO class must be exported from the Worker's entry module for the binding
    in wrangler.toml to resolve to it */
 export { RateLimiter };
@@ -299,6 +306,55 @@ async function capabilities(req, env) {
   return { caps, key, uid };
 }
 /* Returns a Response to send instead, or null to carry on. */
+/* ============================================================================
+   J1 — ytai REQUIRES AN ACCOUNT, WHATEVER THE PLAN OR THE ENFORCEMENT STATE
+   ----------------------------------------------------------------------------
+   `ytai` is the only free route that spends real money per call (~$0.08 for 15
+   minutes of video), and until now it inherited its authentication from
+   premiumGate — which returns immediately when PREMIUM_ENFORCED is off. In
+   production, where enforcement IS off, that left the route reachable with no
+   account at all, held only by a per-IP brake that a changed network defeats,
+   and with the per-account cap inert because there was no account to charge.
+
+   This closes that without touching the product model: `ROUTE_CAP.ytai` stays
+   null, so the route is still FREE — an authenticated Free learner may use it
+   exactly as before. What changes is that "free" no longer means "anonymous"
+   on this one route. Nothing else moves: no other route gains a requirement,
+   nothing becomes Premium, and PREMIUM_ENFORCED is untouched.
+
+   Two modes, one requirement:
+     · enforcement ON  — premiumGate already demands a verified account through
+       be-entitlements. Nothing is added; this returns the account so the
+       per-account cap can use it.
+     · enforcement OFF — there is no entitlement service to ask, so the token
+       is verified HERE against FIREBASE_PROJECT_ID, with the same module
+       be-entitlements verifies with.
+
+   FAILS CLOSED, deliberately. A missing FIREBASE_PROJECT_ID or an unreachable
+   JWKS answers 503 rather than letting the call through: for a route that
+   spends money, a configuration gap must stop the spending, not the checking.
+   That is the opposite of the choice made for the rate limiter, and for the
+   opposite reason — a limiter outage must not take a free feature down, while
+   an auth outage must not open a paid provider.
+   ============================================================================ */
+async function ytaiAccount(req, env, cors) {
+  const auth = req.headers.get("Authorization") || "";
+  if (!/^Bearer \S+$/.test(auth)) return { res: json({ error: "auth_required" }, 401, cors) };
+  if (premiumOn(env)) return { ok: true, subject: null };   // premiumGate below verifies it; acctSubject reads the uid back
+  if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
+  let uid;
+  try {
+    uid = await verifyIdToken(auth.slice(7), env.FIREBASE_PROJECT_ID);
+  } catch (e) {
+    /* a JWKS fetch that failed is OUR problem and retriable; everything else
+       (malformed, wrong project, expired, bad signature) is the caller's */
+    const m = String((e && e.message) || e);
+    if (/^jwks/.test(m) || m === "project") return { res: json({ error: "auth_unavailable" }, 503, cors) };
+    return { res: json({ error: "auth_required" }, 401, cors) };
+  }
+  return { ok: true, subject: uid ? "acct:u:" + uid : null };
+}
+
 /* the rate-limit subject for the ACCOUNT behind a request, or null when there
    is none to find (enforcement off, or no usable token). Never an authorisation
    decision — capabilities() has already been asked by premiumGate on every
@@ -1194,6 +1250,16 @@ export default {
        ~$0.08 for a 15-minute video, so the answer is cached hard: a video's
        words do not change. Without GEMINI_KEY set this route simply says so. */
     if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
+      /* FIRST, before anything else on this route — see J1 above. It is also
+         before the no_key check on purpose: an anonymous caller should not be
+         able to learn whether a provider key is configured, and a 501 arriving
+         ahead of the 401 would make the route look open on an environment that
+         simply has no key (staging, where GEMINI_KEY is deliberately absent).
+         It is before the CACHE lookup on purpose too: a kept answer is free to
+         serve but it is still this learner's content, and authentication must
+         not be skippable by asking for a popular video. */
+      const acct = await ytaiAccount(request, env, cors);
+      if (acct.res) return acct.res;
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
       { const g = await premiumGate(request, env, "ytai", cors); if (g) return g; }
       const vid = body.ytai.trim(), win = ytaiWindow(body);
@@ -1214,7 +1280,12 @@ export default {
          in which a call carries a verified account at all — with Premium not
          on sale the IP limits above are still the whole brake, which is why
          this route must not be opened to anonymous callers. */
-      { const a = await acctSubject(request, env);
+      { /* enforcement off: the uid ytaiAccount just verified. Enforcement on:
+           the uid be-entitlements accepted, read back from the cached answer.
+           Either way the subject string is the same shape, so one learner has
+           one bucket whichever mode the Worker is in — and the cap is no
+           longer inert in production. */
+        const a = acct.subject || await acctSubject(request, env);
         if (a) { const l = await limit(env, a, "ytaiacct", YTAI_ACCT_PER_MIN, YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
       try {
         const out = await geminiCaptions(env, vid, win);

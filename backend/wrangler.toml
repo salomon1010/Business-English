@@ -68,6 +68,15 @@ new_sqlite_classes = ["RateLimiter"]
 [vars]
 PREMIUM_ENFORCED = "0"
 ENTITLEMENTS_URL = ""
+# J1 (1 Oct 2026). The ONE route that spends real money per call — `ytai`,
+# Gemini transcription of a pasted video — requires a verified account whatever
+# PREMIUM_ENFORCED says, and with enforcement off there is no entitlement
+# service to ask, so be-polish verifies the Firebase ID token itself against
+# this project. It is NOT a plan switch and NOT enforcement: every other route
+# behaves exactly as before, and ytai stays free of capability.
+# Removing this makes ytai answer 503 auth_unavailable rather than opening it:
+# a configuration gap must stop the spending, not the checking.
+FIREBASE_PROJECT_ID = "be-mastery"
 
 # ---- Staging (be-polish-staging) ----
 # A SEPARATE Worker, added 30 Sep 2026 so server-side Premium enforcement can be
@@ -98,3 +107,5 @@ new_sqlite_classes = ["RateLimiter"]
 [env.staging.vars]
 PREMIUM_ENFORCED = "1"
 ENTITLEMENTS_URL = "https://be-entitlements-staging.nore-ngou.workers.dev"
+# staging signs in to the VALIDATION project, not production (owner, 27 Sep 2026)
+FIREBASE_PROJECT_ID = "be-mastery-test"

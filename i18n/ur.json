@@ -2595,6 +2595,8 @@
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
  "sh.find_yt": "🔍 Find on YouTube",
  "sh.link_note": "ہم آپ کے لیے ٹرانسکرپٹ لاتے ہیں۔ اگر یوٹیوب اس ویڈیو کے لیے نہ دے تو آپ خود پیسٹ کر سکتے ہیں یا سن کر مشق کریں۔",
+ "sh.cap_acct_t": "Sign in to transcribe this video",
+ "sh.cap_acct_b": "Writing the words for a video you pasted runs on our servers, so it needs a free account. Nothing to pay — and the video itself is fine.",
  "sh.nocap_title": "اس ویڈیو کے لیے ٹرانسکرپٹ نہیں",
  "sh.nocap_body": "یوٹیوب اس کے الفاظ نہیں دیتا۔ خود پیسٹ کریں، یا سن کر مشق کریں — ریکارڈ کریں اور ہم دکھائیں گے کہ ہم نے کیا سنا۔",
  "sh.nocap_paste": "ٹرانسکرپٹ پیسٹ کریں",
