@@ -137,7 +137,7 @@ console.log("\n# Progress: locked means previewed, never empty");
   await u.ctx.close(); await ctx.close();
 }
 
-console.log("\n# Home: the recommendation is shown, the content is Premium");
+console.log("\n# Home: the reason stays, the picks are Premium (owner, 30 September 2026)");
 {
   const { ctx, p } = await open({ plan: FREE });
   const r = await p.evaluate(() => ({
@@ -149,13 +149,18 @@ console.log("\n# Home: the recommendation is shown, the content is Premium");
   }));
   ok("31 · the recommended videos and Challenges are Premium content", r.shadow && r.challenge && r.video && r.ext);
   ok("32 · the curriculum, the learner's own words and human practice are NOT gated — Free is a complete product", !r.lesson && !r.comeback && !r.words && !r.partner && !r.trouble && !r.session, JSON.stringify(r));
-  const card = await p.evaluate(() => homeRowCardHTML({ id: "r1", items: [] }, { type: "video", vid: "dQw4w9WgXcQ", title: "A talk", dur: 300 }, 0));
-  ok("33 · a locked row card still shows its thumbnail and its title, with a lock — the value is visible", /dQw4w9WgXcQ/.test(card) && /A talk/.test(card) && /hx-rprem/.test(card) && /hx-rlock/.test(card), card.slice(0, 220));
-  ok("34 · tapping it opens the offer, never the resource", /premiumOpen\('home_row'\)/.test(card) && !/homeRecOpen/.test(card), card.slice(0, 220));
-  ok("35 · the opener itself refuses a locked item, so no other caller can route round the card", await p.evaluate(() => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; _homeRows = [{ id: "r1", items: [{ type: "video", vid: "x" }] }]; homeRecOpen("r1", 0); window.premiumOpen = o; return opened === "home_row"; }));
+  const rows = [{ id: "struggled", variant: "words", vars: { words: "\u201cself\u201d" }, items: [{ type: "video", vid: "dQw4w9WgXcQ", title: "A talk", dur: 300 }, { type: "trouble" }] }];
+  const free = await p.evaluate(rs => homeRowsHTML(rs), rows);
+  ok("33 · without Premium the row keeps its heading and the reason it was chosen", /Because you struggled with/.test(free) && /self/.test(free), free.slice(0, 200));
+  ok("34 · and shows no cards at all — not the Premium ones, not the free ones", !/hx-rcard/.test(free) && !/dQw4w9WgXcQ/.test(free) && !/homeRecOpen/.test(free), free.slice(0, 400));
+  ok("35 · one bar stands where the cards were, and it opens the offer", /hx-row-prem/.test(free) && /premiumOpen\('home_row'\)/.test(free) && /See what we picked for you/.test(free), free.slice(-300));
+  ok("36 · the opener itself refuses a locked item, so no other caller can route round the row", await p.evaluate(() => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; _homeRows = [{ id: "r1", items: [{ type: "video", vid: "x" }] }]; homeRecOpen("r1", 0); window.premiumOpen = o; return opened === "home_row"; }));
+  const w = await open({ track: "welding", plan: FREE });
+  ok("37 · the same on Welding — one Premium covers both tracks, so one rule covers both Homes", await w.p.evaluate(rs => { const h = homeRowsHTML(rs); return !/hx-rcard/.test(h) && /hx-row-prem/.test(h); }, rows));
   const u = await open({ plan: PREMIUM });
-  const card2 = await u.p.evaluate(() => homeRowCardHTML({ id: "r1", items: [] }, { type: "video", vid: "dQw4w9WgXcQ", title: "A talk", dur: 300 }, 0));
-  ok("36 · a paying learner's card opens the video, with no lock", /homeRecOpen/.test(card2) && !/hx-rprem/.test(card2) && !/premiumOpen/.test(card2));
+  const paid = await u.p.evaluate(rs => homeRowsHTML(rs), rows);
+  ok("38 · a paying learner gets the cards themselves, with no bar and no lock", /hx-rcard/.test(paid) && /dQw4w9WgXcQ/.test(paid) && /homeRecOpen/.test(paid) && !/hx-row-prem/.test(paid) && !/hx-rprem/.test(paid), paid.slice(0, 300));
+  await w.ctx.close();
   await u.ctx.close(); await ctx.close();
 }
 
@@ -163,10 +168,10 @@ console.log("\n# the AI coach stays reachable (owner, 23 September 2026) — the
 {
   const { ctx, p } = await open({ plan: FREE });
   const c = await p.evaluate(() => ppAiChoiceHTML("session"));
-  ok("37 · the AI coach card still renders on the start screen, tagged Premium", /pp-fallback/.test(c) && /pp-prem-tag/.test(c) && /Premium/.test(c), c.slice(0, 200));
-  ok("38 · starting a coach session opens the offer instead, and starts nothing", await p.evaluate(async () => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === "ai_coach" && !ppAiActive(); }));
+  ok("39 · the AI coach card still renders on the start screen, tagged Premium", /pp-fallback/.test(c) && /pp-prem-tag/.test(c) && /Premium/.test(c), c.slice(0, 200));
+  ok("40 · starting a coach session opens the offer instead, and starts nothing", await p.evaluate(async () => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === "ai_coach" && !ppAiActive(); }));
   const u = await open({ plan: PREMIUM });
-  ok("39 · a paying learner's card carries no Premium tag", !/pp-prem-tag/.test(await u.p.evaluate(() => ppAiChoiceHTML("session"))));
+  ok("41 · a paying learner's card carries no Premium tag", !/pp-prem-tag/.test(await u.p.evaluate(() => ppAiChoiceHTML("session"))));
   await u.ctx.close(); await ctx.close();
 }
 
@@ -177,11 +182,11 @@ console.log("\n# what the client cannot decide");
      edits it changes what this screen draws and nothing else — the request
      still carries their real token and the Worker still refuses it. */
   await p.evaluate(() => { localStorage.setItem("be_ent_view", JSON.stringify({ uid: "u1", at: Date.now(), view: { plan: "premium", paid: true, state: "active", ads: false, capabilities: { ai_analysis: true } } })); _entView = null; _entUid = null; });
-  ok("40 · editing the cached plan changes only what is DRAWN", await p.evaluate(() => entIsPremiumForDisplay() === true));
+  ok("42 · editing the cached plan changes only what is DRAWN", await p.evaluate(() => entIsPremiumForDisplay() === true));
   await p.evaluate(async () => { await fetch(POLISH_API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ analyse: { transcript: "a b c d e f", metrics: {} } }) }); });
   await sleep(250);
-  ok("41 · the request still carries the learner's OWN token — the server, not this page, decides (backend/test-premium-gate.mjs B2)", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai.map(x => x.auth)));
-  ok("42 · a signed-out learner sends no token and is not Premium", await (async () => { const g = await open({ plan: FREE, signedIn: false }); const r = await g.p.evaluate(() => entIsPremiumForDisplay() === false); await g.ctx.close(); return r; })());
+  ok("43 · the request still carries the learner's OWN token — the server, not this page, decides (backend/test-premium-gate.mjs B2)", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai.map(x => x.auth)));
+  ok("44 · a signed-out learner sends no token and is not Premium", await (async () => { const g = await open({ plan: FREE, signedIn: false }); const r = await g.p.evaluate(() => entIsPremiumForDisplay() === false); await g.ctx.close(); return r; })());
   await ctx.close();
 }
 
@@ -194,8 +199,8 @@ console.log("\n# every chat call declares a purpose the Worker knows");
     const untagged = (src.match(/chat:\{system/g) || []).length;
     return { found: [...new Set(found)], n: found.length, untagged };
   });
-  ok("43 · every chat call site declares a purpose", bad.untagged === 0 && bad.n >= 8, JSON.stringify(bad));
-  ok("44 · and only purposes the Worker maps (practice / coach / report)", bad.found.every(x => ["practice", "coach", "report"].includes(x)), JSON.stringify(bad.found));
+  ok("45 · every chat call site declares a purpose", bad.untagged === 0 && bad.n >= 8, JSON.stringify(bad));
+  ok("46 · and only purposes the Worker maps (practice / coach / report)", bad.found.every(x => ["practice", "coach", "report"].includes(x)), JSON.stringify(bad.found));
   await ctx.close();
 }
 
