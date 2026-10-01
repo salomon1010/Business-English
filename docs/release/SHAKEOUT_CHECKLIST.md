@@ -105,3 +105,47 @@ Baseline so nothing is mistaken for new damage:
 3. **The Premium leg is unvalidated end to end**, because no `ADMIN_TOKEN` is
    available to grant a throwaway uid. Until it is, every Premium row above is
    expectation, not evidence.
+
+---
+
+# Execution plan — what each of the 45 items actually needs
+
+Added 1 October 2026. The checklist above says *what* to test; this says *how
+it can be run*, so the work can be scheduled instead of attempted all at once.
+
+## The five gates, and what is blocked behind each
+
+| Gate | Items | Can it be done today? |
+|---|---|---|
+| **A — automated, runs now** | 6, 7, 11, 12, 13, 14, 20, 21, 25, 26, 27, 31, 34, 35, 39, 41, 42, 43, 45 (19) | **Yes.** Existing suites, verified free ports. This is the bulk of the regression value and should run first and often. |
+| **B — automated but needs the local partner Worker** | 15, 16, 17, 18 (4) | **Yes, after setup.** `wrangler dev` on 127.0.0.1:8787 **and** `wrangler d1 migrations apply be-partner --local --env dev`. Until then the three suites `SKIP` and **exit 0**, which reads as a pass while testing nothing — the single most misleading thing in the harness. |
+| **C — needs staging + a real account** | 1, 2, 3, 4, 5, 8, 9, 10, 19, 22, 23, 24, 32, 33, 40 (15) | **Partly.** Free is reachable now (throwaway be-mastery-test accounts). Anything needing a *provider key* on staging is not: staging has no `GEMINI_KEY`, so `ytai` success paths cannot be exercised there at all. |
+| **D — needs a Premium grant** | 28, 29, 30, and the Premium column of 13, 19, 24, 25 (7) | **No.** Blocked on `ADMIN_TOKEN`, which is a Cloudflare secret nobody here can read, and which must not be overwritten. Every Premium expectation in this document is therefore *expectation, not evidence*. |
+| **E — needs real hardware or a store** | 36, 37, 38, 30 (store half), 44 (4) | **No.** iPhone Safari and the Capacitor shell cannot be certified from headless Chromium, and this Mac has Command Line Tools only — no Xcode, no signing identity. |
+
+## By special requirement
+
+- **Two accounts:** 3 (sign-in merge / `FB_OWNER_KEY`), 16 (matching), 17, 18, 39. Gate B or C.
+- **Network interruption:** 32 (aeroplane mode), 33 (kill the Worker mid-call), 34 (service-worker refresh). 33 is automatable with a Playwright route abort; 32 needs a real device to be meaningful.
+- **A real iPhone:** 36, 37, 38, and the audio half of 9, 10, 23. **Mandatory before any App Store submission** and currently the largest untestable block.
+- **App Store / TestFlight:** 30 (restore purchase), 37, 38. Needs a Mac with Xcode 26 and the Lomonec team.
+- **A provider key:** the success paths of 12 (`ytai`) and anything measuring real cost. Not available on staging by design — do not "fix" this by copying the production key.
+
+## Recommended order
+
+1. **Gate A in one pass**, on verified free ports, and record the counts against the known-failing baseline above. Anything new is a real regression; anything matching the baseline is not.
+2. **Set up Gate B** (the dev Worker and its migrations) and make the three partner suites **fail loudly** instead of skipping. Until that is done, no "all green" that includes Practice Partner should be believed.
+3. **Gate C on staging** for the Free states, using throwaway be-mastery-test accounts only — never a production address, and never the owner's own.
+4. **Unblock Gate D** by deciding how a Premium grant is to be created for validation. Until then, publish the Premium rows as untested.
+5. **Gate E last**, as a single device session on a real iPhone, scripted from this checklist so nothing is improvised at the end.
+
+## Release blockers among the 45
+
+**P0, and currently unverifiable:** 36, 37, 38 (real device / shell), 30 (restore purchase), 44 (account deletion — no automated cover at all).
+**P0, verifiable now:** 7, 8, 9, 10, 11, 12, 13, 17, 18, 20, 22, 23, 32, 33, 39, 41, 42, 43, 45.
+**P0 blocked on a grant:** 28 and the Premium half of 29/30.
+
+The honest summary: **23 of the 45 can be settled today**, 4 more after an hour
+of local Worker setup, 15 need staging plus accounts (and partly a key we will
+not put there), and **11 cannot be closed without a Premium grant, a real
+iPhone, or Xcode.**
