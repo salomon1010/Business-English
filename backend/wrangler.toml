@@ -14,6 +14,17 @@
 name = "be-polish"
 main = "polish-worker.js"
 compatibility_date = "2026-07-31"
+# premiumGate() fetches be-entitlements on this account's workers.dev
+# subdomain, and a Worker's fetch to another Worker there is refused
+# (Cloudflare 1042) without this flag — the subrequest throws, capabilities()
+# returns { status: 503 } and EVERY AI call answers entitlement_unavailable
+# for a signed-in learner, while the client's own direct call to the same
+# entitlements Worker keeps working (so Profile still reads "Premium" while
+# nothing AI does anything). be-push hit exactly this on 2026-09-27 and is
+# fixed by the same flag; found on be-polish-staging 2026-09-30 through the
+# Shadow Translate card. Top-level, so [env.staging] inherits it, and so does
+# production whenever PREMIUM_ENFORCED is switched on there.
+compatibility_flags = ["global_fetch_strictly_public"]
 
 # ---- Premium enforcement (Phase 8) ----
 # OFF here, deliberately. Both of these must be set for the Worker to check an

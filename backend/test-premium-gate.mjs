@@ -233,6 +233,52 @@ ok("L3 · a DIFFERENT account is unaffected by that — no cross-account contami
 r = await ask(ANALYSE, { token: "notajwt.@@@.sig" });
 ok("L4 · a token whose payload will not parse still gets a limit (falls back to the token hash), not a pass", r.status === 200, r.status);
 
+/* ------------------------------------------------- deployment configuration
+   The gate's CODE was never the problem on staging; its DEPLOYMENT was.
+   premiumGate() reaches be-entitlements with a plain fetch(), and a Worker's
+   fetch to another Worker on this account's workers.dev subdomain is refused
+   (Cloudflare 1042) unless the Worker declares global_fetch_strictly_public.
+   Without it the subrequest throws, capabilities() returns { status: 503 } and
+   every AI call answers entitlement_unavailable for a signed-in learner — while
+   the BROWSER's own direct call to the same entitlements Worker keeps working,
+   so Profile still reads "Premium" while nothing AI does anything. That is the
+   shape of the 30 Sep staging fault, found through Shadow Translate; be-push
+   hit the identical wall on 27 Sep. The assertions below are about the .toml,
+   because no amount of correct Worker code survives the flag being absent. */
+console.log("\n# deployment configuration — the entitlements subrequest must be allowed out");
+{
+  const { readFileSync } = await import("node:fs");
+  const toml = readFileSync(new URL("./wrangler.toml", import.meta.url), "utf8");
+  const flags = /compatibility_flags\s*=\s*\[([^\]]*)\]/.exec(toml);
+  const top = toml.split(/^\[/m)[0];                      /* before the first [section] = top level */
+
+  ok("D1 · be-polish declares global_fetch_strictly_public",
+    !!flags && flags[1].includes("global_fetch_strictly_public"), flags ? flags[1] : "no compatibility_flags at all");
+  ok("D2 · …at the TOP level, so [env.staging] and production both inherit it",
+    /compatibility_flags\s*=\s*\[[^\]]*global_fetch_strictly_public/.test(top));
+  const stagingUrl = /\[env\.staging\.vars\][\s\S]*?ENTITLEMENTS_URL\s*=\s*"([^"]*)"/.exec(toml);
+  ok("D3 · staging's ENTITLEMENTS_URL is a workers.dev host — exactly the case the flag exists for",
+    !!stagingUrl && /\.workers\.dev/.test(stagingUrl[1]), stagingUrl ? stagingUrl[1] : "not found");
+  ok("D4 · staging really does switch enforcement on (otherwise none of this is exercised)",
+    /\[env\.staging\.vars\][\s\S]*?PREMIUM_ENFORCED\s*=\s*"1"/.test(toml));
+
+  /* the learner-visible consequence, pinned at the gate: Shadow Translate is a
+     chat call with purpose "practice", which is free — a signed-in FREE account
+     must get through it, and a signed-out one must be told to authenticate
+     rather than be handed a provider call. */
+  ent.reply = () => view(FREE);
+  let t = await ask({ chat: { purpose: "practice", system: "You are a translator.", messages: [{ role: "user", content: "Here is a career that comes with a lot of pressure." }] } }, { token: tok() });
+  ok("D5 · Shadow Translate (chat purpose 'practice') succeeds for a signed-in FREE learner", t.status === 200, JSON.stringify(t.j));
+  t = await ask({ chat: { purpose: "practice", system: "x", messages: [{ role: "user", content: "hello" }] } });
+  ok("D6 · …and signed out it is 401 auth_required, which the client must not show as a network error",
+    t.status === 401 && t.j.error === "auth_required", JSON.stringify(t.j));
+  const before = ai.calls.length;
+  ent.reply = () => { throw new Error("1042: fetch to a workers.dev Worker refused"); };
+  t = await ask({ chat: { purpose: "practice", system: "x", messages: [{ role: "user", content: "hello" }] } }, { token: tok() });
+  ok("D7 · if the subrequest is refused anyway → 503, and no provider call is made on a guess",
+    t.status === 503 && t.j.error === "entitlement_unavailable" && ai.calls.length === before, JSON.stringify(t.j));
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);
