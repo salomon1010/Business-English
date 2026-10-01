@@ -7301,15 +7301,12 @@ const I18N_EN={
  "prem.preview":"Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app.",
  "prem.then":"Then {{price}} / {{per}}. Cancel anytime in {{store}}.",
  "prem.b_ai":"AI speaking analysis — pronunciation, grammar, vocabulary and fluency",
- "prem.b_verbal":"AI feedback spoken back to you, so you hear it as well as read it",
  "prem.b_progress":"Advanced progress: your speaking trends over time",
  "prem.b_analytics":"30- and 90-day analytics",
  "prem.b_coach":"The AI Coach, whenever you want another round of practice",
  "prem.lock_cta":"Unlock Premium",
  "prem.lock_ai_h":"AI speaking analysis",
  "prem.lock_ai_b":"Unlock personalised pronunciation, grammar, vocabulary and fluency feedback on everything you say.",
- "prem.lock_verbal_h":"AI verbal feedback",
- "prem.lock_verbal_b":"Hear your feedback read back to you in the natural voice.",
  "prem.lock_coach_h":"AI Coach",
  "prem.lock_coach_b":"Practise with the AI coach and get detailed feedback on every answer.",
  "prem.lock_prog_h":"Unlock 30- and 90-day progress",
@@ -7700,6 +7697,10 @@ const I18N_EN={
  "sv.ch_use_good":"You used “{{phrase}}” in your own sentence.","sv.ch_use_missed":"I did not hear “{{phrase}}”. Say a sentence that includes it.",
  "sv.ch_use_longer":"Add a little more — who, what, or when.","sv.ch_use_done":"Done",
  "sv.ch_ai_note":"AI feedback from your recording — it can mishear. You can always record again.",
+ "sv.ch_err_prem":"That part of the feedback is in Premium. Everything your device can measure is below, and your recording is saved.",
+ "sv.ch_pron_prem":"Coverage, words and rhythm are yours. The word-by-word pronunciation score is in Premium.",
+ "sv.ch_retell_prem":"Recorded and counted. Premium judges whether your words carried the meaning, and says what to add.",
+ "sv.ch_retell_counted":"You said it in your own words — that is the exercise, and it counts.",
  "sv.ch_err_net":"Feedback needs a connection. Your recording is saved — retry when you are online.","sv.ch_err_retry":"Retry feedback",
  "sv.ch_err_mic":"Microphone access is needed to record. Allow the microphone and try again.","sv.ch_err_short":"That was too short to grade. Say the whole line.",
  "sv.ch_err_ai":"The AI coach did not answer. Try again in a moment.","sv.ch_pick_note":"Use the arrows above to change paragraph, or tap a line in Watch to jump to its paragraph.",
@@ -18635,7 +18636,7 @@ window.fbFixOpen=btn=>{
 };
 function fbFixHTML(d){
   const busy=d.phase==="grading";
-  const err=d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const err=d.err==="acct"?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
   const you=d.op==="sub"&&d.fromRec&&d.hF.length?`<button class="sv-ch-play" onclick="fbYou(${fbWordFrac(d.hF,d.hIdx).join(",")},${d.hIdx},${d.hF.length},${jarg(d.h||"")})">${ic("mic")}<span>${t("fb.c_you")}</span></button>`:"";
   const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="fbFixPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
   const last=d.attempts[d.attempts.length-1];
@@ -18692,7 +18693,10 @@ async function fbFixGrade(d,blob){
   if(fbFix!==d)return;
   if(d.shortT){clearTimeout(d.shortT);d.shortT=null}
   d.phase="grading";d.err=null;fbFixDraw();
-  if(aiOff("ai_analysis")){d.phase="ready";d.err="net";fbFixDraw();return}
+  /* D3: this said "needs a connection" to a Free learner who had one. The
+     graded drill IS the AI's judgement, so it stays Premium — what changes is
+     that the refusal names its real reason. */
+  if(aiOff("ai_analysis")){d.phase="ready";d.err=entLocked("ai_analysis")?"premium":aiNoAccount()?"acct":"net";fbFixDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,d.word).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -23051,8 +23055,20 @@ const ENT_API="";
 const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
 /* The capability names Premium can grant. It matches CAPABILITIES in
    backend/entitlements/src/entitlement-core.js exactly; hasEntitlement()
-   refuses any name that is not here rather than silently allowing it. */
-const ENT_CAPS=Object.freeze(["ad_free","ai_analysis","ai_verbal_feedback","advanced_progress","ai_coach","recommended_content"]);
+   refuses any name that is not here rather than silently allowing it.
+
+   FIVE, not six (1 October 2026). `ai_verbal_feedback` was removed: it was row
+   two of the paywall — "AI feedback spoken back to you" — and it was checked at
+   ZERO call sites, while the TTS route is free of capability because the natural
+   voice reads CONTENT: lessons, characters, words, phrases. Every Free learner
+   already had everything that name described, so it was a claim rather than a
+   capability, and selling it is an App Store 3.1.2 / Play subscription-disclosure
+   problem as well as a trust one. Two honest ways out — enforce it, or stop
+   selling it. Nothing in the app reads a report aloud as a distinct feature, so
+   there was nothing left to enforce, and the row is gone instead. If a
+   "hear your report" feature is ever built, it comes back as a capability with a
+   call site on the same day it is advertised, never before. */
+const ENT_CAPS=Object.freeze(["ad_free","ai_analysis","advanced_progress","ai_coach","recommended_content"]);
 const ENT_CAPS_OFF=Object.freeze(ENT_CAPS.reduce((o,k)=>(o[k]=false,o),{ai_allowance:"standard",practice_allowance:"standard"}));
 const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capabilities:ENT_CAPS_OFF,expiresAt:null,startedAt:null,renews:null,source:null});
 let _entView=null,_entUid=null,_entBusy=null;
@@ -23191,7 +23207,7 @@ function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){re
    The paywall (premBenHTML) and App Setup's plan card both read THIS, so the
    two can never describe Premium differently. */
 function premBenefitRows(){
-  const rows=[["prem.b_ai","mic"],["prem.b_verbal","play"],["prem.b_progress","chart"],["prem.b_analytics","calendar"]];
+  const rows=[["prem.b_ai","mic"],["prem.b_progress","chart"],["prem.b_analytics","calendar"]];
   let ge=true;try{ge=isGeneralEnglish()}catch(e){}
   if(ge)rows.push(["prem.b_coach","star"]);
   else{let n=100;try{n=planLimit("savedShadow","premium")}catch(e){}rows.push(["prem.b_videos","bookmark",{n}])}
@@ -24168,7 +24184,7 @@ window.subOpen=()=>{
    Returns "" when the capability is not locked, so a call site is one line. */
 function premLockHTML(cap,from,o){
   if(!entLocked(cap))return "";
-  const k=o&&o.k||{ai_analysis:"ai",ai_verbal_feedback:"verbal",advanced_progress:"prog",ai_coach:"coach",recommended_content:"rec"}[cap];
+  const k=o&&o.k||{ai_analysis:"ai",advanced_progress:"prog",ai_coach:"coach",recommended_content:"rec"}[cap];
   if(!k)return "";
   return `<div class="card prem-lock" data-cap="${esc(cap)}">
     <p class="prem-lock-h"><span class="chip prem-lock-chip">${ic("lock")} ${esc(t("prem.cmp_prem"))}</span><span>${esc(t("prem.lock_"+k+"_h"))}</span></p>
@@ -25412,7 +25428,7 @@ function svChSpeakHTML(c,s){
   return hint+target+body;
 }
 function svChErr(c){
-  return c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):c.err==="quiet"?t("sv.ch_err_quiet"):"";
+  return c.err==="acct"?t("ai.need_acct"):c.err==="premium"?t("sv.ch_err_prem"):c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):c.err==="quiet"?t("sv.ch_err_quiet"):"";
 }
 /* the speed control, on the spoken rungs only — the ladder sets it, and this
    lets the learner disagree with the ladder for one attempt */
@@ -25689,11 +25705,11 @@ function svChRetellHTML(c,s){
   if(r.res){
     const ok=r.res.ok;
     body=`<div class="sv-ch-fb" aria-live="polite"><div class="eyebrow">${ic("sparkle")} ${t("sv.ch_fb_eyebrow")}</div>
-      ${ok?`<p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t("sv.ch_retell_good")}</span></p>`
+      ${ok?`<p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t(r.prem?"sv.ch_retell_counted":"sv.ch_retell_good")}</span></p>`
         :`<p class="sv-ch-line imp"><b>${t("sv.ch_improve")}</b><span>${r.res.why==="echo"?t("sv.ch_retell_echo"):r.res.why==="thin"?t("sv.ch_retell_thin"):t("sv.ch_retell_missed",{missed:r.res.missed||t("sv.ch_retell_missed_x")})}</span></p>`}
       ${r.res.tip?`<p class="sv-ch-fix">${esc(r.res.tip)}</p>`:""}
       ${r.heard?`<p class="sv-ch-heard">${t("sv.ch_you_said",{text:r.heard})}</p>`:""}
-      <p class="pp-fine">${t("sv.ch_ai_note")}</p></div>
+      ${r.prem?`<p class="pp-fine">${t("sv.ch_retell_prem")}</p>${premLockHTML("ai_analysis","challenge_retell",{kept:false})}`:`<p class="pp-fine">${t("sv.ch_ai_note")}</p>`}</div>
       <div class="sv-ch-row">
         <button class="btn-primary" onclick="svChRetellDone()">${ic("forward")} ${t(ok?"sv.ch_retell_on":"sv.ch_sync_on")}</button>
         <button class="btn btn-g btn-sm" onclick="svChRetellRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
@@ -25725,7 +25741,12 @@ window.svChRetellRecord=()=>{
 async function svChRetellGrade(c,blob){
   const r=c.retell,s=svChSegObj();if(!r||!s)return;
   r.phase="grading";r.err=null;c.err=null;svChDraw();
-  if(aiOff("ai_analysis")){r.phase="error";c.err="net";svChDraw();return}
+  /* The only rung where the verdict really is the AI's: judging whether a
+     learner's own words carried the meaning cannot be done on the device. So
+     the gate stays — but BELOW the free part, not above it. A Free learner
+     records, is heard, sees what they said, and is still caught by the two
+     local guards; what Premium adds is the judgement and the tip. */
+  if(sttOff()){r.phase="error";c.err=aiNoAccount()?"acct":"net";svChDraw();return}
   try{
     const heard=await fbTranscribe(blob).catch(()=>"");
     if(svCh!==c||c.retell!==r)return;
@@ -25735,6 +25756,11 @@ async function svChRetellGrade(c,blob){
     const guard=ShadowSync.retellCheck(heard,s.text);
     if(guard.echo){r.phase="ready";r.res={ok:false,why:"echo",tip:"",missed:""};svChRetellAfter(c,s,r);return}
     if(guard.thin){r.phase="ready";r.res={ok:false,why:"thin",tip:"",missed:""};svChRetellAfter(c,s,r);return}
+    /* Free, and past both guards: the attempt counts and the rung completes.
+       It is not a free pass — an echo or a one-word answer has already been
+       refused above by maths that runs on the device. The meaning check is
+       named as Premium rather than silently missing. */
+    if(aiOff("ai_analysis")){r.phase="ready";r.prem=true;r.res={ok:true,why:"free",tip:"",missed:""};svChRetellAfter(c,s,r);return}
     const sys=`You are an English speaking coach. A learner heard a short passage and has just said, in their OWN words, what it meant. Judge MEANING ONLY — never wording, grammar or accent, and never ask them to use the passage's own words.
 Reply with JSON only: {"ok":true|false,"missed":"<the one idea they left out, max 8 words, empty when ok>","tip":"<one short sentence of advice, British English, max 20 words>"}
 "ok" is true when the main point of the passage is there, even roughly, even in simple words. Be generous: this is a speaking exercise, not a comprehension test. Set "ok" false only when the main point is missing or wrong.`;
@@ -25767,7 +25793,7 @@ function svChRetellAfter(c,s,r){
    is graded exactly like any other take. */
 function svChChorusHTML(ch){
   const busy=ch.phase==="grading";
-  const errTxt=ch.err==="mic"?t("sv.ch_err_mic"):ch.err==="short"?t("sv.ch_err_short"):ch.err==="net"?t("sv.ch_err_net"):ch.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=ch.err==="acct"?t("ai.need_acct"):ch.err==="premium"?t("sv.ch_err_prem"):ch.err==="mic"?t("sv.ch_err_mic"):ch.err==="short"?t("sv.ch_err_short"):ch.err==="net"?t("sv.ch_err_net"):ch.err==="ai"?t("sv.ch_err_ai"):"";
   const dots=Array.from({length:ch.reps},(_,i)=>`<i class="${i<ch.at?"done":i===ch.at&&ch.phase==="chorus"?"now":""}"></i>`).join("");
   const last=ch.attempts&&ch.attempts[ch.attempts.length-1];
   let body;
@@ -25834,7 +25860,10 @@ window.svChChorusRecord=()=>{
 };
 async function svChChorusGrade(c,ch,blob){
   ch.phase="grading";ch.err=null;svChDraw();
-  if(aiOff("ai_analysis")){ch.phase="ready";ch.err="net";svChDraw();return}
+  /* free: ShadowSync.drillState(null, heard, text) returns the asr mode — the
+     word was heard or it was not — and says which mode it used. The scored
+     "ai" mode needs fbAssess, which is where the gate is. */
+  if(sttOff()){ch.phase="ready";ch.err=aiNoAccount()?"acct":"net";svChDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,ch.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -25856,7 +25885,7 @@ async function svChChorusGrade(c,ch,blob){
    is never the part you are tired by the time you reach. */
 function svChBuildHTML(b){
   const step=b.steps[b.at]||"",busy=b.phase==="grading";
-  const errTxt=b.err==="mic"?t("sv.ch_err_mic"):b.err==="short"?t("sv.ch_err_short"):b.err==="net"?t("sv.ch_err_net"):b.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=b.err==="acct"?t("ai.need_acct"):b.err==="premium"?t("sv.ch_err_prem"):b.err==="mic"?t("sv.ch_err_mic"):b.err==="short"?t("sv.ch_err_short"):b.err==="net"?t("sv.ch_err_net"):b.err==="ai"?t("sv.ch_err_ai"):"";
   const last=b.last;
   const canPlay=!!(b.ms&&b.ms[b.at]&&svChSpeakerOK());
   return `<div class="sv-ch-drill" id="svChBuild">
@@ -25912,7 +25941,10 @@ window.svChBuildRecord=()=>{
 };
 async function svChBuildGrade(c,b,blob){
   b.phase="grading";b.err=null;svChDraw();
-  if(aiOff("ai_analysis")){b.phase="ready";b.err="net";svChDraw();return}
+  /* this rung never asked for a paid capability in the first place: transcript
+     in, ShadowSync.challenge on the device, out. The gate here withheld a
+     feature that costs nothing to give. */
+  if(sttOff()){b.phase="ready";b.err=aiNoAccount()?"acct":"net";svChDraw();return}
   try{
     const words=await Promise.race([fbWords(blob).catch(()=>null),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(words==="timeout")throw new Error("timeout");
@@ -25930,7 +25962,7 @@ async function svChBuildGrade(c,b,blob){
 function svChUseHTML(u){
   const busy=u.phase==="grading";
   const rec=`<span class="sv-ch-rec"><button class="rec-btn ${u.phase==="recording"?"on":""}" id="svChUseRecBtn" onclick="svChUseRecord()" ${busy?"disabled":""} aria-pressed="${u.phase==="recording"}" aria-label="${esc(t(u.phase==="recording"?"sv.ch_stop":"sv.ch_record"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(u.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>`;
-  const errTxt=u.err==="mic"?t("sv.ch_err_mic"):u.err==="short"?t("sv.ch_err_short"):u.err==="net"?t("sv.ch_err_net"):u.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=u.err==="acct"?t("ai.need_acct"):u.err==="premium"?t("sv.ch_err_prem"):u.err==="mic"?t("sv.ch_err_mic"):u.err==="short"?t("sv.ch_err_short"):u.err==="net"?t("sv.ch_err_net"):u.err==="ai"?t("sv.ch_err_ai"):"";
   let body;
   if(u.res){
     body=`<div class="sv-ch-fb" aria-live="polite"><div class="eyebrow">${ic("sparkle")} ${t("sv.ch_fb_eyebrow")}</div>
@@ -26001,7 +26033,18 @@ window.svChRecord=()=>{
 async function svChGrade(blob){
   if(!svChOn()||!svCh)return;const s=svChSegObj();if(!s)return;
   const c=svCh;c.phase="grading";c.err=null;c.pending=false;svChDraw();
-  if(aiOff("ai_analysis")){c.phase="error";c.err="net";svChDraw();return}
+  /* NO capability gate here (owner, 1 October 2026). This rung used to bail on
+     aiOff("ai_analysis") before doing any work, so a Free learner recorded, was
+     told "Feedback needs a connection", and was offered a Retry that could
+     never succeed — the whole Challenge was Premium in effect while reporting
+     itself as an offline error. What a Free learner gets is everything the
+     device and the free transcript can establish: coverage, word accuracy,
+     rhythm, the verdict and the issues. What stays Premium is the per-word
+     PRONUNCIATION grade, and it is gated once, inside fbAssess, which returns
+     null — a shape ShadowSync.challenge has always accepted (`assess: null`)
+     and svChDimsHTML already reports honestly. The microphone and the
+     transcript are held by sttOff() (an account, not a plan). */
+  if(sttOff()){c.phase="error";c.err=aiNoAccount()?"acct":"net";svChDraw();return}
   /* the clip's own word times (real or estimated — the engine knows which) give
      the speaker's spans and, when real, the rhythm comparison */
   const tw=s.words&&s.words.length?s.words:null,twEst=!tw||!!(svAsset&&svAsset.estimated)||tw.some(w=>w.estimated);
@@ -26136,7 +26179,13 @@ function svChDimsHTML(fb){
   const chips=order.map(d=>{const st=svChDimState(fb,d);if(st==="na")return "";
     return `<span class="sv-ch-dim d-${st}"><span>${t("sv.ch_dim_"+d)}</span><b>${t("sv.ch_st_"+st)}</b></span>`}).join("");
   const notes=[];
-  if(fb.pronMode==="whisper"||(fb.pronMode===null&&!svCh.pending&&svCh.assessTried))notes.push(t("sv.ch_pron_na"));
+  /* three different reasons the pronunciation row can be missing, and they must
+     not share one message: Premium does not have it (say so, and offer it), an
+     audio model was not available (sv.ch_pron_na), or the grade is still on its
+     way (nothing is said). The first is the common case for a Free learner now
+     that the rest of the rung is theirs. */
+  if(entLocked("ai_analysis"))notes.push(t("sv.ch_pron_prem"));
+  else if(fb.pronMode==="whisper"||(fb.pronMode===null&&!svCh.pending&&svCh.assessTried))notes.push(t("sv.ch_pron_na"));
   if(fb.rhythm)notes.push(t("sv.ch_rhythm_est"));
   return `<div class="sv-ch-dims">${chips}</div>${notes.length?`<p class="pp-fine">${notes.join(" ")}</p>`:""}`;
 }
@@ -26211,6 +26260,7 @@ function svChReportHTML(c,s){
     ${c.chorus?svChChorusHTML(c.chorus):""}
     ${c.build?svChBuildHTML(c.build):""}
     ${svChWeakHTML(fb)}
+    ${entLocked("ai_analysis")?premLockHTML("ai_analysis","challenge_pron",{kept:false}):""}
     ${svChHistHTML()}
     ${svChNextHTML(fb)}
     <p class="pp-fine">${t("sv.ch_ai_note")}</p>
@@ -26295,7 +26345,7 @@ window.svChOpen=i=>{if(!svCh)return;svCh.open=svCh.open===i?null:i;svChDraw()};
 /* ---------- the word drill ---------- */
 function svChDrillHTML(d){
   const busy=d.phase==="grading";
-  const errTxt=d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=d.err==="acct"?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
   const sp=d.ms&&svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig(${d.ms[0]},${d.ms[1]})">${ic("play")}<span>${t("sv.ch_btn_speaker")}${d.est?` <i>${t("sv.ch_approx")}</i>`:""}</span></button>`:"";
   const me=d.s&&svChHasBlob()?`<button class="sv-ch-play" onclick="svChPlayMe(${d.s[0]},${d.s[1]})">${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>`:"";
   const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="svChDrillPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
@@ -26334,7 +26384,8 @@ window.svChDrillRecord=()=>{
 async function svChDrillGrade(d,blob){
   if(!svChOn()||!svCh||svCh.drill!==d)return;
   d.phase="grading";d.err=null;svChDraw();
-  if(aiOff("ai_analysis")){d.phase="ready";d.err="net";svChDraw();return}
+  /* same as the chorus: heard-or-not is free, the SCORE is Premium */
+  if(sttOff()){d.phase="ready";d.err=aiNoAccount()?"acct":"net";svChDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,d.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -26535,7 +26586,9 @@ window.svChUseRecord=()=>{
 async function svChUseGrade(blob){
   const u=svCh&&svCh.use;if(!svChOn()||!u)return;
   u.phase="grading";u.err=null;svChDraw();
-  if(aiOff("ai_analysis")){u.phase="error";u.err="net";svChDraw();return}
+  /* ShadowSync.usedExpression is a local token check — no AI judges this rung,
+     so there was nothing for a capability gate to protect */
+  if(sttOff()){u.phase="error";u.err=aiNoAccount()?"acct":"net";svChDraw();return}
   try{
     const words=await Promise.race([fbWords(blob).catch(()=>null),new Promise(r=>setTimeout(()=>r("timeout"),30000))]);
     if(words==="timeout")throw new Error("timeout");

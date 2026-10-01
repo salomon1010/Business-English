@@ -96,7 +96,11 @@ console.log("\n# A · Free, General English, a store with the 3-day trial on the
   const { ctx, p, errs } = await open({ uid: "a1" });
   let s = await openSheet(p);
   ok("A1 · hero: 'BE Mastery [Premium mark] PREMIUM' eyebrow (visual identity v2: the gem replaced the ✦ glyph), the headline and the supporting line", s && /BE Mastery/i.test(s.eyebrow) && s.gem && !/✦/.test(s.eyebrow) && /PREMIUM/i.test(s.eyebrow) && s.h === "Speak with confidence. Practice without limits." && s.lede === "Unlock more of BE Mastery's speaking, shadowing, and AI practice tools.", JSON.stringify(s && { e: s.eyebrow, h: s.h, l: s.lede }));
-  ok("A2 · benefits: the five capabilities Premium grants, in the owner's order; no ad-free claim while ads are off; nothing unbuilt promised", s.ben.length === 5 && /^AI speaking analysis/.test(s.ben[0]) && /^AI feedback spoken back to you/.test(s.ben[1]) && /^Advanced progress/.test(s.ben[2]) && s.ben[3] === "30- and 90-day analytics" && /^The AI Coach/.test(s.ben[4]) && !/No ads/.test(s.text) && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
+  /* FOUR rows, not five, since 1 October 2026: "AI feedback spoken back to you"
+     was dropped because the capability behind it (ai_verbal_feedback) was checked
+     at zero call sites while the TTS route is free — the paywall was selling a
+     Free learner something they already had. See docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md D5. */
+  ok("A2 · benefits: the four capabilities Premium grants, in the owner's order; nothing spoken-back is sold any more; no ad-free claim while ads are off; nothing unbuilt promised", s.ben.length === 4 && /^AI speaking analysis/.test(s.ben[0]) && /^Advanced progress/.test(s.ben[1]) && s.ben[2] === "30- and 90-day analytics" && /^The AI Coach/.test(s.ben[3]) && !/spoken back/.test(s.text) && !/No ads/.test(s.text) && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
   ok("A3 · ONE offer: the free trial, 'Annual Premium', and $24.99 / year from the store — no chooser, no radio group, no monthly price, no 'best value', no saving, no Weekly", s.offer && /3 days free/i.test(s.offer.trial) && s.offer.name === "Annual Premium" && /\$24\.99/.test(s.offer.price) && /\/ year/.test(s.offer.price) && s.plans.length === 0 && s.radios === 0 && !/\$4\.99|\/ month|Monthly|Best value|Save \d+%|week/i.test(s.text), JSON.stringify({ offer: s.offer, plans: s.plans.length, radios: s.radios }));
   ok("A4 · one primary CTA 'Start 3-day free trial', pinned in a foot inside the viewport, with the renewal terms under it: what is charged next, at the store's price, and where to cancel", s.ctas === 1 && s.cta === "Start 3-day free trial" && s.ctaIn && s.footIn && s.cancel === "Then $24.99 / year. Cancel anytime in Google Play.", JSON.stringify({ ctas: s.ctas, cta: s.cta, ctaIn: s.ctaIn, footIn: s.footIn, cancel: s.cancel }));
   ok("A5 · there is nothing to choose: the CTA buys the annual plan with no selection step", await p.evaluate(() => _premSel === "premium_annual"), await p.evaluate(() => String(_premSel)));
@@ -126,7 +130,7 @@ console.log("\n# C · billing unavailable — the store returns no products");
   const { ctx, p, errs } = await open({ uid: "c1", products: false });
   let s = await openSheet(p);
   const n = (s.text.match(/Purchases are not available right now/g) || []).length;
-  ok("C1 · exactly ONE 'Purchases are not available right now', with a short hint and Try again; the benefits stay; no plan, no price, no CTA, no Close button; the X is there", n === 1 && s.unavail === 1 && /Check your connection and Google Play/.test(s.unavailText) && s.retry && s.ben.length === 5 && !s.offer && !/\$/.test(s.text) && s.ctas === 0 && !s.closeBtn && !s.xHidden && s.minBtn >= 44, JSON.stringify({ n, s: s.unavailText, retry: s.retry, ben: s.ben.length, plans: s.plans.length, cta: s.ctas, close: s.closeBtn, x: s.xHidden }));
+  ok("C1 · exactly ONE 'Purchases are not available right now', with a short hint and Try again; the benefits stay; no plan, no price, no CTA, no Close button; the X is there", n === 1 && s.unavail === 1 && /Check your connection and Google Play/.test(s.unavailText) && s.retry && s.ben.length === 4 && !s.offer && !/\$/.test(s.text) && s.ctas === 0 && !s.closeBtn && !s.xHidden && s.minBtn >= 44, JSON.stringify({ n, s: s.unavailText, retry: s.retry, ben: s.ben.length, plans: s.plans.length, cta: s.ctas, close: s.closeBtn, x: s.xHidden }));
   await shot(p, "sheet-unavailable-dark-390");
   await p.evaluate(async () => { __play.noProducts = false; premRetry(); await new Promise(r => setTimeout(r, 400)); }); s = await sheet(p);
   ok("C2 · Try again asks the store again: the offer and the CTA appear", !!s.offer && s.ctas === 1 && s.unavail === 0, JSON.stringify({ offer: s.offer, cta: s.ctas }));
@@ -138,7 +142,7 @@ console.log("\n# D · no store at all (the open web) · E · signed out");
 {
   const { ctx, p } = await open({ uid: "d1", stub: false });
   const s = await openSheet(p);
-  ok("D1 · no provider: one plain message (get it from Google Play), the benefits still shown, no price, no Close button, the X leaves", s.unavail === 1 && /can't be bought on this device yet/.test(s.unavailText) && (s.text.match(/can't be bought/g) || []).length === 1 && s.ben.length === 5 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
+  ok("D1 · no provider: one plain message (get it from Google Play), the benefits still shown, no price, no Close button, the X leaves", s.unavail === 1 && /can't be bought on this device yet/.test(s.unavailText) && (s.text.match(/can't be bought/g) || []).length === 1 && s.ben.length === 4 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
   await shot(p, "sheet-noprovider-dark-390");
   await ctx.close();
   const o = await open({ uid: null });
@@ -221,7 +225,7 @@ console.log("\n# L · ad-free is promised only while ads are on");
 {
   const { ctx, p } = await open({ uid: "l1", flags: { billing_enabled: true, ads_enabled: true } });
   const s = await openSheet(p);
-  ok("L1 · with ads_enabled the sheet adds 'No ads — ever' as a SIXTH row, after the five capabilities; the Profile row no longer claims 'No ads, ever' on its own", s.ben.length === 6 && /No ads — ever/.test(s.ben[5]) && await p.evaluate(async () => { premClose(); go("profile"); await new Promise(r => setTimeout(r, 400)); const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent); }), JSON.stringify(s.ben));
+  ok("L1 · with ads_enabled the sheet adds 'No ads — ever' as a FIFTH row, after the four capabilities; the Profile row no longer claims 'No ads, ever' on its own", s.ben.length === 5 && /No ads — ever/.test(s.ben[4]) && await p.evaluate(async () => { premClose(); go("profile"); await new Promise(r => setTimeout(r, 400)); const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent); }), JSON.stringify(s.ben));
   await ctx.close();
 }
 

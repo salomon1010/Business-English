@@ -1,6 +1,25 @@
 # BE Mastery — the authoritative Free / Premium capability matrix
 
-**Status: READY FOR PRODUCT REVIEW — NO CODE CHANGES YET**
+**Status: REVIEWED AND IMPLEMENTED — READY FOR REVIEW, NOT MERGED, NOT DEPLOYED**
+
+> **1 October 2026 — the owner's decisions, and what was built.** The audit
+> below is unchanged; this note records what was approved out of it and where
+> the code now stands. Nothing was merged and nothing was deployed.
+>
+> | Audit item | Decision | State |
+> |---|---|---|
+> | **D1** — may a Free learner use AI without an account? | **Option 1: no.** An authenticated account is required for every AI route, free capabilities included. No anonymous AI. | Already the behaviour; now pinned by `tests/free-premium-contract.mjs` §1 so it cannot drift open |
+> | **D2 / F2** — the Shadow Challenge ladder | **Free.** Capture, transcription, participation and the coverage / word-accuracy / rhythm / completion feedback are Free; the per-word pronunciation score and the retell meaning verdict are Premium | **Built.** The six top-level `aiOff` bails are gone; `fbAssess` is the single gate; `ShadowSync.challenge(… assess: null)` was already the shape for it, so there is no parallel implementation |
+> | **D3 / F3** — refusals reported as network failures | **Fix.** | **Built.** Six error chains gained a `premium` and an `acct` state; no capability gate anywhere now sets `err = "net"`, asserted in §7 of the new suite |
+> | **D5 / F5** — `ai_verbal_feedback` | **Stop selling it.** TTS is free because the natural voice reads *content*; the capability was enforced nowhere, so it was a claim, not a capability | **Built.** Removed from `CAPABILITIES`, `PLANS`, `ENT_CAPS`, the Worker's capability whitelist, `premLockHTML` and `premBenefitRows`; three i18n keys deleted from all 15 packs. Premium now sells four rows on General English, three plus the video headroom on Welding |
+> | **Cost control** — module-scope `Map`s were not rate limiting | **Fix properly, across isolates.** | **Built.** `backend/rate-limit.js`: a `RateLimiter` Durable Object, one global instance per subject, atomic under `blockConcurrencyWhile`. Every route moved onto it; `ytai` gained a per-**account** daily cap. No numeric limit was lowered |
+> | **Social sign-in** | **Not this release.** Email and password remain the only provider; no Google, no Apple, no linking code | Untouched |
+> | **F4** (tie `ytai` to `youtubeImports`), **F6** (split `ai_analysis`), **F7** (a pre-activity notice), **D6**, **D7**, **D8**, **D9** | **Not approved for this pass** | Not built. F4's *enforcement* half is covered by the new per-account `ytai` cap; its storage-limit half is not |
+>
+> Two earlier documents predate this change and still describe
+> `ai_verbal_feedback` as a Premium capability: `PREMIUM_LAUNCH_REPORT.md` and
+> `WELDING_PREMIUM_REPORT.md`. They are accurate records of what was true when
+> they were written; this file is the current contract.
 
 **Date:** 1 October 2026 · **Audited commit:** `f6239c0a`
 (`fix/ai-account-gate-honest-failures`), which is `release/gloat-readiness-sprint`
@@ -492,4 +511,6 @@ Nothing below has been touched.
 | **Still open, and yours** | D1 (account for AI?), D5 (enforce or drop), D6 (a Free taste of the verdict?), D7, D8, D9. |
 | **Unchanged** | Track isolation, the one-subscription rule, the server as the only boundary, no daily practice quota, the deploy order. |
 
-**STOP. READY FOR PRODUCT REVIEW — NO CODE CHANGES YET.**
+**READY FOR REVIEW — DO NOT MERGE OR DEPLOY.** (The decisions above are
+implemented on `feature/product-boundary-implementation`; the deploy order in
+section F still applies and has not been run.)

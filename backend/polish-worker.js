@@ -7,7 +7,8 @@
      • CORS locked to the app's own origin (no one else can call it)
      • input length capped (bounds tokens per request)
      • output tokens capped
-     • per-IP rate limit (best-effort, in-memory)
+     • per-IP and per-account rate limits, held in a Durable Object so they
+       survive an isolate recycle and apply across isolates (rate-limit.js)
      • REAL hard cap = set a monthly budget limit on the AI provider account
        (see backend/README.md) — that is the backstop that can never be exceeded.
 
@@ -52,12 +53,10 @@ const STT_MODEL = "whisper-1";
 const MAX_STT_BYTES = 12 * 1024 * 1024;  // ~12 MB — practice clips are short
 const STT_PER_MIN = 20;
 const STT_PER_DAY = 600;
-const sttHits = new Map();
 
 // ---- YouTube captions (no provider cost; limits just curb abuse of the proxy) ----
 const CAP_PER_MIN = 12;
 const CAP_PER_DAY = 400;
-const capHits = new Map();
 /* The Gemini transcript route is the only one here that costs money per call,
    and the bill scales with the LENGTH of whatever the learner pasted: roughly
    $0.08 for 15 minutes, so an unattended three-hour podcast is about $1.
@@ -72,7 +71,6 @@ const capHits = new Map();
 const YTAI_MAX_SEC = 1800;       // 30 minutes ≈ $0.16 worst case per video
 const YTAI_PER_MIN = 2;
 const YTAI_PER_DAY = 25;
-const ytaiHits = new Map();
 /* A WINDOW (27 Sep 2026): { ytai, from, to } transcribes only that stretch of
    the video. The app asks for the first minute alone, shows it, and fetches
    the rest in windows behind the learner. A pasted 20-minute talk used to wait
@@ -81,10 +79,15 @@ const ytaiHits = new Map();
    long one). A window costs a slice of the video, so windows have their own
    brake, sized so a day of windows reads no more video than a day of whole
    videos: 150 windows × 5 minutes = 25 videos × 30 minutes. */
+/* the per-ACCOUNT ceiling on paid-for video transcription. Sized as a day's
+   honest use by one learner (the app asks for the first minute, then windows),
+   not as a product limit: a learner who hits this is importing videos far
+   faster than they could watch them. */
+const YTAI_ACCT_PER_MIN = 4;
+const YTAI_ACCT_PER_DAY = 10;
 const YTAI_WIN_MAX = 300;          // the longest stretch one window may ask for
 const YTAI_WIN_PER_MIN = 12;
 const YTAI_WIN_PER_DAY = 150;
-const ytaiWinHits = new Map();
 /* the answer is kept at the edge by video and stretch: a video's words do not
    change, and a POST's cache-control header is ignored by every cache */
 const YTAI_CACHE_S = 30 * 86400;
@@ -114,12 +117,32 @@ const ASSESS_MODELS = [
 const MAX_ASSESS_B64 = 6 * 1024 * 1024;  // ~4.5 MB of audio once base64-encoded
 const ASSESS_PER_MIN = 15;
 const ASSESS_PER_DAY = 400;
-const assessHits = new Map();
 
-// best-effort in-memory counters (reset when the worker instance recycles;
-// the provider budget cap is the real guarantee)
-const hits = new Map();        // ip -> {min:[ts...], day:[ts...]}  (Polish)
-const ttsHits = new Map();     // ip -> {min:[ts...], day:[ts...]}  (TTS)
+/* ---- WHERE THE LIMITS LIVE NOW (1 October 2026) ----
+   Every counter above used to be a module-scope Map, which is per-ISOLATE: the
+   real ceiling was `limit x however many isolates Cloudflare chose to run`,
+   and a recycled isolate handed the caller a fresh allowance. Measured that
+   day: 24 of 24 requests passed a limit of 20. The numbers were documentation,
+   not a brake.
+   They are now held in a Durable Object, which is one global instance per
+   subject and handles one request at a time — see backend/rate-limit.js for
+   the mechanism, the fixed-window trade-off and the degraded fallback. The
+   numbers themselves are unchanged; what changed is that they are true. */
+import { RateLimiter, consume } from "./rate-limit.js";
+/* a DO class must be exported from the Worker's entry module for the binding
+   in wrangler.toml to resolve to it */
+export { RateLimiter };
+
+/* one route's two windows, held against one subject. Returns a 429 Response to
+   send, or null to carry on. */
+async function limit(env, subject, name, perMin, perDay, cors) {
+  const r = await consume(env, subject, [
+    { name: name + ":min", limit: perMin, windowMs: 60_000 },
+    { name: name + ":day", limit: perDay, windowMs: 86_400_000 },
+  ]);
+  if (r.ok) return null;
+  return json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
+}
 
 function corsHeaders(origin) {
   /* Device testing happens over the LAN — a phone loads the dev server by the
@@ -264,12 +287,31 @@ async function capabilities(req, env) {
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
   const src = (j && j.capabilities && typeof j.capabilities === "object") ? j.capabilities : {};
   const caps = {};
-  for (const k of ["ad_free", "ai_analysis", "ai_verbal_feedback", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
+  /* ai_verbal_feedback was removed on 1 October 2026: it was advertised on the
+     paywall and checked at ZERO call sites, while `tts` is free because the
+     natural voice reads CONTENT (lessons, characters, words). A Free learner
+     already had everything that name described, so it was a claim, not a
+     capability. Removed from CAPABILITIES in entitlement-core.js too; an older
+     deployed entitlements Worker that still sends it is simply ignored here. */
+  for (const k of ["ad_free", "ai_analysis", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
   if (entCache.size > 5000) entCache.clear();
   entCache.set(key, { at: Date.now(), caps, uid });
   return { caps, key, uid };
 }
 /* Returns a Response to send instead, or null to carry on. */
+/* the rate-limit subject for the ACCOUNT behind a request, or null when there
+   is none to find (enforcement off, or no usable token). Never an authorisation
+   decision — capabilities() has already been asked by premiumGate on every
+   route that reaches this, and its answer is cached per token for ENT_CACHE_MS,
+   so this costs nothing extra. */
+async function acctSubject(req, env) {
+  if (!premiumOn(env)) return null;
+  try {
+    const a = await capabilities(req, env);
+    if (a.status) return null;
+    return a.uid ? "acct:u:" + a.uid : (a.key ? "acct:t:" + a.key : null);
+  } catch (e) { return null; }
+}
 async function premiumGate(req, env, route, cors, purpose) {
   if (!premiumOn(env)) return null;                                   // not switched on: behave as before
   const cap = route === "chat" ? CHAT_PURPOSE_CAP[String(purpose || "practice")] : ROUTE_CAP[route];
@@ -280,7 +322,7 @@ async function premiumGate(req, env, route, cors, purpose) {
     const a = await capabilities(req, env);
     if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
     if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
-    return perAccount(a, cors);
+    return await perAccount(a, env, cors);
   }
   const a = await capabilities(req, env);
   if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
@@ -288,7 +330,7 @@ async function premiumGate(req, env, route, cors, purpose) {
      no paid work is done on a guess. 503 is retriable and honest. */
   if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
   if (!a.caps[cap]) return json({ error: "premium_required", capability: cap }, 402, cors);
-  return perAccount(a, cors);
+  return await perAccount(a, env, cors);
 }
 /* per-ACCOUNT rate limit: an IP limit alone is useless behind carrier NAT, and
    once every call carries a uid the account is the right unit to hold.
@@ -299,28 +341,13 @@ async function premiumGate(req, env, route, cors, purpose) {
    The uid is the `sub` of a token be-entitlements has just accepted (see
    tokenSub), so it cannot be chosen by the caller. The token hash stays as the
    fallback, so a token that will not parse gets a limit rather than none. */
-const acctHits = new Map();
 const ACCT_PER_MIN = 30, ACCT_PER_DAY = 600;
-function perAccount(a, cors) {
+async function perAccount(a, env, cors) {
   const id = a.uid ? "u:" + a.uid : (a.key ? "t:" + a.key : null);
   if (!id) return null;
-  return rateLimited(id, acctHits, ACCT_PER_MIN, ACCT_PER_DAY) ? json({ error: "rate_limited" }, 429, cors) : null;
+  return await limit(env, "acct:" + id, "acct", ACCT_PER_MIN, ACCT_PER_DAY, cors);
 }
 
-function rateLimited(ip, map, perMin, perDay) {
-  const now = Date.now();
-  const rec = map.get(ip) || { min: [], day: [] };
-  rec.min = rec.min.filter(t => now - t < 60_000);
-  rec.day = rec.day.filter(t => now - t < 86_400_000);
-  if (rec.min.length >= perMin || rec.day.length >= perDay) {
-    map.set(ip, rec);
-    return true;
-  }
-  rec.min.push(now); rec.day.push(now);
-  map.set(ip, rec);
-  if (map.size > 5000) map.clear(); // crude memory guard
-  return false;
-}
 
 // Delivery instructions make gpt-4o-mini-tts noticeably warmer and more human
 // than its default read — this is the difference between "robotic" and "natural".
@@ -661,7 +688,6 @@ async function fetchYouTubeCaptions(vid) {
 --------------------------------------------------------------- */
 const CHAT_PER_MIN = 20;
 const CHAT_PER_DAY = 500;
-const chatHits = new Map();
 const CHAT_MODEL = "gpt-4o-mini";
 const MAX_CHAT_TURNS = 40;
 
@@ -686,7 +712,6 @@ const MAX_CHAT_TURNS = 40;
 const AN_MODEL = "gpt-4.1-mini";
 const AN_PER_MIN = 6;
 const AN_PER_DAY = 150;
-const anHits = new Map();
 const MAX_AN_CHARS = 4000;     // ~10 minutes of speech; the app sends ~1
 const AN_FIELDS = {            // field -> max chars
   key_message: 240, clarity: 8, sharper: 280, structure_note: 260, answer_directly: 260,
@@ -859,7 +884,6 @@ async function callAnalyse(env, transcript, metrics, lang, ctx) {
    without limit. */
 const RP_PER_MIN = 8;
 const RP_PER_DAY = 200;
-const rpHits = new Map();
 async function callRepolish(env, transcript, avoid, lang, n, ctx) {
   const language = AN_LANGS[lang] || "English";
   const trade = anTrade(ctx);
@@ -1094,7 +1118,7 @@ export default {
     // ---- Transcribe path: raw audio in → per-word timings out ----
     const ctype = request.headers.get("content-type") || "";
     if (ctype.startsWith("audio/")) {
-      if (rateLimited(ip, sttHits, STT_PER_MIN, STT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "stt", STT_PER_MIN, STT_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "transcribe", cors); if (g) return g; }
       const bytes = await request.arrayBuffer();
       if (!bytes.byteLength) return json({ error: "empty" }, 400, cors);
@@ -1112,7 +1136,7 @@ export default {
 
     // ---- Role-play chat: scenario + history in → in-character reply out ----
     if (body.chat && typeof body.chat === "object") {
-      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "chat", CHAT_PER_MIN, CHAT_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "chat", cors, body.chat.purpose); if (g) return g; }
       const system = String(body.chat.system || "").slice(0, 4000);
       let messages = Array.isArray(body.chat.messages) ? body.chat.messages : [];
@@ -1131,7 +1155,7 @@ export default {
 
     // ---- V2 speaking report: mission context + one answer in → validated report out ----
     if (body.mvreport && typeof body.mvreport === "object") {
-      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "chat", CHAT_PER_MIN, CHAT_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "mvreport", cors); if (g) return g; }
       const system = String(body.mvreport.system || "").slice(0, 6000);
       const said = String(body.mvreport.said || "").replace(/\s+/g, " ").trim().slice(0, 2400);
@@ -1145,7 +1169,7 @@ export default {
 
     // ---- Captions path: video id in → cues + word timings out ----
     if (typeof body.captions === "string" && body.captions.trim()) {
-      if (rateLimited(ip, capHits, CAP_PER_MIN, CAP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "cap", CAP_PER_MIN, CAP_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "captions", cors); if (g) return g; }
       try {
         const out = await fetchYouTubeCaptions(body.captions.trim());
@@ -1177,8 +1201,21 @@ export default {
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
       /* a kept answer is free: served before the brake, which counts only calls that cost */
       try { const hit = cache && await cache.match(key); if (hit) return json({ ...(await hit.json()), cached: true }, 200, cors); } catch {}
-      if (win ? rateLimited(ip, ytaiWinHits, YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY) : rateLimited(ip, ytaiHits, YTAI_PER_MIN, YTAI_PER_DAY))
-        return json({ error: "rate_limited" }, 429, cors);
+      { const l = win ? await limit(env, "ip:" + ip, "ytaiwin", YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY, cors)
+                      : await limit(env, "ip:" + ip, "ytai", YTAI_PER_MIN, YTAI_PER_DAY, cors);
+        if (l) return l; }
+      /* AND against the ACCOUNT, not only the IP. This is the one free route
+         with a real per-call cost (~$0.08 for 15 minutes of video), and a
+         per-IP limit is worth very little on the carrier NAT most of this
+         app's learners are behind: a whole city can share one address, and one
+         learner can change theirs by walking between two wifi networks. The
+         account is the unit that actually corresponds to a person.
+         Only available while enforcement is on, because that is the only state
+         in which a call carries a verified account at all — with Premium not
+         on sale the IP limits above are still the whole brake, which is why
+         this route must not be opened to anonymous callers. */
+      { const a = await acctSubject(request, env);
+        if (a) { const l = await limit(env, a, "ytaiacct", YTAI_ACCT_PER_MIN, YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
       try {
         const out = await geminiCaptions(env, vid, win);
         if (!out.error && cache) {
@@ -1192,7 +1229,7 @@ export default {
 
     // ---- TTS path: natural voice for the app's Hear/Slow buttons ----
     if (typeof body.tts === "string" && body.tts.trim()) {
-      if (rateLimited(ip, ttsHits, TTS_PER_MIN, TTS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "tts", TTS_PER_MIN, TTS_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "tts", cors); if (g) return g; }
       const text = body.tts.trim().slice(0, MAX_TTS_CHARS);
       let voice = String(body.voice || "alloy").toLowerCase();
@@ -1211,7 +1248,7 @@ export default {
 
     // ---- Pronunciation-assessment path: audio (base64) + target → per-word scores ----
     if (typeof body.assess === "string" && body.assess.trim() && typeof body.audio === "string" && body.audio) {
-      if (rateLimited(ip, assessHits, ASSESS_PER_MIN, ASSESS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "assess", ASSESS_PER_MIN, ASSESS_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "assess", cors); if (g) return g; }
       if (body.audio.length > MAX_ASSESS_B64) return json({ error: "too_large" }, 413, cors);
       const target = body.assess.trim().slice(0, MAX_INPUT_CHARS);
@@ -1227,7 +1264,7 @@ export default {
 
     // ---- Speech-analysis path: transcript + device-measured numbers → coaching report ----
     if (body.analyse && typeof body.analyse === "object") {
-      if (rateLimited(ip, anHits, AN_PER_MIN, AN_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "analyse", AN_PER_MIN, AN_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "analyse", cors); if (g) return g; }
       const transcript = String(body.analyse.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
@@ -1247,7 +1284,7 @@ export default {
 
     // ---- Polish again: one more whole version of the same minute ----
     if (body.repolish && typeof body.repolish === "object") {
-      if (rateLimited(ip, rpHits, RP_PER_MIN, RP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "repolish", RP_PER_MIN, RP_PER_DAY, cors); if (l) return l; }
       { const g = await premiumGate(request, env, "repolish", cors); if (g) return g; }
       const transcript = String(body.repolish.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
@@ -1263,7 +1300,7 @@ export default {
     }
 
     // ---- Polish path ----
-    if (rateLimited(ip, hits, RATE_PER_MIN, RATE_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+    { const l = await limit(env, "ip:" + ip, "polish", RATE_PER_MIN, RATE_PER_DAY, cors); if (l) return l; }
     { const g = await premiumGate(request, env, "polish", cors); if (g) return g; }
     const sentence = String(body.text || "").trim().slice(0, MAX_INPUT_CHARS);
     const avoid = Array.isArray(body.avoid) ? body.avoid.slice(0, 12).map(s => String(s).slice(0, 200)) : [];

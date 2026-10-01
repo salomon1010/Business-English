@@ -240,8 +240,12 @@ console.log("\n# the paywall promises only what the OPEN track can actually reac
   ok("39 · Welding: the AI Coach is NOT reachable there, so it is NOT sold there", wd.coachReachable === false && !/AI Coach/.test(wd.rows.join(" ")) && !/AI Coach/.test(wd.paywall), JSON.stringify(wd.rows));
   ok(`40 · Welding is sold a benefit its Premium really grants instead: saved Shadow videos ${wd.savedFree} -> ${wd.savedPremium}`,
     /Save up to 100 Shadow videos/.test(wd.rows.join(" ")) && wd.savedPremium === 100 && wd.savedFree === 1, JSON.stringify(wd));
-  ok("41 · the same four shared benefits are still sold on Welding — one subscription, not a lesser plan",
-    ["AI speaking analysis", "spoken back", "Advanced progress", "analytics"].every(x => wd.rows.join(" ").includes(x)), JSON.stringify(wd.rows));
+  /* THREE shared rows since 1 October 2026, not four: "AI feedback spoken back
+     to you" was dropped on both tracks because nothing enforced it (D5 in the
+     capability matrix). Welding still gets every row General English gets
+     except the coach, which it has no door to, plus the saved-video headroom. */
+  ok("41 · the same shared benefits are still sold on Welding — one subscription, not a lesser plan; and the unenforceable 'spoken back' row is gone from BOTH tracks",
+    ["AI speaking analysis", "Advanced progress", "analytics"].every(x => wd.rows.join(" ").includes(x)) && !/spoken back/.test(wd.rows.join(" ")) && !/spoken back/.test(ge.rows.join(" ")), JSON.stringify(wd.rows));
   ok("42 · App Setup's plan card says the same as the paywall — never two descriptions of Premium",
     !/AI Coach/.test(wd.plan) && /Save up to 100 Shadow videos/.test(wd.plan), wd.plan.slice(0, 200));
   await w.ctx.close();

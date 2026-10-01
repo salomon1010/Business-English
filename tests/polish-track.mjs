@@ -28,14 +28,33 @@ if(server){
   ok("The server on the test port serves THIS checkout",md5(served)===md5(readFileSync(ROOT+"index.html","utf8")),"port 8793 is held by another tree — free it or pass BASE");
 }
 
-/* Server side: nothing to filter because nothing is kept. The analyse and
-   repolish routes take a transcript and a language; the Worker has no KV,
-   D1, R2, Durable Object or Cache API binding it could keep a minute in. */
+/* Server side: nothing to filter because no CONTENT is kept. The analyse and
+   repolish routes take a transcript and a language, and the Worker has nowhere
+   to put one: no KV, no D1, no R2, no queue.
+
+   It has had ONE binding since 1 October 2026 — the RateLimiter Durable Object
+   that replaced the per-isolate Maps (every limit in this Worker was a
+   module-scope Map, so the ceiling was `limit x isolates`; 24 of 24 requests
+   passed a limit of 20 when it was measured). That object is still not a place
+   a minute could hide, and this check now says so precisely instead of
+   demanding there be no binding at all: what it writes is a count and a reset
+   time, keyed by an IP or a uid, and never a transcript, a phrase, a report or
+   a track. If a future binding can hold learner CONTENT, this check fails
+   again — which is the point. */
 {
-  const w=readFileSync(ROOT+"backend/polish-worker.js","utf8"),toml=readFileSync(ROOT+"backend/wrangler.toml","utf8");
-  const bindings=/kv_namespaces|d1_databases|r2_buckets|durable_objects|queues/.test(toml);
+  const w=readFileSync(ROOT+"backend/polish-worker.js","utf8"),toml=readFileSync(ROOT+"backend/wrangler.toml","utf8"),rl=readFileSync(ROOT+"backend/rate-limit.js","utf8");
+  const bindings=/kv_namespaces|d1_databases|r2_buckets|queues/.test(toml);
   const stores=/caches\.(default|open)\(|env\.[A-Z_]*(KV|DB|BUCKET|STORE)\b/.test(w);
-  ok("The Polish Worker holds no store — nothing server-side can carry one area's minute to the other",!bindings&&!stores,JSON.stringify({bindings,stores}));
+  ok("The Polish Worker holds no content store — nothing server-side can carry one area's minute to the other",!bindings&&!stores,JSON.stringify({bindings,stores}));
+  /* the one binding, and what it is allowed to contain */
+  const dos=(toml.match(/\[\[(?:env\.\w+\.)?durable_objects\.bindings\]\]/g)||[]).length;
+  const classes=[...toml.matchAll(/class_name = "(\w+)"/g)].map(m=>m[1]);
+  ok("The only Durable Object bound is the rate limiter, in both environments",dos===2&&classes.every(c=>c==="RateLimiter"),JSON.stringify({dos,classes}));
+  /* it is handed buckets only — never a body, a transcript or a track */
+  const callers=[...w.matchAll(/consume\(env,[^)]*\)/g)].map(m=>m[0]);
+  ok("the limiter is only ever handed a subject and bucket sizes",callers.length>0&&callers.every(c=>/consume\(env, subject, buckets\)|consume\(env, "/.test(c)||/consume\(env, subject/.test(c)),JSON.stringify(callers));
+  ok("…and what it persists is a count and a reset time, nothing else",/put\[r\.k\] = \{ count: r\.count \+ 1, resetAt: r\.resetAt \}/.test(rl)&&!/transcript|text|said|phrase|track|body\./.test(rl.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\bbody\.buckets\b/g,"").replace(/\bbody\.now\b/g,"")),"rate-limit.js persists more than counters");
+  ok("the subject is an IP or a uid, both prefixed here and never taken from the request body",/"ip:" \+ ip/.test(w)&&/"acct:" \+ id/.test(w)&&!/subject = .*body/.test(rl));
 }
 
 const GE_TEXT="Hello everyone today is the kick-off of this project called Anthropologie so the first thing I will say is to thank you everyone for being here";

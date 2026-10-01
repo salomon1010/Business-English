@@ -16,7 +16,7 @@ import { DatabaseSync } from "node:sqlite"; import { readFileSync, readdirSync }
 import { handle } from "../backend/entitlements/entitlements-worker.js";
 import { _resetTokenCache } from "../backend/entitlements/src/google-play.js";
 const root = new URL("..", import.meta.url).pathname;
-const PORT = 8092, BASE = `http://127.0.0.1:${PORT}/`;
+const PORT = +(process.env.PORT || 8092), BASE = `http://127.0.0.1:${PORT}/`;
 const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(800);
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 const b = await chromium.launch();
@@ -283,7 +283,11 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ok("PR3 · ONE offer (owner, 30 Sep 2026): the annual plan, its price straight from the store, per year — no chooser, no radio group, no 'best value', no saving to compare against", sh && sh.offer && /29\.99/.test(sh.offer.price) && /\/ year/.test(sh.offer.price) && sh.plans.length === 0 && sh.radios === 0 && !/Best value|Save \d+%|a month, billed once a year/.test(sh.text), JSON.stringify(sh && { offer: sh.offer, plans: sh.plans.length, radios: sh.radios }));
   ok("PR4 · the monthly product the store still sells is NOT offered: no monthly price, no '/ month', nothing to choose between", !/4\.49/.test(sh.text) && !/\/ month/.test(sh.text) && !/Monthly/.test(sh.text), sh.text);
   ok("PR4b · the free trial leads the offer and the CTA, and the renewal line says what happens next, at the store's price, where to cancel", /3 days free/i.test(sh.offer.trial) && /Start 3-day free trial/.test(sh.ctaText) && /Then .*29\.99 \/ year\. Cancel anytime in Google Play\./.test(sh.text), JSON.stringify({ trial: sh.offer.trial, cta: sh.ctaText }));
-  ok("PR5 · the benefits are the capabilities Premium actually grants (AI analysis, verbal feedback, advanced progress, 30/90-day analytics, AI Coach); no ad-free claim while ads are off; the store's renewal terms, Privacy and Restore; no raw key and no {{placeholder}}", /AI speaking analysis/.test(sh.text) && /AI feedback spoken back to you/.test(sh.text) && /Advanced progress/.test(sh.text) && /30- and 90-day analytics/.test(sh.text) && /The AI Coach/.test(sh.text) && !/No ads/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|pg\.|\{\{|More AI coaching/.test(sh.text), sh.text);
+  /* FOUR rows, not five, since 1 October 2026: "AI feedback spoken back to you"
+     was dropped because the capability behind it (ai_verbal_feedback) was checked
+     at zero call sites while the TTS route is free — the paywall was selling a
+     Free learner something they already had. See docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md D5. */
+  ok("PR5 · the benefits are the capabilities Premium actually grants (AI analysis, advanced progress, 30/90-day analytics, AI Coach) and nothing it does not — the 'spoken back' row is gone because nothing enforced it; no ad-free claim while ads are off; the store's renewal terms, Privacy and Restore; no raw key and no {{placeholder}}", /AI speaking analysis/.test(sh.text) && !/spoken back/.test(sh.text) && /Advanced progress/.test(sh.text) && /30- and 90-day analytics/.test(sh.text) && /The AI Coach/.test(sh.text) && !/No ads/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|pg\.|\{\{|More AI coaching/.test(sh.text), sh.text);
   ok("PR6 · there is nothing to pick: the CTA buys the annual plan without a selection step", await p.evaluate(() => _premSel === "premium_annual"), await p.evaluate(() => String(_premSel)));
   /* Google must report the ANNUAL product for this token: the app now buys
      premium_annual, and the Worker refuses a purchase whose claimed product

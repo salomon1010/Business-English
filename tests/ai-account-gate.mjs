@@ -25,7 +25,7 @@
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 import { CAPABILITIES } from "../backend/entitlements/src/entitlement-core.js";
 const root = new URL("..", import.meta.url).pathname;
-const PORT = 8661, BASE = `http://127.0.0.1:${PORT}/`;
+const PORT = +(process.env.PORT || 8661), BASE = `http://127.0.0.1:${PORT}/`;
 const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(900);
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + String(d).slice(0, 300)}`); };
 const b = await chromium.launch();
@@ -106,7 +106,13 @@ console.log("\n# signed in, Free: BEING HEARD IS FREE (owner, 1 October 2026)");
   ok("15 · and the call was really made, carrying the learner's own token", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai));
   /* the boundary moved, it did not vanish: the AI's VERDICT is still paid */
   ok("16 · the AI report is still Premium, and says so", /Premium/.test(g.note), g.note);
-  ok("17 · every analysis route a Free learner could reach is still refused", await p.evaluate(() => ["ai_analysis", "ai_verbal_feedback", "ai_coach", "advanced_progress"].every(c => entLocked(c))));
+  /* the four capabilities that can be withheld from a Free learner. The list
+     used to name a fifth, ai_verbal_feedback, which was removed on 1 October
+     2026 — it was sold and enforced nowhere, and entLocked() returned true for
+     it only because an unknown name is refused, so this check passed while
+     asserting nothing about a real gate. */
+  ok("17 · every analysis route a Free learner could reach is still refused", await p.evaluate(() => ["ai_analysis", "ai_coach", "advanced_progress", "recommended_content"].every(c => entLocked(c))));
+  ok("17b · …and the removed capability is no longer part of the contract on either side", await p.evaluate(() => !ENT_CAPS.includes("ai_verbal_feedback")) && !CAPABILITIES.includes("ai_verbal_feedback"));
   await ctx.close();
 }
 

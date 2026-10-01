@@ -422,9 +422,13 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
     const t = document.getElementById("premOv").innerText, sh = document.querySelector("#premOv .prem-sheet");
     return { t, ben: [...document.querySelectorAll("#premOv .prem-ben li")].map(l => l.innerText.trim()), dir: document.documentElement.dir, over: sh.scrollWidth > sh.clientWidth + 1 }; });
   if (SHOTS) await A.p.screenshot({ path: SHOTS + "/sheet-ar.png" });
-  ok("D20 · Arabic: right-to-left, all five capability benefits translated, no raw keys, fits", ar.dir === "rtl" && ar.ben.length === 5 && /تحليل الذكاء الاصطناعي/.test(ar.ben[0]) && /إحصاءات 30 و90 يومًا/.test(ar.ben[3]) && !/\b(prem|sh|ex|pg)\.[a-z_]+\b/.test(ar.t) && !ar.over, JSON.stringify(ar.ben) + " | " + ar.t.slice(0, 120));
+  ok("D20 · Arabic: right-to-left, all four capability benefits translated, no raw keys, fits", ar.dir === "rtl" && ar.ben.length === 4 && /تحليل الذكاء الاصطناعي/.test(ar.ben[0]) && /إحصاءات 30 و90 يومًا/.test(ar.ben[2]) && !/\b(prem|sh|ex|pg)\.[a-z_]+\b/.test(ar.t) && !ar.over, JSON.stringify(ar.ben) + " | " + ar.t.slice(0, 120));
   const card = await A.p.evaluate(async () => { premClose(); await setLang("en"); go("data"); for (let i = 0; i < 40 && !document.getElementById("entPlan"); i++) await new Promise(r => setTimeout(r, 50)); return document.getElementById("entPlan").textContent.replace(/\s+/g, " "); });
-  ok("D21 · the Settings Premium card lists the SAME five capabilities the sheet sells, and 'See Premium plans'", /AI speaking analysis/.test(card) && /AI feedback spoken back to you/.test(card) && /Advanced progress/.test(card) && /30- and 90-day analytics/.test(card) && /The AI Coach/.test(card) && /See Premium plans/.test(card), card);
+  /* FOUR rows, not five, since 1 October 2026: "AI feedback spoken back to you"
+     was dropped because the capability behind it (ai_verbal_feedback) was checked
+     at zero call sites while the TTS route is free — the paywall was selling a
+     Free learner something they already had. See docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md D5. */
+  ok("D21 · the Settings Premium card lists the SAME four capabilities the sheet sells, and nothing it cannot enforce, and 'See Premium plans'", /AI speaking analysis/.test(card) && !/spoken back/.test(card) && /Advanced progress/.test(card) && /30- and 90-day analytics/.test(card) && /The AI Coach/.test(card) && /See Premium plans/.test(card), card);
   await A.ctx.close();
 }
 

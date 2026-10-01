@@ -29,6 +29,16 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   section (`OPTIONAL=["foundations"]`) — a missing file is `null`, not an error.
 - **`backend/polish-worker.js`** + `backend/README.md` — Cloudflare Worker that
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
+- **`backend/rate-limit.js`** — the `RateLimiter` **Durable Object** every limit
+  in be-polish goes through (added 1 Oct 2026). Before it, each limit was a
+  module-scope `Map`, i.e. per **isolate**: the real ceiling was
+  `limit x isolates` and 24 of 24 requests passed a limit of 20 when it was
+  measured. **A `Map` is not a rate limit** — if you add a route that spends
+  money, hold it with `limit(env, subject, name, perMin, perDay, cors)`. The
+  binding must be in `wrangler.toml` for BOTH environments (an environment does
+  not inherit `durable_objects`); without it the Worker degrades to the old
+  Maps and says `degraded`. Fixed windows, so there is a boundary burst of up to
+  2x — stated in the file, not discovered later.
 
 ## Deploy workflow — READ THIS
 - **Two version strings move together on every deploy:** `sw.js` `be12-vNN`
@@ -380,8 +390,31 @@ not JS, and `new Function` chokes on it. Check it separately with
     entitlement service **and** General English). `ENT_CAPS` must stay identical
     to `CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`;
     `tests/premium-boundary.mjs` check 1 fails if they drift.
-  - **Capabilities:** `ad_free`, `ai_analysis`, `ai_verbal_feedback`,
-    `advanced_progress`, `ai_coach`, `recommended_content`.
+  - **Capabilities (FIVE):** `ad_free`, `ai_analysis`, `advanced_progress`,
+    `ai_coach`, `recommended_content`. There were six: `ai_verbal_feedback` was
+    removed 1 Oct 2026 because it was sold on the paywall and checked at zero
+    call sites, while the TTS route is deliberately free (the natural voice
+    reads *content*). **Every name on that list must gate something** — a
+    capability nothing enforces is a claim, and selling one is a store-
+    disclosure problem. `tests/free-premium-contract.mjs` §6 holds the rule.
+  - **The Free product is a WHOLE loop, and the Shadow Challenge is part of it
+    (owner, 1 Oct 2026).** Free gets speech capture, transcription, Shadow
+    translation and IPA, participation in every Challenge rung, and the
+    coverage / word-accuracy / rhythm / completion feedback — all of it computed
+    on the device from the free transcript. Premium adds the per-word
+    pronunciation score (`fbAssess`, the ONE gate), the retell meaning verdict,
+    the AI speaking reports, 30/90-day analytics, the coach and the personalised
+    rows. **Do not re-add a top-level `aiOff` bail to a Challenge grader** — six
+    of them made the whole ladder Premium in effect while reporting itself as an
+    offline error, which is what "the app feels intermittent" turned out to be.
+    `ShadowSync.challenge` accepts `assess: null` and `drillState(null, …)`
+    returns its `asr` mode: the degradation is in the engine already, so there
+    is never a reason to write a second path.
+  - **An AI route needs an ACCOUNT, free capabilities included** (owner, 1 Oct
+    2026; `premiumGate`'s `cap === null` branch). Anonymous learners get no AI.
+    That is a decision, not a defect — do not "open up" a free route to
+    anonymous callers, and `ytai` especially not: its per-account cap is the
+    only thing standing between a pasted video list and a real bill.
   - **The AI gate is `aiOff(cap)`**, which is the `!POLISH_API||!navigator.onLine`
     guard every AI call site already had, plus the plan. A Free learner takes the
     app's existing OFFLINE path: the activity runs, the recording is kept, the

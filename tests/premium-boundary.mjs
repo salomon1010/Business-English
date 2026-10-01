@@ -10,7 +10,7 @@
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 import { CAPABILITIES } from "../backend/entitlements/src/entitlement-core.js";
 const root = new URL("..", import.meta.url).pathname;
-const PORT = 8097, BASE = `http://127.0.0.1:${PORT}/`;
+const PORT = +(process.env.PORT || 8097), BASE = `http://127.0.0.1:${PORT}/`;
 const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(900);
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + String(d).slice(0, 300)}`); };
 const b = await chromium.launch();

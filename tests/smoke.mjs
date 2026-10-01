@@ -11,10 +11,11 @@ import { chromium } from "playwright";
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
+const SPORT = +(process.env.PORT || 8765);
 let BASE = process.env.BASE, server = null;
 if (!BASE) {
-  server = spawn("python3", ["-m", "http.server", "8765"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" });
-  await sleep(700); BASE = "http://localhost:8765";
+  server = spawn("python3", ["-m", "http.server", String(SPORT), "--bind", "127.0.0.1"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" });
+  await sleep(900); BASE = "http://127.0.0.1:" + SPORT;
 }
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond, detail }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
@@ -222,11 +223,16 @@ if (!process.env.BASE) {
     const p = await c.newPage(); const outbound = [];
     await p.route("**/*", async route => {
       const u = new URL(route.request().url());
-      if (u.hostname === host) { const r = await fetch("http://localhost:8765" + u.pathname + u.search).catch(() => null); if (!r) return route.abort(); return route.fulfill({ status: r.status, body: Buffer.from(await r.arrayBuffer()), headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } }); }
+      if (u.hostname === host) { const r = await fetch("http://127.0.0.1:" + SPORT + u.pathname + u.search).catch(() => null); if (!r) return route.abort(); return route.fulfill({ status: r.status, body: Buffer.from(await r.arrayBuffer()), headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } }); }
       outbound.push(u.origin + u.pathname); return route.abort();
     });
     p.on("request", r => { const u = new URL(r.url()); if (u.hostname !== host && !outbound.includes(u.origin + u.pathname)) outbound.push(u.origin + u.pathname); });
-    const scheme = host === "localhost" ? "http://localhost:8765" : "https://" + host;
+    /* the origin the PAGE is given must be `host` itself — the route handler above
+   matches on u.hostname === host and fulfils every request from the local
+   server, so nothing is ever really fetched from it. Pointing this at
+   127.0.0.1 while host is "localhost" made every request fall through to
+   route.abort(). */
+    const scheme = host === "localhost" ? "http://localhost:" + SPORT : "https://" + host;
     await p.goto(scheme + "/index.html?env=" + Date.now(), { waitUntil: "load" }); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const env = beEnv();

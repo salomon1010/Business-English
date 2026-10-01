@@ -25,7 +25,7 @@ The VIEW is all a client ever sees:
 
 ```json
 { "plan": "premium", "paid": true, "state": "active", "ads": false,
-  "capabilities": { "ad_free": true, "ai_analysis": true, "ai_verbal_feedback": true,
+  "capabilities": { "ad_free": true, "ai_analysis": true,
                     "advanced_progress": true, "ai_coach": true, "recommended_content": true,
                     "ai_allowance": "enhanced", "practice_allowance": "enhanced" },
   "expiresAt": 1790000000000, "source": "promo", "checkedAt": 1789000000000 }
@@ -48,7 +48,6 @@ with it and nothing else may invent a name:
 |---|---|
 | `ad_free` | no advertising |
 | `ai_analysis` | pronunciation / grammar / vocabulary / fluency analysis, the detailed speaking score, every AI report |
-| `ai_verbal_feedback` | feedback spoken back in the natural voice |
 | `advanced_progress` | 30- and 90-day analytics, trends, the long-term record |
 | `ai_coach` | the AI coach session and its per-round feedback |
 | `recommended_content` | opening the personalised recommendations on Home |

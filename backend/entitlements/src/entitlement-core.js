@@ -21,14 +21,25 @@
    no plan changes it. Add a plan by adding an entry; nothing else changes. */
 
 /* The capabilities a plan can carry. This list is the contract: the client's
-   ENT_CAPS and hasEntitlement() accept exactly these names, the Worker's
-   /v1/capability accepts exactly these names, and a name that is not here is
-   refused rather than silently allowed. Booleans only — ai_allowance and
-   practice_allowance are older enums kept for the ad and reward code. */
+   ENT_CAPS and hasEntitlement() accept exactly these names, be-polish reads
+   exactly these names out of the view, and a name that is not here is refused
+   rather than silently allowed. Booleans only — ai_allowance and
+   practice_allowance are older enums kept for the ad and reward code.
+   (There is no /v1/capability route; an earlier comment here named one. The
+   entitlements Worker serves GET /v1/entitlement and nothing else reads a
+   capability by name over HTTP.)
+
+   EVERY NAME HERE MUST GATE SOMETHING. One was removed on 1 October 2026 for
+   failing that rule — "feedback spoken back to you" was row two of the paywall
+   and was checked at zero call sites, while the TTS route is deliberately free
+   because the natural voice reads CONTENT: lessons, characters, words. Every
+   Free learner already had it. A capability nothing enforces is not a
+   capability, it is a claim, and selling one is a store-disclosure problem as
+   well as a trust one. Add a name here on the day its call site lands, never
+   before, and never to make the paywall look longer. */
 export const CAPABILITIES = Object.freeze([
   "ad_free",               // no advertising
   "ai_analysis",           // pronunciation / grammar / vocabulary / fluency analysis and the detailed speaking score
-  "ai_verbal_feedback",    // feedback spoken back in the natural voice
   "advanced_progress",     // 30- and 90-day analytics, trends, the long-term record
   "ai_coach",              // the AI coach session and its detailed feedback
   "recommended_content",   // opening the personalised recommendations on Home
@@ -37,12 +48,12 @@ export const PLANS = Object.freeze({
   free: Object.freeze({
     id: "free", paid: false, ads: true,
     capabilities: Object.freeze({ ad_free: false, ai_allowance: "standard", practice_allowance: "standard",
-      ai_analysis: false, ai_verbal_feedback: false, advanced_progress: false, ai_coach: false, recommended_content: false }),
+      ai_analysis: false, advanced_progress: false, ai_coach: false, recommended_content: false }),
   }),
   premium: Object.freeze({
     id: "premium", paid: true, ads: false,
     capabilities: Object.freeze({ ad_free: true, ai_allowance: "enhanced", practice_allowance: "enhanced",
-      ai_analysis: true, ai_verbal_feedback: true, advanced_progress: true, ai_coach: true, recommended_content: true }),
+      ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true }),
   }),
 });
 

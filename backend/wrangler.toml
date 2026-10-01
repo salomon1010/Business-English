@@ -26,6 +26,29 @@ compatibility_date = "2026-07-31"
 # production whenever PREMIUM_ENFORCED is switched on there.
 compatibility_flags = ["global_fetch_strictly_public"]
 
+# ---- Rate limiting that survives an isolate recycle (1 October 2026) ----
+# Every limit in polish-worker.js used to be a module-scope Map, i.e. per
+# ISOLATE: the real ceiling was `limit x however many isolates Cloudflare ran`,
+# and 24 of 24 requests passed a limit of 20 when it was measured. The counters
+# now live in this Durable Object — one global instance per subject (an IP, or
+# an account), handling one request at a time. backend/rate-limit.js explains
+# the mechanism and the fixed-window trade-off.
+#
+# WITHOUT this binding the Worker falls back to the old in-memory Maps and says
+# so (`degraded`), so a deploy that loses these three lines silently returns to
+# limits that do not hold. Do not remove them.
+#
+# new_sqlite_classes, not new_classes: the SQLite storage backend is the one
+# available on the Workers Free plan, and this account is on it (the same
+# reason be-mail sends through Brevo instead of Cloudflare Email Service).
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1-rate-limiter"
+new_sqlite_classes = ["RateLimiter"]
+
 # ---- Premium enforcement (Phase 8) ----
 # OFF here, deliberately. Both of these must be set for the Worker to check an
 # entitlement, and they mirror the client's planOn() (billing_enabled + an
@@ -61,6 +84,17 @@ ENTITLEMENTS_URL = ""
 #   npx wrangler deploy --env staging
 [env.staging]
 name = "be-polish-staging"
+# a Worker environment does not inherit durable_objects bindings, so staging
+# names its own — the same class, its own objects, nothing shared with
+# production but the source file
+[[env.staging.durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[env.staging.migrations]]
+tag = "v1-rate-limiter"
+new_sqlite_classes = ["RateLimiter"]
+
 [env.staging.vars]
 PREMIUM_ENFORCED = "1"
 ENTITLEMENTS_URL = "https://be-entitlements-staging.nore-ngou.workers.dev"
