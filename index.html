@@ -21069,7 +21069,7 @@ const _fbWordsCache=new WeakMap();
 function fbWords(blob){
   if(_fbWordsCache.has(blob))return _fbWordsCache.get(blob);
   const p=(async()=>{
-    if(aiOff("ai_analysis"))return null;
+    if(sttOff())return null;
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
       if(!r.ok)return null;
@@ -21118,7 +21118,11 @@ function fbTranscribe(blob){
        that window is the same misreport as blaming the microphone, so the window
        names itself and asks for one more tap. */
     if(fbAuthPending()){_fbTxWhy="restoring";return ""}
-    if(aiOff("ai_analysis")){_fbTxWhy=aiNoAccount()?"account":entLocked("ai_analysis")?"premium":"offline";return ""}
+    /* sttOff, not aiOff: hearing the learner is free, so the only reasons left
+       are no account and no connection. "premium" survives below only for a
+       Worker that still answers 402 — an older deployment, or the capability
+       being restored — because a wrong message is worse than an unexpected one. */
+    if(sttOff()){_fbTxWhy=aiNoAccount()?"account":"offline";return ""}
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
       if(!r.ok){_fbTxWhy=r.status===401?"account":r.status===402?"premium":r.status===429?"busy":"server";return ""}
@@ -21690,7 +21694,7 @@ async function exRun(src){
   if(here()&&cur.v==="phrases"&&!exHost){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
-  if(aiOff("ai_analysis"))return null;
+  if(sttOff())return null;
   try{
     const r=await fetch(POLISH_API+"/?fillers=1",{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
     if(!r.ok)return null;
@@ -23147,6 +23151,13 @@ window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
 function aiNoAccount(){try{return planOn()&&!entUid()&&!fbAuthPending()}catch(e){return false}}
 function aiOff(cap){try{return !POLISH_API||!navigator.onLine||aiNoAccount()||entLocked(cap)}catch(e){return true}}
 function aiOn(cap){return !aiOff(cap)}
+/* The speech-to-text route costs no capability (ROUTE_CAP.transcribe is null —
+   being heard is free, owner 1 October 2026), but with enforcement on it still
+   needs a verified account, so it has its own question. Using aiOff("ai_analysis")
+   here was the bug: it withheld the MICROPHONE because the learner could not buy
+   the REPORT, and the turn then reported a refusal as silence. */
+function sttOff(){try{return !POLISH_API||!navigator.onLine||aiNoAccount()}catch(e){return true}}
+function sttOn(){return !sttOff()}
 /* why the AI did not run, for the message: a Free learner is not offline */
 function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
 window.aiOff=aiOff;window.aiOn=aiOn;

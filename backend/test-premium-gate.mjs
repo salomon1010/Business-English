@@ -39,6 +39,15 @@ async function ask(body, { env = ON, token = null, ip = null } = {}) {
   return { status: r.status, j: await r.json().catch(() => null) };
 }
 const tok = () => "t" + (++tokN) + ".x.y";                      // a fresh token each time: never a cache hit
+/* the SPEECH-TO-TEXT route: a raw audio body, not JSON. It had no coverage here
+   at all until the 1 Oct 2026 shakeout, which is how it went unnoticed that a
+   Free learner could not be heard. */
+async function askAudio({ token, env = { PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test" }, ip } = {}) {
+  const headers = { origin: "https://app.lomonec.com", "content-type": "audio/webm", "CF-Connecting-IP": ip || "10.0.0." + (++ipN) };
+  if (token) headers.authorization = "Bearer " + token;
+  const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers, body: new Uint8Array(2048) }), { OPENAI_KEY: "k", ...env });
+  return { status: r.status, j: await r.json().catch(() => null) };
+}
 const ANALYSE = { analyse: { transcript: "this is a long enough sentence to pass", metrics: {} } };
 const ASSESS  = { assess: "hello world", audio: "AAAA", format: "wav" };
 const REPORT  = { mvreport: { system: "s", said: "one two three four five six" } };
@@ -85,6 +94,22 @@ r = await ask({ tts: "hello", voice: "alloy" }, { token: tok() });
 ok("C3 · a FREE account CAN use the natural voice", r.status === 200, r.status);
 r = await ask({ text: "hello there" });
 ok("C4 · …but a free route still needs an account while enforcement is on", r.status === 401, r.status);
+
+/* BEING HEARD IS FREE (owner, 1 October 2026). The spoken turn is the activity;
+   the AI's verdict on it is the product. Before this, transcribe cost
+   ai_analysis, so a Free learner's interview and workshop answers were refused
+   402 and the app reported it as a microphone that heard nothing. */
+ent.reply = () => view(FREE);
+ai.calls = [];
+r = await askAudio({ token: tok() });
+ok("C5 · a FREE account CAN be heard — the speech-to-text route costs no capability", r.status === 200, r.status + " " + JSON.stringify(r.j));
+ok("C6 · …and the transcription really ran", ai.calls.some(u => /audio\/transcriptions/.test(u)), ai.calls.join(","));
+r = await askAudio();
+ok("C7 · …but being heard still needs an account while enforcement is on", r.status === 401 && r.j.error === "auth_required", r.status);
+r = await askAudio({ token: tok(), env: OFF });
+ok("C8 · with enforcement off it behaves exactly as production does today", r.status === 200, r.status);
+ok("C9 · the paid routes did NOT move with it — a FREE account is still refused the assessment of what it said",
+   (await ask(ASSESS, { token: tok() })).status === 402 && (await ask(REPORT, { token: tok() })).status === 402);
 
 console.log("\n# A paying account gets everything it bought");
 ent.reply = () => view(PREM);

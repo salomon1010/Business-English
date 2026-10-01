@@ -13,6 +13,9 @@
         chat purpose=practice, no token  -> 401 {"error":"auth_required"}
         audio/webm transcribe, no token  -> 401 {"error":"auth_required"}
         same transcribe, real token, Free -> 402 {"error":"premium_required"}
+                                             (BEFORE the 1 Oct decision; the audio
+                                              route is now free of capability, so a
+                                              Free learner is heard — checks 13-17)
 
    2. fbTranscribe returned "" for a refusal and for real silence alike, so the
       caller could not tell them apart and always blamed the microphone.
@@ -93,13 +96,17 @@ console.log("\n# PRODUCTION TODAY — Premium is not on sale, so nothing above m
   await ctx.close();
 }
 
-console.log("\n# signed in, Free: the account exists, the capability does not");
+console.log("\n# signed in, Free: BEING HEARD IS FREE (owner, 1 October 2026)");
 {
-  const { ctx, p } = await open({ signedIn: true, plan: FREE });
-  const g = await p.evaluate(() => ({ noAcct: aiNoAccount(), off: aiOff("ai_analysis"), note: aiOffNote("ai_analysis") }));
-  ok("13 · this is a Premium question, not a sign-in question", g.noAcct === false && g.off === true && /Premium/.test(g.note), JSON.stringify(g));
+  const { ctx, p, ai } = await open({ signedIn: true, plan: FREE });
+  const g = await p.evaluate(() => ({ noAcct: aiNoAccount(), stt: sttOff(), analysis: aiOff("ai_analysis"), note: aiOffNote("ai_analysis") }));
+  ok("13 · the microphone is not withheld because the REPORT cannot be bought", g.stt === false && g.analysis === true, JSON.stringify(g));
   const m = await turnMessage(p);
-  ok("14 · the turn says the hearing is Premium and that the recording is kept", m.why === "premium" && /Premium/.test(m.msg) && /recording is saved/i.test(m.msg), JSON.stringify(m));
+  ok("14 · a Free learner's spoken turn IS transcribed, with no excuse attached", m.said === "the words I said" && m.why === null, JSON.stringify(m));
+  ok("15 · and the call was really made, carrying the learner's own token", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai));
+  /* the boundary moved, it did not vanish: the AI's VERDICT is still paid */
+  ok("16 · the AI report is still Premium, and says so", /Premium/.test(g.note), g.note);
+  ok("17 · every analysis route a Free learner could reach is still refused", await p.evaluate(() => ["ai_analysis", "ai_verbal_feedback", "ai_coach", "advanced_progress"].every(c => entLocked(c))));
   await ctx.close();
 }
 
@@ -107,10 +114,10 @@ console.log("\n# signed in, Premium: nothing is withheld");
 {
   const { ctx, p, ai } = await open({ signedIn: true, plan: PREMIUM });
   const g = await p.evaluate(() => ({ noAcct: aiNoAccount(), off: aiOff("ai_analysis") }));
-  ok("15 · the AI is on", g.noAcct === false && g.off === false, JSON.stringify(g));
+  ok("18 · the AI is on", g.noAcct === false && g.off === false, JSON.stringify(g));
   const m = await turnMessage(p);
-  ok("16 · the turn is transcribed and carries no excuse", m.said === "the words I said" && m.why === null, JSON.stringify(m));
-  ok("17 · the request carried the learner's own token", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai));
+  ok("19 · the turn is transcribed and carries no excuse", m.said === "the words I said" && m.why === null, JSON.stringify(m));
+  ok("20 · the request carried the learner's own token", ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai));
   await ctx.close();
 }
 
@@ -118,7 +125,7 @@ console.log("\n# a Worker that refuses mid-session is reported as itself");
 for (const [status, why, re] of [[401, "account", /sign in/i], [402, "premium", /Premium/], [429, "busy", /busy/i], [500, "server", /did not reach/i]]) {
   const { ctx, p } = await open({ signedIn: true, plan: PREMIUM, status });
   const m = await turnMessage(p);
-  ok(`18 · ${status} from the Worker reads as "${why}"`, m.why === why && re.test(m.msg) && /tap to/i.test(m.msg), JSON.stringify(m));
+  ok(`21 · ${status} from the Worker reads as "${why}"`, m.why === why && re.test(m.msg) && /tap to/i.test(m.msg), JSON.stringify(m));
   await ctx.close();
 }
 
@@ -132,7 +139,7 @@ console.log("\n# real silence is still real silence");
     window.__t = await fbTranscribe(empty);
     return { why: fbTxWhy(), msg: (fbTxWhy() && fbTxWhyText()) || SIM_NOTHING_HEARD };
   });
-  ok("19 · with no refusal to report, the turn still says nothing came through", m.why === null && /nothing came through/i.test(m.msg), JSON.stringify(m));
+  ok("22 · with no refusal to report, the turn still says nothing came through", m.why === null && /nothing came through/i.test(m.msg), JSON.stringify(m));
   await ctx.close();
 }
 
@@ -152,13 +159,13 @@ console.log("\n# the session is still being restored: wait for the token, do not
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#premOv").forEach(e => e.remove()));
   /* the SDK was blocked, so no callback has arrived: the restore is pending */
   const g = await p.evaluate(() => ({ pending: fbAuthPending(), noAcct: aiNoAccount(), uid: entUid() }));
-  ok("20 · the app knows the difference between 'no account' and 'not restored yet'", g.pending === true && g.uid === null && g.noAcct === false, JSON.stringify(g));
+  ok("23 · the app knows the difference between 'no account' and 'not restored yet'", g.pending === true && g.uid === null && g.noAcct === false, JSON.stringify(g));
   const m = await turnMessage(p);
-  ok("21 · so a signed-in learner is never told to sign in during the restore", !/sign in/i.test(String(m.msg || "")), JSON.stringify(m));
+  ok("24 · so a signed-in learner is never told to sign in during the restore", !/sign in/i.test(String(m.msg || "")), JSON.stringify(m));
   /* the signing fetch waited for the token; with the SDK blocked it gives up after
      its bound and sends unsigned rather than hanging the feature for ever */
-  ok("22 · nor told their plan is too small, when the plan is not knowable yet", m.why === "restoring" && /restoring your session/i.test(m.msg) && !/Premium/.test(m.msg), JSON.stringify(m));
-  ok("23 · and nothing was spent on a call that could not have carried a token", ai.length === 0, JSON.stringify(ai));
+  ok("25 · nor told their plan is too small, when the plan is not knowable yet", m.why === "restoring" && /restoring your session/i.test(m.msg) && !/Premium/.test(m.msg), JSON.stringify(m));
+  ok("26 · and nothing was spent on a call that could not have carried a token", ai.length === 0, JSON.stringify(ai));
   await ctx.close();
 }
 

@@ -192,7 +192,19 @@ const premiumOn = env => env.PREMIUM_ENFORCED === "1" && !!env.ENTITLEMENTS_URL;
 
 /* what each route needs. null = free: the practice itself is never metered. */
 const ROUTE_CAP = {
-  transcribe: "ai_analysis",   // audio in -> words out: the analysis of a recording
+  /* BEING HEARD IS FREE (owner, 1 October 2026). This route is audio in -> words
+     out, and nothing else: it is what lets a learner SPEAK and have the app
+     understand them. Charging for it made the interview and the workshop — the
+     spoken heart of both programmes — unusable on the Free plan, and the app
+     reported the refusal as a microphone that heard nothing. Being understood is
+     the activity; the JUDGEMENT of it is the product. So this is null and
+     `assess` / `analyse` / `mvreport` / chat purposes `report` and `coach` below
+     are not: a Free learner is heard, keeps the recording, and gets the local
+     result the app already computes offline, while the AI's verdict stays paid.
+     null does NOT mean unmetered — the `cap === null` branch still demands a
+     verified account, and STT_PER_MIN / STT_PER_DAY and the per-account limit
+     still apply, so this cannot be used as free transcription at scale. */
+  transcribe: null,
   assess:     "ai_analysis",
   analyse:    "ai_analysis",
   mvreport:   "ai_analysis",

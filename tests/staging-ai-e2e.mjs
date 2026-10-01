@@ -62,7 +62,17 @@ await p.evaluate(()=>entRefresh()); await p.waitForTimeout(1200);
   ok("4 · the real entitlements Worker answered and the plan is Free", v.plan==="free"&&v.paid===false&&v.noAcct===false, JSON.stringify(v));
   const tx=await p.evaluate(async()=>{const blob=new Blob([new Uint8Array(4000)],{type:"audio/webm"});
     const said=await fbTranscribe(blob);return {said,why:fbTxWhy(),msg:said?null:((fbTxWhy()&&fbTxWhyText())||SIM_NOTHING_HEARD)}});
-  ok("5 · the turn now says hearing the answer is Premium — the recording is kept", tx.why==="premium"&&/Premium/.test(tx.msg)&&/recording is saved/i.test(tx.msg), JSON.stringify(tx));
+  /* Deliberately accepts BOTH states, because the client change and the Worker
+     deploy land separately (see the release order in the shakeout report):
+       · be-polish not yet deployed -> it still answers 402 and the turn must say
+         Premium, honestly, rather than blaming the microphone
+       · be-polish deployed with transcribe free -> the turn is simply heard
+     What is NOT acceptable in either state is "Nothing came through". */
+  const heard = tx.said === "the words I said" || (tx.said && tx.why === null);
+  const refusedHonestly = tx.why === "premium" && /Premium/.test(tx.msg) && /recording is saved/i.test(tx.msg);
+  ok("5 · a Free learner is either heard, or told honestly why not — never blamed for silence",
+     (heard || refusedHonestly) && !/nothing came through/i.test(String(tx.msg||"")), JSON.stringify(tx));
+  console.log("      live be-polish says:", heard ? "transcribed (the free route is deployed)" : "402 premium_required (the Worker still carries the old ROUTE_CAP)");
   const tr=await p.evaluate(async()=>{try{return {text:await svShTrFetch({id:"s2",vid:"V1",text:"We need to align on the delivery date before Friday."})}}catch(e){return {err:String(e&&e.message)}}});
   ok("6 · Shadow translation now SUCCEEDS against the live Worker, in French", !!tr.text&&/livraison|date/i.test(tr.text), JSON.stringify(tr));
   console.log("      translation returned:", JSON.stringify(tr.text||tr.err));
