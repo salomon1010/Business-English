@@ -26,6 +26,13 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Google sign-in (BEAuthPlugin). The project's iOS OAuth client id,
+	     e.g. 1234567890-abc123.apps.googleusercontent.com. Public by design -
+	     an iOS OAuth client has no secret. EMPTY means Google sign-in is not
+	     offered in this build; Apple sign-in is unaffected. See
+	     docs/auth/SOCIAL_SIGNIN.md for where to copy it from. -->
+	<key>BEGoogleIosClientID</key>
+	<string>847739483036-qfgi8l3930rrmr8fsnhk50auq9ironjt.apps.googleusercontent.com</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BE Mastery uses the microphone so you can record your spoken English for feedback, send short voice turns to a practice partner and talk in a live practice call. Your recordings are kept on your device; audio you record for feedback, a voice turn you send and your own side of a live call are sent over an encrypted connection to be transcribed and scored.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

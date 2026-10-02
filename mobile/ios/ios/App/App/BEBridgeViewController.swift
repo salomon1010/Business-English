@@ -7,5 +7,6 @@ import Capacitor
 class BEBridgeViewController: CAPBridgeViewController {
     override open func capacitorDidLoad() {
         bridge?.registerPluginInstance(BEStoreKitPlugin())
+        bridge?.registerPluginInstance(BEAuthPlugin())
     }
 }

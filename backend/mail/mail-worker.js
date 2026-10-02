@@ -36,6 +36,7 @@
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
+  "capacitor://localhost",   // the App Store build (mobile/ios): WKWebView cannot use https for a local bundle
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
@@ -52,6 +53,7 @@ const JWKS_URL   = env => env.JWKS_URL   || "https://www.googleapis.com/service_
 const TOKEN_URL  = env => env.TOKEN_URL  || "https://oauth2.googleapis.com/token";
 const IDTK_URL   = env => env.IDTK_URL   || "https://identitytoolkit.googleapis.com/v1";
 const BREVO_URL  = env => env.BREVO_URL  || "https://api.brevo.com/v3/smtp/email";
+const REVOKE_URL = env => env.REVOKE_URL || "https://identitytoolkit.googleapis.com/v2/accounts:revokeToken";
 
 /* ---------------------------------------------------------------- helpers -- */
 
@@ -67,7 +69,13 @@ function cors(origin){
   return {
     "Access-Control-Allow-Origin": ok,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    /* Authorization is NOT optional: /welcome and /apple/revoke both carry the
+       learner's Firebase ID token in that header, which makes the POST
+       non-simple, so the browser asks first with OPTIONS and refuses the real
+       request unless the header is named here. Leaving it out does not fail
+       loudly — the fetch throws before anything reaches the Worker, which is
+       why a curl or a direct unit call never sees it. */
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };
@@ -340,6 +348,83 @@ async function createdAt(env, uid){
   return { createdAt: Number(u.createdAt) || 0, email: String(u.email || "").toLowerCase() };
 }
 
+/* ------------------------------------- Sign in with Apple: revocation -- */
+/* Apple requires an app that offers Sign in with Apple AND account deletion to
+   hand the authorisation back when the account goes (App Review 5.1.1(v)).
+   Deleting the Firebase user does NOT do it.
+
+   Firebase does the exchange with Apple for us: accounts:revokeToken takes the
+   user's own ID token plus the authorisation CODE, swaps the code for a token
+   with Apple and revokes it. That is why NO Apple private key, .p8, client
+   secret or team credential exists in this repository, in this Worker, or in
+   the iOS bundle: the key is uploaded once to the Firebase console, where the
+   Apple provider is configured, and never leaves Google. What this Worker adds
+   is the part that must not be left to a client — it proves, from Firebase
+   itself and with a service account, that the caller's account really carries
+   an apple.com provider before asking for anything to be revoked, and it
+   reports a failure as a failure so the app can refuse to delete.
+
+   The code is single-use and lives about five minutes, and Firebase keeps none,
+   so the app obtains a FRESH one by asking the learner to confirm with Apple at
+   the moment of deletion. Nothing is stored here, and the code is never logged.
+
+   Configuration: FB_API_KEY (var, public by design — the same browser key that
+   is in index.html) and the existing FB_SA_JSON secret. The Apple provider in
+   the Firebase console must carry its Services ID, team ID, key ID and private
+   key, or Firebase cannot mint the client secret Apple demands and this route
+   answers apple_unavailable. */
+async function appleRevoke(req, env, origin){
+  const m = /^Bearer (\S+)$/.exec(req.headers.get("Authorization") || "");
+  if (!m) return json({ error: "auth" }, 401, origin);
+  let who; try { who = await verifyIdToken(env, m[1]); }
+  catch (e) { console.log("revoke: token", e && e.message); return json({ error: "auth" }, 401, origin); }
+
+  let body; try { body = await req.json(); } catch { return json({ error: "bad json" }, 400, origin); }
+  const code = String((body && body.code) || "");
+  /* Apple's codes are short opaque strings; anything else is refused before it
+     reaches Google, and the value itself is never logged. */
+  if (!code || code.length > 512 || !/^[A-Za-z0-9._~-]+$/.test(code)) return json({ error: "bad code" }, 400, origin);
+
+  if (!env.FB_API_KEY || !env.FB_SA_JSON) { console.log("revoke: not configured"); return json({ error: "apple_unavailable" }, 503, origin); }
+
+  /* server-authoritative: does this account actually have Apple on it? */
+  let providers = [];
+  try { providers = await userProviders(env, who.uid); }
+  catch (e) { console.log("revoke: lookup", e && e.message); return json({ error: "apple_unavailable" }, 503, origin); }
+  if (!providers.includes("apple.com")) {
+    /* nothing to revoke — and a retry after a half-finished deletion lands here
+       too, so it answers OK rather than blocking the learner for ever */
+    console.log("revoke: no apple provider, nothing to do");
+    return json({ ok: true, revoked: false, reason: "not_apple" }, 200, origin);
+  }
+
+  let r;
+  try {
+    r = await fetch(`${REVOKE_URL(env)}?key=${encodeURIComponent(env.FB_API_KEY)}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: m[1], providerId: "apple.com", tokenType: "CODE", token: code }),
+    });
+  } catch (e) { console.log("revoke: network"); return json({ error: "apple_unavailable" }, 503, origin); }
+
+  if (r.ok) { console.log("revoke: ok"); return json({ ok: true, revoked: true }, 200, origin); }
+  /* Google's message names the reason; only the CODE for it is logged, never the
+     code itself and never the token. A bad or used code is the caller's problem
+     to retry (400); anything else is ours or Apple's (503). */
+  const j = await r.json().catch(() => ({}));
+  const reason = String((j.error && (j.error.message || j.error.status)) || r.status);
+  console.log("revoke: refused", r.status, reason.slice(0, 80));
+  if (r.status >= 400 && r.status < 500) return json({ error: "apple_code", status: r.status }, 400, origin);
+  return json({ error: "apple_unavailable" }, 503, origin);
+}
+/* the providers Firebase itself has on this account (admin lookup) */
+async function userProviders(env, uid){
+  const tok = await accessToken(env);
+  const r = await fetch(`${IDTK_URL(env)}/accounts:lookup`, { method: "POST", headers: { "Authorization": `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ localId: [uid] }) });
+  const j = await r.json().catch(() => ({}));
+  const u = j.users && j.users[0]; if (!u) throw new Error("lookup " + r.status);
+  return (u.providerUserInfo || []).map(p => String(p.providerId || ""));
+}
+
 /* ---------------------------------------------------------- welcome -- */
 
 const WELCOME = {
@@ -506,6 +591,7 @@ export default {
     try {
       if (url.pathname === "/reset") return await reset(req, env, origin);
       if (url.pathname === "/welcome") return await welcome(req, env, origin);
+      if (url.pathname === "/apple/revoke") return await appleRevoke(req, env, origin);
       return json({ error: "not found" }, 404, origin);
     } catch (e) {
       console.log("mail error", e && e.message);

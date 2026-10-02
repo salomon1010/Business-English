@@ -4501,7 +4501,29 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    top/right are pulled in so the × stays visually where it was. */
 .auth-x{position:absolute;top:6px;right:8px;width:44px;height:44px;display:grid;place-items:center;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
 .auth-card input{margin-bottom:10px}
+/* Show/hide password (Oct 2026). A real <button> beside the input, not inside
+   it: an input cannot contain a child, and nesting a control in a label would
+   make two tap targets out of one. The wrapper is the positioning context, the
+   input keeps its own height and typography, and its right padding is widened
+   so neither the dots nor the placeholder can run under the icon. 44px target,
+   the icon drawn at 18px. */
+.pw-wrap{position:relative;display:block}
+.pw-wrap > input{padding-right:50px!important;margin-bottom:0}
+.pw-eye{position:absolute;top:0;right:0;width:46px;height:100%;min-height:44px;display:grid;place-items:center;background:none;border:0;padding:0;color:var(--mut);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pw-eye:hover,.pw-eye:focus-visible{color:var(--fg)}
+.pw-eye svg{width:18px;height:18px;stroke-width:1.7}
 .auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}.auth-err.ok{color:var(--green);line-height:1.45}
+/* Native sign-in buttons (App Store shell only). White with a hairline
+   border in both themes, because Apple and Google each specify their own
+   button and neither follows our palette: the button supplies its own
+   background, so nothing depends on --card. Apple: logo + "Continue with
+   Apple", 44px tall, same size as the Google one beside it. */
+.auth-soc{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;margin-bottom:10px;padding:0 16px;border-radius:12px;border:1px solid rgba(0,0,0,.14);background:#fff;color:#1f1f1f;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.auth-soc:active{background:#f1f1f1}
+.auth-soc svg{width:19px;height:19px;flex:none}
+.auth-soc.apple svg{width:17px;height:17px}
+.auth-sep{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 12px}
+.auth-sep::before,.auth-sep::after{content:"";flex:1;height:1px;background:var(--line2)}
 .auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
 /* the sign-in buttons were .btn-p — white on --grad, ~1.9:1 at the cyan end —
    and 38px in the Dashboard nudge. Shared by Settings and that nudge. */
@@ -6392,6 +6414,7 @@ const ICON={
   mail:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.6 7.2 8.4 5.8 8.4-5.8"/>',
   bookmark:'<path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.2L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>',
   eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  "eye-off":'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4.5 19.5 19.5 4.5"/>',
   party:'<path d="M4 20l5-14 9 9-14 5Z"/><path d="M9 6l9 9M14 3.5v2M18.5 8h2M16.5 5.5l1.4-1.4"/>',
   doc:'<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.8 3.5V8H18"/><path d="M9 12.5h6M9 15.5h4"/>',
   phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>',
@@ -9117,6 +9140,16 @@ const I18N_EN={
  "auth.err_network":"Network problem — check your connection.",
  "auth.err_too_many":"Too many attempts from this device. Wait a little while, then try again.",
  "auth.err_unauthorized_domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings).",
+ "auth.social_or":"or",
+ "auth.err_provider":"That sign-in couldn't finish. Try again, or use your email and password.",
+ "auth.err_provider_off":"This sign-in option isn't available in this version of the app.",
+ "auth.err_provider_disabled":"This sign-in method is switched off for BE Mastery right now.",
+ "auth.err_user_disabled":"This account has been disabled. Write to contact@lomonec.com.",
+ "auth.err_account_exists":"{{email}} already has an account with a password. Log in below and we'll connect them.",
+ "auth.err_account_exists_short":"That email already has an account. Log in with your password and we'll connect them.",
+ "auth.err_credential_in_use":"That is already connected to a different BE Mastery account.",
+ "auth.linked_toast":"{{provider}} is now connected to your account",
+ "auth.err_link_mismatch":"You logged in to a different account, so {{provider}} was not connected. Log in with the email address shown earlier to connect it.",
  "auth.err_generic":"Something went wrong.",
  "auth.unavailable_toast":"⚠️ Sign-in unavailable",
  "auth.signed_in_toast":"✅ Signed in",
@@ -9141,6 +9174,8 @@ const I18N_EN={
  "auth.or_email":"or with email",
  "auth.email_ph":"Email address",
  "auth.password_ph":"Password (min. 6 characters)",
+ "auth.pw_show":"Show password",
+ "auth.pw_hide":"Hide password",
  "auth.signup_btn":"Sign up with email",
  "auth.login_btn":"Log in",
  "auth.forgot":"Forgotten your password?",
@@ -9161,6 +9196,9 @@ const I18N_EN={
  "auth.signout_btn":"Sign out",
  "auth.delete_btn":"Delete account",
  "auth.delete_sub_note":"Deleting your account does not cancel your BE Mastery Premium subscription. Cancel it in {{store}} first (App Setup → Subscription → Manage subscription), or you will still be charged.",
+ "auth.delete_apple_app_only":"To delete this account, open BE Mastery on your iPhone. Apple needs us to hand your sign-in back from the app itself.",
+ "auth.delete_apple_fail":"We couldn't finish with Apple, so nothing was deleted. Your account is untouched \u2014 please try again.",
+ "auth.delete_apple_retry":"Apple didn't accept that confirmation, so nothing was deleted. Tap Delete account again to retry.",
  "auth.card_sync_title":"☁️ Sync across your devices",
  "auth.card_sync_desc":"Optional and free. Sign in and your streak, scores, vocabulary and reviews save to your account — start on your phone, continue on your laptop. Prefer not to? Everything keeps working on this device with no account.",
  "auth.create_account_btn":"Create account",
@@ -21913,7 +21951,8 @@ const FLAGS_DEFAULT={
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
-  billing_enabled:false                // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
+  billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
+  social_signin_enabled:true           // Google + Apple sign-in. ON, but it can only show where the native plugin exists (the App Store shell): the web keeps email/password alone, so this is a kill switch for the shell, not a web change
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -32149,7 +32188,7 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
-function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
+function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain"),"auth/account-exists-with-different-credential":t("auth.err_account_exists_short"),"auth/credential-already-in-use":t("auth.err_credential_in_use"),"auth/provider-already-linked":"","auth/operation-not-allowed":t("auth.err_provider_disabled"),"auth/user-disabled":t("auth.err_user_disabled"),"auth/invalid-verification-code":t("auth.err_invalid_credential"),"auth/user-cancelled":""};/* a raw Firebase/OAuth message is never shown: unmapped codes get the plain line */return c in map?map[c]:t("auth.err_generic")}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
@@ -32169,6 +32208,117 @@ window.fbGoogle=async function(){
     }else fbSetErr(fbErr(e));
   }
 };
+/* ===================== NATIVE SIGN-IN (App Store shell) =====================
+   Google and Apple reach the SAME Firebase session as email/password: the
+   plugin hands back a provider ID token, Firebase mints the credential, and
+   everything downstream (FBUser, fbFirstSync, the ID token every Worker
+   verifies) is byte-for-byte what a password sign-in produces. There is no
+   second session store and no server of ours in the loop.
+
+   Why only in the shell: a web popup/redirect cannot complete from
+   capacitor://localhost (not an authorized Firebase domain) and, on
+   app.lomonec.com, the handler lives on be-mastery.firebaseapp.com, whose
+   storage browsers partition — the long-standing reason fbGoogle() above is
+   kept but never offered. A button that silently fails is worse than no
+   button, so the buttons appear only where the native path exists. */
+let _beAuthPlug,_beAuthCaps=null;
+function beNativeAuth(){
+  if(_beAuthPlug!==undefined)return _beAuthPlug;
+  _beAuthPlug=null;
+  try{if(IS_IOS_APP&&window.Capacitor&&typeof Capacitor.registerPlugin==="function")_beAuthPlug=Capacitor.registerPlugin("BEAuth")}catch(e){_beAuthPlug=null}
+  return _beAuthPlug;
+}
+function socialAuthOn(){
+  try{if(!flag("social_signin_enabled"))return false}catch(e){}
+  try{return !!(IS_IOS_APP&&fbConfigured()&&beNativeAuth())}catch(e){return false}
+}
+/* What the BUILD can offer, asked of the plugin rather than assumed: Apple
+   always, Google only when the iOS client id is in Info.plist. A build with no
+   client id shows one button, not a broken second one. */
+async function socialAuthCaps(){
+  if(_beAuthCaps)return _beAuthCaps;
+  if(!socialAuthOn())return (_beAuthCaps={apple:false,google:false});
+  try{const r=await beNativeAuth().available();_beAuthCaps={apple:!!(r&&r.apple),google:!!(r&&r.google)}}
+  catch(e){_beAuthCaps={apple:false,google:false}}
+  return _beAuthCaps;
+}
+function socialErr(code){
+  if(code==="cancelled")return "";                      // the learner closed the sheet: say nothing
+  if(code==="unconfigured")return t("auth.err_provider_off");
+  if(code==="network")return t("auth.err_network");
+  return t("auth.err_provider");
+}
+/* Apple sends the name ONCE, with the first authorisation, and never again.
+   It is used only to fill an empty profile name — never to overwrite one, and
+   never as identity. The e-mail is deliberately ignored here: it may be a
+   private relay address, so only Firebase's own record of the account is
+   trusted. */
+function fbSocialName(r){
+  try{
+    const given=((r&&r.givenName)||"").trim();if(!given)return;
+    if(!S.profile||(S.profile.name||"").trim())return;
+    S.profile.name=given.slice(0,40);save();
+  }catch(e){}
+}
+/* A learner whose e-mail already has a password account gets an honest route,
+   never a second account: Firebase refuses the credential, we keep it, ask them
+   to log in the way they already can, and link it on success.
+
+   The credential is kept TOGETHER WITH the address Firebase said it collided
+   with, and is spent only on that address. Without the binding the next
+   password sign-in of the session would consume it whatever account it was —
+   so a learner who ignored the pre-filled address, or tapped "Create account"
+   instead, would quietly attach their Google/Apple identity to a different
+   account of theirs and from then on be signed in to the wrong one. Both the
+   collided address and the one it is checked against come from Firebase
+   (the provider error, then the authenticated session) — never from the
+   typed field. */
+let _fbPend=null;        // {cred, kind, email} — never logged, never exposed
+function fbNormEmail(s){return String(s||"").trim().toLowerCase()}
+/* Returns the toast to show in place of "Signed in", or "" for the usual one.
+   (It used to raise its own toast one line before that one, which replaced it
+   immediately — the single #toast element shows the last caller only.) */
+async function fbLinkPending(){
+  const p=_fbPend;_fbPend=null;                   // spent, or dropped, either way: gone
+  if(!p||!p.cred||!FBauth||!FBauth.currentUser)return "";
+  const name=p.kind==="apple"?"Apple":"Google";
+  if(fbNormEmail(FBauth.currentUser.email)!==p.email)return t("auth.err_link_mismatch",{provider:name});
+  try{await FBauth.currentUser.linkWithCredential(p.cred);return t("auth.linked_toast",{provider:name})}
+  catch(e){return ""}   // already linked, or linked elsewhere: the learner is signed in either way
+}
+window.fbSocial=async function(kind){
+  if(!FBauth)await fbLoad();
+  if(!FBauth)return toast(t("auth.unavailable_toast"));
+  const P=beNativeAuth();if(!P)return fbSetErr(t("auth.err_provider"));
+  fbSetErr("");
+  document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=true);
+  let r=null;
+  try{r=kind==="apple"?await P.appleSignIn():await P.googleSignIn()}
+  catch(e){document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);return fbSetErr(socialErr((e&&e.code)||""))}
+  try{
+    if(!r||!r.idToken)throw {code:"auth/invalid-credential"};
+    const cred=kind==="apple"
+      ? new firebase.auth.OAuthProvider("apple.com").credential({idToken:r.idToken,rawNonce:r.rawNonce})
+      : firebase.auth.GoogleAuthProvider.credential(r.idToken);
+    const res=await FBauth.signInWithCredential(cred);
+    if(res&&res.additionalUserInfo&&res.additionalUserInfo.isNewUser)fbWelcome();
+    fbSocialName(r);
+    const from=(document.getElementById("authOv")||{dataset:{}}).dataset.from;
+    fbCloseModal();toast(t("auth.signed_in_toast"));
+    if(from!=null)pfSetupSheet("setAcc",from);
+  }catch(e){
+    document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);
+    if(e&&e.code==="auth/account-exists-with-different-credential"){
+      const cred=e.credential||null,em=fbNormEmail(e.email);
+      await fbOpenModal("in");          // opening clears any pending credential, so store AFTER it
+      if(cred&&em)_fbPend={cred,kind,email:em};   // no address from Firebase = nothing to bind to = nothing kept
+      const el=document.getElementById("authEmail");if(el&&em)el.value=em;
+      fbSetErr(em?t("auth.err_account_exists",{email:em}):t("auth.err_account_exists_short"));
+      return;
+    }
+    fbSetErr(fbErr(e));
+  }
+};
 window.fbEmailAuth=async function(mode){
   if(!FBauth)return;
   const em=((document.getElementById("authEmail")||{}).value||"").trim();
@@ -32178,7 +32328,8 @@ window.fbEmailAuth=async function(mode){
     if(mode==="up"){await FBauth.createUserWithEmailAndPassword(em,pw);fbWelcome()}
     else await FBauth.signInWithEmailAndPassword(em,pw);
     const from=(document.getElementById("authOv")||{dataset:{}}).dataset.from;
-    fbCloseModal();toast(t("auth.signed_in_toast"));
+    const _link=await fbLinkPending();   /* came here from a Google/Apple attempt on an existing e-mail: connect it now, if this is that account */
+    fbCloseModal();toast(_link||t("auth.signed_in_toast"));
     if(from!=null)pfSetupSheet("setAcc",from);   /* came from Profile → Backup & sync: back to it, now showing the synced account */
   }catch(e){fbSetErr(fbErr(e))}
 };
@@ -32240,12 +32391,69 @@ window.fbSignOut=async function(){
   fbWipeDevice();
   toast(t("auth.signed_out_toast"));go("home");
 };
+/* ===================== SIGN IN WITH APPLE: REVOCATION =====================
+   Apple requires an app that offers Sign in with Apple AND account deletion to
+   hand the authorisation back when the account goes. Deleting the Firebase user
+   does not do it, and Firebase keeps no Apple token for us, so the only way is
+   a FRESH authorisation code — single-use, about five minutes' life — obtained
+   at the moment of deletion. The learner is asked to confirm with Apple once;
+   that same confirmation also satisfies Firebase's recent-login rule, which
+   deletion needs anyway.
+
+   The exchange is never done here: the code goes to be-mail, which proves from
+   Firebase that this account really carries apple.com and then asks Firebase to
+   revoke it. No Apple key, secret or team credential is in this app.
+
+   Returns true to go on with the deletion, false to stop with the account
+   intact. It is deliberately conservative: anything it cannot confirm stops the
+   deletion, because the alternative is telling the learner their account is
+   gone while Apple still believes they are signed in. */
+function fbHasApple(u){try{return ((u||FBUser||{}).providerData||[]).some(p=>p&&p.providerId==="apple.com")}catch(e){return false}}
+async function fbAppleRevoke(){
+  if(!fbHasApple())return true;                      // email/password or Google only: nothing to revoke
+  const P=beNativeAuth();
+  if(!P||!MAIL_API){
+    /* An Apple account being deleted somewhere the native sheet does not exist
+       (the web, or a build with the plugin switched off) cannot produce a code.
+       Saying so is the honest answer; deleting anyway would break Apple's rule
+       quietly. */
+    toast(t("auth.delete_apple_app_only"));return false;
+  }
+  let r=null;
+  try{r=await P.appleSignIn()}
+  catch(e){
+    const c=(e&&e.code)||"";
+    if(c!=="cancelled")toast(t("auth.delete_apple_fail"));
+    return false;                                     // cancelled: no message, nothing deleted
+  }
+  if(!r||!r.authorizationCode||!r.idToken){toast(t("auth.delete_apple_fail"));return false}
+  /* the same confirmation is the recent login Firebase wants; a failure here is
+     not fatal on its own — the delete below will ask again if it needs to */
+  try{const cred=new firebase.auth.OAuthProvider("apple.com").credential({idToken:r.idToken,rawNonce:r.rawNonce});
+    await FBUser.reauthenticateWithCredential(cred)}catch(e){}
+  try{
+    const tok=await FBauth.currentUser.getIdToken(true);
+    const res=await fetch(MAIL_API+"/apple/revoke",{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},
+      body:JSON.stringify({code:r.authorizationCode})});
+    if(res.ok){const j=await res.json().catch(()=>({}));return !!j.ok}
+    /* 400 = the code was refused (used, expired, malformed) — worth retrying,
+       because the next attempt fetches a new one. 401/403/5xx = not the
+       learner's fault and not something to paper over. */
+    toast(t(res.status===400?"auth.delete_apple_retry":"auth.delete_apple_fail"));return false;
+  }catch(e){toast(t("auth.delete_apple_fail"));return false}
+}
 window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
   /* a paying learner is told that the store subscription is not cancelled with the account */
   let _subNote="";try{const v=entView();if(entIsPremiumForDisplay()&&(v.source==="google_play"||v.source==="app_store"))_subNote="\n\n"+t("auth.delete_sub_note",{store:v.source==="app_store"?"App Store":"Google Play"})}catch(e){}
   if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm")+_subNote,confirmLabel:t("cf.delete")}))return;
   try{
+    /* Sign in with Apple goes FIRST, before anything is erased anywhere: it is
+       the only step that needs the account to be fully alive and the learner
+       present, and if it cannot be confirmed nothing else should have happened
+       yet. It is a no-op for an account without Apple on it. */
+    if(!await fbAppleRevoke())return;
     /* Practice Partner data lives in its own Worker (D1 + R2). It must go with the
        account (Apple 5.1.1(v), Google Play account deletion), and it needs the
        Firebase token, so it goes FIRST. Only a learner who actually used the
@@ -32290,6 +32498,7 @@ window.fbOpenModal=async function(mode){
   if(!FBauth)await fbLoad();
   if(!FBauth){toast(t("auth.not_setup_toast"));if(from!=null)pfSetupSheet("setAcc",from);return}
   fbCloseModal();mode=mode||"up";const signup=mode==="up";
+  const soc=await socialAuthCaps();
   const ov=document.createElement("div");ov.className="auth-ov";ov.id="authOv";if(from!=null)ov.dataset.from=from;
   ov.onclick=e=>{if(e.target===ov)fbCloseModal()};
   ov.innerHTML=`<div class="auth-card" style="position:relative">
@@ -32297,17 +32506,17 @@ window.fbOpenModal=async function(mode){
     <img src="logo.svg" alt="" style="width:52px;height:52px;border-radius:15px;display:block;margin:0 auto 14px">
     <h2>${signup?t("auth.create_title"):t("auth.welcome_back")}</h2>
     <p class="sub">${signup?t("auth.create_sub"):t("auth.login_sub")}</p>
-    <!-- Google/Apple sign-in removed from the UI, not from the code.
-         signInWithRedirect cannot complete while the app is served from
-         app.lomonec.com but Firebase's auth handler lives on
-         be-mastery.firebaseapp.com: browsers partition third-party storage, so
-         the session never comes back and the user lands on a page that looks
-         signed out. Verified on a real device. The fix is serving Firebase's
-         /__/auth/ handler from our own domain, which GitHub Pages cannot do —
-         so until hosting moves, offering the button would mean shipping one
-         that silently fails. fbGoogle() is kept for that day. -->
+    <!-- Google and Apple appear ONLY in the App Store shell, where the native
+         plugin exists (socialAuthCaps). On the web, signInWithRedirect cannot
+         complete: the app is on app.lomonec.com while Firebase's handler is on
+         be-mastery.firebaseapp.com, and browsers partition that storage, so the
+         session never comes back. Verified on a real device. fbGoogle() is kept
+         for the day hosting can serve /__/auth/ itself. -->
+    ${soc.apple||soc.google?`${soc.apple?`<button class="auth-soc apple" onclick="fbSocial('apple')">${FB_A_ICON}<span>${esc(t("auth.continue_apple"))}</span></button>`:""}
+    ${soc.google?`<button class="auth-soc google" onclick="fbSocial('google')">${FB_G_ICON}<span>${esc(t("auth.continue_google"))}</span></button>`:""}
+    <div class="auth-sep">${esc(t("auth.social_or"))}</div>`:""}
     <input id="authEmail" type="email" placeholder="${esc(t("auth.email_ph"))}" autocomplete="email">
-    <input id="authPw" type="password" placeholder="${esc(t("auth.password_ph"))}" autocomplete="${signup?"new-password":"current-password"}">
+    ${pwFieldHTML(`<input id="authPw" type="password" placeholder="${esc(t("auth.password_ph"))}" autocomplete="${signup?"new-password":"current-password"}">`)}
     <div class="auth-err" id="authErr"></div>
     <button class="btn btn-p" style="width:100%;justify-content:center" onclick="fbEmailAuth('${signup?"up":"in"}')">${signup?t("auth.signup_btn"):t("auth.login_btn")}</button>
     ${signup?"":`<p style="text-align:center;margin-top:10px"><a class="auth-forgot" onclick="fbReset()">${t("auth.forgot")}</a></p>`}
@@ -32316,7 +32525,32 @@ window.fbOpenModal=async function(mode){
   </div>`;
   document.body.appendChild(ov);
 };
-window.fbCloseModal=function(){const o=document.getElementById("authOv");if(o)o.remove()};
+/* Show/hide password. Nothing but the input's `type` changes: the value is
+   never read, copied, stored or sent, so validation, strength rules and the
+   sign-in call behave exactly as before. The label flips with the state because
+   a screen reader announces the action, not the icon. */
+function pwFieldHTML(input){
+  return `<span class="pw-wrap">${input}<button type="button" class="pw-eye" aria-pressed="false" aria-label="${esc(t("auth.pw_show"))}" title="${esc(t("auth.pw_show"))}" onclick="pwToggle(this)">${ic("eye")}</button></span>`;
+}
+window.pwToggle=function(btn){
+  const wrap=btn&&btn.closest(".pw-wrap"),input=wrap&&wrap.querySelector("input");
+  if(!input)return;
+  const show=input.type==="password";
+  input.type=show?"text":"password";
+  btn.setAttribute("aria-pressed",show?"true":"false");
+  const label=t(show?"auth.pw_hide":"auth.pw_show");
+  btn.setAttribute("aria-label",label);btn.setAttribute("title",label);
+  btn.innerHTML=ic(show?"eye-off":"eye");
+  /* the caret goes back where it was: flipping the type moves it to the end in
+     WKWebView, which looks like the field lost its place */
+  try{const n=input.value.length;input.focus({preventScroll:true});input.setSelectionRange(n,n)}catch(e){}
+};
+/* Closing the sheet drops the pending credential: the learner has left the
+   route it belongs to, and a credential with no visible explanation on screen
+   must not still be waiting to be spent. Toggling Log in ⇄ Create account
+   goes through here too, which is exactly right — that toggle is how someone
+   would otherwise have ended up linking it to a brand-new account. */
+window.fbCloseModal=function(){_fbPend=null;const o=document.getElementById("authOv");if(o)o.remove()};
 /* --- account card (injected by rData) --- */
 window.fbAuthCard=function(){
   if(FBUser){

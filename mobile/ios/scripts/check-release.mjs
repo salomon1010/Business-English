@@ -105,6 +105,43 @@ console.log("\n== Info.plist / privacy manifest");
     ok(`${l}.lproj/InfoPlist.strings: microphone, speech recognition and camera, in the project`, ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription", "NSCameraUsageDescription"].every(k => s.includes(`"${k}"`)) && pbx.includes(`path = ${l}.lproj/InfoPlist.strings;`));
   }
   ok("ITSAppUsesNonExemptEncryption = NO", /<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\/>/.test(plist));
+  /* Sign in with Apple (Oct 2026): the capability is an entitlement, and a
+     signed build needs the matching App ID capability in the Apple Developer
+     portal — docs/auth/SOCIAL_SIGNIN.md.
+
+     BEGoogleIosClientID is now FILLED IN (2 Oct 2026), so the check is no
+     longer "the key exists": it is that the value is a real iOS OAuth client
+     of this very Firebase project. The project number comes from index.html's
+     own FB_CONFIG rather than being written here, so a client minted in the
+     wrong Google Cloud project fails before the archive instead of at the end
+     of a learner's sign-in. The id is public by design (an iOS OAuth client
+     has no secret); the plist is still checked for anything that is not. */
+  {
+    const gid = (plist.match(/<key>BEGoogleIosClientID<\/key>\s*<string>([^<]*)<\/string>/) || [])[1] || "";
+    const gproj = (read(join(root, "index.html")).match(/messagingSenderId:"(\d+)"/) || [])[1] || "";
+    ok("BEGoogleIosClientID is a configured iOS OAuth client of this Firebase project (Google sign-in is offered)",
+      !!gproj && gid.startsWith(gproj + "-") && /^\d+-[a-z0-9]{16,}\.apps\.googleusercontent\.com$/.test(gid),
+      `len=${gid.length} project=${gproj || "?"}`);
+    ok("Info.plist carries no secret (the client id is public; a client secret, key or token would not be)",
+      !/client_secret|BEGIN PRIVATE KEY|AuthKey_|-----BEGIN/.test(plist));
+  }
+  {
+    const ent = join(ios, "ios", "App", "App", "App.entitlements");
+    ok("App.entitlements present", existsSync(ent));
+    const e = existsSync(ent) ? read(ent) : "";
+    ok("entitlements: Sign in with Apple (Default)", /<key>com\.apple\.developer\.applesignin<\/key>\s*<array>\s*<string>Default<\/string>\s*<\/array>/.test(e));
+    const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => k !== "com.apple.developer.applesignin");
+    ok(`entitlements: nothing else requested (${extra.length ? extra.join(", ") : "none"})`, extra.length === 0);
+    const sign = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = ([^;]+);/g)].map(m => m[1]);
+    ok("CODE_SIGN_ENTITLEMENTS = App/App.entitlements in both configurations", sign.length === 2 && sign.every(v => v === "App/App.entitlements"), sign.join(", "));
+    ok("BEAuthPlugin.swift compiled into the app target", /BEAuthPlugin\.swift in Sources/.test(pbx));
+    const vc = read(join(ios, "ios", "App", "App", "BEBridgeViewController.swift"));
+    ok("BEAuth registered on the Capacitor bridge", /registerPluginInstance\(BEAuthPlugin\(\)\)/.test(vc));
+    const sw = read(join(ios, "ios", "App", "App", "BEAuthPlugin.swift"));
+    ok("BEAuthPlugin: no client secret, nothing logged", !/client_secret/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
+    ok("BEAuthPlugin: Apple request is nonce-bound (SHA-256)", /request\.nonce = Self\.sha256\(raw\)/.test(sw));
+    ok("BEAuthPlugin: Google uses PKCE (S256) and checks state", /code_challenge_method/.test(sw) && /value\("state"\) == state/.test(sw));
+  }
   ok("portrait only on iPhone", /<key>UISupportedInterfaceOrientations<\/key>\s*<array>\s*<string>UIInterfaceOrientationPortrait<\/string>\s*<\/array>/.test(plist));
   for (const k of ["NSPhotoLibraryUsageDescription", "NSLocationWhenInUseUsageDescription", "NSContactsUsageDescription", "NSBluetoothAlwaysUsageDescription"]) ok(`${k} absent (not used by the app)`, !has(k));
   const pm = read(join(ios, "ios", "App", "App", "PrivacyInfo.xcprivacy"));

@@ -20,6 +20,17 @@ node_modules/
 !.env.example
 *.pem
 *.key
+# Sign in with Apple and Firebase admin key material (Oct 2026). These were
+# ignored only under mobile/ios/, so a .p8 downloaded to the repository root
+# — or a key.json left in backend/mail/ after `wrangler secret put` — was one
+# `git add -A` away from being published at app.lomonec.com. The root is worse
+# than most places: mobile/ios/scripts/sync-web.mjs copies the whole root into
+# the iOS bundle, so such a file would ship inside the App Store binary too.
+# Apple's .p8 belongs in the Firebase console and the service-account JSON in
+# `wrangler secret put FB_SA_JSON` — keep both outside the repository.
+*.p8
+AuthKey_*
+*-firebase-adminsdk-*.json
 
 # The promotion playbook. Kept out because everything committed here is served
 # publicly, and it contains posts written in the first person for you to send as

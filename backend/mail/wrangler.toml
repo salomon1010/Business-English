@@ -19,6 +19,10 @@ compatibility_date = "2026-07-31"
 
 [vars]
 FB_PROJECT_ID = "be-mastery"
+# The browser API key (same one index.html carries, public by design): the only
+# thing accounts:revokeToken needs besides the learner's own ID token. Apple's
+# private key lives in the FIREBASE CONSOLE, never here — see README.md.
+FB_API_KEY    = "AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY"
 FROM_EMAIL    = "noreply@lomonec.com"
 FROM_NAME     = "BE Mastery"
 REPLY_TO      = "contact@lomonec.com"
