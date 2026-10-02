@@ -32221,12 +32221,36 @@ window.fbGoogle=async function(){
    storage browsers partition — the long-standing reason fbGoogle() above is
    kept but never offered. A button that silently fails is worse than no
    button, so the buttons appear only where the native path exists. */
-let _beAuthPlug,_beAuthCaps=null;
+let _beAuthPlug=null,_beAuthCaps=null;
+/* Reach a native plugin the way the iOS shell actually offers one.
+   `Capacitor.registerPlugin()` is an **@capacitor/core** API. This app has no
+   bundler and never imports that package, so in the shell it does not exist:
+   the only thing injected is Capacitor's own native-bridge.js, whose twenty
+   methods do NOT include registerPlugin. Asking for it was why the Google and
+   Apple buttons never appeared on a real iPhone while every automated check
+   passed — the test stubs invented the API the bridge lacks.
+   What the bridge DOES inject, per registered plugin and at document start
+   (JSExport.exportJS, called by registerPluginInstance), is
+   `Capacitor.Plugins.<jsName>` with one function per CAPPluginMethod, plus an
+   entry in `Capacitor.PluginHeaders`. That is the real surface, so read it
+   first; registerPlugin stays as a fallback for a future bundled build. */
+function capPlugin(name){
+  try{
+    const C=window.Capacitor;if(!C)return null;
+    const p=C.Plugins&&C.Plugins[name];
+    if(p&&typeof p==="object")return p;
+    if(typeof C.registerPlugin==="function"){const r=C.registerPlugin(name);if(r&&typeof r==="object")return r}
+  }catch(e){}
+  return null;
+}
 function beNativeAuth(){
-  if(_beAuthPlug!==undefined)return _beAuthPlug;
-  _beAuthPlug=null;
-  try{if(IS_IOS_APP&&window.Capacitor&&typeof Capacitor.registerPlugin==="function")_beAuthPlug=Capacitor.registerPlugin("BEAuth")}catch(e){_beAuthPlug=null}
-  return _beAuthPlug;
+  /* only a plugin that was FOUND is remembered: a null is never cached, so
+     nothing here can latch the buttons off for the rest of the session */
+  if(_beAuthPlug)return _beAuthPlug;
+  if(!IS_IOS_APP)return null;
+  const p=capPlugin("BEAuth");
+  if(p&&typeof p.available==="function"){_beAuthPlug=p;return p}
+  return null;
 }
 function socialAuthOn(){
   try{if(!flag("social_signin_enabled"))return false}catch(e){}

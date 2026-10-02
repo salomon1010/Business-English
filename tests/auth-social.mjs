@@ -110,7 +110,21 @@ const BRIDGE = ([caps]) => {
       return { idToken: "GOOGLE_ID_TOKEN", rawNonce: "RAWNONCE_G", provider: "google.com" };
     },
   };
-  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: (n) => (n === "BEAuth" ? P : {}) };
+  /* Shaped like the bridge iOS ACTUALLY injects, because the earlier stub was
+     the reason a 108/108 green suite sat on top of a broken device build: it
+     invented `registerPlugin`, which Capacitor's native-bridge.js does not
+     define (that is an @capacitor/core API and this app has no bundler). What
+     the bridge really injects, at document start and per registered plugin, is
+     Capacitor.Plugins.<jsName> plus a PluginHeaders entry — see
+     node_modules/@capacitor/ios/.../JSExport.swift. No registerPlugin here, on
+     purpose: a stub that is kinder than the device is worse than no stub. */
+  const a = (window.Capacitor = window.Capacitor || {});
+  a.getPlatform = () => "ios"; a.isNativePlatform = () => true;
+  a.isPluginAvailable = (n) => Object.prototype.hasOwnProperty.call(a.Plugins || {}, n);
+  const pl = (a.Plugins = a.Plugins || {});
+  pl.BEAuth = Object.assign({ addListener: () => {}, removeAllListeners: () => Promise.resolve() }, P);
+  (a.PluginHeaders = a.PluginHeaders || []).push({ name: "BEAuth",
+    methods: ["available", "appleSignIn", "googleSignIn"].map(n => ({ name: n, rtype: "promise" })) });
 };
 
 const seed = (tr) => JSON.stringify({ profile: { name: "", lang: "en", ts: 1 }, professionalTracks: { activeId: tr },
@@ -167,7 +181,9 @@ console.log("\n# the shell offers both providers, the web offers neither");
     const P = { available: async () => { if (first) { first = false; const e = new Error("not ready"); e.code = "unavailable"; throw e; } return { apple: true, google: true }; },
       appleSignIn: async () => ({ idToken: "A", rawNonce: "N", provider: "apple.com" }),
       googleSignIn: async () => ({ idToken: "G", rawNonce: "N", provider: "google.com" }) };
-    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: (n) => (n === "BEAuth" ? P : {}) };
+    const a = (window.Capacitor = window.Capacitor || {});
+    a.getPlatform = () => "ios"; a.isNativePlatform = () => true;
+    a.Plugins = { BEAuth: P };          /* the real surface, no registerPlugin */
   } });
   const first = await sheet(p, "in");
   ok("A5a · a rejected available() draws no button, as it must — nothing half-working is offered", first.soc.length === 0 && !first.sep, JSON.stringify(first.soc));
@@ -193,6 +209,67 @@ console.log("\n# the shell offers both providers, the web offers neither");
   const s = await sheet(p, "in");
   ok("A5g · both buttons are rendered on the LOG IN sheet too, not only on Create account", s.soc.length === 2, JSON.stringify(s.soc));
   await ctx.close();
+}
+{
+  /* THE PHYSICAL-DEVICE FAILURE, 2 Oct 2026. A fresh build on a real iPhone
+     showed no Google and no Apple button, and the suite was green, because
+     the app asked for `Capacitor.registerPlugin` — an @capacitor/core API this
+     bundler-less app never imports, and one the injected native-bridge.js does
+     not define (0 occurrences in its twenty methods). The stubs above invented
+     it, so they could not see the hole. These checks pin the real contract. */
+  const { p, ctx } = await open();
+  const bridge = await p.evaluate(() => ({
+    registerPlugin: typeof window.Capacitor.registerPlugin,
+    plugins: !!(window.Capacitor.Plugins && window.Capacitor.Plugins.BEAuth),
+    headers: (window.Capacitor.PluginHeaders || []).some(h => h && h.name === "BEAuth"),
+  }));
+  ok("A6a · the stub is the bridge iOS really injects: Capacitor.Plugins.BEAuth and PluginHeaders, and NO registerPlugin",
+    bridge.registerPlugin === "undefined" && bridge.plugins === true && bridge.headers === true, JSON.stringify(bridge));
+  ok("A6b · and on that bridge the app still finds the plugin — the device regression",
+    (await p.evaluate(() => !!window.beNativeAuth())) === true && (await p.evaluate(() => window.socialAuthOn())) === true);
+  const caps = await p.evaluate(() => window.socialAuthCaps());
+  ok("A6c · … reports both providers", caps.apple === true && caps.google === true, JSON.stringify(caps));
+  const s2 = await sheet(p, "in");
+  ok("A6d · … and draws both buttons on the Log in sheet", s2.soc.length === 2 && /Apple/.test(s2.soc[0].label) && /Google/.test(s2.soc[1].label), JSON.stringify(s2.soc));
+  await ctx.close();
+}
+{
+  /* a bundled build (or any host that DOES provide @capacitor/core) must keep
+     working through the fallback, so the fix is additive, not a swap */
+  const { p, ctx } = await open({ pre: () => {
+    const P = { available: async () => ({ apple: true, google: true }),
+      appleSignIn: async () => ({ idToken: "A", rawNonce: "N" }), googleSignIn: async () => ({ idToken: "G", rawNonce: "N" }) };
+    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: (n) => (n === "BEAuth" ? P : {}) };
+  } });
+  const s3 = await sheet(p, "in");
+  ok("A6e · a host that only offers registerPlugin (a bundled build) still gets both buttons", s3.soc.length === 2, JSON.stringify(s3.soc));
+  await ctx.close();
+}
+{
+  /* no plugin on the bridge at all = no buttons. The shell must never offer an
+     OAuth button it cannot complete. */
+  const { p, ctx } = await open({ pre: () => {
+    const a = (window.Capacitor = window.Capacitor || {});
+    a.getPlatform = () => "ios"; a.isNativePlatform = () => true; a.Plugins = {};   /* registered nothing */
+  } });
+  const s4 = await sheet(p, "in");
+  ok("A6f · a bridge with no BEAuth draws no button and no separator — nothing fake is shipped", s4.soc.length === 0 && !s4.sep, JSON.stringify(s4.soc));
+  ok("A6g · … and email/password is untouched there", s4.email && s4.pw);
+  await ctx.close();
+}
+{
+  /* the JS name and the method names must match the Swift plugin exactly, or
+     Capacitor.Plugins.<jsName>.<method> is simply not there */
+  const at = (...q) => root + q.join("/");    /* `f` is declared later, in the K block */
+  const sw = readFileSync(at("mobile/ios/ios/App/App/BEAuthPlugin.swift"), "utf8");
+  const html = readFileSync(at("index.html"), "utf8");
+  const jsName = (sw.match(/let jsName = "([^"]+)"/) || [])[1];
+  const methods = [...sw.matchAll(/CAPPluginMethod\(name: "([^"]+)"/g)].map(m => m[1]);
+  ok(`A6h · the Swift jsName (${jsName}) is the name the web layer asks for`, jsName === "BEAuth" && /capPlugin\("BEAuth"\)/.test(html), jsName);
+  ok(`A6i · every method the web layer calls is exported by the plugin (${methods.join(", ")})`,
+    ["available", "appleSignIn", "googleSignIn"].every(m => methods.includes(m)), methods.join(", "));
+  ok("A6j · the web layer reads Capacitor.Plugins first and does not depend on registerPlugin alone",
+    /C\.Plugins&&C\.Plugins\[name\]/.test(html), "capPlugin must read Capacitor.Plugins");
 }
 {
   const { p, ctx } = await open({ ios: false });

@@ -241,7 +241,9 @@ const BRIDGE = () => {
       return { idToken: "APPLE_ID_TOKEN", rawNonce: "N", provider: "apple.com", ...(be.code ? { authorizationCode: be.code } : {}) }; },
     googleSignIn: async () => ({ idToken: "G", rawNonce: "N", provider: "google.com" }),
   };
-  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: n => (n === "BEAuth" ? P : {}) };
+  /* the bridge as iOS injects it: Capacitor.Plugins.<jsName>, no registerPlugin */
+  const a = (window.Capacitor = window.Capacitor || {});
+  a.getPlatform = () => "ios"; a.isNativePlatform = () => true; a.Plugins = { BEAuth: P };
 };
 const seed = JSON.stringify({ profile: { name: "Ada", lang: "en", ts: 1 }, professionalTracks: { activeId: "general-english" },
   fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
