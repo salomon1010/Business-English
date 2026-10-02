@@ -155,6 +155,46 @@ console.log("\n# the shell offers both providers, the web offers neither");
   await ctx.close();
 }
 {
+  /* The physical-device report of 2 Oct 2026: a real iPhone build showed only
+     email/password. The buttons are drawn from socialAuthCaps(), and it used to
+     CACHE a negative — so one rejected available() call, which a cold launch can
+     produce because the bridge registers its plugins in capacitorDidLoad, hid
+     both buttons for the rest of the session with nothing on screen to explain
+     it. A "no" must never be remembered. */
+  const { p, ctx, logs } = await open({ pre: () => {
+    /* the plugin rejects the FIRST available() and works afterwards */
+    let first = true;
+    const P = { available: async () => { if (first) { first = false; const e = new Error("not ready"); e.code = "unavailable"; throw e; } return { apple: true, google: true }; },
+      appleSignIn: async () => ({ idToken: "A", rawNonce: "N", provider: "apple.com" }),
+      googleSignIn: async () => ({ idToken: "G", rawNonce: "N", provider: "google.com" }) };
+    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: (n) => (n === "BEAuth" ? P : {}) };
+  } });
+  const first = await sheet(p, "in");
+  ok("A5a · a rejected available() draws no button, as it must — nothing half-working is offered", first.soc.length === 0 && !first.sep, JSON.stringify(first.soc));
+  ok("A5b · … and it says why in the console, so a device build can be diagnosed instead of guessed", logs.some(l => /BEAuth\.available failed/.test(l)), logs.slice(-3).join(" | "));
+  await p.evaluate(() => fbCloseModal()); await sleep(200);
+  const second = await sheet(p, "in");
+  ok("A5c · the NEXT open asks again and both buttons appear: a transient failure is not remembered",
+    second.soc.length === 2 && /Apple/.test(second.soc[0].label) && /Google/.test(second.soc[1].label), JSON.stringify(second.soc));
+  ok("A5d · and only then is the answer cached", JSON.stringify(await p.evaluate(() => socialAuthCaps())) === '{"apple":true,"google":true}', JSON.stringify(await p.evaluate(() => socialAuthCaps())));
+  await ctx.close();
+}
+{
+  /* the supported iOS App Shell conditions, named one by one, so a future
+     regression says WHICH of them stopped being true */
+  const { p, ctx } = await open();
+  const env = await p.evaluate(() => ({ iosApp: IS_IOS_APP, platform: Capacitor.getPlatform(),
+    fbConfigured: fbConfigured(), flag: flag("social_signin_enabled"), plugin: !!beNativeAuth(), on: socialAuthOn() }));
+  ok("A5e · in the shell every gate the buttons depend on is true (IS_IOS_APP, platform ios, Firebase configured, flag on, plugin reachable, socialAuthOn)",
+    env.iosApp === true && env.platform === "ios" && env.fbConfigured === true && env.flag === true && env.plugin === true && env.on === true, JSON.stringify(env));
+  const caps = await p.evaluate(() => socialAuthCaps());
+  ok("A5f · … and the build reports Apple unconditionally, Google because the client id is in Info.plist",
+    caps.apple === true && caps.google === true, JSON.stringify(caps));
+  const s = await sheet(p, "in");
+  ok("A5g · both buttons are rendered on the LOG IN sheet too, not only on Create account", s.soc.length === 2, JSON.stringify(s.soc));
+  await ctx.close();
+}
+{
   const { p, ctx } = await open({ ios: false });
   const s = await sheet(p);
   ok("A6 · on the web (no native plugin) NO social button is drawn — a redirect cannot complete from app.lomonec.com", s.soc.length === 0 && !s.sep);

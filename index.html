@@ -32237,10 +32237,24 @@ function socialAuthOn(){
    client id shows one button, not a broken second one. */
 async function socialAuthCaps(){
   if(_beAuthCaps)return _beAuthCaps;
-  if(!socialAuthOn())return (_beAuthCaps={apple:false,google:false});
-  try{const r=await beNativeAuth().available();_beAuthCaps={apple:!!(r&&r.apple),google:!!(r&&r.google)}}
-  catch(e){_beAuthCaps={apple:false,google:false}}
-  return _beAuthCaps;
+  /* Only a USABLE answer is cached. A "no" is never remembered: the bridge
+     registers its plugins in capacitorDidLoad, so a learner who opens Log in
+     during the first moments of a cold launch can get one rejection, and
+     caching that used to hide both buttons for the rest of the session with
+     nothing on screen to say why. Asking again next time costs one call. */
+  if(!socialAuthOn())return {apple:false,google:false};
+  try{
+    const r=await beNativeAuth().available();
+    const caps={apple:!!(r&&r.apple),google:!!(r&&r.google)};
+    if(caps.apple||caps.google)_beAuthCaps=caps;
+    return caps;
+  }
+  catch(e){
+    /* no token, no credential — just the reason, so a device build can be
+       diagnosed from Safari's console instead of guessing */
+    try{console.warn("BEAuth.available failed:",(e&&(e.code||e.message))||"unknown")}catch(x){}
+    return {apple:false,google:false};
+  }
 }
 function socialErr(code){
   if(code==="cancelled")return "";                      // the learner closed the sheet: say nothing
