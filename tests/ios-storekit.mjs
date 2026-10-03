@@ -87,7 +87,11 @@ const PLUGIN = ([eligible]) => {
     addListener: (ev, cb) => { if (ev === "transaction") sk.listeners.push(cb); return { remove() {} }; },
   };
   sk.emit = x => sk.listeners.forEach(cb => cb(x));
-  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: name => name === "BEStoreKit" ? P : {} };
+  /* THE REAL iOS BRIDGE SHAPE: Capacitor.Plugins.<jsName>. registerPlugin is an
+     @capacitor/core API the unbundled shell does not have, so it is deliberately
+     ABSENT here — inventing it is what hid the BEStoreKit bridge defect. */
+  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true,
+    Plugins: { BEStoreKit: P }, PluginHeaders: [{ name: "BEStoreKit" }] };
 };
 async function open({ uid = null, eligible = true, track = "general-english", pre = null, vp = { width: 390, height: 844 } } = {}) {
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block" });
@@ -125,6 +129,18 @@ console.log("\n# the bridge and the store's products");
   const st = await p.evaluate(() => ({ ios: IS_IOS_APP, provider: Billing.provider && Billing.provider.id, native: typeof window.BENativeBilling, keys: Object.keys(window.BENativeBilling || {}).sort().join(","), products: Billing.products.map(x => [x.id, x.price, x.period, x.trial || ""].join("|")) }));
   ok("I1 · inside the App Store shell the StoreKit provider is chosen, through the BEStoreKit plugin", st.ios && st.provider === "app_store" && st.native === "object", JSON.stringify(st));
   ok("I1b · a staging iOS bundle (BE_BUILD) reaches the STAGING entitlement Worker; a hand-set be_ent_api is ignored inside the App Store shell", await p.evaluate(() => entApiBase() === "https://be-entitlements-staging.nore-ngou.workers.dev") && !calls.includes("EVIL"), JSON.stringify(calls.slice(0, 4)));
+  /* REGRESSION, 2 Oct 2026: beNativeBilling() used to demand
+     Capacitor.registerPlugin, which Capacitor's native-bridge.js does not
+     provide in this unbundled shell — StoreKit was dead on a real iPhone while
+     this suite passed, because the stub invented that API. The stub now models
+     the real shape and registerPlugin is absent, so these two pin it. */
+  const shape = await p.evaluate(() => ({ reg: typeof window.Capacitor.registerPlugin,
+    plugins: typeof window.Capacitor.Plugins, sk: typeof (window.Capacitor.Plugins || {}).BEStoreKit,
+    viaHelper: typeof capPlugin("BEStoreKit") }));
+  ok("I1c · the shell exposes Capacitor.Plugins.BEStoreKit and NO registerPlugin — the real shape",
+    shape.reg === "undefined" && shape.plugins === "object" && shape.sk === "object", JSON.stringify(shape));
+  ok("I1d · StoreKit is discovered through the repository's one helper, capPlugin",
+    shape.viaHelper === "object" && st.native === "object", JSON.stringify(shape));
   ok("I2 · the bridge exposes the whole contract", st.keys === "currentEntitlements,finish,getProducts,manageSubscriptions,onTransaction,pendingTransactions,purchase,restore,supports", st.keys);
   ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("premium_monthly|$4.99|P1M|") && st.products.includes("premium_annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
   const s = await sheet(p);

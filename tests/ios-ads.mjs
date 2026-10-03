@@ -187,10 +187,25 @@ const PLUGIN = ([cfg]) => {
     moveNative: async a => { ad.moved = (ad.moved || 0) + 1; if (ad.natives[a.placement]) ad.natives[a.placement] = { x: a.x, y: a.y, w: a.w, h: a.h }; },
     hideNative: async a => { log("hideNative", a); delete ad.natives[a.placement]; },
   };
-  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: name => name === "BEAds" ? P : {} };
+  /* THE REAL iOS BRIDGE SHAPE. Capacitor's native-bridge.js injects
+     `Capacitor.Plugins.<jsName>` (JSExport.exportJS) and its twenty methods do
+     NOT include registerPlugin — that is an @capacitor/core API this unbundled
+     shell never loads. The old stub invented registerPlugin, which is exactly
+     why 80 checks passed against a bridge that could not work on a device, so
+     registerPlugin is deliberately ABSENT here. */
+  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true,
+    Plugins: { BEAds: P }, PluginHeaders: [{ name: "BEAds" }] };
 };
-/* no plugin at all: Capacitor is there, BEAds is not */
-const NOPLUGIN = () => { window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: () => { throw new Error("no such plugin"); } }; };
+/* Capacitor is there and exposes Plugins, but BEAds is not among them */
+const NOPLUGIN = () => { window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, Plugins: {}, PluginHeaders: [] }; };
+/* the shell as it really is, with the plugin present, used for the latch checks */
+const PLUGIN_SLOW = ([cfg]) => {
+  const ad = window.__ad = { calls: [], cfg, fill: true, shown: 0, natives: {}, throwOn: "", answer: null };
+  const P = { configure: async () => { ad.calls.push("configure"); if (ad.throwOn === "configure") throw new Error("boom"); return ad.answer || ad.cfg; },
+    load: async () => ({ ready: true }), isReady: async () => ({ ready: true }), show: async () => ({ shown: true, completed: true }),
+    dismiss: async () => {}, showNative: async () => ({ shown: true }), moveNative: async () => {}, hideNative: async () => {} };
+  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, Plugins: { BEAds: P }, PluginHeaders: [{ name: "BEAds" }] };
+};
 /* not the App Store shell */
 const NOCAP = () => { delete window.Capacitor; };
 
@@ -258,15 +273,19 @@ console.log("\n# the plugin, and the SDK, may not be there");
 {
   const { ctx, p, errs } = await open({ ios: NOPLUGIN });
   const s = await bridge(p);
-  ok("U1 · plugin unavailable (registerPlugin throws): no bridge, no provider, no error reaches the page",
+  ok("U1 · BEAds absent from Capacitor.Plugins: no bridge, no provider, no error reaches the page",
     s.built === "undefined" && s.provider === "none" && errs.length === 0, JSON.stringify({ s, errs }));
   await ctx.close();
 }
 {
   const { ctx, p, errs } = await open({ cfg: { available: false, reason: "no_sdk", formats: [] } });
   const s = await bridge(p);
-  ok("U2 · the SDK is not linked ('no_sdk'): configure is asked once, answers no, and nothing is built",
-    s.calls.join(",") === "configure" && s.built === "undefined" && s.provider === "none" && errs.length === 0, JSON.stringify(s));
+  /* Updated 2 Oct 2026 with the latch fix: an unavailable answer is no longer
+     remembered, so a later navigation ASKS AGAIN. The invariant that matters is
+     that nothing is ever built and nothing is latched, however often it asks. */
+  ok("U2 · the SDK is not linked ('no_sdk'): nothing is built, nothing latched, and asking again is allowed",
+    s.calls.length >= 1 && s.calls.every(c => c === "configure") && s.built === "undefined" && s.provider === "none"
+    && (await p.evaluate(() => _adsBridge)) === false && errs.length === 0, JSON.stringify(s));
   await ctx.close();
 }
 {
@@ -293,6 +312,85 @@ console.log("\n# the plugin, and the SDK, may not be there");
   await sleep(400);
   const s = await bridge(p);
   ok("U6 · configure() throwing is survived: no bridge, no page error", s.built === "undefined" && errs.length === 0, JSON.stringify({ s, errs }));
+  await ctx.close();
+}
+
+console.log("\n# the REAL bridge shape — Capacitor.Plugins, with registerPlugin absent (regression, 2 Oct 2026)");
+{
+  /* On a real iPhone the bridge never offers registerPlugin. The whole ad system
+     was dead there while every stubbed check passed, because the stub invented it.
+     These checks pin the shape the shell actually provides. */
+  const { ctx, p, errs } = await open();
+  const shape = await p.evaluate(() => ({
+    hasRegisterPlugin: typeof window.Capacitor.registerPlugin,
+    hasPlugins: typeof window.Capacitor.Plugins,
+    beAds: typeof (window.Capacitor.Plugins || {}).BEAds,
+    bridge: typeof window.BENativeAds, provider: adProvider().id,
+    /* failure detail: everything needed to say WHY, without a second run */
+    stub: typeof window.__ad, calls: (window.__ad || {}).calls || null,
+    latch: _adsBridge, busy: _adsBridgeBusy, capPlugin: typeof capPlugin("BEAds"),
+    gates: { ios: IS_IOS_APP, ads: flag("ads_enabled"), track: adsTrackAllows(), live: adsSystemLive(), ent: entApiBase() },
+  }));
+  ok("K1 · the shell exposes Capacitor.Plugins.BEAds and NO registerPlugin — the real shape",
+    shape.hasRegisterPlugin === "undefined" && shape.hasPlugins === "object" && shape.beAds === "object", JSON.stringify(shape));
+  ok("K2 · and the app still builds the bridge from it: provider is native",
+    shape.bridge === "object" && shape.provider === "native", JSON.stringify(shape));
+  ok("K3 · the app reads it through the repository's one helper, capPlugin",
+    await p.evaluate(() => typeof capPlugin === "function" && typeof capPlugin("BEAds") === "object"));
+  ok("K4 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
+  await ctx.close();
+}
+{
+  /* the latch: a miss must never be remembered, or one early failure means
+     "no ads for the rest of the session" — the bug this fix removes */
+  const { ctx, p, errs } = await open({ ios: NOPLUGIN });
+  const first = await p.evaluate(() => ({ bridge: typeof window.BENativeAds, latch: _adsBridge }));
+  ok("K5 · BEAds missing → no bridge AND the latch is NOT set", first.bridge === "undefined" && first.latch === false, JSON.stringify(first));
+  /* the plugin appears later (registration raced the first navigation): the next
+     go() must pick it up, which the old pre-set latch made impossible */
+  const after = await p.evaluate(async () => {
+    const ad = window.__late = { calls: [] };
+    window.Capacitor.Plugins.BEAds = { configure: async () => { ad.calls.push("configure"); return { available: true, formats: ["interstitial", "native"] }; },
+      load: async () => ({ ready: true }), isReady: async () => ({ ready: true }), show: async () => ({ shown: true, completed: true }),
+      dismiss: async () => {}, showNative: async () => ({ shown: true }), moveNative: async () => {}, hideNative: async () => {} };
+    go("journey"); await new Promise(r => setTimeout(r, 900));
+    return { bridge: typeof window.BENativeAds, provider: adProvider().id, latch: _adsBridge, calls: ad.calls.length };
+  });
+  ok("K6 · a later navigation RETRIES and succeeds; only then is the latch set",
+    after.bridge === "object" && after.provider === "native" && after.latch === true && after.calls === 1, JSON.stringify(after));
+  ok("K7 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
+  await ctx.close();
+}
+{
+  /* configure() rejecting must not latch either */
+  const { ctx, p, errs } = await open({ ios: PLUGIN_SLOW, cfg: { available: true, formats: ["interstitial", "native"] } });
+  const r = await p.evaluate(async () => {
+    window.__ad.throwOn = "configure"; _adsBridge = false; _adsBridgeBusy = false; delete window.BENativeAds;
+    beNativeAdsInit(); await new Promise(x => setTimeout(x, 500));
+    const bad = { bridge: typeof window.BENativeAds, latch: _adsBridge, busy: _adsBridgeBusy };
+    window.__ad.throwOn = ""; go("home"); await new Promise(x => setTimeout(x, 1200));
+    return { bad, good: { bridge: typeof window.BENativeAds, latch: _adsBridge, provider: adProvider().id } };
+  });
+  ok("K8 · configure() rejecting leaves the latch clear and nothing busy", r.bad.bridge === "undefined" && r.bad.latch === false && r.bad.busy === false, JSON.stringify(r.bad));
+  ok("K9 · …and the next navigation recovers", r.good.bridge === "object" && r.good.latch === true && r.good.provider === "native", JSON.stringify(r.good));
+  await ctx.close();
+}
+{
+  /* configure() answering unavailable must not latch */
+  const { ctx, p } = await open({ cfg: { available: false, reason: "consent", formats: [] } });
+  const r = await p.evaluate(() => ({ bridge: typeof window.BENativeAds, latch: _adsBridge }));
+  ok("KA · configure() answering unavailable does not latch, so a later attempt is still possible", r.bridge === "undefined" && r.latch === false, JSON.stringify(r));
+  await ctx.close();
+}
+{
+  /* after a confirmed success there must be no duplicate initialisation */
+  const { ctx, p } = await open();
+  const r = await p.evaluate(async () => {
+    const before = window.__ad.calls.filter(c => c === "configure").length;
+    beNativeAdsInit(); beNativeAdsInit(); go("home"); await new Promise(x => setTimeout(x, 900));
+    return { before, after: window.__ad.calls.filter(c => c === "configure").length, latch: _adsBridge };
+  });
+  ok("KB · after success the latch holds: no second configure() however often it is asked", r.latch === true && r.after === r.before && r.before === 1, JSON.stringify(r));
   await ctx.close();
 }
 

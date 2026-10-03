@@ -23673,15 +23673,26 @@ function adProvider(){for(const id of ["native","mock"]){const p=AdProviders[id]
    deliberately unaffected: it is localhost / staging only and sells nothing. */
 function adsSystemLive(){try{return !!entApiBase()&&flag("billing_enabled")}catch(e){return false}}
 
-let _adsBridge=false;   /* tried once per visit */
+/* _adsBridge latches a CONFIRMED success only — never a miss. A plugin that is
+   not there yet, a configure() that rejects and a configure() that answers
+   unavailable all leave it false, so the next go() tries again; the old code set
+   it before the plugin was even looked up, which turned one early failure into
+   "no ads for the rest of the session" with nothing logged. Same rule as
+   _beAuthPlug further down: "a null is never cached". _adsBridgeBusy stops a
+   second attempt while the first is still waiting on UMP. */
+let _adsBridge=false,_adsBridgeBusy=false;
 function beNativeAdsInit(){
-  if(_adsBridge)return;
+  if(_adsBridge||_adsBridgeBusy)return;
   let ios=false;try{ios=IS_IOS_APP}catch(e){}
   if(!ios)return;
   try{if(!flag("ads_enabled")||!adsTrackAllows()||!adsSystemLive())return}catch(e){return}
-  const C=window.Capacitor;if(!C||typeof C.registerPlugin!=="function")return;
-  _adsBridge=true;
-  let P=null;try{P=C.registerPlugin("BEAds")}catch(e){return}
+  /* capPlugin reads Capacitor.Plugins first: `Capacitor.registerPlugin` is an
+     @capacitor/core API and this unbundled shell does not have it (see the note
+     beside capPlugin). Asking for it was why the bridge never built on a real
+     iPhone while every stubbed test passed. */
+  const P=capPlugin("BEAds");
+  if(!P||typeof P.configure!=="function")return;      /* not latched: try again on the next navigation */
+  _adsBridgeBusy=true;
   Promise.resolve(P.configure()).then(r=>{
     if(!r||r.available!==true||!Array.isArray(r.formats)||!r.formats.length)return;
     const formats=r.formats.filter(f=>f==="interstitial"||f==="native");
@@ -23745,7 +23756,8 @@ function beNativeAdsInit(){
         return true;
       },
     };
-  }).catch(()=>{});
+    _adsBridge=true;      /* only now: the bridge exists and the provider is live */
+  }).catch(()=>{}).then(()=>{_adsBridgeBusy=false});
 }
 /* the height the page reserves for a shell-drawn native creative */
 const AD_NATIVE_H=132;
@@ -23911,8 +23923,11 @@ const AdManager={
 function beNativeBilling(){
   if(window.BENativeBilling)return window.BENativeBilling;
   if(!IS_IOS_APP)return null;
-  const C=window.Capacitor;if(!C||typeof C.registerPlugin!=="function")return null;
-  let P=null;try{P=C.registerPlugin("BEStoreKit")}catch(e){return null}
+  /* Capacitor.Plugins, not registerPlugin — see the note beside capPlugin. A
+     miss is never cached: window.BENativeBilling is only set on success, so a
+     later call retries. */
+  const P=capPlugin("BEStoreKit");
+  if(!P||typeof P.getProducts!=="function")return null;
   const list=r=>(r&&Array.isArray(r.items))?r.items:[];
   window.BENativeBilling={
     supports:()=>true,
