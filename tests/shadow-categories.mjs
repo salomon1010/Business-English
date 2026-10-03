@@ -41,9 +41,9 @@ await p.goto(BASE + "/index.html?c=" + Date.now() + "#shadow", { waitUntil: "loa
 await p.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-ov,.wc-ov").forEach(e => e.remove()); go("shadow"); });
 await p.waitForSelector(".shl-chip[data-cat='tv']", { timeout: 15000 });
 const chips = await p.evaluate(() => [...document.querySelectorAll(".shl-chip")].map(b => ({ id: b.dataset.cat, fun: b.classList.contains("fun"), svg: !!b.querySelector("svg"), t: b.textContent.trim(), col: getComputedStyle(b).color })));
-ok("chip order: For you, Your videos, TV shows, Movies, Songs, then the five", chips.map(c => c.id).join() === "foryou,mine,tv,movies,songs,meetings,presentations,interviews,everyday,skills", chips.map(c => c.id).join());
-ok("the three new chips are labelled TV shows / Movies / Songs, each with an icon", ["TV shows", "Movies", "Songs"].every((l, i) => chips[2 + i].t.startsWith(l) && chips[2 + i].svg && chips[2 + i].fun), JSON.stringify(chips.slice(2, 5)));
-ok("each new chip has its own colour", new Set(chips.slice(2, 5).map(c => c.col)).size === 3, chips.slice(2, 5).map(c => c.col).join(" "));
+ok("chip order: All videos, For you, Your videos, TV shows, Movies, Songs, then the five", chips.map(c => c.id).join() === "all,foryou,mine,tv,movies,songs,meetings,presentations,interviews,everyday,skills", chips.map(c => c.id).join());
+ok("the three new chips are labelled TV shows / Movies / Songs, each with an icon", ["TV shows", "Movies", "Songs"].every((l, i) => chips[3 + i].t.startsWith(l) && chips[3 + i].svg && chips[3 + i].fun), JSON.stringify(chips.slice(3, 6)));
+ok("each new chip has its own colour", new Set(chips.slice(3, 6).map(c => c.col)).size === 3, chips.slice(3, 6).map(c => c.col).join(" "));
 for (const id of ["tv", "movies", "songs"]) {
   const r = await p.evaluate(async id => { shLibCat(id); await new Promise(z => setTimeout(z, 250)); const b = document.querySelector(`.shl-chip[data-cat='${id}']`);
     const rows = [...document.querySelectorAll("#shLibFeed .shl-row:not(.scn-lrow)")]; await new Promise(z => setTimeout(z, 500)); const br = b.getBoundingClientRect(), rr = b.parentElement.getBoundingClientRect(); return { seen: br.left >= rr.left - 1 && br.right <= rr.right + 1, on: b.classList.contains("on"), bg: getComputedStyle(b).backgroundImage, n: rows.length, first: (rows[0] && rows[0].querySelector("b") || {}).textContent }; }, id);

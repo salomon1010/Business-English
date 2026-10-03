@@ -11,10 +11,11 @@ import { chromium } from "playwright";
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
+const SPORT = +(process.env.PORT || 8765);
 let BASE = process.env.BASE, server = null;
 if (!BASE) {
-  server = spawn("python3", ["-m", "http.server", "8765"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" });
-  await sleep(700); BASE = "http://localhost:8765";
+  server = spawn("python3", ["-m", "http.server", String(SPORT), "--bind", "127.0.0.1"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" });
+  await sleep(900); BASE = "http://127.0.0.1:" + SPORT;
 }
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond, detail }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
@@ -59,10 +60,17 @@ ok("An unshown modal sheet does not intercept taps; a shown one does", await pag
   g.remove(); return hit1 && !hit2;
 }));
 
-/* ── road map: fast, and drawn ── */
-const rm = await page.evaluate(async () => { go("journey"); await new Promise(r => setTimeout(r, 500)); const road = document.getElementById("rmRoad"); const a = performance.now(); rmDraw(road); return { ms: performance.now() - a, pins: road.querySelectorAll(".rm-pin").length, arrows: road.querySelectorAll(".rm-arw").length }; });
-ok("Road map draws in under 300 ms", rm.ms < 300, Math.round(rm.ms) + " ms");
-ok("Road map has pins and arrows", rm.pins > 5 && rm.arrows > 3, JSON.stringify(rm));
+/* ── road map: fast, and there is exactly ONE of it ── */
+const rm = await page.evaluate(async () => { const a = performance.now(); go("journey"); const ms = performance.now() - a; await new Promise(r => setTimeout(r, 500));
+  return { ms, cards: document.querySelectorAll("#v-journey .rm2").length,
+    road: document.querySelectorAll("#v-journey #rmRoad").length, pins: document.querySelectorAll("#v-journey .rm-pin").length,
+    cardFirst: (() => { const c = document.querySelector("#v-journey .rm2"), r = document.querySelector("#v-journey #rmRoad"); return !!(c && r) && (c.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING) > 0 })(),
+    parts: ["\u002erm2-ring","\u002erm2-cur","\u002erm2-jour",".rm2-cta"].filter(q => document.querySelector("#v-journey " + q)).length }; });
+ok("Road map renders in under 300 ms", rm.ms < 300, Math.round(rm.ms) + " ms");
+/* the owner restored the winding board on 30 Sep 2026 after it was deleted that morning: the
+   card answers "where am I" at a glance and the road is the journey behind it, in both areas.
+   One card, one road, the card first. */
+ok("One card and the winding road behind it, in that order", rm.cards === 1 && rm.road === 1 && rm.pins > 0 && rm.cardFirst && rm.parts === 4, JSON.stringify(rm));
 ok("Every page opens in under 500 ms", await page.evaluate(async () => { let worst = 0; for (const v of ["home","journey","shadow","phrases","practice","review","profile","data"]) { const t0 = performance.now(); go(v); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); worst = Math.max(worst, performance.now() - t0); document.querySelectorAll(".cf-ov,.wc-ov,.lang-modal-ov").forEach(e => e.remove()); } return worst < 500; }));
 
 /* ── Home ── */
@@ -150,13 +158,14 @@ const land = await page.evaluate(async () => {
     if (tr === "welding") { S.professionalTracks = { activeId: "welding" }; ProfessionalTrackContext.setActive("welding"); OB.trade = "welder"; }
     else { S.professionalTracks = { activeId: "general-english" }; ProfessionalTrackContext.setActive("general-english"); }
     obFinish(); await new Promise(r => setTimeout(r, 300));
-    out[tr] = { v: cur.v, track: activeProfessionalTrack().id, homeFirst: document.getElementById("v-home").classList.contains("on"), welcome: !!document.getElementById("wcOv") };
+    out[tr] = { v: cur.v, hv2: typeof homeV2On === "function" && homeV2On(), track: activeProfessionalTrack().id, homeFirst: document.getElementById("v-home").classList.contains("on"), welcome: !!document.getElementById("wcOv") };
     try { wcClose(); } catch (e) {} document.querySelectorAll(".cf-ov,.wc-ov").forEach(e => e.remove()); await new Promise(r => setTimeout(r, 250));
   }
   return out;
 });
 ok("Onboarding lands on the road map, not Home — General English", land["general-english"].v === "journey" && !land["general-english"].homeFirst && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
-ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected", land["welding"].v === "journey" && !land["welding"].homeFirst && land["welding"].track === "welding", JSON.stringify(land["welding"]));
+/* with welding_studio_enabled (staging) Welding has Home V2, and Home V2 is where onboarding lands (the General English rule) */
+ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected (Home V2 when the Welding studio is on)", (land["welding"].hv2 ? land["welding"].v === "home" : (land["welding"].v === "journey" && !land["welding"].homeFirst)) && land["welding"].track === "welding", JSON.stringify(land["welding"]));
 
 /* ── coming back after hours lands on the road map, centred on done → here → next ── */
 await page.evaluate(() => {
@@ -174,9 +183,9 @@ await page.evaluate(() => {
 await page.goto(BASE + "/index.html?back=" + Date.now(), { waitUntil: "load" }); await wait(1200);
 const back = await page.evaluate(() => {
   const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
-  return { hash: location.hash, now: inView(document.querySelector(".rm-lbl.now")), next: inView(document.querySelector(".rm-lbl.next")), strip: !!document.getElementById("rmCel") };
+  return { hash: location.hash, now: inView(document.querySelector(".rm2-cur")), next: inView(document.querySelector(".rm2-next")), strip: !!document.getElementById("rmCel") };
 });
-ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
+ok("Back after 3 h: opens the road map with the current stage and what is next on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
 
 /* ── switching area lands on the other area's HOME, with the "You're now in …" strip (owner, 28 Sep 2026) ── */
 const sw = await page.evaluate(async () => {
@@ -214,11 +223,16 @@ if (!process.env.BASE) {
     const p = await c.newPage(); const outbound = [];
     await p.route("**/*", async route => {
       const u = new URL(route.request().url());
-      if (u.hostname === host) { const r = await fetch("http://localhost:8765" + u.pathname + u.search).catch(() => null); if (!r) return route.abort(); return route.fulfill({ status: r.status, body: Buffer.from(await r.arrayBuffer()), headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } }); }
+      if (u.hostname === host) { const r = await fetch("http://127.0.0.1:" + SPORT + u.pathname + u.search).catch(() => null); if (!r) return route.abort(); return route.fulfill({ status: r.status, body: Buffer.from(await r.arrayBuffer()), headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } }); }
       outbound.push(u.origin + u.pathname); return route.abort();
     });
     p.on("request", r => { const u = new URL(r.url()); if (u.hostname !== host && !outbound.includes(u.origin + u.pathname)) outbound.push(u.origin + u.pathname); });
-    const scheme = host === "localhost" ? "http://localhost:8765" : "https://" + host;
+    /* the origin the PAGE is given must be `host` itself — the route handler above
+   matches on u.hostname === host and fulfils every request from the local
+   server, so nothing is ever really fetched from it. Pointing this at
+   127.0.0.1 while host is "localhost" made every request fall through to
+   route.abort(). */
+    const scheme = host === "localhost" ? "http://localhost:" + SPORT : "https://" + host;
     await p.goto(scheme + "/index.html?env=" + Date.now(), { waitUntil: "load" }); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const env = beEnv();
@@ -238,8 +252,17 @@ if (!process.env.BASE) {
   ok("staging.lomonec.com → staging Events Worker, staging Partner Worker, PILOT flags on", st.env && st.beacon === "https://be-events-staging.nore-ngou.workers.dev/e" && st.partner === "https://be-partner-staging.nore-ngou.workers.dev" && Object.values(st.flags).every(Boolean) && st.aiFallback && st.wordTiming, JSON.stringify(st));
   /* the released production set (RELEASE_PLAN §5.3, 2026-09-19): the four practice_partner_*
      flags are ON; live calls, Shadow Studio V2 and Apply-It phrase stay OFF until their own release */
-  /* Practice Partner released 2026-09-20 (owner decision, DEVICE_CHECKLIST.md 24/66 rows certified on staging); live stays off; Shadow V2 / Challenge as released */
-  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: false, shadow_challenge_enabled: true, shadow_library_enabled: true };
+  /* Practice Partner released 2026-09-20 (owner decision, DEVICE_CHECKLIST.md 24/66 rows certified on staging); Shadow V2 / Challenge as released.
+     Apply-It phrase: false → TRUE, released in 798444bd ("Apply It reaches the AI
+     coach"). This list is deliberately frozen rather than read from
+     FLAGS_DEFAULT: it is the tripwire that catches a production flag flipped by
+     accident, and deriving it would make it agree with any mistake. Update one
+     value here, with the commit that released it, when a flag is released on
+     purpose.
+     practice_partner_live_enabled stays FALSE on purpose — live is switched on
+     server-side (LIVE_ENABLED on be-partner) and the client follows
+     /me.liveEnabled, not this per-device flag. */
+  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: true, shadow_challenge_enabled: true, shadow_library_enabled: true };
   const sameFlags = (got) => JSON.stringify(got) === JSON.stringify(PROD_FLAGS);
   ok("app.lomonec.com → production Events Worker, production Partner API constant, partner flags ON (live off), Shadow flags as released", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(pr.flags) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
   ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(lo.flags), JSON.stringify(lo));

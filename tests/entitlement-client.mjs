@@ -9,7 +9,7 @@
    track boundary, and never let an ad near a protected learning state. */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 const root = new URL("..", import.meta.url).pathname;
-const PORT = 8084, BASE = `http://127.0.0.1:${PORT}/`;
+const PORT = +(process.env.PORT || 8084), BASE = `http://127.0.0.1:${PORT}/`;
 const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(800);
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 const b = await chromium.launch();

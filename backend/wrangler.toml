@@ -14,27 +14,98 @@
 name = "be-polish"
 main = "polish-worker.js"
 compatibility_date = "2026-07-31"
+# premiumGate() fetches be-entitlements on this account's workers.dev
+# subdomain, and a Worker's fetch to another Worker there is refused
+# (Cloudflare 1042) without this flag — the subrequest throws, capabilities()
+# returns { status: 503 } and EVERY AI call answers entitlement_unavailable
+# for a signed-in learner, while the client's own direct call to the same
+# entitlements Worker keeps working (so Profile still reads "Premium" while
+# nothing AI does anything). be-push hit exactly this on 2026-09-27 and is
+# fixed by the same flag; found on be-polish-staging 2026-09-30 through the
+# Shadow Translate card. Top-level, so [env.staging] inherits it, and so does
+# production whenever PREMIUM_ENFORCED is switched on there.
+compatibility_flags = ["global_fetch_strictly_public"]
 
-# ---- ytai account requirement (1 October 2026) ----
-# The one route here that spends real money per call requires a verified
-# Firebase ID token, whatever plan the learner is on. be-polish verifies the
-# token itself against this project — there is no entitlement service in this
-# release and no plan check anywhere in the Worker.
-# It is a VAR, not a secret: it names a public Firebase project, and it is
-# committed so a deploy cannot forget it. Removing it makes the route answer
-# 503 auth_unavailable rather than opening: a configuration gap must stop the
-# spending, not the checking.
+# ---- Rate limiting that survives an isolate recycle (1 October 2026) ----
+# Every limit in polish-worker.js used to be a module-scope Map, i.e. per
+# ISOLATE: the real ceiling was `limit x however many isolates Cloudflare ran`,
+# and 24 of 24 requests passed a limit of 20 when it was measured. The counters
+# now live in this Durable Object — one global instance per subject (an IP, or
+# an account), handling one request at a time. backend/rate-limit.js explains
+# the mechanism and the fixed-window trade-off.
+#
+# WITHOUT this binding the Worker falls back to the old in-memory Maps and says
+# so (`degraded`), so a deploy that loses these three lines silently returns to
+# limits that do not hold. Do not remove them.
+#
+# new_sqlite_classes, not new_classes: the SQLite storage backend is the one
+# available on the Workers Free plan, and this account is on it (the same
+# reason be-mail sends through Brevo instead of Cloudflare Email Service).
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1-rate-limiter"
+new_sqlite_classes = ["RateLimiter"]
+
+# ---- Premium enforcement (Phase 8) ----
+# OFF here, deliberately. Both of these must be set for the Worker to check an
+# entitlement, and they mirror the client's planOn() (billing_enabled + an
+# entitlement service). With either missing, be-polish behaves exactly as it
+# does today and every learner keeps every AI feature — which is correct while
+# Premium is not on sale.
+#
+# Turn on ONLY after be-entitlements is deployed and answering, and in this
+# order, or paying learners lose the AI they bought:
+#   1. deploy be-entitlements (backend/entitlements/README.md)
+#   2. confirm GET /v1/entitlement answers for a real signed-in account
+#   3. set the two vars below and deploy be-polish
+#   4. set billing_enabled + ENT_API in index.html and ship the web bundle
+#
+# PREMIUM_ENFORCED = "1"
+# ENTITLEMENTS_URL = "https://entitlements.lomonec.com"
 [vars]
+PREMIUM_ENFORCED = "0"
+ENTITLEMENTS_URL = ""
+# J1 (1 Oct 2026). The ONE route that spends real money per call — `ytai`,
+# Gemini transcription of a pasted video — requires a verified account whatever
+# PREMIUM_ENFORCED says, and with enforcement off there is no entitlement
+# service to ask, so be-polish verifies the Firebase ID token itself against
+# this project. It is NOT a plan switch and NOT enforcement: every other route
+# behaves exactly as before, and ytai stays free of capability.
+# Removing this makes ytai answer 503 auth_unavailable rather than opening it:
+# a configuration gap must stop the spending, not the checking.
 FIREBASE_PROJECT_ID = "be-mastery"
 
 # ---- Staging (be-polish-staging) ----
-# A SEPARATE Worker, so this release can be exercised against the real
-# Cloudflare runtime without touching production. Staging signs in to the
-# VALIDATION Firebase project (owner, 27 Sep 2026), never production, so the
-# project id differs and a production token is refused here by design.
-# The OPENAI_KEY secret already exists on it and survives a deploy.
+# A SEPARATE Worker, added 30 Sep 2026 so server-side Premium enforcement can be
+# reviewed without touching production. Until this existed, staging.lomonec.com
+# called the production be-polish, so PREMIUM_ENFORCED = "1" would have gated
+# every live learner — a production change wearing a staging label.
+#
+# Enforcement is ON here, and the entitlement service is the staging one
+# (be-entitlements-staging, which verifies be-mastery-test tokens). Nothing is
+# shared with production but the source file.
+#
+# Owner-run, once (the key is a secret, never committed):
+#   npx wrangler secret put OPENAI_KEY --env staging
 #   npx wrangler deploy --env staging
 [env.staging]
 name = "be-polish-staging"
+# a Worker environment does not inherit durable_objects bindings, so staging
+# names its own — the same class, its own objects, nothing shared with
+# production but the source file
+[[env.staging.durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[env.staging.migrations]]
+tag = "v1-rate-limiter"
+new_sqlite_classes = ["RateLimiter"]
+
 [env.staging.vars]
+PREMIUM_ENFORCED = "1"
+ENTITLEMENTS_URL = "https://be-entitlements-staging.nore-ngou.workers.dev"
+# staging signs in to the VALIDATION project, not production (owner, 27 Sep 2026)
 FIREBASE_PROJECT_ID = "be-mastery-test"

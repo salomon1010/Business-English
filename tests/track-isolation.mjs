@@ -37,8 +37,8 @@ async function open(track) {
 const state = p => p.evaluate(() => ({
   area: areaId(), context: ProfessionalTrackContext.active().id, ge: isGeneralEnglish(), journey: isProfessionalJourney() ? "professional" : "general",
   dataTrack: document.documentElement.getAttribute("data-track"), chip: !!(document.getElementById("trackIndicator") || {}).classList?.contains("show"),
-  pp: ppAvailable(), sv: svOn(), polishArea: exAreaKey(), hist: ppHist().length, split: shOwnSplit() }));
-const agree = s => s.area === s.context && (s.area === "general-english") === s.ge && (s.journey === "general") === s.ge && (s.dataTrack === "general") === s.ge && s.chip === !s.ge;
+  pp: ppAvailable(), sv: svOn(), ws: typeof weldStudioOn === "function" && weldStudioOn(), polishArea: exAreaKey(), hist: ppHist().length, split: shOwnSplit() }));
+const agree = s => s.area === s.context && (s.area === "general-english") === s.ge && (s.journey === "general") === s.ge && (s.dataTrack === "general") === s.ge && s.chip === false; /* the header chip was removed on 29 Sep 2026 (Career Destination moved to Welding Practice): on NEITHER track now */
 
 /* sign-in on a device that is on one track, adopting an account copy on the other */
 async function adoptCloud(p, cloudTrack) {
@@ -59,7 +59,7 @@ console.log("\n# the iPhone case: a Welding device signs in, the account copy is
 {
   const { ctx, p, errs } = await open("welding");
   let s = await state(p);
-  ok("R0 · before sign-in: Welding everywhere (area, journey, chip), no General English feature", s.area === "welding" && agree(s) && !s.pp && !s.sv && s.hist === 0, JSON.stringify(s));
+  ok("R0 · before sign-in: Welding everywhere (area, journey, chip), no General English feature", s.area === "welding" && agree(s) && !s.pp && (!s.sv || s.ws) && s.hist === 0, JSON.stringify(s));
   const adopted = await adoptCloud(p, "general-english"); await sleep(400);
   s = await state(p);
   ok("R1 · after adopting the account copy (General English): the journey, the chip and every feature gate give the SAME answer", adopted === "general-english" && agree(s), JSON.stringify(s));
@@ -79,7 +79,7 @@ console.log("\n# the reverse: a General English device adopts a Welding account 
   await adoptCloud(p, "welding"); await sleep(400);
   s = await state(p);
   ok("V1 · after adopting a Welding account copy: every part agrees on Welding", s.area === "welding" && agree(s), JSON.stringify(s));
-  ok("V2 · Practice Partner, Shadow Studio V2 and the Premium Shadow/YouTube limits are off; Polish writes to the Welding bucket", !s.pp && !s.sv && !s.split && s.polishArea === "welding", JSON.stringify(s));
+  ok("V2 · Practice Partner, Shadow Studio V2 and the Premium Shadow/YouTube limits are off; Polish writes to the Welding bucket", !s.pp && (!s.sv || s.ws) && !s.split && s.polishArea === "welding", JSON.stringify(s));
   ok("V3 · the General English 'AI coach practice' history is not listed on Welding", s.hist === 0, JSON.stringify(s));
   const n0 = presence.length;
   await p.evaluate(() => { ppPub.at = 0; ppPresencePoll(true); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);

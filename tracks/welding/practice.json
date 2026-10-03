@@ -142,8 +142,26 @@
     "why": "A recruiter listens for three things in order: who you are, what you have actually done, and where you want to go. Give all three in about twenty seconds and you have answered before being asked twice.",
     "models": {
      "pipefitter": "I'm a pipefitter with six years' experience. I mostly work carbon and stainless spools — take-offs from isometrics, fit-up and bolt-up. The last two years I've been on maintenance turnarounds, and I'm looking for work where I can move onto larger bore process lines.",
-     "boilermaker": "I'm a boilermaker with six years' experience. I mostly work pressure parts and tube renewals — headers, panels and tube-to-header joints. The last two years I've been on outage work, and I'm looking for work where I can take on more repair planning."
+     "boilermaker": "I'm a boilermaker with six years' experience. I mostly work pressure parts and tube renewals — headers, panels and tube-to-header joints. The last two years I've been on outage work, and I'm looking for work where I can take on more repair planning.",
+     "operator": "I'm a refinery operator with six years' experience. I mostly run crude and vacuum — field rounds and line-ups for the first three years, then board work. The last two years I've been signed off for normal operation and shutdown, and I'm looking for a site where I can get start-up sign-off too.",
+     "instrumentation": "I'm an instrument technician with six years' experience. I mostly do calibration and fault-finding on transmitters and control valves, plus loop checks on commissioning. The last two years I've been on a refinery doing proof tests on safety loops, and I'm looking to get fully signed off on that work.",
+     "electrician": "I'm an industrial electrician with six years' experience. I mostly do plant maintenance and installation — motor circuits, switchgear and drives. The last two years I've been on a process site working under permit in classified areas, and I'm looking to move towards testing and commissioning.",
+     "hse": "I'm an HSE officer with six years' experience. I mostly do permit control, risk assessment and incident investigation. The last two years I've been on refinery turnarounds with a lot of confined space and hot work, and I'm looking for a site where I can build the process safety side.",
+     "ndt": "I'm an NDT technician with six years' experience. I'm Level 2 in ultrasonic, magnetic particle and penetrant, mostly weld examination on pressure piping and structural steel. The last two years have been turnaround work, and I'm working towards Level 3 in ultrasonic.",
+     "process": "I'm a process engineer with six years' experience. I mostly support operating units — troubleshooting, turnaround technical work and management of change. The last two years I've been on crude and a hydrotreater, and I'm looking to lead hazard studies rather than only take part in them.",
+     "millwright": "I'm a millwright with six years' experience. I mostly work on rotating equipment — pumps, gearboxes and fans, bearings, seals and coupling alignment. The last two years I've been on a process plant working under lockout, and I'm looking to move into precision alignment and condition monitoring."
     }
+   },
+   "greets": {
+    "operator": "Welcome. Please introduce yourself and tell me about your operating background.",
+    "instrumentation": "Welcome. Please introduce yourself and tell me about your instrumentation background.",
+    "electrician": "Welcome. Please introduce yourself and tell me about your electrical background.",
+    "hse": "Welcome. Please introduce yourself and tell me about your HSE background.",
+    "ndt": "Welcome. Please introduce yourself and tell me about your NDT background.",
+    "process": "Welcome. Please introduce yourself and tell me about your process engineering background.",
+    "millwright": "Welcome. Please introduce yourself and tell me about your mechanical maintenance background.",
+    "pipefitter": "Welcome. Please introduce yourself and tell me about your pipefitting background.",
+    "boilermaker": "Welcome. Please introduce yourself and tell me about your boilermaking background."
    }
   },
   {
@@ -231,7 +249,14 @@
     "why": "A handover is judged on three things: what actually moved, what you still do not know, and what you are prepared to do about it. Vague handovers get repeated back to you as questions.",
     "models": {
      "pipefitter": "I got through the fit-up on the two spools and bolted one up. The second is tacked, not complete. One thing I need from you — is the revised isometric the one on the board, or is there a newer one? If you're short-handed tonight I'm happy to stay an hour and finish the second spool.",
-     "boilermaker": "I got through the fit-up on the two panels and completed one. The second is tacked, not finished. One thing I need from you — is the revised drawing the one on the board, or is there a newer one? If you're short-handed tonight I'm happy to stay an hour and finish that second panel."
+     "boilermaker": "I got through the fit-up on the two panels and completed one. The second is tacked, not finished. One thing I need from you — is the revised drawing the one on the board, or is there a newer one? If you're short-handed tonight I'm happy to stay an hour and finish that second panel.",
+     "operator": "The unit is stable at rate and nothing changed on feed overnight. One thing that isn't right — the overhead temperature has been creeping about two degrees an hour since six, and it's logged. One thing I need from you: can you tell me whether the cooling water side has been touched? And if it keeps moving I'll pull rate back and call you.",
+     "instrumentation": "I got the two calibrations done and recorded, and the level transmitter is back in service. The drum bypass is still in — it expires at six. One thing I need from you: can you confirm operations still have the compensating measure running? If the spare doesn't arrive I'll need the authority extended in writing.",
+     "electrician": "I got the east conveyor circuit tested and restored, and my lock is off that one. The substation motor circuit is still apart with my lock on. One thing I need from you: can you tell me when operations can lose that motor for the rest of the day? If not, I'll leave it isolated and pick it up tomorrow.",
+     "hse": "Three permits went out this morning and two are closed. The confined space on the vessel runs until four. One thing I need from you: can you get the edge protection action closed today — it's been open since Tuesday? And I'd like ten minutes with the crew who started before their permit was signed.",
+     "ndt": "I got twelve joints examined on the north run — eight accepted, three still to shoot, one rejectable. One thing I need from you: can you confirm the extent on the set-on branches, because the drawing doesn't state it? Until that's answered I'll carry on with the joints that are clear.",
+     "process": "I've got through the data on the reboiler and the mass balance supports fouling rather than a flow problem. One thing I need from you: can you tell me what the shift teams have actually been doing to hold the temperature? And I'd like the level transmitter checked before I put this in writing.",
+     "millwright": "I got the conveyor gearbox aligned and the readings recorded, so that one is ready for operations. The west pump is still apart waiting on a bearing. One thing I need from you: can you chase that part? And the coupling guard on the east fan is loose — I've raised a job but it needs doing this week."
     }
    }
   },
@@ -327,7 +352,18 @@
      "spare"
     ],
     "model": "I checked the leads, the earth clamp and the gas before I started. The earth clamp is worn and it's not gripping properly. I've taken it out of service and tagged it, and I've told the tool room so it gets swapped before the next shift.",
-    "why": "A readiness report is only useful if it ends somewhere. What you checked, what was wrong, and what happens next — the last part is the one people forget, and it is the one your supervisor needs."
+    "why": "A readiness report is only useful if it ends somewhere. What you checked, what was wrong, and what happens next — the last part is the one people forget, and it is the one your supervisor needs.",
+    "models": {
+     "operator": "I did the full round and checked the pumps by hand as well as on the board — bearing temperatures, seals and levels. The west pump bearing is running about fifteen degrees above where it was yesterday. I've logged it and told the board. I'd want to swap to the spare before it gets worse rather than after.",
+     "instrumentation": "I checked the calibrator before anything else — calibration label in date and traceable, leads and fittings sound, hand pump holding. The label on the second set expired last month. I've taken it out of the rack into quarantine and told the store, so nobody picks it up in the morning.",
+     "electrician": "I checked my voltage indicator first — leads, probes and fuses, then proved it on a known source. The insulation tester's calibration has expired. I've taken it out of service and quarantined it, and I'll use the spare set until it comes back from calibration.",
+     "hse": "I sampled the lifting gear, the harnesses and the gas monitors rather than pretending to check everything. Two harnesses are out of date. I've taken them out of service myself rather than tagging them, and I want to look at the inspection regime — two is a system problem, not an accident.",
+     "ndt": "I calibrated the set on the identified reference block for the range and sensitivity the procedure calls for, and checked the probe and cables first. The second probe has a damaged wear face. I've taken it out of use and recorded it, and I'll verify sensitivity again at the end of the shift.",
+     "process": "Before I reason from any of this I checked whether the instruments are telling the truth — the mass balance doesn't close by about four per cent. That points at the flow meter rather than the process. I've asked instruments for the as-found reading, because that tells me how long my data has been wrong.",
+     "millwright": "I checked the lifting gear first — slings, shackles, tags legible and inspections in date — then the measuring tools. One sling has a damaged eye. I've taken it out of service and cut it rather than putting it back on the rack, and the store knows it needs replacing.",
+     "pipefitter": "I checked the hoses, the fittings and the gauges before I started, and the flashback arrestors. The regulator on the second set is creeping. I've taken it out of service and tagged it into quarantine, and I've written up what it was doing rather than just that it was faulty.",
+     "boilermaker": "I checked the lifting gear and the tools before I started — slings, shackles, tags legible and inspections in date. One shackle has a bent pin. I've taken it out of service into quarantine, and I'll use another set rather than working round it."
+    }
    }
   },
   {
@@ -409,7 +445,18 @@
      "traceability"
     ],
     "model": "The material on the bench is the 10mm plate, and the drawing calls for that grade on this joint. Before I cut, can you confirm the thickness on the revised drawing is still 10mm? I'd rather check now than after it's prepped.",
-    "why": "Preparation questions cost a minute; preparation mistakes cost the job. Say what you have, say what the paperwork says, then ask the one question that closes the gap between them."
+    "why": "Preparation questions cost a minute; preparation mistakes cost the job. Say what you have, say what the paperwork says, then ask the one question that closes the gap between them.",
+    "models": {
+     "operator": "The line-up for the transfer is the one in the procedure and I've walked it rather than trusting the board. The destination tank has the ullage for it — I checked the level myself and agreed the figure with the tank farm. Before we start, can you confirm nobody else is routed to that tank?",
+     "instrumentation": "The transmitter on the bench matches the tag on the P&ID, and the range and process connection are right for the service. It's certified for the area classification, which the last one wasn't. Before I fit it, can you confirm the DCS range will be changed to match — otherwise the reading will be confidently wrong.",
+     "electrician": "The cable on site is the size and rating the schedule calls for, and the glands match both the cable and the area classification. The protective device rating is right for the circuit. Before I pull it, can you confirm the route on the drawing is still clear — there's new pipework where it shows the tray.",
+     "hse": "I've read the method statement against the risk assessment rather than on its own. The controls match except for one — there's nothing in it for the crew working below. Before it starts, can you confirm who owns the exclusion zone? I'd want that in the document, not agreed on the day.",
+     "ndt": "The surface is prepared well enough to get a reliable result, and the material and thickness match what the procedure was written for. Before I examine it, can you confirm how long since it was welded — the procedure sets a delay on this material and I don't want to shoot it early.",
+     "process": "The equipment's design conditions cover the current duty, but the duty has drifted from the datasheet since the feed changed. Before I sign anything off, can you confirm whether the relief case was reassessed when that happened — if it wasn't, the protection may be sized for the old scenario.",
+     "millwright": "The bearings on the bench are the part numbers in the manual, and I've checked the clearance class rather than just the bore. The seal is the right material for the service. Before I fit them, can you confirm the housing measurement was recorded last time — if it was already worn, new bearings won't fix it.",
+     "pipefitter": "The spool on the stand matches the isometric and the material certificate is with it. Before I cut, can you confirm the centre-to-centre on this offset — the drawing doesn't give the take-out and I'd rather hold it than scrap the piece.",
+     "boilermaker": "The plate on the stand is the grade the drawing calls for and the material certificate is with it. Before I cut, can you confirm the tube layout on this row — the drawing detail is unclear and I don't want to pull the wrong tubes."
+    }
    }
   },
   {
@@ -505,7 +552,29 @@
      "permit"
     ],
     "model": "I'm not starting yet. The extraction isn't running on that bay and there's no screen up, so anyone walking past gets the arc. I've got my helmet, gloves and sleeves on, but I'd like to stop until the screens are up and the extraction is on. I've told the supervisor.",
-    "why": "Stop-work language has to be calm, specific and impossible to misread. Name what you saw, say plainly that you are holding, and say who you have told. Softening it is what gets it overruled."
+    "why": "Stop-work language has to be calm, specific and impossible to misread. Name what you saw, say plainly that you are holding, and say who you have told. Softening it is what gets it overruled.",
+    "models": {
+     "operator": "I'm not starting that yet. There's hydrocarbon on the floor at the west pump seal and it's making a pool, so anyone walking past is in it. I've got my PPE, but that's not the point here. I'd swap to the spare, isolate it and tape the area off, and I'm telling you and the board before anything else happens.",
+     "instrumentation": "I'm not starting that yet. There's a bypass in on the high level trip with nothing written against it, so the plant is running without a protection it's supposed to have. I've got my PPE and my permit, but this needs authorising properly with a time limit and something watching the level, or it comes out now.",
+     "electrician": "I'm not starting that yet. That panel door is open with live terminals exposed and nobody attending it, so anyone walking past is at risk of contact and arc flash. I've got my arc-rated PPE and gloves, but I'd secure that door first and find out who opened it before anyone works in this area.",
+     "hse": "I'm stopping that. There's an unguarded opening in the deck with a crew working beside it — the hazard is the opening and the risk is a fall to the level below. Tape isn't a control for that, it needs a hard barrier. I'll stay while it goes up, and I'll check it's still there after the break.",
+     "ndt": "I'm not shooting that yet. There's a fitter grinding inside my exclusion zone, so he's in a controlled area and I've got a live examination. I've got my PPE, but the barrier clearly isn't telling anyone anything. I'd get him out, stop both jobs, and sort the barrier and the signage before either restarts.",
+     "process": "I'd stop that. The unit is being held above the high limit on tower pressure and the crews have been told it's acceptable — it isn't, that limit comes from a relief case. I'd take it to operations management now, and if it genuinely has to run there, it goes through management of change with the relief case reassessed.",
+     "millwright": "I'm not going near that yet. The coupling guard is off and the machine is running, so there's an exposed rotating shaft anyone could contact. I've got my PPE, but I'm not fitting a guard to a running machine. It gets stopped and isolated through operations first, then I'll find out how it came to be running like that.",
+     "pipefitter": "I'm not starting yet. This is hot work in an occupied area and there's no permit up and no fire watch named. I've got my glasses, gloves and face shield, but that's not the issue. I'd get the permit and the fire watch sorted, and the drains covered, before anyone lights up.",
+     "boilermaker": "I'm not starting yet. That's a confined space entry and the lines aren't blinded — they're locked out, which isn't the same thing. I've got my PPE and the gas test is done, but I'm not crossing until the lines are physically blinded and the permit says so."
+    }
+   },
+   "greets": {
+    "operator": "What would you check before starting this task on the unit?",
+    "instrumentation": "What would you check before starting work on this loop?",
+    "electrician": "What would you check before starting this electrical task?",
+    "hse": "What would you check before letting this task start?",
+    "ndt": "What would you check before starting this examination?",
+    "process": "What would you check before letting this run outside its normal condition?",
+    "millwright": "What would you check before starting work on this machine?",
+    "pipefitter": "What would you check before starting this pipe-fitting task?",
+    "boilermaker": "What would you check before starting this vessel task?"
    }
   },
   {
@@ -598,7 +667,14 @@
     "why": "Explaining a procedure well is about order and evidence, not detail. Say the sequence, say that your settings come from the procedure rather than from habit, and say how you check between steps.",
     "models": {
      "pipefitter": "I follow the procedure sheet: check the take-off against the isometric, fit and align, then tack and bolt up. I set anything adjustable to what the procedure calls for rather than from habit. I check alignment and gap before I go on, and I record it on the sheet.",
-     "boilermaker": "I follow the procedure sheet: prepare and align the tube ends, then work the joint in the order it calls for. I set anything adjustable to what the procedure calls for rather than from habit. I check between stages and I record it on the sheet."
+     "boilermaker": "I follow the procedure sheet: prepare and align the tube ends, then work the joint in the order it calls for. I set anything adjustable to what the procedure calls for rather than from habit. I check between stages and I record it on the sheet.",
+     "operator": "I follow the written procedure step by step and sign as I go: bring it up on rate, then watch the overhead temperature and the drum level. Those are the limits — I stay inside them, and if I can't I hold and call you rather than pushing it. I check the field matches the board before I move to the next step.",
+     "instrumentation": "I follow the procedure: operations authorise the bypass in writing with a time limit, it goes on the register, and there's a compensating measure while it's out. Then the work. Then a proof test end to end — sensor, logic and final element — not just a loop check, and the bypass comes out and is signed off.",
+     "electrician": "I follow the installation requirements and the drawing rather than habit: route and support, gland and termination to suit the area, protective device sized for the load and the cable, then earthing and bonding. Then it's tested — continuity, insulation resistance and polarity — and the results recorded before anything is energised.",
+     "hse": "I follow the risk assessment: hazard first, then who's harmed and how badly, then the control working down the hierarchy rather than jumping to PPE. Then verification — how I'll know the control is still there next week. I brief the crew on the specific hazard for today's job and get one of them to tell it back.",
+     "ndt": "I follow the written procedure for this contract — it names the technique, the probe angles, the reference block, the sensitivity and the scanning pattern. I calibrate on the identified block before I start, examine to the pattern, evaluate anything above the recording level against the criteria, and verify sensitivity again before I write it up.",
+     "process": "I follow the design intent and the operating envelope it comes from. The protections are layered — control keeps it in range, alarms tell the operator, the trip acts if they can't, and the relief valve is the last layer, sized for a specific scenario. If something needs to run outside that, it goes through management of change.",
+     "millwright": "I follow the manual: isolate and prove zero energy, guard off, coupling apart, bearings out. New bearings to the manual's clearances, seal set, then check soft foot before I align anything. Alignment to tolerance, final readings recorded, guard back, then run it and take a vibration reading against the last one."
     }
    }
   },
@@ -681,7 +757,18 @@
      "datum"
     ],
     "model": "Before I set out, can I check this is the current revision? Mine is Rev B and I want to be sure nothing has superseded it. On this detail the dimension between the two brackets isn't clear to me — is that to the centre or to the edge? And can you confirm the symbol here is a 6mm fillet both sides?",
-    "why": "Drawing questions are cheap and rework is not. Confirm the revision first, because every other question is worthless if you are reading a superseded sheet."
+    "why": "Drawing questions are cheap and rework is not. Confirm the revision first, because every other question is worthless if you are reading a superseded sheet.",
+    "models": {
+     "operator": "Before anything is opened, can I check this P&ID is the current revision? Mine is Rev B and I want to be sure nothing has superseded it. On this detail I need the tag numbers on the valves confirmed — the drawing shows a drain on the low point and there isn't one in the field, so I can't prove the isolation from this.",
+     "instrumentation": "Before I disconnect anything, can I check this loop drawing is the current revision? On this detail the tag on the drawing is LT-2104 but the instrument in the field is tagged LT-2140. I identify it physically as well as on paper, so until that's confirmed I'm not touching it — I'd be working on the wrong loop.",
+     "electrician": "Before I set out, can I check this single line is the current revision? On this detail I need the breaker that feeds this circuit confirmed, and whether there's a second supply. Labels lie more often than drawings do, so I'll identify it by test as well — and if there's a back-feed, my isolation isn't complete.",
+     "hse": "Before this job starts, can I check this risk assessment is the current revision? On this detail it covers working at height but says nothing about the crew working below, and there's no exclusion zone in it. I'd want it revised by whoever wrote it, not annotated by me on the day, and then re-briefed to the crew.",
+     "ndt": "Before I start, can I check this drawing is the current revision? On this detail I need the extent confirmed — ten per cent or one hundred, and chosen how. And the weld detail matters: a single-vee butt and a set-on branch need different techniques. I won't guess the extent, because the extent is the contract.",
+     "process": "Before I recommend anything, can I check this P&ID is the current revision? On this detail it shows a bypass around the exchanger and I want to know whether it's actually there and whether it's car-sealed. I'd walk it with an operator, because they know what's been abandoned and the drawing doesn't.",
+     "millwright": "Before I assemble anything, can I check this drawing is the current revision? On this detail I need the clearances confirmed — which are interference and which are clearance, and the tolerance on each. The drawing calls 0.05 to 0.08 on the bearing housing and I'm measuring 0.14, so that needs answering before it goes together.",
+     "pipefitter": "Before I set out, can I check this isometric is the current revision? Mine is Rev B and I want to be sure nothing has superseded it. On this detail the centre-to-centre isn't given, so I can't work the take-out — I'd hold the spool until the layout engineer confirms it.",
+     "boilermaker": "Before I set out, can I check this drawing is the current revision? Mine is Rev B and I want to be sure nothing has superseded it. On this detail the tube layout doesn't show which rows are in scope, so I'd hold it rather than pull tubes that aren't in the repair."
+    }
    }
   },
   {
@@ -764,7 +851,18 @@
      "programme"
     ],
     "model": "We finished the brackets on level two and we're on track there. To start level three I need scaffold access on the north side — can that be booked for tomorrow morning? If it can't, I'd rather bring the level-one work forward than have the team standing.",
-    "why": "Coordinating with another trade is a negotiation, not a report. Say where you are, say exactly what you need and when, and offer the alternative — that is what stops a delay becoming an argument."
+    "why": "Coordinating with another trade is a negotiation, not a report. Say where you are, say exactly what you need and when, and offer the alternative — that is what stops a delay becoming an argument.",
+    "models": {
+     "operator": "We've got the unit stable and the west pump prepared for your crew — drained, depressured, purged and isolated. To hand it over I need to walk the boundary with your technician so we both agree what's yours and what's still mine. Can that be done at eight? And I need to know if you're breaking into the line, because that's a different permit.",
+     "instrumentation": "We've got the two calibrations done and we're on track. To take the drum level loop out I need the board to agree a window — can that be booked for this afternoon? They lose the high level trip while it's out, so they'll need a compensating measure, and I'll call them the moment it's back and proof tested.",
+     "electrician": "We've finished the terminations on level two and we're on track there. To start the substation circuit I need operations to shut that motor down and make it available — can that be booked for tomorrow morning? I need their lock on it as well as mine, and I'll call them when I'm off it rather than them finding out by trying to run it.",
+     "hse": "We've got both crews' permits in and they're on track separately. The problem is together — hot work above and a paint job below is an ignition source over a flammable. I need the two supervisors for ten minutes to sequence them. Can that be done before either starts? Nobody's job is cancelled, one just goes first.",
+     "ndt": "We've examined the joints on level two and we're on track. To start level three I need scaffold access on the north side and the surface prepared — can that be booked for Thursday? And I need a window when nobody is grinding beside me, because I can't shoot through that. I'll give you results the same day.",
+     "process": "We've got the data on the reboiler and the recommendation is nearly ready. To confirm it I need the unit walked down with an operator — can that be booked for tomorrow? And I need the instrument on the outlet checked first, because if that's reading wrong the whole conclusion changes and I'd rather find out now.",
+     "millwright": "We've got the gearbox aligned and we're on track there. To lift the pump I need the area below cleared and nobody working overhead — can that be booked for ten? And I need to know what else is happening nearby, because a lift beside a hot work job is a different conversation.",
+     "pipefitter": "We finished the spools on level two and we're on track there. To start level three I need scaffold access on the north side — can that be booked for Thursday? And I need the welders to know when the fit-ups will be ready so they're not waiting on me.",
+     "boilermaker": "We finished the tube renewals on the north side and we're on track. To start the drum work I need the crane for the lift — can that be booked for Thursday morning? And I need the area below cleared, because nobody works under a suspended load."
+    }
    }
   },
   {
@@ -866,7 +964,14 @@
     "why": "A quality report is trusted when it separates what you observed from what you think should happen. State the finding with its size and location first, then propose — do not lead with the fix.",
     "models": {
      "pipefitter": "On the third spool I found the flange face out of alignment by about 3mm across the bolt circle. I've measured it and photographed it, and I haven't touched it. I'd propose we break it back and re-fit, then re-check — but I wanted to raise it with you first.",
-     "boilermaker": "On the third tube joint I found an indication about 40mm along the seam. I've measured it and photographed it, and I haven't touched it. I'd propose we cut that section out and redo it, then re-inspect — but I wanted to raise it with you first."
+     "boilermaker": "On the third tube joint I found an indication about 40mm along the seam. I've measured it and photographed it, and I haven't touched it. I'd propose we cut that section out and redo it, then re-inspect — but I wanted to raise it with you first.",
+     "operator": "The overhead product is off-spec on the last two samples, and it started after the reflux dropped at about four. I've logged both results and told the board, and I haven't routed any of it to a spec tank. I'd segregate what's been made and get the lab to confirm before anyone decides where it goes.",
+     "instrumentation": "The level transmitter was reading six per cent low across the range — that's the as-found, and the impulse line was partly blocked. I've recorded as-found and as-left and cleared the line. I haven't touched the historical data. It was reading low for an unknown period, so the trend before today can't be relied on and operations need telling.",
+     "electrician": "The insulation resistance on the west conveyor motor circuit came out at 0.3 megohms, well below the requirement. I've measured it, recorded the instrument and its calibration, and left it isolated and locked. I haven't energised it. I'd split the circuit and test the cable and the motor separately before anyone decides what to replace.",
+     "hse": "There was a near miss on the north side — a man stepped back towards an unguarded opening and a colleague caught him. Nobody was hurt. I've got the facts while they're fresh and I've spoken to both of them without blame. I'd take it to root cause, because the anchor point was twenty metres away and that's a design problem, not a carelessness problem.",
+     "ndt": "On joint 42 I found a linear indication 40mm from the start of the weld, 12mm long, with the amplitude and depth recorded. Against the acceptance criteria in the procedure that's rejectable. I've marked the joint and I haven't touched it. It needs excavation and then full re-examination of the repair on a new report.",
+     "process": "The tower bottom temperature has been eight degrees below target since Tuesday and the reboiler duty is down about ten per cent on the same feed. Those are the measurements. What I think is fouling on the reboiler — that's an interpretation, not a fact. I'd recommend planning a clean at the next opportunity rather than pushing the duty.",
+     "millwright": "The alignment on the pump is 0.15mm offset where the tolerance is 0.05, and vibration on the drive end is up on the reading three months ago at the same point. I've recorded both. The machine will run, but I wouldn't put the guard back and call it finished — I'd want to look at the baseplate first."
     }
    }
   },
@@ -960,7 +1065,18 @@
      "authorised"
     ],
     "model": "Before we start I check the permit is issued and in date for this job and this area, and that the isolation is in place and tagged. On this one the permit lists two isolation points and I can only find one on the plant, so I'm not starting. I've raised it with the supervisor to confirm before we go any further.",
-    "why": "Controlled work is judged on what you refused to assume. Say what you confirmed, name the thing that did not match, and say plainly that you have not started."
+    "why": "Controlled work is judged on what you refused to assume. Say what you confirmed, name the thing that did not match, and say plainly that you have not started.",
+    "models": {
+     "operator": "Before we start I check the permit is issued and in date for this job and this area, and that the equipment is drained, depressured, purged and gas-tested, with every energy source isolated and locked and blinds in where the procedure calls for them. On this one the gauge hasn't been proved at zero, and I want to see that myself before anyone opens it.",
+     "instrumentation": "Before we start I check the permit is issued and in date, and that operations' written authority for the bypass is in place with a time limit on it and on the register. On this one there's no compensating measure agreed, so the plant would be without that protection with nobody watching the level. That needs sorting before I touch it.",
+     "electrician": "Before we start I check the permit is issued and in date, and that the circuit is identified, isolated at every source, locked and tagged, and tested dead at the point of work with a meter I've proved. On this one there's a control supply from another board that isn't on the single line, so the isolation isn't complete.",
+     "hse": "Before entry I check the permit is issued and in date for this space, the atmosphere has been tested for oxygen, flammable and toxic and is being re-tested, the isolation is in place with blinds where the procedure says, and there's an attendant who won't leave. On this one the rescue arrangement is on paper but nobody has been named for it.",
+     "ndt": "Before we start I check the permit is issued and in date, the boundary is established and measured with barriers, signs and every access point covered, and the area walked and cleared. On this one the grating overhead isn't barriered, so someone could be above the controlled area without knowing it. That has to be closed first.",
+     "process": "Before start-up I check every management-of-change action is closed, the procedures match what's actually been built, the protections are back in service and proof tested, and the blind register is reconciled. On this one there are two blinds signed in and only one signed out, so nothing pressures up until that's found.",
+     "millwright": "Before the guard comes off I check the permit is issued and in date, the machine is isolated at every source — electrical, process and stored energy — locked with my own lock, and proved at zero by trying to start it. On this one there's a spring-set brake that hasn't been released, so there's stored energy still in it.",
+     "pipefitter": "Before we start I check the permit is issued and in date for this job and this area, and that the line is drained, depressurised and the valves locked and tagged, with a blind in where the spec calls for one. On this one the gauge hasn't been proved at zero and I want to see that myself before I break the flange.",
+     "boilermaker": "Before we start I check the permit is issued and in date for this space, and that the lines are blinded — not just locked out — the energy is isolated and the atmosphere has been gas tested. On this one there's no attendant named for the entry, so nobody goes in until there is."
+    }
    }
   },
   {
@@ -1056,8 +1172,26 @@
     "why": "An interview answer needs one concrete example, not a list of adjectives. The example is what makes the summary believable and the ambition credible.",
     "models": {
      "pipefitter": "Six years, mostly carbon and stainless spools with some maintenance turnarounds. A job I'd point to: we had repeated misalignment on one run of joints and I traced it to a bent support — I raised it, we corrected it, and the rework went back to normal. What I want next is more responsibility on planning.",
-     "boilermaker": "Six years, mostly pressure parts and tube renewals. A job I'd point to: we had repeated leaks after one outage and I traced it to how the joints were being prepared — I raised it, we changed the prep, and the callbacks stopped. What I want next is to work towards inspection."
+     "boilermaker": "Six years, mostly pressure parts and tube renewals. A job I'd point to: we had repeated leaks after one outage and I traced it to how the joints were being prepared — I raised it, we changed the prep, and the callbacks stopped. What I want next is to work towards inspection.",
+     "operator": "Six years on refinery units, mostly crude and vacuum. A shift I'd point to: the overhead started drifting and I caught it on the trend before it tripped — we pulled rate back and stayed on line, and it turned out to be a fouled cooler. What I want next is start-up sign-off and eventually shift supervisor.",
+     "instrumentation": "Six years on process plant, calibration and fault-finding with proof testing on safety loops. A job I'd point to: a level transmitter reading six per cent low for months — I found it on the as-found calibration and it changed how that loop was scheduled. What I want next is full sign-off on the safety instrumented systems work.",
+     "electrician": "Six years as an industrial electrician, mostly plant maintenance and installation under permit. A job I'd point to: a conveyor drive that three people had reset — I tested it properly and found insulation breaking down at a gland letting water in. What I want next is high-voltage authorisation and more commissioning work.",
+     "hse": "Six years in HSE across construction and industrial sites. A job I'd point to: repeat findings on lifting gear that I cut by changing the inspection regime rather than by writing people up. What I want next is to get stronger on process safety specifically — management of change, not only occupational safety.",
+     "ndt": "Six years, Level 2 in ultrasonic, magnetic particle and penetrant, mostly weld examination on pressure piping. A job I'd point to: a run of rejects that turned out to be one welder's technique — I reported the pattern rather than just the joints and it got fixed at source. What I want next is Level 3 in ultrasonic.",
+     "process": "Six years supporting operating refinery units. A job I'd point to: a recurring pressure drop everyone treated as fouling — the mass balance didn't support it and it turned out to be a damaged distributor, which changed the fix entirely. What I want next is to lead hazard studies rather than take part in them.",
+     "millwright": "Six years on industrial plant — pumps, gearboxes and fans. A job I'd point to: a pump that had been through three sets of bearings in a year. The alignment was in tolerance cold, but there was soft foot nobody had checked. Once that was fixed it ran. What I want next is vibration analysis properly."
     }
+   },
+   "greets": {
+    "operator": "Tell me about yourself and your operating experience.",
+    "instrumentation": "Tell me about yourself and your instrumentation experience.",
+    "electrician": "Tell me about yourself and your electrical experience.",
+    "hse": "Tell me about yourself and your HSE experience.",
+    "ndt": "Tell me about yourself and your NDT experience.",
+    "process": "Tell me about yourself and your process engineering experience.",
+    "millwright": "Tell me about yourself and your millwright experience.",
+    "pipefitter": "Tell me about yourself and your pipefitting experience.",
+    "boilermaker": "Tell me about yourself and your boilermaking experience."
    }
   },
   {
@@ -1145,7 +1279,14 @@
     "why": "A closing interview answer joins three things: the standard you are held to, evidence you can meet it, and what the team gets from you. Confidence without the first two sounds like a claim.",
     "models": {
      "pipefitter": "I work to the standards the job is issued under — on process work that's been ASME B31.3 — and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring is steady output with low rework, and I'm happy to help bring newer hands up to speed.",
-     "boilermaker": "I work to the standards the job is issued under — on pressure work that's been ASME BPVC — and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring is steady output with low rework, and I'm happy to help bring newer hands up to speed."
+     "boilermaker": "I work to the standards the job is issued under — on pressure work that's been ASME BPVC — and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring is steady output with low rework, and I'm happy to help bring newer hands up to speed.",
+     "operator": "I work to the standards the job is issued under — on a refinery that's process safety management and the site's own operating procedures — and I operate to the written procedure rather than from habit. I'm confident on normal operation and shutdown. What I'd bring is discipline about the boring parts: rounds done properly, logs written, deviations reported while they're still small.",
+     "instrumentation": "I work to the standards the job is issued under — for protective loops that's the functional safety requirements — and I proof test rather than assume. I'm confident on calibration and loop work. What I'd bring is records that mean something: as-found readings, not just as-left, so the plant knows what it's actually been running on.",
+     "electrician": "I work to the standards the job is issued under — the installation requirements and the electrical safety rules for the workplace — and I prove things rather than assume them. I'm confident on isolation and testing. What I'd bring is fault-finding that gets to the cause, with a test result behind it, rather than resetting a breaker.",
+     "hse": "I work to the standards the job is issued under — the safety management system and the permit rules — and I make controls verifiable rather than aspirational. I'm confident on permits, risk assessment and investigation. What I'd bring is turning up before the problem: crews talk to me because I'm useful, not only because I can stop them.",
+     "ndt": "I work to the standards the job is issued under — the written examination procedure and the acceptance criteria — and I examine to that rather than to how I was taught. I'm confident on ultrasonic, MT and PT at Level 2. What I'd bring is reports somebody else could repeat, which is the only thing an inspection contract is buying.",
+     "process": "I work to the standards the job is issued under — process safety management and the site's change process — and I take changes through it rather than round it. I'm confident on troubleshooting and hazard studies. What I'd bring is not being certain too early: most expensive mistakes are a plausible theory nobody tested.",
+     "millwright": "I work to the standards the job is issued under — the manual's clearances and the site's isolation rules — and I work to numbers rather than by feel. I'm confident on alignment and rotating equipment. What I'd bring is recording what I measured, not just what I fitted, because that's what settles the argument when something fails again."
     }
    }
   }

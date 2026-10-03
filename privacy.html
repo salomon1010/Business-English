@@ -21,9 +21,26 @@ ul{padding-left:22px}
 .hl{background:#ecfdf5;border-left:5px solid #059669}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:26px;border-top:1px solid var(--line)}
 a{color:var(--acc)}
+/* Close. Opened from the app with target="_blank", this page gets a window with
+   no browser chrome — in the installed app there is no tab strip and no back
+   gesture, so the reader was stranded on the policy with no way out (owner,
+   30 September 2026). Hidden inside the in-app document sheet, which is an
+   iframe and carries its own close button; see .doc-close in index.html. */
+#docClose{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:50;
+  width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
+  background:rgba(12,18,38,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+  -webkit-tap-highlight-color:transparent}
+#docClose svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+#docClose:hover,#docClose:focus-visible{background:rgba(12,18,38,.62)}
+#docClose:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media print{#docClose{display:none}}
 </style>
 </head>
 <body>
+<button type="button" id="docClose" aria-label="Close" title="Close" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+</button>
 <header>
   <img src="logo.svg" alt="BE Mastery logo">
   <h1>Privacy Policy</h1>
@@ -142,5 +159,32 @@ a{color:var(--acc)}
   <p>If this policy changes, the "Last updated" date above will change. Questions: <a href="mailto:contact@lomonec.com">contact@lomonec.com</a></p>
 </main>
 <footer>© 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="./">Open the app</a> · <a href="manual/">User manual</a> · <a href="mailto:contact@lomonec.com">Support</a></footer>
+<script>
+/* Show the button only where this page is the whole window. Inside the app's
+   document sheet it is an iframe with its own close button, and two would be
+   one too many. */
+(function(){
+  var b=document.getElementById("docClose");
+  if(!b)return;
+  var embedded=false;try{embedded=window.self!==window.top}catch(e){embedded=true}
+  if(embedded)return;                       /* the sheet closes it */
+  b.hidden=false;
+  b.addEventListener("click",function(){
+    /* a window this page's opener script made can simply be closed */
+    try{if(window.opener&&!window.opener.closed){window.close();return}}catch(e){}
+    /* Step back only when we actually came from the app in THIS window — a
+       same-origin referrer and something to step back to. A target="_blank"
+       window is fresh (history.length 1) even though it has a referrer, and
+       stepping back there lands on a blank page, which is the dead end again. */
+    var from=false;
+    try{from=!!document.referrer&&new URL(document.referrer).origin===location.origin}catch(e){}
+    if(from&&history.length>1){try{history.back();return}catch(e){}}
+    /* otherwise open the app itself, so the reader is never left nowhere */
+    location.replace("./");
+  });
+  /* Escape does the same on a desktop browser */
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")b.click()});
+})();
+</script>
 </body>
 </html>

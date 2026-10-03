@@ -7,7 +7,8 @@
      • CORS locked to the app's own origin (no one else can call it)
      • input length capped (bounds tokens per request)
      • output tokens capped
-     • per-IP rate limit (best-effort, in-memory)
+     • per-IP and per-account rate limits, held in a Durable Object so they
+       survive an isolate recycle and apply across isolates (rate-limit.js)
      • REAL hard cap = set a monthly budget limit on the AI provider account
        (see backend/README.md) — that is the backstop that can never be exceeded.
 
@@ -31,12 +32,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",  "http://127.0.0.1:3000",
 ];
 
-/* The SAME Firebase ID-token verifier be-entitlements uses — RS256 against
-   Google's securetoken JWKS, checking aud, iss, exp and iat and returning the
-   `sub` and nothing else. Imported rather than copied so the backend has one
-   implementation of identity; esbuild bundles it at deploy. */
-import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
-
 const MAX_INPUT_CHARS = 400;   // bounds prompt size
 const MAX_OUTPUT_TOKENS = 320; // bounds reply size
 const RATE_PER_MIN = 15;       // max Polish clicks per IP per minute
@@ -58,12 +53,10 @@ const STT_MODEL = "whisper-1";
 const MAX_STT_BYTES = 12 * 1024 * 1024;  // ~12 MB — practice clips are short
 const STT_PER_MIN = 20;
 const STT_PER_DAY = 600;
-const sttHits = new Map();
 
 // ---- YouTube captions (no provider cost; limits just curb abuse of the proxy) ----
 const CAP_PER_MIN = 12;
 const CAP_PER_DAY = 400;
-const capHits = new Map();
 /* The Gemini transcript route is the only one here that costs money per call,
    and the bill scales with the LENGTH of whatever the learner pasted: roughly
    $0.08 for 15 minutes, so an unattended three-hour podcast is about $1.
@@ -78,7 +71,6 @@ const capHits = new Map();
 const YTAI_MAX_SEC = 1800;       // 30 minutes ≈ $0.16 worst case per video
 const YTAI_PER_MIN = 2;
 const YTAI_PER_DAY = 25;
-const ytaiHits = new Map();
 /* A WINDOW (27 Sep 2026): { ytai, from, to } transcribes only that stretch of
    the video. The app asks for the first minute alone, shows it, and fetches
    the rest in windows behind the learner. A pasted 20-minute talk used to wait
@@ -87,10 +79,15 @@ const ytaiHits = new Map();
    long one). A window costs a slice of the video, so windows have their own
    brake, sized so a day of windows reads no more video than a day of whole
    videos: 150 windows × 5 minutes = 25 videos × 30 minutes. */
+/* the per-ACCOUNT ceiling on paid-for video transcription. Sized as a day's
+   honest use by one learner (the app asks for the first minute, then windows),
+   not as a product limit: a learner who hits this is importing videos far
+   faster than they could watch them. */
+const YTAI_ACCT_PER_MIN = 4;
+const YTAI_ACCT_PER_DAY = 10;
 const YTAI_WIN_MAX = 300;          // the longest stretch one window may ask for
 const YTAI_WIN_PER_MIN = 12;
 const YTAI_WIN_PER_DAY = 150;
-const ytaiWinHits = new Map();
 /* the answer is kept at the edge by video and stretch: a video's words do not
    change, and a POST's cache-control header is ignored by every cache */
 const YTAI_CACHE_S = 30 * 86400;
@@ -120,12 +117,39 @@ const ASSESS_MODELS = [
 const MAX_ASSESS_B64 = 6 * 1024 * 1024;  // ~4.5 MB of audio once base64-encoded
 const ASSESS_PER_MIN = 15;
 const ASSESS_PER_DAY = 400;
-const assessHits = new Map();
 
-// best-effort in-memory counters (reset when the worker instance recycles;
-// the provider budget cap is the real guarantee)
-const hits = new Map();        // ip -> {min:[ts...], day:[ts...]}  (Polish)
-const ttsHits = new Map();     // ip -> {min:[ts...], day:[ts...]}  (TTS)
+/* ---- WHERE THE LIMITS LIVE NOW (1 October 2026) ----
+   Every counter above used to be a module-scope Map, which is per-ISOLATE: the
+   real ceiling was `limit x however many isolates Cloudflare chose to run`,
+   and a recycled isolate handed the caller a fresh allowance. Measured that
+   day: 24 of 24 requests passed a limit of 20. The numbers were documentation,
+   not a brake.
+   They are now held in a Durable Object, which is one global instance per
+   subject and handles one request at a time — see backend/rate-limit.js for
+   the mechanism, the fixed-window trade-off and the degraded fallback. The
+   numbers themselves are unchanged; what changed is that they are true. */
+import { RateLimiter, consume } from "./rate-limit.js";
+/* The SAME Firebase ID-token verifier be-entitlements uses — RS256 against
+   Google's securetoken JWKS, checking aud, iss, exp, iat and returning the
+   `sub` and nothing else. Imported rather than copied so there is one
+   implementation of identity in the backend, and esbuild bundles it at deploy.
+   Needed because of J1 below: `ytai` must demand an account even where
+   PREMIUM_ENFORCED is off and there is no entitlement service to ask. */
+import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
+/* a DO class must be exported from the Worker's entry module for the binding
+   in wrangler.toml to resolve to it */
+export { RateLimiter };
+
+/* one route's two windows, held against one subject. Returns a 429 Response to
+   send, or null to carry on. */
+async function limit(env, subject, name, perMin, perDay, cors) {
+  const r = await consume(env, subject, [
+    { name: name + ":min", limit: perMin, windowMs: 60_000 },
+    { name: name + ":day", limit: perDay, windowMs: 86_400_000 },
+  ]);
+  if (r.ok) return null;
+  return json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
+}
 
 function corsHeaders(origin) {
   /* Device testing happens over the LAN — a phone loads the dev server by the
@@ -140,43 +164,202 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    /* `authorization` carries the Firebase ID token the ytai gate needs. The
-       client adds it to every POLISH_API call once the learner is signed in (the
-       one signing wrapper in index.html), which turns the request into a
-       PREFLIGHTED one — so if this does not name the header, the browser refuses
-       the call before this Worker ever runs, and every AI feature dies with
-       whatever generic "needs a connection" message that caller shows. curl
-       never sees it: curl sends no preflight. Measured on production
-       2026-10-01: allow-headers was `content-type` only, which is why the web
-       bundle must NOT ship before this Worker. */
+    /* `authorization` carries the Firebase ID token that premiumGate() needs.
+       The client adds it to every POLISH_API call once the learner is signed in
+       (the one signing wrapper in index.html), which turns the request into a
+       PREFLIGHTED one — so if this does not name the header, the browser
+       refuses the call before this Worker ever runs, and every AI feature dies
+       with whatever generic "needs a connection" message that caller shows.
+       curl never sees it: curl sends no preflight. Found 2026-09-30 through the
+       Shadow Translate card on staging. */
     "Access-Control-Allow-Headers": "content-type, authorization",
     "Vary": "Origin",
   };
 }
 
 /* ============================================================================
-   ytai REQUIRES AN ACCOUNT (1 October 2026)
+   PREMIUM ENFORCEMENT (Phase 8) — the server-side entitlement boundary
    ----------------------------------------------------------------------------
-   `ytai` is the only route here that spends real money per call — Gemini
-   transcription of a video the learner pasted, roughly $0.08 for 15 minutes —
-   and it was reachable with no account at all, held only by a per-IP brake that
-   a changed network defeats.
+   The client decides what to DRAW; this file decides what is SPENT. A learner
+   who edits localStorage, or who calls this Worker directly with curl and a
+   forged Origin header, gets exactly as much paid AI as the entitlement
+   service says their account has bought.
 
-   It stays FREE. An authenticated learner on any plan uses it exactly as
-   before; what ended is "free" meaning "anonymous" on this one route. No other
-   route gains a requirement, nothing becomes paid, and there is no plan or
-   entitlement check anywhere in this file.
+   OFF BY DEFAULT. Enforcement needs BOTH:
+       PREMIUM_ENFORCED = "1"        (var)
+       ENTITLEMENTS_URL = "https://entitlements.lomonec.com"   (var)
+   With either missing this Worker behaves exactly as it always has, which is
+   what production does today: Premium is not on sale, so nothing is gated. It
+   mirrors the client's planOn() precisely, and the two must be switched on
+   together.
 
-   FAILS CLOSED, deliberately: a missing FIREBASE_PROJECT_ID or an unreachable
-   JWKS answers 503 rather than letting the call through. For a route that
-   spends money a configuration gap must stop the spending, not the checking.
+   How a request is authorised:
+     1. the caller sends their Firebase ID token (Authorization: Bearer …),
+     2. this Worker forwards that header to be-entitlements /v1/entitlement,
+        which verifies the token itself and answers with the VIEW for that uid,
+     3. the capability the route needs is read from view.capabilities.
+   No secret is shared between the two Workers, and this one never learns how
+   to mint identity — it can only ask.
+
+   Answers are cached per token for ENT_CACHE_MS. The cache key is a SHA-256 of
+   the token, never the token itself, and never the uid.
+
+   HONEST LIMIT — read before trusting this:
+   The `chat` route takes a system prompt FROM THE CLIENT. Whoever can call it
+   can make the model do anything, whatever capability label the request
+   carries, so `chat` cannot be fully protected by a label. What the label does
+   buy is real but narrower: a Free account cannot use the app's own coach and
+   report flows, and every call is tied to a verified account and rate-limited
+   per account rather than per IP. The routes that do fixed server-side work —
+   transcription, `assess`, `analyse`, `mvreport` — ARE properly protected,
+   because the work is defined here and not by the caller.
+   Closing the `chat` gap means moving the system prompts into this Worker.
+   That is a larger change and is listed as remaining work.
+   ============================================================================ */
+const ENT_CACHE_MS = 60_000;
+const entCache = new Map();               // sha256(token) -> { at, caps }
+const premiumOn = env => env.PREMIUM_ENFORCED === "1" && !!env.ENTITLEMENTS_URL;
+
+/* what each route needs. null = free: the practice itself is never metered. */
+const ROUTE_CAP = {
+  /* BEING HEARD IS FREE (owner, 1 October 2026). This route is audio in -> words
+     out, and nothing else: it is what lets a learner SPEAK and have the app
+     understand them. Charging for it made the interview and the workshop — the
+     spoken heart of both programmes — unusable on the Free plan, and the app
+     reported the refusal as a microphone that heard nothing. Being understood is
+     the activity; the JUDGEMENT of it is the product. So this is null and
+     `assess` / `analyse` / `mvreport` / chat purposes `report` and `coach` below
+     are not: a Free learner is heard, keeps the recording, and gets the local
+     result the app already computes offline, while the AI's verdict stays paid.
+     null does NOT mean unmetered — the `cap === null` branch still demands a
+     verified account, and STT_PER_MIN / STT_PER_DAY and the per-account limit
+     still apply, so this cannot be used as free transcription at scale. */
+  transcribe: null,
+  assess:     "ai_analysis",
+  analyse:    "ai_analysis",
+  mvreport:   "ai_analysis",
+  captions:   null,            // library content, not a judgement of the learner
+  ytai:       null,
+  tts:        null,            // the natural voice reads characters and lessons too
+  polish:     null,            // the Executive Polish rewrite stays Free (PLAN_LIMITS caps its history)
+  repolish:   null,
+};
+/* `chat` serves several features. The purpose is declared by the caller and is
+   NOT a security claim (see the honest limit above) — it is how the app's own
+   flows are gated. An absent purpose reads as "practice", so an older cached
+   index.html keeps working exactly as it does now. */
+const CHAT_PURPOSE_CAP = { practice: null, coach: "ai_coach", report: "ai_analysis" };
+
+/* The account a token belongs to, for the rate-limit bucket ONLY.
+
+   This is the token's own `sub` claim, read without verifying the signature —
+   which is sound here and nowhere else: this function is reached only after
+   be-entitlements answered 200 for this same token, and be-entitlements
+   verifies it against Firebase's JWKS. A token it accepted is genuine, so the
+   `sub` inside it is the real uid. Nothing is authorised on this value; it
+   decides which counter a call is charged to. A token that cannot be parsed
+   falls back to the token hash, so a malformed one gets a limit, not a pass. */
+function tokenSub(tok) {
+  try {
+    const p = String(tok).split(".");
+    if (p.length !== 3) return null;
+    let b = p[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (b.length % 4) b += "=";
+    const sub = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b), c => c.charCodeAt(0)))).sub;
+    return (typeof sub === "string" && sub && sub.length <= 128) ? sub : null;
+  } catch (e) { return null; }
+}
+async function tokenKey(tok) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tok));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+/* the account's capabilities, or a reason it could not be established.
+   { caps } | { status: 401|503 } */
+async function capabilities(req, env) {
+  const auth = req.headers.get("Authorization") || "";
+  if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
+  const tok = auth.slice(7);
+  const key = await tokenKey(tok);
+  const uid = tokenSub(tok);
+  const hit = entCache.get(key);
+  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps, key, uid };
+  let r;
+  try {
+    r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } });
+  } catch (e) {
+    return { status: 503 };                       // the service is unreachable: say so, never guess
+  }
+  if (r.status === 401 || r.status === 403) return { status: 401 };
+  if (!r.ok) return { status: 503 };
+  let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
+  const src = (j && j.capabilities && typeof j.capabilities === "object") ? j.capabilities : {};
+  const caps = {};
+  /* ai_verbal_feedback was removed on 1 October 2026: it was advertised on the
+     paywall and checked at ZERO call sites, while `tts` is free because the
+     natural voice reads CONTENT (lessons, characters, words). A Free learner
+     already had everything that name described, so it was a claim, not a
+     capability. Removed from CAPABILITIES in entitlement-core.js too; an older
+     deployed entitlements Worker that still sends it is simply ignored here. */
+  for (const k of ["ad_free", "ai_analysis", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
+  if (entCache.size > 5000) entCache.clear();
+  entCache.set(key, { at: Date.now(), caps, uid });
+  return { caps, key, uid };
+}
+/* Returns a Response to send instead, or null to carry on. */
+/* ============================================================================
+   J1 — ytai REQUIRES AN ACCOUNT, WHATEVER THE PLAN OR THE ENFORCEMENT STATE
+   ----------------------------------------------------------------------------
+   `ytai` is the only free route that spends real money per call (~$0.08 for 15
+   minutes of video), and until now it inherited its authentication from
+   premiumGate — which returns immediately when PREMIUM_ENFORCED is off. In
+   production, where enforcement IS off, that left the route reachable with no
+   account at all, held only by a per-IP brake that a changed network defeats,
+   and with the per-account cap inert because there was no account to charge.
+
+   This closes that without touching the product model: `ROUTE_CAP.ytai` stays
+   null, so the route is still FREE — an authenticated Free learner may use it
+   exactly as before. What changes is that "free" no longer means "anonymous"
+   on this one route. Nothing else moves: no other route gains a requirement,
+   nothing becomes Premium, and PREMIUM_ENFORCED is untouched.
+
+   Two modes, one requirement:
+     · enforcement ON  — premiumGate already demands a verified account through
+       be-entitlements. Nothing is added; this returns the account so the
+       per-account cap can use it.
+     · enforcement OFF — there is no entitlement service to ask, so the token
+       is verified HERE against FIREBASE_PROJECT_ID, with the same module
+       be-entitlements verifies with.
+
+   FAILS CLOSED, deliberately. A missing FIREBASE_PROJECT_ID or an unreachable
+   JWKS answers 503 rather than letting the call through: for a route that
+   spends money, a configuration gap must stop the spending, not the checking.
+   That is the opposite of the choice made for the rate limiter, and for the
+   opposite reason — a limiter outage must not take a free feature down, while
+   an auth outage must not open a paid provider.
    ============================================================================ */
 async function ytaiAccount(req, env, cors) {
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer \S+$/.test(auth)) return { res: json({ error: "auth_required" }, 401, cors) };
+  if (premiumOn(env)) {
+    /* Enforcement on: be-entitlements is the verifier, so premiumGate IS the
+       check and it has to run HERE — inside the gate — not further down the
+       route. It used to be called after the `no_key` test, which meant a
+       PRESENT but junk Bearer header passed this function and was answered 501
+       instead of 401: the header was taken as proof of an account. Measured on
+       be-polish-staging on 1 Oct 2026 — a malformed token, alg=none, a
+       self-signed one and a token for the wrong Firebase project all got 501.
+       No paid work was reachable that way (the key is absent on staging and
+       premiumGate still stood in front of the provider), but it leaked whether
+       a key is configured and it broke the one ordering rule this gate exists
+       to keep: nothing on this route happens before the token is verified. */
+    const g = await premiumGate(req, env, "ytai", cors);
+    if (g) return { res: g };
+    return { ok: true, subject: await acctSubject(req, env) };
+  }
   if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
+  let uid;
   try {
-    await verifyIdToken(auth.slice(7), env.FIREBASE_PROJECT_ID);
+    uid = await verifyIdToken(auth.slice(7), env.FIREBASE_PROJECT_ID);
   } catch (e) {
     /* a JWKS fetch that failed is OUR problem and retriable; everything else
        (malformed, wrong project, expired, bad signature) is the caller's */
@@ -184,23 +367,58 @@ async function ytaiAccount(req, env, cors) {
     if (/^jwks/.test(m) || m === "project") return { res: json({ error: "auth_unavailable" }, 503, cors) };
     return { res: json({ error: "auth_required" }, 401, cors) };
   }
-  return { ok: true };
+  return { ok: true, subject: uid ? "acct:u:" + uid : null };
 }
 
-function rateLimited(ip, map, perMin, perDay) {
-  const now = Date.now();
-  const rec = map.get(ip) || { min: [], day: [] };
-  rec.min = rec.min.filter(t => now - t < 60_000);
-  rec.day = rec.day.filter(t => now - t < 86_400_000);
-  if (rec.min.length >= perMin || rec.day.length >= perDay) {
-    map.set(ip, rec);
-    return true;
-  }
-  rec.min.push(now); rec.day.push(now);
-  map.set(ip, rec);
-  if (map.size > 5000) map.clear(); // crude memory guard
-  return false;
+/* the rate-limit subject for the ACCOUNT behind a request, or null when there
+   is none to find (enforcement off, or no usable token). Never an authorisation
+   decision — capabilities() has already been asked by premiumGate on every
+   route that reaches this, and its answer is cached per token for ENT_CACHE_MS,
+   so this costs nothing extra. */
+async function acctSubject(req, env) {
+  if (!premiumOn(env)) return null;
+  try {
+    const a = await capabilities(req, env);
+    if (a.status) return null;
+    return a.uid ? "acct:u:" + a.uid : (a.key ? "acct:t:" + a.key : null);
+  } catch (e) { return null; }
 }
+async function premiumGate(req, env, route, cors, purpose) {
+  if (!premiumOn(env)) return null;                                   // not switched on: behave as before
+  const cap = route === "chat" ? CHAT_PURPOSE_CAP[String(purpose || "practice")] : ROUTE_CAP[route];
+  if (cap === undefined) return json({ error: "bad_request" }, 400, cors);
+  if (cap === null) {
+    /* a free route still needs a verified account while enforcement is on, so
+       every call is attributable and can be limited per account */
+    const a = await capabilities(req, env);
+    if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
+    if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
+    return await perAccount(a, env, cors);
+  }
+  const a = await capabilities(req, env);
+  if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
+  /* the service is down: a paying learner must not be told they are Free, and
+     no paid work is done on a guess. 503 is retriable and honest. */
+  if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
+  if (!a.caps[cap]) return json({ error: "premium_required", capability: cap }, 402, cors);
+  return await perAccount(a, env, cors);
+}
+/* per-ACCOUNT rate limit: an IP limit alone is useless behind carrier NAT, and
+   once every call carries a uid the account is the right unit to hold.
+
+   Held against the UID, not the token. A Firebase ID token is refreshed about
+   every hour, so keying on its hash handed a learner a fresh ACCT_PER_DAY
+   allowance every refresh — roughly 24x the daily cap this file claims to set.
+   The uid is the `sub` of a token be-entitlements has just accepted (see
+   tokenSub), so it cannot be chosen by the caller. The token hash stays as the
+   fallback, so a token that will not parse gets a limit rather than none. */
+const ACCT_PER_MIN = 30, ACCT_PER_DAY = 600;
+async function perAccount(a, env, cors) {
+  const id = a.uid ? "u:" + a.uid : (a.key ? "t:" + a.key : null);
+  if (!id) return null;
+  return await limit(env, "acct:" + id, "acct", ACCT_PER_MIN, ACCT_PER_DAY, cors);
+}
+
 
 // Delivery instructions make gpt-4o-mini-tts noticeably warmer and more human
 // than its default read — this is the difference between "robotic" and "natural".
@@ -541,7 +759,6 @@ async function fetchYouTubeCaptions(vid) {
 --------------------------------------------------------------- */
 const CHAT_PER_MIN = 20;
 const CHAT_PER_DAY = 500;
-const chatHits = new Map();
 const CHAT_MODEL = "gpt-4o-mini";
 const MAX_CHAT_TURNS = 40;
 
@@ -566,7 +783,6 @@ const MAX_CHAT_TURNS = 40;
 const AN_MODEL = "gpt-4.1-mini";
 const AN_PER_MIN = 6;
 const AN_PER_DAY = 150;
-const anHits = new Map();
 const MAX_AN_CHARS = 4000;     // ~10 minutes of speech; the app sends ~1
 const AN_FIELDS = {            // field -> max chars
   key_message: 240, clarity: 8, sharper: 280, structure_note: 260, answer_directly: 260,
@@ -739,7 +955,6 @@ async function callAnalyse(env, transcript, metrics, lang, ctx) {
    without limit. */
 const RP_PER_MIN = 8;
 const RP_PER_DAY = 200;
-const rpHits = new Map();
 async function callRepolish(env, transcript, avoid, lang, n, ctx) {
   const language = AN_LANGS[lang] || "English";
   const trade = anTrade(ctx);
@@ -974,7 +1189,8 @@ export default {
     // ---- Transcribe path: raw audio in → per-word timings out ----
     const ctype = request.headers.get("content-type") || "";
     if (ctype.startsWith("audio/")) {
-      if (rateLimited(ip, sttHits, STT_PER_MIN, STT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "stt", STT_PER_MIN, STT_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "transcribe", cors); if (g) return g; }
       const bytes = await request.arrayBuffer();
       if (!bytes.byteLength) return json({ error: "empty" }, 400, cors);
       if (bytes.byteLength > MAX_STT_BYTES) return json({ error: "too_large" }, 413, cors);
@@ -991,7 +1207,8 @@ export default {
 
     // ---- Role-play chat: scenario + history in → in-character reply out ----
     if (body.chat && typeof body.chat === "object") {
-      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "chat", CHAT_PER_MIN, CHAT_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "chat", cors, body.chat.purpose); if (g) return g; }
       const system = String(body.chat.system || "").slice(0, 4000);
       let messages = Array.isArray(body.chat.messages) ? body.chat.messages : [];
       messages = messages
@@ -1009,7 +1226,8 @@ export default {
 
     // ---- V2 speaking report: mission context + one answer in → validated report out ----
     if (body.mvreport && typeof body.mvreport === "object") {
-      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "chat", CHAT_PER_MIN, CHAT_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "mvreport", cors); if (g) return g; }
       const system = String(body.mvreport.system || "").slice(0, 6000);
       const said = String(body.mvreport.said || "").replace(/\s+/g, " ").trim().slice(0, 2400);
       if (!system || said.split(" ").length < 5) return json({ error: "bad_request" }, 400, cors);
@@ -1022,7 +1240,8 @@ export default {
 
     // ---- Captions path: video id in → cues + word timings out ----
     if (typeof body.captions === "string" && body.captions.trim()) {
-      if (rateLimited(ip, capHits, CAP_PER_MIN, CAP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "cap", CAP_PER_MIN, CAP_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "captions", cors); if (g) return g; }
       try {
         const out = await fetchYouTubeCaptions(body.captions.trim());
         // cache successes hard — a video's captions do not change
@@ -1046,22 +1265,44 @@ export default {
        ~$0.08 for a 15-minute video, so the answer is cached hard: a video's
        words do not change. Without GEMINI_KEY set this route simply says so. */
     if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
-      /* FIRST, before anything else on this route. Before the no_key check on
-         purpose: an anonymous caller should not be able to learn whether a
-         provider key is configured, and a 501 arriving ahead of the 401 would
-         make the route look open on an environment that simply has no key.
-         Before the CACHE lookup on purpose too: a kept answer is free to serve
-         but authentication must not be skippable by asking for a popular
-         video. */
-      { const a = await ytaiAccount(request, env, cors); if (a.res) return a.res; }
+      /* FIRST, before anything else on this route — see J1 above. It is also
+         before the no_key check on purpose: an anonymous caller should not be
+         able to learn whether a provider key is configured, and a 501 arriving
+         ahead of the 401 would make the route look open on an environment that
+         simply has no key (staging, where GEMINI_KEY is deliberately absent).
+         It is before the CACHE lookup on purpose too: a kept answer is free to
+         serve but it is still this learner's content, and authentication must
+         not be skippable by asking for a popular video. */
+      const acct = await ytaiAccount(request, env, cors);
+      if (acct.res) return acct.res;
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
+      /* no premiumGate call here: ytaiAccount above already ran it in the
+         enforcement-on mode, which is what put the verification FIRST. */
       const vid = body.ytai.trim(), win = ytaiWindow(body);
       if (win === false) return json({ error: "bad_window" }, 400, cors);
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
       /* a kept answer is free: served before the brake, which counts only calls that cost */
       try { const hit = cache && await cache.match(key); if (hit) return json({ ...(await hit.json()), cached: true }, 200, cors); } catch {}
-      if (win ? rateLimited(ip, ytaiWinHits, YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY) : rateLimited(ip, ytaiHits, YTAI_PER_MIN, YTAI_PER_DAY))
-        return json({ error: "rate_limited" }, 429, cors);
+      { const l = win ? await limit(env, "ip:" + ip, "ytaiwin", YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY, cors)
+                      : await limit(env, "ip:" + ip, "ytai", YTAI_PER_MIN, YTAI_PER_DAY, cors);
+        if (l) return l; }
+      /* AND against the ACCOUNT, not only the IP. This is the one free route
+         with a real per-call cost (~$0.08 for 15 minutes of video), and a
+         per-IP limit is worth very little on the carrier NAT most of this
+         app's learners are behind: a whole city can share one address, and one
+         learner can change theirs by walking between two wifi networks. The
+         account is the unit that actually corresponds to a person.
+         Only available while enforcement is on, because that is the only state
+         in which a call carries a verified account at all — with Premium not
+         on sale the IP limits above are still the whole brake, which is why
+         this route must not be opened to anonymous callers. */
+      { /* enforcement off: the uid ytaiAccount just verified. Enforcement on:
+           the uid be-entitlements accepted, read back from the cached answer.
+           Either way the subject string is the same shape, so one learner has
+           one bucket whichever mode the Worker is in — and the cap is no
+           longer inert in production. */
+        const a = acct.subject || await acctSubject(request, env);
+        if (a) { const l = await limit(env, a, "ytaiacct", YTAI_ACCT_PER_MIN, YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
       try {
         const out = await geminiCaptions(env, vid, win);
         if (!out.error && cache) {
@@ -1075,7 +1316,8 @@ export default {
 
     // ---- TTS path: natural voice for the app's Hear/Slow buttons ----
     if (typeof body.tts === "string" && body.tts.trim()) {
-      if (rateLimited(ip, ttsHits, TTS_PER_MIN, TTS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "tts", TTS_PER_MIN, TTS_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "tts", cors); if (g) return g; }
       const text = body.tts.trim().slice(0, MAX_TTS_CHARS);
       let voice = String(body.voice || "alloy").toLowerCase();
       if (!TTS_VOICES.includes(voice)) voice = "alloy";
@@ -1093,7 +1335,8 @@ export default {
 
     // ---- Pronunciation-assessment path: audio (base64) + target → per-word scores ----
     if (typeof body.assess === "string" && body.assess.trim() && typeof body.audio === "string" && body.audio) {
-      if (rateLimited(ip, assessHits, ASSESS_PER_MIN, ASSESS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "assess", ASSESS_PER_MIN, ASSESS_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "assess", cors); if (g) return g; }
       if (body.audio.length > MAX_ASSESS_B64) return json({ error: "too_large" }, 413, cors);
       const target = body.assess.trim().slice(0, MAX_INPUT_CHARS);
       const fmt = body.format === "mp3" ? "mp3" : "wav";
@@ -1108,7 +1351,8 @@ export default {
 
     // ---- Speech-analysis path: transcript + device-measured numbers → coaching report ----
     if (body.analyse && typeof body.analyse === "object") {
-      if (rateLimited(ip, anHits, AN_PER_MIN, AN_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "analyse", AN_PER_MIN, AN_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "analyse", cors); if (g) return g; }
       const transcript = String(body.analyse.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
       const metrics = body.analyse.metrics && typeof body.analyse.metrics === "object" ? body.analyse.metrics : {};
@@ -1127,7 +1371,8 @@ export default {
 
     // ---- Polish again: one more whole version of the same minute ----
     if (body.repolish && typeof body.repolish === "object") {
-      if (rateLimited(ip, rpHits, RP_PER_MIN, RP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const l = await limit(env, "ip:" + ip, "repolish", RP_PER_MIN, RP_PER_DAY, cors); if (l) return l; }
+      { const g = await premiumGate(request, env, "repolish", cors); if (g) return g; }
       const transcript = String(body.repolish.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
       const avoid = (Array.isArray(body.repolish.avoid) ? body.repolish.avoid : [])
@@ -1142,7 +1387,8 @@ export default {
     }
 
     // ---- Polish path ----
-    if (rateLimited(ip, hits, RATE_PER_MIN, RATE_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+    { const l = await limit(env, "ip:" + ip, "polish", RATE_PER_MIN, RATE_PER_DAY, cors); if (l) return l; }
+    { const g = await premiumGate(request, env, "polish", cors); if (g) return g; }
     const sentence = String(body.text || "").trim().slice(0, MAX_INPUT_CHARS);
     const avoid = Array.isArray(body.avoid) ? body.avoid.slice(0, 12).map(s => String(s).slice(0, 200)) : [];
     if (!sentence) return json({ error: "empty" }, 400, cors);

@@ -90,7 +90,16 @@ asked you to, and never repeat these notes back.`;
        pipefitter gets asked about weld defects and a boilermaker about rod
        angle — the learner's own expertise never comes up. */
     const tr=global.Trades&&global.appState?global.Trades.active(global.appState()):null;
-    const trade=tr?`\n\nWHO YOU ARE TALKING TO\nA ${tr.name} — ${tr.focus}\nThey work to: ${tr.codes.join("; ")}.\nTheir day involves: ${(tr.does||[]).slice(0,3).join(" ")}\nAsk about THEIR trade. Do not question them on another trade's work.`:"";
+    /* The character is told the learner's profession, the standards that
+       profession works to, and what this workshop's standards expect — from the
+       registry, so the conversation cannot be about welding while the profile
+       says HSE officer. Naming a standard is allowed; inventing one is not, and
+       the line below says so explicitly. */
+    const PS=global.ProfessionalStandards;
+    const mid=(sc&&sc.regulatory&&sc.regulatory.moduleId)||0;
+    const stdLines=(tr&&PS)?PS.promptLines(tr.id,mid):[];
+    const focus=(tr&&PS)?PS.focusFor(tr.id,mid):"";
+    const trade=tr?`\n\nWHO YOU ARE TALKING TO\nA ${tr.name} — ${tr.focus}\nThey work to: ${(tr.codes||[]).join("; ")}.\nTheir day involves: ${(tr.does||[]).slice(0,3).join(" ")}\nAsk about THEIR trade. Do not question them on another trade's work.${focus?`\nWhat this conversation is really testing: ${focus}`:""}${stdLines.length?`\nThe standards behind it (name them only as written here; never invent a clause, an edition or a certification requirement):\n- ${stdLines.join("\n- ")}`:""}`:"";
     return `You are voicing one real person in a working ${sc.title} conversation. This is a workplace, not a lesson.${trade}
 
 THE TEAM

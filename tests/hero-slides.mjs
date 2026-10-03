@@ -76,6 +76,9 @@ ok("The library draws the hero strip", drawn);
 
 /* ---- what is on the screen ---- */
 const dom = await page.evaluate(() => {
+  /* "All videos" (the default since 30 Sep 2026) lists everything, the six included;
+     the no-repeat rule belongs to "For you", so the feed is read there */
+  shLibCat("foryou");
   const s = [...document.querySelectorAll("#shlHeroTrack .shl-hero")];
   const vid = b => (b.getAttribute("onclick").match(/shLibOpen\('([^']+)'\)/) || [])[1];
   return {

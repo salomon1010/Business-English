@@ -82,3 +82,40 @@ headers `x-api-key: env.ANTHROPIC_KEY` and `anthropic-version: 2023-06-01`,
 body `{model:"claude-haiku-4-5-20251001", max_tokens:320, system, messages:[{role:"user",content:user}]}`,
 and read the reply from `j.content[0].text`. Then store the secret as
 `ANTHROPIC_KEY` instead of `OPENAI_KEY`. (Haiku is a bit pricier than 4o-mini.)
+
+
+## Premium enforcement on be-polish (Phase 8, 30 September 2026)
+
+`polish-worker.js` can require a verified account and a paid entitlement before
+it spends anything on AI. It is **off** in `wrangler.toml`
+(`PREMIUM_ENFORCED = "0"`, `ENTITLEMENTS_URL = ""`), which is production today:
+Premium is not on sale, so every learner keeps every AI feature.
+
+It needs **both** vars. A half-configured deploy stays off rather than half-on —
+`backend/test-premium-gate.mjs` checks A4/A5 prove that.
+
+**Switch on in this order, or paying learners lose the AI they bought:**
+
+1. deploy `be-entitlements` (`backend/entitlements/README.md`)
+2. confirm `GET /v1/entitlement` answers for a real signed-in account
+3. set `PREMIUM_ENFORCED` + `ENTITLEMENTS_URL`, deploy `be-polish`
+4. set `billing_enabled` and `ENT_API` in index.html and ship the web bundle
+
+How it authorises: the caller sends their Firebase ID token; be-polish forwards
+that header to be-entitlements, which verifies it and answers with the view.
+No secret is shared, and be-polish never learns how to mint identity. Answers
+are cached for 60 s under a SHA-256 of the token — never the token, never a uid.
+
+**Failure behaviour, on purpose:** a token the entitlement service rejects is
+`401`; a free account asking for a paid route is `402 premium_required`; the
+entitlement service being unreachable or 5xx is `503`, never a silent downgrade
+to Free — a paying learner must not be told they are on the free plan, and no
+paid work is done on a guess.
+
+**Known limit:** the `chat` route takes a system prompt from the client, so its
+`purpose` field gates the app's own flows rather than a determined caller. The
+fixed-work routes (transcription, `assess`, `analyse`, `mvreport`) are properly
+protected. Closing the `chat` gap means moving the system prompts into this
+Worker — a larger change, not done.
+
+Tests: `node backend/test-premium-gate.mjs` (29).

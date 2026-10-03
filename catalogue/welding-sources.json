@@ -1,0 +1,2493 @@
+{
+ "about": "Welding Professional English — the Shadow library's curated source list. Every video is picked by hand for one of the ten refinery / oil & gas professions and tagged with the topic it teaches. scripts/build_welding_catalogue.mjs checks each one (public, embeddable, not age-limited, 60 s–30 min, English captions) and writes catalogue/welding.json + captions/<vid>.json. Nothing here is imported wholesale from a channel.",
+ "rules": {
+  "minSec": 60,
+  "maxSec": 1800
+ },
+ "groups": [
+  {
+   "id": "ops",
+   "label": "Operations & Control",
+   "cats": [
+    "operator",
+    "instrumentation"
+   ]
+  },
+  {
+   "id": "elec",
+   "label": "Electrical & Safety",
+   "cats": [
+    "electrician",
+    "hse"
+   ]
+  },
+  {
+   "id": "insp",
+   "label": "Inspection & Engineering",
+   "cats": [
+    "ndt",
+    "process"
+   ]
+  },
+  {
+   "id": "mech",
+   "label": "Maintenance & Mechanical Trades",
+   "cats": [
+    "pipefitter",
+    "welder",
+    "boilermaker",
+    "millwright"
+   ]
+  }
+ ],
+ "categories": [
+  {
+   "id": "welder",
+   "label": "Welder",
+   "group": "mech",
+   "vocab": [
+    "root pass",
+    "hot pass",
+    "fill",
+    "cap",
+    "bevel",
+    "electrode",
+    "SMAW",
+    "GTAW",
+    "6G",
+    "WPS",
+    "porosity",
+    "undercut"
+   ],
+   "videos": [
+    [
+     "eqbJs9UZ68Q",
+     "career"
+    ],
+    [
+     "dMD-Z-w9QFU",
+     "pipe welding"
+    ],
+    [
+     "Xl1qaXACi4g",
+     "pipe welding"
+    ],
+    [
+     "SgLNm3KNdJI",
+     "root pass"
+    ],
+    [
+     "DzzymJK1rtY",
+     "weld test"
+    ],
+    [
+     "Xak7fZRdwkI",
+     "pipe welding"
+    ],
+    [
+     "_a7EvDtDFwo",
+     "root pass"
+    ],
+    [
+     "KeUupc8e0lY",
+     "electrodes"
+    ],
+    [
+     "5M9I_bBrnZ0",
+     "processes"
+    ],
+    [
+     "82LQ2cMoE5c",
+     "weld defects"
+    ],
+    [
+     "Hd0gi0Flq14",
+     "WPS"
+    ],
+    [
+     "u-fAhIi-De8",
+     "WPS"
+    ],
+    [
+     "7OduXzYO4p0",
+     "supervision"
+    ],
+    [
+     "4V3f5Ixf3Aw",
+     "pipe welding"
+    ],
+    [
+     "MLabSAbZZ5k",
+     "pipe welding"
+    ],
+    [
+     "WbO4A86JzIg",
+     "safety"
+    ],
+    [
+     "N4Vn1QbS1Nk",
+     "stick welding"
+    ],
+    [
+     "AoQpIz_gDEo",
+     "safety"
+    ],
+    [
+     "6a2RnFYUC8s",
+     "settings"
+    ],
+    [
+     "ayAOpko1dtA",
+     "settings"
+    ],
+    [
+     "iMzKAGj6GtA",
+     "aluminium"
+    ],
+    [
+     "OmpGvQz7zMU",
+     "settings"
+    ],
+    [
+     "5d3pJeJJ2ik",
+     "skills"
+    ],
+    [
+     "wTNmhB5oYTU",
+     "aluminium"
+    ],
+    [
+     "UaMb0BkDxCo",
+     "brazing"
+    ],
+    [
+     "FMAkt7urxXY",
+     "aluminium"
+    ],
+    [
+     "djZpQCzvTyI",
+     "skills"
+    ],
+    [
+     "c060vToCC9M",
+     "stick welding"
+    ],
+    [
+     "nhItARQ_d-8",
+     "skills"
+    ],
+    [
+     "1Mwi4mugSyE",
+     "flux core"
+    ],
+    [
+     "by8yZ4TxZBE",
+     "settings"
+    ],
+    [
+     "xLdPcwBr2iI",
+     "skills"
+    ],
+    [
+     "x4bah8Q7kC4",
+     "stick welding"
+    ],
+    [
+     "RrTzDhcm2cQ",
+     "skills"
+    ],
+    [
+     "p03vm7OAxLk",
+     "flux core"
+    ],
+    [
+     "sIgchLDoz9A",
+     "skills"
+    ],
+    [
+     "ZrQ8smzq5-Q",
+     "weld prep"
+    ],
+    [
+     "FTblBCmfkbw",
+     "skills"
+    ],
+    [
+     "-HyIrGwB6SY",
+     "stick welding"
+    ],
+    [
+     "OK-QL5gY6FY",
+     "weld prep"
+    ],
+    [
+     "dpQ22DdN11E",
+     "settings"
+    ],
+    [
+     "H2dvvTrH4mI",
+     "shielding gas"
+    ],
+    [
+     "mwxue0CaMO4",
+     "aluminium"
+    ],
+    [
+     "hnkmEdlwAwg",
+     "flux core"
+    ],
+    [
+     "fQEuFgahE6g",
+     "aluminium"
+    ],
+    [
+     "dvToMbHruWQ",
+     "weld prep"
+    ],
+    [
+     "cvME6dJIXN4",
+     "fit-up"
+    ],
+    [
+     "rD5JAY7_uj8",
+     "stick welding"
+    ],
+    [
+     "V7O5H--VlOg",
+     "skills"
+    ],
+    [
+     "wQ-ePKKjFWA",
+     "tungsten"
+    ],
+    [
+     "UmTxQpk__hQ",
+     "filler metal"
+    ],
+    [
+     "-GGHvnc545s",
+     "aluminium"
+    ],
+    [
+     "4Vj7vx471cw",
+     "skills"
+    ],
+    [
+     "XF4JCSldaM8",
+     "settings"
+    ],
+    [
+     "6Rb6KclG4rQ",
+     "flux core"
+    ],
+    [
+     "NseAURr_FDQ",
+     "electrodes"
+    ],
+    [
+     "fo69_knE3c0",
+     "processes"
+    ],
+    [
+     "-oJ3BGIrGHQ",
+     "aluminium"
+    ],
+    [
+     "LWuWkfZD1yE",
+     "stick welding"
+    ],
+    [
+     "kUDrP2_JJ68",
+     "skills"
+    ],
+    [
+     "koF7LlfocvQ",
+     "settings"
+    ],
+    [
+     "ygLbldJF_dc",
+     "skills"
+    ],
+    [
+     "kqkdx2EDG6E",
+     "flux core"
+    ],
+    [
+     "TiZTVgW9_0E",
+     "flux core"
+    ],
+    [
+     "yrenkNri7Vc",
+     "filler metal"
+    ],
+    [
+     "hQiZ5c1SJe8",
+     "processes"
+    ],
+    [
+     "p-pZbmAZtxQ",
+     "stick welding"
+    ],
+    [
+     "XXFXDWhIiwg",
+     "shielding gas"
+    ],
+    [
+     "mHDAmXCG6Io",
+     "skills"
+    ],
+    [
+     "Dybrlx-BTXk",
+     "stick welding"
+    ],
+    [
+     "tpIQkMy3o6I",
+     "skills"
+    ],
+    [
+     "mIoJxDnq-NQ",
+     "oxy acetylene"
+    ],
+    [
+     "Q1FrCgH9PRs",
+     "stick welding"
+    ],
+    [
+     "WyXtecucpBI",
+     "safety"
+    ],
+    [
+     "EOeL7XC-eZg",
+     "brazing"
+    ],
+    [
+     "tH4Chdxtsps",
+     "settings"
+    ],
+    [
+     "7JgHzU66364",
+     "stick welding"
+    ],
+    [
+     "PvK8jVbtz44",
+     "flux core"
+    ],
+    [
+     "2jZz9y5KCHI",
+     "aluminium"
+    ],
+    [
+     "kOBotY267Mc",
+     "flux core"
+    ],
+    [
+     "-Qn0wy8Owkg",
+     "processes"
+    ],
+    [
+     "KOonYPxDZ9I",
+     "stick welding"
+    ],
+    [
+     "86SFehuBlBI",
+     "skills"
+    ],
+    [
+     "SriCUkwofWA",
+     "skills"
+    ],
+    [
+     "iS5GmXj2rpw",
+     "skills"
+    ],
+    [
+     "zZDDIpnbm1s",
+     "stick welding"
+    ],
+    [
+     "CPvwecz1dAk",
+     "skills"
+    ],
+    [
+     "GOQimZeK-tk",
+     "stick welding"
+    ],
+    [
+     "nsdSX2OinVQ",
+     "aluminium"
+    ],
+    [
+     "V9HhSaAHTSs",
+     "stick welding"
+    ],
+    [
+     "gc9fBVq9NlE",
+     "skills"
+    ],
+    [
+     "huBxd4Nrox8",
+     "flux core"
+    ],
+    [
+     "kQehUQJ-lMg",
+     "skills"
+    ],
+    [
+     "zmO0rcQvdaY",
+     "skills"
+    ],
+    [
+     "lPTimv8EpN8",
+     "stick welding"
+    ],
+    [
+     "awRU0IFPotQ",
+     "aluminium"
+    ],
+    [
+     "l4SKUEoF2AA",
+     "stick welding"
+    ],
+    [
+     "vbXPcaEQTvg",
+     "filler metal"
+    ],
+    [
+     "Y5vLiBz7oeQ",
+     "settings"
+    ],
+    [
+     "QsayQd32i2E",
+     "stick welding"
+    ],
+    [
+     "6dWNrhysOLk",
+     "oxy acetylene"
+    ],
+    [
+     "k2i5V1DiYOU",
+     "aluminium"
+    ],
+    [
+     "H0EXxtVKyD8",
+     "stick welding"
+    ],
+    [
+     "oTr_uvM7D2M",
+     "stick welding"
+    ],
+    [
+     "RB-iJQodVJo",
+     "career"
+    ],
+    [
+     "c55-P1AuKGQ",
+     "processes"
+    ],
+    [
+     "PzGEHJUb6Us",
+     "career"
+    ],
+    [
+     "AOKbEhnYMOQ",
+     "career"
+    ],
+    [
+     "RbN7M9TumCQ",
+     "career"
+    ],
+    [
+     "ADRDoPMqY8k",
+     "career"
+    ],
+    [
+     "j-qe3qs0LUo",
+     "career"
+    ],
+    [
+     "Ks5rGf-RCNc",
+     "processes"
+    ],
+    [
+     "fEhTG_4h7qg",
+     "processes"
+    ],
+    [
+     "vhQsT-OLHCs",
+     "processes"
+    ],
+    [
+     "FXpf5N4ScEg",
+     "processes"
+    ],
+    [
+     "8dXiy73r8sk",
+     "processes"
+    ],
+    [
+     "GzOXr-Tzvys",
+     "processes"
+    ],
+    [
+     "EIRQ4G800ik",
+     "processes"
+    ],
+    [
+     "SLxNxtaH4zA",
+     "career"
+    ],
+    [
+     "y62NgJ2AhLE",
+     "processes"
+    ],
+    [
+     "fAc1elsA2R0",
+     "processes"
+    ],
+    [
+     "2SdDyKiKPlE",
+     "career"
+    ],
+    [
+     "jw4ceHLECTc",
+     "processes"
+    ],
+    [
+     "cl8AMqmXs6c",
+     "processes"
+    ],
+    [
+     "gqPxv82_RgM",
+     "career"
+    ],
+    [
+     "ZMvkeuuQWOs",
+     "processes"
+    ],
+    [
+     "bED6pZFjZsc",
+     "processes"
+    ],
+    [
+     "sJb99uO8f_I",
+     "processes"
+    ],
+    [
+     "lgyN6D3W16o",
+     "processes"
+    ],
+    [
+     "1PLjWUH_4kQ",
+     "processes"
+    ],
+    [
+     "nnC64m4vWiA",
+     "career"
+    ],
+    [
+     "q14vnf1XPoI",
+     "career"
+    ],
+    [
+     "WfW6VmhyP-U",
+     "career"
+    ],
+    [
+     "gm5r5eETl4g",
+     "career"
+    ],
+    [
+     "33JHHUat9D0",
+     "career"
+    ],
+    [
+     "oHnfbJV2XEk",
+     "career"
+    ],
+    [
+     "bLHQwKDeKOU",
+     "career"
+    ],
+    [
+     "tdT3o4WXy3k",
+     "career"
+    ],
+    [
+     "DJJiB_QVQds",
+     "processes"
+    ],
+    [
+     "eguhcVcQvYs",
+     "processes"
+    ],
+    [
+     "v6KIi-h1yH0",
+     "career"
+    ],
+    [
+     "AjFaKUhHgos",
+     "career"
+    ],
+    [
+     "u-nqMY00KCU",
+     "career"
+    ],
+    [
+     "6fAxlH4InY4",
+     "career"
+    ],
+    [
+     "FruPCN66t1M",
+     "career"
+    ],
+    [
+     "BIYlhr2mEKY",
+     "processes"
+    ],
+    [
+     "6MnVMQLJxns",
+     "career"
+    ],
+    [
+     "7IvMkw53giw",
+     "career"
+    ],
+    [
+     "5YDq7en4z2s",
+     "career"
+    ],
+    [
+     "aNEFqMPSKBY",
+     "career"
+    ],
+    [
+     "BVm9AgdpXJc",
+     "processes"
+    ],
+    [
+     "sRv57PkisdY",
+     "career"
+    ],
+    [
+     "lU7GOn2y8Ns",
+     "career"
+    ],
+    [
+     "Wo6cVnJZ28M",
+     "career"
+    ],
+    [
+     "K6BNVCQ0V1k",
+     "career"
+    ],
+    [
+     "bkbdGK8ui0g",
+     "career"
+    ]
+   ]
+  },
+  {
+   "id": "pipefitter",
+   "label": "Pipefitter",
+   "group": "mech",
+   "vocab": [
+    "fit-up",
+    "flange",
+    "spool",
+    "gasket",
+    "elbow",
+    "isometric",
+    "alignment",
+    "take-off",
+    "hydrotest",
+    "bolt-up"
+   ],
+   "videos": [
+    [
+     "bX_0Kievvsg",
+     "career"
+    ],
+    [
+     "KIZurpeGMoM",
+     "pipe fitting"
+    ],
+    [
+     "-TrlkvEhKoc",
+     "take-off"
+    ],
+    [
+     "vYZ-OwToTbs",
+     "pipe fitting"
+    ],
+    [
+     "YFIPYROW1b0",
+     "spools"
+    ],
+    [
+     "DThCMaJe0mQ",
+     "spools"
+    ],
+    [
+     "-uE5ELtdDPg",
+     "fit-up"
+    ],
+    [
+     "1xg2Bunxbx8",
+     "flange alignment"
+    ],
+    [
+     "WLs0AlAurrI",
+     "flanges"
+    ],
+    [
+     "NT9vvOz8o7A",
+     "isometrics"
+    ],
+    [
+     "DL9PP4FOEUE",
+     "gaskets"
+    ],
+    [
+     "zEvvMzZgVlo",
+     "valves"
+    ],
+    [
+     "0Dtw7hj-p6o",
+     "career"
+    ],
+    [
+     "D6mUqcsmu_I",
+     "career"
+    ],
+    [
+     "ph3oOGABIG4",
+     "hydrotest"
+    ],
+    [
+     "VICyUb89cs8",
+     "offsets"
+    ],
+    [
+     "uDidTD2pdK0",
+     "layout"
+    ],
+    [
+     "Ovlb0ouZUdk",
+     "spools"
+    ],
+    [
+     "HyI6VP1fiBc",
+     "fit-up"
+    ]
+   ]
+  },
+  {
+   "id": "boilermaker",
+   "label": "Boilermaker",
+   "group": "mech",
+   "vocab": [
+    "boiler",
+    "pressure vessel",
+    "heat exchanger",
+    "tube bundle",
+    "shell",
+    "nozzle",
+    "storage tank",
+    "rigging",
+    "turnaround"
+   ],
+   "videos": [
+    [
+     "fIqKfIgSqCc",
+     "career"
+    ],
+    [
+     "DhIzzMQth2c",
+     "career"
+    ],
+    [
+     "6hbRFOfAfk0",
+     "career"
+    ],
+    [
+     "kA75rDz6EFo",
+     "apprenticeship"
+    ],
+    [
+     "gZV5FDyidvY",
+     "career"
+    ],
+    [
+     "OwBK0t1zFAY",
+     "tube welding"
+    ],
+    [
+     "bX1CoYT1BXc",
+     "career"
+    ],
+    [
+     "uaWfZTLNPmA",
+     "pressure vessels"
+    ],
+    [
+     "OVe0mC8_DWc",
+     "pressure vessels"
+    ],
+    [
+     "8rGLrhVeZvw",
+     "heat exchangers"
+    ],
+    [
+     "Rr_9L2Q-DjA",
+     "heat exchangers"
+    ],
+    [
+     "npHMcZqFr2Y",
+     "storage tanks"
+    ],
+    [
+     "5UVetmL89Gw",
+     "storage tanks"
+    ],
+    [
+     "2gCk9yBBOUo",
+     "turnaround"
+    ],
+    [
+     "W3mFXKOmQeY",
+     "teamwork"
+    ]
+   ]
+  },
+  {
+   "id": "millwright",
+   "label": "Millwright",
+   "group": "mech",
+   "vocab": [
+    "shaft alignment",
+    "coupling",
+    "soft foot",
+    "bearing",
+    "vibration",
+    "pump",
+    "compressor",
+    "turbine",
+    "dial indicator",
+    "runout"
+   ],
+   "videos": [
+    [
+     "nzf-nP69aeg",
+     "career"
+    ],
+    [
+     "ROJQXBuEnEY",
+     "career"
+    ],
+    [
+     "b5ZZjSzv04A",
+     "shaft alignment"
+    ],
+    [
+     "NtNkugcdDYM",
+     "shaft alignment"
+    ],
+    [
+     "mZa7dme8F1c",
+     "shaft alignment"
+    ],
+    [
+     "LJ9MwvCMSI4",
+     "shaft alignment"
+    ],
+    [
+     "NrwTPwidprc",
+     "soft foot"
+    ],
+    [
+     "0Me_-fR64e0",
+     "vibration"
+    ],
+    [
+     "XpcCUtYzwy0",
+     "pumps"
+    ],
+    [
+     "pZWaJflpOts",
+     "pumps"
+    ],
+    [
+     "eRprI1zFlfc",
+     "pumps"
+    ],
+    [
+     "X_uHagFQe8U",
+     "compressors"
+    ],
+    [
+     "0TYEb8Xm9fg",
+     "soft foot"
+    ],
+    [
+     "RCAL1E6TjkI",
+     "bearings"
+    ],
+    [
+     "4aFlSEf8C0A",
+     "pumps"
+    ]
+   ]
+  },
+  {
+   "id": "operator",
+   "label": "Refinery Operator",
+   "group": "ops",
+   "vocab": [
+    "unit",
+    "control room",
+    "field operator",
+    "rounds",
+    "pressure",
+    "temperature",
+    "flow",
+    "startup",
+    "shutdown",
+    "alarm",
+    "hand-over"
+   ],
+   "videos": [
+    [
+     "wKCFFwuItmE",
+     "career"
+    ],
+    [
+     "USne6TBtIYg",
+     "career"
+    ],
+    [
+     "38gaARpvTKg",
+     "career"
+    ],
+    [
+     "Xh9aHRWDtyo",
+     "process operations"
+    ],
+    [
+     "EI3OM7ok8cI",
+     "refinery"
+    ],
+    [
+     "45lc4OZfI6k",
+     "career"
+    ],
+    [
+     "Ap_0sPOK2uM",
+     "career"
+    ],
+    [
+     "xWQjrjFglvo",
+     "field rounds"
+    ],
+    [
+     "1CPs9CEpBCw",
+     "troubleshooting"
+    ],
+    [
+     "Hp4rxxAQujQ",
+     "learning the unit"
+    ],
+    [
+     "agjyapCBfCI",
+     "control board"
+    ],
+    [
+     "3MV8F9IWqkY",
+     "interview"
+    ],
+    [
+     "FiWmerSrV_Y",
+     "refinery"
+    ],
+    [
+     "sfQgwZnnMcY",
+     "startup and shutdown"
+    ],
+    [
+     "XbBLagPXWNk",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "id": "instrumentation",
+   "label": "Instrumentation Technician",
+   "group": "ops",
+   "vocab": [
+    "transmitter",
+    "calibration",
+    "4-20 mA",
+    "loop",
+    "sensor",
+    "control valve",
+    "PID",
+    "zero and span",
+    "setpoint",
+    "positioner"
+   ],
+   "videos": [
+    [
+     "4sApO9_kOak",
+     "career"
+    ],
+    [
+     "519MxVw2Z6w",
+     "career"
+    ],
+    [
+     "npwlaGW8g0M",
+     "career"
+    ],
+    [
+     "H9GxcaWnWtI",
+     "transmitters"
+    ],
+    [
+     "2EpFIhUHm28",
+     "control loops"
+    ],
+    [
+     "SamV6zpRNgg",
+     "calibration"
+    ],
+    [
+     "qZykZ1IDYZs",
+     "troubleshooting"
+    ],
+    [
+     "o7a68z9jNjA",
+     "4-20 mA"
+    ],
+    [
+     "gjdBYcTsfFE",
+     "calibration"
+    ],
+    [
+     "kPKPbmyWDSY",
+     "PID"
+    ],
+    [
+     "Kq22wxqzJ7g",
+     "transmitters"
+    ],
+    [
+     "dnvLYf8KtD8",
+     "calibration"
+    ],
+    [
+     "ywEmAkukQH0",
+     "troubleshooting"
+    ],
+    [
+     "N10_crifcFk",
+     "control valves"
+    ],
+    [
+     "m7e1DLvJBvQ",
+     "control systems"
+    ]
+   ]
+  },
+  {
+   "id": "electrician",
+   "label": "Industrial Electrician",
+   "group": "elec",
+   "vocab": [
+    "motor",
+    "MCC",
+    "breaker",
+    "panel",
+    "conduit",
+    "grounding",
+    "lockout/tagout",
+    "arc flash",
+    "hazardous area",
+    "three-phase"
+   ],
+   "videos": [
+    [
+     "D5c-zXGqCME",
+     "career"
+    ],
+    [
+     "cWWzMURRzv8",
+     "career"
+    ],
+    [
+     "PzGRgTNAhbU",
+     "career"
+    ],
+    [
+     "kePVM8HVZ20",
+     "motors"
+    ],
+    [
+     "kLPBmwGryOI",
+     "motor controls"
+    ],
+    [
+     "yy_QhPmZ8eo",
+     "MCC"
+    ],
+    [
+     "KO-Ff28M6CE",
+     "grounding"
+    ],
+    [
+     "tHwlkZmNXt8",
+     "faults"
+    ],
+    [
+     "gqEu9t8HwW0",
+     "breakers"
+    ],
+    [
+     "1AaUK6pT_cE",
+     "motors"
+    ],
+    [
+     "u0SsejDCVkU",
+     "transformers"
+    ],
+    [
+     "w0fvnY1JJWA",
+     "lockout/tagout"
+    ],
+    [
+     "FtCs-V4oWpY",
+     "arc flash"
+    ],
+    [
+     "tsVfvT5i1e8",
+     "hazardous area"
+    ],
+    [
+     "Xr2uEZrKfx8",
+     "troubleshooting"
+    ]
+   ]
+  },
+  {
+   "id": "hse",
+   "label": "HSE Officer",
+   "group": "elec",
+   "vocab": [
+    "permit to work",
+    "hot work",
+    "confined space",
+    "PPE",
+    "toolbox talk",
+    "risk assessment",
+    "near miss",
+    "incident report",
+    "H2S",
+    "gas test"
+   ],
+   "videos": [
+    [
+     "yS9aK81xQSw",
+     "career"
+    ],
+    [
+     "8qj18Q4EhUQ",
+     "career"
+    ],
+    [
+     "5-897-VyCvk",
+     "career"
+    ],
+    [
+     "x5aVSzxy5hA",
+     "permit to work"
+    ],
+    [
+     "HMzzR8U9eSw",
+     "permit to work"
+    ],
+    [
+     "ODAF2lQYAkk",
+     "hot work"
+    ],
+    [
+     "WFwn-_yCODk",
+     "hot work"
+    ],
+    [
+     "Pbef2JRXf0c",
+     "confined space"
+    ],
+    [
+     "nmqdyg4SKWI",
+     "confined space"
+    ],
+    [
+     "HiJhsspE0Ak",
+     "toolbox talk"
+    ],
+    [
+     "ex1f0XkzHTM",
+     "risk assessment"
+    ],
+    [
+     "Vt9RjqMNP9o",
+     "incident reporting"
+    ],
+    [
+     "jh2HWT8gPeY",
+     "H2S"
+    ],
+    [
+     "2z7h5BOZ2Hk",
+     "vigilance"
+    ],
+    [
+     "nLgHQ5NFzFk",
+     "toolbox talk"
+    ],
+    [
+     "vVIwhF3IVxI",
+     "permit to work"
+    ],
+    [
+     "ahXLLdjo6FY",
+     "environmental compliance"
+    ],
+    [
+     "ao3iCtO0dS0",
+     "safety"
+    ],
+    [
+     "agdcAxZTRF8",
+     "safety"
+    ]
+   ]
+  },
+  {
+   "id": "ndt",
+   "label": "NDT Technician",
+   "group": "insp",
+   "vocab": [
+    "ultrasonic testing",
+    "PAUT",
+    "TOFD",
+    "radiography",
+    "magnetic particle",
+    "penetrant",
+    "indication",
+    "discontinuity",
+    "calibration block",
+    "report"
+   ],
+   "videos": [
+    [
+     "8ImyGPkNlDU",
+     "career"
+    ],
+    [
+     "bc0u7gbvXH4",
+     "career"
+    ],
+    [
+     "vkz-IkMidug",
+     "career"
+    ],
+    [
+     "ckrJjHYL5a4",
+     "UT"
+    ],
+    [
+     "phgLgkBXF4Q",
+     "UT"
+    ],
+    [
+     "EuWpYY8ydIk",
+     "PAUT"
+    ],
+    [
+     "bw6CeDq6F0o",
+     "TOFD"
+    ],
+    [
+     "x1K_vAcoTvs",
+     "MT"
+    ],
+    [
+     "93sRATwdHo4",
+     "MT"
+    ],
+    [
+     "bHTRmTQDZzg",
+     "PT"
+    ],
+    [
+     "BhzqwYZGMAQ",
+     "PT"
+    ],
+    [
+     "VscasN8jgfo",
+     "RT"
+    ],
+    [
+     "7pYc4rvGKNI",
+     "visual inspection"
+    ],
+    [
+     "hIITRSyoLHw",
+     "weld inspection"
+    ],
+    [
+     "nCT1YNPkrK8",
+     "weld defects"
+    ],
+    [
+     "scA0q2_73PA",
+     "indications"
+    ],
+    [
+     "vWjVl6MvOM4",
+     "UT levels"
+    ],
+    [
+     "W2wYnet8lgM",
+     "UT"
+    ],
+    [
+     "vcWyOe7mqyE",
+     "weld inspection"
+    ],
+    [
+     "ge0E1MmVfVM",
+     "weld inspection"
+    ],
+    [
+     "duN8OZ4D3RA",
+     "weld inspection"
+    ],
+    [
+     "Zap4htmJK6g",
+     "weld inspection"
+    ],
+    [
+     "Z13fLeTrdXM",
+     "weld inspection"
+    ],
+    [
+     "OcHZ7pNsd54",
+     "weld inspection"
+    ],
+    [
+     "pE5_644mp24",
+     "weld inspection"
+    ],
+    [
+     "vgTJ_uA-Mt8",
+     "weld inspection"
+    ],
+    [
+     "dL6pJIGpTZc",
+     "weld inspection"
+    ],
+    [
+     "GIcEJaYAaj0",
+     "weld inspection"
+    ],
+    [
+     "EnLpXAaUoBQ",
+     "weld inspection"
+    ],
+    [
+     "rTjYTsdzhmA",
+     "weld inspection"
+    ],
+    [
+     "WlQL0hHC79E",
+     "weld inspection"
+    ],
+    [
+     "8iz6IxdHOBA",
+     "weld inspection"
+    ],
+    [
+     "ZAiEpB6acsQ",
+     "weld inspection"
+    ],
+    [
+     "w3Ms3-f3JVA",
+     "weld inspection"
+    ],
+    [
+     "2PW1GHM0xwo",
+     "weld inspection"
+    ],
+    [
+     "2B06TIqHvSE",
+     "weld inspection"
+    ]
+   ]
+  },
+  {
+   "id": "process",
+   "label": "Process Engineer",
+   "group": "insp",
+   "vocab": [
+    "distillation",
+    "crude unit",
+    "heat exchanger",
+    "reactor",
+    "yield",
+    "throughput",
+    "P&ID",
+    "troubleshoot",
+    "optimise",
+    "process safety"
+   ],
+   "videos": [
+    [
+     "We6crowUIkM",
+     "career"
+    ],
+    [
+     "DGSqIWMnirs",
+     "career"
+    ],
+    [
+     "iOTJD_yCbqA",
+     "career"
+    ],
+    [
+     "KdVIXNBQpCE",
+     "career"
+    ],
+    [
+     "9dQzPRODbgA",
+     "skills"
+    ],
+    [
+     "822b-pTqYwc",
+     "P&ID"
+    ],
+    [
+     "UlOR-Oo7U-U",
+     "distillation"
+    ],
+    [
+     "fsWrnjQQoF4",
+     "distillation"
+    ],
+    [
+     "-eit-gFtmwU",
+     "FCC"
+    ],
+    [
+     "2dwFRmDFVRQ",
+     "heat exchangers"
+    ],
+    [
+     "vD0kbdIS6kE",
+     "refining"
+    ],
+    [
+     "goSEyGNfiPM",
+     "process safety"
+    ],
+    [
+     "sFhkzK7jkKg",
+     "process safety"
+    ],
+    [
+     "gc8qXTh6tTY",
+     "process safety"
+    ],
+    [
+     "lOeYL1Jbcbg",
+     "pumps"
+    ],
+    [
+     "cNG9sYy5pg4",
+     "commissioning"
+    ]
+   ]
+  }
+ ],
+ "channels": [
+  "@Welddotcom",
+  "@weldtube",
+  "@weldingtipsandtricks",
+  "@arosswelding",
+  "@videoaws",
+  "@petrocertifconstruction",
+  "@WeldingNDTInspection",
+  "@NDTVideoLibrary",
+  "@pymedaca3130",
+  "@USCSB",
+  "@EngineeringMindset",
+  "@RealPars",
+  "@InstrumentationControl",
+  "@ElectricianU",
+  "@TheHSECoach",
+  "@AMSLevel3",
+  "@Thepipingengineer",
+  "@AcoemUSA",
+  "@winningwithwells",
+  "@ChemicalEngineeringGuy",
+  "@TimWelds"
+ ],
+ "channelOnly": {
+  "about": "Videos that belong to a channel the owner asked for in full (PetroCertif, TimWelds and the American Welding Society, 30 Sep 2026) but to no single profession: listed under the channel chip and in search, never in a profession chip or For you. Spoken English only — the Studio shadows English.",
+  "minSec": 20,
+  "videos": [
+   [
+    "NhlXwtp5Q0M",
+    "industry"
+   ],
+   [
+    "PnRT9R78L6M",
+    "industry"
+   ],
+   [
+    "g1llxrQTxcg",
+    "industry"
+   ],
+   [
+    "v8eeT7P0MSY",
+    "construction management"
+   ],
+   [
+    "85Qsv44ZsGw",
+    "construction management"
+   ],
+   [
+    "WbCr5pDY_2A",
+    "industry"
+   ],
+   [
+    "rXv50SdDCpQ",
+    "industry"
+   ],
+   [
+    "BRe6ckCFUg8",
+    "construction management",
+    "fr"
+   ],
+   [
+    "2TTVHBMCPZA",
+    "construction management",
+    "fr"
+   ],
+   [
+    "RFTERUOe2G8",
+    "construction management",
+    "fr"
+   ],
+   [
+    "S_Ap6qCITUA",
+    "construction management",
+    "fr"
+   ],
+   [
+    "JzCyiPOCIOo",
+    "industry",
+    "fr"
+   ],
+   [
+    "fR5SsyLGacg",
+    "industry",
+    "fr"
+   ],
+   [
+    "WJU5ZCXFvyQ",
+    "industry",
+    "fr"
+   ],
+   [
+    "XCO62k2nOG8",
+    "industry",
+    "fr"
+   ],
+   [
+    "CeXLi24KSbw",
+    "industry",
+    "fr"
+   ],
+   [
+    "H4Lw7wJeV9U",
+    "industry",
+    "fr"
+   ],
+   [
+    "AAeyl9IeRXg",
+    "fabrication projects"
+   ],
+   [
+    "H62EaljqEb0",
+    "3D scanning"
+   ],
+   [
+    "f-zgDBAektk",
+    "fabrication projects"
+   ],
+   [
+    "T-TBmZxwYvM",
+    "fabrication projects"
+   ],
+   [
+    "XrxTtFppUFs",
+    "plasma cutting"
+   ],
+   [
+    "61qLgHoASyA",
+    "fabrication projects"
+   ],
+   [
+    "7xa1etm6X6c",
+    "fabrication projects"
+   ],
+   [
+    "PAey0UwWn7A",
+    "3D scanning"
+   ],
+   [
+    "HTP6A_QipcQ",
+    "laser cutting"
+   ],
+   [
+    "dbiLJdkN7ks",
+    "machines"
+   ],
+   [
+    "6_aSumAkR2s",
+    "laser welding"
+   ],
+   [
+    "Bzy0h4_GzH0",
+    "fabrication projects"
+   ],
+   [
+    "nmraas1yOG0",
+    "laser cutting"
+   ],
+   [
+    "O2laAmmXTOw",
+    "laser welding"
+   ],
+   [
+    "caI42aoCbrs",
+    "shop tools"
+   ],
+   [
+    "wa-8FrRfwSQ",
+    "laser welding"
+   ],
+   [
+    "8N0S-e0fS0c",
+    "machines"
+   ],
+   [
+    "YPaUH0w93T0",
+    "laser welding"
+   ],
+   [
+    "a0UaJ-PPdU4",
+    "fabrication projects"
+   ],
+   [
+    "i-MYY7kpQY0",
+    "3D scanning"
+   ],
+   [
+    "ykWWceZ9Eio",
+    "shop builds"
+   ],
+   [
+    "a-SRWh0ib_0",
+    "fabrication projects"
+   ],
+   [
+    "TLnjih4_4G4",
+    "laser welding"
+   ],
+   [
+    "sfZqH3L2vFU",
+    "laser welding"
+   ],
+   [
+    "meZqRwbxijI",
+    "laser welding"
+   ],
+   [
+    "1CFviADjmEs",
+    "laser welding"
+   ],
+   [
+    "b1hDx3aCssU",
+    "CAD"
+   ],
+   [
+    "7-HovQXTNiw",
+    "laser welding"
+   ],
+   [
+    "UqvCoZfXepg",
+    "laser welding"
+   ],
+   [
+    "YT0M0ZE70Dw",
+    "machines"
+   ],
+   [
+    "aPSLgp1O5bY",
+    "shop tools"
+   ],
+   [
+    "c199JILGVNo",
+    "fabrication projects"
+   ],
+   [
+    "PjZkmrdDR3g",
+    "machines"
+   ],
+   [
+    "S5F5p0sne2Q",
+    "3D scanning"
+   ],
+   [
+    "33DPOlEOlI0",
+    "shop builds"
+   ],
+   [
+    "m2y2CUvPWx0",
+    "laser cutting"
+   ],
+   [
+    "rJAbfbbUjCo",
+    "welding table"
+   ],
+   [
+    "NhO4PUC5my8",
+    "shop tools"
+   ],
+   [
+    "449LcbEH2fk",
+    "shop builds"
+   ],
+   [
+    "xLTr5g_JT-4",
+    "welding table"
+   ],
+   [
+    "LzyGYfFsp0E",
+    "shop tools"
+   ],
+   [
+    "YnQRsvfd-co",
+    "CAD"
+   ],
+   [
+    "LJcNWLHAfSI",
+    "trade shows"
+   ],
+   [
+    "AVbWQv8YiQg",
+    "CAD"
+   ],
+   [
+    "mwKloqgkgyo",
+    "shop tools"
+   ],
+   [
+    "Lg3QZsQ_OzM",
+    "laser cutting"
+   ],
+   [
+    "FCgi_AATa5I",
+    "3D scanning"
+   ],
+   [
+    "jCmhYqOctXc",
+    "fabrication projects"
+   ],
+   [
+    "XgpEGVv-an4",
+    "shop builds"
+   ],
+   [
+    "ekD8F-5dZ_E",
+    "laser cutting"
+   ],
+   [
+    "rkxgsTnWwj8",
+    "plasma cutting"
+   ],
+   [
+    "WJnQv-HgO8I",
+    "plasma cutting"
+   ],
+   [
+    "AzvdjjDG99Y",
+    "shop tools"
+   ],
+   [
+    "uU4fsp6EN30",
+    "machines"
+   ],
+   [
+    "dY8aOVbcDYI",
+    "laser cutting"
+   ],
+   [
+    "TTiOCrqTRs0",
+    "shop tools"
+   ],
+   [
+    "VoKZsprvNXA",
+    "shop tools"
+   ],
+   [
+    "f-QcB4Ei9F8",
+    "shop builds"
+   ],
+   [
+    "bivfm7DFt7A",
+    "laser cutting"
+   ],
+   [
+    "ztbiGz9_Fok",
+    "shop tools"
+   ],
+   [
+    "p50IdqCLL44",
+    "CAD"
+   ],
+   [
+    "P1hK_Vde6_0",
+    "machines"
+   ],
+   [
+    "Wewb80bJug0",
+    "trade shows"
+   ],
+   [
+    "JzYTWdct6vs",
+    "shop tools"
+   ],
+   [
+    "2emEckiLm3I",
+    "fabrication projects"
+   ],
+   [
+    "iYxPHFCTWns",
+    "shop tools"
+   ],
+   [
+    "9Tali6bdyLI",
+    "fabrication projects"
+   ],
+   [
+    "VJEs83XZZmk",
+    "laser cutting"
+   ],
+   [
+    "TJtwwn5eIb8",
+    "laser cutting"
+   ],
+   [
+    "xMCkqcAkqJk",
+    "shop builds"
+   ],
+   [
+    "tUHnfxDthpQ",
+    "fabrication projects"
+   ],
+   [
+    "WxkEk1n5sXM",
+    "shop builds"
+   ],
+   [
+    "8S4Z3F8xFvo",
+    "shop tools"
+   ],
+   [
+    "HsT-lvQFczU",
+    "shop tools"
+   ],
+   [
+    "eHHmYgwi3QA",
+    "shop tools"
+   ],
+   [
+    "cYJBXTbQ21g",
+    "welding table"
+   ],
+   [
+    "Y-bu92fR4Tw",
+    "fabrication projects"
+   ],
+   [
+    "SIn-K_s1VP0",
+    "shop builds"
+   ],
+   [
+    "44XoBPsKHbY",
+    "shop tools"
+   ],
+   [
+    "DY_zvhVZ72A",
+    "shop tools"
+   ],
+   [
+    "daY70Fbjdjw",
+    "fabrication projects"
+   ],
+   [
+    "S0XE7qYXA2E",
+    "machines"
+   ],
+   [
+    "nEddsWy8jBc",
+    "shop tools"
+   ],
+   [
+    "JIC3yWF8qvo",
+    "machines"
+   ],
+   [
+    "PKWjeX8J8HI",
+    "shop tools"
+   ],
+   [
+    "5yLB4DUkBxw",
+    "fabrication projects"
+   ],
+   [
+    "aGxwKKTElbM",
+    "fabrication projects"
+   ],
+   [
+    "dpum08vStkk",
+    "shop tools"
+   ],
+   [
+    "rHDBjRbEaSc",
+    "shop tools"
+   ],
+   [
+    "wXpqkhzTHHY",
+    "welding table"
+   ],
+   [
+    "1Ci9-Mp2KVg",
+    "shop tools"
+   ],
+   [
+    "iJkNth1BcXk",
+    "machines"
+   ],
+   [
+    "a7G9aXTe8kw",
+    "plasma cutting"
+   ],
+   [
+    "GeR1bKKRKZI",
+    "fabrication projects"
+   ],
+   [
+    "p6E_vsYzav4",
+    "shop tools"
+   ],
+   [
+    "ohQscYg2YpQ",
+    "3D scanning"
+   ],
+   [
+    "QQBnYkzM6DM",
+    "fabrication projects"
+   ],
+   [
+    "AD18G2EGuXA",
+    "fabrication projects"
+   ],
+   [
+    "7pjj3x7rfPg",
+    "stick welding"
+   ],
+   [
+    "TxcQ6cbMJ6E",
+    "stick welding"
+   ],
+   [
+    "-B_fzs9nhAg",
+    "skills"
+   ],
+   [
+    "hHI7EZQd66k",
+    "the industry body"
+   ],
+   [
+    "2UhchChhCoI",
+    "automation"
+   ],
+   [
+    "gQtGLz7zQc8",
+    "the industry body"
+   ],
+   [
+    "ztyLZrNLFXg",
+    "the industry body"
+   ],
+   [
+    "gjLAbFHobHY",
+    "the industry body"
+   ],
+   [
+    "t4lgECqHpf4",
+    "the industry body"
+   ],
+   [
+    "28lSqFIQv50",
+    "the industry body"
+   ],
+   [
+    "5NtratdoecE",
+    "the industry body"
+   ],
+   [
+    "vjVihAwQLmw",
+    "the industry body"
+   ],
+   [
+    "Z6MNhASOeiQ",
+    "the industry body"
+   ],
+   [
+    "DEI90hVylgA",
+    "the industry body"
+   ],
+   [
+    "9dkjWfEj464",
+    "automation"
+   ],
+   [
+    "d6-KQtRDsSc",
+    "industry"
+   ],
+   [
+    "fjXHowfLLyM",
+    "the industry body"
+   ],
+   [
+    "1jdBIE9ama8",
+    "industry"
+   ],
+   [
+    "pUqWhfMzJfM",
+    "the industry body"
+   ],
+   [
+    "TXkdKlOQk4Y",
+    "industry"
+   ],
+   [
+    "PtolXn8Lxro",
+    "industry"
+   ],
+   [
+    "qz2AXzQJTcc",
+    "industry"
+   ],
+   [
+    "C0RQAqxH1Ok",
+    "the industry body"
+   ],
+   [
+    "gUBNaP-s_Mc",
+    "the industry body"
+   ],
+   [
+    "1btE9yeW_I4",
+    "the industry body"
+   ],
+   [
+    "u-mDq2xYyPM",
+    "the industry body"
+   ],
+   [
+    "2B0n-W5o4Eo",
+    "the industry body"
+   ],
+   [
+    "nNvkYI0XA2I",
+    "the industry body"
+   ],
+   [
+    "ZnUnM7RTlkg",
+    "the industry body"
+   ],
+   [
+    "cUxIqQVRbrc",
+    "the industry body"
+   ],
+   [
+    "PTTy1xfi9ZE",
+    "the industry body"
+   ],
+   [
+    "i9h6x9sX8TE",
+    "the industry body"
+   ],
+   [
+    "qL2wWXCG-6E",
+    "the industry body"
+   ],
+   [
+    "hxnKKJ-QOV0",
+    "the industry body"
+   ],
+   [
+    "xCjPhCUnhos",
+    "the industry body"
+   ],
+   [
+    "cSZB_9Bgda0",
+    "the industry body"
+   ],
+   [
+    "LRUNADqk-hY",
+    "the industry body"
+   ],
+   [
+    "hvVlYQRaeB8",
+    "automation"
+   ],
+   [
+    "H5EEQoBgi_8",
+    "the industry body"
+   ],
+   [
+    "KR3cgg8E474",
+    "the industry body"
+   ],
+   [
+    "lOfOPY-5tic",
+    "the industry body"
+   ],
+   [
+    "v1eSWYJAdsg",
+    "the industry body"
+   ],
+   [
+    "cRlDTCwa_TM",
+    "the industry body"
+   ],
+   [
+    "iiVsvRoD2OE",
+    "the industry body"
+   ],
+   [
+    "knj9fPUdnKo",
+    "the industry body"
+   ],
+   [
+    "hstoC1H3Ev0",
+    "the industry body"
+   ],
+   [
+    "qggvdb8_xB8",
+    "the industry body"
+   ],
+   [
+    "PtasCV4C51Q",
+    "the industry body"
+   ],
+   [
+    "IetzqR5UQ7M",
+    "the industry body"
+   ],
+   [
+    "a46-ka21mII",
+    "the industry body"
+   ],
+   [
+    "_dCo6CxsX9I",
+    "the industry body"
+   ],
+   [
+    "QGNy_b0c61w",
+    "the industry body"
+   ],
+   [
+    "_38UX8Xdf4w",
+    "the industry body"
+   ],
+   [
+    "eYm-rZ8ie6I",
+    "the industry body"
+   ],
+   [
+    "jQmva6Q-vgA",
+    "the industry body"
+   ],
+   [
+    "eKZNla29vdY",
+    "the industry body"
+   ],
+   [
+    "7ULKpGqEnPo",
+    "the industry body"
+   ],
+   [
+    "giQMSbfcydc",
+    "the industry body"
+   ],
+   [
+    "u4KeAjLnOo0",
+    "the industry body"
+   ],
+   [
+    "rlOEBAIkmwg",
+    "the industry body"
+   ],
+   [
+    "38t3UbfmcwE",
+    "the industry body"
+   ],
+   [
+    "HXfpWRnNGqI",
+    "the industry body"
+   ],
+   [
+    "lVX-9QW58Gc",
+    "the industry body"
+   ],
+   [
+    "BrGn1Ny_8wo",
+    "the industry body"
+   ],
+   [
+    "G3q1aPAF_CI",
+    "automation"
+   ],
+   [
+    "Fw_hvN79bAE",
+    "automation"
+   ],
+   [
+    "vHtHOumts7k",
+    "the industry body"
+   ],
+   [
+    "5x9Gern0QdA",
+    "the industry body"
+   ],
+   [
+    "exb7tS2StzA",
+    "the industry body"
+   ],
+   [
+    "rYhJHQR_J8A",
+    "the industry body"
+   ],
+   [
+    "z_4U3QUMldA",
+    "the industry body"
+   ],
+   [
+    "M2HEdFy3LTE",
+    "the industry body"
+   ],
+   [
+    "XyEuk3H94FU",
+    "automation"
+   ],
+   [
+    "dzJGokL4RUE",
+    "automation"
+   ],
+   [
+    "E5lXoI-BpJU",
+    "the industry body"
+   ],
+   [
+    "3sWGwsIVrwc",
+    "the industry body"
+   ],
+   [
+    "qyY0AL-hwyc",
+    "automation"
+   ],
+   [
+    "nhLF-CSnBic",
+    "the industry body"
+   ],
+   [
+    "XKxA5veEzGc",
+    "the industry body"
+   ],
+   [
+    "3ONk7cRjcO8",
+    "automation"
+   ],
+   [
+    "pP2T2Q5wD0Q",
+    "the industry body"
+   ],
+   [
+    "7xK59PRVtSA",
+    "the industry body"
+   ],
+   [
+    "aaYn5smYRWE",
+    "the industry body"
+   ],
+   [
+    "xD2VJL-D7e8",
+    "the industry body"
+   ],
+   [
+    "ODI75DgKHJ8",
+    "the industry body"
+   ],
+   [
+    "7ZW4mHjBT_M",
+    "the industry body"
+   ],
+   [
+    "HBZuTAJErbs",
+    "the industry body"
+   ],
+   [
+    "i6dPDSZLIyQ",
+    "automation"
+   ],
+   [
+    "QndtNeTsYrE",
+    "the industry body"
+   ],
+   [
+    "f8F2Kb3_kiE",
+    "the industry body"
+   ],
+   [
+    "TIjfJWX1a_A",
+    "the industry body"
+   ],
+   [
+    "9UwDnQm8Il8",
+    "the industry body"
+   ],
+   [
+    "hOuXD_OAUyA",
+    "the industry body"
+   ],
+   [
+    "QybDFaUozik",
+    "the industry body"
+   ],
+   [
+    "tNJFw1XUP34",
+    "the industry body"
+   ],
+   [
+    "n7tFJBDxwyI",
+    "automation"
+   ],
+   [
+    "k5uXwHHTYOQ",
+    "processes"
+   ],
+   [
+    "lAVCcb--c6c",
+    "career"
+   ],
+   [
+    "wvrvN9xqxRQ",
+    "processes"
+   ],
+   [
+    "UEjGvLErd_8",
+    "career"
+   ],
+   [
+    "Env_ihrO9mI",
+    "career"
+   ],
+   [
+    "0aB2Ap3hVRM",
+    "career"
+   ],
+   [
+    "2aM4dYsN1Dw",
+    "career"
+   ],
+   [
+    "OeYclVCzCbA",
+    "career"
+   ],
+   [
+    "JPBwCJ9CV1A",
+    "career"
+   ],
+   [
+    "knt9Vvf6JUo",
+    "career"
+   ],
+   [
+    "jMAYls02PP4",
+    "career"
+   ],
+   [
+    "0hJ2uN7SNGs",
+    "processes"
+   ],
+   [
+    "8-PA6Oobt9E",
+    "career"
+   ],
+   [
+    "-hjyH6P1mAo",
+    "weld inspection"
+   ],
+   [
+    "KPKT25G4QJs",
+    "weld inspection"
+   ],
+   [
+    "8yhnACv9oGQ",
+    "weld inspection"
+   ],
+   [
+    "daESigtlTwY",
+    "weld inspection"
+   ],
+   [
+    "5Lx2m3e1OBY",
+    "weld inspection"
+   ],
+   [
+    "rCyfnffZ5LE",
+    "weld inspection"
+   ],
+   [
+    "rLzwEzVkc6I",
+    "weld inspection"
+   ],
+   [
+    "hRRfIBMtqGU",
+    "weld inspection"
+   ],
+   [
+    "I7xsgt_hqzY",
+    "weld inspection"
+   ]
+  ],
+  "minWpm": 30
+ }
+}

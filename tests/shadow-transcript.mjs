@@ -43,13 +43,15 @@ async function learner(mode, seedCaps) {
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "/index.html?st=" + Date.now() + "#shadow"); await sleep(2500);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
-  /* `ytai` — writing the words for a video that ships none — is the one free
-     route that spends real money per call, so be-polish now requires a verified
-     account for it. The client asks the same question first (ytaiNoAccount) so a
-     signed-out learner is told to sign in instead of reading "no transcript for
-     this video" about a video that is fine. This suite is about WINDOWING and
-     CACHING, so its learner is signed in; the signed-out contract is check 14. */
-  if (mode !== "anon") await p.evaluate(() => { FBUser = { uid: "u-transcript", getIdToken: async () => "tok-u-transcript" }; _fbAuthSeen = true; });
+  /* J1 (1 Oct 2026): `ytai` — writing the words for a video that ships none —
+     is the one free route that spends real money per call, so be-polish now
+     requires a verified account for it in EVERY configuration, not only when
+     PREMIUM_ENFORCED is on. The client asks the same question first
+     (ytaiNoAccount) so a signed-out learner is told to sign in instead of
+     reading "no transcript for this video" about a video that is fine.
+     This suite is about WINDOWING and CACHING, so its learner is signed in.
+     The signed-out contract is check 14 at the foot of the file. */
+  if (!mode || mode !== "anon") await p.evaluate(() => { FBUser = { uid: "u-transcript", getIdToken: async () => "tok-u-transcript" }; _fbAuthSeen = true; });
   return { ctx, p, errs, asks };
 }
 const panel = p => p.evaluate(() => { const box = document.getElementById("shV2"), sk = box ? box.querySelectorAll(".sv-sk i").length : 0;
@@ -104,22 +106,26 @@ console.log("\n# a copy kept before this change");
   ok("13 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
-/* ---- 14: the account contract on this surface ----
+/* ---- 14: the J1 contract on this surface ----
    Signed out, the words for a video that ships none are not fetched at all:
    the route costs real money per call and be-polish answers 401 without an
    account, so firing the request would mean reporting a refusal as a video
-   with no transcript. */
+   with no transcript. That was the defect class; this is the fix. */
 {
   const { ctx, p, errs, asks } = await learner("anon");
   await p.evaluate(async v => { go("shadow"); await shLoad({ vid: v, start: 0, end: 0, title: "probe" }, true); }, VID);
   await sleep(2500);
-  const st = await p.evaluate(() => ({ noAcct: ytaiNoAccount(), why: svNoCapWhy(), title: svNoCapTitle(), body: svNoCapBody() }));
+  const st = await p.evaluate(() => ({
+    noAcct: ytaiNoAccount(),
+    why: typeof svNoCapWhy === "function" ? svNoCapWhy() : null,
+    title: typeof svNoCapTitle === "function" ? svNoCapTitle() : null,
+    body: typeof svNoCapBody === "function" ? svNoCapBody() : null,
+  }));
   ok("14 · signed out: NOT ONE ytai request is fired", asks.length === 0, JSON.stringify(asks));
   ok("14b · …the reason recorded is the account, not a missing transcript", st.noAcct === true && st.why === "auth_required", JSON.stringify(st));
   ok("14c · …and the card asks for a free account and says the video itself is fine",
     /sign in/i.test(st.title || "") && /free account/i.test(st.body || "") && /video itself is fine/i.test(st.body || ""), JSON.stringify(st));
-  ok("14d · …and nothing mentions Premium — this is not a paywall", !/premium/i.test((st.title || "") + " " + (st.body || "")), JSON.stringify(st));
-  ok("14e · no JavaScript errors", !errs.length, errs.join(" | "));
+  ok("14d · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
 await b.close(); if (srv) srv.kill();

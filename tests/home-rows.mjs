@@ -10,7 +10,11 @@ if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind"
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 700)}`); };
 const cat = JSON.parse(fs.readFileSync(root + "catalogue/general.json", "utf8"));
 const V = { W: "S0kfnpgY-Gs", SH: "-5q6tNovay8", CF: "mmfo9spNaWA" }; const T = k => cat.videos[V[k]].title;
-const FLAGS = { home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
+/* billing_enabled is pinned OFF so the rows render their CARDS. Without Premium a row shows its
+   heading and one offer bar instead (homeRowsHTML), which is premium-boundary.mjs's subject, not
+   this file's — and on staging, where FLAGS_STAGING turns billing on, this suite would otherwise
+   be testing the locked rendering by accident. */
+const FLAGS = { billing_enabled: false, home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
 const ENGINE = process.env.BROWSER === "webkit" ? webkit : chromium; console.log(`  engine: ${process.env.BROWSER || "chromium"} · ${BASE}`);
 const b = await ENGINE.launch();
 const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? {} : FLAGS)); localStorage.setItem("be_theme", "dark");

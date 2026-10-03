@@ -29,6 +29,16 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   section (`OPTIONAL=["foundations"]`) — a missing file is `null`, not an error.
 - **`backend/polish-worker.js`** + `backend/README.md` — Cloudflare Worker that
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
+- **`backend/rate-limit.js`** — the `RateLimiter` **Durable Object** every limit
+  in be-polish goes through (added 1 Oct 2026). Before it, each limit was a
+  module-scope `Map`, i.e. per **isolate**: the real ceiling was
+  `limit x isolates` and 24 of 24 requests passed a limit of 20 when it was
+  measured. **A `Map` is not a rate limit** — if you add a route that spends
+  money, hold it with `limit(env, subject, name, perMin, perDay, cors)`. The
+  binding must be in `wrangler.toml` for BOTH environments (an environment does
+  not inherit `durable_objects`); without it the Worker degrades to the old
+  Maps and says `degraded`. Fixed windows, so there is a boundary burst of up to
+  2x — stated in the file, not discovered later.
 
 ## Deploy workflow — READ THIS
 - **Two version strings move together on every deploy:** `sw.js` `be12-vNN`
@@ -402,6 +412,78 @@ not JS, and `new Function` chokes on it. Check it separately with
   row was tested.
   `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
   check every GE-only feature makes — Welding gets exactly the app it has today.
+- **Premium / entitlements — READ BEFORE TOUCHING ANY AI PATH.** Premium is
+  **not on sale**: `ENT_API` is empty and `billing_enabled` is false, so
+  `planOn()` is false, `entGated()` is false, and **every learner has every
+  feature exactly as before**. Nothing below changes production until the owner
+  deploys `be-entitlements` and sets both.
+  - **One gate.** `hasEntitlement(cap)` is the only Premium question in
+    index.html — there is no second `if premium` rule. `entLocked(cap)` is its
+    negative, `entGated()` says where a gate is in force (billing on **and** an
+    entitlement service **and** General English). `ENT_CAPS` must stay identical
+    to `CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`;
+    `tests/premium-boundary.mjs` check 1 fails if they drift.
+  - **Capabilities (FIVE):** `ad_free`, `ai_analysis`, `advanced_progress`,
+    `ai_coach`, `recommended_content`. There were six: `ai_verbal_feedback` was
+    removed 1 Oct 2026 because it was sold on the paywall and checked at zero
+    call sites, while the TTS route is deliberately free (the natural voice
+    reads *content*). **Every name on that list must gate something** — a
+    capability nothing enforces is a claim, and selling one is a store-
+    disclosure problem. `tests/free-premium-contract.mjs` §6 holds the rule.
+  - **The Free product is a WHOLE loop, and the Shadow Challenge is part of it
+    (owner, 1 Oct 2026).** Free gets speech capture, transcription, Shadow
+    translation and IPA, participation in every Challenge rung, and the
+    coverage / word-accuracy / rhythm / completion feedback — all of it computed
+    on the device from the free transcript. Premium adds the per-word
+    pronunciation score (`fbAssess`, the ONE gate), the retell meaning verdict,
+    the AI speaking reports, 30/90-day analytics, the coach and the personalised
+    rows. **Do not re-add a top-level `aiOff` bail to a Challenge grader** — six
+    of them made the whole ladder Premium in effect while reporting itself as an
+    offline error, which is what "the app feels intermittent" turned out to be.
+    `ShadowSync.challenge` accepts `assess: null` and `drillState(null, …)`
+    returns its `asr` mode: the degradation is in the engine already, so there
+    is never a reason to write a second path.
+  - **An AI route needs an ACCOUNT, free capabilities included** (owner, 1 Oct
+    2026; `premiumGate`'s `cap === null` branch). Anonymous learners get no AI.
+    That is a decision, not a defect — do not "open up" a free route to
+    anonymous callers, and `ytai` especially not: its per-account cap is the
+    only thing standing between a pasted video list and a real bill.
+  - **The AI gate is `aiOff(cap)`**, which is the `!POLISH_API||!navigator.onLine`
+    guard every AI call site already had, plus the plan. A Free learner takes the
+    app's existing OFFLINE path: the activity runs, the recording is kept, the
+    local result is computed on the device. That is deliberate — the Free
+    experience is a tested code path, not a new one. `aiOffNote(cap)` picks the
+    message, because a Free learner is not offline.
+  - **Never gated:** the curriculum, the learner's own words and phrases, human
+    practice (Practice Partner), role-play replies, Executive Polish's rewrite
+    (its *history* is capped by `PLAN_LIMITS`), captions, TTS, and the three
+    phrases `ppLiveHelp` offers during a live call. Free is a complete product.
+  - **Welding is never gated at all** — Premium is sold on General English only,
+    so Welding must never lose something it cannot buy back. `entGated()`
+    enforces this; do not "fix" it.
+  - **The boundary is the Worker, not the page.** `backend/polish-worker.js`
+    verifies the caller's Firebase token against `be-entitlements` before it
+    spends anything, behind `PREMIUM_ENFORCED` + `ENTITLEMENTS_URL` (both off).
+    Turn them on only AFTER be-entitlements answers, and in the order in
+    `backend/wrangler.toml`. The client signs AI requests in **one** place — the
+    `window.fetch` wrapper beside `POLISH_API`, which touches only that URL.
+  - **`chat` cannot be fully protected**: its system prompt comes from the
+    client, so its `purpose` (`practice` / `coach` / `report`) gates the app's
+    own flows, not a determined caller. A missing purpose reads as `practice`
+    so a cached older index.html keeps working. Closing this means moving the
+    prompts server-side. The fixed-work routes — transcription, `assess`,
+    `analyse`, `mvreport` — are properly protected.
+  - **One offer, never a price in the code.** `premOffer()` returns the annual
+    plan only; `premium_monthly` is still honoured for anyone who bought one but
+    is not shown. Every figure comes from `Billing.products`, i.e. from App
+    Store Connect / Play (Apple 3.1.2). $24.99/year with a 3-day trial is
+    configured in the store, not here — see `mobile/ios/appstore/SUBSCRIPTIONS.md`.
+  - **Locked never means empty**: `premLockHTML(cap, from)` is the one gate card,
+    and a locked chart is drawn dimmed inside `.prem-prev` under the offer.
+  - Tests: `tests/premium-boundary.mjs` (44, in the default chain),
+    `backend/test-premium-gate.mjs` (29, the server boundary), plus
+    `npm run test:premium` and `test:premium-server`.
+
 - **Practice Partner (LIVE in production since 2026-09-20, be12-v379; General
   English only; live calls still off).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
   me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or
@@ -756,6 +838,26 @@ not JS, and `new Function` chokes on it. Check it separately with
   lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
   `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
   `BASE=` a port that serves THIS tree).
+- **Welding Professional English studio (feature/welding-shadow-studio, owner
+  29 Sep 2026; flag `welding_studio_enabled`: staging ON, production OFF).**
+  With it on, a Welding learner gets (1) Shadow = the SAME video Shadow Studio as
+  General English (library, V3 workspace, Watch/Shadow/Challenge/Apply), fed by
+  `catalogue/welding.json` — ten refinery professions in four groups, hand-picked
+  in `catalogue/welding-sources.json`, checked and captioned by
+  `scripts/build_welding_catalogue.mjs` (`--offline` + `RAW_DIR` when YouTube
+  rate-limits the machine; it refuses videos YouTube labels non-English);
+  (2) the workplace lines as Practice tool 4 = view **`lines`**, drawn by
+  `rShadow` into `#v-shadow` (go() maps it; Practice tab lit; `#lines` restores);
+  (3) Home = `rHomeV2` with Welding content. Isolation: `_shCat` is a window
+  getter answering the OPEN area's catalogue only (`SH_CAT_FILE`); "Continue"
+  is `lastClip()`/`lastClipSet()` (GE keeps `S.lastClip`, others
+  `S.lastClipA[area]`); Home reads `homeSignals()` (Welding: `home:true`, no
+  partner, no AI coach); the engine takes `content.topics` (`weldTopics()`) and
+  `levelTopics/levelVariant` instead of forking; inherited GE starters are
+  filtered to the Welding library. Welding Apply = `svApplyLab` (line → Phrase
+  Lab box), never Partner/GE coach. Profession: `weldProf()` (profile
+  `weldProf`, else the trade) + `weldProfSheet()`. Tests:
+  `tests/welding-studio.mjs`. Flag off = Welding exactly as before.
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is
