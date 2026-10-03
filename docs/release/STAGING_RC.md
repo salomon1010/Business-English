@@ -73,7 +73,7 @@ unguarded, so they now assert it directly instead:
 
 The suite went from 18 checks to 19 and still passes in full.
 
-## The one product question the integration cannot answer
+## The one product question — ANSWERED by the owner, 2 October 2026
 
 `premOffered()` decides whether Premium is offered at all:
 
@@ -86,23 +86,72 @@ BASE B removed the General-English gate **on purpose**, in `184f3a0e`
 *"WELDING is gated too — the boundary is no longer General-English-only"* and
 *"the paywall is offered on Welding (one product, one sheet)"*.
 
-The integration brief asks instead for **"Welding = no Premium offering"**. Both
-cannot hold. The candidate keeps B's behaviour, because it is the deliberate,
-documented, test-backed decision and reversing it would mean failing an existing
-release suite. Restoring the gate is one line:
+An earlier brief asked instead for *"Welding = no Premium offering"*, which
+cannot hold at the same time, so the candidate was left on B's behaviour and the
+question was put to the owner.
 
-```js
-function premOffered(){try{return (planOn()&&isGeneralEnglish())||entIsPremiumForDisplay()}catch(e){return false}}
-```
+**The owner's answer, 2 October 2026: ONE PREMIUM SUBSCRIPTION ACROSS BOTH
+TRACKS.** Keep `premOffered() = planOn() || entIsPremiumForDisplay()` — do **not**
+restore the General-English gate — and keep `adsTrackAllows()`
+General-English-only. So:
 
-…and would require `tests/welding-premium.mjs` to be rewritten to the opposite
-rule. **This is the owner's decision, not the integrator's.**
+| | Free | Premium |
+|---|---|---|
+| **General English** | ads allowed | available · **no ads** |
+| **Welding** | **completely ad-free** | available · **completely ad-free** |
+
+A Welding learner may buy Premium, and a Welding learner never sees an ad on any
+plan. There is one subscription, one product pair and one subscription group
+across both tracks; `tests/welding-premium.mjs` (42 checks) is the suite that
+holds that, including that no welding-specific product, flag or entitlement
+identifier exists.
+
+Verified in a real browser on all four track/plan combinations, with
+`ads_enabled` ON so that only policy could refuse an ad: General English Free is
+the only case that gets one, both Premium cases are ad-free, and **Welding emits
+no ad analytics at all on either plan** (`decide()` answers `track`, before any
+event). `ENT_CAPS` equals the server's `CAPABILITIES` in the same order, and a
+General English subscriber and a Welding subscriber are granted the identical
+capability set.
 
 **The ads rule is unaffected either way.** Welding is completely ad-free in the
 candidate: `adsTrackAllows()` is `isGeneralEnglish()`, it throws closed, and it
 is checked at 9 sites — in `AdEligibility.decide()` before any analytics event,
 in `markBreak`, `interstitial`, `placeNative`, `rewarded`, in the native-slot
 watcher and in the gate that builds the AdMob bridge at all.
+
+## Correction, same day: the 12 "pre-existing" failures were a test-harness artefact
+
+An earlier run of this candidate reported 12 failures in `premium-acquisition`,
+`premium-value` and `premium-boundary`, and a control run of BASE B alone
+reported the **same 12**, which looked like proof they pre-dated the
+integration. They did not pre-date anything. Those three suites default to
+ports **8097/8098**, and other sessions on this machine were holding them with
+`python3 -m http.server` instances serving an **older checkout** — one whose
+`index.html` still contains `ai_verbal_feedback`. Both runs silently tested a
+foreign application. The BASE B control matched for the same reason, which is
+why the failure sets were byte-identical.
+
+Re-run on verified-free ports, with no change to any implementation or any test:
+
+| suite | on the busy port | on a free port |
+|---|---|---|
+| `premium-boundary` | 43 pass / 4 fail | **47 / 0** |
+| `premium-value` | 86 / 4 | **90 / 0** |
+| `premium-acquisition` | 36 / 4 | **40 / 0** |
+| `monetization-qa` | 31 / 0 *(invalid — wrong app)* | **31 / 0** |
+| `subscription` | 29 / 0 *(invalid)* | **29 / 0** |
+| `ios-storekit` | 27 / 0 *(invalid)* | **27 / 0** |
+
+Six suites were affected, and a *pass* on a foreign server is no more
+meaningful than a failure. Only some suites in this repository compare the
+served `index.html` against the one on disk and refuse to run on a mismatch
+(`auth-social` does, and it caught this). **Always pass an explicit free
+`PORT`** — or add that guard to the rest — before trusting any suite that
+spawns its own server.
+
+Full result on free ports: **824 browser checks and 343 Worker checks, 0
+failures.**
 
 ## State
 
@@ -112,3 +161,11 @@ watcher and in the gate that builds the AdMob bridge at all.
   `PREMIUM_ENFORCED` = `"0"` in production, AdMob ids are placeholders.
 - `npm run sync` run: root, `www/` and `ios/App/App/public/` `index.html` are
   byte-identical.
+- Verified on free ports: **824 browser checks + 343 Worker checks, 0 failures**
+  (18 browser suites, 6 Worker suites). iOS builds clean in **Debug and Release**
+  with Xcode 27 — GMA 12.14.0 and UMP 3.1.0 embedded as frameworks, all three
+  plugins in the binary, Apple Sign-In entitlement present, bundle id
+  `com.lomonec.bemastery`. `mobile/ios/scripts/check-release.mjs`: **PASS**, one
+  environmental warning (`xcode-select` points at CommandLineTools; the builds
+  ran against Xcode 27 through `DEVELOPER_DIR`, and archiving will need
+  `sudo xcode-select -s`).
