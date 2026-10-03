@@ -22358,14 +22358,118 @@ const AdProviders={
     preload(f,c){try{window.BENativeAds.preload(f,c)}catch(e){}},
     async load(f,c){try{return !!(await window.BENativeAds.load(f,c))}catch(e){return false}},
     isReady(f){try{return !!window.BENativeAds.isReady(f)}catch(e){return false}},
-    async show(f,o){try{return await window.BENativeAds.show(f,{context:o.context,nonce:o.nonce})}catch(e){return {shown:false}}},
+    async show(f,o){try{return await window.BENativeAds.show(f,{context:o.context,nonce:o.nonce,host:o.host})}catch(e){return {shown:false}}},
     dismiss(){try{window.BENativeAds.dismiss()}catch(e){}},
-    async renderNative(){return false},   /* native SDK native ads are drawn by the shell, not in the page */
+    /* A native-SDK native ad is a platform view, so the shell draws it OVER the
+       slot this page measured; the label, the "Remove ads" link and the space
+       itself stay in the page. The bridge answers false whenever it cannot. */
+    async renderNative(el,placement){try{return !!(await window.BENativeAds.renderNative(el,placement))}catch(e){return false}},
   },
 };
 /* which provider runs: the native bridge in the store shells, the mock only
    where it is allowed, otherwise none. A web network (Phase 9 decision) slots in here. */
 function adProvider(){for(const id of ["native","mock"]){const p=AdProviders[id];if(p.available())return p}return AdProviders.none}
+
+/* ================= THE STORE SHELL'S AD BRIDGE =================
+   window.BENativeAds, built from Capacitor's BEAds plugin (Swift:
+   mobile/ios/ios/App/App/BEAdsPlugin.swift, registered by
+   BEBridgeViewController). Interstitial and native advanced only — rewarded
+   and sponsored stay disabled, so supports() answers whatever the plugin
+   lists and nothing else.
+
+   It is built ONLY when every one of these is true, and never rebuilt:
+     - this is the App Store shell (IS_IOS_APP);
+     - ads_enabled is on;
+     - adsTrackAllows() — Welding never reaches an ad SDK, for any plan;
+     - adsSystemLive() — see below;
+     - the plugin is present AND its configure() reported available, which
+       means the AdMob ids are real and Google's consent state is resolved.
+   Until then window.BENativeAds is absent, AdProviders.native.available() is
+   false, and the provider is "none". Nothing here pretends otherwise. */
+
+/* PART 6 belt and braces: a REAL ad network may only run where the plan system
+   that switches ads off for Premium is actually live. With no entitlement
+   service every learner looks Free to the client, and with billing off nobody
+   can buy their way out of the ads they would then see. The mock provider is
+   deliberately unaffected: it is localhost / staging only and sells nothing. */
+function adsSystemLive(){try{return !!entApiBase()&&flag("billing_enabled")}catch(e){return false}}
+
+let _adsBridge=false;   /* tried once per visit */
+function beNativeAdsInit(){
+  if(_adsBridge)return;
+  let ios=false;try{ios=IS_IOS_APP}catch(e){}
+  if(!ios)return;
+  try{if(!flag("ads_enabled")||!adsTrackAllows()||!adsSystemLive())return}catch(e){return}
+  const C=window.Capacitor;if(!C||typeof C.registerPlugin!=="function")return;
+  _adsBridge=true;
+  let P=null;try{P=C.registerPlugin("BEAds")}catch(e){return}
+  Promise.resolve(P.configure()).then(r=>{
+    if(!r||r.available!==true||!Array.isArray(r.formats)||!r.formats.length)return;
+    const formats=r.formats.filter(f=>f==="interstitial"||f==="native");
+    if(!formats.length)return;
+    const ready={};
+    /* a slot the shell is drawing over: follow it, and take the ad away the
+       moment the page drops the slot (a re-render, AdManager.withdraw(), a
+       plan change) — the platform view cannot notice that by itself.
+       It follows the PLACEMENT, not one element: placeNative re-appends a kept
+       slot after a re-render, and the creative must stay with it rather than
+       vanish because that particular node was briefly out of the document. */
+    const watched={};
+    const r4=el=>{const b=el.getBoundingClientRect();return {x:Math.round(b.left),y:Math.round(b.top),w:Math.round(b.width),h:Math.round(b.height)}};
+    const slotBody=place=>{const s=document.querySelector('[data-ad-slot][data-placement="'+place+'"]');return s&&s.isConnected?(s.querySelector(".ad-native-body")||s):null};
+    const unwatch=place=>{const w=watched[place];if(!w)return;clearInterval(w.iv);delete watched[place];try{P.hideNative({placement:place})}catch(e){}};
+    const watch=place=>{
+      const w=watched[place];if(w){clearInterval(w.iv);delete watched[place]}
+      let last="";
+      const iv=setInterval(()=>{
+        const el=slotBody(place);
+        if(!el||!adsTrackAllows()||!AdEligibility.planAllowsAds()){unwatch(place);return}
+        const b=r4(el),k=b.x+","+b.y+","+b.w+","+b.h;
+        if(k!==last){last=k;try{P.moveNative(Object.assign({placement:place},b))}catch(e){}}
+      },250);
+      watched[place]={iv};
+    };
+    window.BENativeAds={
+      supports(f){return formats.includes(f)},
+      preload(f,c){try{if(f==="interstitial")P.load({format:f,context:(c&&c.context)||""})}catch(e){}},
+      async load(f,c){
+        try{const x=await P.load({format:f,context:(c&&c.context)||""});ready[f]=!!(x&&x.ready);return ready[f]}catch(e){ready[f]=false;return false}
+      },
+      isReady(f){return !!ready[f]},
+      /* The SDK presents its own full-screen ad with its own close control, so
+         by the time this resolves the learner has already dismissed it. The
+         app's labelled frame has nothing left to show: close it rather than
+         leave a second screen in the way. */
+      async show(f,o){
+        if(f!=="interstitial")return {shown:false};
+        let res={shown:false};
+        try{res=await P.show({format:f,context:(o&&o.context)||""})||{shown:false}}catch(e){res={shown:false}}
+        ready[f]=false;
+        if(res.shown){
+          const ov=o&&o.host&&o.host.closest&&o.host.closest(".ad-ov");
+          if(ov){const c=ov.querySelector(".ad-continue");if(c)setTimeout(()=>c.click(),0);else ov.remove()}
+        }
+        return {shown:!!res.shown,closable:true,completed:res.completed!==false};
+      },
+      dismiss(){try{P.dismiss()}catch(e){}},
+      /* the page reserves the height, the shell draws the creative over it */
+      async renderNative(el,placement){
+        const place=String(placement||"");
+        if(!el||!place)return false;
+        try{el.style.minHeight=AD_NATIVE_H+"px"}catch(e){}
+        let b;try{b=r4(el)}catch(e){return false}
+        if(b.w<40||b.h<40)return false;
+        let out=null;
+        try{out=await P.showNative(Object.assign({placement:place},b))}catch(e){return false}
+        if(!out||out.shown!==true){try{el.style.minHeight=""}catch(e){}return false}
+        watch(place);
+        return true;
+      },
+    };
+  }).catch(()=>{});
+}
+/* the height the page reserves for a shell-drawn native creative */
+const AD_NATIVE_H=132;
 
 /* screens whose FOOT may carry one native ad — browsing only, never a recorder */
 const AD_NATIVE_PLACES=Object.freeze({home:"home_feed",review:"progress_foot",shadow:"library",phrasebank:"library"});
@@ -22380,6 +22484,7 @@ const AdManager={
   /* called at the end of every go(): offer the pending break over the page the
      learner chose; fill any native slot this page carries */
   afterNav(v){
+    try{beNativeAdsInit()}catch(e){}        /* builds the store shell's bridge once, if it may */
     const b=_adBreak;
     if(b&&Date.now()-b.at<AD_BREAK_TTL){
       setTimeout(()=>{if(_adBreak===b&&!AdEligibility.protectedReason()){_adBreak=null;this.interstitial(b.context)}},700);
@@ -31631,6 +31736,7 @@ function fbOnAuth(u){
   _fbAuthSeen=true;try{if(_fbAuthSettleRes){_fbAuthSettleRes();_fbAuthSettleRes=null}}catch(e){}
   try{entRefresh()}catch(e){}
   try{Billing.init()}catch(e){}
+  try{beNativeAdsInit()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
   /* Profile's Backup & sync row shows the account: redraw it on a real change

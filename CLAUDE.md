@@ -355,6 +355,37 @@ not JS, and `new Function` chokes on it. Check it separately with
   staging host (`playstore/twa-manifest.staging.json`) = internal vc 9;
   production host must be rebuilt as vc 10 at release. No production
   entitlement Worker/D1 exists yet. Test harnesses apply every file in `migrations/`.
+  **Phase 13 — real iOS ads + production entitlement infrastructure (2 Oct 2026,
+  `docs/ADS-IOS-RELEASE.md`).** The production D1 `be-entitlements`
+  (`ead9ecb9-7f95-45f7-a751-9d09c62febc4`) EXISTS and is migrated 0001-0004, and
+  `[vars]` now carries `APPLE_BUNDLE_ID` / `APPLE_ENVIRONMENTS="Production,Sandbox"`
+  / `APPLE_ROOT_SHA256` / `PLAY_PACKAGE`; the Worker is still NOT deployed (four
+  secrets + the two RTDN values are missing — see the file's header), so `ENT_API`
+  stays empty. Do NOT drop `capacitor://localhost` from `ALLOWED_ORIGINS`: it is
+  the App Store shell's own origin. The annual price in `BEMastery.storekit` is
+  **24.99** (Xcode's local store only; the app always draws the store's own
+  `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
+  via `beNativeAdsInit()`): Google Mobile Ads **12.x** + UMP **3.x**, added as ONE
+  remote SPM package (UMP is a *product of* the ads package — a second package
+  breaks the build), registered in `BEBridgeViewController`. **Interstitial and
+  native advanced only**; rewarded and sponsored stay unimplemented. Five gates
+  before the SDK is touched: `IS_IOS_APP` → `ads_enabled` → `adsTrackAllows()` →
+  **`adsSystemLive()`** (= `entApiBase() && billing_enabled`, the belt-and-braces
+  rule that a real network may only run where the plan that removes ads is live;
+  the mock is exempt) → the plugin's own `configure()`. Consent (UMP) is resolved
+  BEFORE `MobileAds.shared.start`, and a refused or unobtainable answer means no
+  provider at all. **npa=1 on every request, no IDFA, no ATT prompt** — hence no
+  `NSUserTrackingUsageDescription` and no `SKAdNetworkItems`. The three AdMob ids
+  in `Info.plist` are PLACEHOLDERS the plugin regex-refuses in a Release build, so
+  Google's test creatives can never reach a learner. `privacy.html` §7b now
+  describes the ad system before it ships (the old "shows no ads" claims are gone).
+  For staging device QA before AdMob exists, `BEAdsAllowTestUnits` (Info.plist,
+  **false** in the repo) permits Google's test units — double-locked by a Sandbox
+  receipt check, so an App Store build refuses them even if it is left on.
+  Tests: `tests/ios-ads.mjs` (75). Builds clean Debug + Release with Xcode 27.
+  Nothing is switched on: `ads_enabled` and `billing_enabled` stay OFF, and the
+  production Worker is NOT deployed (`be-entitlements` is not a Worker on the
+  account — only the empty D1 exists).
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

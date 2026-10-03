@@ -2,11 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- BE Mastery privacy manifest, version 1.1.0. Matches privacy.html and
-	     mobile/ios/appstore/PRIVACY_ANSWERS.md (29 Sep 2026). No tracking, no
-	     advertising. Premium is not active: no purchase data. Coarse location,
-	     gender (Other Data) and Device ID await the owner's App Store Connect
-	     decision (PRIVACY_ANSWERS.md) and are added here only if declared there. -->
+	<!-- BE Mastery privacy manifest, version 1.1.0. Matches privacy.html §7b and
+	     mobile/ios/appstore/PRIVACY_ANSWERS.md. NO TRACKING: this release
+	     requests non-personalised ads only (npa=1), uses no IDFA and runs no
+	     App Tracking Transparency prompt, so NSPrivacyTracking stays false and
+	     NSPrivacyTrackingDomains stays empty. Advertising Data is declared
+	     below because Google AdMob fills a free-plan General English ad slot;
+	     the Google Mobile Ads and UMP SDKs ship their OWN privacy manifests
+	     inside their xcframeworks, and Apple aggregates those with this file,
+	     so Google's own collection is not restated here. Welding requests no
+	     ads at all. Premium purchase data is not declared: StoreKit's own
+	     manifest covers it and the app stores no payment detail. -->
 	<key>NSPrivacyTracking</key>
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
@@ -83,6 +89,22 @@
 			<key>NSPrivacyCollectedDataTypePurposes</key>
 			<array>
 				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+		<!-- Advertising Data: an ad was requested, filled, shown or closed, so
+		     AdMob can fill the slot and count it once. Not linked to the
+		     learner's identity and not used to track them across other
+		     companies' apps or websites (non-personalised requests only). -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeAdvertisingData</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
 			</array>
 		</dict>
 	</array>

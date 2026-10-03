@@ -2,6 +2,30 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- ADVERTISING (General English, Free, non-personalised only).
+	     GADApplicationIdentifier is the AdMob app id and the two BEAds* keys
+	     are its ad units. They are PLACEHOLDERS: BEAdsPlugin validates their
+	     shape (ca-app-pub-<16 digits>~<10 digits> and .../<10 digits>) and, in
+	     a Release build, reports the provider unavailable unless all three are
+	     real — so an unregistered app shows nothing rather than Google's test
+	     creatives. The Google Mobile Ads SDK is never started while they are
+	     placeholders, so there is no launch-time exception either.
+	     There is deliberately NO NSUserTrackingUsageDescription and NO
+	     SKAdNetworkItems list: this release requests npa=1 (non-personalised)
+	     ads, uses no IDFA and runs no App Tracking Transparency prompt. -->
+	<!-- STAGING ONLY. true lets a TestFlight / development build use Google's
+	     own test units, so the ad path can be certified on a device before an
+	     AdMob account exists. It is double-locked: BEAdsPlugin also requires a
+	     Sandbox receipt, so a production App Store build refuses test creatives
+	     even if this is left switched on. Keep it false in the repo. -->
+	<key>BEAdsAllowTestUnits</key>
+	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-REPLACE~REPLACE</string>
+	<key>BEAdsInterstitialUnitId</key>
+	<string>ca-app-pub-REPLACE/REPLACE</string>
+	<key>BEAdsNativeUnitId</key>
+	<string>ca-app-pub-REPLACE/REPLACE</string>
 	<key>BEGoogleIosClientID</key>
 	<string>847739483036-qfgi8l393orrmr8fsnhk50auq9ironjt.apps.googleusercontent.com</string>
 	<key>CAPACITOR_DEBUG</key>
