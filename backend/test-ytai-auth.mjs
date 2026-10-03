@@ -5,8 +5,11 @@
    money per call (Gemini transcription of a pasted video, ~$0.08 for 15
    minutes), and it was reachable with no account at all — held only by a
    per-IP brake that a changed network defeats. It now requires a verified
-   Firebase ID token. It is still FREE: there is no plan check anywhere in this
-   file, and no other route gained a requirement.
+   Firebase ID token. It is still FREE: `ROUTE_CAP.ytai` is null, so no plan or
+   capability is ever required of it, and no other route gained a requirement.
+   (Server-side Premium enforcement DOES now exist in this Worker for the paid
+   routes — premiumGate / ROUTE_CAP, off in production until PREMIUM_ENFORCED is
+   set. ytai is deliberately outside it; checks 8 and 9 are what hold that.)
 
    The tokens here are REAL RS256, signed with a generated keypair and served
    through a stubbed JWKS, so the verifier under test is the imported one —
@@ -32,6 +35,12 @@ const ai = { calls: [] };
 globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (u.includes("/jwk/securetoken")) return new Response(JSON.stringify({ keys: [jwk] }), { status: 200 });
+  /* the entitlement service, for the one check that runs with enforcement ON:
+     a genuinely FREE plan, so ytai being allowed cannot be an accident of a
+     503 or an unparsed answer */
+  if (u.includes("/v1/entitlement")) return new Response(JSON.stringify({
+    plan: "free", paid: false, state: "none", ads: true,
+    capabilities: { ad_free: false, ai_analysis: false, advanced_progress: false, ai_coach: false, recommended_content: false } }), { status: 200 });
   ai.calls.push(u);
   if (u.includes("generativelanguage")) return new Response(JSON.stringify({
     candidates: [{ content: { parts: [{ text: JSON.stringify({ cues: [{ ts: "0:01", txt: "hello there" }] }) }] } }] }), { status: 200 });
@@ -77,15 +86,29 @@ console.log("\n# a real account");
   const j = await body(r);
   ok("7 · …and real cues came back", !!(j && j.cues && j.cues.length), JSON.stringify(j && Object.keys(j))); }
 
-console.log("\n# the route is FREE — there is no plan check in this Worker at all");
+console.log("\n# the route is FREE — ytai is authenticated, never paid");
+/* RE-SCOPED 2 Oct 2026, at the integration of the Premium line.
+   These two checks used to assert that this WORKER contained no entitlement
+   gate anywhere — true when ytai shipped, because server-side Premium did not
+   exist yet. It does now (premiumGate / ROUTE_CAP, off in production until
+   PREMIUM_ENFORCED is set), so the old wording would fail for the right
+   reason and nothing would be left guarding the thing that actually matters.
+   What matters, and what is asserted instead, is unchanged and narrower:
+   `ytai` itself must carry NO capability, so an account is the whole
+   requirement and a learner on any plan can transcribe. Nothing was weakened —
+   the behavioural half (9) is new, and 8 now pins the one line that decides it. */
 { const raw = (await import("node:fs")).readFileSync(new URL("./polish-worker.js", import.meta.url), "utf8");
-  /* comments stripped first: the file explains in prose WHY there is no plan
-     check and imports a module whose name contains "entitlements", and neither
-     is a gate. What must not exist is the CODE. */
   const code = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  const found = ["premiumGate", "ROUTE_CAP", "CHAT_PURPOSE_CAP", "premium_required", "capabilities(", "entLocked", "hasEntitlement"].filter(t => code.includes(t));
-  ok("8 · no plan, capability or entitlement GATE in the Worker's code — ytai is free, it is only authenticated", found.length === 0, JSON.stringify(found));
-  ok("9 · and no 402 can be produced by it", !/\b402\b/.test(code));
+  /* the one line that makes ytai free of plan: a capability name here would
+     turn "needs an account" into "needs a subscription" */
+  const cap = /ROUTE_CAP\s*=\s*\{[\s\S]*?\n\};/.exec(code);
+  const ytaiCap = cap && /\bytai\s*:\s*null\b/.test(cap[0]);
+  ok("8 · ytai carries NO capability — ROUTE_CAP.ytai is null, so an account is the whole requirement", !!ytaiCap, cap ? (/\bytai\s*:[^,\n]*/.exec(cap[0]) || ["(no ytai entry)"])[0] : "(no ROUTE_CAP)");
+  ok("8b · and no welding/plan-specific branch was added to the ytai handler", !/ytai[\s\S]{0,400}?premium_required/.test(code));
+  /* behavioural: a verified account gets the transcript, never a payment wall,
+     with enforcement ON and the entitlement service reporting a FREE plan */
+  const r402 = await ytai(await mint({ sub: "uid-free-402" }), { env: { ...ENV, PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test" } });
+  ok("9 · with enforcement ON and a Free plan, an authenticated ytai call is not refused for payment", r402.status !== 402, String(r402.status));
   ok("9b · the only identity code is the shared verifier, used once", (code.match(/verifyIdToken/g) || []).length === 2, JSON.stringify((code.match(/verifyIdToken/g) || []).length)); }
 
 console.log("\n# the cache is BEHIND the gate, not in front of it");

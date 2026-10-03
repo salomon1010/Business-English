@@ -41,10 +41,17 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
   ok("S2 · premium_annual is $24.99 a year (owner, 2 Oct 2026)",
     byId.premium_annual.displayPrice === "24.99" && byId.premium_annual.recurringSubscriptionPeriod === "P1Y",
     byId.premium_annual.displayPrice + " " + byId.premium_annual.recurringSubscriptionPeriod);
-  ok("S3 · monthly pricing is untouched: $4.99 a month with the 3-day free trial",
-    byId.premium_monthly.displayPrice === "4.99" && byId.premium_monthly.recurringSubscriptionPeriod === "P1M"
-    && byId.premium_monthly.introductoryOffer.paymentMode === "free" && byId.premium_monthly.introductoryOffer.subscriptionPeriod === "P3D",
-    JSON.stringify(byId.premium_monthly.introductoryOffer));
+  ok("S3 · monthly pricing is untouched: $4.99 a month",
+    byId.premium_monthly.displayPrice === "4.99" && byId.premium_monthly.recurringSubscriptionPeriod === "P1M",
+    byId.premium_monthly.displayPrice + " " + byId.premium_monthly.recurringSubscriptionPeriod);
+  /* The 3-day free trial sits on the ANNUAL product, not the monthly one. That
+     moved with the Premium line (184f3a0e onwards): annual is the only offer the
+     sheet draws, so the trial has to be on the plan a learner can actually pick.
+     mobile/ios/appstore/SUBSCRIPTIONS.md is the table this must agree with. */
+  ok("S3b · the 3-day free trial is on the ANNUAL product — the one the sheet offers",
+    byId.premium_annual.introductoryOffer && byId.premium_annual.introductoryOffer.paymentMode === "free"
+    && byId.premium_annual.introductoryOffer.subscriptionPeriod === "P3D" && !byId.premium_monthly.introductoryOffer,
+    JSON.stringify({ annual: byId.premium_annual.introductoryOffer, monthly: byId.premium_monthly.introductoryOffer || null }));
   /* the fixture is for Xcode only — the app must never read a price from it */
   const hard = /(?:displayPrice|price)\s*[:=]\s*["']?\$?(?:24\.99|19\.99|4\.99)/.test(INDEX);
   ok("S4 · the app shows the STORE's own price: no 24.99 / 19.99 / 4.99 is written into index.html", !hard,
