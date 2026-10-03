@@ -401,7 +401,16 @@ async function appleRevoke(req, env, origin){
   let r;
   try {
     r = await fetch(`${REVOKE_URL(env)}?key=${encodeURIComponent(env.FB_API_KEY)}`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST",
+      /* X-Ios-Bundle-Identifier is what tells Firebase this revocation belongs to
+         a NATIVE Apple sign-in. Without it Firebase exchanges the code as the web
+         client — the Services ID plus the __/auth/handler redirect uri — and Apple
+         refuses, because a code from ASAuthorizationAppleIDProvider is issued to
+         the app's BUNDLE ID and carries no redirect uri at all. The Firebase iOS
+         SDK sends exactly the same four body fields as below and differs only by
+         this header. The bundle id is public (it is in the App Store listing). */
+      headers: { "Content-Type": "application/json",
+                 "X-Ios-Bundle-Identifier": env.IOS_BUNDLE_ID || "com.lomonec.bemastery" },
       body: JSON.stringify({ idToken: m[1], providerId: "apple.com", tokenType: "CODE", token: code }),
     });
   } catch (e) { console.log("revoke: network"); return json({ error: "apple_unavailable" }, 503, origin); }
@@ -412,7 +421,11 @@ async function appleRevoke(req, env, origin){
      to retry (400); anything else is ours or Apple's (503). */
   const j = await r.json().catch(() => ({}));
   const reason = String((j.error && (j.error.message || j.error.status)) || r.status);
-  console.log("revoke: refused", r.status, reason.slice(0, 80));
+  /* 400 chars, not 80: Apple's own error code sits AFTER the redirect-uri
+     preamble in Google's message, so 80 cut off the only part that says WHY
+     (2 Oct 2026 — eleven failed revocations diagnosed blind because of it).
+     Still no code and no token: this string is Google's and Apple's wording. */
+  console.log("revoke: refused", r.status, reason.slice(0, 400));
   if (r.status >= 400 && r.status < 500) return json({ error: "apple_code", status: r.status }, 400, origin);
   return json({ error: "apple_unavailable" }, 503, origin);
 }

@@ -3114,7 +3114,7 @@
  "auth.delete_sub_note": "Das Löschen deines Kontos kündigt dein BE Mastery Premium-Abo nicht. Kündige es zuerst in {{store}} (App Setup → Subscription → Manage subscription), sonst wird dir weiter etwas berechnet.",
  "auth.delete_apple_app_only": "To delete this account, open BE Mastery on your iPhone. Apple needs us to hand your sign-in back from the app itself.",
  "auth.delete_apple_fail": "We couldn't finish with Apple, so nothing was deleted. Your account is untouched — please try again.",
- "auth.delete_apple_retry": "Apple didn't accept that confirmation, so nothing was deleted. Tap Delete account again to retry.",
+ "auth.delete_apple_retry": "Apple didn't accept that confirmation, so nothing was deleted. Try once more — if it happens again, contact us.",
  "home.rows_aria": "Recommended for you",
  "home.it_challenge": "Shadow Challenge",
  "home.it_challenge_tag": "Challenge",
@@ -3274,5 +3274,7 @@
  "pg.have_words_many": "{{n}} words saved",
  "rm.today_pos": "Session {{i}} of {{n}} in Week {{w}}",
  "sess.link_roleplay": "Practise with your AI mentor",
- "sess.link_simulation": "Open the workplace simulation"
+ "sess.link_simulation": "Open the workplace simulation",
+ "auth.delete_apple_auth": "We couldn't confirm it was you, so nothing was deleted. Log in again, then delete.",
+ "auth.delete_apple_server": "Account deletion isn't working right now, so nothing was deleted. This is on our side — please contact us."
 }

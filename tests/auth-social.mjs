@@ -523,6 +523,47 @@ console.log("\n# cancelling, provider failure, network, bad credential");
   await ctx.close();
 }
 
+{
+  /* auth/invalid-credential reached the learner as "Wrong email or password."
+     after a Google or Apple sheet — where there is no password and no typed
+     address, so the line is nonsense and sends them looking for a typo they
+     never made. The provider line belongs there instead. Both sides of the
+     boundary are asserted, because the e-mail form must KEEP that wording:
+     the strings are read from the page's own t(), so this holds in any language. */
+  const { p, ctx } = await open();
+  await sheet(p);
+  const S_PROV = await p.evaluate(() => t("auth.err_provider"));
+  const S_CRED = await p.evaluate(() => t("auth.err_invalid_credential"));
+  const S_PW   = await p.evaluate(() => t("auth.err_wrong_password"));
+  for (const kind of ["google", "apple"]) {
+    const Name = kind === "apple" ? "Apple" : "Google";
+    await p.evaluate(k => { window.__fb.credFails = { code: "auth/invalid-credential" }; return fbSocial(k); }, kind);
+    await sleep(400);
+    const e = await err(p);
+    ok(`F9${kind[0]} · a ${Name} credential refusal gets the provider line, NOT "Wrong email or password."`,
+      e === S_PROV && e !== S_CRED, e);
+  }
+  /* the same code, thrown by fbSocial itself when the plugin answers with no token */
+  await p.evaluate(() => { window.__be.noToken = true; return fbSocial("google"); });
+  await sleep(400);
+  ok("F10 · the no-ID-token refusal reads as a provider failure too, not a wrong password",
+    (await err(p)) === S_PROV, await err(p));
+  await p.evaluate(() => { window.__be.noToken = false; });
+  /* and the e-mail form is untouched: the same code keeps its own wording */
+  await p.evaluate(() => { window.__fb.passwordFails = "auth/invalid-credential";
+    document.getElementById("authEmail").value = "ada@example.com";
+    document.getElementById("authPw").value = "hunter22"; return fbEmailAuth("in"); });
+  await sleep(400);
+  ok('F11 · email/password keeps "Wrong email or password." for that very same code',
+    (await err(p)) === S_CRED, await err(p));
+  await p.evaluate(() => { window.__fb.passwordFails = "auth/wrong-password"; return fbEmailAuth("in"); });
+  await sleep(400);
+  ok("F12 · auth/wrong-password stays password-specific", (await err(p)) === S_PW, await err(p));
+  ok("F13 · no token, code or secret appears in any of those messages",
+    !/ya29|eyJ|idToken|TOK\b/.test([S_PROV, S_CRED, S_PW].join(" ")));
+  await ctx.close();
+}
+
 console.log("\n# session persistence, restoration and sign-out");
 {
   const { p, ctx } = await open();

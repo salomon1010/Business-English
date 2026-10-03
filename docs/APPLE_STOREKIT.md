@@ -43,7 +43,10 @@ identity and no App Store Connect access.
    Scheme* → Run → Options → *StoreKit Configuration* = `BEMastery.storekit`.
    Run on a simulator or device, sign in with a test account, open Premium.
    Check:
-   - $19.99 / year first, and $4.99 / month with the 3-day trial;
+   - annual first, then monthly with the 3-day trial. The figures come from
+     `BEMastery.storekit`, which still declares **$19.99 / year** and $4.99 /
+     month: update that fixture to **$24.99 / year** to match the confirmed
+     price before using it to judge the sheet;
    - buying monthly → Premium · Monthly in App Setup → Subscription;
    - Debug → StoreKit → *Manage Transactions*: refund → Free on return to the
      app.
@@ -188,7 +191,7 @@ Added in this workstream:
 ## Sandbox / TestFlight test matrix (to run on a device)
 | # | Test | Expected |
 |---|---|---|
-| 1 | Products load | $4.99 / month (3-day trial if eligible), $19.99 / year; Annual first |
+| 1 | Products load | $4.99 / month (3-day trial if eligible), **$24.99 / year**; Annual first |
 | 2 | Monthly purchase with trial | Premium, state trialing; the card shows Premium · Monthly |
 | 3 | Annual purchase | Premium; renews in a year (sandbox: accelerated) |
 | 4 | Trial eligibility | a second trial on the same Sandbox Apple ID is not offered |

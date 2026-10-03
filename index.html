@@ -9198,7 +9198,7 @@ const I18N_EN={
  "auth.delete_sub_note":"Deleting your account does not cancel your BE Mastery Premium subscription. Cancel it in {{store}} first (App Setup → Subscription → Manage subscription), or you will still be charged.",
  "auth.delete_apple_app_only":"To delete this account, open BE Mastery on your iPhone. Apple needs us to hand your sign-in back from the app itself.",
  "auth.delete_apple_fail":"We couldn't finish with Apple, so nothing was deleted. Your account is untouched \u2014 please try again.",
- "auth.delete_apple_retry":"Apple didn't accept that confirmation, so nothing was deleted. Tap Delete account again to retry.",
+ "auth.delete_apple_retry":"Apple didn't accept that confirmation, so nothing was deleted. Try once more \u2014 if it happens again, contact us.","auth.delete_apple_auth":"We couldn't confirm it was you, so nothing was deleted. Log in again, then delete.","auth.delete_apple_server":"Account deletion isn't working right now, so nothing was deleted. This is on our side \u2014 please contact us.",
  "auth.card_sync_title":"☁️ Sync across your devices",
  "auth.card_sync_desc":"Optional and free. Sign in and your streak, scores, vocabulary and reviews save to your account — start on your phone, continue on your laptop. Prefer not to? Everything keeps working on this device with no account.",
  "auth.create_account_btn":"Create account",
@@ -22240,9 +22240,17 @@ const AD_PROTECTED_VIEWS=Object.freeze(["session","shadow","partner","roleplay",
 const AD_LOG_KEY="be_ad_log";
 let AD_BOOT=Date.now();   /* the visit's start, for the quiet period (let: tests move it back instead of waiting minutes) */
 const _adHolds=new Set();let _adSession={};
+/* WELDING IS AD-FREE, whatever the plan and whatever the flag says (owner,
+   2 Oct 2026). The rule lives HERE, in the eligibility layer, and not in the
+   UI: hiding a button would still let markBreak arm a break, still let a
+   native slot fill, and still report a suppression for a learner who must
+   never be in the ad system at all. It throws CLOSED — any error means no ads.
+   General English is untouched: there the SERVER's plan still decides. */
+function adsTrackAllows(){try{return isGeneralEnglish()}catch(e){return false}}
 const AdEligibility={
   policy:AD_POLICY,
   planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
+  trackAllowsAds(){return adsTrackAllows()},
   /* a flow can hold ads off explicitly for its duration (Phase 8 hook) */
   protect(key){_adHolds.add(String(key))},
   release(key){_adHolds.delete(String(key))},
@@ -22278,6 +22286,7 @@ const AdEligibility={
   decide(format,context,opts={}){
     const now=opts.now??Date.now();
     if(!flag("ads_enabled"))return {show:false,reason:"flag_off"};
+    if(!this.trackAllowsAds())return {show:false,reason:"track"};   // Welding: never, for any format
     const p=AD_POLICY[format];if(!p)return {show:false,reason:"format"};
     if(!this.planAllowsAds())return {show:false,reason:"premium"};
     if(!p.contexts.includes(context))return {show:false,reason:"context"};
@@ -22367,7 +22376,7 @@ const adTrack=(name,props)=>{try{track(name,Object.assign({provider:adProvider()
 const AdManager={
   /* a learning activity FINISHED (its result is on screen). The ad waits for
      the learner to move on, so it never sits over the feedback itself. */
-  markBreak(context){if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
+  markBreak(context){if(!adsTrackAllows())return;if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
   /* called at the end of every go(): offer the pending break over the page the
      learner chose; fill any native slot this page carries */
   afterNav(v){
@@ -22381,6 +22390,7 @@ const AdManager={
      app; resolves at once (false) whenever an ad is not appropriate. */
   async interstitial(context){
     if(_adShowing)return false;
+    if(!adsTrackAllows())return false;          // before any event: Welding is not in the ad system
     const d=AdEligibility.decide("interstitial",context);
     adTrack("ad_eligibility_checked",{format:"interstitial",context,result:d.show?"eligible":"refused"});
     if(!d.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
@@ -22426,6 +22436,7 @@ const AdManager={
   },
   /* one labelled native slot at the foot of a browsing screen */
   placeNative(v){
+    if(!adsTrackAllows())return;                // before any event
     const place=AD_NATIVE_PLACES[v];if(!place)return;
     const view=document.getElementById("v-"+v);if(!view||view.querySelector("[data-ad-slot]"))return;
     /* the page re-rendered under an ad it already showed: put the SAME ad back
@@ -22451,6 +22462,8 @@ const AdManager={
      allowance exists for a reward to extend (REWARD_KINDS ship disabled). */
   async rewarded(kind,context,opts={}){
     if(opts.userInitiated!==true)return {rewarded:false,reason:"not_user_initiated"};
+    if(!adsTrackAllows())return {rewarded:false,reason:"track"};   // before any event
+
     const d=AdEligibility.decide("rewarded",context,{userInitiated:true});
     if(!d.show){adTrack("ad_suppressed",{format:"rewarded",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return {rewarded:false,reason:d.reason}}
     const p=adProvider(),base=entApiBase();
@@ -32188,7 +32201,17 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
-function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain"),"auth/account-exists-with-different-credential":t("auth.err_account_exists_short"),"auth/credential-already-in-use":t("auth.err_credential_in_use"),"auth/provider-already-linked":"","auth/operation-not-allowed":t("auth.err_provider_disabled"),"auth/user-disabled":t("auth.err_user_disabled"),"auth/invalid-verification-code":t("auth.err_invalid_credential"),"auth/user-cancelled":""};/* a raw Firebase/OAuth message is never shown: unmapped codes get the plain line */return c in map?map[c]:t("auth.err_generic")}
+function fbErr(e,kind){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain"),"auth/account-exists-with-different-credential":t("auth.err_account_exists_short"),"auth/credential-already-in-use":t("auth.err_credential_in_use"),"auth/provider-already-linked":"","auth/operation-not-allowed":t("auth.err_provider_disabled"),"auth/user-disabled":t("auth.err_user_disabled"),"auth/invalid-verification-code":t("auth.err_invalid_credential"),"auth/user-cancelled":""};/* Google and Apple land here too, and "auth/invalid-credential" is mapped to
+   "Wrong email or password." — wording that belongs to the e-mail form and
+   reads as nonsense after a provider sheet (it is also the code fbSocial
+   throws itself when no identity token comes back). In a PROVIDER flow those
+   two credential codes become the provider line instead — a string every pack
+   already carries, so no key is added and nothing needs re-translating.
+   E-mail/password passes no `kind` and keeps every message it had, so
+   auth/wrong-password stays password-specific. The linking flow is untouched:
+   account-exists-with-different-credential returns before it reaches here. */
+if(kind&&(c==="auth/invalid-credential"||c==="auth/invalid-verification-code"))return t("auth.err_provider");
+/* a raw Firebase/OAuth message is never shown: unmapped codes get the plain line */return c in map?map[c]:t("auth.err_generic")}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
@@ -32354,7 +32377,7 @@ window.fbSocial=async function(kind){
       fbSetErr(em?t("auth.err_account_exists",{email:em}):t("auth.err_account_exists_short"));
       return;
     }
-    fbSetErr(fbErr(e));
+    fbSetErr(fbErr(e,kind));
   }
 };
 window.fbEmailAuth=async function(mode){
@@ -32474,11 +32497,21 @@ async function fbAppleRevoke(){
     const res=await fetch(MAIL_API+"/apple/revoke",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},
       body:JSON.stringify({code:r.authorizationCode})});
-    if(res.ok){const j=await res.json().catch(()=>({}));return !!j.ok}
-    /* 400 = the code was refused (used, expired, malformed) — worth retrying,
-       because the next attempt fetches a new one. 401/403/5xx = not the
-       learner's fault and not something to paper over. */
-    toast(t(res.status===400?"auth.delete_apple_retry":"auth.delete_apple_fail"));return false;
+    /* a body that is not JSON is simply an empty one — never a crash, and
+       never a reason to believe a deletion that did not happen */
+    const j=await res.json().catch(()=>({}));
+    if(res.ok){if(j&&j.ok)return true;toast(t("auth.delete_apple_server"));return false}
+    /* The WORKER'S OWN `error` field decides the wording; the status cannot,
+       because Apple refusing a code and a mis-configured Worker are BOTH 400.
+       Only `apple_code` is the learner's to try again — everything else is
+       ours, and telling them to retry a fault on our side sends them round a
+       loop that cannot end (2 Oct 2026: eleven identical refusals, each one
+       inviting another, while the cause was a missing header in the Worker). */
+    const err=String((j&&j.error)||"");
+    toast(t(err==="apple_code" ? "auth.delete_apple_retry"      // Apple refused this code
+          : err==="auth"       ? "auth.delete_apple_auth"       // our token did not verify
+          :                      "auth.delete_apple_server"));  // bad code / unavailable / anything unexpected
+    return false;
   }catch(e){toast(t("auth.delete_apple_fail"));return false}
 }
 window.fbDeleteAccount=async function(){

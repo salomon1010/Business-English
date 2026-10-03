@@ -341,7 +341,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
   ads. Home untouched. The card no longer promises "More AI coaching"
   (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
-  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y $19.99.
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y. **Confirmed annual
+  price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
+  be changed there — the app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;

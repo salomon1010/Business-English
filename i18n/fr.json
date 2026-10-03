@@ -3114,7 +3114,7 @@
  "auth.delete_sub_note": "Supprimer votre compte n'annule pas votre abonnement BE Mastery Premium. Résiliez-le d'abord dans {{store}} (Configuration → Abonnement → Gérer l'abonnement), sinon vous serez toujours facturé.",
  "auth.delete_apple_app_only": "Pour supprimer ce compte, ouvrez BE Mastery sur votre iPhone. Apple exige que nous rendions votre connexion depuis l'application elle-même.",
  "auth.delete_apple_fail": "Nous n'avons pas pu terminer avec Apple : rien n'a été supprimé. Votre compte est intact — veuillez réessayer.",
- "auth.delete_apple_retry": "Apple n'a pas accepté cette confirmation : rien n'a été supprimé. Appuyez à nouveau sur Supprimer le compte pour réessayer.",
+ "auth.delete_apple_retry": "Apple n'a pas accepté cette confirmation : rien n'a été supprimé. Réessayez une fois — si cela se reproduit, contactez-nous.",
  "home.rows_aria": "Recommandé pour vous",
  "home.it_challenge": "Shadow Challenge",
  "home.it_challenge_tag": "Challenge",
@@ -3274,5 +3274,7 @@
  "pg.have_words_many": "{{n}} mots enregistrés",
  "rm.today_pos": "Séance {{i}} sur {{n}} de la semaine {{w}}",
  "sess.link_roleplay": "S'entraîner avec votre mentor IA",
- "sess.link_simulation": "Ouvrir la simulation de travail"
+ "sess.link_simulation": "Ouvrir la simulation de travail",
+ "auth.delete_apple_auth": "Nous n'avons pas pu confirmer votre identité : rien n'a été supprimé. Reconnectez-vous, puis supprimez.",
+ "auth.delete_apple_server": "La suppression de compte ne fonctionne pas pour le moment : rien n'a été supprimé. Le problème vient de nous — contactez-nous."
 }

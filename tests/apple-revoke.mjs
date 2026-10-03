@@ -304,6 +304,71 @@ console.log("\n# deletion of an Apple account");
   ok("C8 · a refused code (used or expired) stops the deletion and says to try again", r.deleted === 0 && r.toasts.some(x => /try|again/i.test(x)), JSON.stringify(r.toasts));
   await ctx.close();
 }
+
+/* WHICH failure it was decides the wording. The status alone cannot tell them
+   apart — Apple refusing a code and a mis-configured Worker are both 400 — so
+   the client reads the Worker's own `error` field. Until 2 Oct 2026 it read only
+   the status, and a learner met "Tap Delete account again to retry" eleven times
+   in a row while the real fault was a missing header in the Worker. Never again:
+   only an Apple refusal may invite a retry. */
+console.log("\n# the failure message tells the truth about whose fault it is");
+{
+  const say = async (status, body) => {
+    const { p, ctx } = await open({ revokeStatus: status, revokeBody: body });
+    await signIn(p, "uid-apple", "ada@example.com", ["apple.com"]);
+    const r = await del(p);
+    await ctx.close();
+    return r;
+  };
+  const retryish = x => /try once more|try again|again/i.test(x);
+
+  const refused = await say(400, { error: "apple_code" });
+  ok("C23 · Apple refusing the code: nothing deleted, and this one MAY be tried again",
+    refused.deleted === 0 && refused.toasts.some(x => /Apple didn't accept/i.test(x) && retryish(x)), JSON.stringify(refused.toasts));
+
+  const unauth = await say(401, { error: "auth" });
+  ok("C24 · an authentication failure says to log in again — not that Apple refused",
+    unauth.deleted === 0 && unauth.toasts.some(x => /log in again/i.test(x)) && !unauth.toasts.some(x => /Apple didn't accept/i.test(x)), JSON.stringify(unauth.toasts));
+
+  const unavail = await say(503, { error: "apple_unavailable" });
+  ok("C25 · a server failure says the fault is OURS and does NOT invite a blind retry",
+    unavail.deleted === 0 && unavail.toasts.some(x => /on our side/i.test(x)) && !unavail.toasts.some(retryish), JSON.stringify(unavail.toasts));
+
+  const badcode = await say(400, { error: "bad code" });
+  ok("C26 · the Worker rejecting the code itself is OUR fault too — same honest wording, no retry loop",
+    badcode.deleted === 0 && badcode.toasts.some(x => /on our side/i.test(x)) && !badcode.toasts.some(retryish), JSON.stringify(badcode.toasts));
+
+  const weird = await say(418, { error: "something-we-have-never-seen" });
+  ok("C27 · an unknown error code falls back to the server wording, never to a retry",
+    weird.deleted === 0 && weird.toasts.some(x => /on our side/i.test(x)) && !weird.toasts.some(retryish), JSON.stringify(weird.toasts));
+
+  /* a 200 that does not actually say ok: believing it would delete the account
+     with the Apple grant still standing, which is the one thing that must never
+     happen */
+  const hollow = await say(200, { revoked: false });
+  ok("C28 · a 200 that does not confirm the revoke is NOT believed: nothing is deleted and the learner is told",
+    hollow.deleted === 0 && hollow.doc === 0 && hollow.toasts.some(x => /on our side/i.test(x)), JSON.stringify(hollow.toasts));
+
+  const garbage = await say(500, "<html>502 Bad Gateway</html>");
+  ok("C29 · a response that is not JSON at all is survived, not thrown on, and still deletes nothing",
+    garbage.deleted === 0 && garbage.toasts.length > 0, JSON.stringify(garbage.toasts));
+
+  /* the network case: the fetch itself never resolves */
+  const { p, ctx } = await open();
+  await signIn(p, "uid-apple", "ada@example.com", ["apple.com"]);
+  await p.unroute(/be-mail\.nore-ngou\.workers\.dev/);
+  await p.route(/be-mail\.nore-ngou\.workers\.dev/, rt => rt.abort("failed"));
+  const offline = await del(p);
+  ok("C30 · no connection: nothing deleted, a plain line, and no raw error on screen",
+    offline.deleted === 0 && offline.doc === 0 && offline.toasts.length > 0
+    && !offline.toasts.some(x => /TypeError|fetch|ERR_|undefined/i.test(x)), JSON.stringify(offline.toasts));
+  await ctx.close();
+
+  /* and none of the four wordings leaks anything */
+  const all = [...refused.toasts, ...unauth.toasts, ...unavail.toasts, ...badcode.toasts, ...weird.toasts, ...hollow.toasts, ...offline.toasts].join(" | ");
+  ok("C31 · no code, token, key, status number or raw server error appears in any of them",
+    !/FRESHC0DE|ID_TOKEN|Bearer|eyJ|apple_code|apple_unavailable|bad code|INVALID|\b[45]\d\d\b/.test(all), all.slice(0, 200));
+}
 {
   const { p, ctx } = await open();
   await signIn(p, "uid-apple", "ada@example.com", ["apple.com"]);

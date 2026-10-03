@@ -3114,7 +3114,7 @@
  "auth.delete_sub_note": "Eliminar a sua conta não cancela a sua subscrição do BE Mastery Premium. Cancele-a primeiro na {{store}} (Configuração → Subscrição → Gerir subscrição), ou continuará a ser cobrado.",
  "auth.delete_apple_app_only": "Para eliminar esta conta, abra o BE Mastery no seu iPhone. A Apple exige que devolvamos o seu início de sessão a partir da própria aplicação.",
  "auth.delete_apple_fail": "Não conseguimos concluir com a Apple, por isso nada foi eliminado. A sua conta está intacta — tente novamente.",
- "auth.delete_apple_retry": "A Apple não aceitou essa confirmação, por isso nada foi eliminado. Toque novamente em Eliminar conta para tentar de novo.",
+ "auth.delete_apple_retry": "A Apple não aceitou essa confirmação, por isso nada foi eliminado. Tente mais uma vez — se voltar a acontecer, contacte-nos.",
  "home.rows_aria": "Recomendado para você",
  "home.it_challenge": "Shadow Challenge",
  "home.it_challenge_tag": "Challenge",
@@ -3274,5 +3274,7 @@
  "pg.have_words_many": "{{n}} palavras guardadas",
  "rm.today_pos": "Sessão {{i}} de {{n}} da semana {{w}}",
  "sess.link_roleplay": "Praticar com o seu mentor de IA",
- "sess.link_simulation": "Abrir a simulação de trabalho"
+ "sess.link_simulation": "Abrir a simulação de trabalho",
+ "auth.delete_apple_auth": "Não conseguimos confirmar que era você, por isso nada foi eliminado. Inicie sessão novamente e elimine.",
+ "auth.delete_apple_server": "A eliminação de conta não está a funcionar neste momento, por isso nada foi eliminado. O problema é nosso — contacte-nos."
 }

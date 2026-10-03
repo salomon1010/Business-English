@@ -27,7 +27,7 @@ plan is a higher tier.
 | Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level |
 |---|---|---|---|---|---|
 | `premium_monthly` | Premium monthly | 1 month | US$4.99 (tier chosen in App Store Connect to match) | **Free trial, 3 days, new subscribers only** | 1 |
-| `premium_annual` | Premium annual | 1 year | US$19.99 | none | 1 |
+| `premium_annual` | Premium annual | 1 year | **US$24.99** | none | 1 |
 
 - **Other countries:** let App Store Connect derive the prices from the US
   price, then review them. The Play prices (for example €5.49 / €20.99 in
