@@ -26,6 +26,16 @@ const SWIFT = read(IOS + "BEAdsPlugin.swift");
 const CODE = SWIFT.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
 const BRIDGEVC = read(IOS + "BEBridgeViewController.swift");
 const PBX = read("mobile/ios/ios/App/App.xcodeproj/project.pbxproj");
+/* the per-configuration app id: Debug may serve test creatives, Release may not.
+   Each XCBuildConfiguration block ends with its own `name = Debug|Release;`, so
+   the value has to be read inside one block, never across them. */
+const cfgAppId = want => {
+  for (const b of PBX.split("isa = XCBuildConfiguration;")) {
+    const id = /BE_ADS_APP_ID = "([^"]+)"/.exec(b), nm = /\n\t\t\tname = (Debug|Release);/.exec(b);
+    if (id && nm && nm[1] === want && /PRODUCT_BUNDLE_IDENTIFIER/.test(b)) return id[1];
+  }
+  return null;
+};
 const PLIST = read(IOS + "Info.plist");
 const PRIV = read(IOS + "PrivacyInfo.xcprivacy");
 const INDEX = read("index.html");
@@ -87,10 +97,23 @@ console.log("\n# BEAdsPlugin.swift — two formats, fail closed, no tracking");
     && /\^ca-app-pub-\[0-9\]\{16\}~\[0-9\]\{10\}\$/.test(CODE) && /\^ca-app-pub-\[0-9\]\{16\}\/\[0-9\]\{10\}\$/.test(CODE));
   ok("XAa · Google's TEST units are allowed in a debug build, or in a staging build that asks — never otherwise",
     /#if DEBUG\s*\n\s*return true/.test(CODE) && /BEAdsAllowTestUnits/.test(CODE) && /return asked && sandboxBuild/.test(CODE));
+  /* the APP id may never be substituted: MobileAds.start reads Info.plist
+     itself, and starting it on an invalid id throws where Swift cannot catch */
+  ok("XAd · only the ad UNIT ids fall back to Google's test units — the APP id must be valid in Info.plist",
+    /validAppId\(appId\)/.test(CODE) && !/effectiveAppId/.test(CODE)
+    && /if BEAdsPlugin\.testUnitsAllowed \{[\s\S]{0,260}?testInterstitial[\s\S]{0,160}?testNative[\s\S]{0,40}?\}/.test(CODE)
+    && !/validAppId\([\s\S]{0,40}testAppId/.test(CODE));
   ok("XAb · the second lock cannot be undone from a plist: a production App Store receipt refuses test creatives",
     /url\.lastPathComponent != "receipt"/.test(CODE) && /Bundle\.main\.appStoreReceiptURL/.test(CODE));
-  ok("XAc · the switch is OFF in the repository, so the default build is production-safe",
-    /<key>BEAdsAllowTestUnits<\/key>\s*<false\/>/.test(PLIST));
+  /* The switch is ON for staging device QA (owner, 2 Oct 2026). What keeps a
+     production build safe is no longer this value but the pair below it. */
+  ok("XAc · the staging switch is on, and the Sandbox-receipt lock is what holds production",
+    /<key>BEAdsAllowTestUnits<\/key>\s*<true\/>/.test(PLIST) && /return asked && sandboxBuild/.test(CODE));
+  ok("XAe · the AdMob app id is set per BUILD CONFIGURATION, not hard-coded in the plist",
+    /<key>GADApplicationIdentifier<\/key>\s*<string>\$\(BE_ADS_APP_ID\)<\/string>/.test(PLIST));
+  ok("XAf · Debug gets Google's public TEST app id; RELEASE keeps the placeholder, so a production build cannot serve an ad",
+    cfgAppId("Debug") === "ca-app-pub-3940256099942544~1458002511" && cfgAppId("Release") === "ca-app-pub-REPLACE~REPLACE",
+    JSON.stringify({ Debug: cfgAppId("Debug"), Release: cfgAppId("Release") }));
   ok("XB · no fill, no scene and a failed present are ordinary answers, not errors",
     /no fill is not an error/.test(SWIFT) && /didFailToPresentFullScreenContentWithError/.test(SWIFT) && /didFailToReceiveAdWithError/.test(SWIFT));
   ok("XC · a native creative is labelled 'Ad', as Google requires",
@@ -119,7 +142,8 @@ console.log("\n# plugin registration and the Xcode project");
 console.log("\n# Info.plist and PrivacyInfo.xcprivacy");
 {
   ok("P1 · the AdMob app id and both ad units are declared", /<key>GADApplicationIdentifier<\/key>/.test(PLIST) && /<key>BEAdsInterstitialUnitId<\/key>/.test(PLIST) && /<key>BEAdsNativeUnitId<\/key>/.test(PLIST));
-  ok("P2 · they are still PLACEHOLDERS, so no real ad can be served by accident", /ca-app-pub-REPLACE~REPLACE/.test(PLIST) && (PLIST.match(/ca-app-pub-REPLACE\/REPLACE/g) || []).length === 2);
+  ok("P2 · the ad UNITS are still PLACEHOLDERS, so no real ad unit can be requested by accident", (PLIST.match(/ca-app-pub-REPLACE\/REPLACE/g) || []).length === 2);
+  ok("P2b · and no real AdMob account id appears anywhere in the plist", !/ca-app-pub-(?!3940256099942544)[0-9]{16}/.test(PLIST), (PLIST.match(/ca-app-pub-[0-9]{16}[~/][0-9]{10}/g) || []).join(","));
   ok("P3 · no App Tracking Transparency prompt is declared (this release is non-personalised)", !/<key>NSUserTrackingUsageDescription<\/key>/.test(PLIST));
   ok("P4 · no SKAdNetwork attribution list (nothing is attributed without tracking)", !/<key>SKAdNetworkItems<\/key>/.test(PLIST));
   ok("P5 · the existing purpose strings are untouched", /NSMicrophoneUsageDescription/.test(PLIST) && /NSSpeechRecognitionUsageDescription/.test(PLIST) && /NSCameraUsageDescription/.test(PLIST));

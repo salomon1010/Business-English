@@ -85,7 +85,9 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     /// build; a production build without real ids reports unavailable instead.
     static let testInterstitial = "ca-app-pub-3940256099942544/4411468910"
     static let testNative = "ca-app-pub-3940256099942544/3986624511"
-    /// Google's own test APP id, the companion to the units above.
+    /// Google's own test APP id. NOT used as a fallback — it is the value the
+    /// Debug configuration puts in Info.plist (BE_ADS_APP_ID), because the SDK
+    /// reads that key itself. Kept here so the pair is documented together.
     static let testAppId = "ca-app-pub-3940256099942544~1458002511"
 
     /// A TestFlight or development build: StoreKit gives it a "sandboxReceipt".
@@ -139,13 +141,19 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         let appId = BEAdsPlugin.plistString("BEAdsAppId") ?? BEAdsPlugin.plistString("GADApplicationIdentifier")
         var inter = BEAdsPlugin.plistString("BEAdsInterstitialUnitId")
         var nativeU = BEAdsPlugin.plistString("BEAdsNativeUnitId")
-        var effectiveAppId = appId
+        // Ad UNIT ids may fall back to Google's test units. The APP id may NOT:
+        // MobileAds.start reads GADApplicationIdentifier out of Info.plist
+        // itself, so a value this plugin substitutes would never reach it, and
+        // starting the SDK against an invalid identifier raises an exception
+        // Swift cannot catch. The app id therefore has to be valid IN THE PLIST,
+        // which is set per build configuration (BE_ADS_APP_ID): Google's test
+        // app id in Debug, the placeholder in Release. A Release build with the
+        // placeholder answers not_configured and never starts the SDK.
         if BEAdsPlugin.testUnitsAllowed {
             if !BEAdsPlugin.validUnitId(inter) { inter = BEAdsPlugin.testInterstitial }
             if !BEAdsPlugin.validUnitId(nativeU) { nativeU = BEAdsPlugin.testNative }
-            if !BEAdsPlugin.validAppId(effectiveAppId) { effectiveAppId = BEAdsPlugin.testAppId }
         }
-        guard BEAdsPlugin.validAppId(effectiveAppId), BEAdsPlugin.validUnitId(inter), BEAdsPlugin.validUnitId(nativeU) else {
+        guard BEAdsPlugin.validAppId(appId), BEAdsPlugin.validUnitId(inter), BEAdsPlugin.validUnitId(nativeU) else {
             call.resolve(BEAdsPlugin.unavailable("not_configured")); return
         }
         interstitialUnit = inter

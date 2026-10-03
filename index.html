@@ -23047,7 +23047,13 @@ const FLAGS_STAGING={
   learning_nudges_enabled:true,
   home_v2_enabled:true,
   welding_studio_enabled:true,
-  ads_enabled:false,
+  /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
+     docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
+     TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
+     testUnitsAllowed says it may. ads_mock_provider stays false deliberately —
+     the point is to exercise the real GMA bridge, not the labelled TEST card.
+     FLAGS_DEFAULT (production) keeps ads_enabled:false and is untouched. */
+  ads_enabled:true,
   ads_mock_provider:false,
   /* Premium is ON for review on staging (owner, 30 September 2026). beEnv()
      already points entApiBase() at be-entitlements-staging, so planOn() is
