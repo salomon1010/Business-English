@@ -122,6 +122,10 @@ const seedHit = await A.page.evaluate(ws => ws.filter(w => SV_IPA_SEED[w]).lengt
 ok("Pronunciation ON: an IPA line under every word, each the value the Worker gave for THAT word (seed words from the built-in lexicon), the note says it is an AI-written American-English guide", ipaOn && c.ipaOn === "true" && c.ipaCheck && c.nIpa === c.nWords && (await ipaRight(A.page, c)) === "" && /IPA|API/.test(c.stText) && !/wait|err/.test(c.stCls), JSON.stringify(c) + await ipaRight(A.page, c));
 ok("Only the words the device did not already know were asked for — none from the seed lexicon, all from this paragraph, in batches of at most 25, with the sentence as context", asked.length >= 1 && seedHit === 0 && asked.every(x => x.words.length <= 25 && x.words.length > 0 && x.text.includes(c.want.slice(0, 30))) && asked.flatMap(x => x.words).every(w => c.want.toLowerCase().includes(w.replace(/'/g, "").slice(0, 3))), JSON.stringify(asked));
 ok("Both helpers on at once: English words + IPA + French, still one card that fits the phone", c.trShown && c.nIpa === c.nWords && c.english === c.want && c.fits, JSON.stringify({ trShown: c.trShown, nIpa: c.nIpa, fits: c.fits }));
+if (process.env.SHOTS) await A.page.screenshot({ path: "/tmp/shcard.png" });
+/* icons only (owner, 4 Oct 2026): no visible word on the helper buttons, each ≥44 px tall, the flag + FR tag kept, every button still named for assistive tech */
+const iconOnly = await A.page.evaluate(() => [...document.querySelectorAll("#svSh .sv-sh-tg .sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "", flag: !!b.querySelector(".lang-flag") }; }));
+ok("The Shadow card's helper buttons are icons only: no visible text, 44 px tall, at least 44 px wide, each with an aria-label; the Translate button keeps its flag", iconOnly.length >= 2 && iconOnly.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2) && iconOnly.some(b => b.id === "svShTrBtn" && b.flag), JSON.stringify(iconOnly));
 
 /* ---------- a word tapped ---------- */
 const tap = await A.page.evaluate(async () => {
@@ -263,6 +267,9 @@ const wt = await A.page.evaluate(async () => {
   return r;
 });
 ok("WATCH carries the same two switches (same preference, both on) and applies them to the paragraph being spoken only: its translation under it, IPA under each of its words, nothing on the other paragraphs — and they move with the speech", wt.tr === "true" && wt.ipa === "true" && /Traduction \[French\]/.test(wt.trBox || "") && wt.trOnly === 1 && wt.ipaIn === wt.wIn && wt.wIn > 0 && wt.ipaElsewhere === 0 && wt.first === await expIpa(A.page, wt.firstWord) && wt.moved && wt.trMoved && wt.ipaMoved, JSON.stringify(wt));
+if (process.env.SHOTS) await A.page.screenshot({ path: "/tmp/shwatch.png" });
+const wtIcons = await A.page.evaluate(() => [...document.querySelectorAll(".sv-wt-tg .sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "" }; }));
+ok("The Watch row's helper buttons are icons only too: no visible text, 44 px, each named for assistive tech", wtIcons.length >= 2 && wtIcons.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2), JSON.stringify(wtIcons));
 
 /* ---------- homographs: the reading THIS sentence gave, kept apart ---------- */
 const hg = await A.page.evaluate(async () => {
@@ -324,7 +331,7 @@ const e1 = await E.page.evaluate(async () => {
   const b = document.getElementById("svShTr");
   r.closed = !document.getElementById("svTrPop"); r.trLang = S.profile.trLang; r.appLang = S.profile.lang; r.on = document.getElementById("svShTrBtn").getAttribute("aria-pressed");
   r.code2 = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText; r.lang = b.getAttribute("lang"); r.text = b.querySelector(".sv-sh-tr-x")?.innerText;
-  r.ui = document.getElementById("svShTrBtn").innerText.trim();
+  r.ui = document.getElementById("svShTrBtn").textContent.trim();   /* textContent: the word is kept for assistive tech but drawn no more (icons only, 4 Oct 2026) */
   svShTrToggle(); r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });
