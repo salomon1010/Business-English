@@ -71,8 +71,13 @@ console.log("\n== Xcode project");
   const pbx = read(join(ios, "ios", "App", "App.xcodeproj", "project.pbxproj"));
   const all = (re) => [...pbx.matchAll(re)].map(m => m[1]);
   const same = (xs) => xs.length >= 2 && new Set(xs).size === 1;
+  /* the App target's two configurations carry the store bundle id; the two
+     test bundles (BEMasteryTests, BEMasteryUITests) have their own ids under
+     the same organisation and are never uploaded */
   const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g);
-  ok("bundle id com.lomonec.bemastery in every configuration", same(bid) && bid[0] === "com.lomonec.bemastery", bid.join(", "));
+  const appBid = bid.filter(b => !/Tests$/.test(b)), testBid = bid.filter(b => /Tests$/.test(b));
+  ok("bundle id com.lomonec.bemastery in every App configuration", same(appBid) && appBid[0] === "com.lomonec.bemastery", bid.join(", "));
+  ok("test bundles under com.lomonec.* only", testBid.length > 0 && testBid.every(b => b.startsWith("com.lomonec.")), testBid.join(", "));
   const ver = all(/MARKETING_VERSION = ([\d.]+);/g), bld = all(/CURRENT_PROJECT_VERSION = (\d+);/g);
   ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
   const pkgv = JSON.parse(read(join(ios, "package.json"))).version;

@@ -18,32 +18,38 @@ Apple expects of an app rather than a website in a frame (guideline 4.2).
 | `ios/App/CapApp-SPM/Package.swift` (Capacitor 8.5.2 via Swift Package Manager — no CocoaPods) | `build/`, `DerivedData/`, `*.xcarchive`, `*.ipa` |
 | `appstore/` — metadata, review notes, privacy answers, 6.9" screenshots | **any** `.p12`, `.cer`, `.mobileprovision`, `.p8`, `AuthKey_*`, `ExportOptions*.plist` (see `.gitignore`) |
 
-## Source layout (`ios/App/App/`)
-Six Swift files, grouped by role. The groups are real folders, so a path in a
-test or a document is the path on disk.
+## Source layout (`ios/App/`)
+A SwiftUI app shell around the Capacitor bridge, one Swift file per role, plus
+a unit-test bundle and a UI-test bundle. The groups are real folders, so a
+path in a test or a document is the path on disk.
 
 | Folder / file | Role |
 |---|---|
-| `Lifecycle/AppDelegate.swift` | Process entry point. Hands the one scene to `SceneDelegate`; nothing else. |
-| `Lifecycle/SceneDelegate.swift` | Builds the window around `BEBridgeViewController`; forwards URL opens and user activities to Capacitor's `SceneDelegateProxy`. |
-| `Lifecycle/BEBridgeViewController.swift` | Capacitor's bridge view controller plus the registration of the three app-local plugins. Named in `Main.storyboard`. |
-| `Plugins/BEStoreKitPlugin.swift` | `window.BENativeBilling` — StoreKit 2. Hands Apple's signed JWS strings to the web layer; the server decides the plan (`docs/APPLE_STOREKIT.md`). |
-| `Plugins/BEAuthPlugin.swift` | `window.BEAuth` — Sign in with Apple and Google (PKCE, public client). Obtains a provider token; Firebase in the web layer owns the session (`docs/auth/SOCIAL_SIGNIN.md`). |
-| `Plugins/BEAdsPlugin.swift` | `window.BENativeAds` — Google Mobile Ads + UMP consent, interstitial and native only, non-personalised. A provider, never a policy (`docs/ADS-IOS-RELEASE.md`). |
-| `Info.plist`, `App.entitlements`, `PrivacyInfo.xcprivacy`, `InfoPlist.strings/` | Bundle configuration. Xcode rewrites the plist and the project file when it saves and drops any comment, so the reasons behind a setting live in the docs named above, not in the files. |
-| `BEMastery.storekit` | Xcode's local StoreKit configuration for testing. The app never reads a price from it. |
-| `Assets.xcassets`, `Base.lproj/*.storyboard` | Icon, launch screen, the storyboard that instantiates `BEBridgeViewController`. |
-| `public/`, `capacitor.config.json`, `config.xml` | Written by `npx cap sync ios`; never edited by hand, never committed. |
+| `App/Lifecycle/BEMasteryApp.swift` | The `@main` SwiftUI `App`: one `WindowGroup` showing `ContentView`. Forwards `onOpenURL` / universal links to Capacitor's `ApplicationDelegateProxy` (nothing declares a URL type yet). There is no AppDelegate, SceneDelegate or Main.storyboard. |
+| `App/Lifecycle/ContentView.swift` | The one screen the shell has: `BridgeView` edge to edge (`ignoresSafeArea`, the web layer lays itself out with `env(safe-area-inset-*)`). |
+| `App/Lifecycle/BridgeView.swift` | `UIViewControllerRepresentable` hosting `BEBridgeViewController`; created once, never updated from SwiftUI. |
+| `App/Lifecycle/BEBridgeViewController.swift` | Capacitor's bridge view controller plus the registration of the three app-local plugins. |
+| `App/Plugins/BEStoreKitPlugin.swift` | `window.BENativeBilling` — StoreKit 2. Hands Apple's signed JWS strings to the web layer; the server decides the plan (`docs/APPLE_STOREKIT.md`). |
+| `App/Plugins/BEAuthPlugin.swift` | `window.BEAuth` — Sign in with Apple and Google (PKCE, public client). Obtains a provider token; Firebase in the web layer owns the session (`docs/auth/SOCIAL_SIGNIN.md`). |
+| `App/Plugins/BEAdsPlugin.swift` | `window.BENativeAds` — Google Mobile Ads + UMP consent, interstitial and native only, non-personalised. A provider, never a policy (`docs/ADS-IOS-RELEASE.md`). |
+| `App/Info.plist`, `App.entitlements`, `PrivacyInfo.xcprivacy`, `InfoPlist.strings/` | Bundle configuration. Xcode rewrites the plist and the project file when it saves and drops any comment, so the reasons behind a setting live in the docs named above, not in the files. |
+| `App/BEMastery.storekit` | Xcode's local StoreKit configuration for testing. The app never reads a price from it. |
+| `App/Assets.xcassets`, `App/Base.lproj/LaunchScreen.storyboard` | Icon and launch screen. The launch screen is the only storyboard left. |
+| `App/public/`, `App/capacitor.config.json`, `App/config.xml` | Written by `npx cap sync ios`; never edited by hand, never committed. |
+| `BEMasteryTests/` | Swift Testing bundle, hosted in the app (`@testable import App`): the bridge registers the three plugins and its view is the web view (`BEMasteryTests.swift`); `BEAdsPlugin` id validation and the test-units locks (`BEAdsPluginTests.swift`); `BEStoreKitPlugin` product allow-list and ISO periods (`BEStoreKitPluginTests.swift`). |
+| `BEMasteryUITests/` | XCUITest bundle: the app launches and the web view appears (`BEMasteryUITests.swift`); a launch screenshot for the report (`BEMasteryUITestsLaunchTests.swift`). The app is found by bundle id, so the bundle needs no target-application setting. |
 
 Each plugin is one file: the Capacitor method table at the top, then the
 methods in the order the web layer calls them, then the private delegate
-classes it needs. A new native capability is a new file in `Plugins/` plus one
-`registerPluginInstance` line in `BEBridgeViewController`.
+classes it needs. A new native capability is a new file in `App/Plugins/` plus
+one `registerPluginInstance` line in `BEBridgeViewController`.
 
-The tests that read these files off disk — `tests/ios-ads.mjs`,
-`tests/auth-social.mjs`, `tests/ios-storekit.mjs` and
-`scripts/check-release.mjs` — use the paths above. Move a file and they must
-follow.
+Both test bundles are in the **App** scheme's test action, so **Product → Test**
+(⌘U) runs them; the JavaScript side of the same contracts is
+`tests/ios-ads.mjs`, `tests/ios-storekit.mjs` and `tests/auth-social.mjs`
+(`cd tests && PORT=<free> node <file>`). Those three suites and
+`scripts/check-release.mjs` read the Swift files off disk at the paths above.
+Move a file and they must follow.
 
 ## Building (a Mac with Xcode 26 or later — App Store uploads require the iOS 26 SDK)
 ```

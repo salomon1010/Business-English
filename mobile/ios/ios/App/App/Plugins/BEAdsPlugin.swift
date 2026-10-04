@@ -38,9 +38,10 @@ import UserMessagingPlatform
 ///   build may use Google's test units, so the ad path can be certified on a
 ///   device before an AdMob account exists — but only when BOTH
 ///   `BEAdsAllowTestUnits` is true in Info.plist AND the bundle carries a
-///   Sandbox receipt (TestFlight / a development build). A production App Store
-///   build has a production receipt, so leaving that key switched on by mistake
-///   still cannot put a test creative in front of a paying audience.
+///   Sandbox receipt (TestFlight). A Debug build is allowed outright. A
+///   production App Store build has a production receipt, so leaving that key
+///   switched on by mistake still cannot put a test creative in front of a
+///   paying audience.
 @objc(BEAdsPlugin)
 public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "BEAdsPlugin"
@@ -90,9 +91,12 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     /// reads that key itself. Kept here so the pair is documented together.
     static let testAppId = "ca-app-pub-3940256099942544~1458002511"
 
-    /// A TestFlight or development build: StoreKit gives it a "sandboxReceipt".
-    /// A build sold through the App Store has a "receipt" instead. This is the
-    /// second lock on the test units, and it cannot be switched off from a plist.
+    /// A TestFlight build: StoreKit gives it a "sandboxReceipt". A build sold
+    /// through the App Store has a "receipt" instead — and so does a simulator
+    /// run, where the file does not even exist, which is why a development run
+    /// relies on the DEBUG branch of `testUnitsAllowed` rather than on this.
+    /// This is the second lock on the test units, and it cannot be switched
+    /// off from a plist. Checked by `BEMasteryTests/BEAdsPluginTests`.
     static var sandboxBuild: Bool {
         guard let url = Bundle.main.appStoreReceiptURL else { return true }   // no receipt at all = not sold by the App Store
         return url.lastPathComponent != "receipt"

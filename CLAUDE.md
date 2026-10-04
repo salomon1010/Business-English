@@ -918,7 +918,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
 - **Apple / StoreKit 2 (release/premium-integration, NOT on main yet).** Native
   plugin `BEStoreKitPlugin.swift` (Capacitor "BEStoreKit", registered by
-  `BEBridgeViewController`, used by SceneDelegate + Main.storyboard) → web
+  `BEBridgeViewController`, hosted by `BridgeView` in the SwiftUI `BEMasteryApp`
+  — since 4 Oct 2026 there is no AppDelegate, SceneDelegate or Main.storyboard;
+  Swift sources live in `App/Lifecycle/` + `App/Plugins/`, with `BEMasteryTests`
+  (Swift Testing) and `BEMasteryUITests` bundles in the App scheme) → web
   `beNativeBilling()` → `BillingProviders.storekit`. Transactions are finished only
   after OUR server answered; `Transaction.updates` + unfinished go to
   `/v1/purchases/restore`. Server: Apple JWS pinned to Apple Root CA - G3
