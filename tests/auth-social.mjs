@@ -261,7 +261,7 @@ console.log("\n# the shell offers both providers, the web offers neither");
   /* the JS name and the method names must match the Swift plugin exactly, or
      Capacitor.Plugins.<jsName>.<method> is simply not there */
   const at = (...q) => root + q.join("/");    /* `f` is declared later, in the K block */
-  const sw = readFileSync(at("mobile/ios/ios/App/App/BEAuthPlugin.swift"), "utf8");
+  const sw = readFileSync(at("mobile/ios/ios/App/App/Plugins/BEAuthPlugin.swift"), "utf8");
   const html = readFileSync(at("index.html"), "utf8");
   const jsName = (sw.match(/let jsName = "([^"]+)"/) || [])[1];
   const methods = [...sw.matchAll(/CAPPluginMethod\(name: "([^"]+)"/g)].map(m => m[1]);
@@ -704,11 +704,11 @@ console.log("\n# show/hide password");
 console.log("\n# the committed iOS project and this repository");
 {
   const f = (...p) => root + p.join("/");
-  const sw = readFileSync(f("mobile/ios/ios/App/App/BEAuthPlugin.swift"), "utf8");
+  const sw = readFileSync(f("mobile/ios/ios/App/App/Plugins/BEAuthPlugin.swift"), "utf8");
   const ent = f("mobile/ios/ios/App/App/App.entitlements");
   const plist = readFileSync(f("mobile/ios/ios/App/App/Info.plist"), "utf8");
   const pbx = readFileSync(f("mobile/ios/ios/App/App.xcodeproj/project.pbxproj"), "utf8");
-  const vc = readFileSync(f("mobile/ios/ios/App/App/BEBridgeViewController.swift"), "utf8");
+  const vc = readFileSync(f("mobile/ios/ios/App/App/Lifecycle/BEBridgeViewController.swift"), "utf8");
   ok("K1 · App.entitlements asks for Sign in with Apple and nothing else", existsSync(ent) && /applesignin/.test(readFileSync(ent, "utf8")) && (readFileSync(ent, "utf8").match(/<key>/g) || []).length === 1);
   ok("K2 · both build configurations sign with it", (pbx.match(/CODE_SIGN_ENTITLEMENTS = App\/App\.entitlements;/g) || []).length === 2);
   ok("K3 · no push, no associated domains, no iCloud were added", !/aps-environment|associated-domains|com\.apple\.developer\.icloud/.test(readFileSync(ent, "utf8")));

@@ -33,7 +33,7 @@ behind.
 |---|---|---|
 | Entitlement service (server) | `backend/entitlements/` — Worker, D1 migrations 0001–0004, `entitlement-core.js`, `app-store.js`, `google-play.js`, `firebase-auth.js`, `token-vault.js`, tests | Written, **never deployed**. `database_id = "REPLACE-WITH-D1-ID"` on purpose so an accidental deploy fails. |
 | Entitlement client | `index.html` ~21940–22110 | `ENT_API`, `entView()`, `entSanitize()`, `entRefresh()`, `entIsPremiumForDisplay()`, `PLAN_LIMITS`, `planOn()`, `planLimit()`, `entEraseMe()`, `entNoteChange()` |
-| StoreKit 2 (native) | `mobile/ios/ios/App/App/BEStoreKitPlugin.swift` (245 lines) | Complete: `getProducts` with `isEligibleForIntroOffer`, `purchase` with `appAccountToken`, `restore` via `AppStore.sync()`, `currentEntitlements`, `pendingTransactions`, `finish`, `Transaction.updates` listener, `showManageSubscriptions` |
+| StoreKit 2 (native) | `mobile/ios/ios/App/App/Plugins/BEStoreKitPlugin.swift` (245 lines) | Complete: `getProducts` with `isEligibleForIntroOffer`, `purchase` with `appAccountToken`, `restore` via `AppStore.sync()`, `currentEntitlements`, `pendingTransactions`, `finish`, `Transaction.updates` listener, `showManageSubscriptions` |
 | Billing client | `index.html` ~22410–22600 | `BillingProviders.storekit` / `.play`, `Billing.init/buy/restore/reconcile/manage`, `billingApi()`, `billingTakeView()` |
 | Paywall | `index.html` ~22610–22860 | `premiumOpen()`, `premSheetHTML()`, `premPlans()`, `premPlanHTML()`, `premFootHTML()`, `premLegalHTML()`, launch-offer delayed close |
 | Ads | `index.html` ~22120–22380 | `AD_POLICY`, `AdEligibility` (plan + protected-context + frequency), `AdProviders` (none / mock / native bridge), `AdManager` |

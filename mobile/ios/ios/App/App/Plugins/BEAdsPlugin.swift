@@ -414,9 +414,9 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     fileprivate func keepNativeAd(_ placement: String, ad: NativeAd) { nativeAds[placement] = ad }
     #endif
 
+    /// The slot's rectangle as the web layer measured it. CSS points are UIKit
+    /// points, so no scaling is applied.
     private static func rect(_ call: CAPPluginCall) -> CGRect {
-        let scale = UIScreen.main.scale
-        _ = scale   // the web layer sends CSS points, which are UIKit points
         let x = call.getDouble("x") ?? 0, y = call.getDouble("y") ?? 0
         let w = call.getDouble("w") ?? 0, h = call.getDouble("h") ?? 0
         return CGRect(x: x, y: y, width: w, height: h)

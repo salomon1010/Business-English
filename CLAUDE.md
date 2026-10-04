@@ -390,7 +390,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   Google's test creatives can never reach a learner. `privacy.html` §7b now
   describes the ad system before it ships (the old "shows no ads" claims are gone).
   For staging device QA before AdMob exists, `BEAdsAllowTestUnits` (Info.plist,
-  **false** in the repo) permits Google's test units — double-locked by a Sandbox
+  **true on `staging`** since 2 Oct 2026, false on `main`) permits Google's test units — double-locked by a Sandbox
   receipt check, so an App Store build refuses them even if it is left on.
   Tests: `tests/ios-ads.mjs` (75). Builds clean Debug + Release with Xcode 27.
   Nothing is switched on: `ads_enabled` and `billing_enabled` stay OFF, and the

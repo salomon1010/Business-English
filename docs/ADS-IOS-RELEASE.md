@@ -28,7 +28,7 @@ undeployed file change.
 | Annual price $24.99 | `mobile/ios/ios/App/App/BEMastery.storekit` | done (Xcode's local store only — the app always draws the store's own `displayPrice`) |
 | Production entitlement D1 | `be-entitlements`, `ead9ecb9-7f95-45f7-a751-9d09c62febc4` | created and migrated 0001–0004 |
 | Production entitlement config | `backend/entitlements/wrangler.toml` `[vars]` | written; four secrets and two RTDN values still missing (§3) |
-| AdMob provider | `mobile/ios/ios/App/App/BEAdsPlugin.swift` | written, builds clean (Debug + Release) against GMA 12.14.0 and UMP 3.1.0 |
+| AdMob provider | `mobile/ios/ios/App/App/Plugins/BEAdsPlugin.swift` | written, builds clean (Debug + Release) against GMA 12.14.0 and UMP 3.1.0 |
 | Plugin registration | `BEBridgeViewController.swift` | done |
 | SPM dependency | `App.xcodeproj` → `swift-package-manager-google-mobile-ads` ≥ 12.0 | done; UMP is a *product of that package*, not a second package |
 | The JS bridge | `index.html` → `beNativeAdsInit()`, `window.BENativeAds` | done |
@@ -101,8 +101,9 @@ the screen too.
 
 A TestFlight build is a Release configuration, so the placeholder ids would
 make the ad path untestable on a device — which would leave every row in §4
-permanently unrunnable. `BEAdsAllowTestUnits` in `Info.plist` (**false** in the
-repository) lets a staging build use Google's own test units instead. It is
+permanently unrunnable. `BEAdsAllowTestUnits` in `Info.plist` (**true on the
+`staging` branch** since 2 October 2026, false on `main`) lets a staging build
+use Google's own test units instead. It is
 double-locked: `BEAdsPlugin.testUnitsAllowed` also requires a **Sandbox
 receipt** (`Bundle.main.appStoreReceiptURL.lastPathComponent != "receipt"`), so
 a build sold through the App Store refuses test creatives even if the key is
@@ -117,6 +118,21 @@ are placeholders. The plugin regex-validates their shape; in a **production**
 build an invalid id means `available:false, reason:"not_configured"`, so
 Google's test creatives can never reach a paying audience. The SDK is never
 started while an id is invalid, so there is no launch-time exception either.
+
+The **app id is set per build configuration**, not in the plist. The Google
+Mobile Ads SDK reads `GADApplicationIdentifier` itself when it starts, so the
+plugin's test-unit fallback cannot help it, and starting the SDK on an invalid
+value raises an exception Swift cannot catch. `Info.plist` therefore carries
+`$(BE_ADS_APP_ID)` and the Xcode target sets that build setting:
+
+| Configuration | `BE_ADS_APP_ID` | Effect |
+|---|---|---|
+| Debug | `ca-app-pub-3940256099942544~1458002511` (Google's public test app id) | staging device QA can run |
+| Release | `ca-app-pub-REPLACE~REPLACE` | the SDK never starts until the owner pastes the real AdMob app id into the Release configuration |
+
+This note lives here, not in the plist or the project file: Xcode rewrites
+both when it saves and discards any comment in them (it did so on 4 October
+2026). `tests/ios-ads.mjs` checks XAe and XAf hold the rule.
 
 ## 2. What the automated tests do and do not prove
 

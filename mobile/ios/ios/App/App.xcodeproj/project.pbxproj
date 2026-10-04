@@ -86,14 +86,8 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
-				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
-				BE0000000000000000000005 /* BEBridgeViewController.swift */,
-				BE0000000000000000000003 /* BEStoreKitPlugin.swift */,
-				BE0000000000000000000010 /* BEAuthPlugin.swift */,
-				BE0000000000000000000013 /* BEAdsPlugin.swift */,
 				BE0000000000000000000007 /* BEMastery.storekit */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
-				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				BE0000000000000000000001 /* PrivacyInfo.xcprivacy */,
@@ -103,8 +97,30 @@
 				BE0000000000000000000008 /* InfoPlist.strings */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
+				A80562CB3072A1B600A48E0C /* Lifecycle */,
+				A80562CC3072A1B600A48E0C /* Plugins */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		A80562CB3072A1B600A48E0C /* Lifecycle */ = {
+			isa = PBXGroup;
+			children = (
+				504EC3071FED79650016851F /* AppDelegate.swift */,
+				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
+				BE0000000000000000000005 /* BEBridgeViewController.swift */,
+			);
+			path = Lifecycle;
+			sourceTree = "<group>";
+		};
+		A80562CC3072A1B600A48E0C /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				BE0000000000000000000003 /* BEStoreKitPlugin.swift */,
+				BE0000000000000000000010 /* BEAuthPlugin.swift */,
+				BE0000000000000000000013 /* BEAdsPlugin.swift */,
+			);
+			path = Plugins;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,8 +384,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
-				BE_ADS_APP_ID = "ca-app-pub-3940256099942544~1458002511";   // Google's PUBLIC TEST app id — staging device QA only, never a real account
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BE_ADS_APP_ID = "ca-app-pub-3940256099942544~1458002511";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -392,8 +408,8 @@
 		504EC3181FED79650016851F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BE_ADS_APP_ID = "ca-app-pub-REPLACE~REPLACE";   // placeholder: a Release build cannot serve an ad until the owner pastes the real AdMob app id here
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BE_ADS_APP_ID = "ca-app-pub-REPLACE~REPLACE";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

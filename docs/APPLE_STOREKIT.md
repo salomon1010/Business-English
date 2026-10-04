@@ -98,8 +98,8 @@ App Store Server Notifications V2 → POST /v1/billing/app_store                
 ## Native bridge (mobile/ios/ios/App/App)
 | File | What it does |
 |---|---|
-| `BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
-| `BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Used by `SceneDelegate` and `Main.storyboard`. |
+| `Plugins/BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
+| `Lifecycle/BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Used by `SceneDelegate` and `Main.storyboard`. |
 | `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1, a 3-day free trial on monthly. |
 
 What the plugin does:

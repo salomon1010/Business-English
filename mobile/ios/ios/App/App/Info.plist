@@ -2,35 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- ADVERTISING (General English, Free, non-personalised only).
-	     GADApplicationIdentifier is the AdMob app id and the two BEAds* keys
-	     are its ad units. They are PLACEHOLDERS: BEAdsPlugin validates their
-	     shape (ca-app-pub-<16 digits>~<10 digits> and .../<10 digits>) and, in
-	     a Release build, reports the provider unavailable unless all three are
-	     real — so an unregistered app shows nothing rather than Google's test
-	     creatives. The Google Mobile Ads SDK is never started while they are
-	     placeholders, so there is no launch-time exception either.
-	     There is deliberately NO NSUserTrackingUsageDescription and NO
-	     SKAdNetworkItems list: this release requests npa=1 (non-personalised)
-	     ads, uses no IDFA and runs no App Tracking Transparency prompt. -->
-	<!-- STAGING ONLY (owner, 2 October 2026). true lets a TestFlight or
-	     development build use Google's own test units, so the ad path can be
-	     certified on a device before an AdMob account exists. It is
-	     DOUBLE-LOCKED: BEAdsPlugin.testUnitsAllowed also requires a Sandbox
-	     receipt (appStoreReceiptURL != "receipt"), so a build sold through the
-	     App Store refuses test creatives even with this switched on. -->
 	<key>BEAdsAllowTestUnits</key>
 	<true/>
-	<!-- The Google Mobile Ads SDK reads THIS key itself when it starts, so the
-	     plugin's own test-unit fallback cannot help it: an invalid value here
-	     makes MobileAds.start reject initialisation. It is therefore set per
-	     BUILD CONFIGURATION (BE_ADS_APP_ID in the Xcode target):
-	       Debug   = Google's public TEST app id — staging device QA
-	       Release = ca-app-pub-REPLACE~REPLACE — production still fails closed
-	     so a Release build cannot serve an ad until the owner pastes the real
-	     AdMob app id into the Release configuration. -->
-	<key>GADApplicationIdentifier</key>
-	<string>$(BE_ADS_APP_ID)</string>
 	<key>BEAdsInterstitialUnitId</key>
 	<string>ca-app-pub-REPLACE/REPLACE</string>
 	<key>BEAdsNativeUnitId</key>
@@ -57,6 +30,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GADApplicationIdentifier</key>
+	<string>$(BE_ADS_APP_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

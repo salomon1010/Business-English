@@ -1,6 +1,9 @@
 import UIKit
 import Capacitor
 
+/// The single window scene. It hosts `BEBridgeViewController` and forwards
+/// URL opens and user activities to Capacitor's `SceneDelegateProxy`, so the
+/// web layer sees them exactly as the Capacitor template would deliver them.
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
@@ -8,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = BEBridgeViewController()   // Capacitor's, plus the app's own StoreKit plugin
+        window?.rootViewController = BEBridgeViewController()   // Capacitor's bridge plus the app's own plugins (see Plugins/)
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)

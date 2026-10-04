@@ -19,12 +19,12 @@ const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 400)}`); };
 const read = f => readFileSync(new URL("../" + f, import.meta.url), "utf8");
 
-const IOS = "mobile/ios/ios/App/App/";
-const SWIFT = read(IOS + "BEAdsPlugin.swift");
+const IOS = "mobile/ios/ios/App/App/";   /* Swift sources sit in Lifecycle/ and Plugins/; plists and the fixture at the top */
+const SWIFT = read(IOS + "Plugins/BEAdsPlugin.swift");
 /* the file explains its own rules in prose, so the "nothing like this anywhere"
    checks read the CODE with comments stripped */
 const CODE = SWIFT.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
-const BRIDGEVC = read(IOS + "BEBridgeViewController.swift");
+const BRIDGEVC = read(IOS + "Lifecycle/BEBridgeViewController.swift");
 const PBX = read("mobile/ios/ios/App/App.xcodeproj/project.pbxproj");
 /* the per-configuration app id: Debug may serve test creatives, Release may not.
    Each XCBuildConfiguration block ends with its own `name = Debug|Release;`, so
