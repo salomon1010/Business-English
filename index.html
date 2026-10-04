@@ -23718,7 +23718,7 @@ function entPlanCardHTML(){
   /* the store part: only when a store provider is present (flag on, TWA / iOS shell) */
   let store="";
   if(live&&!prem){
-    if(!FBUser)store=`<button type="button" class="btn-primary" style="margin-top:12px" onclick="fbOpenModal()">${esc(t("acc.prem_signin"))}</button>`;
+    if(!FBUser)store=`<button type="button" class="btn-primary" style="margin-top:12px" onclick="fbOpenModal('in')">${esc(t("acc.prem_signin"))}</button>`;   /* the label says Sign in, so the sheet opens on Log in; Register is one tap away */
     else if(B.state==="loading")store=`<p class="sub" role="status" style="margin-top:10px">${esc(t("acc.prem_loading"))}</p>`;
     else store=`<button type="button" class="btn btn-g prem-open" style="margin-top:12px;min-height:44px;width:100%" onclick="premiumOpen('setup')">${esc(t("prem.compare"))}</button><div class="ent-offers" style="display:grid;gap:8px;margin-top:12px">${B.products.map(p=>`<button type="button" class="btn-primary ent-buy" ${B.state==="purchasing"||B.state==="restoring"?"disabled":""} onclick="Billing.buy('${esc(p.id)}')">${esc(t("acc.prem_get"))} · ${esc(p.title)} · ${esc(p.price)}</button>`).join("")}</div>
       <button type="button" class="btn btn-g" style="margin-top:8px;min-height:44px" ${B.state==="restoring"||B.state==="purchasing"?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
@@ -24723,7 +24723,7 @@ function premFootHTML(){
   const B=Billing,prem=entIsPremiumForDisplay(),busy=B.state==="purchasing"||B.state==="restoring";
   if(prem)return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-done" onclick="premClose()">${esc(t("prem.done"))}</button></div>`;
   if(!B.provider)return "";
-  if(!FBUser&&B.provider.id!=="preview")return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-signin" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button></div>`;
+  if(!FBUser&&B.provider.id!=="preview")return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-signin" onclick="premClose();fbOpenModal('in')">${esc(t("acc.prem_signin"))}</button></div>`;
   if(B.state==="loading")return "";
   const o=premOffer();if(!o)return "";
   /* under the CTA, the renewal terms in the store's own words: what happens
@@ -28572,7 +28572,7 @@ function ppRender(el){
   const m=ppMe;
   if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
   if(m.disabled){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
-  if(m.auth===false){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p><button class="btn-primary" onclick="fbOpenModal('in')">${t("pp.signin_btn")}</button></section>`);return}
+  if(m.auth===false){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p><button class="btn-primary" onclick="fbOpenModal('up')">${t("pp.signin_btn")}</button></section>`);return}   /* "Create my free account" opens Create account, like the card above (Log in is one tap away) */
   if(!m.consented){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.consent_cta_h")}</b><p class="sub">${t("pp.consent_cta_sub")}</p><button class="btn-primary" onclick="ppOpenConsent()">${t("pp.consent_open")}</button></section>`);return}
   if(m.suspendedUntil){shell(`<section class="card pp-cta"><b>${t("pp.suspended_h")}</b><p class="sub">${t("pp.suspended_sub",{date:new Date(m.suspendedUntil).toLocaleDateString()})}</p></section>`);return}
   if(ppLive&&ppLiveRx()){shell(ppLiveHTML(ppLive));if(ppLive.status==="active")ppLiveTick();return}
@@ -34899,7 +34899,7 @@ function fbUpdateNudge(){
   const n=document.createElement("div");n.className="sync-nudge";n.id="syncNudge";
   n.innerHTML=`<span class="nudge-ic" style="color:var(--acc2);line-height:0;flex:none">${ic("cloud")}</span>
     <div style="flex:1;font-size:13px;line-height:1.5"><b>${t("auth.nudge_title")}</b><br><span style="color:var(--mut)">${t("auth.nudge_desc")}</span></div>
-    <button class="btn-outline auth-go" onclick="fbOpenModal('up')">${t("auth.nudge_signin")}</button>
+    <button class="btn-outline auth-go" onclick="fbOpenModal('up')">${t("auth.create_account_btn")}</button>   <!-- opens Create account, so it says so (auth.nudge_signin said "Sign in"); Log in is one tap away in the sheet -->
     <button class="auth-x" style="position:static;font-size:20px" onclick="fbDismissNudge()">×</button>`;
   document.body.appendChild(n);
 }
