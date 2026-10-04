@@ -82,7 +82,17 @@ console.log("\n== Xcode project");
   ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
   const pkgv = JSON.parse(read(join(ios, "package.json"))).version;
   ok(`package.json version ${pkgv} = MARKETING_VERSION`, pkgv === ver[0]);
-  ok("deployment target iOS 15.0", all(/IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/g).every(v => v === "15.0"));
+  /* per build-configuration block: the App target's blocks carry the store
+     bundle id, the project-level blocks carry none, and the test bundles carry
+     their own ids. The test bundles sit on iOS 17 because the XCTest / Testing
+     frameworks in the iOS 27 SDK are built for 17; the APP must stay on 15. */
+  const blocks = pbx.split("isa = XCBuildConfiguration;").slice(1).map(b => b.slice(0, b.indexOf("name = ") + 40));
+  const appBlocks = blocks.filter(b => !/PRODUCT_BUNDLE_IDENTIFIER = com\.lomonec\.[A-Za-z]*Tests;/.test(b));
+  const testBlocks = blocks.filter(b => /PRODUCT_BUNDLE_IDENTIFIER = com\.lomonec\.[A-Za-z]*Tests;/.test(b));
+  const pick = (bs, re) => bs.map(b => (re.exec(b) || [])[1]).filter(Boolean);
+  const appDt = pick(appBlocks, /IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/), testDt = pick(testBlocks, /IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/);
+  ok(`deployment target iOS 15.0 in the App target and the project (${appDt.join(", ")})`, appDt.length >= 2 && appDt.every(v => v === "15.0"));
+  ok(`test bundles on iOS 17.0 (XCTest in the iOS 27 SDK needs it; ${testDt.join(", ")})`, testDt.length >= 2 && testDt.every(v => v === "17.0"));
   ok("iPhone only (TARGETED_DEVICE_FAMILY = 1)", all(/TARGETED_DEVICE_FAMILY = ([^;]+);/g).every(v => v === "1"));
   ok("automatic signing", all(/CODE_SIGN_STYLE = (\w+);/g).every(v => v === "Automatic"));
   const team = all(/DEVELOPMENT_TEAM = ([^;]+);/g);

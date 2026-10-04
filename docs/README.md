@@ -17,6 +17,11 @@ the one higher in this list wins.
 mechanics, feature history. These documents govern design and product; it
 governs the code.
 
+**New to the code?** Start with the root [`README.md`](../README.md) (what the
+repository is and how to run it), then [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+(how work ships), then [`architecture/CODE_MAP.md`](architecture/CODE_MAP.md),
+the generated table of contents for `index.html`.
+
 ## Rules
 
 - **Never silently diverge.** If implementation reveals a better solution:

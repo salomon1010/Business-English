@@ -13,7 +13,6 @@ struct BEStoreKitPluginTests {
         #expect(BEStoreKitPlugin.allowed == ["premium_monthly", "premium_annual"])
     }
 
-    @available(iOS 17.0, *)
     @Test func subscriptionPeriodsBecomeISO8601Durations() {
         // The same shape the Google Play provider hands the web layer.
         #expect(BEStoreKitPlugin.iso(.monthly) == "P1M")

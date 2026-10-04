@@ -1,1 +1,9 @@
 CAPACITOR_DEBUG = true
+
+// The App scheme builds its targets in manual order (App first, then the two
+// test bundles) because the generated test targets carry no explicit
+// dependency on App and would otherwise compile against a stale module. Xcode
+// warns that manual order is deprecated; this silences that one warning for
+// Debug builds. Remove it, and switch the scheme back to Dependency Order, once
+// BEMasteryTests and BEMasteryUITests have App under Build Phases → Dependencies.
+DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING = YES
