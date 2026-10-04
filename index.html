@@ -373,7 +373,7 @@ html,body,*{scrollbar-width:none}
 #appScrollH{width:36px;height:4px}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);padding:0 20px}
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);padding:env(safe-area-inset-top,0px) 20px 0}
 .nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:6px;height:62px;overflow-x:auto}
 .brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:6px;cursor:pointer;border-radius:12px;padding:2px 6px 2px 2px;transition:.15s}
 .brand-txt{display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}
@@ -436,7 +436,7 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 .rm-ov{position:fixed;inset:0;z-index:130;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;opacity:0;transition:opacity .25s ease}
 .rm-ov.show{opacity:1}
 .rm-ov-in{max-width:760px;margin:0 auto;padding:14px 16px 40px}
-.rm-ov-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0 10px;background:var(--bg)}
+.rm-ov-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 0 10px;background:var(--bg)}
 .rm-ov-top .eyebrow{margin:0}
 .rm-ov-x{width:38px;height:38px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);display:grid;place-items:center;cursor:pointer;font-size:20px;line-height:1;min-height:auto}
 .streak-pill{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold);padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px;white-space:nowrap}
@@ -587,7 +587,7 @@ main{max-width:1180px;margin:0 auto;padding:0 20px 90px}
   background:color-mix(in srgb,var(--acc) 20%,color-mix(in srgb,var(--bg) 92%,transparent))}
 /* On a page whose eyebrow is itself sticky, the pill has to clear the eyebrow
    rather than slide behind it — hence the measured height, not a guess. */
-.stick-eb{--stick-top:calc(62px + var(--pg-eyebrow-h,0px) + 6px)}
+.stick-eb{--stick-top:calc(var(--nav-h,62px) + var(--pg-eyebrow-h,0px) + 6px)}
 /* Phrase Lab: which week's phrases these are. Stays on screen down the whole
    list, and is the way back to that week's page. */
 .ph-wk-bar{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;
@@ -4839,7 +4839,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-dot.on{background:var(--acc);width:22px;border-radius:99px}   /* owner's design, 2026-09-20: the accent, not cyan */
 .ob-chips-list .ob-chip{width:100%;max-width:340px;justify-content:flex-start;text-align:left}   /* the goals read as a list, icon at the left, as on the store screenshots */
 /* AUTH (optional cloud sign-in) */
-.auth-ov{position:fixed;inset:0;z-index:120;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:22px;animation:fade .2s}
+.auth-ov{position:fixed;inset:0;z-index:145;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:22px;animation:fade .2s}
 .auth-card{max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:28px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:fade .3s;max-height:92vh;overflow:auto}
 .auth-card h2{font-size:23px;font-weight:800;letter-spacing:-.4px;text-align:center;margin-bottom:6px}
 .auth-card .sub{text-align:center;margin:0 auto 22px;font-size:13.5px}
@@ -5081,7 +5081,7 @@ html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-
    100px while the eyebrow ran to 126px and covered 18px of the input. The
    fallback below is the tallest observed eyebrow, so a miss leaves a small gap
    rather than an overlap. */
-.help-searchbar{position:sticky;top:calc(62px + var(--pg-eyebrow-h,0px));z-index:39;background:transparent;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
+.help-searchbar{position:sticky;top:calc(var(--nav-h,62px) + var(--pg-eyebrow-h,0px));z-index:39;background:transparent;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
 .help-search{max-width:520px;margin:0 auto;position:relative}
 .help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .help-search-ic svg{width:18px;height:18px}
@@ -5243,7 +5243,7 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
    app header while the summary, the report or the history scrolls. On the
    professional track it is the only visible exit, because .pg-eyebrow (where
    rpBackBar puts the back button there) is hidden app-wide. */
-.rp-xbar{position:sticky;top:74px;z-index:45;height:0;display:flex;justify-content:flex-end;pointer-events:none}
+.rp-xbar{position:sticky;top:calc(var(--nav-h,62px) + 12px);z-index:45;height:0;display:flex;justify-content:flex-end;pointer-events:none}
 .rp-x{pointer-events:auto;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);
   display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .15s}
 .rp-x:active{transform:scale(.92)}
@@ -5905,7 +5905,17 @@ h1.big{letter-spacing:-.025em}
 /* F7 account notice. Deliberately NOT gold and NOT lock-shaped: the Premium
    card below is, and a learner must be able to tell a free sign-up from a paid
    plan at a glance. */
-.ai-acct{border-color:color-mix(in srgb,var(--acc) 34%,transparent)}
+.acct-link{display:inline-flex;align-items:center;min-height:44px;padding:4px 0;background:none;border:0;color:var(--acc);font:inherit;font-size:13.5px;font-weight:600;line-height:1.45;text-align:left;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+.acct-link:hover{text-decoration-thickness:2px}
+.acct-link:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+.ai-acct{border-color:color-mix(in srgb,var(--acc) 34%,transparent);padding:11px 13px}
+.ai-acct .ai-acct-b{margin:0;font-size:13px;line-height:1.45}
+.ai-acct .ai-acct-chip{margin-right:7px;vertical-align:baseline}
+.ai-acct .ai-acct-row{margin-top:9px;gap:8px}
+.ai-acct .ai-acct-fine{margin:8px 0 0;font-size:11px;line-height:1.35}
+/* compact, but still a 44 px tap target (Apple HIG) — small is not the same as
+   hard to hit, and this is the one button a signed-out learner must be able to press */
+.ai-acct .ai-acct-go,.ai-acct .ai-acct-in{width:auto;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;font-size:13.5px}
 .ai-acct-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0;font-size:15px;font-weight:700;color:var(--txt)}
 .ai-acct-chip{display:inline-flex;align-items:center;gap:5px;color:var(--acc);background:color-mix(in srgb,var(--acc) 13%,transparent);border:1px solid color-mix(in srgb,var(--acc) 32%,transparent);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 .ai-acct-chip svg{width:13px;height:13px}
@@ -5998,6 +6008,9 @@ h1.big{letter-spacing:-.025em}
 .ad-remove{background:transparent;border:0;color:var(--mut);text-decoration:underline;font-size:12.5px;min-height:44px;padding:0 6px;cursor:pointer}
 .ad-card .ad-remove{display:block;margin:6px auto 0}
 .ad-native .ad-remove{float:right;min-height:32px;margin-top:-6px}[dir=rtl] .ad-native .ad-remove{float:left}
+/* the Shadow workspace slot: its own breathing room between the player block
+   and the transcript, and it takes no space at all when there is no ad */
+.ad-native[data-placement="shadow_pause"]{margin:12px 0 4px}
 .ad-native{display:block;margin:28px 0 12px;padding:12px;border:1px dashed var(--line2);border-radius:var(--ds-r);background:color-mix(in srgb,var(--card) 70%,transparent)}
 .ad-native .ad-label{margin-bottom:10px}
 .ad-native-body{min-height:64px}
@@ -6148,7 +6161,7 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 .brand-name{font-weight:700;letter-spacing:-.25px}
 .brand span.g{background:var(--grad-text,var(--grad));-webkit-background-clip:text;background-clip:text;color:transparent}
 @media(max-width:820px){
-  nav{padding:0 14px}
+  nav{padding:env(safe-area-inset-top,0px) 14px 0}
   .nav-in{height:56px;gap:8px}
   .brand{gap:9px;margin-right:0;padding:3px 8px 3px 2px;font-size:17px}
   .brand .logo{width:34px;height:34px}
@@ -6602,6 +6615,13 @@ function save(){
    refresh fix). Threshold is the owner's choice — no published standard. ---- */
 const RETURN_GAP_MS=2*60*60*1000;
 let _rmReturn=false,_hiddenAt=0,_rmSwitch=false;   /* _rmSwitch: the landing follows an area switch, not a comeback */
+/* _adHidAt is NOT _hiddenAt, and the difference matters. touchSeen() primes
+   `_hiddenAt` at BOOT, in the foreground, because the comeback landing wants
+   "when did we last see this learner" whether or not the page ever hid. The
+   resume ad needs the stricter question — "did this app actually go into the
+   background?" — so it gets its own stamp, written only where a hide really
+   happened. Without it a cold launch already looks like a long absence. */
+let _adHidAt=0;
 function isComeback(prev){
   if(!prev)return false;
   const now=Date.now();
@@ -6613,9 +6633,9 @@ function touchSeen(){S.lastSeen=Date.now();_hiddenAt=S.lastSeen;save()}
 function homeDeepLink(v){try{return /[?&]nudge=/.test(location.search)||(!!location.hash&&(v==="partner"||v==="journey"))}catch(e){return false}}
 /* how long they were away, as a small enum — the Worker allow-list has only these */
 function gapBand(prev){const d=(Date.now()-prev)/864e5;return d<1?"2h-1d":d<=3?"1-3d":d<=7?"4-7d":"8d+"}
-addEventListener("pagehide",()=>{touchSeen();if(_saveH!==null)saveFlush()});
+addEventListener("pagehide",()=>{_adHidAt=Date.now();touchSeen();if(_saveH!==null)saveFlush()});
 addEventListener("beforeunload",()=>{if(_saveH!==null)saveFlush()});
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){touchSeen();if(_saveH!==null)saveFlush()}});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){_adHidAt=Date.now();touchSeen();if(_saveH!==null)saveFlush()}});
 /* ---- What the main thread was doing when the app stalled ----
    Headless profiling cannot feel a phone. This keeps the last forty stalls
    (any main-thread task over 80 ms, and any slow save) with the page they
@@ -7303,6 +7323,10 @@ const I18N_EN={
  "prem.cta":"Continue with Premium",
  "prem.done":"Continue learning",
  "prem.unavailable":"Premium can't be bought on this device yet. You can get it in the BE Mastery app from Google Play.",
+ /* iOS must NEVER be sent to Google Play (3 Oct 2026): this is the App Store
+    app, and Apple would reject the wording even if a learner could follow it.
+    The two are separate keys because the honest answer differs by platform. */
+ "prem.unavailable_ios":"Premium can't be bought on this device right now. Close BE Mastery, open it again, and try once more.",
  "prem.row_sub":"More speaking, shadowing and AI tools",
  "prem.remove_ads":"Remove ads with Premium",
  "prem.compare":"See Premium plans",
@@ -7467,7 +7491,9 @@ const I18N_EN={
  "home.start_btn":"Start today's 25-minute session →",
  "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.eyebrow_first":"Your first session","home.cta_first":"Start session","home.cta_today":"Start session","home.cta_resume":"Resume session","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.hl_film":"Film lesson","home.hl_tag":"Highlight","home.hl_new":"New","home.hl_open":"Open the video: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_grammar":"Practise grammar with interactive exercises","home.d_convo":"Speak with an AI colleague","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening",
  "home.rows_aria":"Recommended for you",
- "home.bc_watched":"Because you watched \u201c{{title}}\u201d","home.bc_watched_s":"More on the same subject, and from the same voice.","home.bc_practiced_shadow":"Because you practised \u201c{{title}}\u201d","home.bc_practiced_shadow_s":"Take that clip into the Challenge, then the next voices at that level.","home.bc_practiced_challenge":"Because you passed the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_s":"More clips at that level. Each one opens straight in the Challenge.","home.bc_practiced_challenge_try":"Because you took the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_try_s":"Finish it, then try the next clips at that level.","home.bc_practiced_session":"Because you practised {{focus}}","home.bc_practiced_session_s":"The next session, and the clips and conversation that build on it.","home.bc_feedback_words":"Because your feedback flagged {{words}}","home.bc_feedback_words_s":"Hear those words in real speech, then take the line again.","home.bc_feedback_words_x":"Because your feedback on \u201c{{title}}\u201d named words to fix","home.bc_feedback_words_x_s":"Hear them in real speech, then take the line again.","home.bc_feedback_pron":"Because your pronunciation feedback flagged {{words}}","home.bc_feedback_pron_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_pron_x":"Because your pronunciation feedback showed sounds to work on","home.bc_feedback_pron_x_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_fluency":"Because your speaking report showed fillers and hesitations","home.bc_feedback_fluency_s":"Speakers who pause instead of filling. Copy their rhythm.","home.bc_feedback_expressions":"Because your speaking report suggested {{words}}","home.bc_feedback_expressions_s":"This week's expressions, and clips that use language like it.","home.bc_struggled_challenge":"Because you struggled with the Challenge on \u201c{{title}}\u201d","home.bc_struggled_challenge_s":"It reopens one step easier. Shorter clips at that level help too.","home.bc_struggled_words":"Because you struggled with {{words}}","home.bc_struggled_words_s":"Hear the words in real speech, then drill them until they come out clean.","home.bc_saved_words":"Because you saved {{words}}","home.bc_saved_words_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_words_x":"Because you saved {{n}} words","home.bc_saved_words_x_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_clips":"Because you saved \u201c{{title}}\u201d","home.bc_saved_clips_s":"Pick up your saved clip, then put its language to work.","home.bc_learning_new":"Start here: your Week 1 learning path","home.bc_learning_new_s":"{{theme}}. The first session, a first voice to shadow and the week's expressions.","home.bc_learning_week":"Because you're working on Week {{n}}: {{theme}}","home.bc_learning_week_s":"This week's session, its clip, its expressions and a conversation to try.","home.bc_learning_week_done":"Because you finished Week {{done}}","home.bc_learning_week_done_s":"Week {{n}} starts here: {{theme}}.","home.bc_partner_partner":"Because you practised with a partner","home.bc_partner_partner_s":"Keep the conversation going while it is fresh.","home.bc_partner_live":"Because you practised live with a partner","home.bc_partner_live_s":"Keep the conversation going while it is fresh.","home.bc_partner_ai":"Because you practised with the AI coach","home.bc_partner_ai_s":"Try it with a person next, or go again with the coach.","home.bc_partner_roleplay":"Because you practised \u201c{{title}}\u201d with {{persona}}","home.bc_partner_roleplay_s":"Go again, or try the next conversation on the same subject.","home.bc_inactive_days":"Because you haven't practised for {{n}} days","home.bc_inactive_days_s":"Five minutes is enough to restart. One step, one short clip, one conversation.","home.bc_inactive_speaking":"Because you haven't practised speaking for {{n}} days","home.bc_inactive_speaking_s":"Say something out loud today. A short clip or a quick conversation is enough.","home.bc_level":"Recommended for your level","home.bc_level_s":"Clear, well-paced voices to shadow first.","home.row_lead":"Your strongest signal","home.rows_prem":"See what we picked for you.","home.row_lead_start":"Start here","home.it_saved_clip":"Your saved clip","home.it_words_saved":"{{n}} words saved","home.it_words_saved_t":"Review your saved words","home.it_phrases_w":"Phrase Lab \u00b7 Week {{w}}","home.it_phrases_wt":"Week {{w}}'s expressions","home.it_roleplay":"Conversation \u00b7 {{persona}}",
+ "home.bc_watched":"Because you watched \u201c{{title}}\u201d","home.bc_watched_s":"More on the same subject, and from the same voice.","home.bc_practiced_shadow":"Because you practised \u201c{{title}}\u201d","home.bc_practiced_shadow_s":"Take that clip into the Challenge, then the next voices at that level.","home.bc_practiced_challenge":"Because you passed the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_s":"More clips at that level. Each one opens straight in the Challenge.","home.bc_practiced_challenge_try":"Because you took the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_try_s":"Finish it, then try the next clips at that level.","home.bc_practiced_session":"Because you practised {{focus}}","home.bc_practiced_session_s":"The next session, and the clips and conversation that build on it.","home.bc_feedback_words":"Because your feedback flagged {{words}}","home.bc_feedback_words_s":"Hear those words in real speech, then take the line again.","home.bc_feedback_words_x":"Because your feedback on \u201c{{title}}\u201d named words to fix","home.bc_feedback_words_x_s":"Hear them in real speech, then take the line again.","home.bc_feedback_pron":"Because your pronunciation feedback flagged {{words}}","home.bc_feedback_pron_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_pron_x":"Because your pronunciation feedback showed sounds to work on","home.bc_feedback_pron_x_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_fluency":"Because your speaking report showed fillers and hesitations","home.bc_feedback_fluency_s":"Speakers who pause instead of filling. Copy their rhythm.","home.bc_feedback_expressions":"Because your speaking report suggested {{words}}","home.bc_feedback_expressions_s":"This week's expressions, and clips that use language like it.","home.bc_struggled_challenge":"Because you struggled with the Challenge on \u201c{{title}}\u201d","home.bc_struggled_challenge_s":"It reopens one step easier. Shorter clips at that level help too.","home.bc_struggled_words":"Because you struggled with {{words}}","home.bc_struggled_words_s":"Hear the words in real speech, then drill them until they come out clean.","home.bc_saved_words":"Because you saved {{words}}","home.bc_saved_words_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_words_x":"Because you saved {{n}} words","home.bc_saved_words_x_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_clips":"Because you saved \u201c{{title}}\u201d","home.bc_saved_clips_s":"Pick up your saved clip, then put its language to work.","home.bc_learning_new":"Start here: your Week 1 learning path","home.bc_learning_new_s":"{{theme}}. The first session, a first voice to shadow and the week's expressions.","home.bc_learning_week":"Because you're working on Week {{n}}: {{theme}}","home.bc_learning_week_s":"This week's session, its clip, its expressions and a conversation to try.","home.bc_learning_week_done":"Because you finished Week {{done}}","home.bc_learning_week_done_s":"Week {{n}} starts here: {{theme}}.","home.bc_partner_partner":"Because you practised with a partner","home.bc_partner_partner_s":"Keep the conversation going while it is fresh.","home.bc_partner_live":"Because you practised live with a partner","home.bc_partner_live_s":"Keep the conversation going while it is fresh.","home.bc_partner_ai":"Because you practised with the AI coach","home.bc_partner_ai_s":"Try it with a person next, or go again with the coach.","home.bc_partner_roleplay":"Because you practised \u201c{{title}}\u201d with {{persona}}","home.bc_partner_roleplay_s":"Go again, or try the next conversation on the same subject.","home.bc_inactive_days":"Because you haven't practised for {{n}} days","home.bc_inactive_days_s":"Five minutes is enough to restart. One step, one short clip, one conversation.","home.bc_inactive_speaking":"Because you haven't practised speaking for {{n}} days","home.bc_inactive_speaking_s":"Say something out loud today. A short clip or a quick conversation is enough.","home.bc_level":"Recommended for your level","home.bc_level_s":"Clear, well-paced voices to shadow first.","home.row_lead":"Your strongest signal","home.rows_prem":"Unlock to see what we picked for you.",
+ /* the next-step card's action: what it opens, not what it costs */
+ "home.rows_prem_cta":"Unlock recommendations","home.row_lead_start":"Start here","home.it_saved_clip":"Your saved clip","home.it_words_saved":"{{n}} words saved","home.it_words_saved_t":"Review your saved words","home.it_phrases_w":"Phrase Lab \u00b7 Week {{w}}","home.it_phrases_wt":"Week {{w}}'s expressions","home.it_roleplay":"Conversation \u00b7 {{persona}}",
  "home.it_challenge":"Shadow Challenge","home.it_challenge_tag":"Challenge","home.it_video":"Shadow this clip","home.it_external":"YouTube",
  "home.it_trouble":"Shadow Studio","home.it_trouble_t":"Your trouble words, in real speech",
  "home.it_words":"{{n}} words due","home.it_words_t":"Review the words",
@@ -7673,6 +7699,16 @@ const I18N_EN={
  "ai.acct_kept":"You can still record right now: the take is saved on this device and today still counts towards your streak.",
  "ai.acct_cta":"Create a free account",
  "ai.acct_notprem":"This is not Premium. Premium is separate, and only adds the advanced analysis.",
+ /* The compact account link (owner, 3 Oct 2026). One sentence, the whole of it
+    the tap target. The feature is NAMED, because "sign in to use the AI
+    features" told a learner nothing about the screen they were looking at.
+    Four sentences rather than one with a {{placeholder}}: article and word
+    order move with the noun in French, Spanish, Portuguese and Arabic, and a
+    substituted noun reads as machine output in all four. */
+ "ai.acct_link":"Create your account to unlock this view.",
+ "ai.acct_link_polish":"Create your account to unlock Polish.",
+ "ai.acct_link_ai":"Create your account to unlock AI feedback.",
+ "ai.acct_link_convo":"Create your account to unlock the AI conversation.",
  "ai.need_acct":"Sign in to use the AI features. Your recording is saved, and your practice still counts.",
  "sess.report_stt":"Could not write down what you said — check the connection and try again.",
  "sess.report_newer":"A newer recording is waiting for its report.",
@@ -9741,6 +9777,8 @@ const I18N_EN={
  "auth.err_unauthorized_domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings).",
  "auth.social_or":"or",
  "auth.err_provider":"That sign-in couldn't finish. Try again, or use your email and password.",
+ "auth.err_provider_p":"{{p}} sign-in couldn't finish. Try again, or use your email and password.",
+ "auth.err_provider_disabled_p":"{{p}} sign-in is switched off for BE Mastery right now. You can still use your email and password.",
  "auth.err_provider_off":"This sign-in option isn't available in this version of the app.",
  "auth.err_provider_disabled":"This sign-in method is switched off for BE Mastery right now.",
  "auth.err_user_disabled":"This account has been disabled. Write to contact@lomonec.com.",
@@ -10065,8 +10103,28 @@ function localizeStatic(){
   document.querySelectorAll(".tab-lbl").forEach(el=>{el.textContent=el.textContent.replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")});
   document.querySelectorAll("[data-ic]").forEach(b=>{const s=b.querySelector(".tab-ic");if(s&&!s.firstChild)s.innerHTML=ic(b.dataset.ic)});
 }
+/* _tOvr: a dictionary that wins over DICT for the length of ONE synchronous
+   render. It exists for the Shadow report (owner, 3 Oct 2026), which must be
+   written in the language the learner chose for Shadow TRANSLATION rather than
+   the language the app's menus are in — a learner can read the app in English
+   and still need the coaching in French. It is set and cleared by
+   fbShowResults, never left on, and it holds the SAME keys, so every string it
+   reaches is one that already exists in all 15 packs. The English being
+   practised is never affected: those words come from the transcript and the
+   recording, which are data, not keys. */
+let _tOvr=null;
+/* _fbRepLang: the language the report NOW ON SCREEN was drawn in. Not every
+   part of a report arrives with the first render — the pronunciation cell waits
+   for the AI pass and the micro-practice card is redrawn on every phase change.
+   Those writers run after the synchronous render has ended (and across awaits),
+   so _tOvr is already back to null by the time they build their text and they
+   would quietly fall back to the app language, leaving an English cell inside a
+   French report. fbRepRun replays the same override around one synchronous
+   write; it is a no-op for a report that has no language of its own. */
+let _fbRepLang=null;
+function fbRepRun(fn){const prev=_tOvr;if(_fbRepLang)_tOvr=_fbRepLang;try{return fn()}finally{_tOvr=prev}}
 function t(key,vars){
-  let s=(DICT&&DICT[key]!=null)?DICT[key]:(I18N_EN[key]!=null?I18N_EN[key]:key);
+  let s=(_tOvr&&_tOvr[key]!=null)?_tOvr[key]:(DICT&&DICT[key]!=null)?DICT[key]:(I18N_EN[key]!=null?I18N_EN[key]:key);
   if(vars)for(const k in vars)s=s.split("{{"+k+"}}").join(vars[k]);
   return s;
 }
@@ -10087,6 +10145,26 @@ function applyDirLang(code){
   document.documentElement.lang=code||"en";
   document.documentElement.dir=RTL_LANGS.has(code)?"rtl":"ltr";
 }
+/* The Shadow report's language: the learner's Shadow TRANSLATION choice, read
+   from the one place that already stores it (svShLangCode -> S.profile.trLang),
+   never from the device, the browser or the account. Null means English, which
+   needs no dictionary. */
+let _svRepDict={code:null,d:null},_svRepLoad=null;
+function svRepLang(){try{const c=svShLangCode();return (c&&c!=="en")?c:null}catch(e){return null}}
+function svRepDictEnsure(){
+  const c=svRepLang();
+  if(!c)return Promise.resolve(null);
+  if(_svRepDict.code===c)return Promise.resolve(_svRepDict.d);
+  if(_svRepLoad&&_svRepLoad.c===c)return _svRepLoad.p;
+  const p=fetch(`i18n/${c}.json`).then(r=>r.ok?r.json():null)
+    .then(d=>{_svRepDict={code:c,d:d||null};return _svRepDict.d})
+    .catch(()=>{_svRepDict={code:c,d:null};return null});
+  _svRepLoad={c,p};return p;
+}
+/* loaded and still the chosen language, or null — a report never waits on a
+   fetch, it simply stays in the app language until the pack is there */
+function svRepDictNow(){const c=svRepLang();return (c&&_svRepDict.code===c)?_svRepDict.d:null}
+window.svRepDictEnsure=svRepDictEnsure;
 async function loadLangDict(code){
   if(!code||code==="en"){DICT={};return}
   try{const r=await fetch(`i18n/${code}.json`);DICT=r.ok?await r.json():{}}catch(e){DICT={}}
@@ -12039,6 +12117,33 @@ window.mvHistHear=i=>{
 /* The learner's own take, replayed from the device's recording store — the
    same protected place every recorder in the app files into. Nothing is
    uploaded and no URL exists outside this tab. */
+/* HEAR YOURSELF (owner, 3 Oct 2026). The speaker on the Shadow report used to
+   read the MODEL text with TTS; the owner wants it to play the learner's own
+   take — the thing they just said. The recording is already in IndexedDB
+   (addRec/getRecs, keyed by the report's recCtx), so this reads it back rather
+   than keeping a second copy. `rep` lets a page with several reports on it
+   (Welding lines) play the right one: each .fbc root carries its own _fbRep. */
+let _fbOwnA=null;
+function fbOwnStop(){if(_fbOwnA){try{_fbOwnA.pause()}catch(e){}try{URL.revokeObjectURL(_fbOwnA.src)}catch(e){}_fbOwnA=null}}
+async function fbPlayOwn(rep,quiet){
+  const r=rep||_fbRep;
+  if(!r||!r.recCtx){if(!quiet)toast(t("mv.hist_norec"));return false}
+  let blob=null;
+  try{const recs=await getRecs(r.recCtx);blob=recs&&recs[0]&&recs[0].blob}catch(e){}
+  if(!blob){if(!quiet)toast(t("mv.hist_norec"));return false}
+  try{fbStopAudio()}catch(e){}
+  fbOwnStop();
+  const a=_fbOwnA=new Audio(URL.createObjectURL(blob));
+  a.onended=()=>{if(_fbOwnA===a)fbOwnStop()};
+  try{await a.play()}catch(e){if(!quiet)toast(t("mv.hist_norec"));fbOwnStop();return false}
+  return true;
+}
+/* the button: find the report this control belongs to, so the right take plays */
+window.fbPlayMine=function(el){
+  let rep=null;
+  try{const root=el&&el.closest?el.closest(".fbc"):null;rep=root&&root._fbRep}catch(e){}
+  return fbPlayOwn(rep||null);
+};
 window.mvHistPlay=async i=>{
   const h=_mvHist[i];if(!h||!h.key)return;
   const recs=await getRecs(h.key);
@@ -12289,8 +12394,11 @@ function homeRowCardHTML(r,it,i){
    card goes, the free ones included: a strip half open and half locked reads as a broken row
    rather than as an offer, and the owner marked the whole strip. */
 function homeRowsPremHTML(){
+  /* ONE QUIET LINE (owner, 3 Oct 2026). This row repeats down the whole of Home,
+     and with a gold PREMIUM pill on each one the page read as five adverts
+     stacked on the learner's own progress. The pill is gone; the sentence IS
+     the link, and it says what the tap does rather than shouting the plan. */
   return `<button type="button" class="hx-row-prem" onclick="premiumOpen('home_row')">
-      <span class="chip prem-lock-chip">${ic("lock")} ${esc(t("prem.cmp_prem"))}</span>
       <span class="hx-row-prem-t">${esc(t("home.rows_prem"))}</span><i aria-hidden="true">\u203a</i>
     </button>`;
 }
@@ -12511,8 +12619,11 @@ function homeHeroHTML(c,vis){
         ${c.kicker?`<p class="hx-kicker">${esc(c.kicker)}</p>`:""}
         <h2 id="hxT">${esc(c.title)}</h2>
         ${c.sub?`<p class="hx-sub">${esc(c.sub)}</p>`:""}
-        ${c.prem?`<p class="hx-prem"><span class="hx-prem-chip">${ic("lock")} ${esc(t("prem.cmp_prem"))}</span><span>${esc(t("prem.lock_rec_b"))}</span></p>`:""}
-        <div class="hx-acts"><button class="btn-primary hx-cta" onclick="${c.prem?"premiumOpen('home_rec')":c.go}">${esc(c.prem?t("prem.lock_cta"):c.cta)}<span class="hx-cta-go" aria-hidden="true">→</span></button>
+        ${/* the PREMIUM chip and its paragraph are gone (owner, 3 Oct 2026): on the
+             card that tells a learner what to do next, a lock and a sales line
+             sat between the advice and the button. The action below says what
+             it unlocks, which is all that was needed. */""}
+        <div class="hx-acts"><button class="btn-primary hx-cta" onclick="${c.prem?"premiumOpen('home_rec')":c.go}">${esc(c.prem?t("home.rows_prem_cta"):c.cta)}<span class="hx-cta-go" aria-hidden="true">→</span></button>
         <button type="button" class="pp-online-pill hx-online" id="hxOnline" hidden onclick="hxOnlineTap()"></button></div>
       </div>
     ${c.desc?`<div class="hx-foot"><p class="hx-desc">${esc(c.desc)}</p></div>`:""}
@@ -13797,6 +13908,8 @@ window.removeRec=async(id,ctx,btn)=>{
 
 /* ================= SHADOW (YouGlish-style clip looper) ================= */
 let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
+/* one placement per pause: the tick runs several times a second */
+let _shAdTried=false;
 /* Curated library: the user picks a video and marks any start/end they want.
    Videos flagged cap:true ship a bundled caption track at captions/<vid>.json
    (built ahead of time by scripts/fetch_captions.js). At runtime the app slices
@@ -13978,6 +14091,14 @@ ${(()=>{
       </div>
     </div>
     <div class="sh-hint" id="shMarkHint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
+    <!-- THE SHADOW AD HOST (owner, 3 Oct 2026): video -> ad -> transcript.
+         It is in the MARKUP, not created on the fly, because the slot used to be
+         inserted next to #shV2 and the workspace's own re-renders disconnected
+         it before the creative had loaded: on the owner's iPhone the ad was
+         REQUESTED twice and displayed neither time, while the library slot
+         filled in the same second. A permanent host cannot be disconnected.
+         It has no size of its own, so it costs nothing when there is no ad. -->
+    <div id="shAdHost"></div>
     <div class="sv" id="shV2" style="display:none"></div>
     <div class="grid g2" id="shLower" style="margin-top:16px">
       <div class="card">
@@ -15071,6 +15192,11 @@ async function shLoad(c,quiet){
   const scene=scnIs(c&&c.vid);
   if(scene&&!scnOn()){if(!quiet)toast(t("scn.unavailable"));return}
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
+  /* THE LATCH IS PER CLIP (3 Oct 2026). It was set once and never cleared, so
+     the first clip of a session spent the only attempt there was and every
+     later clip was silently skipped — no request, no suppression, nothing to
+     read back. Opening a clip is the boundary it was always meant to have. */
+  _shAdTried=false;
   /* remember the last clip so a page refresh restores the player, transcript and recordings */
   lastClipSet({vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title});save();
   shCounting=false;shPing={};
@@ -15105,7 +15231,12 @@ async function shLoad(c,quiet){
       /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or
          player failure. Without this the user got YouTube's own grey box inside
          the frame while every control stayed live against a dead player. */
-      onStateChange:e=>{if(e&&(e.data===1||e.data===3))shPosterHide()},
+      /* 1 = playing, 2 = paused. The ad follows the pause and leaves with it:
+         placed below the player and above the transcript when the learner stops,
+         removed the instant playback resumes. AdEligibility still decides
+         whether one may appear at all (Welding, Premium, consent, caps). */
+      onStateChange:e=>{if(e&&(e.data===1||e.data===3))shPosterHide();
+        try{if(e&&e.data===2)setTimeout(()=>AdManager.placeShadow(),400);else if(e&&e.data===1)AdManager.clearShadow()}catch(_){}},
       onError:()=>{clearInterval(shTick);if(scene){toast(t("scn.audio_err"));return}shVideoError(true)}}});
   renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
@@ -15231,6 +15362,38 @@ function shWatchTick(t){
 function shStartTick(){
   clearInterval(shTick);
   shTick=setInterval(()=>{
+    /* THE SHADOW AD FOLLOWS THE PLAYER'S STATE, NOT ONE EVENT (3 Oct 2026).
+       It hung on the iframe's onStateChange(data===2). On the owner's iPhone
+       that never produced a single placement — not one request, not one
+       suppression — while the other three native slots worked all evening, so
+       the handler was simply not reaching placeShadow. This tick is the app's
+       OWN player watcher, already running for the time display and the
+       transport button, and it is the mechanism the rest of Shadow trusts.
+       Asking it is cheap: `paused` is a state read, placeShadow is idempotent,
+       and AdEligibility still decides everything about whether an ad may show. */
+    try{
+      /* ask once per clip, then only re-ask if the host lost its slot.
+         THE SLOT HAS TO BE ON SCREEN BEFORE IT IS ASKED FOR (3 Oct 2026). This
+         tick starts with the PLAYER, which happens before shOpenWork() sets
+         #shWork to display:flex — and a host inside a display:none subtree
+         measures 0x0, which the native bridge refuses (it will not draw on
+         anything under 40x40). On the owner's iPhone that is exactly what the
+         new reason reporting caught: ad_requested, then ad_suppressed
+         size_0x0. Worse, the one-shot latch had already been spent, so the
+         clip never asked again. offsetParent is null for a display:none
+         subtree, so its own measured WIDTH is the test: 0 while the workspace
+         is closed, the full column width once it is open.
+         NOT offsetParent, though it reads better: the workspace is
+         position:fixed, and what offsetParent returns for a child of a fixed
+         element differs between WebKit and Blink. The iPhone is the only
+         engine that matters here and it is the one I cannot run locally, so
+         this uses the measurement the native bridge itself uses — a rect,
+         which means the same thing everywhere. */
+      const host=document.getElementById("shAdHost");
+      if(host&&host.getBoundingClientRect().width>=40&&!host.querySelector("[data-ad-slot]")){
+        if(!_shAdTried){_shAdTried=true;AdManager.placeShadow()}
+      }
+    }catch(_){}
     if(!ytPlayer||!ytPlayer.getCurrentTime)return;
     let t=0;try{t=ytPlayer.getCurrentTime()}catch(_){return}
     shWatchTick(t);
@@ -18698,7 +18861,7 @@ window.fbFixOpen=btn=>{
 };
 function fbFixHTML(d){
   const busy=d.phase==="grading";
-  const err=d.err==="acct"?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const err=d.err==="acct"||aiNoAccount()?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
   const you=d.op==="sub"&&d.fromRec&&d.hF.length?`<button class="sv-ch-play" onclick="fbYou(${fbWordFrac(d.hF,d.hIdx).join(",")},${d.hIdx},${d.hF.length},${jarg(d.h||"")})">${ic("mic")}<span>${t("fb.c_you")}</span></button>`:"";
   const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="fbFixPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
   const last=d.attempts[d.attempts.length-1];
@@ -18715,7 +18878,8 @@ function fbFixHTML(d){
     :`<div class="fbc-fix-acts"><button class="btn btn-g" onclick="fbFixClose()">${t("sv.ch_drill_done")}</button></div>`}
   </div>`;
 }
-function fbFixDraw(){
+function fbFixDraw(){return fbRepRun(()=>fbFixDrawBody())}
+function fbFixDrawBody(){
   const d=fbFix;if(!d||!d.card||!d.card.isConnected){fbFix=null;return}
   const el=d.card.querySelector("#fbFix"),html=fbFixHTML(d);
   if(el)el.outerHTML=html;else d.card.insertAdjacentHTML("beforeend",html);
@@ -18730,7 +18894,7 @@ window.fbFixClose=()=>{
   if(!d.card||!d.card.isConnected)return;
   const el=d.card.querySelector("#fbFix");if(el)el.remove();
   const cta=d.card.querySelector(".fbc-cta");
-  if(cta){cta.hidden=false;if(d.improved){cta.innerHTML=`${ic("repeat")} ${t("fb.c_practise_again")}`;manIconizeInline(cta)}}
+  if(cta){cta.hidden=false;if(d.improved){cta.innerHTML=fbRepRun(()=>`${ic("repeat")} ${t("fb.c_practise_again")}`);manIconizeInline(cta)}}
 };
 window.fbFixRecord=async()=>{
   const d=fbFix;if(!d)return;
@@ -18784,7 +18948,8 @@ async function fbFixGrade(d,blob){
    A percentage only when an audio model listened (mode "ai"); the transcript
    cross-check (mode "whisper") is coarse, so it shows a state and says
    "approx." rather than a number it cannot back. */
-function fbPronSum(root,res){
+function fbPronSum(root,res){return fbRepRun(()=>fbPronSumBody(root,res))}
+function fbPronSumBody(root,res){
   const c=root&&root.querySelector?root.querySelector("#fbSumPron"):null;if(!c)return;
   const b=c.querySelector("b");
   if(!res){c.classList.add("pend");if(b)b.textContent=t("fb.c_na");c.title=t("sv.ch_pron_na");return}
@@ -18810,7 +18975,33 @@ function fbPronSum(root,res){
    #fbOut — the workplace lines each have their own slot and there can be several
    on screen at once. Defaults to the original element, so every existing caller
    is unaffected. */
+/* SHADOW ONLY — on BOTH tracks (owner, 3 Oct 2026, reversing the
+   General-English-only scoping of the same day). fbShowResults also draws the
+   report for the daily session, the workplace lines and the missions; those
+   were not asked to change and still follow the app language. The test is the
+   recording context, so it is the SHADOW report that moves, on General English
+   and on the Welding Studio alike — a welder who reads Shadow in French now
+   reads the coaching in French too. */
+function fbRepIsShadow(){
+  try{return /^shadow-/.test(recBase((fbCtx&&fbCtx.recCtx)||""))}catch(e){return false}
+}
 function fbShowResults(targetText,heardText,fromRec,outId){
+  let lang=null;
+  try{
+    if(fbRepIsShadow()){
+      lang=svRepDictNow();
+      /* not loaded yet: fetch it so the next report has it, rather than block
+         this one behind a network call. The pack is preloaded when Shadow
+         opens, so this is the rare path, not the usual one. */
+      if(!lang)svRepDictEnsure();
+    }
+  }catch(e){}
+  const prev=_tOvr;if(lang)_tOvr=lang;
+  _fbRepLang=lang;                       /* the late writers read this, see fbRepRun */
+  try{return fbShowResultsBody(targetText,heardText,fromRec,outId)}
+  finally{_tOvr=prev}
+}
+function fbShowResultsBody(targetText,heardText,fromRec,outId){
   const tgt=fbTokens(targetText),h=fbTokens(heardText);
   const out=document.getElementById(outId||"fbOut");
   if(!out)return;
@@ -18867,7 +19058,14 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   const say=(txt,rate)=>`fbSay(${jarg(String(txt).replace(/[‿/]/g," "))},${rate})`;
   const fw=focus?String(focus.t).toLowerCase():"";
   /* the two ways to hear the model sit on the eyebrow row: no row of their own on a phone */
-  const listenHTML=`<span class="fbc-listen"><button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.9):say(heardText,0.9)}" aria-label="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}" title="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}">${ic("sound")}</button><button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.62):say(heardText,0.62)}" aria-label="${esc(plain("fb.slow_btn"))}" title="${esc(plain("fb.slow_btn"))}">${ic("gauge")}</button></span>`;
+  /* The speaker is YOUR voice whenever there is a take to play; with no
+     recording behind the report it still reads the model, which is all it could
+     ever do. The gauge beside it is unchanged — the model, slowed down — so the
+     model is never out of reach. */
+  const ownLbl=esc(t("sv.ch_cmp_you"));
+  const listenHTML=`<span class="fbc-listen">${fromRec
+    ?`<button class="sv-ch-play" onclick="fbPlayMine(this)" aria-label="${ownLbl}" title="${ownLbl}">${ic("sound")}</button>`
+    :`<button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.9):say(heardText,0.9)}" aria-label="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}" title="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}">${ic("sound")}</button>`}<button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.62):say(heardText,0.62)}" aria-label="${esc(plain("fb.slow_btn"))}" title="${esc(plain("fb.slow_btn"))}">${ic("gauge")}</button></span>`;
   const headHTML=hasTarget?`<div class="fbc-eyebrow">${ic("check")}<span>${t("fb.c_done")}</span>${attempts.length?`<span class="fbc-att">· ${t("fb.attempt_label",{n:attempts.length})}</span>`:""}${listenHTML}</div>
     <div class="fbc-head"><span class="fbc-score" style="color:${col}">${score}%</span>
       <div class="fbc-head-t"><p class="fbc-verdict">${t(fbVerdictKey(score))}</p></div></div>`
@@ -18961,6 +19159,11 @@ function fbShowResults(targetText,heardText,fromRec,outId){
     <p class="fb-disclaimer">${t("fb.disclaimer")}</p></div>
   </div>`;
   const _root=out.querySelector(".fbc");if(_root)_root._fbRep=_rep;   /* several reports on one page (Welding lines): each keeps its own take */
+  /* A FRESH take plays itself as soon as the report is on screen (owner, 3 Oct
+     2026): the score and the voice that earned it arrive together. Only for a
+     take just recorded — a report redrawn from history stays silent — and
+     `quiet` so a missing recording never raises a toast nobody asked for. */
+  if(fromRec==="new")setTimeout(()=>{fbPlayOwn(_rep,true)},350);
   /* a word saved from anywhere in this report counts once, whichever control did it */
   if(!out.dataset.fbcWired){out.dataset.fbcWired="1";out.addEventListener("click",e=>{
     const b=e.target&&e.target.closest?e.target.closest(".voc-save,.voc-chip,.voc-pick-all"):null;if(!b)return;
@@ -21289,11 +21492,11 @@ async function fbRenderPron(target,out){
   try{await recFiled}catch(e){}
   const recs=await getRecs(ctx);
   if(!box.isConnected)return;
-  if(!recs||!recs[0]){box.innerHTML=`<p class="fbc-pron-note">${t("fb.c_pron_norec")}</p>`;fbPronSum(root,null);return;}
-  box.innerHTML=`<div class="fb-pron">${DS.aiInline(t("fb.pron_analyzing"))}</div>`;
+  if(!recs||!recs[0]){box.innerHTML=fbRepRun(()=>`<p class="fbc-pron-note">${t("fb.c_pron_norec")}</p>`);fbPronSum(root,null);return;}
+  box.innerHTML=fbRepRun(()=>`<div class="fb-pron">${DS.aiInline(t("fb.pron_analyzing"))}</div>`);
   const res=await fbAssess(recs[0].blob,target);
   if(!box.isConnected)return;                                     /* a newer report replaced this one meanwhile */
-  if(!res||!res.words||!res.words.length){box.innerHTML=`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`;fbPronSum(root,null);return;}
+  if(!res||!res.words||!res.words.length){box.innerHTML=fbRepRun(()=>`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`);fbPronSum(root,null);return;}
   const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
   /* "ai": an audio model listened and scored each word. "whisper": the
      Worker had no audio model and cross-checked the words against a
@@ -21301,7 +21504,7 @@ async function fbRenderPron(target,out){
      approximate rather than presented as a measurement. */
   const ai=res.mode==="ai";
   const bad=res.words.filter(w=>w.score<80&&w.note);
-  box.innerHTML=`<div class="fb-pron">
+  box.innerHTML=fbRepRun(()=>`<div class="fb-pron">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px">
       <b style="font-size:15px">${tIc("fb.pron_h","mic")}</b>
       <span style="font-size:11.5px;color:var(--mut2)">${ai?t("fb.pron_sub"):t("fb.c_pron_sub_tx")}</span>
@@ -21311,7 +21514,7 @@ async function fbRenderPron(target,out){
     ${ai?"":`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`}
     <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
     ${bad.length?`<div class="fb-pron-tips">${bad.map(w=>`<div><span class="fb-pron-dot" style="background:${col(w.score)}"></span><b>${esc(w.word)}</b> — ${esc(w.note)}</div>`).join("")}</div>`:`<p class="fb-pron-good">${tIc("fb.pron_all_good","check")}</p>`}
-  </div>`;
+  </div>`);
   manIconizeInline(box);
   fbPronSum(root,res);
 }
@@ -23047,6 +23250,11 @@ const FLAGS_STAGING={
   learning_nudges_enabled:true,
   home_v2_enabled:true,
   welding_studio_enabled:true,
+  /* Google + Apple sign-in. flag() returns !!FLAGS_STAGING[name] on a staging
+     bundle and never falls through to FLAGS_DEFAULT, so a key that lives only
+     there is silently OFF here — which is why the buttons vanished on the
+     staging build while every automated check passed. */
+  social_signin_enabled:true,
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
      TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
@@ -23268,6 +23476,13 @@ function aiOn(cap){return !aiOff(cap)}
 function sttOff(){try{return !POLISH_API||!navigator.onLine||aiNoAccount()}catch(e){return true}}
 function sttOn(){return !sttOff()}
 /* why the AI did not run, for the message: a Free learner is not offline */
+/* ONE message for a signed-out learner, everywhere an AI feature fails (owner,
+   3 Oct 2026). With enforcement on, the Worker answers 401 on every AI route
+   without a token, so "needs a connection" blames the network for something a
+   sign-in fixes — the learner is online and taps Try again forever. Each caller
+   keeps its own wording for the GENUINE cases (offline, rate-limited, Premium)
+   and passes it as the fallback; only the signed-out case is overridden. */
+function aiErrText(key){try{return aiNoAccount()?t("ai.need_acct"):t(key)}catch(e){return t(key)}}
 function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
 /* ---- F7: say an account is needed BEFORE the activity, not after a turn fails ----
    The owner's model (1 Oct 2026): AI needs an AUTHENTICATED ACCOUNT, and a Free
@@ -23291,26 +23506,45 @@ function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap
    learner may carry straight on. The honest runtime errors stay exactly where
    they are as the second line of defence.
 
-   GENERAL ENGLISH ONLY, deliberately: the brief for this change was explicit
-   that Welding behaviour must not move. The same account requirement does apply
-   on Welding server-side, so a signed-out Welding learner still meets it as a
-   runtime message rather than a notice — see docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md.
-   Removing the isGeneralEnglish() term here is the whole of what extending it
-   to Welding would take, and it is the owner's call, not a bug. */
-function aiAcctNeeded(){try{return aiNoAccount()&&isGeneralEnglish()}catch(e){return false}}
+   BOTH TRACKS (owner, 3 Oct 2026): "the Polish side in General English — do the
+   same for the Welding side, exactly the same restriction, the same Premium
+   setup." It was General-English-only before, on an earlier brief that said
+   Welding must not move. The underlying account requirement was ALWAYS the same
+   on both tracks — be-polish asks for an account whatever the learner is
+   studying — so the old gate did not protect a welder from anything; it only
+   withheld the explanation and let them meet the requirement as a runtime
+   failure instead. Saying it up front on Welding too is the honest half of a
+   rule that already applied.
+   Premium is untouched by this and always was: premLockHTML, entLocked and the
+   server's own capability checks carry no track term, so Welding already had
+   exactly the Premium setup General English has. */
+function aiAcctNeeded(){try{return aiNoAccount()}catch(e){return false}}
 function aiAcctNoticeHTML(from){
   if(!aiAcctNeeded())return "";
-  const f=esc(String(from||"ai"));
-  return `<div class="card ai-acct" data-from="${f}" role="note">
-    <p class="ai-acct-h"><span class="chip ai-acct-chip">${ic("user")} ${esc(t("ai.acct_chip"))}</span><span>${esc(t("ai.acct_h"))}</span></p>
-    <p class="ai-acct-b">${esc(t("ai.acct_b"))}</p>
-    <p class="ai-acct-kept">${esc(t("ai.acct_kept"))}</p>
-    <div class="ai-acct-row">
-      <button type="button" class="btn-primary ai-acct-go" onclick="fbOpenModal('up')">${esc(t("ai.acct_cta"))}</button>
-      <button type="button" class="btn btn-g btn-sm ai-acct-in" onclick="fbOpenModal('in')">${esc(t("auth.login_btn"))}</button>
-    </div>
-    <p class="ai-acct-fine">${esc(t("ai.acct_notprem"))}</p>
-  </div>`;
+  const f=String(from||"ai");
+  /* ONE SENTENCE, AND THE SENTENCE IS THE LINK (owner, 3 Oct 2026).
+     This was a card: a FREE ACCOUNT chip, two sentences, a Create button, a
+     Log in button and a line of fine print about Premium. On a phone it took
+     the space the learning content needed and read as an advertisement sitting
+     inside the lesson. It is now a single underlined sentence that names the
+     feature and opens the SAME sign-up sheet the buttons opened.
+
+     Nothing about who may use what has changed: aiAcctNeeded() is untouched,
+     so this still appears only for a signed-out General English learner, and
+     the Premium gates (premLockHTML, entLocked, the server's own checks) are a
+     different system that this function never touched.
+
+     A <button>, not an <a>: it performs an action rather than going anywhere,
+     so it is keyboard-reachable and Enter/Space-activatable with no href, and
+     it carries the 44 px tap target Apple asks for. Log in is not duplicated
+     here — the sheet it opens offers both, one tap further on.
+
+     The dropped fine print is not lost. "Your recording is saved and your
+     practice still counts" is still true and still said by ai.need_acct where
+     a run actually fails; the Premium distinction lives on the plans sheet,
+     which is where a learner goes to ask it. */
+  const KEY={polish:"ai.acct_link_polish",session:"ai.acct_link_ai",shadow:"ai.acct_link_ai",challenge:"ai.acct_link_ai",roleplay:"ai.acct_link_convo"};
+  return `<button type="button" class="acct-link" data-from="${esc(f)}" onclick="fbOpenModal('up')">${esc(t(KEY[f]||"ai.acct_link"))}</button>`;
 }
 window.aiAcctNoticeHTML=aiAcctNoticeHTML;window.aiAcctNeeded=aiAcctNeeded;
 window.aiOff=aiOff;window.aiOn=aiOn;
@@ -23487,14 +23721,23 @@ function entPlanCardHTML(){
    Conservative on purpose; tune AD_POLICY after watching real use. */
 const AD_POLICY=Object.freeze({
   interstitial:Object.freeze({   /* full screen over the dimmed app, clearly labelled, one tap back */
-    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities"]),
+    /* app_resume (3 Oct 2026): coming back to the app after a real absence — a
+       phone call, another app, the screen locked — is a natural break like any
+       other, so it joins the list rather than getting a path of its own. It
+       buys NO exemption: decide() asks the same questions in the same order,
+       and the 8-minute gap, the hourly and visit caps and the launch grace all
+       apply to it exactly as they do to a finished session. */
+    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities","app_resume"]),
     /* MODERATE (Phase 8): at most one per natural break, never two within 8
        minutes, 3 an hour, 4 a visit, none in the first 2 minutes. The close
        control appears after skipAfterMs whatever the provider does. Tune here. */
     minGapMs:8*60e3, windowMs:60*60e3, maxPerWindow:3, maxPerSession:4, launchGraceMs:2*60e3, skipAfterMs:5000,
   }),
   native:Object.freeze({           /* in browsing / content areas only */
-    contexts:Object.freeze(["home_feed","library","progress_foot","settings_foot"]),
+    /* shadow_pause (owner, 3 Oct 2026): the one slot inside the Shadow
+       workspace, under a PAUSED video and above the transcript. It is a
+       PLACEMENT exception, not an eligibility one — see protectedReason(). */
+    contexts:Object.freeze(["home_feed","library","progress_foot","settings_foot","shadow_video"]),
     minGapMs:60e3, windowMs:60*60e3, maxPerWindow:12, maxPerSession:20, launchGraceMs:0,
   }),
   rewarded:Object.freeze({         /* only ever at the learner's own request */
@@ -23526,8 +23769,26 @@ const AdEligibility={
   /* a flow can hold ads off explicitly for its duration (Phase 8 hook) */
   protect(key){_adHolds.add(String(key))},
   release(key){_adHolds.delete(String(key))},
-  /* why an ad must not appear right now, or null */
-  protectedReason(){
+  /* Is the Shadow video genuinely stopped? Anything other than a clear "paused"
+     answers false, so a missing player, a buffering one or a thrown call all
+     mean "still learning" and no ad. YT.PlayerState: 1 = playing, 3 = buffering. */
+  shadowPaused(){
+    try{
+      if(!document.body.classList.contains("sh-work-open"))return false;
+      if(typeof ytPlayer==="undefined"||!ytPlayer||!ytPlayer.getPlayerState)return false;
+      const st=ytPlayer.getPlayerState();
+      return st===2||st===0||st===5;            // paused, ended, or cued — never playing or buffering
+    }catch(e){return false}
+  },
+  /* why an ad must not appear right now, or null.
+     `ctx` is the placement being considered. It NARROWS one clause and nothing
+     else: the Shadow workspace is otherwise "learning", but the owner asked for
+     a slot under a paused video, so shadow_pause is allowed past that single
+     line while every other check — a live microphone, a recording, the app
+     speaking, a live partner, an AI turn, a dialog, a hidden page — still
+     refuses it exactly as before. Called with no argument it behaves as it
+     always did, so interstitials and every other placement are untouched. */
+  protectedReason(ctx){
     try{for(const [st] of (DS&&DS.voice&&DS.voice._n)||[])if(st.getAudioTracks().some(t=>t.readyState==="live"))return "microphone"}catch(e){}
     try{if(rec&&rec.mr&&rec.mr.state==="recording")return "recording"}catch(e){}
     try{if(window.speechSynthesis&&speechSynthesis.speaking)return "speaking"}catch(e){}
@@ -23539,17 +23800,39 @@ const AdEligibility={
     try{if(document.querySelector(".cf-ov.show,#authOv,.lang-modal-ov"))return "dialog"}catch(e){}
     try{if(document.hidden)return "hidden"}catch(e){}
     try{if(rpConv&&rpConv.busy)return "ai_wait"}catch(e){}
-    /* the Shadow LIBRARY is browsing; the Shadow WORKSPACE (player, recorder) is learning */
-    try{if(document.body.classList.contains("sh-work-open"))return "view:shadow"}catch(e){}
+    /* the Shadow LIBRARY is browsing; the Shadow WORKSPACE (player, recorder) is
+       learning — except for the one paused-video placement above */
+    /* The ad stays under the video while it PLAYS as well as while it is paused
+       (owner, 3 Oct 2026, reversing the paused-only rule of the same morning:
+       "I want that ad to be there even if the video is going on"). Only this one
+       placement is let past the workspace clause, and only this clause — every
+       check ABOVE it still refuses: a live microphone, a recording in progress,
+       the app speaking, a partner call, an open dialog. So the ad is never
+       there while the learner is actually speaking. */
+    try{if(document.body.classList.contains("sh-work-open")&&ctx!=="shadow_video")return "view:shadow"}catch(e){}
     try{if(typeof cur!=="undefined"&&cur&&cur.v!=="shadow"&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
     return null;
   },
   _log(){try{const a=JSON.parse(localStorage.getItem(AD_LOG_KEY)||"[]");return Array.isArray(a)?a.filter(x=>x&&typeof x.f==="string"&&Number.isFinite(x.t)):[]}catch(e){return []}},
   /* frequency: gap since the last one, a rolling window, the session, and a quiet start */
-  capReason(format,now){
+  /* THE GAP IS PER PLACEMENT, THE VOLUME CAPS ARE NOT (3 Oct 2026).
+     Measured on the owner's iPhone: opening a Shadow video ALWAYS passes
+     through the library page, which places its own ad; one second later the
+     Shadow slot asked and was refused by the 60-second gap that library ad had
+     just started. Every later attempt inside the minute was refused too, so the
+     Shadow slot could essentially never appear — 20:30:17 requested,
+     20:30:28 and 20:33:42 cap_gap.
+     The gap exists to stop the SAME surface repeating an ad at a learner. Two
+     different surfaces are not repetition: the workspace covers the library, so
+     the two are never even on screen together. The gap is therefore counted per
+     placement. Total volume is untouched — maxPerWindow (12/hour) and
+     maxPerSession (20/visit) are still counted across ALL native placements, so
+     this cannot become more ads overall, only ads in the right places. */
+  capReason(format,now,ctx){
     const p=AD_POLICY[format],log=this._log().filter(x=>x.f===format);
     if(now-AD_BOOT<p.launchGraceMs)return "cap:launch";
-    const last=log.length?Math.max(...log.map(x=>x.t)):0;
+    const gapLog=(format==="native"&&ctx)?log.filter(x=>x.c===ctx):log;
+    const last=gapLog.length?Math.max(...gapLog.map(x=>x.t)):0;
     if(p.minGapMs&&last&&now-last<p.minGapMs)return "cap:gap";
     if(log.filter(x=>now-x.t<p.windowMs).length>=p.maxPerWindow)return "cap:window";
     if((_adSession[format]||0)>=p.maxPerSession)return "cap:session";
@@ -23563,14 +23846,16 @@ const AdEligibility={
     if(!this.planAllowsAds())return {show:false,reason:"premium"};
     if(!p.contexts.includes(context))return {show:false,reason:"context"};
     if(p.userInitiated&&opts.userInitiated!==true)return {show:false,reason:"not_user_initiated"};
-    const pr=this.protectedReason();if(pr)return {show:false,reason:"protected:"+pr};
-    const cr=this.capReason(format,now);if(cr)return {show:false,reason:cr};
+    const pr=this.protectedReason(context);if(pr)return {show:false,reason:"protected:"+pr};
+    const cr=this.capReason(format,now,context);if(cr)return {show:false,reason:cr};
     return {show:true,reason:"ok"};
   },
   /* call once an ad was actually shown */
-  record(format,now=Date.now()){
+  record(format,now=Date.now(),ctx){
     _adSession[format]=(_adSession[format]||0)+1;
-    try{const a=this._log().filter(x=>now-x.t<24*3600e3);a.push({f:format,t:now});localStorage.setItem(AD_LOG_KEY,JSON.stringify(a.slice(-60)))}catch(e){}
+    /* `c` is the placement: entries written before this change have none, which
+       simply means they no longer hold any one placement's gap. */
+    try{const a=this._log().filter(x=>now-x.t<24*3600e3);a.push({f:format,t:now,c:ctx||""});localStorage.setItem(AD_LOG_KEY,JSON.stringify(a.slice(-60)))}catch(e){}
   },
   _resetSession(){_adSession={}},
 };
@@ -23743,15 +24028,22 @@ function beNativeAdsInit(){
       },
       dismiss(){try{P.dismiss()}catch(e){}},
       /* the page reserves the height, the shell draws the creative over it */
+      /* EVERY FAILURE HERE USED TO BE SILENT (3 Oct 2026). The Shadow slot was
+         requested three times on the owner's iPhone and displayed none of them,
+         while home_feed, library and progress_foot filled from the same provider
+         in the same minutes. "Requested but not displayed" could mean a slot too
+         small to draw on, a provider with nothing to sell, or a slot the page
+         took away mid-flight — and nothing distinguished them. Each now says so,
+         with the measured size, which is the one fact that decides it. */
       async renderNative(el,placement){
         const place=String(placement||"");
-        if(!el||!place)return false;
+        if(!el||!place){adTrack("ad_suppressed",{format:"native",context:place||"?",reason:"no_el"});return false}
         try{el.style.minHeight=AD_NATIVE_H+"px"}catch(e){}
-        let b;try{b=r4(el)}catch(e){return false}
-        if(b.w<40||b.h<40)return false;
+        let b;try{b=r4(el)}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"measure_threw"});return false}
+        if(b.w<40||b.h<40){adTrack("ad_suppressed",{format:"native",context:place,reason:"size_"+b.w+"x"+b.h});return false}
         let out=null;
-        try{out=await P.showNative(Object.assign({placement:place},b))}catch(e){return false}
-        if(!out||out.shown!==true){try{el.style.minHeight=""}catch(e){}return false}
+        try{out=await P.showNative(Object.assign({placement:place},b))}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"show_threw"});return false}
+        if(!out||out.shown!==true){try{el.style.minHeight=""}catch(e){}adTrack("ad_suppressed",{format:"native",context:place,reason:"no_fill"});return false}
         watch(place);
         return true;
       },
@@ -23832,23 +24124,57 @@ const AdManager={
   },
   /* one labelled native slot at the foot of a browsing screen */
   placeNative(v){
-    if(!adsTrackAllows())return;                // before any event
     const place=AD_NATIVE_PLACES[v];if(!place)return;
-    const view=document.getElementById("v-"+v);if(!view||view.querySelector("[data-ad-slot]"))return;
+    this._fillSlot(place,document.getElementById("v-"+v),"append");
+  },
+  /* THE SHADOW WORKSPACE SLOT (owner, 3 Oct 2026): video -> ad -> transcript.
+     It is placed only while the video is PAUSED, and it is taken away again the
+     moment playback resumes, so it can never sit under a running video or
+     beside a live recording. Everything about WHETHER it may appear is still
+     AdEligibility's: decide() asks flag -> track -> plan -> context ->
+     protected -> caps, unchanged, with shadow_pause narrowing exactly one
+     clause of protectedReason(). Welding never reaches here (adsTrackAllows),
+     Premium never reaches here (planAllowsAds), and an ad already on another
+     page is a different placement, so nothing moves on the library pages. */
+  placeShadow(){
+    const host=document.getElementById("shAdHost");
+    if(!host){adTrack("ad_suppressed",{format:"native",context:"shadow_video",reason:"no_host"});return}
+    this._fillSlot("shadow_video",host,"append");
+  },
+  /* the ad leaves with the pause: called when playback starts again */
+  clearShadow(){
+    delete _adNative.shadow_video;
+    document.querySelectorAll('[data-ad-slot][data-placement="shadow_video"]').forEach(e=>e.remove());
+  },
+  /* one native slot, one host. `how` is append, or before `ref`. */
+  _fillSlot(place,host,how,ref){
+    if(!adsTrackAllows())return;                // before any event
+    if(!host||host.querySelector('[data-ad-slot][data-placement="'+place+'"]'))return;
+    const put=el=>{if(how==="before"&&ref&&ref.parentNode===host)host.insertBefore(el,ref);else host.appendChild(el)};
     /* the page re-rendered under an ad it already showed: put the SAME ad back
        (no new request, no new impression) rather than let it flicker away */
     const kept=_adNative[place];
-    if(kept&&Date.now()-kept.at<AD_NATIVE_KEEP_MS&&flag("ads_enabled")&&AdEligibility.planAllowsAds()&&!AdEligibility.protectedReason()){view.appendChild(kept.el);return}
-    const d=AdEligibility.decide("native",place);if(!d.show)return;
+    if(kept&&Date.now()-kept.at<AD_NATIVE_KEEP_MS&&flag("ads_enabled")&&AdEligibility.planAllowsAds()&&!AdEligibility.protectedReason(place)){put(kept.el);return}
+    /* NATIVE SUPPRESSIONS ARE NOW REPORTED (3 Oct 2026). Interstitials have
+       always said why they were refused; native placements returned in silence,
+       which is exactly why "the Shadow ad does not appear" could not be
+       answered from the data — a refusal and a never-attempted placement looked
+       identical. Same shape as the interstitial line, so one query explains both. */
+    const d=AdEligibility.decide("native",place);
+    if(!d.show){adTrack("ad_suppressed",{format:"native",context:place,reason:String(d.reason).replace(/[^\w]+/g,"_").slice(0,24)});return}
     const p=adProvider();if(!p.supports("native"))return;
     const slot=document.createElement("aside");slot.className="ad-native";slot.setAttribute("data-ad-slot","native");slot.setAttribute("data-placement",place);
     slot.setAttribute("aria-label",t("ad.label"));
     slot.innerHTML=`<span class="ad-label">${esc(t("ad.label"))}</span>${premRemoveAdsHTML("ad_native")}<div class="ad-native-body"></div>`;
-    view.appendChild(slot);
+    put(slot);
     adTrack("ad_requested",{format:"native",context:place});
     Promise.resolve(p.renderNative(slot.querySelector(".ad-native-body"),place)).then(ok=>{
-      if(!ok||!slot.isConnected){slot.remove();return}
-      AdEligibility.record("native");_adNative[place]={el:slot,at:Date.now()};adTrack("ad_displayed",{format:"native",context:place});
+      /* no fill, or the page moved on: take the reserved space back rather than
+         leave a labelled empty box in the middle of the lesson */
+      if(!ok||!slot.isConnected){
+        if(ok&&!slot.isConnected)adTrack("ad_suppressed",{format:"native",context:place,reason:"slot_gone"});
+        slot.remove();return}
+      AdEligibility.record("native",Date.now(),place);_adNative[place]={el:slot,at:Date.now()};adTrack("ad_displayed",{format:"native",context:place});
     }).catch(()=>slot.remove());
   },
   /* REWARDED — only from a learner's own tap, never automatically, never to
@@ -23888,6 +24214,51 @@ const AdManager={
   /* sponsored learning content: format and policy exist; no provider supplies it yet */
   sponsored(){return ""},
 };
+/* ---- COMING BACK TO THE APP (owner, 3 October 2026) ----
+   A learner who takes a phone call and comes back is at a natural break, so the
+   return is offered to the SAME AdManager.interstitial() path every other break
+   uses. There is no second ad implementation and no exemption: decide() still
+   asks flag → track → plan → context → protected → caps, in that order, so
+   Welding, Premium, an unresolved consent, a missing provider, a live recording
+   and every frequency cap all refuse a resume ad exactly as they refuse a
+   finished session.
+
+   WHAT COUNTS AS A RETURN. `_adHidAt` is stamped ONLY where the page really
+   hides — the pagehide and visibilitychange→hidden handlers — and the one
+   visibilitychange→visible handler below consumes it (`adAway`, then 0). That
+   consume IS the debounce: a second visible event in the same foregrounding
+   finds 0 and does nothing, which is what iOS needs, because a WebView can
+   raise several of these for one switch. It is deliberately NOT `_hiddenAt`:
+   touchSeen() primes that one at boot, in the foreground, for the comeback
+   landing, so reading it here would make a cold launch look like a long
+   absence. With `_adHidAt`, an app that has never been backgrounded has
+   nothing to return from and no ad is attempted; the launch grace is then the
+   second line of defence rather than the first.
+
+   AD_RESUME_MIN_BG_MS is deliberately NOT RETURN_GAP_MS (2 h). That constant
+   answers a different question — "has enough happened to re-land the learner on
+   Home?" — and a phone call is minutes, not hours. What this threshold has to
+   exclude is the TRANSIENT hide: a permission sheet, the share sheet, the
+   notification shade, an auth redirect. Thirty seconds clears all of those and
+   still counts a real call. It is not a rate limit and must never be read as
+   one; AD_POLICY.interstitial (8 min apart, 3 an hour, 4 a visit) remains the
+   only thing deciding how often an ad may actually appear.
+
+   The settle delay is the same 700 ms afterNav uses, so a comeback that lands
+   the learner on Home has finished doing it before protectedReason() is asked —
+   and because nothing here navigates, the learner is returned to the exact
+   screen they left once Google's ad is closed. */
+const AD_RESUME_MIN_BG_MS=30e3, AD_RESUME_SETTLE_MS=700;
+let _adResumeAt=0;
+function adResume(away){
+  if(!away)return;                                             // never hidden: a cold launch, not a return
+  const now=Date.now();
+  if(now-away<AD_RESUME_MIN_BG_MS)return;                      // a transient hide, not a real absence
+  if(now-_adResumeAt<AD_RESUME_MIN_BG_MS)return;               // belt and braces: one attempt per return
+  _adResumeAt=now;
+  setTimeout(()=>{try{AdManager.interstitial("app_resume")}catch(e){}},AD_RESUME_SETTLE_MS);
+}
+window.adResume=adResume;
 /* ================= BILLING (Phase 9) =================
    The app never decides who is Premium. It asks the STORE to sell, hands the
    store's proof to be-entitlements, and draws what the server answers:
@@ -24078,6 +24449,30 @@ async function billingApi(method,path,body){
 /* the answer from the server replaces what the screen shows (display only) */
 function billingTakeView(v){if(!v)return;const s=entSanitize(v);entNoteChange(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
 
+/* WHY THE STORE IS NOT THERE (3 Oct 2026). "Premium can't be bought on this
+   device" was one message for five different causes, so a physical failure
+   could not be told apart from a configuration one. This names the cause in a
+   short code — no secrets, no Apple credentials, nothing about the learner —
+   which the sheet shows and `purchase_failed` carries, so the next physical
+   attempt answers the question instead of raising it again. */
+function billingWhy(){
+  try{
+    if(!flag("billing_enabled"))return "flag_off";
+    if(!entApiBase())return "no_ent_api";
+    if(IS_IOS_APP){
+      const C=window.Capacitor;
+      if(!C)return "no_capacitor";
+      if(!C.Plugins)return "no_plugins";
+      if(!C.Plugins.BEStoreKit)return "no_storekit_plugin";
+      const N=beNativeBilling();
+      if(!N)return "bridge_null";
+      if(typeof N.purchase!=="function")return "no_purchase_fn";
+      return "plugin_ok_no_products";
+    }
+    return "no_store";
+  }catch(e){return "threw"}
+}
+window.billingWhy=billingWhy;
 const Billing={
   state:"idle",products:[],provider:null,note:"",_uid:null,_reconciled:null,
   async init(){
@@ -24269,7 +24664,21 @@ function premMainHTML(){
     return `<p class="prem-status"><span class="chip done">${esc(t("acc.prem_active"))}</span>${st?`<span>${esc(st)}</span>`:""}</p>${note}${manage}
       <button type="button" class="btn btn-g prem-wide prem-subdetails" onclick="subOpen()">${esc(t("sub.details"))}</button>`;
   }
-  if(!B.provider)return premUnavailHTML(t("prem.unavailable"),"",false);
+  /* ORDER MATTERS (3 Oct 2026). `loading` used to be tested AFTER this line, so
+     the moment before a provider finished resolving — which is every first open
+     of the sheet — the app rendered a permanent "you can't buy this" message.
+     On an iPhone that message also pointed at GOOGLE PLAY. Both were wrong:
+     a provider that has not answered yet is LOADING, not missing, and the
+     unavailable wording has to match the store the device actually has. */
+  if(B.state==="loading")return `<div aria-hidden="true"><div class="prem-skel"></div></div><p class="sub prem-loading" role="status">${esc(t("acc.prem_loading"))}</p>`;
+  if(!B.provider){
+    const why=billingWhy();
+    try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":"none",reason:String(why).slice(0,24)})}catch(e){}
+    /* the code is shown, small, under the message: a learner can read it back
+       to us and it is the difference between a guess and an answer */
+    return premUnavailHTML(t(IS_IOS_APP?"prem.unavailable_ios":"prem.unavailable"),"",false)
+      +`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
+  }
   /* A purchase needs an account, so every REAL store asks to sign in first and
      the foot carries that button. The staging preview is not a purchase — it
      exists to be looked at — so it draws the offer signed out too. */
@@ -24340,12 +24749,34 @@ window.premiumOpen=(from)=>{
      sheet cannot be dismissed (backdrop, Escape). After it, it closes like any
      sheet and the learner carries on with Free. Never a blocker. */
   if(launch){ov.dataset.xwait="1";ov.dataset.t0=String(Date.now())}
+  /* A NULL PROVIDER IS NEVER CACHED (owner's phone, 3 Oct 2026).
+     Billing.init() resolves the provider ONCE at boot. On the iPhone that boot
+     runs before Capacitor has injected Capacitor.Plugins.BEStoreKit, so the
+     loop found nothing and `provider` stayed null for the whole session — and
+     the only retry here required `Billing.provider` to already be truthy, which
+     is exactly the state that cannot recover. The sheet therefore said "Premium
+     can't be bought on this device" forever, while billingWhy() reported
+     plugin_ok_no_products: the plugin WAS there by then, nobody had asked again.
+     Same rule as beNativeAuth and the ads bridge — only a provider that was
+     FOUND is remembered. Asked before the first paint so the sheet opens on a
+     skeleton instead of on a dead end. */
+  /* planOn() first: with billing switched off (production today) init() returns
+     at once without touching `state`, so setting "loading" here would park the
+     sheet on a skeleton that never resolves. Only ask a store that exists. */
+  /* Scoped to the two cases that can actually change their mind:
+       · the STORE SHELL with no provider — the plugin may have been injected
+         after boot, which is the iPhone bug this fixes;
+       · a provider that answered with no products — ask it again.
+     The open web is left alone: getDigitalGoodsService either exists or it does
+     not, so retrying there would only flash a skeleton before the same answer. */
+  if(planOn()&&FBUser&&["loading","purchasing","restoring"].indexOf(Billing.state)<0
+     &&((IS_IOS_APP&&!Billing.provider)||(Billing.provider&&!Billing.products.length))){
+    Billing.state="loading";try{Billing.init()}catch(e){}
+  }
   ov.onclick=e=>{if(e.target===ov&&!premWaiting(ov))premClose()};
   ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet${launch?" prem-launch":""}" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML(launch)}</div>`;
   if(launch)setTimeout(()=>{if(!ov.isConnected)return;delete ov.dataset.xwait;const x=ov.querySelector(".prem-x");if(x){x.hidden=false;x.classList.add("prem-x-in")}},PREM_LAUNCH_WAIT);
   document.body.appendChild(ov);document.addEventListener("keydown",premKey,true);
-  /* a store that has not been asked yet (the sheet opened before sign-in finished) */
-  if(Billing.provider&&FBUser&&!Billing.products.length&&Billing.state!=="loading")Billing.init();
   /* focus goes INTO the dialog (screen readers land on it), not onto a button */
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };
@@ -24368,6 +24799,15 @@ let _premLaunchOn=false;
 function premLaunchReady(){
   try{
     if(!planOn()||!Billing.provider||!FBUser||!S||!S.profile)return false;
+    /* NOTHING TO SELL, NOTHING TO OPEN (owner, 3 Oct 2026). A provider existing
+       is not the same as a store that can sell: on the physical iPhone the
+       sheet opened by itself on Home and its only content was "Premium can't be
+       bought on this device". An unsolicited sheet that cannot be acted on is
+       pure cost to the learner, so the launch offer now waits until the store
+       has actually answered with products. Every other way IN to the sheet is
+       untouched — a tap on the badge, a lock card, Profile — because those are
+       asked for, and there the honest unavailable state is the right answer. */
+    if(Billing.state!=="ready"||!Billing.products.length)return false;
     /* the offer is the same on both tracks now, so no track test here */
     if(!(_entView&&_entUid===FBUser.uid))return false;
     if(entIsPremiumForDisplay())return false;
@@ -24656,6 +25096,9 @@ function svBox(){return document.getElementById("shV2")}
 /* build the asset for the loaded clip: bundled/worker captions first, else the
    transcript box, else none */
 async function shV2Load(){
+  /* warm the report's language pack while the clip loads, so the FIRST report
+     after a take is already in the learner's Shadow language */
+  try{svRepDictEnsure()}catch(e){}
   const box=svBox();if(!box)return;
   if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);const wk=document.getElementById("shWork");if(wk)delete wk.dataset.svmode;return}
   const vid=shClip.vid;
@@ -24991,8 +25434,24 @@ function svShIpaOn(){return svOn()&&!!svShPref().ipa}
 let SV_AI_PER_MIN=10,SV_AI_RETRY_MS=20000;const _svAiTimes=[];   /* let: the browser suite shortens them */
 function svAiSlot(){return new Promise(res=>{const go=()=>{const now=Date.now();while(_svAiTimes.length&&now-_svAiTimes[0]>60000)_svAiTimes.shift();
   if(_svAiTimes.length<SV_AI_PER_MIN){_svAiTimes.push(now);res()}else setTimeout(go,60000-(now-_svAiTimes[0])+50)};go()})}
-async function svAiChat(system,content){
-  const call=async()=>{await svAiSlot();return fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{purpose:"practice",system,messages:[{role:"user",content}]}})})};
+/* purpose "shadow" (owner, 3 Oct 2026): Shadow's two reading helpers — the
+   translated line and the IPA hint — are the one AI purpose the Worker serves
+   without an account, because the Shadow experience must not ask a learner to
+   sign up to READ the transcript. It is free, it grants no capability, and the
+   Worker holds it per IP by its own counter. Every other purpose is unchanged. */
+async function svAiChat(system,content,purpose){
+  /* BOTH TRACKS (owner, 3 Oct 2026, reversing the General-English-only scoping
+     of the same day): "everything on Shadow, make the same change on the
+     Welding side". The Welding Studio shares this exact function — svOn() is
+     `flag && (isGeneralEnglish() || weldStudioOn())` — so a welder reading a
+     transcript now gets the translation signed out, just as a General English
+     learner does.
+     This is a PRODUCT boundary, not an authorisation one: the Worker cannot
+     verify a track, so the purpose is a label the app chooses honestly, held
+     per IP by its own counter. See CHAT_PURPOSE_ANON in
+     backend/polish-worker.js — unchanged, and still exactly one purpose. */
+  const p=purpose||"shadow";
+  const call=async()=>{await svAiSlot();return fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{purpose:p,system,messages:[{role:"user",content}]}})})};
   let r=await call();
   if(r.status===429){await new Promise(x=>setTimeout(x,SV_AI_RETRY_MS));r=await call()}
   return r;
@@ -25007,14 +25466,18 @@ async function svShTrFetch(sg){
   if(_svTr[key])return _svTr[key];
   if(!lang.ok)throw new Error("nolang");
   if(!POLISH_API||!navigator.onLine)throw new Error("offline");
-  /* The chat route is free (purpose "practice" maps to no capability), but with
-     PREMIUM_ENFORCED on the Worker still requires a verified account, so a
-     signed-out request comes back 401. Stop here and say so, rather than drawing
-     a generic error beside a Retry that cannot ever succeed. */
-  if(aiNoAccount())throw new Error("acct");
+  /* NO ACCOUNT GATE HERE ANY MORE (owner, 3 Oct 2026). This used to refuse a
+     signed-out learner outright, because purpose "practice" needs a verified
+     account whenever PREMIUM_ENFORCED is on and the Worker answered 401. The
+     request now declares purpose "shadow", which the Worker serves anonymously
+     (CHAT_PURPOSE_ANON in backend/polish-worker.js), so the translation is
+     simply fetched. The honest message is kept as a FALLBACK below: a Worker
+     that has not been deployed yet still answers 401, and the learner should
+     read "sign in" rather than a meaningless error. */
   if(_svTrBusy.has(key))return _svTrBusy.get(key);
   const p=(async()=>{
     const r=await svAiChat(`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,sg.text.slice(0,600));
+    if(r.status===401||r.status===403)throw new Error("acct");   /* an older Worker, not yet carrying purpose "shadow" */
     if(!r.ok)throw new Error("tr "+r.status);
     const j=await r.json();const tx=String((j&&j.reply)||"").trim();
     if(!tx||/could you say that again/i.test(tx))throw new Error("empty");
@@ -25036,6 +25499,11 @@ function svShTrInner(state,tx,bare){
   const lang=svShLang();
   return (bare?"":`<small class="sv-sh-tr-l">${esc(lang.native||lang.name)}</small>`)+(state==="ok"?`<span class="sv-sh-tr-x">${esc(tx)}</span>`
     :state==="wait"?`<span class="sv-sh-tr-x sv-sh-wait">${esc(t("sv.sh_tr_wait"))}</span>`
+    /* `tx==="acct"` stays: it means the Worker ACTUALLY answered 401, which can
+       only happen on a deployment that does not yet serve purpose "shadow".
+       The old `aiNoAccount()` branch beside it is gone — it painted "sign in to
+       use the AI features" over the transcript before anything had been asked,
+       which is the message the owner photographed on 3 Oct 2026. */
     :tx==="acct"?`<span class="sv-sh-tr-x">${esc(t("ai.need_acct"))}</span>`
     :`<span class="sv-sh-tr-x">${esc(t(tx==="rate_limited"?"sv.sh_busy":"sv.sh_tr_err"))}</span> <button class="sv-sh-retry" onclick="svShTrRetry()">${esc(t("sh.cap_retry"))}</button>`);
 }
@@ -25126,6 +25594,8 @@ function svShIpaStatus(state,detail){
   const on=svShIpaOn();
   el.hidden=!(on||state==="wait"||state==="err");
   el.className="sv-sh-st "+(state==="err"?"err":state==="wait"?"wait":"");
+  /* same as the translation line: no pre-emptive account message. The IPA hint
+     rides the same anonymous "shadow" purpose, so a signed-out learner gets it. */
   el.innerHTML=state==="wait"?esc(t("sv.sh_ipa_wait")):state==="err"?`${esc(t(detail==="rate_limited"?"sv.sh_busy":"sv.sh_ipa_err"))} <button class="sv-sh-retry" onclick="svShIpaRetry()">${esc(t("sh.cap_retry"))}</button>`:on?esc(t("sv.sh_ipa_note")):"";
 }
 function svShIpaDraw(){
@@ -25318,7 +25788,10 @@ function svShHTML(){
   const words=sg.text.split(/\s+/).filter(Boolean).map(svShWordHTML).join(" ");
   const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
   return `<div class="sv-sh" id="svSh">
-    ${aiAcctNoticeHTML("shadow")}
+    ${/* NO ACCOUNT NOTICE INSIDE SHADOW (owner, 3 Oct 2026): watching, shadowing,
+          the transcript and the translation all work signed out, so there is
+          nothing here to sign up for. The honest runtime message still appears
+          if a specific AI step actually fails. */""}
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
       ${a.spk&&scnWho(scnSpkOf(sg.from))?`<div class="sv-sh-who">${scnSpkHTML(sg.from)}<span class="sv-sh-with">${esc(t("scn.sh_with",{name:scnWho(scnSpkOf(sg.from)).name}))}</span></div>`:""}
@@ -25594,7 +26067,10 @@ function svChHTML(){
   return `<div class="sv-ch" id="svCh">
     <div class="sv-ch-head"><div class="sv-ch-hd1"><span class="eyebrow">${t("sv.ch_rung_"+c.rung+"_eyebrow")}</span>${nav}</div>
       ${svChRungStripHTML(c)}</div>
-    ${aiAcctNoticeHTML("challenge")}
+    ${/* the Challenge is inside Shadow, and the owner's rule covers the whole
+          Shadow experience. Recording and the local score are offline-first; if
+          the AI step needs an account it says so at that moment (svChErrText),
+          which is the honest place for it. */""}
     ${body}
     <p class="pp-fine">${t("sv.ch_pick_note")}</p>
   </div>`;
@@ -25700,7 +26176,7 @@ function svChSpeakHTML(c,s){
   return hint+target+body;
 }
 function svChErr(c){
-  return c.err==="acct"?t("ai.need_acct"):c.err==="premium"?t("sv.ch_err_prem"):c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):c.err==="quiet"?t("sv.ch_err_quiet"):"";
+  return c.err==="acct"||aiNoAccount()?t("ai.need_acct"):c.err==="premium"?t("sv.ch_err_prem"):c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):c.err==="quiet"?t("sv.ch_err_quiet"):"";
 }
 /* the speed control, on the spoken rungs only — the ladder sets it, and this
    lets the learner disagree with the ladder for one attempt */
@@ -26065,7 +26541,7 @@ function svChRetellAfter(c,s,r){
    is graded exactly like any other take. */
 function svChChorusHTML(ch){
   const busy=ch.phase==="grading";
-  const errTxt=ch.err==="acct"?t("ai.need_acct"):ch.err==="premium"?t("sv.ch_err_prem"):ch.err==="mic"?t("sv.ch_err_mic"):ch.err==="short"?t("sv.ch_err_short"):ch.err==="net"?t("sv.ch_err_net"):ch.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=ch.err==="acct"||aiNoAccount()?t("ai.need_acct"):ch.err==="premium"?t("sv.ch_err_prem"):ch.err==="mic"?t("sv.ch_err_mic"):ch.err==="short"?t("sv.ch_err_short"):ch.err==="net"?t("sv.ch_err_net"):ch.err==="ai"?t("sv.ch_err_ai"):"";
   const dots=Array.from({length:ch.reps},(_,i)=>`<i class="${i<ch.at?"done":i===ch.at&&ch.phase==="chorus"?"now":""}"></i>`).join("");
   const last=ch.attempts&&ch.attempts[ch.attempts.length-1];
   let body;
@@ -26157,7 +26633,7 @@ async function svChChorusGrade(c,ch,blob){
    is never the part you are tired by the time you reach. */
 function svChBuildHTML(b){
   const step=b.steps[b.at]||"",busy=b.phase==="grading";
-  const errTxt=b.err==="acct"?t("ai.need_acct"):b.err==="premium"?t("sv.ch_err_prem"):b.err==="mic"?t("sv.ch_err_mic"):b.err==="short"?t("sv.ch_err_short"):b.err==="net"?t("sv.ch_err_net"):b.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=b.err==="acct"||aiNoAccount()?t("ai.need_acct"):b.err==="premium"?t("sv.ch_err_prem"):b.err==="mic"?t("sv.ch_err_mic"):b.err==="short"?t("sv.ch_err_short"):b.err==="net"?t("sv.ch_err_net"):b.err==="ai"?t("sv.ch_err_ai"):"";
   const last=b.last;
   const canPlay=!!(b.ms&&b.ms[b.at]&&svChSpeakerOK());
   return `<div class="sv-ch-drill" id="svChBuild">
@@ -26234,7 +26710,7 @@ async function svChBuildGrade(c,b,blob){
 function svChUseHTML(u){
   const busy=u.phase==="grading";
   const rec=`<span class="sv-ch-rec"><button class="rec-btn ${u.phase==="recording"?"on":""}" id="svChUseRecBtn" onclick="svChUseRecord()" ${busy?"disabled":""} aria-pressed="${u.phase==="recording"}" aria-label="${esc(t(u.phase==="recording"?"sv.ch_stop":"sv.ch_record"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(u.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>`;
-  const errTxt=u.err==="acct"?t("ai.need_acct"):u.err==="premium"?t("sv.ch_err_prem"):u.err==="mic"?t("sv.ch_err_mic"):u.err==="short"?t("sv.ch_err_short"):u.err==="net"?t("sv.ch_err_net"):u.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=u.err==="acct"||aiNoAccount()?t("ai.need_acct"):u.err==="premium"?t("sv.ch_err_prem"):u.err==="mic"?t("sv.ch_err_mic"):u.err==="short"?t("sv.ch_err_short"):u.err==="net"?t("sv.ch_err_net"):u.err==="ai"?t("sv.ch_err_ai"):"";
   let body;
   if(u.res){
     body=`<div class="sv-ch-fb" aria-live="polite"><div class="eyebrow">${ic("sparkle")} ${t("sv.ch_fb_eyebrow")}</div>
@@ -26617,7 +27093,7 @@ window.svChOpen=i=>{if(!svCh)return;svCh.open=svCh.open===i?null:i;svChDraw()};
 /* ---------- the word drill ---------- */
 function svChDrillHTML(d){
   const busy=d.phase==="grading";
-  const errTxt=d.err==="acct"?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const errTxt=d.err==="acct"||aiNoAccount()?t("ai.need_acct"):d.err==="premium"?t("sv.ch_err_prem"):d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
   const sp=d.ms&&svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig(${d.ms[0]},${d.ms[1]})">${ic("play")}<span>${t("sv.ch_btn_speaker")}${d.est?` <i>${t("sv.ch_approx")}</i>`:""}</span></button>`:"";
   const me=d.s&&svChHasBlob()?`<button class="sv-ch-play" onclick="svChPlayMe(${d.s[0]},${d.s[1]})">${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>`:"";
   const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="svChDrillPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
@@ -27493,7 +27969,7 @@ function ppRevResultHTML(revId,key,st,r){
   if(st.state==="recording")return `${btn(true)}<span class="pp-rv-live">${ic("mic")} ${t("pp.rv_listening")}</span>`;
   if(st.state==="grading")return `${DS.aiInline(t("pp.grading"))}`;
   if(st.state==="short")return `${btn(false)}<span class="pp-rv-note">${t("ph.too_short_toast")}</span>`;
-  if(st.state==="ungraded")return `${btn(false)}<span class="pp-rv-note">${t("pp.rv_ungraded")}</span>`;
+  if(st.state==="ungraded")return `${btn(false)}<span class="pp-rv-note">${aiErrText("pp.rv_ungraded")}</span>`;
   const pass=st.score>=PP_REV_PASS,coach=key.startsWith("coach:"),passes=r&&r.passes||0;
   /* a coach sentence is "mastered" after PP_REV_MASTER clear takes; the card's
      header badge follows on the next render, the box says so at once */
@@ -27833,7 +28309,7 @@ async function cvRecord(btn,onBlob){
 }
 window.cvSay=btn=>cvRecord(btn,async(blob,box)=>{
   const r=_cv.rounds[_cv.i];let res=null;try{if(blob)res=await fbAssess(blob,box.dataset.rvtarget)}catch(e){}
-  if(!res){box.innerHTML=`<p class="pp-rv-note">${t("pp.rv_ungraded")}</p>`;setTimeout(()=>{_cv.i++;cvRender()},1200);return}
+  if(!res){box.innerHTML=`<p class="pp-rv-note">${aiErrText("pp.rv_ungraded")}</p>`;setTimeout(()=>{_cv.i++;cvRender()},1200);return}
   const score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=PP_REV_PASS).length/res.words.length*100),ok=score>=PP_REV_PASS;
   if(r.it.saved){vocMark(r.it.term,ok);const v=S.vocab[r.it.term];if(v){v.hist=v.hist||[];v.hist.push({at:Date.now(),score,kind:"game"});save()}}
   if(ok)_cv.score++;markPracticed();
@@ -27841,7 +28317,7 @@ window.cvSay=btn=>cvRecord(btn,async(blob,box)=>{
   setTimeout(()=>{_cv.i++;cvRender()},ok?1400:2400)});
 window.cvUse=btn=>cvRecord(btn,async(blob,box)=>{
   const r=_cv.rounds[_cv.i];let tx="";try{if(blob)tx=(await fbTranscribe(blob))||""}catch(e){}
-  if(!tx){box.innerHTML=`<p class="pp-rv-note">${t("pp.rv_ungraded")}</p>`;setTimeout(()=>{_cv.i++;cvRender()},1200);return}
+  if(!tx){box.innerHTML=`<p class="pp-rv-note">${aiErrText("pp.rv_ungraded")}</p>`;setTimeout(()=>{_cv.i++;cvRender()},1200);return}
   const rx=s=>new RegExp("\\b"+s.replace(/…/g,"").trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
   const hit=r.terms.find(it=>rx(it.term).test(tx));
   r.terms.forEach(it=>{if(it.saved)vocMark(it.term,!!hit&&hit.term===it.term)});
@@ -31573,7 +32049,7 @@ window.rpReport=async()=>{
     if(w){w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("ex.ai_off"))}</p><button class="btn-primary sess-rep-btn" onclick="rpReport()">${tIc("sess.report_btn","sparkle")}</button></div>`);manIconizeInline(w)}
     return;
   }
-  rpRepNote(t(r&&r.fail==="stt"?"sess.report_stt":r&&r.fail==="off"?"sess.report_off":"ex.ai_off"),true);
+  rpRepNote(aiErrText(r&&r.fail==="stt"?"sess.report_stt":r&&r.fail==="off"?"sess.report_off":"ex.ai_off"),true);
 };
 
 const SCENARIOS=[
@@ -33335,7 +33811,11 @@ function fbOnAuth(u){
   FBUser=u;
   _fbAuthSeen=true;try{if(_fbAuthSettleRes){_fbAuthSettleRes();_fbAuthSettleRes=null}}catch(e){}
   try{entRefresh()}catch(e){}
-  try{Billing.init()}catch(e){}
+  try{Billing.init().then(()=>{
+    /* the shell injects its plugins around the same moment this runs: if no
+       store was found, ask once more when Capacitor has certainly finished */
+    if(!Billing.provider)setTimeout(()=>{try{if(!Billing.provider)Billing.init()}catch(e){}},2500);
+  })}catch(e){}
   try{beNativeAdsInit()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
@@ -33893,10 +34373,16 @@ document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;
   fbSyncPull();
   entRefreshSoon();
+  /* ONE consume of _hiddenAt for the whole foregrounding. Both the comeback
+     landing below and the resume ad read this same `away`, so a WebView that
+     raises several visible events for one switch finds 0 on the rest and
+     neither of them can fire twice. */
+  const away=_hiddenAt;_hiddenAt=0;
+  const adAway=_adHidAt;_adHidAt=0;    /* the stricter stamp: only a REAL hide writes it (see the note beside it) */
+  try{adResume(adAway)}catch(e){}      /* a return is a natural break (Phase 8); AdEligibility still decides */
   /* the app was left open in the background and picked up again hours later:
      same landing as a cold launch, unless the learner is mid-session */
   try{
-    const away=_hiddenAt;_hiddenAt=0;
     if(!S.profile||!isComeback(away))return;
     if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
     if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
@@ -33916,7 +34402,9 @@ function fbErr(e,kind){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth
    E-mail/password passes no `kind` and keeps every message it had, so
    auth/wrong-password stays password-specific. The linking flow is untouched:
    account-exists-with-different-credential returns before it reaches here. */
-if(kind&&(c==="auth/invalid-credential"||c==="auth/invalid-verification-code"))return t("auth.err_provider");
+const prov=kind==="apple"?"Apple":kind==="google"?"Google":"";
+  if(kind&&c==="auth/operation-not-allowed")return prov?t("auth.err_provider_disabled_p",{p:prov}):t("auth.err_provider_disabled");
+  if(kind&&(c==="auth/invalid-credential"||c==="auth/invalid-verification-code"))return prov?t("auth.err_provider_p",{p:prov}):t("auth.err_provider");
 /* a raw Firebase/OAuth message is never shown: unmapped codes get the plain line */return c in map?map[c]:t("auth.err_generic")}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
@@ -34009,11 +34497,12 @@ async function socialAuthCaps(){
     return {apple:false,google:false};
   }
 }
-function socialErr(code){
+function socialErr(code,kind){
   if(code==="cancelled")return "";                      // the learner closed the sheet: say nothing
   if(code==="unconfigured")return t("auth.err_provider_off");
   if(code==="network")return t("auth.err_network");
-  return t("auth.err_provider");
+  const prov=kind==="apple"?"Apple":kind==="google"?"Google":"";
+  return prov?t("auth.err_provider_p",{p:prov}):t("auth.err_provider");
 }
 /* Apple sends the name ONCE, with the first authorisation, and never again.
    It is used only to fill an empty profile name — never to overwrite one, and
@@ -34061,7 +34550,7 @@ window.fbSocial=async function(kind){
   document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=true);
   let r=null;
   try{r=kind==="apple"?await P.appleSignIn():await P.googleSignIn()}
-  catch(e){document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);return fbSetErr(socialErr((e&&e.code)||""))}
+  catch(e){document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);return fbSetErr(socialErr((e&&e.code)||"",kind))}
   try{
     if(!r||!r.idToken)throw {code:"auth/invalid-credential"};
     const cred=kind==="apple"
@@ -34261,8 +34750,11 @@ const FB_A_ICON='<svg viewBox="0 0 24 24" fill="#000"><path d="M16.4 12.6c0-2.3 
 window.fbOpenModal=async function(mode){
   /* Log in / Create account inside Profile → Backup & sync: that sheet
      (#pfSetupOv, .lang-modal-ov, z-index 130) sat OVER the sign-in sheet
-     (.auth-ov, 120), so the login opened unseen behind it until the learner
-     tapped X (iPhone, 27 Sep 2026). Close it first, at once — before the SDK
+     (.auth-ov, then 120), so the login opened unseen behind it until the learner
+     tapped X (iPhone, 27 Sep 2026). The SAME thing happened from the Shadow
+     workspace (.sh-work, also 130) on 3 Oct, so .auth-ov is now z-index 145 —
+     above every full-screen workspace, below the confirm dialogs and toasts at
+     150. This removal stays: it is still right to close that sheet first. Close it first, at once — before the SDK
      loads — so the tap lands straight on the sign-in sheet. Remember that it
      was the way in (`from`): the sign-in sheet's own Log in ⇄ Create account
      link carries it on, a failed SDK load brings the sheet back instead of

@@ -137,7 +137,16 @@ console.log("\n# 1. ANONYMOUS — no account, therefore no AI (the approved mode
   ok("1.4 · an anonymous spoken turn makes NO Worker call at all, so nothing is spent on it", L.calls.length === 0, JSON.stringify(L.calls));
   ok("1.5 · …and it reports 'account', which is what the shakeout found being shown as silence", turn.why === "account", JSON.stringify(turn));
   const tr = await L.p.evaluate(async () => { try { await svShTrFetch({ id: 0, text: "We must agree the delivery date." }); return "ok"; } catch (e) { return e.message; } });
-  ok("1.6 · Shadow translation stops at the account too, rather than firing a request that cannot succeed", tr === "acct", tr);
+  /* REVERSED BY THE OWNER, 3 Oct 2026: Shadow must not ask anyone to sign up
+     to READ the transcript. The translation now declares chat purpose "shadow",
+     which the Worker serves anonymously, so it fires and succeeds. The old
+     assertion was right for its day — a request that could only 401 should not
+     be made — and the thing it protected (never fire a call that cannot
+     succeed) is now true for the opposite reason. */
+  ok("1.6 · Shadow translation is NOT withheld from a signed-out learner — it is served anonymously",
+    tr !== "acct" && !/^ERR/.test(String(tr)), String(tr));
+  ok("1.6b · …and it is the ONLY thing a signed-out learner's Shadow asks the Worker for",
+    L.calls.every(c => c.route === "chat:shadow"), JSON.stringify(L.calls.map(c => c.route)));
   ok("1.7 · no page error in any of it", L.errs.length === 0, L.errs.join(" | "));
   await L.ctx.close();
 }
@@ -155,7 +164,8 @@ console.log("\n# 2. AUTHENTICATED FREE — the basic spoken loop is whole");
     L.calls.length === 1 && L.calls[0].route === "transcribe" && /^Bearer /.test(L.calls[0].auth || ""), JSON.stringify(L.calls));
   const tr = await L.p.evaluate(async () => { try { return await svShTrFetch({ id: 1, text: "We must agree the delivery date before Friday." }); } catch (e) { return "ERR:" + e.message; } });
   ok("2.6 · Shadow translation works for a Free learner — a learner cannot practise a line they cannot read", /date de livraison/.test(tr), tr);
-  ok("2.7 · …over the free chat purpose, not a paid one", L.calls.some(c => c.route === "chat:practice") && !L.calls.some(c => c.route === "chat:report"), JSON.stringify(L.calls.map(c => c.route)));
+  ok("2.7 · …over the free Shadow purpose, never a paid one", L.calls.some(c => c.route === "chat:shadow")
+    && !L.calls.some(c => c.route === "chat:report" || c.route === "chat:coach"), JSON.stringify(L.calls.map(c => c.route)));
   const words = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); const w = await fbWords(b); return Array.isArray(w) && w.length; });
   ok("2.8 · per-word TIMINGS (the free transcript) are available; it is the per-word SCORE that is paid", words > 0, String(words));
   const assess = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); return await fbAssess(b, "we must agree"); });
@@ -267,7 +277,10 @@ console.log("\n# 7. A REFUSAL NEVER LIES (D3 in the matrix)");
   ok("7.1 · no capability gate anywhere sets the OFFLINE error state", bails.length === 0, bails.join("\n"));
   const chains = [...src.matchAll(/\.err==="net"\?t\("sv\.ch_err_net"\)/g)].length;
   const prem = [...src.matchAll(/\.err==="premium"\?t\("sv\.ch_err_prem"\)/g)].length;
-  const acct = [...src.matchAll(/\.err==="acct"\?t\("ai\.need_acct"\)/g)].length;
+  /* 3 Oct 2026: the chains now also catch a signed-out learner the caller did
+     not classify, so the condition is `.err==="acct"||aiNoAccount()`. Broader
+     than before, never narrower — the pattern follows it. */
+  const acct = [...src.matchAll(/\.err==="acct"\|\|aiNoAccount\(\)\?t\("ai\.need_acct"\)/g)].length;
   ok("7.2 · every error chain that can say 'offline' can also say 'Premium' and 'sign in'", chains > 0 && prem === chains && acct === chains, `net ${chains} / premium ${prem} / acct ${acct}`);
   const L = await learner({ plan: FREE });
   const fix = await L.p.evaluate(async () => { const d = { phase: "grading", err: null }; window.fbFix = window.fbFix || {}; return { locked: entLocked("ai_analysis"), note: aiOffNote("ai_analysis") }; });
@@ -302,34 +315,47 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
     html: aiAcctNoticeHTML("t"),
   }));
   ok("9.1 · a signed-out General English learner is one the notice applies to", notice.needed === true);
-  ok("9.2 · the notice says FREE ACCOUNT, names no price and carries no lock",
-    /Free account/i.test(notice.html) && /free/i.test(notice.html) && !/\$|£|€/.test(notice.html) && !/ic-lock|prem-lock/.test(notice.html), notice.html.slice(0, 300));
-  ok("9.3 · …and says in words that it is NOT Premium, so the two cannot be confused",
-    /not Premium/i.test(notice.html), notice.html);
+  /* 9.2, 9.3 and 9.5 asked for the CARD's wording: a FREE ACCOUNT chip, a
+     "this is not Premium" disclaimer and the "still counts" reassurance. The
+     owner replaced that card with one sentence on 3 Oct 2026, so the old
+     strings are gone by instruction. The invariants behind them are not, and
+     are asserted directly instead: the thing must still be an ACCOUNT offer
+     and must still be impossible to mistake for a paywall — which a sentence
+     carrying no Premium word at all guarantees more strongly than a
+     disclaimer did. */
+  ok("9.2 · it is an invitation to create an account — no price, no lock, no Premium word",
+    /account/i.test(notice.html) && !/\$|£|€/.test(notice.html) && !/ic-lock|prem-lock/.test(notice.html)
+    && !/premium/i.test(notice.html), notice.html.slice(0, 300));
+  ok("9.3 · …and it is ONE compact link, not a card: no second button, no paragraphs",
+    (notice.html.match(/<button/g) || []).length === 1 && !/<p[ >]/.test(notice.html)
+    && !/class="card/.test(notice.html) && /acct-link/.test(notice.html), notice.html);
   ok("9.4 · …and offers creating an account, not a purchase",
     /fbOpenModal\('up'\)/.test(notice.html) && !/premiumOpen/.test(notice.html));
-  ok("9.5 · …and says the recording still counts, because it does (offline-first)",
-    /still counts|saved on this device/i.test(notice.html));
+  ok("9.5 · …and the promise that practice still counts is still made where a run fails",
+    await OUT.p.evaluate(() => /still counts|saved/i.test(t("ai.need_acct"))));
+  ok("9.5b · the whole sentence is the tap target, and it is reachable by keyboard",
+    /<button[^>]*type="button"[^>]*class="acct-link"/.test(notice.html)
+    && />[^<]{10,}<\/button>/.test(notice.html), notice.html);
 
   /* every screen in the brief, drawn signed out */
   const screens = await OUT.p.evaluate(async () => {
     const out = {};
     /* Executive Polish (the dictation mic and the rewrite both call the Worker) */
-    out.polish = /ai-acct/.test(exIdleHTML());
+    out.polish = /acct-link/.test(exIdleHTML());
     /* the daily session's Record yourself panel. NOTE the session renders into
        #v-journey, not a #v-session of its own, so this looks for the panel and
        the notice in the document and checks their ORDER — which is the property
        F7 is actually about. */
     go("session", 1, "Mon"); await new Promise(r => setTimeout(r, 700));
-    const recP = document.querySelector(".rec-panel"), na = document.querySelector(".ai-acct");
+    const recP = document.querySelector(".rec-panel"), na = document.querySelector(".acct-link");
     out.session = !!(recP && na);
     out.sessionBeforeMic = !!(recP && na && (na.compareDocumentPosition(recP) & Node.DOCUMENT_POSITION_FOLLOWING));
     /* role-play: the intro screen that carries the Start button */
     go("roleplay", "iv-tellme"); await new Promise(r => setTimeout(r, 700));
     const rp = document.getElementById("v-roleplay");
-    out.roleplay = !!(rp && rp.querySelector(".ai-acct"));
-    out.roleplayBeforeStart = !!(rp && rp.querySelector(".ai-acct") && rp.querySelector(".rp-start") &&
-      rp.querySelector(".ai-acct").compareDocumentPosition(rp.querySelector(".rp-start")) & Node.DOCUMENT_POSITION_FOLLOWING);
+    out.roleplay = !!(rp && rp.querySelector(".acct-link"));
+    out.roleplayBeforeStart = !!(rp && rp.querySelector(".acct-link") && rp.querySelector(".rp-start") &&
+      rp.querySelector(".acct-link").compareDocumentPosition(rp.querySelector(".rp-start")) & Node.DOCUMENT_POSITION_FOLLOWING);
     return out;
   });
   ok("9.6 · Executive Polish shows it", screens.polish === true);
@@ -343,13 +369,17 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
   const SH = await learner({ plan: null });
   await toChallenge(SH);
   const sh = await SH.p.evaluate(() => ({
-    challenge: !!document.querySelector("#svCh .ai-acct"),
+    challenge: !!document.querySelector("#svCh .acct-link"),
     mic: !!document.getElementById("svChRecBtn"),
-    shadowCard: (() => { try { svSetMode("shadow"); return /ai-acct/.test(svShHTML()); } catch (e) { return "ERR:" + e.message; } })(),
+    shadowCard: (() => { try { svSetMode("shadow"); return /acct-link/.test(svShHTML()); } catch (e) { return "ERR:" + e.message; } })(),
   }));
-  ok("9.10 · the Shadow Challenge panel shows it, above the rung", sh.challenge === true, JSON.stringify(sh));
+  /* 9.10 and 9.12 asserted that the account notice appears INSIDE Shadow. The
+     owner removed it from the whole Shadow experience on 3 Oct 2026, so they
+     now assert its absence. 9.11 is untouched and still carries the point both
+     of them were really making: the notice never blocked the activity. */
+  ok("9.10 · the Shadow Challenge panel shows NO account notice — Shadow asks nobody to sign up", sh.challenge === false, JSON.stringify(sh));
   ok("9.11 · …and the microphone is still there: the notice informs, it does not block", sh.mic === true, JSON.stringify(sh));
-  ok("9.12 · the Shadow paragraph card shows it too (recording there is followed by AI)", sh.shadowCard === true, JSON.stringify(sh));
+  ok("9.12 · nor does the Shadow paragraph card", sh.shadowCard === false, JSON.stringify(sh));
 
   /* 2. no doomed request while signed out */
   SH.calls.length = 0;
@@ -359,14 +389,24 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
     try { await svShTrFetch({ id: 9, text: "Hello." }); r.tr = "ok"; } catch (e) { r.tr = e.message; }
     return r;
   });
-  ok("9.13 · signed out, NOT ONE AI request is fired from any of those paths", SH.calls.length === 0, JSON.stringify(SH.calls));
-  ok("9.14 · …and each one returns its honest empty answer rather than a fabricated one",
-    fired.said === "" && fired.words === null && fired.assess === null && fired.tr === "acct", JSON.stringify(fired));
+  /* The rule was "signed out, spend nothing". Shadow's reading helpers are now
+     the ONE exception the owner carved (3 Oct 2026), so the rule becomes: the
+     only thing a signed-out learner can spend is the Shadow helper, and the
+     judgement paths — transcription, scoring, analysis — still spend nothing.
+     That is the property worth guarding, and it is now asserted directly. */
+  ok("9.13 · signed out, the ONLY request fired is the Shadow reading helper — nothing is judged",
+    SH.calls.every(c => c.route === "chat:shadow"), JSON.stringify(SH.calls.map(c => c.route)));
+  ok("9.13b · …and specifically no transcription, no scoring and no analysis",
+    !SH.calls.some(c => /transcribe|assess|analyse|mvreport|chat:report|chat:coach/.test(c.route)), JSON.stringify(SH.calls.map(c => c.route)));
+  ok("9.14 · the judged paths still return their honest empty answer rather than a fabricated one",
+    fired.said === "" && fired.words === null && fired.assess === null, JSON.stringify(fired));
+  ok("9.14b · …while the translation now actually arrives for that same signed-out learner",
+    fired.tr !== "acct" && !/^ERR/.test(String(fired.tr)), JSON.stringify(fired));
   await SH.ctx.close();
 
   /* 3. a Free authenticated learner may proceed, and sees no notice */
   const FREEL = await learner({ plan: FREE });
-  const f = await FREEL.p.evaluate(() => ({ needed: aiAcctNeeded(), html: aiAcctNoticeHTML("t"), polish: /ai-acct/.test(exIdleHTML()) }));
+  const f = await FREEL.p.evaluate(() => ({ needed: aiAcctNeeded(), html: aiAcctNoticeHTML("t"), polish: /acct-link/.test(exIdleHTML()) }));
   ok("9.15 · a signed-in FREE learner sees NO account notice — the requirement is met", f.needed === false && f.html === "" && f.polish === false, JSON.stringify(f));
   await FREEL.ctx.close();
 
@@ -378,7 +418,7 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
     acct: aiAcctNoticeHTML("t"),
   }));
   ok("9.16 · the Premium card is still the Premium card for a signed-in Free learner",
-    /prem-lock/.test(pr.lock) && /premiumOpen/.test(pr.lock) && !/ai-acct/.test(pr.lock), pr.lock.slice(0, 200));
+    /prem-lock/.test(pr.lock) && /premiumOpen/.test(pr.lock) && !/acct-link/.test(pr.lock), pr.lock.slice(0, 200));
   ok("9.17 · …and the two messages are never both shown: the account one is empty here", pr.acct === "", pr.acct);
   ok("9.18 · …and the Premium note does not mention an account or signing in",
     !/sign in|create an account/i.test(pr.note), pr.note);
@@ -391,11 +431,15 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
     needed: aiAcctNeeded(),
     html: aiAcctNoticeHTML("t"),
     noAcct: aiNoAccount(),
-    polish: /ai-acct/.test(exIdleHTML()),
+    polish: /acct-link/.test(exIdleHTML()),
     stt: sttOff(),
   }));
-  ok("9.19 · WELDING signed out: the notice does NOT render — behaviour unchanged, by instruction",
-    w.area === "welding" && w.needed === false && w.html === "" && w.polish === false, JSON.stringify(w));
+  /* REVERSED by the owner, 3 Oct 2026: "the Polish side in General English —
+     do the same for the Welding side, exactly the same restriction." The
+     account requirement was always identical on both tracks server-side; the
+     old gate only withheld the explanation from welders. */
+  ok("9.19 · WELDING signed out: the SAME account link renders — the restriction is identical on both tracks",
+    w.area === "welding" && w.needed === true && /acct-link/.test(w.html) && w.polish === true, JSON.stringify(w));
   ok("9.20 · …while the underlying account requirement is still TRUE there, so the runtime message still tells the truth",
     w.noAcct === true && w.stt === true, JSON.stringify(w));
   await W.ctx.close();

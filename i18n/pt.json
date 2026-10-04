@@ -3203,7 +3203,7 @@
  "home.bc_level": "Recomendado para o seu nível",
  "home.bc_level_s": "Vozes claras e pausadas para imitar primeiro.",
  "home.row_lead": "O seu sinal mais forte",
- "home.rows_prem": "Veja o que escolhemos para si.",
+ "home.rows_prem": "Desbloqueie para ver o que escolhemos para si.",
  "home.row_lead_start": "Comece aqui",
  "home.it_saved_clip": "O seu clipe salvo",
  "home.it_words_saved": "{{n}} palavras salvas",
@@ -3379,5 +3379,13 @@
  "ai.acct_kept": "Pode gravar agora mesmo: a gravação fica guardada neste aparelho e o dia continua a contar para a sua sequência.",
  "ai.acct_cta": "Criar uma conta gratuita",
  "ai.acct_notprem": "Isto não é Premium. O Premium é separado e só acrescenta a análise avançada.",
- "ai.need_acct": "Entre na sua conta para usar os recursos de IA. A sua gravação fica guardada e a sua prática continua a contar."
+ "ai.need_acct": "Entre na sua conta para usar os recursos de IA. A sua gravação fica guardada e a sua prática continua a contar.",
+ "auth.err_provider_p": "Não foi possível concluir o início de sessão com {{p}}. Tente novamente ou use o seu e-mail e a sua palavra-passe.",
+ "auth.err_provider_disabled_p": "O início de sessão com {{p}} está desativado no BE Mastery neste momento. Pode continuar a usar o seu e-mail e a sua palavra-passe.",
+ "ai.acct_link": "Crie a sua conta para desbloquear esta vista.",
+ "ai.acct_link_polish": "Crie a sua conta para desbloquear o Polish.",
+ "ai.acct_link_ai": "Crie a sua conta para desbloquear o feedback da IA.",
+ "ai.acct_link_convo": "Crie a sua conta para desbloquear a conversa com IA.",
+ "prem.unavailable_ios": "Não é possível comprar o Premium neste dispositivo neste momento. Feche o BE Mastery, abra-o novamente e tente outra vez.",
+ "home.rows_prem_cta": "Desbloquear as recomendações"
 }

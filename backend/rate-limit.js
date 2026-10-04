@@ -41,8 +41,16 @@
    acceptable limiter.
    ============================================================================ */
 
-/* A bucket is { name, limit, windowMs }. `name` must identify the window as
-   well as the route ("stt:min", "stt:day"), because that is the storage key. */
+/* A bucket is { name, limit, windowMs, cost? }. `name` must identify the window
+   as well as the route ("stt:min", "stt:day"), because that is the storage key.
+
+   `cost` (default 1) is how much of the bucket this one call consumes. It
+   exists for the anonymous ytai pool (owner, 3 Oct 2026), where the thing being
+   rationed is not CALLS but SECONDS OF VIDEO: a 30-minute transcript costs six
+   times a 5-minute window, and a ceiling counted in calls would let six windows
+   through for the price of one. Counting what is actually spent is the only way
+   a daily budget means a number of dollars rather than a number of requests.
+   Every other caller leaves it unset and nothing about them changes. */
 
 /* ---------------------------------------------------------------- the object */
 export class RateLimiter {
@@ -57,6 +65,7 @@ export class RateLimiter {
       if (!b || typeof b.name !== "string" || !b.name || b.name.length > 64) return j({ error: "bad_request" }, 400);
       if (!Number.isFinite(b.limit) || b.limit < 1) return j({ error: "bad_request" }, 400);
       if (!Number.isFinite(b.windowMs) || b.windowMs < 1000) return j({ error: "bad_request" }, 400);
+      if (b.cost !== undefined && (!Number.isFinite(b.cost) || b.cost < 1 || b.cost > 10_000_000)) return j({ error: "bad_request" }, 400);
     }
     /* `now` is accepted ONLY so the tests can wind the clock. A caller cannot
        reach this object: it is bound to be-polish and has no route. */
@@ -82,20 +91,23 @@ export class RateLimiter {
         const live = cur && Number.isFinite(cur.resetAt) && cur.resetAt > now && cur.resetAt <= now + b.windowMs;
         const resetAt = live ? cur.resetAt : now + b.windowMs;
         const count = live ? (cur.count || 0) : 0;
-        recs.push({ k, count, resetAt, b });
+        const cost = Number.isFinite(b.cost) ? b.cost : 1;
+        recs.push({ k, count, resetAt, b, cost });
         if (resetAt > longest) longest = resetAt;
         /* ALL-OR-NOTHING: the first full bucket refuses the whole call and
            NOTHING is counted, so a refused request does not also consume the
            other windows. A caller hammering a full per-minute bucket cannot
            burn their per-day allowance down by being refused. */
-        if (count >= b.limit && !refused) refused = { bucket: b.name, resetAt };
+        /* room for THIS call, not merely room for one more: a 30-minute
+           transcript must not slip through on the last second of the budget */
+        if (count + cost > b.limit && !refused) refused = { bucket: b.name, resetAt };
       }
 
       if (refused) {
         return j({ ok: false, bucket: refused.bucket, retryAfter: Math.max(1, Math.ceil((refused.resetAt - now) / 1000)) });
       }
       const put = {};
-      for (const r of recs) put[r.k] = { count: r.count + 1, resetAt: r.resetAt };
+      for (const r of recs) put[r.k] = { count: r.count + r.cost, resetAt: r.resetAt };
       await this.state.storage.put(put);
       /* storage is billed and kept forever unless something deletes it. The
          alarm fires once the longest window has passed and wipes the object,
@@ -165,8 +177,9 @@ export function memConsume(subject, buckets, now = Date.now()) {
     const live = cur && cur.resetAt > now;
     const count = live ? cur.count : 0;
     const resetAt = live ? cur.resetAt : now + b.windowMs;
-    if (count >= b.limit) return { ok: false, bucket: b.name, retryAfter: Math.max(1, Math.ceil((resetAt - now) / 1000)), degraded: true };
-    recs.push([b.name, { count: count + 1, resetAt }]);
+    const cost = Number.isFinite(b.cost) ? b.cost : 1;
+    if (count + cost > b.limit) return { ok: false, bucket: b.name, retryAfter: Math.max(1, Math.ceil((resetAt - now) / 1000)), degraded: true };
+    recs.push([b.name, { count: count + cost, resetAt }]);
   }
   for (const [k, v] of recs) m.set(k, v);
   if (mem.size > 5000) mem.clear();      // crude memory guard, as before

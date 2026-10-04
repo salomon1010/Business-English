@@ -533,6 +533,10 @@ console.log("\n# cancelling, provider failure, network, bad credential");
   const { p, ctx } = await open();
   await sheet(p);
   const S_PROV = await p.evaluate(() => t("auth.err_provider"));
+  /* 3 Oct 2026: a provider failure now names Google or Apple, so that the
+     message cannot be read as a statement about the e-mail form it sits above.
+     These checks follow the intent rather than the exact old string. */
+  const provLine = (e, Name) => e === S_PROV || e === S_PROV.replace(/^That sign-in/, Name + " sign-in");
   const S_CRED = await p.evaluate(() => t("auth.err_invalid_credential"));
   const S_PW   = await p.evaluate(() => t("auth.err_wrong_password"));
   for (const kind of ["google", "apple"]) {
@@ -541,13 +545,13 @@ console.log("\n# cancelling, provider failure, network, bad credential");
     await sleep(400);
     const e = await err(p);
     ok(`F9${kind[0]} · a ${Name} credential refusal gets the provider line, NOT "Wrong email or password."`,
-      e === S_PROV && e !== S_CRED, e);
+      provLine(e, Name) && e.includes(Name) && e !== S_CRED, e);
   }
   /* the same code, thrown by fbSocial itself when the plugin answers with no token */
   await p.evaluate(() => { window.__be.noToken = true; return fbSocial("google"); });
   await sleep(400);
   ok("F10 · the no-ID-token refusal reads as a provider failure too, not a wrong password",
-    (await err(p)) === S_PROV, await err(p));
+    provLine(await err(p), "Google") && (await err(p)).includes("Google"), await err(p));
   await p.evaluate(() => { window.__be.noToken = false; });
   /* and the e-mail form is untouched: the same code keeps its own wording */
   await p.evaluate(() => { window.__fb.passwordFails = "auth/invalid-credential";

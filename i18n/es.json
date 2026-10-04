@@ -3203,7 +3203,7 @@
  "home.bc_level": "Recomendado para tu nivel",
  "home.bc_level_s": "Voces claras y pausadas para imitar primero.",
  "home.row_lead": "Tu señal más fuerte",
- "home.rows_prem": "Mira lo que hemos elegido para ti.",
+ "home.rows_prem": "Desbloquea para ver lo que hemos elegido para ti.",
  "home.row_lead_start": "Empieza aquí",
  "home.it_saved_clip": "Tu clip guardado",
  "home.it_words_saved": "{{n}} palabras guardadas",
@@ -3379,5 +3379,13 @@
  "ai.acct_kept": "Puedes grabar ahora mismo: la toma se guarda en este dispositivo y el día sigue contando para tu racha.",
  "ai.acct_cta": "Crear una cuenta gratuita",
  "ai.acct_notprem": "Esto no es Premium. Premium va aparte y solo añade el análisis avanzado.",
- "ai.need_acct": "Inicia sesión para usar las funciones de IA. Tu grabación se guarda y tu práctica sigue contando."
+ "ai.need_acct": "Inicia sesión para usar las funciones de IA. Tu grabación se guarda y tu práctica sigue contando.",
+ "auth.err_provider_p": "No se pudo completar el inicio de sesión con {{p}}. Inténtalo de nuevo o usa tu correo electrónico y tu contraseña.",
+ "auth.err_provider_disabled_p": "El inicio de sesión con {{p}} está desactivado en BE Mastery por ahora. Puedes seguir usando tu correo electrónico y tu contraseña.",
+ "ai.acct_link": "Crea tu cuenta para desbloquear esta vista.",
+ "ai.acct_link_polish": "Crea tu cuenta para desbloquear Polish.",
+ "ai.acct_link_ai": "Crea tu cuenta para desbloquear el análisis con IA.",
+ "ai.acct_link_convo": "Crea tu cuenta para desbloquear la conversación con IA.",
+ "prem.unavailable_ios": "Premium no se puede comprar en este dispositivo ahora mismo. Cierra BE Mastery, ábrelo de nuevo e inténtalo otra vez.",
+ "home.rows_prem_cta": "Desbloquear las recomendaciones"
 }

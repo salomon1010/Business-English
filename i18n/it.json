@@ -3203,7 +3203,7 @@
  "home.bc_level": "Recommended for your level",
  "home.bc_level_s": "Clear, well-paced voices to shadow first.",
  "home.row_lead": "Your strongest signal",
- "home.rows_prem": "See what we picked for you.",
+ "home.rows_prem": "Unlock to see what we picked for you.",
  "home.row_lead_start": "Start here",
  "home.it_saved_clip": "Your saved clip",
  "home.it_words_saved": "{{n}} words saved",
@@ -3379,5 +3379,13 @@
  "ai.acct_kept": "You can still record right now: the take is saved on this device and today still counts towards your streak.",
  "ai.acct_cta": "Create a free account",
  "ai.acct_notprem": "This is not Premium. Premium is separate, and only adds the advanced analysis.",
- "ai.need_acct": "Sign in to use the AI features. Your recording is saved, and your practice still counts."
+ "ai.need_acct": "Sign in to use the AI features. Your recording is saved, and your practice still counts.",
+ "auth.err_provider_p": "{{p}} sign-in couldn't finish. Try again, or use your email and password.",
+ "auth.err_provider_disabled_p": "{{p}} sign-in is switched off for BE Mastery right now. You can still use your email and password.",
+ "ai.acct_link": "Create your account to unlock this view.",
+ "ai.acct_link_polish": "Create your account to unlock Polish.",
+ "ai.acct_link_ai": "Create your account to unlock AI feedback.",
+ "ai.acct_link_convo": "Create your account to unlock the AI conversation.",
+ "prem.unavailable_ios": "Premium can't be bought on this device right now. Close BE Mastery, open it again, and try once more.",
+ "home.rows_prem_cta": "Unlock recommendations"
 }

@@ -88,6 +88,59 @@ const YTAI_ACCT_PER_DAY = 10;
 const YTAI_WIN_MAX = 300;          // the longest stretch one window may ask for
 const YTAI_WIN_PER_MIN = 12;
 const YTAI_WIN_PER_DAY = 150;
+
+/* ============================================================================
+   ytai IN THREE TIERS (owner, 3 Oct 2026)
+   ----------------------------------------------------------------------------
+   J1 below made this route demand an account, because a per-IP brake alone
+   cannot bound a bill: addresses are cheap to change and, behind the carrier
+   NAT most of this app's learners sit on, one address is a whole city. That
+   reasoning still holds. What changes is that a stranger can now TRY the
+   feature before deciding to sign up, which is what the account requirement
+   was costing.
+
+   Three tiers, each with a different thing standing behind it:
+
+     anonymous   a very small per-IP allowance, AND a single global daily pool
+                 shared by every anonymous caller on earth. The pool is the
+                 part that actually bounds the bill: per-IP limits bound one
+                 address, and an attacker's whole method is to have more than
+                 one. Spent in SECONDS OF VIDEO, so a long transcript costs
+                 what it costs.
+     free        a larger allowance held per ACCOUNT and per IP. It does NOT
+                 draw on the anonymous pool, so a day of heavy anonymous use
+                 can never lock out the people who signed up — which is also
+                 what makes signing up worth doing.
+     premium     the highest allowance, still held per account so a compromised
+                 login cannot run away.
+
+   WHY THE POOL IS IN DOLLARS. Gemini bills by the length of what it reads, so
+   a ceiling counted in REQUESTS is a ceiling in name only: 25 requests is $4
+   of 30-minute videos or $0.70 of 5-minute windows, and the limiter cannot
+   tell. YTAI_ANON_USD_DAY is the real number — the most anonymous use may cost
+   in a day — and the seconds ceiling is derived from it.
+   ============================================================================ */
+/* ~$0.08 buys 15 minutes, so a second of video costs this */
+const YTAI_USD_PER_SEC = 0.08 / 900;
+const YTAI_ANON_USD_DAY_DEFAULT = 5;
+/* the pool, in seconds of video. $5 ≈ 15.6 hours ≈ 31 full-length transcripts. */
+function ytaiAnonPoolSec(env) {
+  const usd = Number(env && env.YTAI_ANON_USD_DAY);
+  const v = Number.isFinite(usd) && usd > 0 ? usd : YTAI_ANON_USD_DAY_DEFAULT;
+  return Math.max(60, Math.round(v / YTAI_USD_PER_SEC));
+}
+/* what this one call will ask Gemini to read, in seconds — the pool's unit */
+const ytaiCostSec = win => win ? Math.max(1, win.to - win.from) : YTAI_MAX_SEC;
+/* anonymous, per IP: enough to try the feature on one video, not to live on */
+const YTAI_ANON_PER_MIN = 2, YTAI_ANON_PER_DAY = 2;
+const YTAI_ANON_WIN_PER_MIN = 6, YTAI_ANON_WIN_PER_DAY = 12;
+/* premium: the highest allowance, still an abuse ceiling rather than a product
+   limit — a learner who reaches it is importing video faster than they could
+   watch it */
+const YTAI_PREM_PER_MIN = 8, YTAI_PREM_PER_DAY = 40;
+/* anonymous ytai is OFF unless the deployment says otherwise, so this file can
+   ship without changing what production does on the day it lands */
+const ytaiAnonOn = env => String((env && env.YTAI_ANON) || "") === "1";
 /* the answer is kept at the edge by video and stretch: a video's words do not
    change, and a POST's cache-control header is ignored by every cache */
 const YTAI_CACHE_S = 30 * 86400;
@@ -149,6 +202,16 @@ async function limit(env, subject, name, perMin, perDay, cors) {
   ]);
   if (r.ok) return null;
   return json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
+}
+
+/* one bucket, one window, with a weight — the pool. limit() above is the
+   two-window per-minute/per-day shape every route uses; this is for the single
+   daily budget that is spent in units rather than in calls. */
+async function limit2(env, subject, name, cap, windowMs, cost, cors) {
+  const r = await consume(env, subject, [{ name: name + ":day", limit: cap, windowMs, cost }]);
+  if (r.ok) return null;
+  return json({ error: "rate_limited", scope: "anon_pool", retryAfter: r.retryAfter }, 429,
+              { ...cors, "Retry-After": String(r.retryAfter || 60) });
 }
 
 function corsHeaders(origin) {
@@ -248,7 +311,37 @@ const ROUTE_CAP = {
    NOT a security claim (see the honest limit above) — it is how the app's own
    flows are gated. An absent purpose reads as "practice", so an older cached
    index.html keeps working exactly as it does now. */
-const CHAT_PURPOSE_CAP = { practice: null, coach: "ai_coach", report: "ai_analysis" };
+const CHAT_PURPOSE_CAP = { practice: null, coach: "ai_coach", report: "ai_analysis", shadow: null };
+/* SHADOW READS WITHOUT AN ACCOUNT (owner, 3 October 2026).
+
+   Shadow is where a learner watches a real speaker and says the lines back. Its
+   reading helpers — the translation of the line, and the IPA hint above it —
+   are part of READING the transcript, not a judgement of the learner, and the
+   owner's rule is that the Shadow experience must not ask anyone to sign up.
+
+   Those helpers used to ride on purpose "practice", which is `null` (free) but
+   still hits the `cap === null` branch below: with PREMIUM_ENFORCED on, a free
+   route STILL demands a verified account so every call is attributable. In
+   production (PREMIUM_ENFORCED = "0") the gate returns early, so this was
+   already anonymous there; on staging, and on the day enforcement is switched
+   on in production, a signed-out learner got 401 and the app drew "Sign in to
+   use the AI features" over the transcript. This purpose is the exception, and
+   it is deliberately narrow:
+
+     · ONE purpose, used by two Shadow helpers and nothing else. `practice`,
+       `coach` and `report` are untouched, so Executive Polish, the AI coach,
+       the reports, Practice Partner and every other route keep the account and
+       Premium requirements they have today.
+     · Attributability is replaced, not dropped. An anonymous caller has no
+       account to charge, so it is held per IP by its OWN counter (SHADOW_PER_*
+       below) on top of the shared chat IP limit that already ran — a smaller
+       ceiling than an account gets, not a larger one.
+     · It buys no capability. `shadow: null` means free, exactly as before; it
+       can never reach a Premium model path. */
+const CHAT_PURPOSE_ANON = new Set(["shadow"]);
+/* the anonymous ceiling, per IP: a translated line is short and cheap, and this
+   is well under what one learner reading a transcript needs */
+const SHADOW_PER_MIN = 20, SHADOW_PER_DAY = 400;
 
 /* The account a token belongs to, for the rate-limit bucket ONLY.
 
@@ -339,7 +432,15 @@ async function capabilities(req, env) {
    ============================================================================ */
 async function ytaiAccount(req, env, cors) {
   const auth = req.headers.get("Authorization") || "";
-  if (!/^Bearer \S+$/.test(auth)) return { res: json({ error: "auth_required" }, 401, cors) };
+  /* No token. Before 3 Oct 2026 this was the end of the route. It still is
+     wherever YTAI_ANON is not set, so a deployment that has not opted in keeps
+     exactly the behaviour J1 describes. Where it IS set, the caller becomes the
+     anonymous tier: the smallest per-IP allowance, plus the global pool, both
+     applied at the call site where the length of the request is known. */
+  if (!/^Bearer \S+$/.test(auth)) {
+    if (ytaiAnonOn(env)) return { ok: true, subject: null, tier: "anon" };
+    return { res: json({ error: "auth_required" }, 401, cors) };
+  }
   if (premiumOn(env)) {
     /* Enforcement on: be-entitlements is the verifier, so premiumGate IS the
        check and it has to run HERE — inside the gate — not further down the
@@ -354,7 +455,13 @@ async function ytaiAccount(req, env, cors) {
        to keep: nothing on this route happens before the token is verified. */
     const g = await premiumGate(req, env, "ytai", cors);
     if (g) return { res: g };
-    return { ok: true, subject: await acctSubject(req, env) };
+    /* Premium is read from the capabilities be-entitlements just returned, not
+       guessed: ad_free is the one every paid plan carries. A promo that grants
+       only part of Premium therefore stays on the free allowance, which is the
+       safe direction to be wrong in. */
+    let tier = "free";
+    try { const a = await capabilities(req, env); if (a && a.caps && a.caps.ad_free === true) tier = "premium"; } catch (e) {}
+    return { ok: true, subject: await acctSubject(req, env), tier };
   }
   if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
   let uid;
@@ -367,7 +474,10 @@ async function ytaiAccount(req, env, cors) {
     if (/^jwks/.test(m) || m === "project") return { res: json({ error: "auth_unavailable" }, 503, cors) };
     return { res: json({ error: "auth_required" }, 401, cors) };
   }
-  return { ok: true, subject: uid ? "acct:u:" + uid : null };
+  /* enforcement off: there is no entitlement service to ask, so a verified
+     account is a FREE account here. Premium cannot be distinguished in this
+     mode and must not be assumed — the free allowance is the honest answer. */
+  return { ok: true, subject: uid ? "acct:u:" + uid : null, tier: "free" };
 }
 
 /* the rate-limit subject for the ACCOUNT behind a request, or null when there
@@ -385,6 +495,9 @@ async function acctSubject(req, env) {
 }
 async function premiumGate(req, env, route, cors, purpose) {
   if (!premiumOn(env)) return null;                                   // not switched on: behave as before
+  /* the Shadow exception (see CHAT_PURPOSE_ANON): no account demanded, and no
+     capability granted either — it is held per IP at the call site instead */
+  if (route === "chat" && CHAT_PURPOSE_ANON.has(String(purpose || ""))) return null;
   const cap = route === "chat" ? CHAT_PURPOSE_CAP[String(purpose || "practice")] : ROUTE_CAP[route];
   if (cap === undefined) return json({ error: "bad_request" }, 400, cors);
   if (cap === null) {
@@ -1208,6 +1321,12 @@ export default {
     // ---- Role-play chat: scenario + history in → in-character reply out ----
     if (body.chat && typeof body.chat === "object") {
       { const l = await limit(env, "ip:" + ip, "chat", CHAT_PER_MIN, CHAT_PER_DAY, cors); if (l) return l; }
+      /* an anonymous Shadow helper has no account ceiling behind it, so it gets
+         its own per-IP one as well — before the gate, so it applies whether or
+         not enforcement is on and whether or not the caller is signed in */
+      if (CHAT_PURPOSE_ANON.has(String(body.chat.purpose || ""))) {
+        const l = await limit(env, "ip:" + ip, "shadowchat", SHADOW_PER_MIN, SHADOW_PER_DAY, cors); if (l) return l;
+      }
       { const g = await premiumGate(request, env, "chat", cors, body.chat.purpose); if (g) return g; }
       const system = String(body.chat.system || "").slice(0, 4000);
       let messages = Array.isArray(body.chat.messages) ? body.chat.messages : [];
@@ -1283,9 +1402,28 @@ export default {
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
       /* a kept answer is free: served before the brake, which counts only calls that cost */
       try { const hit = cache && await cache.match(key); if (hit) return json({ ...(await hit.json()), cached: true }, 200, cors); } catch {}
-      { const l = win ? await limit(env, "ip:" + ip, "ytaiwin", YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY, cors)
-                      : await limit(env, "ip:" + ip, "ytai", YTAI_PER_MIN, YTAI_PER_DAY, cors);
+      const tier = acct.tier || "free";
+      /* PER IP, sized by tier. The anonymous allowance is deliberately the
+         smallest thing here: it buys a try, not a habit. */
+      { const a = tier === "anon";
+        const l = win ? await limit(env, "ip:" + ip, a ? "ytaianonwin" : "ytaiwin",
+                                    a ? YTAI_ANON_WIN_PER_MIN : YTAI_WIN_PER_MIN,
+                                    a ? YTAI_ANON_WIN_PER_DAY : YTAI_WIN_PER_DAY, cors)
+                      : await limit(env, "ip:" + ip, a ? "ytaianon" : "ytai",
+                                    a ? YTAI_ANON_PER_MIN : YTAI_PER_MIN,
+                                    a ? YTAI_ANON_PER_DAY : YTAI_PER_DAY, cors);
         if (l) return l; }
+      /* THE GLOBAL ANONYMOUS POOL — the only limit here that bounds the BILL
+         rather than one caller. Every anonymous request on every address shares
+         one bucket, spent in seconds of video, so a thousand fresh addresses
+         cost the same as one. Signed-in learners never touch it: a busy day of
+         strangers must not be able to lock out the people who signed up.
+         It is the LAST brake checked, so a request already refused per IP does
+         not spend the pool it was never going to use. */
+      if (tier === "anon") {
+        const l = await limit2(env, "global:ytai-anon", "anonpool", ytaiAnonPoolSec(env), 86_400_000, ytaiCostSec(win), cors);
+        if (l) return l;
+      }
       /* AND against the ACCOUNT, not only the IP. This is the one free route
          with a real per-call cost (~$0.08 for 15 minutes of video), and a
          per-IP limit is worth very little on the carrier NAT most of this
@@ -1302,7 +1440,10 @@ export default {
            one bucket whichever mode the Worker is in — and the cap is no
            longer inert in production. */
         const a = acct.subject || await acctSubject(request, env);
-        if (a) { const l = await limit(env, a, "ytaiacct", YTAI_ACCT_PER_MIN, YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
+        const prem = tier === "premium";
+        if (a) { const l = await limit(env, a, "ytaiacct",
+                                       prem ? YTAI_PREM_PER_MIN : YTAI_ACCT_PER_MIN,
+                                       prem ? YTAI_PREM_PER_DAY : YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
       try {
         const out = await geminiCaptions(env, vid, win);
         if (!out.error && cache) {

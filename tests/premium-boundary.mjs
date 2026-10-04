@@ -153,7 +153,15 @@ console.log("\n# Home: the reason stays, the picks are Premium (owner, 30 Septem
   const free = await p.evaluate(rs => homeRowsHTML(rs), rows);
   ok("33 · without Premium the row keeps its heading and the reason it was chosen", /Because you struggled with/.test(free) && /self/.test(free), free.slice(0, 200));
   ok("34 · and shows no cards at all — not the Premium ones, not the free ones", !/hx-rcard/.test(free) && !/dQw4w9WgXcQ/.test(free) && !/homeRecOpen/.test(free), free.slice(0, 400));
-  ok("35 · one bar stands where the cards were, and it opens the offer", /hx-row-prem/.test(free) && /premiumOpen\('home_row'\)/.test(free) && /See what we picked for you/.test(free), free.slice(-300));
+  /* The wording changed on 3 Oct 2026 and the gold PREMIUM pill went with it:
+     the row repeated down the whole of Home and read as five adverts stacked on
+     the learner's own progress. What this check is really about — one bar, one
+     tap, and it opens the offer — is unchanged, so it now also guards the thing
+     the owner asked for: no plan-shouting chip on the row. */
+  ok("35 · one bar stands where the cards were, it opens the offer, and it shouts no plan",
+    /hx-row-prem/.test(free) && /premiumOpen\('home_row'\)/.test(free)
+    && /Unlock to see what we picked for you/.test(free)
+    && !/prem-lock-chip/.test(free), free.slice(-300));
   ok("36 · the opener itself refuses a locked item, so no other caller can route round the row", await p.evaluate(() => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; _homeRows = [{ id: "r1", items: [{ type: "video", vid: "x" }] }]; homeRecOpen("r1", 0); window.premiumOpen = o; return opened === "home_row"; }));
   const w = await open({ track: "welding", plan: FREE });
   ok("37 · the same on Welding — one Premium covers both tracks, so one rule covers both Homes", await w.p.evaluate(rs => { const h = homeRowsHTML(rs); return !/hx-rcard/.test(h) && /hx-row-prem/.test(h); }, rows));
@@ -195,12 +203,19 @@ console.log("\n# every chat call declares a purpose the Worker knows");
   const { ctx, p } = await open({ billing: false, api: false });
   const bad = await p.evaluate(() => {
     const src = [...document.scripts].map(s => s.textContent).join("\n");
-    const found = [...src.matchAll(/chat:\{purpose:"([a-z]+)"/g)].map(m => m[1]);
+    const found = [...src.matchAll(/chat:\{purpose:"([a-z_]+)"/g)].map(m => m[1]);
+    /* one site passes the purpose as a VARIABLE (svAiChat, whose default is
+       "shadow"), so counting string literals alone under-counts it. What the
+       check is really about is that NO site omits the field. */
+    const viaVar = (src.match(/chat:\{purpose:[a-zA-Z_$][\w$]*\s*,/g) || []).length;
+    const defaults = [...src.matchAll(/purpose\|\|"([a-z_]+)"/g)].map(m => m[1]);
     const untagged = (src.match(/chat:\{system/g) || []).length;
-    return { found: [...new Set(found)], n: found.length, untagged };
+    return { found: [...new Set(found)], n: found.length, viaVar, defaults: [...new Set(defaults)], untagged };
   });
-  ok("45 · every chat call site declares a purpose", bad.untagged === 0 && bad.n >= 8, JSON.stringify(bad));
-  ok("46 · and only purposes the Worker maps (practice / coach / report)", bad.found.every(x => ["practice", "coach", "report"].includes(x)), JSON.stringify(bad.found));
+  ok("45 · every chat call site declares a purpose — none sends the field at all",
+    bad.untagged === 0 && (bad.n + bad.viaVar) >= 8, JSON.stringify(bad));
+  ok("46 · and only purposes the Worker maps (practice / coach / report / shadow)",
+    bad.found.concat(bad.defaults).every(x => ["practice", "coach", "report", "shadow"].includes(x)), JSON.stringify(bad));
   await ctx.close();
 }
 
