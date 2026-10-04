@@ -942,6 +942,10 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
   font-family:inherit;font-size:14px;font-weight:700;box-shadow:var(--sh-2)}
 .shv3-rec svg{width:19px;height:19px}
 .shv3-rec.on{background:var(--red);animation:pulse 1.6s ease-in-out infinite}
+/* While the learner is speaking the bar is the Shadow button alone, centred:
+   the four round buttons leave and come back the moment the take stops
+   (owner, 4 Oct 2026). shv3RecSync owns the class. */
+#shv3Bar.rec .shv3-b{display:none}
 /* closed by the ✕ top right (owner, 28 Sep 2026: no Close button at the foot) */
 .shv3-more h2{font-size:17px;margin:0 0 12px;padding-inline-end:40px}
 .shv3-more-x{position:absolute;top:14px;right:12px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--mut);cursor:pointer}.shv3-more-x svg{width:20px;height:20px}.shv3-more-x:hover{color:var(--txt);background:var(--bg2)}.shv3-more-x:focus-visible{outline:2px solid var(--focus);outline-offset:0}html[dir="rtl"] .shv3-more-x{right:auto;left:12px}
@@ -14445,6 +14449,7 @@ function shv3RecSync(){
   const b=document.querySelector("#shv3Bar .shv3-rec");if(!b)return;
   const live=rec_live();
   b.classList.toggle("on",live);b.setAttribute("aria-pressed",String(live));
+  b.parentElement.classList.toggle("rec",live);   /* hides the other four buttons while the take runs */
   const lbl=live?t("sv.sh_stop"):t("sv.mode_shadow");
   const s=b.querySelector("span");if(s&&s.textContent!==lbl)s.textContent=lbl;
   b.setAttribute("aria-label",lbl);
@@ -14536,6 +14541,7 @@ function shv3Sync(){
   let bar=document.getElementById("shv3Bar");
   if(!bar){bar=document.createElement("div");bar.id="shv3Bar";w.appendChild(bar)}
   bar.innerHTML=shv3BarHTML();manIconizeInline(bar);
+  bar.classList.toggle("rec",rec_live());   /* a redraw mid-take keeps the Shadow button alone */
   try{shv3Observe()}catch(e){}
   /* the play glyph and the speed label follow the player, not the render */
   try{

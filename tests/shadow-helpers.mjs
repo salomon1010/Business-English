@@ -192,19 +192,25 @@ ok("After a refresh both switches are still on (the preference is in S), and the
 /* ---------- the v3 Shadow button while recording ---------- */
 const recBtn = await A.page.evaluate(async () => {
   const b = () => document.querySelector("#shv3Bar .shv3-rec");
-  const r = { before: b().classList.contains("on"), lbl0: b().innerText.trim() };
+  /* the round buttons beside Shadow that are actually drawn, and where Shadow sits */
+  const others = () => [...document.querySelectorAll("#shv3Bar .shv3-b")].filter(e => getComputedStyle(e).display !== "none").length;
+  const centred = () => { const br = document.getElementById("shv3Bar").getBoundingClientRect(), rb = b().getBoundingClientRect(); return Math.abs((rb.left + rb.width / 2) - (br.left + br.width / 2)) < 2; };
+  const r = { before: b().classList.contains("on"), lbl0: b().innerText.trim(), others0: others() };
   shv3Shadow();
   const t0 = Date.now(); while (!(rec.mr && rec.mr.state === "recording") && Date.now() - t0 < 8000) await new Promise(x => setTimeout(x, 50));
   await new Promise(x => setTimeout(x, 400));
   r.live = !!(rec.mr && rec.mr.state === "recording"); r.on = b().classList.contains("on"); r.lbl1 = b().innerText.trim(); r.bg = getComputedStyle(b()).backgroundColor;
+  r.others1 = others(); r.centred1 = centred();
+  shv3Sync(); r.others1b = others();   /* a full redraw mid-take must not bring them back */
   await new Promise(x => setTimeout(x, 1400));
   shv3Shadow();
   const t1 = Date.now(); while (rec.mr && rec.mr.state === "recording" && Date.now() - t1 < 8000) await new Promise(x => setTimeout(x, 50));
   await new Promise(x => setTimeout(x, 700));
-  r.off = !b().classList.contains("on"); r.lbl2 = b().innerText.trim(); r.bg2 = getComputedStyle(b()).backgroundColor;
+  r.off = !b().classList.contains("on"); r.lbl2 = b().innerText.trim(); r.bg2 = getComputedStyle(b()).backgroundColor; r.others2 = others();
   return r;
 });
 ok("The Shadow button in the foot bar turns red and says Stop while the recorder is running, and goes back to blue / Shadow the moment it stops", !recBtn.before && recBtn.live && recBtn.on && /Stop/.test(recBtn.lbl1) && recBtn.off && /Shadow/.test(recBtn.lbl2) && recBtn.bg !== recBtn.bg2, JSON.stringify(recBtn));
+ok("While the take runs the four other buttons leave the bar and Shadow sits alone in the centre — through a redraw too — and all four are back the moment it stops", recBtn.others0 >= 4 && recBtn.others1 === 0 && recBtn.others1b === 0 && recBtn.centred1 && recBtn.others2 === recBtn.others0, JSON.stringify(recBtn));
 
 /* ---------- the report fold ---------- */
 const fold = await A.page.evaluate(async () => {
