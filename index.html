@@ -929,18 +929,27 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
   background:var(--accent);color:var(--on-accent);font-weight:700;
   border-radius:7px;padding:1px 4px;margin:0 -3px;box-shadow:none}
 #shWork[data-v3] .sh-work-body>*:not(#shPlayerWrap):not(#shV2){padding-left:16px;padding-right:16px}
-#shv3Bar{position:absolute;left:0;right:0;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;gap:10px;
-  padding:10px 14px calc(12px + env(safe-area-inset-bottom));
+/* The bar must hold six items (play, Shadow, Challenge, loop, speed, more) on
+   any phone: the circles, the gaps and the side padding follow the viewport
+   (48 px circles from ~457 px up, 41 px on a 390 px iPhone, 36 px on the
+   narrowest), and the Shadow pill takes what is left, capped — enough for the
+   whole word "Shadow" from 360 px up. Fixed sizes clipped play and More at the
+   edges of a 390 px iPhone (owner, 4 Oct 2026). */
+#shv3Bar{position:absolute;left:0;right:0;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;
+  --shv3-b:clamp(36px,10.5vw,48px);gap:clamp(6px,1.8vw,10px);
+  padding:10px clamp(8px,2.5vw,14px) calc(12px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 62%,transparent)}
-.shv3-b{flex:none;width:48px;height:48px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);
+.shv3-b{flex:none;width:var(--shv3-b);height:var(--shv3-b);border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);
   display:grid;place-items:center;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700}
 .shv3-b svg{width:20px;height:20px}
 .shv3-b.on{border-color:var(--accent);color:var(--accent)}
 .shv3-rate{font-variant-numeric:tabular-nums}
-.shv3-rec{flex:0 1 auto;min-width:132px;height:48px;border-radius:999px;border:0;background:var(--accent);color:var(--on-accent);
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 20px;cursor:pointer;
+.shv3-rec{flex:1 1 auto;min-width:0;max-width:150px;height:var(--shv3-b);border-radius:999px;border:0;background:var(--accent);color:var(--on-accent);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 clamp(8px,2.5vw,20px);cursor:pointer;
   font-family:inherit;font-size:14px;font-weight:700;box-shadow:var(--sh-2)}
-.shv3-rec svg{width:19px;height:19px}
+.shv3-rec svg{width:19px;height:19px;flex:none}
+.shv3-rec span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:339px){.shv3-rec span{display:none}}   /* the mic alone on the smallest phones; the aria-label still says Shadow / Stop */
 .shv3-rec.on{background:var(--red);animation:pulse 1.6s ease-in-out infinite}
 /* While the learner is speaking the bar is the Shadow button alone, centred:
    the four round buttons leave and come back the moment the take stops

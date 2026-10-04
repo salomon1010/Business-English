@@ -212,6 +212,24 @@ const recBtn = await A.page.evaluate(async () => {
 ok("The Shadow button in the foot bar turns red and says Stop while the recorder is running, and goes back to blue / Shadow the moment it stops", !recBtn.before && recBtn.live && recBtn.on && /Stop/.test(recBtn.lbl1) && recBtn.off && /Shadow/.test(recBtn.lbl2) && recBtn.bg !== recBtn.bg2, JSON.stringify(recBtn));
 ok("While the take runs the four other buttons leave the bar and Shadow sits alone in the centre — through a redraw too — and all four are back the moment it stops", recBtn.others0 >= 4 && recBtn.others1 === 0 && recBtn.others1b === 0 && recBtn.centred1 && recBtn.others2 === recBtn.others0, JSON.stringify(recBtn));
 
+/* ---------- the bar fits every phone (Shadow mode = six items) ---------- */
+const fit = [];
+for (const w of [390, 375, 360, 320]) {
+  await A.page.setViewportSize({ width: w, height: 844 }); await sleep(250);
+  fit.push(await A.page.evaluate(w => {
+    shv3Sync();
+    const bar = document.getElementById("shv3Bar");
+    const items = [...bar.querySelectorAll("button")].map(b => { const r = b.getBoundingClientRect(); return { l: Math.round(r.left), r: Math.round(r.right), w: Math.round(r.width), h: Math.round(r.height), circle: b.classList.contains("shv3-b") }; });
+    const sorted = [...items].sort((a, b) => a.l - b.l);
+    const overlap = sorted.some((it, i) => i && it.l < sorted[i - 1].r);
+    const lbl = bar.querySelector(".shv3-rec span"), cut = !!lbl && getComputedStyle(lbl).display !== "none" && lbl.scrollWidth > lbl.clientWidth + 1;
+    return { w, n: items.length, mode: svMode, inside: items.every(i => i.l >= 0 && i.r <= w), round: items.filter(i => i.circle && Math.abs(i.w - i.h) <= 1).length, overlap, min: Math.min(...items.map(i => i.w)), cut, items };
+  }, w));
+  if (process.env.SHOTS) await A.page.screenshot({ path: `/tmp/shbar-${w}.png`, clip: { x: 0, y: 844 - 130, width: w, height: 130 } });
+}
+await A.page.setViewportSize({ width: 390, height: 844 }); await sleep(250);
+ok("The foot bar fits the phone: at 390, 375, 360 and 320 px all six Shadow-mode buttons are fully on screen, none overlaps another, the five circles stay circles, nothing is narrower than 34 px, and the word Shadow is whole from 360 px up", fit.every(f => f.n === 6 && f.mode === "shadow" && f.inside && !f.overlap && f.round === 5 && f.min >= 34 && (f.w < 360 || !f.cut)), JSON.stringify(fit.map(({ items, ...f }) => f)));
+
 /* ---------- the report fold ---------- */
 const fold = await A.page.evaluate(async () => {
   const b = () => document.getElementById("fbFold"), out = () => document.getElementById("fbOut");
