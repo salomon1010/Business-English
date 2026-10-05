@@ -7771,6 +7771,7 @@ const I18N_EN={
  "sv.modes":"Shadow Studio modes",
  "sv.mode_watch":"Watch","sv.mode_shadow":"Shadow","sv.mode_challenge":"Challenge","sv.mode_apply":"Apply it",
  "sv.level_word":"Word-by-word highlighting from this clip's captions.",
+ "sv.take_playback":"Listen to what you just said…",
  "sv.level_word_est":"Word highlighting estimated from this clip's sentence timing — it can drift on long pauses.",
  "sv.level_sentence":"Sentence highlighting — this clip's captions have no word timing.",
  "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
@@ -10193,17 +10194,54 @@ function svRepDictEnsure(){
    fetch, it simply stays in the app language until the pack is there */
 function svRepDictNow(){const c=svRepLang();return (c&&_svRepDict.code===c)?_svRepDict.d:null}
 window.svRepDictEnsure=svRepDictEnsure;
+/* What is actually loaded. `DICT.__code` used to be read for this and never
+   existed, so the check that was meant to skip a reload always reloaded. */
+let _dictCode="en";
 async function loadLangDict(code){
-  if(!code||code==="en"){DICT={};return}
-  try{const r=await fetch(`i18n/${code}.json`);DICT=r.ok?await r.json():{}}catch(e){DICT={}}
+  if(!code||code==="en"){DICT={};_dictCode="en";return true}
+  /* One attempt used to be the whole story: a dropped request on a phone left
+     DICT empty and the app in English for the rest of the session, with the
+     learner's language still saying French. i18n/fr.json is 240 KB, which is
+     exactly the request a weak link loses. Try twice. */
+  for(let i=0;i<2;i++){
+    try{const r=await fetch(`i18n/${code}.json`+(i?`?r=${i}`:""));if(r.ok){DICT=await r.json();_dictCode=code;return true}}catch(e){}
+    if(!i)await new Promise(z=>setTimeout(z,700));
+  }
+  DICT={};_dictCode="en";return false;
+}
+/* Is the learner's language the one on screen? */
+function dictMissing(){try{const c=(S.profile&&S.profile.lang)||"en";return c!=="en"&&_dictCode!==c}catch(e){return false}}
+/* Fetch it again if it is not — called where being in the wrong language is
+   most costly: opening the Shadow workspace and changing mode inside it. */
+function dictEnsure(){
+  if(!dictMissing()||dictEnsure._busy)return;
+  const c=S.profile.lang;dictEnsure._busy=true;
+  loadLangDict(c).then(ok=>{dictEnsure._busy=false;if(ok){applyDirLang(c);relocalizeNow()}}).catch(()=>{dictEnsure._busy=false});
+}
+/* Re-draw what the learner is looking at in the language that just arrived.
+   The Shadow workspace is rendered INSIDE the shadow view, so go() would
+   rebuild the view and close the workspace — throwing the learner back to the
+   picker. It redraws itself in place instead. Without this, a dictionary that
+   lost the 1,200 ms race at boot left the Challenge panel in English for the
+   rest of the session (owner, 4 Oct 2026). */
+function relocalizeNow(){
+  try{localizeStatic()}catch(e){}
+  try{
+    if(typeof shWorkOpen==="function"&&shWorkOpen()){
+      try{if(typeof svRender==="function")svRender()}catch(e){}
+      try{if(typeof shv3Sync==="function")shv3Sync()}catch(e){}
+      try{if(typeof svShBarSync==="function")svShBarSync()}catch(e){}
+      return;
+    }
+  }catch(e){}
+  try{go(cur.v,cur.arg1,cur.arg2)}catch(e){}
 }
 async function setLang(code){
   code=code||"en";
   await loadLangDict(code);
   S.profile=S.profile||{};S.profile.lang=code;save();
   applyDirLang(code);
-  localizeStatic();
-  go(cur.v,cur.arg1,cur.arg2);
+  relocalizeNow();
 }
 /* Languages with a complete i18n/<code>.json file. Add a code here the moment its
    translation file ships — everything else falls back to English with an honest notice. */
@@ -13816,6 +13854,7 @@ window.recToggle=async(ctx,label)=>{
       streakPillSync();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
       try{sessRecDone(rec.ctx,blob,(Date.now()-rec.t0)/1000)}catch(e){}   /* the session's report: a no-op anywhere else */
+      try{svTakePlayback(blob)}catch(e){}   /* in the Shadow workspace: hear the take at once */
       }finally{const f=rec.filed;rec.filed=null;if(f)f();try{shv3RecSync()}catch(e){}}
     };
     rec.mr.start();
@@ -15322,6 +15361,7 @@ window.shTrendRender=key=>{
   box.innerHTML=perfPanel(perfSeries("clip",vid),{first:Math.max(1,arr.length-4)});
 };
 window.shOpenWork=()=>{
+  try{dictEnsure()}catch(e){}   /* the workspace is the screen where English hurts most: make sure the pack is here */
   const w=document.getElementById("shWork");if(!w)return;
   try{shTrendRender(shClip&&shClip.vid)}catch(e){}
   /* the title lives in its own span so the back chevron and the star survive */
@@ -18133,6 +18173,7 @@ function fbRecStop(){
 }
 window.shRec=()=>{
   if(!shClip.vid)return;
+  try{svChStopAll()}catch(e){}   /* a take still playing back must not talk over the new one */
   const wasRecording=rec.mr&&rec.mr.state==="recording";
   recToggle(shRecCtx(shClip.vid),"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
   if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:shRecCtx(shClip.vid)});
@@ -26953,7 +26994,7 @@ async function svChRec(kind,label,onBlob,get,set){
 }
 window.svChRecord=()=>{
   if(!svChOn()||!svCh)return;const s=svChSegObj();if(!s)return;
-  svChRec("",("Challenge — "+s.text).slice(0,60),blob=>{if(svCh){svCh.blob=blob;svChGrade(blob)}},()=>svCh,f=>{if(svCh)f(svCh)})
+  svChRec("",("Challenge — "+s.text).slice(0,60),blob=>{if(svCh){svCh.blob=blob;svChGrade(blob);svTakePlayback(blob)}},()=>svCh,f=>{if(svCh)f(svCh)})
     .then(()=>{if(svCh&&svCh.phase==="recording")try{track("shadow_challenge_recorded",{level:svCh.level})}catch(e){}});
 };
 async function svChGrade(blob){
@@ -27240,6 +27281,26 @@ function svChPlayBlob(blob,s0,s1){
     a.onerror=()=>res();
   });
 }
+/* HEARING YOURSELF (owner, 4 Oct 2026). A take used to vanish into the
+   grader: the learner spoke, waited, and read a score without ever hearing
+   what they had actually said. Now the take plays back once, straight after
+   the recording stops, while the grade is still being fetched — in Challenge
+   and in Shadow alike. The video is paused first (in Shadow the clip is still
+   looping), and any other play cancels it, because svChPlayBlob owns the one
+   audio element the studio uses. Only inside the workspace: a session or a
+   mission take goes through the same recorder and must not start talking. */
+function svTakePlayback(blob){
+  try{
+    if(!blob||blob.size<1200)return false;
+    if(typeof shWorkOpen!=="function"||!shWorkOpen())return false;
+    try{svChStopAll()}catch(e){}
+    try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
+    try{toast(t("sv.take_playback"))}catch(e){}
+    svChPlayBlob(blob);
+    return true;
+  }catch(e){return false}
+}
+window.svTakePlayback=svTakePlayback;
 window.svChPlayMe=async(s0,s1)=>{
   if(!svChOn()||!svCh)return;
   let blob=svCh.blob;
@@ -33550,7 +33611,7 @@ async function bootMain(){
     applyDirLang(S.profile.lang);
     const dict=loadLangDict(S.profile.lang);   // never rejects; falls back to {}
     const inTime=await Promise.race([dict.then(()=>true),new Promise(r=>setTimeout(()=>r(false),1200))]);
-    if(!inTime)dict.then(()=>{localizeStatic();try{go(cur.v,cur.arg1,cur.arg2)}catch(e){}});
+    if(!inTime)dict.then(()=>relocalizeNow());
   }
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
@@ -34243,7 +34304,7 @@ async function fbFirstSync(u){
        cloud, so dismiss the onboarding overlay and drop them into the app */
     if(S.profile){const ob=document.getElementById("obWrap");if(ob)ob.remove()}
     /* a returning user may have a UI language saved in their cloud profile — apply it */
-    if(S.profile&&S.profile.lang&&S.profile.lang!==((DICT&&DICT.__code)||"en")){await loadLangDict(S.profile.lang);applyDirLang(S.profile.lang)}
+    if(dictMissing()){await loadLangDict(S.profile.lang);applyDirLang(S.profile.lang)}
     if(cloud)toast(S.profile&&S.profile.name?t("auth.welcome_back_named_toast",{name:S.profile.name}):t("auth.welcome_back_toast"));
     go(cur&&cur.v?cur.v:"home",cur&&cur.arg1,cur&&cur.arg2);
   }catch(e){toast(t("auth.sync_issue_toast",{err:(e&&e.code)||(e&&e.message)||""}))}

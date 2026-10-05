@@ -1805,6 +1805,7 @@
  "sv.mode_challenge": "Challenge",
  "sv.mode_apply": "Anwenden",
  "sv.level_word": "Wort-für-Wort-Markierung aus den Untertiteln dieses Clips.",
+ "sv.take_playback": "Hören Sie, was Sie gerade gesagt haben…",
  "sv.level_word_est": "Wort-Hervorhebung aus den Satzzeiten dieses Clips geschätzt — bei langen Pausen kann sie abweichen.",
  "sv.level_sentence": "Satzmarkierung — die Untertitel dieses Clips haben keine Wortzeiten.",
  "sv.level_text": "Dein Transkript, Satz für Satz. Keine Zeiten für diesen Clip, also leuchtet nichts — tippe einen Satz an, um ihn nachzusprechen.",
