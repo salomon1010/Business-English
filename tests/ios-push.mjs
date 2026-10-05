@@ -180,7 +180,11 @@ console.log("\n# a tap: the destinations the service worker reaches on the web")
     out.journey = cur.v;
     return out;
   });
-  ok("20 · the plugin's events are listened for at boot, and the lock screen is cleared when the app opens", r.listeners.includes("tap") && r.listeners.includes("arrived") && r.cleared === 1, JSON.stringify(r));
+  /* REVERSED 5 Oct 2026 (owner): "the notifications should stay permanent even
+     if the app is closed until the user removes it". Opening the app used to
+     wipe every delivered notification, so a reminder nobody had acted on went
+     with it. iOS removes the one the learner taps by itself. */
+  ok("20 · the plugin's events are listened for at boot, and opening the app does NOT wipe what is on the lock screen", r.listeners.includes("tap") && r.listeners.includes("arrived") && r.cleared === 0, JSON.stringify(r));
   ok("21 · an invitation lands on Practice Partner and the daily reminder on the road map", r.partner === "partner" && r.journey === "journey", JSON.stringify(r));
   await ctx.close();
 }

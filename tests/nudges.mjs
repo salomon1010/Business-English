@@ -225,6 +225,11 @@ console.log("\n# the service worker");
   ok("SW8 · a swipe is reported to that same push Worker", s.fetched.some(f => f.u === "https://be-push-staging.test/nudge/dismiss"), JSON.stringify(s.fetched.map(f => f.u)));
   s = mk(cacheBody, { kind: "reminder" }); await s.push();
   ok("SW6 · the ordinary daily reminder is unchanged", s.shown[0] && s.shown[0].t === "Time to practise" && s.shown[0].o.tag === "be-daily");
+  /* It waits for the learner (owner, 5 Oct 2026: "the notifications should stay
+     permanent even if the app is closed until the user removes it"). Without
+     requireInteraction a desktop notification fades after a few seconds —
+     exactly when a reminder is least likely to have been seen. */
+  ok("SW8 · and it stays on screen until the learner dismisses or taps it", s.shown[0] && s.shown[0].o.requireInteraction === true, JSON.stringify(s.shown[0] && s.shown[0].o));
 }
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;

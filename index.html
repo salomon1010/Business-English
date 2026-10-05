@@ -17341,7 +17341,10 @@ function remFire(){
       /* Through the service worker when there is one: only showNotification
          takes `image`, which is the small road map you see when you expand the
          notification. The plain constructor is the fallback, picture-less. */
-      const opts={body,icon:"icon-192.png",badge:"icon-192.png",tag:"be-daily",lang:document.documentElement.getAttribute("lang")||"en",dir:document.documentElement.getAttribute("dir")||"auto",data:{url:"./#journey"}};
+      /* requireInteraction: it waits for the learner instead of fading after a
+         few seconds (owner, 5 Oct 2026). The plain Notification fallback below
+         cannot honour it — only a service-worker notification can. */
+      const opts={body,icon:"icon-192.png",badge:"icon-192.png",tag:"be-daily",requireInteraction:true,lang:document.documentElement.getAttribute("lang")||"en",dir:document.documentElement.getAttribute("dir")||"auto",data:{url:"./#journey"}};
       if("serviceWorker"in navigator&&navigator.serviceWorker.controller){
         remCacheText().then(()=>navigator.serviceWorker.ready).then(reg=>reg.showNotification(t("rem.title"),Object.assign({image:REM_MAP_KEY},opts)))
           .catch(()=>{try{const n=new Notification(t("rem.title"),opts);n.onclick=()=>{window.focus();go("journey");n.close()}}catch(e){}});
@@ -17603,7 +17606,13 @@ function pushNativeBoot(){
     P.addListener("arrived",d=>{try{if(d&&d.call&&typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync()})}catch(e){}});
   }}catch(e){}
   try{Promise.resolve(P.pendingTap()).then(r=>{if(r&&r.tap)pushTapRoute(r.tap)}).catch(()=>{})}catch(e){}
-  try{P.clear()}catch(e){}   /* the app is open: the lock screen and the badge have done their job */
+  /* The app does NOT clear what is on the lock screen (owner, 5 Oct 2026:
+     "the notifications should stay permanent even if the app is closed until
+     the user removes it"). Opening the app used to wipe every delivered
+     notification here, so a reminder the learner had not acted on vanished
+     the moment they glanced at something else. iOS removes the one they tap
+     by itself; the rest wait for them. BEPush.clear() still exists for a
+     deliberate "clear all" if one is ever wanted — nothing calls it. */
 }
 
 const PUSH_ID_KEY="be_push_id";
@@ -21807,7 +21816,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v624";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v625";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.

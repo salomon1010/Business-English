@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v624";
+const CACHE = "be12-v625";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
@@ -206,7 +206,7 @@ self.addEventListener("push", e => {
             await swCount(d, "nudge_sent", { kind: why.nkind, source: "push" });
             return self.registration.showNotification(String(why.title), {
               body: String(why.body), icon: "icon-192.png", badge: "icon-192.png",
-              tag: "be-nudge", renotify: false,
+              tag: "be-nudge", renotify: false, requireInteraction: true,   // stays until the learner deals with it (owner, 5 Oct 2026)
               lang: (d && d.lang) || "en", dir: (d && d.dir) || "auto",
               data: { url: "./?nudge=" + encodeURIComponent(why.rid) + "#" + why.view, view: why.view, nudge, pushId: d && d.pushId },
             });
@@ -218,7 +218,7 @@ self.addEventListener("push", e => {
           return self.registration.showNotification(d.online.title, {
             body: String(d.online.body).replace("{{n}}", String(n)),
             icon: "icon-192.png", badge: "icon-192.png",
-            tag: "be-online", renotify: true,
+            tag: "be-online", renotify: true, requireInteraction: true,
             lang: d.lang || "en", dir: d.dir || "auto",
             data: { url: "./#partner", view: "partner" },   // tap lands on the partner page
           });
@@ -233,6 +233,13 @@ self.addEventListener("push", e => {
           badge: "icon-192.png",
           tag: "be-daily",           // a second push replaces, never stacks
           renotify: false,
+          /* It stays on screen until the learner dismisses or taps it (owner,
+             5 Oct 2026: "the notifications should stay permanent even if the
+             app is closed until the user removes it, mostly the reminder").
+             Without this a desktop notification disappears by itself after a
+             few seconds — the one case where a reminder is least likely to
+             have been seen. Android already keeps it in the shade. */
+          requireInteraction: true,
           lang: (d && d.lang) || "en",
           dir: (d && d.dir) || "auto",   // ar / ur read right-to-left
           data: { url: "./#journey" },   // tap lands on the road map

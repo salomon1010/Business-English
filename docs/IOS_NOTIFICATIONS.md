@@ -153,6 +153,12 @@ rules:
 
 - The **permission prompt happens on a switch, never on a launch**. A launch
   reads the permission and registers only if it was already granted.
+- A notification **stays until the learner removes it** (owner, 5 Oct 2026).
+  Opening the app does not clear the lock screen — that call was removed; iOS
+  takes away only the one they tap. On the web the same rule is
+  `requireInteraction: true`, which stops a desktop notification fading after a
+  few seconds. `BEPush.clear()` still exists for a deliberate "clear all" and
+  nothing calls it.
 - A learner who refuses gets the in-app reminder and a note saying where to
   turn notifications back on. Nothing is sent and nothing is registered.
 - A tap reaches the same screens the service worker's message reaches: a nudge
