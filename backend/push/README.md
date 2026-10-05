@@ -174,3 +174,25 @@ phone now — the Settings "Staging test" panel uses it) and shortened gaps
 Production sets none of these. `PUSH_SECRET` is not set on staging, so
 online alerts do not run there.
 
+## iOS notifications (4 October 2026)
+
+The App Store shell has no service worker and no Web Push, so it registers an
+**APNs device token** instead of a push subscription — same `POST /subscribe`,
+`apns:{token, env}` in place of `endpoint`, plus `text` (the already-translated
+wording, templates only). `sendOne` branches on the row: a browser gets the
+bare web push it always got, an iPhone gets an Apple alert carrying that text,
+because there is no service worker here to read it from a cache.
+
+Auth is token-based: `APNS_TEAM_ID` / `APNS_KEY_ID` / `APNS_TOPIC` vars and the
+`APNS_KEY_P8` secret (the .p8 file itself). **Missing any of them = sending is
+off**: a phone still registers and starts working the moment the key is added,
+and a send reports `fail:apns_off` instead of throwing. One JWT is signed per
+40 minutes, inside Apple's refresh window.
+
+`410 Unregistered` drops the row exactly as a 410 from a browser's push service
+does. `BadDeviceToken` is retried once on Apple's other host — a TestFlight
+build's token is a production token, a local build's is a sandbox one — and
+only dropped when BOTH refuse. `ExpiredProviderToken` re-signs and retries.
+
+Setup, the device checklist and the two Apple steps only the owner can do:
+**docs/IOS_NOTIFICATIONS.md**. Tests: `node test/apns.mjs`.

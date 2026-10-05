@@ -9,5 +9,6 @@ class BEBridgeViewController: CAPBridgeViewController {
         bridge?.registerPluginInstance(BEStoreKitPlugin())
         bridge?.registerPluginInstance(BEAuthPlugin())
         bridge?.registerPluginInstance(BEAdsPlugin())
+        bridge?.registerPluginInstance(BEPushPlugin())
     }
 }

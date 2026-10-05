@@ -12,6 +12,11 @@ import Capacitor
 /// deep link reaches the web layer the way Capacitor expects.
 @main
 struct BEMasteryApp: App {
+    /* Notifications are the one thing a SwiftUI scene cannot receive: Apple
+       delivers the APNs device token, and a notification tap, to the
+       application delegate. BEAppDelegate exists for that and nothing else. */
+    @UIApplicationDelegateAdaptor(BEAppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
             ContentView()

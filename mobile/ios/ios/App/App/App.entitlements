@@ -2,12 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Sign in with Apple. The ONLY entitlement this app asks for: no push, no
-	     associated domains, no iCloud. The matching App ID capability must be
-	     switched on in the Apple Developer portal (docs/auth/SOCIAL_SIGNIN.md). -->
+	<!-- Sign in with Apple. No associated domains, no iCloud. The matching App
+	     ID capability must be switched on in the Apple Developer portal
+	     (docs/auth/SOCIAL_SIGNIN.md). -->
 	<key>com.apple.developer.applesignin</key>
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Push notifications (4 Oct 2026): the daily reminder, partner
+	     invitations and learning nudges reach a closed app. "development" is
+	     what a build signed here needs; Xcode's App Store export rewrites it to
+	     "production". The app reads the value back out of its own provisioning
+	     profile at runtime (BEPushPlugin.apnsEnvironment) and tells be-push
+	     which of Apple's two hosts its token belongs to, so a mismatch cannot
+	     silently swallow notifications. Needs the Push Notifications capability
+	     on the App ID and an APNs auth key — docs/IOS_NOTIFICATIONS.md. -->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>

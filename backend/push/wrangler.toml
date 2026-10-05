@@ -41,6 +41,23 @@ PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 # Invitation wake-ups (2026-09-26): the partner Worker calls POST /wake with a
 # shared secret — `npx wrangler secret put PUSH_SECRET` here AND on be-partner
 # (same value). Without it /wake answers 503 and invitations ring in-app only.
+#
+# iOS notifications (4 Oct 2026). The App Store shell registers an APNs device
+# token instead of a push subscription, so this Worker talks to Apple as well.
+# Token-based auth, so there is no certificate to renew:
+#     APNS_TEAM_ID   the Apple team (public identifier)
+#     APNS_KEY_ID    the id of the APNs auth key (public identifier)
+#     APNS_TOPIC     the app's bundle id
+#     APNS_KEY_P8    the .p8 itself — A SECRET:
+#                    npx wrangler secret put APNS_KEY_P8   (paste the whole file)
+# All three vars AND the secret must be present or sending is simply off: a
+# phone still registers and starts working the moment the key is added.
+# Create the key once at developer.apple.com → Certificates, Identifiers &
+# Profiles → Keys → + → Apple Push Notifications service. Full steps and the
+# App ID capability: docs/IOS_NOTIFICATIONS.md.
+APNS_TEAM_ID = "8TKAAK2MG6"
+APNS_KEY_ID = ""                 # fill in when the key is created
+APNS_TOPIC = "com.lomonec.bemastery"
 
 # ---------------------------------------------------------------- staging --
 # be-push-staging (2026-09-26): its own Worker, store and VAPID pair, so the
@@ -67,3 +84,10 @@ NUDGE_FLUSH = "1"
 NUDGE_GAP_MS = "300000"        # 5 min between nudges (production: 20 h)
 NUDGE_KIND_GAP_MS = "900000"   # 15 min per kind (production: 48 h)
 NUDGE_WEEK_MAX = "30"          # production: 4
+# iOS notifications on staging: the SAME Apple key works for both (a key is per
+# team, not per environment), and the app tells this Worker which of Apple's two
+# hosts its token belongs to. Set APNS_KEY_P8 here too: secrets are per
+# environment (npx wrangler secret put APNS_KEY_P8 --env staging).
+APNS_TEAM_ID = "8TKAAK2MG6"
+APNS_KEY_ID = ""
+APNS_TOPIC = "com.lomonec.bemastery"

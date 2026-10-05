@@ -8223,6 +8223,9 @@ const I18N_EN={
  "pp.online_nudge":"Get rung when someone invites you to practise, and told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
  "rem.online_switch":"Tell me when learners are online","rem.online_sub":"A notification when someone is online to practise with — at most every few hours, never at night.",
  "rem.note_ios":"BE Mastery reminds you inside the app: at your chosen time if it is open, otherwise the next time you open it. It cannot send a notification while it is closed.",
+ "rem.push_body":"25 minutes today keeps the streak alive.",
+ "rem.note_ios_push":"A nudge at your chosen time, even when the app is closed. Turn it off any time.",
+ "rem.blocked_ios":"Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Notifications → BE Mastery.",
  "rem.online_sub_ios":"Notifications about learners online are not available in the iPhone app yet. Open Practice Partner to see who is online.",
  "nudge.lesson_t":"Week {{w}} is ready",
  "nudge.lesson_b":"🎤 {{topic}} — {{min}} minutes today moves you forward.",
@@ -17273,6 +17276,7 @@ window.remToggle=on=>{
   toast(on?t("rem.on_toast",{time:c.time}):t("rem.off_toast"));
   const note=document.getElementById("remNote");
   if(!on){pushOff();return}
+  if(iosPushOn()){pushSync(true).then(()=>{const n2=document.getElementById("remNote");if(n2)n2.innerHTML=remNoteHTML()});return}
   if(!window.Notification){if(note)note.innerHTML=remNoteHTML();return}
   if(Notification.permission==="denied"){if(note)note.textContent=t("rem.blocked");return}
   if(Notification.permission==="granted"){pushSync();return}
@@ -17289,6 +17293,7 @@ window.remToggle=on=>{
 function remNoteHTML(){
   /* The App Store shell has no notification route at all (no APNs, and WKWebView
      has neither Notification nor Web Push): the reminder is the in-app one only. */
+  if(iosPushOn())return esc(t(_pushPerm==="denied"?"rem.blocked_ios":"rem.note_ios_push"));
   if(IS_IOS_APP)return esc(t("rem.note_ios"));
   if(iosIs()&&!iosStandalone())return `${esc(t("rem.ios_install"))} <button type="button" class="linklike" onclick="iosAsk(true)">${esc(t("ios.row"))} →</button>`;
   return esc(t("rem.note"));
@@ -17403,15 +17408,135 @@ function rmNotifImage(){
   }catch(e){return null}
 }
 
-function pushId(){
-  // Random per device. Not the Firebase uid: signing out must not orphan a
-  // subscription, and two devices should be able to hold different times.
-  if(!S.pushId){
-    const a=new Uint8Array(16);crypto.getRandomValues(a);
-    S.pushId=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
-    save();
+/* ===== iOS NOTIFICATIONS — the App Store shell (4 Oct 2026) =================
+   WKWebView has neither Notification nor Web Push, so everything below this
+   line used to stop at pushSync()'s guard and an iPhone got in-app reminders
+   only. The shell now carries a native plugin (BEPushPlugin.swift) that
+   registers an APNs device token; the token takes the place of a push
+   subscription in exactly the same `/subscribe` call, and be-push talks to
+   Apple instead of to a browser's push service.
+
+   Two real differences, both handled here:
+     · There is no service worker to read the wording from a cache, so the
+       already-translated text travels to be-push with the subscription
+       (pushTextPayload) and is re-sent on every launch — which is how a
+       language change still reaches a notification sent days later.
+     · A tap arrives from the plugin rather than from sw.js, so pushTapRoute()
+       does what the service worker's "open" message does.
+   Everything else — the reminder slot, quiet hours, the one-a-day rule, the
+   nudge engine — is the code that was already there. */
+let _bePushPlug=null,_pushPerm=null;
+function beNativePush(){
+  /* only a plugin that was FOUND is remembered: a null is never cached, so a
+     lookup during the first moments of a cold launch cannot latch this off */
+  if(_bePushPlug)return _bePushPlug;
+  if(!IS_IOS_APP)return null;
+  const p=capPlugin("BEPush");
+  if(p&&typeof p.register==="function"){_bePushPlug=p;return p}
+  return null;
+}
+function iosPushOn(){try{return !!(IS_IOS_APP&&flag("ios_push_enabled")&&beNativePush())}catch(e){return false}}
+/* "may this device raise a notification?" — one question, two platforms */
+function pushPermGranted(){
+  if(IS_IOS_APP)return iosPushOn()&&_pushPerm==="granted";
+  try{return !!(window.Notification&&Notification.permission==="granted")}catch(e){return false}
+}
+/* The wording an APNs alert needs, in the learner's language — the same
+   strings sw.js reads from the be-rem cache on the web. No name, no progress:
+   templates only, with {{n}} / {{name}} filled in by the Worker. */
+/* Boot order matters here. pushSync() runs the moment the app starts, while
+   rmNotifBody() needs the curriculum, which may still be loading — and a
+   throw took the whole registration with it: the phone registered with Apple
+   and be-push was never told, so nothing could ever be delivered (found
+   4 Oct 2026, on the first run of tests/ios-push.mjs). Every piece is read
+   defensively now, and a missing one falls back to a translated line instead
+   of cancelling the subscription. remCacheText reads the same builder, so the
+   web's cache cannot be left empty by the same race either. */
+function pushTextPayload(){
+  const safe=(f,d)=>{try{const v=f();return typeof v==="string"&&v.trim()?v:d}catch(e){return d}};
+  const key=(k,vars)=>safe(()=>t(k,vars),"");
+  return {
+    reminder:{title:safe(()=>t("rem.title"),"Time to practise"),body:safe(()=>rmNotifBody(),key("rem.push_body"))},
+    online:{title:key("pp.online_push_title"),body:key("pp.online_push_body",{n:"{{n}}"})},
+    call:{live:{title:key("pp.call_h",{name:"{{name}}"}),body:key("pp.tinv_live_sub")},
+          trial:{title:key("pp.tinv_h",{name:"{{name}}"}),body:key("pp.tinv_sub")}},
+    someone:key("pp.blocked_anon"),
+  };
+}
+/* Registering prompts for permission the first time, so `ask` is false on a
+   launch and true only when the learner has just turned a switch on. A phone
+   that has already answered "no" is never asked again — the note says so. */
+async function pushSyncNative(ask,wants){
+  const P=beNativePush();if(!P)return false;
+  try{const s=await P.permission();if(s&&s.permission)_pushPerm=s.permission}catch(e){}
+  if(_pushPerm!=="granted"&&!ask)return false;
+  let r=null;
+  try{r=await P.register()}
+  catch(e){if((e&&e.code)==="denied")_pushPerm="denied";return false}
+  if(!r||!r.token)return false;
+  _pushPerm="granted";
+  const c=remCfg();
+  try{
+    await fetch(PUSH_API+"/subscribe",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,
+        apns:{token:r.token,env:r.env||"production"},
+        presence:wants.pres,calls:wants.calls,nudges:wants.nudge,
+        tz:-new Date().getTimezoneOffset(),text:pushTextPayload()}),
+    });
+  }catch(e){return false}
+  return true;
+}
+/* A tap, from the plugin: the same destinations the service worker's "open"
+   message reaches, so a notification behaves the same on both platforms. */
+function pushTapRoute(d){
+  if(!d||typeof d!=="object")return false;
+  try{if(d.rid&&typeof nudgeArrive==="function"&&nudgeArrive({rid:d.rid},"push"))return true}catch(e){}
+  const v=d.view||"journey";
+  if(v==="partner"){
+    try{if(typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync()})}catch(e){}
+    try{go("partner")}catch(e){}return true;
   }
-  return S.pushId;
+  if(v==="journey"){try{_rmReturn=true;go("journey")}catch(e){}return true}
+  try{go(v)}catch(e){}
+  return true;
+}
+/* The tap that LAUNCHED the app has nothing listening for the event yet, so
+   the plugin keeps it until this asks. Both paths run once, at boot. */
+function pushNativeBoot(){
+  const P=beNativePush();if(!P)return;
+  try{if(typeof P.addListener==="function"){
+    P.addListener("tap",d=>{try{pushTapRoute(d)}catch(e){}});
+    /* one arriving while the app is open: a call must reach the partner
+       screen the way the in-app banner does */
+    P.addListener("arrived",d=>{try{if(d&&d.call&&typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync()})}catch(e){}});
+  }}catch(e){}
+  try{Promise.resolve(P.pendingTap()).then(r=>{if(r&&r.tap)pushTapRoute(r.tap)}).catch(()=>{})}catch(e){}
+  try{P.clear()}catch(e){}   /* the app is open: the lock screen and the badge have done their job */
+}
+
+const PUSH_ID_KEY="be_push_id";
+function pushId(){
+  /* Random per DEVICE, and it must never travel. It used to live only in S,
+     which syncs through Firestore, so a signed-in learner's second device
+     could inherit the id the first one registered with — one row, one route,
+     and the second device to register would quietly take over the first one's
+     reminder. That mattered the moment the iPhone app could register at all:
+     its route is an APNs token, which would have replaced the browser's
+     endpoint. The id now lives in localStorage, outside S, and fbSyncPayload
+     strips it. Not the Firebase uid either: signing out must not orphan a
+     subscription, and two devices should be able to hold different times. */
+  const good=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{8,64}$/.test(v);
+  let v=null;try{v=localStorage.getItem(PUSH_ID_KEY)}catch(e){}
+  if(good(v)){if(S.pushId!==v){S.pushId=v;save()}return v}
+  /* an id this device registered with before that key existed: keep it, so an
+     existing subscription is not orphaned. Never in the App Store shell —
+     it had no push route, so any id in S there arrived from the cloud. */
+  let id=(!IS_IOS_APP&&good(S.pushId))?S.pushId:null;
+  if(!id){const a=new Uint8Array(16);crypto.getRandomValues(a);id=[...a].map(x=>x.toString(16).padStart(2,"0")).join("")}
+  try{localStorage.setItem(PUSH_ID_KEY,id)}catch(e){}
+  S.pushId=id;save();
+  return id;
 }
 
 /* Local "19:00" → the UTC minute bucket the backend fans out from. Recomputed
@@ -17439,13 +17564,16 @@ async function remCacheText(){
     const c=await caches.open(REM_CACHE);
     const png=await rmNotifImage();
     if(png)await c.put(REM_MAP_KEY,new Response(png,{headers:{"Content-Type":"image/png"}}));
+    /* one builder for both platforms (see pushTextPayload): the words sw.js
+       reads from this cache are the words be-push puts in an APNs alert */
+    const tx=pushTextPayload();
     const body={
-      title:t("rem.title"),
-      body:rmNotifBody(),
+      title:tx.reminder.title,
+      body:tx.reminder.body,
       pushId:pushId(),
-      online:{title:t("pp.online_push_title"),body:t("pp.online_push_body",{n:"{{n}}"})},
+      online:tx.online,
       /* an invitation with the app closed: the same words as the in-app banner */
-      call:{live:{title:t("pp.call_h",{name:"{{name}}"}),body:t("pp.tinv_live_sub")},trial:{title:t("pp.tinv_h",{name:"{{name}}"}),body:t("pp.tinv_sub")}},
+      call:tx.call,
       image:png?REM_MAP_KEY:null,
       nudgeDone:nudgeDoneRids(),events:window.BE_EVENTS_API||null,pushApi:PUSH_API,
       lang:html.getAttribute("lang")||"en",
@@ -17463,8 +17591,8 @@ if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message
    every 4 h, never at night) when the partner Worker reports someone online.
    Default on — the switch lives under the reminder in Settings. */
 function ppAlertsOn(){return S.ppAlerts!==false}
-window.ppAlertsToggle=on=>{S.ppAlerts=!!on;save();if(on){try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission().then(()=>pushSync())}catch(e){}}pushSync()};
-async function pushSync(){
+window.ppAlertsToggle=on=>{S.ppAlerts=!!on;save();if(on&&iosPushOn())return void pushSync(true);if(on){try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission().then(()=>pushSync())}catch(e){}}pushSync()};
+async function pushSync(ask){
   const c=remCfg();
   const wantPres=ppAvailable()&&ppAlertsOn();
   const wantCalls=ppAvailable()&&ppConsented()&&ppAlertsOn();   /* invitations may ring this phone with the app closed */
@@ -17472,6 +17600,8 @@ async function pushSync(){
      the reminder off was unsubscribed and never got one (found 2026-09-26) */
   const wantNudge=(()=>{try{return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser}catch(e){return false}})();
   if(!c.on&&!wantPres&&!wantCalls&&!wantNudge)return pushOff();
+  /* the App Store shell: an APNs token instead of a push subscription */
+  if(IS_IOS_APP)return iosPushOn()?pushSyncNative(ask===true,{pres:wantPres,calls:wantCalls,nudge:wantNudge}):undefined;
   if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
   if(!window.Notification||Notification.permission!=="granted")return;
   try{
@@ -17493,6 +17623,15 @@ async function pushSync(){
 }
 
 async function pushOff(){
+  /* the shell has no subscription object to inspect: this device registered
+     only if it ever minted an id, and that is the one thing worth checking
+     before firing a request at every launch */
+  if(IS_IOS_APP){
+    try{let v=null;try{v=localStorage.getItem(PUSH_ID_KEY)}catch(e){}
+      if(v)await fetch(PUSH_API+"/unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:v})});
+    }catch(e){}
+    return;
+  }
   try{
     /* Check for a local subscription BEFORE telling the server to drop one.
        pushSync() runs on every boot and lands here whenever the reminder is
@@ -17542,7 +17681,7 @@ const NUDGE_DAY=86400000,NUDGE_SEEN_KEY="./__nudge_seen__";
 function nudgeAvailable(){return flag("learning_nudges_enabled")&&isGeneralEnglish()&&!!PUSH_API&&!!window.NudgeEngine}
 function nudgePrefOn(){return !(S.nudge&&S.nudge.off)}
 function nudgeState(){S.nudge=S.nudge||{};const n=S.nudge;n.hist=n.hist||{};["sent","dismissed","done"].forEach(k=>{n.hist[k]=n.hist[k]||{}});n.doneRids=n.doneRids||[];return n}
-function nudgeReady(){return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser&&!!S.pushId&&!!(window.Notification&&Notification.permission==="granted")}
+function nudgeReady(){return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser&&!!S.pushId&&pushPermGranted()}
 function nudgeDoneRids(){try{return nudgeState().doneRids.slice(-20)}catch(e){return []}}
 function nudgeSignals(){
   const now=Date.now(),today=new Date(now).toISOString().slice(0,10);
@@ -17661,7 +17800,7 @@ async function nudgeSchedule(why,opts){
     const now=Date.now(),sendAfter=opts&&opts.now?now:nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
     const tx=nudgeText(r),tok=await FBUser.getIdToken();
     const res=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},
-      body:JSON.stringify({id:S.pushId,tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
+      body:JSON.stringify({id:pushId(),tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
     const j=await res.json().catch(()=>({}));
     if(j&&j.previous&&j.previous.kind)try{track("nudge_expired",{kind:j.previous.kind,result:j.previous.status})}catch(e){}
     if(res.ok){
@@ -17676,7 +17815,7 @@ async function nudgeSchedule(why,opts){
 /* completed-action invalidation: the learner did it before the notification */
 function nudgeCancel(why,p){
   const n=nudgeState();p=p||n.pending;if(!p)return;
-  try{if(S.pushId)fetch(PUSH_API+"/nudge/cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:S.pushId,rid:p.rid}),keepalive:true}).catch(()=>{})}catch(e){}
+  try{if(S.pushId)fetch(PUSH_API+"/nudge/cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:pushId(),rid:p.rid}),keepalive:true}).catch(()=>{})}catch(e){}
   if(why==="done"){n.hist.done[p.kind]=Date.now();n.doneRids=[...n.doneRids,p.rid].slice(-20)}
   try{track("nudge_expired",{kind:p.kind,result:why==="done"?"invalidated":String(why).slice(0,16)})}catch(e){}
   if(n.pending&&n.pending.rid===p.rid)n.pending=null;save();
@@ -17829,6 +17968,7 @@ window.nudgeTestServer=async()=>{
 window.nudgeToggle=on=>{
   nudgeState().off=!on;save();
   if(!on){nudgeCancel("off");return}
+  if(iosPushOn())return void pushSync(true).then(()=>nudgeSchedule("toggle"));
   try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission().then(()=>pushSync().then(()=>nudgeSchedule("toggle")));else nudgeSchedule("toggle")}catch(e){}
 };
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")try{nudgeSchedule("hide")}catch(e){}});
@@ -17841,7 +17981,7 @@ function pushDone(){
   try{
     fetch(PUSH_API+"/done",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:S.pushId}),keepalive:true,
+      body:JSON.stringify({id:pushId()}),keepalive:true,
     }).catch(()=>{});
   }catch(e){}
 }
@@ -23257,6 +23397,7 @@ const FLAGS_DEFAULT={
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
+  ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
   social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
@@ -23283,6 +23424,7 @@ const FLAGS_STAGING={
      there is silently OFF here — which is why the buttons vanished on the
      staging build while every automated check passed. */
   social_signin_enabled:true,
+  ios_push_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the be-mastery-test console
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
@@ -31305,7 +31447,7 @@ async function rData(el,embedded){
           <span>${t("rem.online_switch")}</span>
         </label>
       </div>
-      <p class="rem-note">${t(IS_IOS_APP?"rem.online_sub_ios":"rem.online_sub")}</p>`:""}
+      <p class="rem-note">${t(IS_IOS_APP&&!iosPushOn()?"rem.online_sub_ios":"rem.online_sub")}</p>`:""}
       ${nudgeAvailable()?`<div class="rem-box" style="margin-top:8px">
         <label class="rem-row">
           <input type="checkbox" role="switch" id="nudgesOn" ${nudgePrefOn()?"checked":""} onchange="nudgeToggle(this.checked)">
@@ -33775,7 +33917,7 @@ window.wcClose=()=>{
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
-else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}}
+else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}}
 try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
@@ -34205,6 +34347,10 @@ let fbLastPull=0;
 function fbSyncPayload(s){
   if(!s||typeof s!=="object")return s;
   const out=Object.assign({},s);
+  /* the push id identifies ONE phone's notification route, so it never travels:
+     a second device that adopted it would take over the first one's reminder
+     (see pushId). It lives in localStorage; this strip stops the old copies. */
+  delete out.pushId;
   /* the Challenge history travels (the line, the verdict, what to fix); the
      learner's own spoken words stay on the device, as everywhere else */
   if(out.chHistA){const o={};Object.entries(out.chHistA).forEach(([a,list])=>{o[a]=(list||[]).map(e=>{const y=Object.assign({},e);delete y.heard;return y})});out.chHistA=o}

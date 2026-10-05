@@ -145,13 +145,28 @@ console.log("\n== Info.plist / privacy manifest");
     ok("App.entitlements present", existsSync(ent));
     const e = existsSync(ent) ? read(ent) : "";
     ok("entitlements: Sign in with Apple (Default)", /<key>com\.apple\.developer\.applesignin<\/key>\s*<array>\s*<string>Default<\/string>\s*<\/array>/.test(e));
-    const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => k !== "com.apple.developer.applesignin");
+    /* Push was added 4 Oct 2026 (docs/IOS_NOTIFICATIONS.md). Its value must be
+       one of Apple's two environments — an empty or invented string signs, then
+       silently swallows every notification. */
+    ok("entitlements: push notifications (development here; the App Store export rewrites it to production)",
+      /<key>aps-environment<\/key>\s*<string>(development|production)<\/string>/.test(e));
+    const allowed = new Set(["com.apple.developer.applesignin", "aps-environment"]);
+    const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => !allowed.has(k));
     ok(`entitlements: nothing else requested (${extra.length ? extra.join(", ") : "none"})`, extra.length === 0);
     const sign = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = ([^;]+);/g)].map(m => m[1]);
     ok("CODE_SIGN_ENTITLEMENTS = App/App.entitlements in both configurations", sign.length === 2 && sign.every(v => v === "App/App.entitlements"), sign.join(", "));
     ok("BEAuthPlugin.swift compiled into the app target", /BEAuthPlugin\.swift in Sources/.test(pbx));
+    ok("BEPushPlugin.swift + BEAppDelegate.swift compiled into the app target", /BEPushPlugin\.swift in Sources/.test(pbx) && /BEAppDelegate\.swift in Sources/.test(pbx));
     const vc = read(join(ios, "ios", "App", "App", "Lifecycle", "BEBridgeViewController.swift"));
     ok("BEAuth registered on the Capacitor bridge", /registerPluginInstance\(BEAuthPlugin\(\)\)/.test(vc));
+    ok("BEPush registered on the Capacitor bridge", /registerPluginInstance\(BEPushPlugin\(\)\)/.test(vc));
+    const app = read(join(ios, "ios", "App", "App", "Lifecycle", "BEMasteryApp.swift"));
+    /* Apple hands the device token and the tap to the application delegate and
+       nowhere else: without the adaptor the plugin can never get a token. */
+    ok("the app delegate is installed, so a device token and a tap have somewhere to arrive",
+      /@UIApplicationDelegateAdaptor\(BEAppDelegate\.self\)/.test(app));
+    const pushSrc = read(join(ios, "ios", "App", "App", "Plugins", "BEPushPlugin.swift"));
+    ok("BEPushPlugin: nothing logged (a device token identifies an install)", !/\bprint\(|NSLog|os_log/.test(pushSrc));
     const sw = read(join(ios, "ios", "App", "App", "Plugins", "BEAuthPlugin.swift"));
     ok("BEAuthPlugin: no client secret, nothing logged", !/client_secret/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
     ok("BEAuthPlugin: Apple request is nonce-bound (SHA-256)", /request\.nonce = Self\.sha256\(raw\)/.test(sw));

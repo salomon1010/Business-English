@@ -1210,6 +1210,27 @@ Fixes / infra
   is on `be-mastery.firebaseapp.com`, partitioned storage), so an installed web
   app with a foreign `authDomain` (Play TWA, home-screen PWA) shows email only.
   Syncs progress JSON, **not audio recordings**.
+- **iOS notifications (2026-10-04, `staging`).** The App Store shell can notify a
+  CLOSED app: native plugin `BEPushPlugin.swift` (`window.BEPush`) + an app
+  delegate (`BEAppDelegate`, installed with `@UIApplicationDelegateAdaptor` —
+  Apple hands the device token and the tap nowhere else) register an **APNs
+  device token**, which the web layer sends to be-push in the SAME
+  `POST /subscribe` a browser uses (`apns:{token,env}` instead of `endpoint`,
+  plus `text` = the translated wording, templates only, because there is no
+  service worker here to read a cache). `sendOne` branches per row, so a browser
+  keeps its bare web push. Worker: `APNS_TEAM_ID`/`APNS_KEY_ID`/`APNS_TOPIC`
+  vars + `APNS_KEY_P8` secret — **missing any = sending off**, the phone still
+  registers. `410` drops the row; `BadDeviceToken` is retried on Apple's other
+  host (TestFlight is production, a local build sandbox) and only then dropped.
+  The permission prompt is on a SWITCH, never a launch. Flag `ios_push_enabled`.
+  **The push id is now per DEVICE** (`localStorage.be_push_id`, stripped by
+  `fbSyncPayload`): it used to live in `S`, which syncs, so a second device
+  could adopt the first's id — and the iPhone would have replaced the browser's
+  endpoint with its APNs token. Two Apple steps are outstanding and only the
+  owner can do them (App ID capability + the `.p8` auth key):
+  **`docs/IOS_NOTIFICATIONS.md`**, which also holds the 10-row device checklist.
+  Tests: `backend/push/test/apns.mjs` (27), `tests/ios-push.mjs` (26), the Swift
+  bundle (26), `check-release.mjs`.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

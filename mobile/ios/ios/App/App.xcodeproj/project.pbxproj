@@ -16,6 +16,8 @@
 		A80562E43072AB9A00A48E0C /* BEMasteryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E33072AB9A00A48E0C /* BEMasteryApp.swift */; };
 		A80562E63072AB9D00A48E0C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E53072AB9D00A48E0C /* ContentView.swift */; };
 		A80562E83072AB9F00A48E0C /* BridgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E73072AB9F00A48E0C /* BridgeView.swift */; };
+		A870695B307339020080B0C3 /* BEPushPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695A307339020080B0C3 /* BEPushPlugin.swift */; };
+		A870695D307339120080B0C3 /* BEAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695C307339120080B0C3 /* BEAppDelegate.swift */; };
 		BE0000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000001 /* PrivacyInfo.xcprivacy */; };
 		BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000003 /* BEStoreKitPlugin.swift */; };
 		BE0000000000000000000006 /* BEBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000005 /* BEBridgeViewController.swift */; };
@@ -40,6 +42,8 @@
 		A80562E33072AB9A00A48E0C /* BEMasteryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEMasteryApp.swift; sourceTree = "<group>"; };
 		A80562E53072AB9D00A48E0C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A80562E73072AB9F00A48E0C /* BridgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeView.swift; sourceTree = "<group>"; };
+		A870695A307339020080B0C3 /* BEPushPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEPushPlugin.swift; sourceTree = "<group>"; };
+		A870695C307339120080B0C3 /* BEAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEAppDelegate.swift; sourceTree = "<group>"; };
 		BE0000000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BE0000000000000000000003 /* BEStoreKitPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEStoreKitPlugin.swift; sourceTree = "<group>"; };
 		BE0000000000000000000005 /* BEBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEBridgeViewController.swift; sourceTree = "<group>"; };
@@ -134,6 +138,7 @@
 				A80562E33072AB9A00A48E0C /* BEMasteryApp.swift */,
 				A80562E53072AB9D00A48E0C /* ContentView.swift */,
 				A80562E73072AB9F00A48E0C /* BridgeView.swift */,
+				A870695C307339120080B0C3 /* BEAppDelegate.swift */,
 			);
 			path = Lifecycle;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 				BE0000000000000000000003 /* BEStoreKitPlugin.swift */,
 				BE0000000000000000000010 /* BEAuthPlugin.swift */,
 				BE0000000000000000000013 /* BEAdsPlugin.swift */,
+				A870695A307339020080B0C3 /* BEPushPlugin.swift */,
 			);
 			path = Plugins;
 			sourceTree = "<group>";
@@ -307,10 +313,12 @@
 				A80562E83072AB9F00A48E0C /* BridgeView.swift in Sources */,
 				A80562E63072AB9D00A48E0C /* ContentView.swift in Sources */,
 				BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */,
+				A870695B307339020080B0C3 /* BEPushPlugin.swift in Sources */,
 				BE0000000000000000000011 /* BEAuthPlugin.swift in Sources */,
 				A80562E43072AB9A00A48E0C /* BEMasteryApp.swift in Sources */,
 				BE0000000000000000000014 /* BEAdsPlugin.swift in Sources */,
 				BE0000000000000000000006 /* BEBridgeViewController.swift in Sources */,
+				A870695D307339120080B0C3 /* BEAppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
