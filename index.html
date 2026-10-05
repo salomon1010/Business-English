@@ -24442,7 +24442,14 @@ const BillingProviders={
       try{
         if(!flag("billing_preview_provider"))return false;
         if(IS_IOS_APP)return false;                                   /* the real StoreKit bridge owns that build */
-        if(typeof window.getDigitalGoodsService==="function")return false;   /* a Play-billed TWA owns that one */
+        /* A Play-billed TWA owns that one — but Chrome defines
+           getDigitalGoodsService on EVERY page (Android, ChromeOS), so its
+           presence proves nothing: in a plain Chrome tab on staging the preview
+           refused and the sheet fell to "no_store" (owner, 4 Oct 2026). Ask the
+           API: it resolves only inside a Play-billed TWA and rejects elsewhere. */
+        if(typeof window.getDigitalGoodsService==="function"){
+          try{if(await window.getDigitalGoodsService(PLAY_BILLING_METHOD))return false}catch(e){}
+        }
         return !!beEnv()||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
       }catch(e){return false}
     },
