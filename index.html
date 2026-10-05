@@ -5929,9 +5929,22 @@ h1.big{letter-spacing:-.025em}
 /* F7 account notice. Deliberately NOT gold and NOT lock-shaped: the Premium
    card below is, and a learner must be able to tell a free sign-up from a paid
    plan at a glance. */
-.acct-link{display:inline-flex;align-items:center;min-height:44px;padding:4px 0;background:none;border:0;color:var(--acc);font:inherit;font-size:13.5px;font-weight:600;line-height:1.45;text-align:left;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
-.acct-link:hover{text-decoration-thickness:2px}
-.acct-link:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+/* THE UNLOCK PILL (owner, 5 Oct 2026, from a reference screen: "small,
+   centred and beautiful, and save the space between the 2 containers").
+   It replaces a full-width underlined sentence that took a 44 px row of its
+   own between two cards. One family for both calls to action — the invitation
+   to create an account, and the Premium gate's own button — so they read the
+   same wherever they appear. The invitation carries NO padlock: it is not a
+   Premium lock, and tests/free-premium-contract.mjs 9.2 holds that line. */
+.acct-link,.prem-lock-go{display:flex;width:fit-content;max-width:100%;margin:10px auto;align-self:center;flex:none;
+  align-items:center;justify-content:center;gap:7px;min-height:40px;padding:7px 18px;
+  border:0;border-radius:999px;background:var(--cta-grad);color:var(--on-accent);
+  font:inherit;font-size:13px;font-weight:700;line-height:1.25;text-align:center;
+  text-decoration:none;cursor:pointer;box-shadow:0 8px 18px -10px var(--cta-tint)}
+.acct-link svg,.prem-lock-go svg{width:14px;height:14px;flex:none}
+.acct-link:hover,.prem-lock-go:hover{filter:brightness(1.06)}
+.acct-link:active,.prem-lock-go:active{transform:translateY(1px)}
+.acct-link:focus-visible,.prem-lock-go:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .ai-acct{border-color:color-mix(in srgb,var(--acc) 34%,transparent);padding:11px 13px}
 .ai-acct .ai-acct-b{margin:0;font-size:13px;line-height:1.45}
 .ai-acct .ai-acct-chip{margin-right:7px;vertical-align:baseline}
@@ -5953,7 +5966,7 @@ h1.big{letter-spacing:-.025em}
 .prem-lock-chip svg{width:13px;height:13px}
 .prem-lock-b{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.5}
 .prem-lock-kept{margin:6px 0 0;color:var(--mut);font-size:12.5px;line-height:1.45;opacity:.85}
-.prem-lock-go{margin-top:14px;width:100%}
+.prem-lock-go{margin-top:12px}   /* the pill sizes to its words (see .acct-link,.prem-lock-go above); it used to be a full-width button */
 /* a locked chart keeps its shape: the preview is drawn, dimmed and inert, so
    the card never reads as a broken or empty graph */
 .prem-prev{position:relative;border-radius:14px;overflow:hidden}
@@ -21794,7 +21807,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v623";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v624";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25208,7 +25221,7 @@ function premLockHTML(cap,from,o){
     <p class="prem-lock-h"><span class="chip prem-lock-chip">${ic("lock")} ${esc(t("prem.cmp_prem"))}</span><span>${esc(t("prem.lock_"+k+"_h"))}</span></p>
     <p class="prem-lock-b">${esc(t("prem.lock_"+k+"_b"))}</p>
     ${o&&o.kept===false?"":`<p class="prem-lock-kept">${esc(t("prem.kept"))}</p>`}
-    <button type="button" class="btn-primary prem-lock-go" onclick="premiumOpen('${esc(String(from||cap))}')">${esc(t("prem.lock_cta"))}</button>
+    <button type="button" class="prem-lock-go" onclick="premiumOpen('${esc(String(from||cap))}')">${ic("lock")}${esc(t("prem.lock_cta"))}</button>
   </div>`;
 }
 window.premLockHTML=premLockHTML;

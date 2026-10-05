@@ -336,6 +336,22 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
   ok("9.5b · the whole sentence is the tap target, and it is reachable by keyboard",
     /<button[^>]*type="button"[^>]*class="acct-link"/.test(notice.html)
     && />[^<]{10,}<\/button>/.test(notice.html), notice.html);
+  /* THE SHAPE (owner, 5 Oct 2026): a small centred pill in the gap between two
+     cards, not a full-width row — and the Premium gate's button is the same
+     family, so the two read alike wherever they appear. */
+  const pill = await OUT.p.evaluate(() => {
+    const host = document.createElement("div"); host.style.width = "390px"; document.body.appendChild(host);
+    host.innerHTML = aiAcctNoticeHTML("polish") + premLockHTML("advanced_progress", "probe");
+    const a = host.querySelector(".acct-link"), g = host.querySelector(".prem-lock-go");
+    const shape = e => { if (!e) return null; const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
+      return { h: Math.round(r.height), w: Math.round(r.width), round: cs.borderTopLeftRadius, mid: Math.round(r.left + r.width / 2), full: Math.round(r.width) >= 380 }; };
+    const out = { a: shape(a), g: shape(g), hostMid: 195 };
+    host.remove(); return out;
+  });
+  ok("9.5c · both are a small centred pill: rounded, never the full width, 40 px tall",
+    pill.a && pill.g && pill.a.round === "999px" && pill.g.round === "999px"
+    && !pill.a.full && !pill.g.full && pill.a.h <= 48 && pill.g.h <= 48
+    && Math.abs(pill.a.mid - pill.hostMid) <= 3 && Math.abs(pill.g.mid - pill.hostMid) <= 3, JSON.stringify(pill));
 
   /* every screen in the brief, drawn signed out */
   const screens = await OUT.p.evaluate(async () => {
