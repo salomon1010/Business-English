@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BE Mastery — the home-screen widget (docs/ANDROID_WIDGET.md). Resizable from
+     2x2 (today's step and the streak) through 4x2 to 4x4 (the whole road map).
+     The system redraws it every 30 minutes; the app asks for a redraw when it
+     is opened and when the learner comes back from it. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:maxResizeWidth="420dp"
+    android:maxResizeHeight="420dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/be_widget_empty"
+    android:previewLayout="@layout/be_widget_medium"
+    android:description="@string/be_widget_desc"
+    android:widgetCategory="home_screen" />

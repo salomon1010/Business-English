@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's own English. Everything the learner reads on a live widget
+     comes translated from the app; these are the gallery entry and the
+     invitation a phone shows before the app has ever been opened. -->
+<resources>
+    <string name="be_widget_name">Your road map</string>
+    <string name="be_widget_desc">Today\'s step, your streak and your place on the 12-week plan.</string>
+    <string name="be_widget_empty_h">Open BE Mastery</string>
+    <string name="be_widget_empty_b">Your road map and streak will appear here.</string>
+    <dimen name="be_widget_radius">22dp</dimen>
+</resources>

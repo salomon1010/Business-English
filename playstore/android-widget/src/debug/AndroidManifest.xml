@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: a screen that renders the widget at its three sizes
+     from a sample snapshot, so the drawing can be checked on an emulator
+     without placing a widget by hand. Open it with dev-emulator.sh (or
+     adb shell am start, extras: mood done|pending|risk|cold, light, pro).
+     Never part of a release: this manifest is merged into debug variants only. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".widget.BEWidgetPreviewActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+    </application>
+</manifest>

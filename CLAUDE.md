@@ -1281,6 +1281,25 @@ Fixes / infra
   Nothing personal travels (test 4). Tests: `tests/ios-widget.mjs` (19),
   Swift `BEWidgetPluginTests`, `check-release.mjs`. Automatic signing
   registers the App Group itself — no console step.
+- **Android home-screen widget (5 Oct 2026, `staging`, `docs/ANDROID_WIDGET.md`).**
+  The Play app is a TWA, so the page cannot hand its own app anything
+  (android-browser-helper keeps the browser session private — #472). Instead:
+  the app mints a random 32-hex `wid` and appends `?wid=` to EVERY launch URL
+  (`BEWidgetLaunch.decorate`); index.html captures it beside the `?flags=`
+  strip (`localStorage.be_widget_wid`, also `?widget=<act>` → `_wgLaunch`,
+  honoured by `homeDeepLink`) and `widgetSync` publishes the SAME snapshot to
+  **be-widget** (`backend/widget/`, D1, `POST/GET/DELETE /feed`, `shapeSnap`
+  allow-list, 60 writes/h, 30-day rows, no cron) through `widgetFeedSend`
+  (≤1/min, forced at boot/hide); `BEWidgetProvider` pulls it every 30 min +
+  25 s after a launch + 4 s after return (LauncherActivity hooks). Sources in
+  `playstore/android-widget/` (Java RemoteViews + Canvas bitmaps, same three
+  sizes and mood logic as iOS); `apply.mjs` copies/patches them into the
+  Bubblewrap project after every `bubblewrap update` — Bubblewrap overwrites
+  hand edits, so NEVER edit the generated project directly. Staging Worker
+  deployed (`be-widget-staging`, D1 `91355285-…`); production NOT (owner:
+  create D1, deploy, set the `WIDGET_API` fallback, new AAB vc 10). Flag
+  `android_widget_enabled`. Tests: Worker 17, `tests/android-widget.mjs` 13,
+  `apply.test.mjs` 8.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

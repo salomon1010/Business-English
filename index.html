@@ -141,7 +141,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",widget:"https://be-widget-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -6699,7 +6699,7 @@ function isComeback(prev){
 function touchSeen(){S.lastSeen=Date.now();_hiddenAt=S.lastSeen;save()}
 /* a launch that a notification asked for: a learning nudge (?nudge=), a partner alert (#partner)
    or the daily reminder (#journey) — a comeback keeps those pages instead of taking Home */
-function homeDeepLink(v){try{return /[?&]nudge=/.test(location.search)||(!!location.hash&&(v==="partner"||v==="journey"))}catch(e){return false}}
+function homeDeepLink(v){try{return /[?&]nudge=/.test(location.search)||!!window._wgLaunch||(!!location.hash&&(v==="partner"||v==="journey"))}catch(e){return false}}
 /* how long they were away, as a small enum — the Worker allow-list has only these */
 function gapBand(prev){const d=(Date.now()-prev)/864e5;return d<1?"2h-1d":d<=3?"1-3d":d<=7?"4-7d":"8d+"}
 addEventListener("pagehide",()=>{_adHidAt=Date.now();touchSeen();if(_saveH!==null)saveFlush()});
@@ -17408,6 +17408,10 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
 /* the staging host (and a staging build) has its own push Worker, key and
    store (be-push-staging), so testing nudges never touches production */
 const PUSH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.push)return e.push}catch(x){}return "https://be-push.nore-ngou.workers.dev"})();
+/* The Android widget's feed (be-widget, docs/ANDROID_WIDGET.md). Empty in
+   production until the owner deploys that Worker: with no address the page
+   publishes nothing and the Android widget shows its invitation. */
+const WIDGET_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.widget)return e.widget}catch(x){}return ""})();
 /* Branded password-reset email (backend/mail, Brevo). Empty string = Firebase's own plain email. */
 /* be-mail belongs to the PRODUCTION Firebase project (FB_PROJECT_ID be-mastery,
    links back to app.lomonec.com). Staging signs in to the test project, so there
@@ -17638,6 +17642,19 @@ function beNativeWidget(){
   return null;
 }
 function widgetOn(){try{return !!(IS_IOS_APP&&flag("ios_widget_enabled")&&beNativeWidget())}catch(e){return false}}
+/* Android: the Play app is a Trusted Web Activity, so the page cannot hand
+   anything to it directly. It publishes the same snapshot to be-widget under
+   the id the app put on the launch URL (?wid=), and the widget pulls it. */
+function widgetFeedWid(){try{const w=localStorage.getItem("be_widget_wid")||"";return /^[a-f0-9]{32}$/.test(w)?w:""}catch(e){return ""}}
+function widgetFeedOn(){try{return !!(WIDGET_API&&widgetFeedWid()&&flag("android_widget_enabled"))}catch(e){return false}}
+let _wgFeedAt=0;
+function widgetFeedSend(snapJson,force){
+  const wid=widgetFeedWid();if(!wid||!WIDGET_API)return;
+  const now=Date.now();if(!force&&now-_wgFeedAt<60000)return;   // the Worker allows 60 an hour; one a minute is plenty
+  _wgFeedAt=now;
+  try{fetch(WIDGET_API+"/feed",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,
+    body:JSON.stringify({wid,snap:JSON.parse(snapJson)})}).catch(()=>{})}catch(e){}
+}
 /* the go() string behind a Home / Road-map button → the widget's deep link:
    go('session',3,'Tue') → {view:"session",w:3,d:"Tue"}; a non-go action → Home */
 function widgetGoParse(s){
@@ -17694,7 +17711,8 @@ function widgetSnapshot(){
    every tap. `force` is for the moments that must not wait — the app going
    to the background, a launch. */
 function widgetSync(force){
-  if(!widgetOn())return;
+  const ios=widgetOn(),feed=widgetFeedOn();
+  if(!ios&&!feed)return;
   if(_wgH){clearTimeout(_wgH);_wgH=null}
   const run=()=>{
     _wgH=null;
@@ -17705,7 +17723,8 @@ function widgetSync(force){
     const sig=json.replace(/"at":\d+,/,"");
     if(sig===_wgLast)return;
     _wgLast=sig;
-    try{Promise.resolve(beNativeWidget().update({snapshot:json})).catch(()=>{})}catch(e){}
+    if(ios)try{Promise.resolve(beNativeWidget().update({snapshot:json})).catch(()=>{})}catch(e){}
+    if(feed)widgetFeedSend(json,force);
   };
   if(force)run();else _wgH=setTimeout(run,1200);
 }
@@ -17713,6 +17732,14 @@ function widgetSync(force){
 function widgetClear(){
   _wgLast="";if(_wgH){clearTimeout(_wgH);_wgH=null}
   try{const P=beNativeWidget();if(P)Promise.resolve(P.clear()).catch(()=>{})}catch(e){}
+  try{const wid=widgetFeedWid();if(wid&&WIDGET_API)fetch(WIDGET_API+"/feed?wid="+wid,{method:"DELETE",keepalive:true}).catch(()=>{})}catch(e){}
+}
+/* Android, at boot: publish (twice — the curriculum may still be loading),
+   and land where a tap on the widget asked (?widget=words → the due words;
+   the page itself came in on the hash, which bootMain already honours). */
+function widgetFeedBoot(){
+  if(widgetFeedOn()){widgetSync(true);setTimeout(()=>{try{widgetSync(true)}catch(e){}},2500)}
+  if(window._wgLaunch==="words")setTimeout(()=>{try{go("practice");pracStudyDue()}catch(e){}},400);
 }
 /* A tap on the widget: the plugin has already reduced the URL to a known
    view and, at most, a week, a day and an action. The same destinations the
@@ -21960,7 +21987,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v627";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v628";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23644,6 +23671,7 @@ const FLAGS_DEFAULT={
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
+  android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
@@ -23672,6 +23700,7 @@ const FLAGS_STAGING={
   social_signin_enabled:true,
   ios_push_enabled:true,
   ios_widget_enabled:true,
+  android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the be-mastery-test console
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
@@ -23718,6 +23747,20 @@ const FLAGS_IOS={home_v2_enabled:true};
     else for(const raw of v.split(",")){const off=raw.startsWith("-"),n=raw.replace(/^-/,"").trim();if(n in FLAGS_DEFAULT)o[n]=!off}
     if(Object.keys(o).length)localStorage.setItem("be_flags",JSON.stringify(o));else localStorage.removeItem("be_flags");
     q.delete("flags");const rest=q.toString();history.replaceState(null,"",location.pathname+(rest?"?"+rest:"")+location.hash);
+  }catch(e){}
+})();
+/* The Android app (a Trusted Web Activity) can hand the page nothing but the
+   launch URL. It appends ?wid=<its widget id> on every launch and ?widget=…
+   when a tap on the widget opened it (docs/ANDROID_WIDGET.md). Both are read
+   once here, kept, and stripped from the address before anything else runs. */
+(function(){
+  try{
+    const q=new URLSearchParams(location.search),w=q.get("wid"),a=q.get("widget");
+    if(w==null&&a==null)return;
+    if(w&&/^[a-f0-9]{32}$/.test(w))localStorage.setItem("be_widget_wid",w);
+    if(a!=null)window._wgLaunch=a||"1";
+    q.delete("wid");q.delete("widget");const rest=q.toString();
+    history.replaceState(null,"",location.pathname+(rest?"?"+rest:"")+location.hash);
   }catch(e){}
 })();
 function flag(name){
@@ -34236,7 +34279,7 @@ window.wcClose=()=>{
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
-else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}}
+else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}try{widgetFeedBoot()}catch(e){}}
 try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
