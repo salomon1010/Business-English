@@ -197,15 +197,27 @@ console.log("\n# native / banner");
       overlap: btns.filter(hit).length, overflow: document.documentElement.scrollWidth > innerWidth + 1,
       both: document.querySelectorAll("#v-shadow [data-ad-slot]").length };
   });
-  ok("N5b · the Shadow library carries a second labelled slot between the featured video and the list, overlapping no control", lib.slot && lib.place === "library_top" && lib.label === "Advertisement" && lib.filled && lib.dashed === "dashed" && lib.afterStatic && lib.beforeFeed && lib.overlap === 0 && !lib.overflow, JSON.stringify(lib));
+  /* no dashed border here, unlike the foot cards: the strip is edge to edge
+     and a border across the screen would read as a divider (see N5g) */
+  ok("N5b · the Shadow library carries a second labelled slot between the featured video and the list, overlapping no control", lib.slot && lib.place === "library_top" && lib.label === "Advertisement" && lib.filled && lib.dashed === "none" && lib.afterStatic && lib.beforeFeed && lib.overlap === 0 && !lib.overflow, JSON.stringify(lib));
   ok("N5c · it is a SECOND slot: the foot one is still there, so the page carries both", lib.both === 2, JSON.stringify({ both: lib.both }));
   /* a SHORT strip, not a block that pushes the list off the screen (owner, 5 Oct 2026) */
   const sz = await p.evaluate(() => {
     const top = document.querySelector('[data-ad-slot][data-placement="library_top"]'), foot = document.querySelector('[data-ad-slot][data-placement="library"]');
     const h = e => e ? Math.round(e.getBoundingClientRect().height) : null;
-    return { top: h(top), foot: h(foot), vh: innerHeight, reserved: adNativeH("library_top"), reservedFoot: adNativeH("home_feed") };
+    const r = top && top.getBoundingClientRect();
+    const rem = top && top.querySelector(".ad-remove");
+    return { top: h(top), foot: h(foot), vh: innerHeight, reserved: adNativeH("library_top"), reservedFoot: adNativeH("home_feed"),
+      left: r && Math.round(r.left), width: r && Math.round(r.width), vw: innerWidth,
+      label: !!(top && top.querySelector(".ad-label")), removeShown: !!(rem && getComputedStyle(rem).display !== "none"),
+      rows: top ? top.querySelectorAll(".ad-native-body").length : 0 };
   });
   ok("N5f · the in-content slot is a short strip: well under a quarter of the screen, and shorter than the foot slot's reservation", sz.top !== null && sz.top < sz.vh / 4 && sz.reserved < sz.reservedFoot, JSON.stringify(sz));
+  /* the shape the owner photographed: one row, the full width of the screen,
+     the label in a corner chip rather than on a line of its own, and no
+     Premium link stealing a second row (it stays on the foot slots) */
+  ok("N5g · and it is the shape asked for: edge to edge, one row about 68 px, a corner label, no second row",
+    sz.left === 0 && sz.width >= sz.vw - 1 && sz.top <= 76 && sz.label === true && sz.removeShown === false, JSON.stringify(sz));
   /* searching: an ad above somebody's search results is not "between the video and the list" */
   const searched = await p.evaluate(async () => { _shLibQ = "weld"; shLibMount(); await new Promise(z => setTimeout(z, 900));
     const h = document.getElementById("shLibAdHost"); return { hidden: !h || h.hidden, slot: !!(h && h.querySelector("[data-ad-slot]")) }; });
@@ -337,7 +349,8 @@ console.log("\n# every programme is in the ad system, and only the plan takes ad
   /* a Welding learner must be offered the same way out as anyone else:
      the entitlement is per ACCOUNT, so buying Premium silences ads here too */
   const esc = await p.evaluate(() => {
-    const s = document.querySelector("[data-ad-slot]");
+    /* the FOOT slot: the in-content strip deliberately carries no link (N5g) */
+    const s = document.querySelector('#v-home [data-ad-slot],[data-ad-slot][data-placement="library"],[data-ad-slot][data-placement="progress_foot"]');
     return { slot: !!s, remove: !!(s && s.querySelector(".ad-remove")), offered: premOffered() };
   });
   ok("TW8 · and the way out is offered on Welding too: the 'Remove ads with Premium' button sits on the slot whenever billing is live",
