@@ -21757,7 +21757,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v489";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v621";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23471,11 +23471,18 @@ const FLAGS_STAGING={
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
      TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
-     testUnitsAllowed says it may. ads_mock_provider stays false deliberately —
-     the point is to exercise the real GMA bridge, not the labelled TEST card.
+     testUnitsAllowed says it may.
+     ads_mock_provider is ON here too since 5 Oct 2026 (owner: "i installed it
+     as app, nothing"). It is NOT a step back from the real bridge:
+     adProvider() tries `native` FIRST and only falls back to `mock`, so an
+     iPhone build still exercises Google's SDK exactly as before. The mock
+     fills the one case that had no provider at all — the staging site in a
+     browser, and the Home Screen web app, which has no BENativeAds and, on
+     iOS, its own storage container, so the ?flags= override set in Safari
+     never reached it. Labelled TEST, can never earn or spend.
      FLAGS_DEFAULT (production) keeps ads_enabled:false and is untouched. */
   ads_enabled:true,
-  ads_mock_provider:false,
+  ads_mock_provider:true,
   /* Premium is ON for review on staging (owner, 30 September 2026). beEnv()
      already points entApiBase() at be-entitlements-staging, so planOn() is
      true here and every gate is live: the offer, the lock cards, the locked
