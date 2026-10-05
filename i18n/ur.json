@@ -3392,5 +3392,7 @@
  "ai.acct_link_ai": "Create your account to unlock AI feedback.",
  "ai.acct_link_convo": "Create your account to unlock the AI conversation.",
  "prem.unavailable_ios": "Premium can't be bought on this device right now. Close BE Mastery, open it again, and try once more.",
- "home.rows_prem_cta": "Unlock recommendations"
+ "home.rows_prem_cta": "Unlock recommendations",
+ "wg.risk": "آج رات اپنا سلسلہ برقرار رکھیں",
+ "wg.start": "آج ایک نیا سلسلہ شروع کریں"
 }

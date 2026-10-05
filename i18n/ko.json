@@ -3392,5 +3392,7 @@
  "ai.acct_link_ai": "Create your account to unlock AI feedback.",
  "ai.acct_link_convo": "Create your account to unlock the AI conversation.",
  "prem.unavailable_ios": "Premium can't be bought on this device right now. Close BE Mastery, open it again, and try once more.",
- "home.rows_prem_cta": "Unlock recommendations"
+ "home.rows_prem_cta": "Unlock recommendations",
+ "wg.risk": "오늘 밤 연속 기록을 지키세요",
+ "wg.start": "오늘 새로운 연속 기록을 시작하세요"
 }

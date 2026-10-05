@@ -1261,6 +1261,26 @@ Fixes / infra
   provision the extension's App ID; it needs NO push capability of its own.
   A wrong-template ExtensionKit target (`BENotificationService`) was created
   and removed the same day — `check-release.mjs` fails if it comes back.
+- **iOS home-screen widget (5 Oct 2026, `staging`, `docs/IOS_WIDGET.md`).**
+  WidgetKit target `BEWidgetExtension` (`mobile/ios/ios/App/BEWidget/`,
+  bundle id `com.lomonec.bemastery.BEWidget`, iOS 15, iPhone; small / medium /
+  large + the three lock-screen shapes on iOS 16+). **The app PUBLISHES, the
+  widget draws**: `widgetSnapshot()` (index.html, beside the push code) builds
+  a ≤6 KB translated JSON from the same functions Home and the Road map use;
+  `widgetSync()` (called from `saveFlush`, debounced 1.2 s, sent only when the
+  signature changed — WidgetKit has a redraw budget; forced on hide and at
+  boot) hands it to the `BEWidget` plugin (`BEWidgetPlugin.swift`), which
+  stores it in App Group `group.com.lomonec.bemastery` (key
+  `be_widget_snapshot`, both entitlement files) and reloads timelines. The
+  widget computes only the time of day (`BEWidgetMood`: done / pending / at
+  risk from 18:00 local / cold; UTC day keys like the app's `streak()`).
+  Taps: `bemastery://open?view=…&w=&d=&act=` (URL type in Info.plist) →
+  `BEMasteryApp.onOpenURL` → `BEWidgetBox.route` (allow-lists) → plugin
+  `open` event / `pendingOpen()` → `widgetOpenRoute()`. `fbWipeDevice` →
+  `widgetClear()`; no profile = nothing published. Flag `ios_widget_enabled`.
+  Nothing personal travels (test 4). Tests: `tests/ios-widget.mjs` (19),
+  Swift `BEWidgetPluginTests`, `check-release.mjs`. Automatic signing
+  registers the App Group itself — no console step.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

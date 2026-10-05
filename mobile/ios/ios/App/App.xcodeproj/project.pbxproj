@@ -19,6 +19,10 @@
 		A870695B307339020080B0C3 /* BEPushPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695A307339020080B0C3 /* BEPushPlugin.swift */; };
 		A870695D307339120080B0C3 /* BEAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695C307339120080B0C3 /* BEAppDelegate.swift */; };
 		A870697A30737E030080B0C3 /* BEPushService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A870697330737E030080B0C3 /* BEPushService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A8F9C310307386D3009B9A0F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8F9C30F307386D3009B9A0F /* WidgetKit.framework */; };
+		A8F9C312307386D3009B9A0F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8F9C311307386D3009B9A0F /* SwiftUI.framework */; };
+		A8F9C31D307386D5009B9A0F /* BEWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A8F9C30D307386D3009B9A0F /* BEWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A8F9C32630738829009B9A0F /* BEWidgetPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F9C32530738829009B9A0F /* BEWidgetPlugin.swift */; };
 		BE0000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000001 /* PrivacyInfo.xcprivacy */; };
 		BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000003 /* BEStoreKitPlugin.swift */; };
 		BE0000000000000000000006 /* BEBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000005 /* BEBridgeViewController.swift */; };
@@ -37,6 +41,13 @@
 			remoteGlobalIDString = A870697230737E030080B0C3;
 			remoteInfo = BEPushService;
 		};
+		A8F9C31B307386D5009B9A0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A8F9C30C307386D3009B9A0F;
+			remoteInfo = BEWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +58,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				A870697A30737E030080B0C3 /* BEPushService.appex in Embed Foundation Extensions */,
+				A8F9C31D307386D5009B9A0F /* BEWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,6 +82,11 @@
 		A870695A307339020080B0C3 /* BEPushPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEPushPlugin.swift; sourceTree = "<group>"; };
 		A870695C307339120080B0C3 /* BEAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEAppDelegate.swift; sourceTree = "<group>"; };
 		A870697330737E030080B0C3 /* BEPushService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BEPushService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8F9C30D307386D3009B9A0F /* BEWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BEWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8F9C30F307386D3009B9A0F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
+		A8F9C311307386D3009B9A0F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
+		A8F9C32230738757009B9A0F /* BEWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BEWidgetExtension.entitlements; sourceTree = "<group>"; };
+		A8F9C32530738829009B9A0F /* BEWidgetPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEWidgetPlugin.swift; sourceTree = "<group>"; };
 		BE0000000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BE0000000000000000000003 /* BEStoreKitPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEStoreKitPlugin.swift; sourceTree = "<group>"; };
 		BE0000000000000000000005 /* BEBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEBridgeViewController.swift; sourceTree = "<group>"; };
@@ -92,12 +109,20 @@
 			);
 			target = A870697230737E030080B0C3 /* BEPushService */;
 		};
+		A8F9C320307386D5009B9A0F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A8F9C30C307386D3009B9A0F /* BEWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A80562D23072AB9500A48E0C /* BEMasteryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = BEMasteryTests; sourceTree = "<group>"; };
 		A80562DD3072AB9600A48E0C /* BEMasteryUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = BEMasteryUITests; sourceTree = "<group>"; };
 		A870697430737E030080B0C3 /* BEPushService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A870697B30737E030080B0C3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BEPushService; sourceTree = "<group>"; };
+		A8F9C313307386D3009B9A0F /* BEWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A8F9C320307386D5009B9A0F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BEWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,17 +157,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A8F9C30A307386D3009B9A0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A8F9C312307386D3009B9A0F /* SwiftUI.framework in Frameworks */,
+				A8F9C310307386D3009B9A0F /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
+				A8F9C32230738757009B9A0F /* BEWidgetExtension.entitlements */,
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				A80562D23072AB9500A48E0C /* BEMasteryTests */,
 				A80562DD3072AB9600A48E0C /* BEMasteryUITests */,
 				A870697430737E030080B0C3 /* BEPushService */,
+				A8F9C313307386D3009B9A0F /* BEWidget */,
+				A8F9C30E307386D3009B9A0F /* Frameworks */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -154,6 +191,7 @@
 				A80562D13072AB9500A48E0C /* BEMasteryTests.xctest */,
 				A80562DC3072AB9600A48E0C /* BEMasteryUITests.xctest */,
 				A870697330737E030080B0C3 /* BEPushService.appex */,
+				A8F9C30D307386D3009B9A0F /* BEWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -196,8 +234,18 @@
 				BE0000000000000000000010 /* BEAuthPlugin.swift */,
 				BE0000000000000000000013 /* BEAdsPlugin.swift */,
 				A870695A307339020080B0C3 /* BEPushPlugin.swift */,
+				A8F9C32530738829009B9A0F /* BEWidgetPlugin.swift */,
 			);
 			path = Plugins;
+			sourceTree = "<group>";
+		};
+		A8F9C30E307386D3009B9A0F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A8F9C30F307386D3009B9A0F /* WidgetKit.framework */,
+				A8F9C311307386D3009B9A0F /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -216,6 +264,7 @@
 			);
 			dependencies = (
 				A870697930737E030080B0C3 /* PBXTargetDependency */,
+				A8F9C31C307386D5009B9A0F /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -293,6 +342,28 @@
 			productReference = A870697330737E030080B0C3 /* BEPushService.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		A8F9C30C307386D3009B9A0F /* BEWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A8F9C321307386D5009B9A0F /* Build configuration list for PBXNativeTarget "BEWidgetExtension" */;
+			buildPhases = (
+				A8F9C309307386D3009B9A0F /* Sources */,
+				A8F9C30A307386D3009B9A0F /* Frameworks */,
+				A8F9C30B307386D3009B9A0F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A8F9C313307386D3009B9A0F /* BEWidget */,
+			);
+			name = BEWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BEWidgetExtension;
+			productReference = A8F9C30D307386D3009B9A0F /* BEWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -315,6 +386,9 @@
 						CreatedOnToolsVersion = 27.0;
 					};
 					A870697230737E030080B0C3 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					A8F9C30C307386D3009B9A0F = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
@@ -344,6 +418,7 @@
 				A80562D03072AB9500A48E0C /* BEMasteryTests */,
 				A80562DB3072AB9600A48E0C /* BEMasteryUITests */,
 				A870697230737E030080B0C3 /* BEPushService */,
+				A8F9C30C307386D3009B9A0F /* BEWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -384,6 +459,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A8F9C30B307386D3009B9A0F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -392,6 +474,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A80562E83072AB9F00A48E0C /* BridgeView.swift in Sources */,
+				A8F9C32630738829009B9A0F /* BEWidgetPlugin.swift in Sources */,
 				A80562E63072AB9D00A48E0C /* ContentView.swift in Sources */,
 				BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */,
 				A870695B307339020080B0C3 /* BEPushPlugin.swift in Sources */,
@@ -424,6 +507,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A8F9C309307386D3009B9A0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -431,6 +521,11 @@
 			isa = PBXTargetDependency;
 			target = A870697230737E030080B0C3 /* BEPushService */;
 			targetProxy = A870697830737E030080B0C3 /* PBXContainerItemProxy */;
+		};
+		A8F9C31C307386D5009B9A0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A8F9C30C307386D3009B9A0F /* BEWidgetExtension */;
+			targetProxy = A8F9C31B307386D5009B9A0F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -600,6 +695,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -623,6 +719,7 @@
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -815,6 +912,104 @@
 			};
 			name = Release;
 		};
+		A8F9C31E307386D5009B9A0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = BEWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BEWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BE Mastery";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.7;
+				MARKETING_VERSION = 1.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		A8F9C31F307386D5009B9A0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = BEWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BEWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BE Mastery";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.7;
+				MARKETING_VERSION = 1.1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -859,6 +1054,15 @@
 			buildConfigurations = (
 				A870697D30737E030080B0C3 /* Debug */,
 				A870697E30737E030080B0C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A8F9C321307386D5009B9A0F /* Build configuration list for PBXNativeTarget "BEWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8F9C31E307386D5009B9A0F /* Debug */,
+				A8F9C31F307386D5009B9A0F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -5,12 +5,12 @@ import Capacitor
 @testable import App
 
 /// The shell itself: the bridge view controller that `BridgeView` hosts must
-/// come up with the four app-local plugins registered, or the web layer has
-/// no `BEStoreKit`, `BEAuth`, `BEAds` or `BEPush` to talk to.
+/// come up with the five app-local plugins registered, or the web layer has
+/// no `BEStoreKit`, `BEAuth`, `BEAds`, `BEPush` or `BEWidget` to talk to.
 @MainActor
 struct BEMasteryTests {
 
-    @Test func bridgeRegistersTheFourAppLocalPlugins() throws {
+    @Test func bridgeRegistersTheFiveAppLocalPlugins() throws {
         let vc = BEBridgeViewController()
         vc.loadViewIfNeeded()
         let bridge = try #require(vc.bridge)
@@ -18,6 +18,7 @@ struct BEMasteryTests {
         #expect(bridge.plugin(withName: "BEAuth") is BEAuthPlugin)
         #expect(bridge.plugin(withName: "BEAds") is BEAdsPlugin)
         #expect(bridge.plugin(withName: "BEPush") is BEPushPlugin)
+        #expect(bridge.plugin(withName: "BEWidget") is BEWidgetPlugin)
     }
 
     /// The APNs environment decides which of Apple's two push hosts a token

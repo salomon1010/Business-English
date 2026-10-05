@@ -155,11 +155,20 @@ console.log("\n== Info.plist / privacy manifest");
        silently swallows every notification. */
     ok("entitlements: push notifications (development here; the App Store export rewrites it to production)",
       /<key>aps-environment<\/key>\s*<string>(development|production)<\/string>/.test(e));
-    const allowed = new Set(["com.apple.developer.applesignin", "aps-environment"]);
+    /* The App Group (5 Oct 2026) is how the home-screen widget reads what the
+       app publishes — docs/IOS_WIDGET.md. One group, the project's own id. */
+    const GROUP = "group.com.lomonec.bemastery";
+    ok("entitlements: the widget's App Group, and only that group",
+      new RegExp(`<key>com\\.apple\\.security\\.application-groups</key>\\s*<array>\\s*<string>${GROUP.replace(/\./g, "\\.")}</string>\\s*</array>`).test(e));
+    const allowed = new Set(["com.apple.developer.applesignin", "aps-environment", "com.apple.security.application-groups"]);
     const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => !allowed.has(k));
     ok(`entitlements: nothing else requested (${extra.length ? extra.join(", ") : "none"})`, extra.length === 0);
     const sign = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = ([^;]+);/g)].map(m => m[1]);
-    ok("CODE_SIGN_ENTITLEMENTS = App/App.entitlements in both configurations", sign.length === 2 && sign.every(v => v === "App/App.entitlements"), sign.join(", "));
+    ok("CODE_SIGN_ENTITLEMENTS: App/App.entitlements in both app configurations, BEWidgetExtension.entitlements in both widget configurations",
+      sign.filter(v => v === "App/App.entitlements").length === 2 && sign.filter(v => v === "BEWidgetExtension.entitlements").length === 2 && sign.length === 4, sign.join(", "));
+    const went = join(ios, "ios", "App", "BEWidgetExtension.entitlements");
+    ok("the widget extension carries the same App Group and nothing else",
+      existsSync(went) && read(went).includes(`<string>${GROUP}</string>`) && [...read(went).matchAll(/<key>([^<]+)<\/key>/g)].every(m => m[1] === "com.apple.security.application-groups"));
     ok("BEAuthPlugin.swift compiled into the app target", /BEAuthPlugin\.swift in Sources/.test(pbx));
     ok("BEPushPlugin.swift + BEAppDelegate.swift compiled into the app target", /BEPushPlugin\.swift in Sources/.test(pbx) && /BEAppDelegate\.swift in Sources/.test(pbx));
     const vc = read(join(ios, "ios", "App", "App", "Lifecycle", "BEBridgeViewController.swift"));
@@ -190,6 +199,32 @@ console.log("\n== Info.plist / privacy manifest");
        (select BENotificationService → right-click → Delete). */
     ok("no leftover BENotificationService target (delete it in Xcode — it is an ExtensionKit stub that cannot serve notifications)",
       !/BENotificationService/.test(pbx));
+    /* The home-screen widget (5 Oct 2026, docs/IOS_WIDGET.md): a WidgetKit
+       extension fed through the App Group by the BEWidget plugin; a tap opens
+       bemastery://open?view=… which only BEWidgetBox.route may interpret. */
+    ok("BEWidgetPlugin.swift compiled into the app target and registered on the bridge",
+      /BEWidgetPlugin\.swift in Sources/.test(pbx) && /registerPluginInstance\(BEWidgetPlugin\(\)\)/.test(vc));
+    ok("BEWidgetExtension is an app-extension target with the WidgetKit extension point",
+      /BEWidgetExtension\.appex in Embed Foundation Extensions/.test(pbx)
+      && /com\.apple\.widgetkit-extension/.test(read(join(ios, "ios", "App", "BEWidget", "Info.plist"))));
+    ok("BEWidgetExtension runs on the same iOS as the app (15.0), iPhone only, iOS only",
+      !/BEWidgetExtension[\s\S]{0,4000}?IPHONEOS_DEPLOYMENT_TARGET = 2[0-9]\.0;/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2000}?IPHONEOS_DEPLOYMENT_TARGET = 15\.0;/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2500}?SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2500}?TARGETED_DEVICE_FAMILY = 1;/.test(pbx));
+    const wplug = read(join(ios, "ios", "App", "App", "Plugins", "BEWidgetPlugin.swift"));
+    const wmodel = read(join(ios, "ios", "App", "BEWidget", "BEWidgetModel.swift"));
+    const wview = read(join(ios, "ios", "App", "BEWidget", "BEWidget.swift"));
+    const c = (src, name) => (src.match(new RegExp(`static let ${name} = "([^"]+)"`)) || [])[1];
+    ok("the app writes and the widget reads the SAME App Group and key",
+      c(wplug, "group") === GROUP && c(wmodel, "group") === GROUP && !!c(wplug, "key") && c(wplug, "key") === c(wmodel, "key"),
+      `${c(wplug, "group")}/${c(wplug, "key")} vs ${c(wmodel, "group")}/${c(wmodel, "key")}`);
+    ok("widget sources: nothing logged, nothing fetched (the widget draws the snapshot and nothing else)",
+      ![wplug, wmodel, wview].some(s => /\bprint\(|NSLog|os_log|URLSession|URLRequest/.test(s)));
+    ok("Info.plist registers the bemastery:// scheme the widget opens, and the scene routes it through BEWidgetBox",
+      /<key>CFBundleURLSchemes<\/key>\s*<array>\s*<string>bemastery<\/string>/.test(plist) && /BEWidgetBox\.shared\.deliver\(url: url\)/.test(app));
+    ok("widget taps are allow-listed (view, week, weekday, action) before they reach the web layer",
+      /static let views: Set<String>/.test(wplug) && /static let days: Set<String>/.test(wplug) && /\(1\.\.\.52\)\.contains/.test(wplug));
     const sw = read(join(ios, "ios", "App", "App", "Plugins", "BEAuthPlugin.swift"));
     ok("BEAuthPlugin: no client secret, nothing logged", !/client_secret/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
     ok("BEAuthPlugin: Apple request is nonce-bound (SHA-256)", /request\.nonce = Self\.sha256\(raw\)/.test(sw));

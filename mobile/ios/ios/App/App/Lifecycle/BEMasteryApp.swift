@@ -5,11 +5,10 @@ import Capacitor
 /// its only content. The web app in `public/` is the product; nothing here
 /// draws a screen of its own.
 ///
-/// URL opens and universal links are forwarded to Capacitor's
-/// `ApplicationDelegateProxy`, which posts the notifications the bridge and
-/// its plugins listen for. The app declares no URL types and no associated
-/// domains today, so neither fires yet; the forwarding is kept so a future
-/// deep link reaches the web layer the way Capacitor expects.
+/// URL opens: the home-screen widget opens `bemastery://open?view=…`, which
+/// `BEWidgetBox` routes to the web layer (5 Oct 2026). Any other URL, and a
+/// universal link, is forwarded to Capacitor's `ApplicationDelegateProxy`,
+/// which posts the notifications the bridge and its plugins listen for.
 @main
 struct BEMasteryApp: App {
     /* Notifications are the one thing a SwiftUI scene cannot receive: Apple
@@ -21,6 +20,7 @@ struct BEMasteryApp: App {
         WindowGroup {
             ContentView()
                 .onOpenURL { url in
+                    if BEWidgetBox.shared.deliver(url: url) { return }
                     _ = ApplicationDelegateProxy.shared.application(UIApplication.shared, open: url, options: [:])
                 }
                 .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in

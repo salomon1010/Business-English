@@ -3392,5 +3392,7 @@
  "ai.acct_link_ai": "Crea tu cuenta para desbloquear el análisis con IA.",
  "ai.acct_link_convo": "Crea tu cuenta para desbloquear la conversación con IA.",
  "prem.unavailable_ios": "Premium no se puede comprar en este dispositivo ahora mismo. Cierra BE Mastery, ábrelo de nuevo e inténtalo otra vez.",
- "home.rows_prem_cta": "Desbloquear las recomendaciones"
+ "home.rows_prem_cta": "Desbloquear las recomendaciones",
+ "wg.risk": "Mantén tu racha viva esta noche",
+ "wg.start": "Empieza una nueva racha hoy"
 }

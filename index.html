@@ -6668,6 +6668,7 @@ function saveFlush(){
   try{navBadges()}catch(e){}
   try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}
   try{if(window.fbPush)fbPush()}catch(e){}
+  try{if(typeof widgetSync==="function")widgetSync()}catch(e){}   // the iOS home-screen widget follows every saved change (debounced inside)
 }
 function save(){
   S.savedAt=Date.now();
@@ -7131,6 +7132,7 @@ const I18N_EN={
  "profile.guest":"Guest",
  "profile.sub_default":"Practising English with BE Mastery",
  "profile.day_streak":"day streak",
+ "wg.risk":"Keep your streak alive tonight","wg.start":"Start a new streak today",
  "setup.title":"App Setup",
  "setup.sub":"Your settings and what BE Mastery does.",
  "setup.row_sub":"Settings and about the app",
@@ -17615,6 +17617,132 @@ function pushNativeBoot(){
      deliberate "clear all" if one is ever wanted — nothing calls it. */
 }
 
+/* ---- The home-screen widget (iOS, 5 Oct 2026; docs/IOS_WIDGET.md).
+   A widget runs in its own process and cannot read this page's storage, so
+   the app PUBLISHES what the widget shows: a small snapshot of the open
+   programme — streak, this week's goal, the road map as a row of states,
+   today's step with the words to say it in, the words due — already in the
+   learner's language, through the shell's BEWidget plugin into the App Group.
+   The widget computes nothing but the time of day; everything it draws is
+   decided here, by the same functions Home and the Road map use, so it can
+   never disagree with the app. Nothing personal travels: no name, no email,
+   no transcript — the learner's own numbers and the day's title.
+   Day keys are the app's own (UTC `toISOString`), so the widget's "practised
+   today" matches streak(). */
+let _beWidgetPlug=null,_wgLast="",_wgH=null;
+function beNativeWidget(){
+  if(_beWidgetPlug)return _beWidgetPlug;
+  if(!IS_IOS_APP)return null;
+  const p=capPlugin("BEWidget");
+  if(p&&typeof p.update==="function"){_beWidgetPlug=p;return p}
+  return null;
+}
+function widgetOn(){try{return !!(IS_IOS_APP&&flag("ios_widget_enabled")&&beNativeWidget())}catch(e){return false}}
+/* the go() string behind a Home / Road-map button → the widget's deep link:
+   go('session',3,'Tue') → {view:"session",w:3,d:"Tue"}; a non-go action → Home */
+function widgetGoParse(s){
+  const m=/^go\('([a-z]+)'(?:,\s*(\d+))?(?:,\s*'([A-Za-z]+)')?\)/.exec(String(s||""));
+  if(!m)return {view:"home"};
+  const o={view:m[1]};if(m[2])o.w=+m[2];if(m[3])o.d=m[3];return o;
+}
+function widgetSnapshot(){
+  const safe=(f,d)=>{try{const v=f();return v==null?d:v}catch(e){return d}};
+  const str=(f,d)=>{const v=safe(f,d);return typeof v==="string"&&v.trim()?v.trim():d};
+  const num=(f,d)=>{const v=safe(f,d);return Number.isFinite(+v)?+v:d};
+  const key=(k,vars,d)=>str(()=>{const v=t(k,vars);return v===k?"":v},d||"");
+  const pro=safe(()=>isProfessionalJourney(),false);
+  const lang=str(()=>S.profile.lang,"en");
+  const rm=safe(()=>rmSteps(),null)||{steps:[]};
+  const steps=(rm.steps||[]).filter(s=>s.kind==="fnd"||s.kind==="week").map(s=>s.state==="done"||s.state==="now"||s.state==="next"?s.state:"locked");
+  const pos=safe(()=>currentPos(),{w:1,d:"Mon"});
+  const weeks=safe(()=>trackWeeks(),[])||[],wk=weeks[pos.w-1]||{};
+  const data=safe(()=>rmData(),null)||{};
+  const done=num(()=>totalDone(),0),total=num(()=>trackSessionCount(),0);
+  const wg=safe(()=>calWeekProgress(),{n:0,goal:6})||{};
+  const dates=safe(()=>areaDates(),[])||[];
+  const gate=safe(()=>homeGateCard(),null);
+  const finished=total>0&&done>=total;
+  const link=widgetGoParse(data.cta&&data.cta.go);
+  const td=data.today||{};
+  const unit=str(()=>(pro?rmUnit(1):t("rm.week_n",{n:1})).replace(/\s*\d+\s*$/,""),pro?"Stage":"Week");
+  return {
+    v:1,at:Date.now(),lang,dir:["ar","ur"].includes(lang)?"rtl":"ltr",
+    theme:document.documentElement.getAttribute("data-theme")==="light"?"light":"dark",
+    area:pro?"pro":"ge",
+    programme:key(pro?"area.name_pro":"area.name_gen",null,pro?"Welding English":"General English"),
+    streak:num(()=>streak(),0),best:num(()=>bestStreak(),0),lastDay:dates.length?String(dates[dates.length-1]):"",
+    week:{n:+pos.w||1,total:weeks.length,done:num(()=>weekDone(pos.w),0),per:num(()=>trackDays().length,7),title:str(()=>wk.theme,"")},
+    overall:{done,total,pct:total?Math.round(done/total*100):0},
+    weekGoal:{n:num(()=>wg.n,0),goal:num(()=>wg.goal,6)},
+    words:num(()=>Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length,0),
+    today:Object.assign({kind:gate?gate.kind:finished?"finished":"week",kicker:str(()=>td.k,""),title:str(()=>td.t,str(()=>wk.theme,"")),
+      cta:str(()=>data.cta&&data.cta.label,key("home.cta_continue",null,"Continue"))},link,link.view==="practice"?{act:"words"}:{}),
+    steps,
+    phases:(data.journey||[]).slice(0,4).map(p=>({label:String(p.label||""),pct:+p.pct||0,state:String(p.state||"")})),
+    line:key("rem.push_body",null,"25 minutes today keeps the streak alive."),
+    labels:{
+      streak:key("profile.day_streak",null,"day streak"),today:key("home.done_eyebrow",null,"Today"),
+      words:key("home.it_words",{n:""},"words due").trim(),goal:key("cal.weekly_goal",null,"this week"),
+      best:key("cal.best_streak",null,"best streak"),roadmap:key("rm.btn",null,"Road map"),unit,
+      open:key("home.cta_continue",null,"Continue"),done:key("home.done_h",null,"Today's practice is done"),
+      risk:key("wg.risk",null,"Keep your streak alive tonight"),start:key("wg.start",null,"Start a new streak today"),
+    },
+  };
+}
+/* Debounced, and sent only when something the widget shows has changed:
+   WidgetKit gives an app a daily budget of redraws, and save() runs on
+   every tap. `force` is for the moments that must not wait — the app going
+   to the background, a launch. */
+function widgetSync(force){
+  if(!widgetOn())return;
+  if(_wgH){clearTimeout(_wgH);_wgH=null}
+  const run=()=>{
+    _wgH=null;
+    /* no profile = nobody to show (onboarding, or just signed out): the
+       widget is emptied once, not fed a blank learner */
+    if(!S||!S.profile){if(_wgLast!=="∅"){widgetClear();_wgLast="∅"}return}
+    let json;try{json=JSON.stringify(widgetSnapshot())}catch(e){return}
+    const sig=json.replace(/"at":\d+,/,"");
+    if(sig===_wgLast)return;
+    _wgLast=sig;
+    try{Promise.resolve(beNativeWidget().update({snapshot:json})).catch(()=>{})}catch(e){}
+  };
+  if(force)run();else _wgH=setTimeout(run,1200);
+}
+/* sign-out / account deletion: the widget forgets this learner too */
+function widgetClear(){
+  _wgLast="";if(_wgH){clearTimeout(_wgH);_wgH=null}
+  try{const P=beNativeWidget();if(P)Promise.resolve(P.clear()).catch(()=>{})}catch(e){}
+}
+/* A tap on the widget: the plugin has already reduced the URL to a known
+   view and, at most, a week, a day and an action. The same destinations the
+   nudges reach, so a widget tap behaves like a notification tap. */
+const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases"];
+function widgetOpenRoute(d){
+  if(!d||typeof d!=="object")return false;
+  const v=String(d.view||"journey");
+  if(!WG_VIEWS.includes(v))return false;
+  try{
+    if(v==="session"&&d.w&&d.d){go("session",Number(d.w),String(d.d));return true}
+    if(v==="foundations"){if(d.w)go("foundations",Number(d.w));else go("foundations");return true}
+    if(v==="practice"){go("practice");if(d.act==="words")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
+    if(v==="journey"){_rmReturn=true;go("journey");return true}
+    go(v);return true;
+  }catch(e){return false}
+}
+/* at boot: listen for taps, collect the tap that launched the app, publish */
+function widgetNativeBoot(){
+  if(!widgetOn())return;            // the kill switch covers the taps too: nothing asked, nothing published
+  const P=beNativeWidget();if(!P)return;
+  try{if(typeof P.addListener==="function")P.addListener("open",d=>{try{widgetOpenRoute(d)}catch(e){}})}catch(e){}
+  try{Promise.resolve(P.pendingOpen()).then(r=>{if(r&&r.open)widgetOpenRoute(r.open)}).catch(()=>{})}catch(e){}
+  widgetSync(true);
+  /* the curriculum may still be loading at boot; a second pass once it is in
+     costs nothing when nothing changed (the signature check) */
+  setTimeout(()=>{try{widgetSync(true)}catch(e){}},2500);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")try{widgetSync(true)}catch(e){}});
+
 const PUSH_ID_KEY="be_push_id";
 function pushId(){
   /* Random per DEVICE, and it must never travel. It used to live only in S,
@@ -21832,7 +21960,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v626";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v627";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23515,6 +23643,7 @@ const FLAGS_DEFAULT={
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
+  ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
@@ -23542,6 +23671,7 @@ const FLAGS_STAGING={
      staging build while every automated check passed. */
   social_signin_enabled:true,
   ios_push_enabled:true,
+  ios_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the be-mastery-test console
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
@@ -31972,6 +32102,7 @@ window.setTheme=mode=>{
   const t=mode==="light"?"light":"dark";
   try{localStorage.setItem("be_theme",t)}catch(e){}
   applyTheme(t);
+  try{widgetSync()}catch(e){}   // the widget follows the theme, which lives outside S
   document.querySelectorAll(".theme-opt").forEach(b=>b.classList.toggle("on",b.dataset.theme===t));
 };
 applyTheme(document.documentElement.getAttribute("data-theme")||"dark");
@@ -34105,7 +34236,7 @@ window.wcClose=()=>{
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
-else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}}
+else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}}
 try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
@@ -35064,6 +35195,7 @@ function fbWipeDevice(){
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
   S=load();trackStateReloaded();save();
   pushForget(_pushId);
+  try{widgetClear()}catch(e){}     // the home-screen widget must not keep showing the account that just left
 }
 window.fbSignOut=async function(){
   if(!FBauth)return;
