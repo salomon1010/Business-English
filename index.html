@@ -17876,6 +17876,22 @@ function nudgeSignals(){
   return sig;
 }
 function nudgeText(r){return {title:t("nudge."+r.kind+"_t",r.vars||{}),body:t("nudge."+r.kind+"_b",r.vars||{})}}
+/* A PICTURE FOR THE RECOMMENDATION (owner, 5 Oct 2026: "like for duolingo or
+   temu... with images of any video recommendation"). A notification that shows
+   the clip it is recommending is a different thing from a line of text, and
+   the engine already knows which clip it means. Only an https URL the phone
+   can fetch itself: a canvas drawn on the device is reachable by the service
+   worker but NOT by the iOS notification extension, so the thumbnail the
+   video already has is the one picture that works on both. A scene or a
+   recommendation with no clip simply has no image, and the notification is
+   exactly what it is today. */
+function nudgeImage(r){
+  try{
+    const a=r&&r.args;
+    if(r&&r.act==="clip"&&a&&/^[A-Za-z0-9_-]{11}$/.test(String(a[0])))return "https://i.ytimg.com/vi/"+String(a[0])+"/hqdefault.jpg";
+  }catch(e){}
+  return "";
+}
 /* when: the learner's own reminder time (20 min before it, so the nudge takes
    that day's slot and the plain reminder stays quiet), else about a day on;
    a partner who is free right now is worth saying sooner */
@@ -17900,7 +17916,7 @@ async function nudgeSchedule(why,opts){
     const now=Date.now(),sendAfter=opts&&opts.now?now:nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
     const tx=nudgeText(r),tok=await FBUser.getIdToken();
     const res=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},
-      body:JSON.stringify({id:pushId(),tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
+      body:JSON.stringify({id:pushId(),tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,image:nudgeImage(r),reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
     const j=await res.json().catch(()=>({}));
     if(j&&j.previous&&j.previous.kind)try{track("nudge_expired",{kind:j.previous.kind,result:j.previous.status})}catch(e){}
     if(res.ok){
@@ -21816,7 +21832,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v625";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v626";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.

@@ -215,7 +215,8 @@ async function apnsJwt(env, force){
 function apnsAlert(rec, what){
   const T = (rec && rec.text) || {}, k = what && what.kind;
   if (k === "nudge") return what.title && what.body
-    ? { title: what.title, body: what.body, tag: "be-nudge", view: what.view || "journey", urgent: false, extra: { rid: what.rid || "", nkind: what.nkind || "" } }
+    ? { title: what.title, body: what.body, tag: "be-nudge", view: what.view || "journey", urgent: false,
+        image: what.image || "", extra: { rid: what.rid || "", nkind: what.nkind || "" } }
     : null;
   if (k === "presence") return T.online && T.online.title
     ? { title: String(T.online.title).replace(/\{\{n\}\}/g, String(what.n || 1)), body: String(T.online.body || "").replace(/\{\{n\}\}/g, String(what.n || 1)), tag: "be-online", view: "partner", urgent: false, extra: {} }
@@ -239,14 +240,20 @@ async function sendApns(env, rec, what){
   const a = apnsAlert(rec, what);
   if (!a) return "fail:no_text";          // the phone never sent its wording: better silent than an empty banner
   const token = rec.apns.token;
+  /* mutable-content lets the app's notification extension run before the
+     banner is drawn, which is the only way an iOS notification can carry a
+     picture (5 Oct 2026). Without an image it is left off, so a plain
+     notification is delivered exactly as before. */
+  const aps = {
+    alert: { title: a.title, body: a.body },
+    sound: "default",
+    "thread-id": a.tag,
+    "interruption-level": a.urgent ? "time-sensitive" : "active",
+  };
+  if (a.image) aps["mutable-content"] = 1;
   const body = JSON.stringify({
-    aps: {
-      alert: { title: a.title, body: a.body },
-      sound: "default",
-      "thread-id": a.tag,
-      "interruption-level": a.urgent ? "time-sensitive" : "active",
-    },
-    be: Object.assign({ view: a.view, tag: a.tag }, a.extra),
+    aps,
+    be: Object.assign({ view: a.view, tag: a.tag }, a.image ? { image: a.image } : {}, a.extra),
   });
   const hdr = jwt => ({
     "authorization": "bearer " + jwt,
@@ -457,9 +464,21 @@ function cleanNudge(r, now){
   const sendAfter = Math.max(Number(r.sendAfter) || now, now);
   if (!rid || !title || !body || expiresAt <= now || sendAfter >= expiresAt) return null;
   const args = (Array.isArray(r.args) ? r.args : []).slice(0, 2).map(a => (typeof a === "number" ? a : str(String(a), 16)));
-  return { rid, kind: r.kind, view: r.view, act: NUDGE_ACTS.has(r.act) ? r.act : null, args, title, body,
+  return { rid, kind: r.kind, view: r.view, act: NUDGE_ACTS.has(r.act) ? r.act : null, args, title, body, image: cleanImage(r.image),
     reason: str(r.reason, 24), priority: Math.max(0, Math.min(100, Number(r.priority) || 0)), createdAt: now, sendAfter, expiresAt };
 }
+/* The picture a recommendation may carry (5 Oct 2026). An allow-list of hosts,
+   not "any https URL": this value is handed to a phone to fetch, and on iOS to
+   a notification extension, so it must never be able to point at something we
+   did not put there. The thumbnail of the clip being recommended, or our own
+   site's art — nothing else. */
+const IMG_HOSTS = new Set(["i.ytimg.com", "img.youtube.com", "app.lomonec.com", "staging.lomonec.com"]);
+function cleanImage(v){
+  if (typeof v !== "string" || v.length > 300) return "";
+  let u; try { u = new URL(v); } catch (e) { return ""; }
+  return u.protocol === "https:" && IMG_HOSTS.has(u.hostname) ? u.href : "";
+}
+
 async function programmeOf(req, env){
   if (!env.PARTNER_API) return null;
   const auth = req.headers.get("Authorization") || "";
@@ -556,10 +575,10 @@ async function runNudges(env, nowMs, onlyId){
       if (why) { held++; continue; }
       const sub = await env.SUBS.get(`sub:${id}`, "json");
       if (!hasRoute(sub)) { await env.SUBS.delete(k.name); dropped++; continue; }
-      let out; try { out = await sendOne(env, sub, audCache, false, { kind: "nudge", title: rec.title, body: rec.body, rid: rec.rid, nkind: rec.kind, view: rec.view }); } catch (e) { out = "fail:throw"; }
+      let out; try { out = await sendOne(env, sub, audCache, false, { kind: "nudge", title: rec.title, body: rec.body, rid: rec.rid, nkind: rec.kind, view: rec.view, image: rec.image || "" }); } catch (e) { out = "fail:throw"; }
       if (out === "sent") {
         sent++;
-        await env.SUBS.put(`why:${id}`, JSON.stringify({ kind: "nudge", rid: rec.rid, nkind: rec.kind, view: rec.view, act: rec.act, args: rec.args, title: rec.title, body: rec.body, createdAt: rec.createdAt, expiresAt: rec.expiresAt, at: now }),
+        await env.SUBS.put(`why:${id}`, JSON.stringify({ kind: "nudge", rid: rec.rid, nkind: rec.kind, view: rec.view, act: rec.act, args: rec.args, title: rec.title, body: rec.body, image: rec.image || "", createdAt: rec.createdAt, expiresAt: rec.expiresAt, at: now }),
           { expirationTtl: Math.max(60, Math.ceil((rec.expiresAt - now) / 1000)) });
         await env.SUBS.put(`done:${id}`, new Date(now).toISOString().slice(0, 10), { expirationTtl: 172800 });   // the plain reminder stays quiet today
         log.sent = [...(log.sent || []).filter(t => now - t < 7 * 86400_000), now];
@@ -674,7 +693,7 @@ async function why(req, env, origin){
   const w = await env.SUBS.get(`why:${id}`, "json");
   if (w && w.kind === "nudge") {       /* a learning nudge: served once; void once expired */
     await env.SUBS.delete(`why:${id}`);
-    if (Date.now() < (w.expiresAt || 0)) return json({ kind: "nudge", rid: w.rid, nkind: w.nkind, view: w.view, act: w.act, args: w.args || [], title: w.title, body: w.body, createdAt: w.createdAt, expiresAt: w.expiresAt }, 200, origin);
+    if (Date.now() < (w.expiresAt || 0)) return json({ kind: "nudge", rid: w.rid, nkind: w.nkind, view: w.view, act: w.act, args: w.args || [], title: w.title, body: w.body, image: w.image || "", createdAt: w.createdAt, expiresAt: w.expiresAt }, 200, origin);
     return json({ kind: "reminder" }, 200, origin);
   }
   if (w && WAKE_KINDS.has(w.kind)) {   /* an invitation: served once, so a later presence push cannot re-ring it */
@@ -795,5 +814,5 @@ export default {
 /* only functions: the Workers runtime treats every named export of the entry
    module as a handler, and a plain constant stops the Worker from starting */
 function marksConfig(){ return { MARK_REFRESH, MARK_GRACE, MARK_PAGE, MIG_KEY }; }
-export { runNudges, nudgeHold, cleanNudge, nudgeLimits, runCron, runPresence, marksConfig,
+export { runNudges, nudgeHold, cleanNudge, cleanImage, nudgeLimits, runCron, runPresence, marksConfig,
          apnsAlert, apnsJwt, apnsReady, cleanApns, cleanText, hasRoute, sendApns };

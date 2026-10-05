@@ -8,7 +8,7 @@
    shows the notification. Those need an APNs auth key and a device —
    docs/IOS_NOTIFICATIONS.md lists them. */
 import { webcrypto } from "node:crypto";
-import worker, { runCron, runPresence, runNudges, apnsAlert, cleanApns, cleanText, hasRoute } from "../push-worker.js";
+import worker, { runCron, runPresence, runNudges, apnsAlert, cleanApns, cleanText, cleanImage, hasRoute } from "../push-worker.js";
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 400)}`); };
 const H = 3_600_000, ORIGIN = "capacitor://localhost", TOKEN = "a".repeat(64), TOKEN2 = "b".repeat(64);
 
@@ -131,7 +131,34 @@ console.log("\n# invitations, online alerts and nudges — the same rules, an Ap
   const n = apple[0];
   ok("C4 · a learning nudge carries its own title and body, its rid and the view it opens", apple.length === 1 && n.body.aps.alert.title === "Week 3 is ready" && n.body.be.rid === "lesson-x1" && n.body.be.view === "session" && n.headers["apns-collapse-id"] === "be-nudge", JSON.stringify(n && n.body));
   ok("C5 · sending it marks the phone done, so the plain reminder stays quiet today", (await SUBS.get("done:iphone-aaaaaaa1")) === new Date(Date.UTC(2026, 9, 5, 12, 0)).toISOString().slice(0, 10));
+  ok("C6 · a plain nudge is delivered exactly as before: no mutable-content, no image field", n.body.aps["mutable-content"] === undefined && !("image" in n.body.be), JSON.stringify(n.body));
   await SUBS.delete("done:iphone-aaaaaaa1");
+
+  /* A recommendation with a picture (5 Oct 2026): the clip's own thumbnail.
+     iOS can only draw it if the payload says mutable-content and the app's
+     notification extension (BEPushService) fetches it. */
+  reset(); await SUBS.delete("nudge:iphone-aaaaaaa1"); await SUBS.delete("nlog:iphone-aaaaaaa1");   // a fresh log: the 20 h gap is nudge.mjs's subject, not this one's
+  const IMG = "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg";
+  await call("/nudge", { id: "iphone-aaaaaaa1", tz: 0, rec: { rid: "challenge-x2", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes with Steve Jobs.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
+  await runNudges(env, Date.UTC(2026, 9, 5, 12, 0));
+  const m = apple[0];
+  ok("C7 · a recommendation with a thumbnail asks for mutable-content and hands the extension the picture's address", apple.length === 1 && m.body.aps["mutable-content"] === 1 && m.body.be.image === IMG && m.body.aps.alert.title === "Shadow this clip", JSON.stringify(m && m.body));
+  ok("C8 · the picture may come only from YouTube's thumbnail hosts or our own site, over https — anything else is dropped, not sent",
+    cleanImage(IMG) === IMG && cleanImage("https://app.lomonec.com/og.png") === "https://app.lomonec.com/og.png"
+    && cleanImage("http://i.ytimg.com/vi/x/hqdefault.jpg") === "" && cleanImage("https://evil.example/i.ytimg.com/x.jpg") === ""
+    && cleanImage("https://i.ytimg.com.evil.example/x.jpg") === "" && cleanImage("javascript:alert(1)") === "" && cleanImage(null) === "" && cleanImage("https://i.ytimg.com/" + "a".repeat(300)) === "");
+  await SUBS.delete("done:iphone-aaaaaaa1");
+
+  /* The same recommendation to a browser stays a bare push; the picture travels
+     through /why, which sw.js reads once — so the web banner gets it too. */
+  reset();
+  await call("/subscribe", { id: "browser-img00001", slot: "0700", endpoint: "https://push.test/browser-img00001", tz: 0, nudges: true });
+  await call("/nudge", { id: "browser-img00001", tz: 0, rec: { rid: "challenge-x3", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
+  await runNudges(env, Date.UTC(2026, 9, 5, 12, 0));
+  const why = await call("/why?id=browser-img00001", null, null, "GET");
+  ok("C9 · a browser's push stays bare, and /why serves the picture with the rest of the recommendation", apple.some(x => x.web) && why.status === 200 && why.json.kind === "nudge" && why.json.image === IMG && why.json.rid === "challenge-x3", JSON.stringify({ apple, why }));
+  /* leave the later sections the rows they expect: the iPhone alone in slot 1900 */
+  for (const k of ["sub:browser-img00001", "slot:0700:browser-img00001", "why:browser-img00001", "nlog:browser-img00001", "done:browser-img00001", "why:iphone-aaaaaaa1"]) await SUBS.delete(k);
 }
 
 console.log("\n# what Apple answers");

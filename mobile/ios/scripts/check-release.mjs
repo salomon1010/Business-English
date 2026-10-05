@@ -75,8 +75,13 @@ console.log("\n== Xcode project");
      test bundles (BEMasteryTests, BEMasteryUITests) have their own ids under
      the same organisation and are never uploaded */
   const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g);
-  const appBid = bid.filter(b => !/Tests$/.test(b)), testBid = bid.filter(b => /Tests$/.test(b));
+  /* an app extension's id must be PREFIXED by the app's (Apple's signing rule),
+     so the notification service's own id is expected beside it (5 Oct 2026) */
+  const appBid = bid.filter(b => !/Tests$/.test(b) && !/^com\.lomonec\.bemastery\./.test(b)), testBid = bid.filter(b => /Tests$/.test(b));
+  const extBid = bid.filter(b => /^com\.lomonec\.bemastery\./.test(b));
   ok("bundle id com.lomonec.bemastery in every App configuration", same(appBid) && appBid[0] === "com.lomonec.bemastery", bid.join(", "));
+  ok("every extension id is prefixed by the app's, as Apple requires",
+    extBid.every(b => b.startsWith("com.lomonec.bemastery.")), extBid.join(", ") || "none");
   ok("test bundles under com.lomonec.* only", testBid.length > 0 && testBid.every(b => b.startsWith("com.lomonec.")), testBid.join(", "));
   const ver = all(/MARKETING_VERSION = ([\d.]+);/g), bld = all(/CURRENT_PROJECT_VERSION = (\d+);/g);
   ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
@@ -167,6 +172,24 @@ console.log("\n== Info.plist / privacy manifest");
       /@UIApplicationDelegateAdaptor\(BEAppDelegate\.self\)/.test(app));
     const pushSrc = read(join(ios, "ios", "App", "App", "Plugins", "BEPushPlugin.swift"));
     ok("BEPushPlugin: nothing logged (a device token identifies an install)", !/\bprint\(|NSLog|os_log/.test(pushSrc));
+    /* The picture on a notification (5 Oct 2026): only a notification SERVICE
+       extension can attach one, and only a real app extension is loaded for
+       it — an ExtensionKit extension never is. */
+    ok("BEPushService is an app-extension target with the notification service point",
+      /BEPushService\.appex in Embed Foundation Extensions/.test(pbx)
+      && /"com\.apple\.product-type\.app-extension"/.test(pbx)
+      && /com\.apple\.usernotifications\.service/.test(read(join(ios, "ios", "App", "BEPushService", "Info.plist"))));
+    const svc = read(join(ios, "ios", "App", "BEPushService", "NotificationService.swift"));
+    ok("BEPushService: reads be.image, https only, and never logs the learner's notification",
+      /be\["image"\]/.test(svc) && /scheme == "https"/.test(svc) && !/\bprint\(|NSLog|os_log/.test(svc));
+    ok("BEPushService runs on the same iOS as the app (15.0), not only on the newest",
+      !/BEPushService[\s\S]{0,4000}?IPHONEOS_DEPLOYMENT_TARGET = 2[0-9]\.0;/.test(pbx));
+    /* A leftover target from the first attempt: the Generic Extension template
+       makes an EXTENSIONKIT extension, which iOS never loads for notifications,
+       and an empty one would fail App Store validation. Delete it in Xcode
+       (select BENotificationService → right-click → Delete). */
+    ok("no leftover BENotificationService target (delete it in Xcode — it is an ExtensionKit stub that cannot serve notifications)",
+      !/BENotificationService/.test(pbx));
     const sw = read(join(ios, "ios", "App", "App", "Plugins", "BEAuthPlugin.swift"));
     ok("BEAuthPlugin: no client secret, nothing logged", !/client_secret/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
     ok("BEAuthPlugin: Apple request is nonce-bound (SHA-256)", /request\.nonce = Self\.sha256\(raw\)/.test(sw));

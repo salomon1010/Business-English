@@ -194,5 +194,14 @@ does. `BadDeviceToken` is retried once on Apple's other host — a TestFlight
 build's token is a production token, a local build's is a sandbox one — and
 only dropped when BOTH refuse. `ExpiredProviderToken` re-signs and retries.
 
+**A picture on a recommendation (5 October 2026).** A nudge may carry `image`:
+`cleanImage` keeps it only if it is https on an allow-listed host (YouTube's
+thumbnail hosts and our own two sites) — the value is handed to a phone to
+fetch, so it must never be able to point anywhere else. It rides on the `why:`
+row for the web (sw.js shows it as the notification `image`) and, for an
+iPhone, the alert gets `aps.mutable-content = 1` plus `be.image`, which the
+app's notification service extension downloads and attaches. No image = the
+payload is exactly what it was before.
+
 Setup, the device checklist and the two Apple steps only the owner can do:
 **docs/IOS_NOTIFICATIONS.md**. Tests: `node test/apns.mjs`.

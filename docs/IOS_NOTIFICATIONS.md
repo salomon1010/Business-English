@@ -31,6 +31,7 @@ learner typed — and `{{n}}` / `{{name}}` are filled in by the Worker.
 | Piece | File |
 |---|---|
 | Native plugin + the shared token/tap box | `mobile/ios/ios/App/App/Plugins/BEPushPlugin.swift` |
+| Notification service extension — attaches the picture (§3b) | `mobile/ios/ios/App/BEPushService/NotificationService.swift` + `Info.plist` (target `BEPushService`) |
 | App delegate (Apple hands the token and the tap here, nowhere else) | `mobile/ios/ios/App/App/Lifecycle/BEAppDelegate.swift` |
 | Delegate installed on the SwiftUI scene | `Lifecycle/BEMasteryApp.swift` (`@UIApplicationDelegateAdaptor`) |
 | Plugin registered on the bridge | `Lifecycle/BEBridgeViewController.swift` |
@@ -57,6 +58,12 @@ all, and without 2.2 the Worker cannot send.
 
 The entitlement is already committed. A build **will fail to sign** until the
 App ID carries the capability — that is the expected failure, not a bug.
+
+Since 5 October there is a second bundle in the app, the notification service
+extension **`com.lomonec.bemastery.BEPushService`** (§3b). Automatic signing
+registers its App ID and profile by itself the first time it builds on a Mac
+signed in to the team; it needs **no** capability of its own — the extension
+only downloads a picture, the push entitlement stays on the app.
 
 ### 2.2 The APNs auth key (one key, both environments, both Workers)
 
@@ -170,6 +177,53 @@ rules:
 
 ---
 
+## 3b. A picture on a recommendation (5 October 2026)
+
+Owner: "make it beautiful like Duolingo or Temu, with images of any video
+recommendation or practice". A learning nudge that recommends a clip now shows
+the clip's own thumbnail — small beside the text, full width when the
+notification is expanded — on iOS and on the web alike.
+
+How it travels:
+
+1. The app's nudge engine knows which clip it means. `nudgeImage(r)` turns a
+   clip recommendation into the thumbnail YouTube already serves for that
+   video and sends it as `rec.image` with the rest of the recommendation.
+   A lesson, a words review or an animated scene has no such picture and is
+   sent exactly as before.
+2. be-push keeps the address only if it is **https on an allow-listed host**
+   (YouTube's thumbnail hosts and our own two sites — `cleanImage`). The value
+   is handed to a phone to fetch, so it must never be able to point anywhere
+   else; anything else is dropped, and the text still goes.
+3. **Web:** sw.js reads it from `/why` and shows it as the notification
+   `image` (Android Chrome shows it; desktop mostly ignores `image`).
+4. **iOS:** a remote notification cannot carry a picture in its payload. The
+   alert gets `aps.mutable-content = 1` and `be.image`, which makes iOS run the
+   app's **notification service extension** (`BEPushService`) before the banner
+   is drawn; it downloads the file (8 s budget), gives it the right extension
+   and attaches it. If the download fails or Apple's time runs out, the
+   original text is delivered — never nothing.
+
+Why only an https URL: a strip drawn on a canvas on the device (what the daily
+reminder does on the web) is reachable by the service worker but **not** by the
+iOS extension, which runs in its own process with no access to the app's
+caches. The thumbnail the video already has is the one picture that works on
+both platforms without a server storing images.
+
+Mistake made and undone the same day: the first extension target was created
+from the wrong template (an **ExtensionKit** extension, `BENotificationService`),
+which iOS refuses to install — "expected executable to have a `__swift5_entry`
+section". It was removed from the project; `check-release.mjs` fails if it
+reappears. The right product type is `com.apple.product-type.app-extension`
+with `NSExtensionPointIdentifier = com.apple.usernotifications.service`.
+
+Tests: `apns.mjs` C6–C9 (plain nudge unchanged, mutable-content + `be.image`,
+the allow-list, the web `why` echo), `tests/nudges.mjs` A5b + SW9/SW9b (the
+client's picture choice, the service worker's banner). What no test can prove:
+that a real iPhone draws it — that is device row 6 in §5, once §2 is done.
+
+---
+
 ## 4. Two things worth knowing
 
 **The push id is per device and no longer travels.** It used to live only in
@@ -194,7 +248,7 @@ once on `BadDeviceToken` rather than dropping a working phone.
 
 | Suite | What it covers |
 |---|---|
-| `node backend/push/test/apns.mjs` (27) | registration, the alert for all four kinds, Apple's required headers, the ES256 provider token **verified against the key that signed it**, JWT reuse, 410 / BadDeviceToken / ExpiredProviderToken / 503, no key = no send, and a browser still getting a bare web push |
+| `node backend/push/test/apns.mjs` (31) | registration, the alert for all four kinds, Apple's required headers, the ES256 provider token **verified against the key that signed it**, JWT reuse, 410 / BadDeviceToken / ExpiredProviderToken / 503, no key = no send, a browser still getting a bare web push, and the picture path (§3b) |
 | `cd tests && node ios-push.mjs` (26) | the shell seen for what it is, no prompt on a launch, the subscribe body, the text travelling, refusal, the per-device id (including an id carried in from the cloud), unsubscribe, taps including a cold launch, and the web untouched |
 | `mobile/ios` Swift tests (26) | the four plugins registered, the APNs environment is one of Apple's two, and a token arriving before the web layer asks is still handed over |
 | `node mobile/ios/scripts/check-release.mjs` | the entitlement value, both files compiled, the plugin registered, the delegate installed, nothing logged |
@@ -208,7 +262,7 @@ once on `BadDeviceToken` rather than dropping a working phone.
 | 3 | The daily reminder arrives with the app **closed**, at the chosen minute, in the learner's language |
 | 4 | It does **not** arrive on a day they already practised |
 | 5 | A partner invitation arrives within seconds and rings as time-sensitive |
-| 6 | A nudge arrives and its tap opens the right lesson, clip or partner screen |
+| 6 | A nudge arrives and its tap opens the right lesson, clip or partner screen — and a clip recommendation shows the clip's thumbnail (§3b) |
 | 7 | A tap on a cold launch lands on the right page |
 | 8 | Deleting the app stops delivery (Apple answers 410 and the row goes) |
 | 9 | Turning notifications off in iOS Settings does not leave the app sending |

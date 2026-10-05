@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v625";
+const CACHE = "be12-v626";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
@@ -207,6 +207,10 @@ self.addEventListener("push", e => {
             return self.registration.showNotification(String(why.title), {
               body: String(why.body), icon: "icon-192.png", badge: "icon-192.png",
               tag: "be-nudge", renotify: false, requireInteraction: true,   // stays until the learner deals with it (owner, 5 Oct 2026)
+              /* the clip it is recommending, shown when the notification is
+                 expanded — the picture comes from the Worker, which only ever
+                 allows a thumbnail host (cleanImage) */
+              ...(why.image ? { image: String(why.image) } : {}),
               lang: (d && d.lang) || "en", dir: (d && d.dir) || "auto",
               data: { url: "./?nudge=" + encodeURIComponent(why.rid) + "#" + why.view, view: why.view, nudge, pushId: d && d.pushId },
             });

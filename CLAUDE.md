@@ -1242,8 +1242,25 @@ Fixes / infra
   endpoint with its APNs token. Two Apple steps are outstanding and only the
   owner can do them (App ID capability + the `.p8` auth key):
   **`docs/IOS_NOTIFICATIONS.md`**, which also holds the 10-row device checklist.
-  Tests: `backend/push/test/apns.mjs` (27), `tests/ios-push.mjs` (26), the Swift
+  Tests: `backend/push/test/apns.mjs` (31), `tests/ios-push.mjs` (26), the Swift
   bundle (26), `check-release.mjs`.
+  **Rich recommendations (5 Oct 2026, owner: "like Duolingo or Temu, with
+  images").** A nudge that recommends a clip (`act:"clip"`) carries the clip's
+  own YouTube thumbnail: `nudgeImage(r)` (index.html) → `rec.image` on
+  `POST /nudge` → `cleanImage` (an ALLOW-LIST of hosts: `i.ytimg.com`,
+  `img.youtube.com`, our two sites, https only — the value is handed to a
+  phone to fetch, so never "any URL") → stored on `why:` and served by `/why`
+  → sw.js passes it as the notification `image`; on iOS `sendApns` sets
+  `aps.mutable-content=1` + `be.image` and the **Notification Service
+  Extension** `mobile/ios/ios/App/BEPushService/NotificationService.swift`
+  (target `BEPushService`, bundle id `com.lomonec.bemastery.BEPushService`,
+  iOS 15, embedded in App) downloads and attaches it — best-effort, text
+  always delivered. Only an https URL works on both platforms (a canvas drawn
+  on the device is unreachable from the extension), so a lesson or a scene
+  carries no picture and is unchanged. Xcode's automatic signing must
+  provision the extension's App ID; it needs NO push capability of its own.
+  A wrong-template ExtensionKit target (`BENotificationService`) was created
+  and removed the same day — `check-release.mjs` fails if it comes back.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

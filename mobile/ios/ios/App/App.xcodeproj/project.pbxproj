@@ -18,6 +18,7 @@
 		A80562E83072AB9F00A48E0C /* BridgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E73072AB9F00A48E0C /* BridgeView.swift */; };
 		A870695B307339020080B0C3 /* BEPushPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695A307339020080B0C3 /* BEPushPlugin.swift */; };
 		A870695D307339120080B0C3 /* BEAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A870695C307339120080B0C3 /* BEAppDelegate.swift */; };
+		A870697A30737E030080B0C3 /* BEPushService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A870697330737E030080B0C3 /* BEPushService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BE0000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000001 /* PrivacyInfo.xcprivacy */; };
 		BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000003 /* BEStoreKitPlugin.swift */; };
 		BE0000000000000000000006 /* BEBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000005 /* BEBridgeViewController.swift */; };
@@ -27,6 +28,30 @@
 		BE0000000000000000000022 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = BE0000000000000000000021 /* GoogleMobileAds */; };
 		BE0000000000000000000024 /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = BE0000000000000000000023 /* GoogleUserMessagingPlatform */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A870697830737E030080B0C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A870697230737E030080B0C3;
+			remoteInfo = BEPushService;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A870697F30737E030080B0C3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A870697A30737E030080B0C3 /* BEPushService.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -44,6 +69,7 @@
 		A80562E73072AB9F00A48E0C /* BridgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeView.swift; sourceTree = "<group>"; };
 		A870695A307339020080B0C3 /* BEPushPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEPushPlugin.swift; sourceTree = "<group>"; };
 		A870695C307339120080B0C3 /* BEAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEAppDelegate.swift; sourceTree = "<group>"; };
+		A870697330737E030080B0C3 /* BEPushService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BEPushService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE0000000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BE0000000000000000000003 /* BEStoreKitPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEStoreKitPlugin.swift; sourceTree = "<group>"; };
 		BE0000000000000000000005 /* BEBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEBridgeViewController.swift; sourceTree = "<group>"; };
@@ -58,9 +84,20 @@
 		BE0000000000000000000013 /* BEAdsPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEAdsPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A870697B30737E030080B0C3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A870697230737E030080B0C3 /* BEPushService */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A80562D23072AB9500A48E0C /* BEMasteryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = BEMasteryTests; sourceTree = "<group>"; };
 		A80562DD3072AB9600A48E0C /* BEMasteryUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = BEMasteryUITests; sourceTree = "<group>"; };
+		A870697430737E030080B0C3 /* BEPushService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A870697B30737E030080B0C3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BEPushService; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +125,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A870697030737E030080B0C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -98,6 +142,7 @@
 				504EC3061FED79650016851F /* App */,
 				A80562D23072AB9500A48E0C /* BEMasteryTests */,
 				A80562DD3072AB9600A48E0C /* BEMasteryUITests */,
+				A870697430737E030080B0C3 /* BEPushService */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,6 +153,7 @@
 				504EC3041FED79650016851F /* App.app */,
 				A80562D13072AB9500A48E0C /* BEMasteryTests.xctest */,
 				A80562DC3072AB9600A48E0C /* BEMasteryUITests.xctest */,
+				A870697330737E030080B0C3 /* BEPushService.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,10 +210,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				A870697F30737E030080B0C3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A870697930737E030080B0C3 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -223,6 +271,28 @@
 			productReference = A80562DC3072AB9600A48E0C /* BEMasteryUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A870697230737E030080B0C3 /* BEPushService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A870697C30737E030080B0C3 /* Build configuration list for PBXNativeTarget "BEPushService" */;
+			buildPhases = (
+				A870696F30737E030080B0C3 /* Sources */,
+				A870697030737E030080B0C3 /* Frameworks */,
+				A870697130737E030080B0C3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A870697430737E030080B0C3 /* BEPushService */,
+			);
+			name = BEPushService;
+			packageProductDependencies = (
+			);
+			productName = BEPushService;
+			productReference = A870697330737E030080B0C3 /* BEPushService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -242,6 +312,9 @@
 						CreatedOnToolsVersion = 27.0;
 					};
 					A80562DB3072AB9600A48E0C = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					A870697230737E030080B0C3 = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
@@ -270,6 +343,7 @@
 				504EC3031FED79650016851F /* App */,
 				A80562D03072AB9500A48E0C /* BEMasteryTests */,
 				A80562DB3072AB9600A48E0C /* BEMasteryUITests */,
+				A870697230737E030080B0C3 /* BEPushService */,
 			);
 		};
 /* End PBXProject section */
@@ -297,6 +371,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A80562DA3072AB9600A48E0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A870697130737E030080B0C3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -336,7 +417,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A870696F30737E030080B0C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A870697930737E030080B0C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A870697230737E030080B0C3 /* BEPushService */;
+			targetProxy = A870697830737E030080B0C3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC3101FED79650016851F /* LaunchScreen.storyboard */ = {
@@ -649,6 +745,76 @@
 			};
 			name = Release;
 		};
+		A870697D30737E030080B0C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BEPushService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BEPushService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A870697E30737E030080B0C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BEPushService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BEPushService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -684,6 +850,15 @@
 			buildConfigurations = (
 				A80562E13072AB9600A48E0C /* Debug */,
 				A80562E23072AB9600A48E0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A870697C30737E030080B0C3 /* Build configuration list for PBXNativeTarget "BEPushService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A870697D30737E030080B0C3 /* Debug */,
+				A870697E30737E030080B0C3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
