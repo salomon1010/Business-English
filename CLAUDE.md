@@ -1200,11 +1200,16 @@ Fixes / infra
 - **Firebase cloud sign-in**: **DONE and verified live 2026-08-01** — email/password
   sign-in, Firestore sync and merge (`fbEmailAuth`, `fbMerge`, `fbPush`), console
   setup complete, `app.lomonec.com` authorised, rules published. Confirmed working
-  on a real Android device against the live app. **Google sign-in is
-  deliberately hidden** — `signInWithRedirect` cannot complete while the app is on
-  `app.lomonec.com` and the auth handler is on `be-mastery.firebaseapp.com`
-  (partitioned third-party storage). `fbGoogle()` stays for when hosting can serve
-  `/__/auth/`. Syncs progress JSON, **not audio recordings**.
+  on a real Android device against the live app. **Google + Apple sign-in
+  (2026-10-04):** one sheet, `fbOpenModal(mode)`, behind every entry point
+  (`tests/auth-entry-points.mjs`). In the App Store shell the two buttons go
+  through the native `BEAuth` plugin; on the web through Firebase's **popup**
+  (`fbSocialWeb`, flag `social_signin_web_enabled` — staging ON, production
+  OFF until the providers are enabled in the console, `docs/auth/SOCIAL_SIGNIN.md`
+  §2.4). The REDIRECT flow still cannot return on `app.lomonec.com` (the handler
+  is on `be-mastery.firebaseapp.com`, partitioned storage), so an installed web
+  app with a foreign `authDomain` (Play TWA, home-screen PWA) shows email only.
+  Syncs progress JSON, **not audio recordings**.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

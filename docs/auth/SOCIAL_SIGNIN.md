@@ -83,6 +83,50 @@ into the Firebase console, never here. Full steps in **§5**.
 No redirect URI needs registering: an iOS client's redirect is its own client ID
 reversed, which `ASWebAuthenticationSession` claims itself.
 
+### 2.4 The web (4 Oct 2026) — the same two buttons on app.lomonec.com
+
+The owner asked for Apple, Google and email on **every** sign-in sheet, not only
+in the App Store app. On the web the two buttons now use Firebase's **popup**
+flow (`fbSocialWeb` in index.html): the popup on `<project>.firebaseapp.com`
+hands its result back to the page with `postMessage`, so the partitioned
+storage that broke `signInWithRedirect` does not come into it. Gate: flag
+**`social_signin_web_enabled`** — ON on staging, **OFF in production** until the
+console work below is done, because a button that fails is worse than none.
+
+What only you can do, per Firebase project (be-mastery for production,
+be-mastery-test for staging):
+
+1. Authentication → Sign-in method → **Google**: Enable (project support e-mail
+   set). Nothing else: the web client is created by Firebase.
+2. Authentication → Sign-in method → **Apple**: Enable, and fill in **Services
+   ID**, **Apple team ID**, **Key ID**, **Private key** — on the web these are
+   REQUIRED (on iOS they were only needed for revocation). The Services ID's
+   return URL is `https://<project>.firebaseapp.com/__/auth/handler`, and its
+   associated domain list must carry the Services ID's web domain. §5 has where
+   each value comes from.
+3. Authentication → Settings → **Authorized domains**: `app.lomonec.com` is
+   already on be-mastery; **`staging.lomonec.com` must be added to
+   be-mastery-test** (it is not there today — checked 4 Oct 2026), or the staging
+   popup is refused with `auth/unauthorized-domain`.
+4. Then set `social_signin_web_enabled:true` in `FLAGS_DEFAULT` for production.
+
+Known limits, by design:
+
+- An **installed** web app whose `authDomain` is another origin — the Play TWA,
+  an iOS home-screen PWA — shows email and password alone (`socialWebOn()`):
+  there is no popup opener there, and a redirect never returns from a
+  partitioned handler. Lifting that means serving `/__/auth/*` from
+  app.lomonec.com itself (a Cloudflare Worker in front of the host, which today
+  points straight at GitHub Pages) and setting `authDomain` to the app's host.
+  A hosting decision; not done.
+- A provider the console has not switched on answers `auth/operation-not-allowed`
+  on tap; the sheet says "… sign-in is switched off for BE Mastery right now" and
+  the email form is still there.
+- A blocked popup shows `auth.err_popup_blocked`; a closed popup says nothing.
+
+Tests: `tests/auth-social.mjs` section "the web offers both providers too"
+(W1–W12).
+
 ### 2.3 Firebase console — enable the two providers
 
 Firebase console → project **be-mastery** → Authentication → **Sign-in method**.

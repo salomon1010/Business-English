@@ -640,6 +640,7 @@
  "auth.social_or": "o",
  "auth.err_provider": "No se pudo completar el inicio de sesión. Inténtalo de nuevo o usa tu correo y contraseña.",
  "auth.err_provider_off": "Esta opción de inicio de sesión no está disponible en esta versión de la aplicación.",
+ "auth.err_popup_blocked": "Tu navegador bloqueó la ventana de inicio de sesión. Permite las ventanas emergentes para este sitio o usa tu correo y contraseña.",
  "auth.err_provider_disabled": "Este método de inicio de sesión está desactivado en BE Mastery ahora mismo.",
  "auth.err_user_disabled": "Esta cuenta ha sido desactivada. Escribe a contact@lomonec.com.",
  "auth.err_account_exists": "{{email}} ya tiene una cuenta con contraseña. Inicia sesión abajo y las conectaremos.",

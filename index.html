@@ -9804,6 +9804,7 @@ const I18N_EN={
  "auth.err_provider_p":"{{p}} sign-in couldn't finish. Try again, or use your email and password.",
  "auth.err_provider_disabled_p":"{{p}} sign-in is switched off for BE Mastery right now. You can still use your email and password.",
  "auth.err_provider_off":"This sign-in option isn't available in this version of the app.",
+ "auth.err_popup_blocked":"Your browser blocked the sign-in window. Allow pop-ups for this site, or use your email and password.",
  "auth.err_provider_disabled":"This sign-in method is switched off for BE Mastery right now.",
  "auth.err_user_disabled":"This account has been disabled. Write to contact@lomonec.com.",
  "auth.err_account_exists":"{{email}} already has an account with a password. Log in below and we'll connect them.",
@@ -23255,7 +23256,8 @@ const FLAGS_DEFAULT={
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
-  social_signin_enabled:true,          // Google + Apple sign-in. ON, but it can only show where the native plugin exists (the App Store shell): the web keeps email/password alone, so this is a kill switch for the shell, not a web change
+  social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
+  social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
@@ -23281,6 +23283,7 @@ const FLAGS_STAGING={
      there is silently OFF here — which is why the buttons vanished on the
      staging build while every automated check passed. */
   social_signin_enabled:true,
+  social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the be-mastery-test console
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
      TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
@@ -33804,8 +33807,9 @@ function fbInit(){
     firebase.initializeApp(FB_CONFIG);
     FBauth=firebase.auth();FBdb=firebase.firestore();
     FBauth.onAuthStateChanged(fbOnAuth);
-    /* complete a Google redirect sign-in when the app reloads after it */
-    FBauth.getRedirectResult().then(r=>{if(r&&r.user){try{fbCloseModal()}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}}).catch(e=>{try{toast(fbErr(e))}catch(_){}});
+    /* complete a Google / Apple redirect sign-in when the app reloads after it
+       (an installed app with a same-origin handler — see fbSocialWeb) */
+    FBauth.getRedirectResult().then(r=>{if(r&&r.user){try{fbCloseModal()}catch(e){}try{if(r.additionalUserInfo&&r.additionalUserInfo.isNewUser)fbWelcome();fbSocialName(fbWebName(r))}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}}).catch(e=>{try{toast(fbErr(e))}catch(_){}});
     return true;
   }catch(e){console.warn("Firebase unavailable:",e&&e.message);return false}
 }
@@ -34434,23 +34438,67 @@ const prov=kind==="apple"?"Apple":kind==="google"?"Google":"";
 /* a raw Firebase/OAuth message is never shown: unmapped codes get the plain line */return c in map?map[c]:t("auth.err_generic")}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
-window.fbGoogle=async function(){
-  if(!FBauth)return toast(t("auth.unavailable_toast"));
-  const provider=new firebase.auth.GoogleAuthProvider();
-  fbSetErr("");
-  /* popups don't work in installed/standalone apps → use a full-page redirect instead */
-  if(fbIsStandalone()){
-    try{await FBauth.signInWithRedirect(provider)}catch(e){fbSetErr(fbErr(e))}
-    return;
+/* ===================== WEB SIGN-IN with Google / Apple (owner, 4 Oct 2026) =====
+   The same two buttons as the App Store shell, on the web, through Firebase's
+   POPUP flow: the popup on be-mastery.firebaseapp.com hands its result back
+   to this page with postMessage, so the partitioned storage that broke the
+   REDIRECT flow (the handler's origin cannot be read back from app.lomonec.com)
+   does not come into it. The redirect is used only where it can return: an
+   installed app whose authDomain IS this origin (Firebase's own rule). An
+   installed app without that — the Play TWA, an iOS home-screen PWA — has no
+   popup opener and no way back from a redirect, so socialWebOn() hides the
+   buttons there and the email form stands alone, as before. Gate:
+   social_signin_web_enabled (production OFF until the providers are on in the
+   console). The Firebase session, FBUser, first sync and the ID token every
+   Worker verifies are identical to a password sign-in. */
+function fbAuthSameOrigin(){try{return !!(window.FB_CONFIG&&FB_CONFIG.authDomain&&String(FB_CONFIG.authDomain).toLowerCase()===location.hostname.toLowerCase())}catch(e){return false}}
+function socialWebOn(){
+  try{
+    if(IS_IOS_APP)return false;
+    if(!flag("social_signin_web_enabled"))return false;
+    if(!fbConfigured())return false;
+    if(fbIsStandalone()&&!fbAuthSameOrigin())return false;
+    return true;
+  }catch(e){return false}
+}
+function fbWebProvider(kind){
+  const p=kind==="google"?new firebase.auth.GoogleAuthProvider():new firebase.auth.OAuthProvider("apple.com");
+  try{
+    p.addScope("email");
+    if(kind==="google")p.setCustomParameters({prompt:"select_account"});
+    else{p.addScope("name");p.setCustomParameters({locale:(S&&S.profile&&S.profile.lang)||"en"})}
+  }catch(e){}                                   /* scopes and hints are niceties; the sign-in itself must not hang on them */
+  return p;
+}
+/* the given name a web result carries (Google's profile, Apple's display name on the first sign-in), shaped like the plugin's answer for fbSocialName */
+function fbWebName(res){
+  try{
+    const pr=(res&&res.additionalUserInfo&&res.additionalUserInfo.profile)||{};
+    const given=pr.given_name||(pr.name&&pr.name.firstName)||((res&&res.user&&res.user.displayName)||"").split(" ")[0]||"";
+    return {givenName:given};
+  }catch(e){return {}}
+}
+/* Resolves the Firebase result, or null when a redirect is under way (the page
+   leaves). Throws {code:"cancelled"} for a closed popup and
+   {code:"auth/popup-blocked"} when the browser refused the window and no
+   redirect can return. */
+async function fbSocialWeb(kind){
+  const provider=fbWebProvider(kind);
+  if(fbIsStandalone()){                    /* reachable only with a same-origin handler (socialWebOn) */
+    await FBauth.signInWithRedirect(provider);return null;
   }
-  try{await FBauth.signInWithPopup(provider);fbCloseModal();toast(t("auth.signed_in_toast"))}
+  try{return await FBauth.signInWithPopup(provider)}
   catch(e){
     const c=(e&&e.code)||"";
-    if(/popup-blocked|operation-not-supported|web-storage-unsupported|internal-error/.test(c)){
-      try{await FBauth.signInWithRedirect(provider)}catch(e2){fbSetErr(fbErr(e2))}
-    }else fbSetErr(fbErr(e));
+    if(/popup-closed-by-user|cancelled-popup-request/.test(c))throw {code:"cancelled"};
+    if(/popup-blocked|operation-not-supported-in-this-environment|web-storage-unsupported/.test(c)){
+      if(fbAuthSameOrigin()){await FBauth.signInWithRedirect(provider);return null}
+      throw {code:"auth/popup-blocked"};
+    }
+    throw e;
   }
-};
+}
+window.fbGoogle=()=>fbSocial("google");   /* the old name, kept for anything that still calls it */
 /* ===================== NATIVE SIGN-IN (App Store shell) =====================
    Google and Apple reach the SAME Firebase session as email/password: the
    plugin hands back a provider ID token, Firebase mints the credential, and
@@ -34458,12 +34506,11 @@ window.fbGoogle=async function(){
    verifies) is byte-for-byte what a password sign-in produces. There is no
    second session store and no server of ours in the loop.
 
-   Why only in the shell: a web popup/redirect cannot complete from
-   capacitor://localhost (not an authorized Firebase domain) and, on
-   app.lomonec.com, the handler lives on be-mastery.firebaseapp.com, whose
-   storage browsers partition — the long-standing reason fbGoogle() above is
-   kept but never offered. A button that silently fails is worse than no
-   button, so the buttons appear only where the native path exists. */
+   Why native in the shell: a web popup/redirect cannot complete from
+   capacitor://localhost (not an authorized Firebase domain). On the web the
+   same two buttons use Firebase's popup instead (fbSocialWeb above); only an
+   installed web app with a foreign authDomain goes without them, because a
+   redirect never returns from a partitioned handler. */
 let _beAuthPlug=null,_beAuthCaps=null;
 /* Reach a native plugin the way the iOS shell actually offers one.
    `Capacitor.registerPlugin()` is an **@capacitor/core** API. This app has no
@@ -34509,6 +34556,7 @@ async function socialAuthCaps(){
      during the first moments of a cold launch can get one rejection, and
      caching that used to hide both buttons for the rest of the session with
      nothing on screen to say why. Asking again next time costs one call. */
+  if(!IS_IOS_APP&&socialWebOn())return {apple:true,google:true};   /* the web: both, through Firebase's popup (fbSocialWeb); a provider the console has not switched on answers with its own "switched off" line on tap */
   if(!socialAuthOn())return {apple:false,google:false};
   try{
     const r=await beNativeAuth().available();
@@ -34571,25 +34619,36 @@ async function fbLinkPending(){
 window.fbSocial=async function(kind){
   if(!FBauth)await fbLoad();
   if(!FBauth)return toast(t("auth.unavailable_toast"));
-  const P=beNativeAuth();if(!P)return fbSetErr(t("auth.err_provider"));
+  const P=beNativeAuth(),web=!P&&socialWebOn();
+  if(!P&&!web)return fbSetErr(t("auth.err_provider"));
   fbSetErr("");
   document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=true);
   let r=null;
-  try{r=kind==="apple"?await P.appleSignIn():await P.googleSignIn()}
-  catch(e){document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);return fbSetErr(socialErr((e&&e.code)||"",kind))}
+  if(P){
+    try{r=kind==="apple"?await P.appleSignIn():await P.googleSignIn()}
+    catch(e){document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);return fbSetErr(socialErr((e&&e.code)||"",kind))}
+  }
   try{
-    if(!r||!r.idToken)throw {code:"auth/invalid-credential"};
-    const cred=kind==="apple"
-      ? new firebase.auth.OAuthProvider("apple.com").credential({idToken:r.idToken,rawNonce:r.rawNonce})
-      : firebase.auth.GoogleAuthProvider.credential(r.idToken);
-    const res=await FBauth.signInWithCredential(cred);
+    let res;
+    if(P){
+      if(!r||!r.idToken)throw {code:"auth/invalid-credential"};
+      const cred=kind==="apple"
+        ? new firebase.auth.OAuthProvider("apple.com").credential({idToken:r.idToken,rawNonce:r.rawNonce})
+        : firebase.auth.GoogleAuthProvider.credential(r.idToken);
+      res=await FBauth.signInWithCredential(cred);
+    }else{
+      res=await fbSocialWeb(kind);
+      if(!res)return;                     /* a redirect is under way: the page leaves, fbInit's getRedirectResult finishes it */
+    }
     if(res&&res.additionalUserInfo&&res.additionalUserInfo.isNewUser)fbWelcome();
-    fbSocialName(r);
+    fbSocialName(P?r:fbWebName(res));
     const from=(document.getElementById("authOv")||{dataset:{}}).dataset.from;
     fbCloseModal();toast(t("auth.signed_in_toast"));
     if(from!=null)pfSetupSheet("setAcc",from);
   }catch(e){
     document.querySelectorAll(".auth-soc").forEach(b=>b.disabled=false);
+    if(e&&e.code==="cancelled")return;                                   /* the learner closed the window: say nothing */
+    if(e&&e.code==="auth/popup-blocked")return fbSetErr(t("auth.err_popup_blocked"));
     if(e&&e.code==="auth/account-exists-with-different-credential"){
       const cred=e.credential||null,em=fbNormEmail(e.email);
       await fbOpenModal("in");          // opening clears any pending credential, so store AFTER it
@@ -34801,12 +34860,12 @@ window.fbOpenModal=async function(mode){
     <img src="logo.svg" alt="" style="width:52px;height:52px;border-radius:15px;display:block;margin:0 auto 14px">
     <h2>${signup?t("auth.create_title"):t("auth.welcome_back")}</h2>
     <p class="sub">${signup?t("auth.create_sub"):t("auth.login_sub")}</p>
-    <!-- Google and Apple appear ONLY in the App Store shell, where the native
-         plugin exists (socialAuthCaps). On the web, signInWithRedirect cannot
-         complete: the app is on app.lomonec.com while Firebase's handler is on
-         be-mastery.firebaseapp.com, and browsers partition that storage, so the
-         session never comes back. Verified on a real device. fbGoogle() is kept
-         for the day hosting can serve /__/auth/ itself. -->
+    <!-- Google and Apple: in the App Store shell through the native plugin, on
+         the web through Firebase's popup (fbSocialWeb, flag
+         social_signin_web_enabled). socialAuthCaps() says which of the two
+         this build/page can offer. Not drawn in an installed web app whose
+         authDomain is another origin: no popup opener there, and the redirect
+         never returns from a partitioned handler (verified on a real device). -->
     ${soc.apple||soc.google?`${soc.apple?`<button class="auth-soc apple" onclick="fbSocial('apple')">${FB_A_ICON}<span>${esc(t("auth.continue_apple"))}</span></button>`:""}
     ${soc.google?`<button class="auth-soc google" onclick="fbSocial('google')">${FB_G_ICON}<span>${esc(t("auth.continue_google"))}</span></button>`:""}
     <div class="auth-sep">${esc(t("auth.social_or"))}</div>`:""}

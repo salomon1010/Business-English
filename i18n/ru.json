@@ -640,6 +640,7 @@
  "auth.social_or": "or",
  "auth.err_provider": "That sign-in couldn't finish. Try again, or use your email and password.",
  "auth.err_provider_off": "This sign-in option isn't available in this version of the app.",
+ "auth.err_popup_blocked": "Your browser blocked the sign-in window. Allow pop-ups for this site, or use your email and password.",
  "auth.err_provider_disabled": "This sign-in method is switched off for BE Mastery right now.",
  "auth.err_user_disabled": "This account has been disabled. Write to contact@lomonec.com.",
  "auth.err_account_exists": "{{email}} already has an account with a password. Log in below and we'll connect them.",

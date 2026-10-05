@@ -70,10 +70,16 @@ const FAKE_SDK = `
     async signOut(){log.signedOut++;this._set(null)},
     async sendPasswordResetEmail(em){log.reset.push(em)},
     async getRedirectResult(){return {user:null}},
+    /* the web path (fbSocialWeb): Firebase's popup, and the redirect it must NOT fall back to here */
+    async signInWithPopup(p){log.calls.push("popup:"+p.providerId);
+      if(window.__fb.popupFails){const e=window.__fb.popupFails;window.__fb.popupFails=null;throw e}
+      this._set(user("uid-"+p.providerId,window.__fb.credEmail||("x@"+p.providerId),p.providerId));
+      return {user:Object.assign(this.currentUser,{displayName:"Ada Lovelace"}),additionalUserInfo:{isNewUser:!!window.__fb.newUser,profile:{given_name:"Ada"}},credential:{providerId:p.providerId}}},
+    async signInWithRedirect(p){log.calls.push("redirect:"+p.providerId)},
     setPersistence:async()=>{},
   };
   function Provider(id){this.providerId=id;this.addScope=()=>{};this.setCustomParameters=()=>{}}
-  function OAuthProvider(id){this.providerId=id;
+  function OAuthProvider(id){this.providerId=id;this.addScope=()=>{};this.setCustomParameters=()=>{};   /* the real one has both (the web path calls them) */
     this.credential=o=>({providerId:id,idToken:o&&o.idToken,rawNonce:o&&o.rawNonce})}
   const GoogleAuthProvider=function(){Provider.call(this,"google.com")};
   GoogleAuthProvider.credential=(idToken,accessToken)=>({providerId:"google.com",idToken,accessToken});
@@ -274,7 +280,7 @@ console.log("\n# the shell offers both providers, the web offers neither");
 {
   const { p, ctx } = await open({ ios: false });
   const s = await sheet(p);
-  ok("A6 · on the web (no native plugin) NO social button is drawn — a redirect cannot complete from app.lomonec.com", s.soc.length === 0 && !s.sep);
+  ok("A6 · on the web with the web flag OFF (the production default until the console providers are on) NO social button is drawn", s.soc.length === 0 && !s.sep);
   ok("A7 · the web sheet still has email and password", s.email && s.pw);
   await ctx.close();
 }
@@ -288,6 +294,63 @@ console.log("\n# the shell offers both providers, the web offers neither");
   const { p, ctx } = await open({ pre: () => { localStorage.setItem("be_flags", JSON.stringify({ social_signin_enabled: false })); } });
   const s = await sheet(p);
   ok("A9 · the kill switch (social_signin_enabled=false) removes both buttons and leaves email/password", s.soc.length === 0 && s.email, JSON.stringify(s.soc));
+  await ctx.close();
+}
+
+console.log("\n# the web offers both providers too — social_signin_web_enabled, Firebase's popup (owner, 4 Oct 2026)");
+const WEB_ON = () => { localStorage.setItem("be_flags", JSON.stringify({ social_signin_web_enabled: true })); };
+{
+  const { p, ctx, errs } = await open({ ios: false, pre: WEB_ON });
+  const s = await sheet(p);
+  ok("W1 · with the web flag on, the web sheet draws Apple then Google above the OR divider, email and password under it", s.soc.length === 2 && /Apple/.test(s.soc[0].label) && /Google/.test(s.soc[1].label) && s.sep && s.email && s.pw, JSON.stringify(s.soc));
+  ok("W1b · the web gates: not the shell, flag on, Firebase configured, no native plugin → socialWebOn() true, socialAuthOn() false", await p.evaluate(() => socialWebOn() && !socialAuthOn() && !IS_IOS_APP));
+  await p.evaluate(() => fbSocial("google")); await sleep(600);
+  const fb = await p.evaluate(() => window.__fb);
+  ok("W2 · Google: Firebase's POPUP is asked with the google.com provider — no redirect, no native call — the learner is signed in and the sheet is gone", fb.calls.includes("popup:google.com") && !fb.calls.some(c => /redirect/.test(c)) && (await who(p) || {}).provider === "google.com" && !(await p.evaluate(() => !!document.getElementById("authOv"))), JSON.stringify(fb.calls));
+  ok("W3 · the given name from the result filled the empty profile name", (await p.evaluate(() => S.profile.name)) === "Ada", await p.evaluate(() => S.profile.name));
+  await p.evaluate(() => window.__fbAuth.signOut()); await sleep(300);
+  await sheet(p); await p.evaluate(() => fbSocial("apple")); await sleep(600);
+  const fb2 = await p.evaluate(() => window.__fb);
+  ok("W4 · Apple: the popup is asked with the apple.com provider and the learner is signed in", fb2.calls.includes("popup:apple.com") && (await who(p) || {}).provider === "apple.com", JSON.stringify(fb2.calls));
+  ok("W5 · no JavaScript errors on the web path", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await open({ ios: false, pre: WEB_ON });
+  await sheet(p);
+  await p.evaluate(() => { window.__fb.popupFails = { code: "auth/popup-blocked" }; }); await p.evaluate(() => fbSocial("google")); await sleep(400);
+  const e1 = await err(p); const fb = await p.evaluate(() => window.__fb);
+  ok("W6 · a blocked popup (authDomain is another origin, so no redirect could return): the sheet says to allow pop-ups or use email, no redirect was attempted, the buttons are usable again", /blocked the sign-in window/.test(e1) && !fb.calls.some(c => /redirect/.test(c)) && (await p.evaluate(() => [...document.querySelectorAll(".auth-soc")].every(b => !b.disabled))), e1 + " " + JSON.stringify(fb.calls));
+  await p.evaluate(() => { window.__fb.popupFails = { code: "auth/popup-closed-by-user" }; }); await p.evaluate(() => fbSocial("apple")); await sleep(400);
+  ok("W7 · closing the popup says nothing and leaves the sheet as it was", (await err(p)) === "" && (await p.evaluate(() => !!document.getElementById("authOv") && [...document.querySelectorAll(".auth-soc")].every(b => !b.disabled))), await err(p));
+  await p.evaluate(() => { window.__fb.popupFails = { code: "auth/operation-not-allowed" }; }); await p.evaluate(() => fbSocial("google")); await sleep(400);
+  ok("W8 · a provider the console has not switched on gets the honest 'switched off' line, email and password still offered", /Google sign-in is switched off/.test(await err(p)) && (await p.evaluate(() => !!document.getElementById("authEmail"))), await err(p));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await open({ ios: false, pre: WEB_ON });
+  await sheet(p);
+  await p.evaluate(() => { window.__fb.popupFails = { code: "auth/account-exists-with-different-credential", email: "Ada@Example.com", credential: { providerId: "google.com", idToken: "G" } }; });
+  await p.evaluate(() => fbSocial("google")); await sleep(600);
+  const st = await p.evaluate(() => ({ open: !!document.getElementById("authOv"), title: (document.querySelector("#authOv h2") || {}).innerText, email: (document.getElementById("authEmail") || {}).value, err: (document.getElementById("authErr") || {}).textContent }));
+  ok("W9 · an e-mail that already has a password account: the sheet reopens on Log in with the address filled and explains; the Google credential is kept for linking", st.open && /Welcome back/.test(st.title || "") && st.email === "ada@example.com" && /already/i.test(st.err || ""), JSON.stringify(st));
+  await p.fill("#authPw", "secret-pass"); await p.evaluate(() => fbEmailAuth("in")); await sleep(700);
+  const fb = await p.evaluate(() => window.__fb);
+  ok("W10 · the password login links the Google credential to that same account — one account, two ways in", fb.linked.length === 1 && fb.linked[0].cred.providerId === "google.com" && fb.linked[0].uid === "uid-ada@example.com", JSON.stringify(fb.linked));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await open({ ios: false, pre: () => { localStorage.setItem("be_flags", JSON.stringify({ social_signin_web_enabled: true })); const mm = window.matchMedia; window.matchMedia = q => /display-mode: standalone/.test(q) ? { matches: true, media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} } : mm.call(window, q); } });
+  const s = await sheet(p);
+  ok("W11 · an INSTALLED web app whose authDomain is another origin (the Play TWA, a home-screen PWA) gets email and password alone — no popup opener there, and a redirect never returns", s.soc.length === 0 && !s.sep && s.email, JSON.stringify(s.soc));
+  ok("W11b · …because fbIsStandalone() is true and fbAuthSameOrigin() is false, so socialWebOn() refuses", await p.evaluate(() => fbIsStandalone() && !fbAuthSameOrigin() && !socialWebOn()));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await open({ pre: WEB_ON });
+  const s = await sheet(p);
+  await p.evaluate(() => fbSocial("google")); await sleep(400);
+  ok("W12 · in the shell the web flag changes nothing: both buttons, and a tap still goes to the native plugin, never to a popup", s.soc.length === 2 && (await p.evaluate(() => window.__be.calls)).includes("googleSignIn") && !(await p.evaluate(() => window.__fb.calls)).some(c => /popup/.test(c)));
   await ctx.close();
 }
 
