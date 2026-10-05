@@ -56,7 +56,7 @@ PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 # Profiles → Keys → + → Apple Push Notifications service. Full steps and the
 # App ID capability: docs/IOS_NOTIFICATIONS.md.
 APNS_TEAM_ID = "8TKAAK2MG6"
-APNS_KEY_ID = ""                 # fill in when the key is created
+APNS_KEY_ID = ""                 # the key id, once an APNs-enabled key exists. AuthKey_LRT44K2796.p8 (created 2 Oct 2026) is NOT one: Apple answers 403 InvalidProviderToken to a token signed with it, so it was never an APNs key — see docs/IOS_NOTIFICATIONS.md §2.2.
 APNS_TOPIC = "com.lomonec.bemastery"
 
 # ---------------------------------------------------------------- staging --

@@ -79,6 +79,58 @@ App ID carries the capability — that is the expected failure, not a bug.
 `.p8`** — `check-release.mjs` fails if anything matching `*.p8` or `AuthKey_`
 is tracked.
 
+#### Tried 4 Oct 2026: `AuthKey_LRT44K2796.p8` is not an APNs key
+
+That key (created 2 October, the one in `~/Documents/GitHub/BE Mastey Keys/`)
+was loaded into be-push-staging and a provider token signed with it was put to
+**both** of Apple's hosts with a fictional device token. Apple answered:
+
+```
+HTTP 403  {"reason":"InvalidProviderToken"}
+```
+
+The key itself is a valid P-256 key and the Worker signs with it correctly —
+verified offline: `ES256`, `kid: LRT44K2796`, `iss: 8TKAAK2MG6`, signature
+checks out. And the team is right: `DEVELOPMENT_TEAM = 8TKAAK2MG6` in the Xcode
+project. So the key is simply **not enabled for Apple Push Notifications
+service** — most likely the key §5 of `docs/auth/SOCIAL_SIGNIN.md` asks for
+(Sign in with Apple revocation), which cannot sign APNs tokens.
+
+What to do: in the portal, open **Keys** and look at that key's services. If
+**Apple Push Notifications service (APNs)** is not among them, create a NEW key
+with that box ticked and use its id and file. Do **not** delete
+`LRT44K2796` — if it is the Sign in with Apple key, deleting it would break
+account-deletion revocation.
+
+The wrong key was removed from the staging Worker again, and `APNS_KEY_ID` is
+back to empty, so sending is cleanly **off** rather than failing 403 on every
+reminder.
+
+#### Also blocking, found the same evening: the account's cron-trigger limit
+
+```
+This account has reached the Workers Free limit of 5 cron triggers per account.
+```
+
+be-push wants two triggers per environment (every minute for reminders, every
+ten for online alerts and nudges), and with be-partner's the account is at the
+ceiling — so Cloudflare refuses to set **be-push-staging**'s schedules, and a
+`wrangler deploy` of that Worker reports "Trigger configuration … only
+partially updated". The Worker CODE deploys fine; only the schedules are
+refused, so a staging reminder or nudge may never fire even once the key is
+right. Check what is actually registered at dashboard → Workers & Pages →
+**be-push-staging** → Settings → Trigger Events.
+
+Two ways out, owner's choice:
+
+1. **Workers Paid** ($5/month) raises the limit to 1,000.
+2. **One trigger instead of two**, in code: keep `"* * * * *"` and run the
+   ten-minute work (presence + nudges) when the minute is divisible by ten,
+   inside `scheduled()`. Same cadence, half the triggers — it takes be-push
+   from 4 triggers to 2 across both environments. Nothing else changes.
+
+Nothing is deployed for either yet.
+
 ### 2.3 Nothing to do in Firebase
 
 This does not use Firebase Cloud Messaging. be-push talks to Apple directly
