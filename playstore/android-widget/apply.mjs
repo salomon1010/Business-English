@@ -27,12 +27,11 @@ export const APIS = {
   production: "https://be-widget.nore-ngou.workers.dev",
 };
 
-const RECEIVER = `
-        <!-- BE Mastery home-screen widget (playstore/android-widget, docs/ANDROID_WIDGET.md) -->
+const receiver = (cls, label, info) => `
         <receiver
-            android:name=".widget.BEWidgetProvider"
+            android:name=".widget.${cls}"
             android:exported="true"
-            android:label="@string/be_widget_name">
+            android:label="@string/${label}">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -41,9 +40,15 @@ const RECEIVER = `
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/be_widget_info" />
+                android:resource="@xml/${info}" />
         </receiver>
 `;
+/* three gallery entries: follows the open programme / General English / Welding English */
+const RECEIVER = `
+        <!-- BE Mastery home-screen widgets (playstore/android-widget, docs/ANDROID_WIDGET.md) -->`
+  + receiver("BEWidgetProvider", "be_widget_name", "be_widget_info")
+  + receiver("BEWidgetProviderGE", "be_widget_name_ge", "be_widget_info_ge")
+  + receiver("BEWidgetProviderPro", "be_widget_name_pro", "be_widget_info_pro");
 
 const HOOKS = `
     /* BE Mastery home-screen widget (playstore/android-widget): the page

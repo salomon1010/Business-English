@@ -1,11 +1,12 @@
 import WidgetKit
 import SwiftUI
 
-/// The widget extension's entry point. One widget today; the bundle exists so
-/// a second (a Live Activity for a running session, say) has a home.
+/// The widget extension's entry point: the three gallery entries (BEWidget.swift).
 @main
 struct BEWidgetBundle: WidgetBundle {
     var body: some Widget {
         BEWidget()
+        BEWidgetGeneral()
+        BEWidgetWelding()
     }
 }

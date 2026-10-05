@@ -17,18 +17,21 @@ import SwiftUI
 /// app. Colours follow the programme (General English indigo→cyan, Welding
 /// amber) and the app's theme, not the system's.
 struct BEWidgetProvider: TimelineProvider {
+    /// nil = follows the open programme; "ge" / "pro" = that programme only.
+    var area: String? = nil
+
     func placeholder(in context: Context) -> BEWidgetEntry {
-        BEWidgetEntry.make(BEWidgetSample.snapshot, at: Date())
+        BEWidgetEntry.make(BEWidgetSample.snapshot(area: area), at: Date(), area: area)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BEWidgetEntry) -> Void) {
-        let snap = context.isPreview ? (BEWidgetStore.load() ?? BEWidgetSample.snapshot) : BEWidgetStore.load()
-        completion(BEWidgetEntry.make(snap, at: Date()))
+        let snap = context.isPreview ? (BEWidgetStore.load(area: area) ?? BEWidgetSample.snapshot(area: area)) : BEWidgetStore.load(area: area)
+        completion(BEWidgetEntry.make(snap, at: Date(), area: area))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<BEWidgetEntry>) -> Void) {
-        let snap = BEWidgetStore.load()
-        let entries = BEWidgetClock.dates(from: Date()).map { BEWidgetEntry.make(snap, at: $0) }
+        let snap = BEWidgetStore.load(area: area)
+        let entries = BEWidgetClock.dates(from: Date()).map { BEWidgetEntry.make(snap, at: $0, area: area) }
         completion(Timeline(entries: entries, policy: .atEnd))
     }
 }
@@ -39,8 +42,8 @@ struct BEPalette {
     let bgA: Color, bgB: Color, card: Color, text: Color, muted: Color
     let acc: Color, acc2: Color, gold: Color, green: Color, red: Color
 
-    static func make(_ s: BEWidgetSnapshot?) -> BEPalette {
-        let light = s?.isLight ?? false, pro = s?.isPro ?? false
+    static func make(_ s: BEWidgetSnapshot?, area: String? = nil) -> BEPalette {
+        let light = s?.isLight ?? false, pro = s?.isPro ?? (area == "pro")
         if light {
             return BEPalette(bgA: Color(hex: 0xFFFFFF), bgB: Color(hex: 0xEEF1FB), card: Color(hex: 0x0F172A).opacity(0.05),
                              text: Color(hex: 0x0F172A), muted: Color(hex: 0x586179),
@@ -396,15 +399,19 @@ struct BEStat: View {
     }
 }
 
-/// A phone that has never opened the app: an invitation, not an error.
+/// A phone that has never opened the app — or, for a fixed-programme widget,
+/// never opened that programme: an invitation, not an error.
 struct BEEmptyView: View {
     let pal: BEPalette
+    var area: String? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             BEMark(pal: pal, size: 26)
             Spacer(minLength: 0)
-            Text("Open BE Mastery").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(pal.text)
-            Text("Your road map and streak will appear here.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(pal.muted).lineLimit(2)
+            Text(area == "pro" ? "Welding English" : area == "ge" ? "General English" : "Open BE Mastery")
+                .font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(pal.text)
+            Text(area == nil ? "Your road map and streak will appear here." : "Open this programme in BE Mastery once; its road map and streak will appear here.")
+                .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(pal.muted).lineLimit(3)
             BERoadStrip(steps: [], pal: pal, height: 6)
         }
         .widgetURL(BEWidgetLink.roadmap)
@@ -464,7 +471,7 @@ struct BEWidgetEntryView: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let pal = BEPalette.make(entry.snap)
+        let pal = BEPalette.make(entry.snap, area: entry.area)
         Group {
             if #available(iOS 16.0, *), family.isAccessory {
                 BEAccessoryView(entry: entry, s: entry.snap)
@@ -483,7 +490,7 @@ struct BEWidgetEntryView: View {
             default: BELargeView(entry: entry, s: s, pal: pal)
             }
         } else {
-            BEEmptyView(pal: pal)
+            BEEmptyView(pal: pal, area: entry.area)
         }
     }
 }
@@ -500,26 +507,60 @@ extension View {
     }
 }
 
-struct BEWidget: Widget {
-    var families: [WidgetFamily] {
-        var f: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
-        if #available(iOS 16.0, *) { f += [.accessoryCircular, .accessoryRectangular, .accessoryInline] }
-        return f
+/// Three gallery entries, one body. "Your road map" follows whichever
+/// programme is open in the app; "General English" and "Welding English"
+/// each show their own programme's last state, so a learner on both can keep
+/// both on the home screen (owner, 5 Oct 2026).
+func beWidgetConfiguration(kind: String, area: String?, name: String, description: String) -> some WidgetConfiguration {
+    var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
+    if #available(iOS 16.0, *) { families += [.accessoryCircular, .accessoryRectangular, .accessoryInline] }
+    return StaticConfiguration(kind: kind, provider: BEWidgetProvider(area: area)) { entry in
+        BEWidgetEntryView(entry: entry)
     }
+    .configurationDisplayName(name)
+    .description(description)
+    .supportedFamilies(families)
+}
 
+struct BEWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: BEWidgetShared.kind, provider: BEWidgetProvider()) { entry in
-            BEWidgetEntryView(entry: entry)
-        }
-        .configurationDisplayName("Your road map")
-        .description("Today's step, your streak and your place on the 12-week plan.")
-        .supportedFamilies(families)
+        beWidgetConfiguration(kind: BEWidgetShared.kind, area: nil, name: "Your road map",
+                              description: "Today's step, your streak and your place on the plan — for the programme you have open.")
+    }
+}
+
+struct BEWidgetGeneral: Widget {
+    var body: some WidgetConfiguration {
+        beWidgetConfiguration(kind: "BEWidgetGE", area: "ge", name: "General English",
+                              description: "Your General English streak, today's step and the 12-week road map.")
+    }
+}
+
+struct BEWidgetWelding: Widget {
+    var body: some WidgetConfiguration {
+        beWidgetConfiguration(kind: "BEWidgetPro", area: "pro", name: "Welding English",
+                              description: "Your Welding English streak, today's step and the road map of stages.")
     }
 }
 
 // MARK: - sample data (placeholders and previews only — never shown as real)
 
 enum BEWidgetSample {
+    static func snapshot(area: String?) -> BEWidgetSnapshot? {
+        guard area == "pro" else { return snapshot }
+        return BEWidgetSnapshot.parse("""
+        {"v":1,"at":0,"lang":"en","dir":"ltr","theme":"dark","area":"pro","programme":"Welding English",
+         "streak":5,"best":9,"lastDay":"\(BEWidgetDay.key(Date()))",
+         "week":{"n":2,"total":12,"done":3,"per":7,"title":"Safety briefings"},
+         "overall":{"done":10,"total":84,"pct":12},"weekGoal":{"n":2,"goal":6},"words":4,
+         "today":{"kind":"week","kicker":"Stage 2 · Thursday","title":"Report a weld defect clearly","cta":"Continue Stage 2","view":"session","w":2,"d":"Thu"},
+         "steps":["done","now","next","locked","locked","locked","locked","locked","locked","locked","locked","locked"],
+         "phases":[{"label":"Foundations","pct":100,"state":"done"},{"label":"Workshop","pct":15,"state":"now"},{"label":"Site","pct":0,"state":"locked"}],
+         "line":"25 minutes today keeps the streak alive.",
+         "labels":{"streak":"day streak","today":"Today","words":"words due","goal":"this week","best":"best streak","roadmap":"Road map","unit":"Stage","open":"Open"}}
+        """)
+    }
+
     static let snapshot: BEWidgetSnapshot? = BEWidgetSnapshot.parse("""
     {"v":1,"at":0,"lang":"en","dir":"ltr","theme":"dark","area":"ge","programme":"General English",
      "streak":12,"best":21,"lastDay":"\(BEWidgetDay.key(Date()))",
@@ -545,6 +586,19 @@ struct BEWidget_Previews: PreviewProvider {
                 .previewContext(WidgetPreviewContext(family: .systemLarge))
             BEWidgetEntryView(entry: BEWidgetEntry.make(nil, at: now))
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
+        }
+    }
+}
+
+/// The Welding widget, and its empty state before Welding has been opened.
+struct BEWidgetWelding_Previews: PreviewProvider {
+    static var previews: some View {
+        let now = Date()
+        Group {
+            BEWidgetEntryView(entry: BEWidgetEntry.make(BEWidgetSample.snapshot(area: "pro"), at: now, area: "pro"))
+                .previewContext(WidgetPreviewContext(family: .systemMedium))
+            BEWidgetEntryView(entry: BEWidgetEntry.make(nil, at: now, area: "pro"))
+                .previewContext(WidgetPreviewContext(family: .systemSmall))
         }
     }
 }

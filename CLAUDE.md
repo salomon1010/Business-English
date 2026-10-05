@@ -1298,8 +1298,20 @@ Fixes / infra
   hand edits, so NEVER edit the generated project directly. Staging Worker
   deployed (`be-widget-staging`, D1 `91355285-…`); production NOT (owner:
   create D1, deploy, set the `WIDGET_API` fallback, new AAB vc 10). Flag
-  `android_widget_enabled`. Tests: Worker 17, `tests/android-widget.mjs` 13,
+  `android_widget_enabled`. Tests: Worker 20, `tests/android-widget.mjs` 13,
   `apply.test.mjs` 8.
+  **Per-programme widgets (5 Oct 2026, evening — owner: "the same widget for
+  Welding English").** Three gallery entries on both platforms: "Your road
+  map" (follows the open programme), "General English", "Welding English".
+  iOS: kinds `BEWidget` / `BEWidgetGE` / `BEWidgetPro`, `BEWidgetProvider(area:)`,
+  the plugin stores each snapshot as the latest AND under `be_widget_snapshot_<area>`
+  (`BEWidgetPlugin.area(of:)`), `clear` removes all three. Android: receivers
+  `BEWidgetProvider` / `BEWidgetProviderGE` / `BEWidgetProviderPro`, three
+  `be_widget_info*.xml`, store keys per area; be-widget keeps one row per
+  (wid, area) (`0002_areas.sql`, applied on staging) and one GET returns the
+  latest plus `areas.ge/pro`. A programme's progress changes only while it is
+  open, so its widget is exact until it is opened again (labels may lag a
+  language change until then).
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

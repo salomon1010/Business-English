@@ -45,7 +45,10 @@ public class BEWidgetPlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve(["available": true, "group": UserDefaults(suiteName: BEWidgetPlugin.group) != nil])
     }
 
-    /// Store the snapshot and redraw every placed widget.
+    /// Store the snapshot — as the latest, and as its programme's last — and
+    /// redraw every placed widget. The "Your road map" widget reads the
+    /// latest; the General English and Welding widgets read their own key,
+    /// so each keeps the state of the last time that programme was open.
     @objc func update(_ call: CAPPluginCall) {
         guard let json = call.getString("snapshot"), let clean = BEWidgetPlugin.accept(json) else {
             call.reject("not a widget snapshot", "bad_snapshot"); return
@@ -54,15 +57,30 @@ public class BEWidgetPlugin: CAPPlugin, CAPBridgedPlugin {
             call.reject("the app group is not available to this build", "no_group"); return
         }
         defaults.set(clean, forKey: BEWidgetPlugin.key)
+        defaults.set(clean, forKey: BEWidgetPlugin.key + "_" + BEWidgetPlugin.area(of: clean))
         WidgetCenter.shared.reloadAllTimelines()
         call.resolve(["stored": true])
     }
 
-    /// Sign-out, account deletion: the widget must forget this learner too.
+    /// Sign-out, account deletion: every widget must forget this learner.
     @objc func clear(_ call: CAPPluginCall) {
-        UserDefaults(suiteName: BEWidgetPlugin.group)?.removeObject(forKey: BEWidgetPlugin.key)
+        if let d = UserDefaults(suiteName: BEWidgetPlugin.group) {
+            d.removeObject(forKey: BEWidgetPlugin.key)
+            for a in BEWidgetPlugin.areas { d.removeObject(forKey: BEWidgetPlugin.key + "_" + a) }
+        }
         WidgetCenter.shared.reloadAllTimelines()
         call.resolve()
+    }
+
+    static let areas = ["ge", "pro"]
+
+    /// The programme a snapshot belongs to: "pro" (Welding) or "ge" (General
+    /// English, also for anything unexpected — the General English widget is
+    /// the default one).
+    static func area(of json: String) -> String {
+        guard let data = json.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return "ge" }
+        return (obj["area"] as? String) == "pro" ? "pro" : "ge"
     }
 
     /// The widget tap that LAUNCHED the app, served once — a cold launch has no

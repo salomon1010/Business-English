@@ -9,8 +9,18 @@ kind of app.
 
 ## 1. What the learner sees
 
-The same three sizes as iOS, drawn from the same snapshot, every word in the
-learner's language:
+Three widgets in the launcher's list, as on iOS (5 Oct 2026, evening):
+**Your road map** follows the programme open in the app; **General English**
+and **Welding English** each show their own programme's last state, so a
+learner on both can keep both. The feed keeps one row per programme
+(`migrations/0002_areas.sql`); one GET returns the latest snapshot and
+`areas.ge` / `areas.pro`, and `BEWidgetProviderGE` / `BEWidgetProviderPro`
+(subclasses of `BEWidgetProvider`) draw their own. A fixed-programme widget
+whose programme has never been opened shows an invitation in that
+programme's colours.
+
+Each comes in the same three sizes as iOS, drawn from the same snapshot,
+every word in the learner's language:
 
 | Size (cells) | What is on it | A tap opens |
 |---|---|---|

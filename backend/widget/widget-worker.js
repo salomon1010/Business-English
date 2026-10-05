@@ -18,8 +18,10 @@
    The id is random and unlinked to any account. Rows are purged after 30 days
    opportunistically (no cron: the account is at its cron-trigger limit).
 
-   One D1 table, one row per widget id, an hourly write counter in the row.
-   Nothing is logged. */
+   One D1 table, one row per widget id AND programme (General English /
+   Welding — a phone may carry one widget of each, drawn from the last
+   snapshot published while that programme was open), an hourly write counter
+   in the row. Nothing is logged. */
 
 const WID_RE = /^[a-f0-9]{32}$/;
 const MAX_BYTES = 16_384;
@@ -81,13 +83,21 @@ export async function handle(req, env, now = Date.now()) {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
   if (url.pathname !== "/feed") return json({ error: "not found" }, 404, origin);
 
+  /* GET: every programme's last snapshot for this id in one answer — `snap`/
+     `at`/`area` are the most recent of them (the "follows the open programme"
+     widget), `areas.ge` / `areas.pro` the per-programme widgets'. */
   if (req.method === "GET") {
     const wid = url.searchParams.get("wid") || "";
     if (!WID_RE.test(wid)) return json({ error: "wid" }, 400, origin);
-    const row = await env.DB.prepare("SELECT snap, at FROM feeds WHERE wid = ?").bind(wid).first();
-    if (!row || now - row.at > KEEP_MS) return json({ error: "none" }, 404, origin);
-    let snap = null; try { snap = JSON.parse(row.snap); } catch (e) { return json({ error: "none" }, 404, origin); }
-    return json({ snap, at: row.at }, 200, origin);
+    const rows = (await env.DB.prepare("SELECT area, snap, at FROM feeds WHERE wid = ? AND at > ?").bind(wid, now - KEEP_MS).all()).results || [];
+    const areas = {}; let latest = null;
+    for (const r of rows) {
+      let snap = null; try { snap = JSON.parse(r.snap); } catch (e) { continue; }
+      areas[r.area] = { snap, at: r.at };
+      if (!latest || r.at > latest.at) latest = { snap, at: r.at, area: r.area };
+    }
+    if (!latest) return json({ error: "none" }, 404, origin);
+    return json({ snap: latest.snap, at: latest.at, area: latest.area, areas }, 200, origin);
   }
 
   if (req.method === "DELETE") {
@@ -107,12 +117,12 @@ export async function handle(req, env, now = Date.now()) {
     if (!WID_RE.test(wid)) return json({ error: "wid" }, 400, origin);
     const snap = shapeSnap(b && b.snap);
     if (!snap) return json({ error: "snapshot" }, 400, origin);
-    const hour = Math.floor(now / 3_600_000);
-    const prev = await env.DB.prepare("SELECT writes, hour FROM feeds WHERE wid = ?").bind(wid).first();
+    const area = snap.area, hour = Math.floor(now / 3_600_000);
+    const prev = await env.DB.prepare("SELECT writes, hour FROM feeds WHERE wid = ? AND area = ?").bind(wid, area).first();
     const writes = prev && prev.hour === hour ? prev.writes + 1 : 1;
     if (writes > WRITES_PER_HOUR) return json({ error: "rate" }, 429, origin);
-    await env.DB.prepare("INSERT INTO feeds (wid, snap, at, writes, hour) VALUES (?, ?, ?, ?, ?) ON CONFLICT(wid) DO UPDATE SET snap = excluded.snap, at = excluded.at, writes = excluded.writes, hour = excluded.hour")
-      .bind(wid, JSON.stringify(snap), now, writes, hour).run();
+    await env.DB.prepare("INSERT INTO feeds (wid, area, snap, at, writes, hour) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(wid, area) DO UPDATE SET snap = excluded.snap, at = excluded.at, writes = excluded.writes, hour = excluded.hour")
+      .bind(wid, area, JSON.stringify(snap), now, writes, hour).run();
     /* no cron on this account: every fiftieth write sweeps what nobody has refreshed in 30 days */
     if (Math.random() < 0.02) { try { await env.DB.prepare("DELETE FROM feeds WHERE at < ?").bind(now - KEEP_MS).run(); } catch (e) {} }
     return json({ ok: true, at: now }, 200, origin);

@@ -38,7 +38,7 @@ public final class BEWidgetFeed {
             conn.setUseCaches(false);
             int code = conn.getResponseCode();
             if (code == 404) {
-                boolean had = BEWidgetStore.snapJson(c) != null;
+                boolean had = BEWidgetStore.snapJson(c, null) != null;
                 BEWidgetStore.clear(c);
                 return had;
             }
@@ -49,20 +49,31 @@ public final class BEWidgetFeed {
             int n, total = 0;
             while ((n = in.read(b)) > 0) {
                 total += n;
-                if (total > 40_000) return false;
+                if (total > 80_000) return false;
                 buf.write(b, 0, n);
             }
             JSONObject body = new JSONObject(buf.toString("UTF-8"));
-            JSONObject snap = body.optJSONObject("snap");
-            if (snap == null || BEWidgetSnapshot.parse(snap.toString()) == null) return false;
-            String json = snap.toString();
-            boolean changed = !json.equals(BEWidgetStore.snapJson(c));
-            BEWidgetStore.put(c, json, body.optLong("at", System.currentTimeMillis()));
+            /* one answer carries the latest snapshot and each programme's last
+               (the General English and Welding widgets read their own) */
+            boolean changed = store(c, null, body.optJSONObject("snap"), body.optLong("at", System.currentTimeMillis()));
+            JSONObject areas = body.optJSONObject("areas");
+            if (areas != null) for (String a : BEWidgetStore.AREAS) {
+                JSONObject row = areas.optJSONObject(a);
+                if (row != null) changed |= store(c, a, row.optJSONObject("snap"), row.optLong("at", 0L));
+            }
             return changed;
         } catch (Exception e) {
             return false;
         } finally {
             if (conn != null) conn.disconnect();
         }
+    }
+
+    private static boolean store(Context c, String area, JSONObject snap, long at) {
+        if (snap == null || BEWidgetSnapshot.parse(snap.toString()) == null) return false;
+        String json = snap.toString();
+        boolean changed = !json.equals(BEWidgetStore.snapJson(c, area));
+        BEWidgetStore.put(c, area, json, at);
+        return changed;
     }
 }

@@ -63,8 +63,13 @@ public final class BEWidgetRenderer {
     }
 
     public static RemoteViews build(Context c, BEWidgetSnapshot s, int wDp, int hDp, long now) {
+        return build(c, s, wDp, hDp, now, null);
+    }
+
+    /** `area` is the widget's own programme (null = follows the open one); it only colours and words the empty state. */
+    public static RemoteViews build(Context c, BEWidgetSnapshot s, int wDp, int hDp, long now, String area) {
         int cls = sizeClass(wDp, hDp);
-        if (s == null) return empty(c, cls, wDp);
+        if (s == null) return empty(c, cls, wDp, area);
         switch (cls) {
             case SMALL: return small(c, s, now, wDp);
             case LARGE: return large(c, s, now, wDp);
@@ -159,14 +164,15 @@ public final class BEWidgetRenderer {
         return rv;
     }
 
-    /** A phone that has never opened the app: an invitation, not zeros. */
-    static RemoteViews empty(Context c, int cls, int wDp) {
-        Pal p = new Pal(false, false);
+    /** A phone that has never opened the app — or that programme: an invitation, not zeros. */
+    static RemoteViews empty(Context c, int cls, int wDp, String area) {
+        Pal p = new Pal(false, "pro".equals(area));
         RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.be_widget_empty);
         rv.setInt(R.id.be_root, "setBackgroundResource", p.bg());
         rv.setInt(R.id.be_mark, "setBackgroundResource", p.mark());
-        text(rv, R.id.be_title, c.getString(R.string.be_widget_empty_h), p.text);
-        text(rv, R.id.be_line, c.getString(R.string.be_widget_empty_b), p.muted);
+        int h = "pro".equals(area) ? R.string.be_widget_name_pro : "ge".equals(area) ? R.string.be_widget_name_ge : R.string.be_widget_empty_h;
+        text(rv, R.id.be_title, c.getString(h), p.text);
+        text(rv, R.id.be_line, c.getString(area == null ? R.string.be_widget_empty_b : R.string.be_widget_empty_area_b), p.muted);
         rv.setImageViewBitmap(R.id.be_strip, strip(c, null, p, stripWidth(wDp, cls == SMALL ? 160 : 340, 28), 6));
         rv.setOnClickPendingIntent(R.id.be_root, BEWidgetLaunch.home(c));
         return rv;

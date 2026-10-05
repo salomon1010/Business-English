@@ -34,15 +34,23 @@ public final class BEWidgetStore {
         return w;
     }
 
-    public static void put(Context c, String snapJson, long at) {
-        prefs(c).edit().putString(K_SNAP, snapJson).putLong(K_AT, at).apply();
+    /** The programmes a fixed widget may follow; null = whichever was open last. */
+    public static final String[] AREAS = { "ge", "pro" };
+
+    private static String key(String base, String area) { return area == null ? base : base + "_" + area; }
+
+    /** Store a programme's snapshot (area "ge"/"pro"); the latest one is `area == null`. */
+    public static void put(Context c, String area, String snapJson, long at) {
+        prefs(c).edit().putString(key(K_SNAP, area), snapJson).putLong(key(K_AT, area), at).apply();
     }
 
     public static void clear(Context c) {
-        prefs(c).edit().remove(K_SNAP).remove(K_AT).apply();
+        SharedPreferences.Editor e = prefs(c).edit().remove(K_SNAP).remove(K_AT);
+        for (String a : AREAS) e.remove(key(K_SNAP, a)).remove(key(K_AT, a));
+        e.apply();
     }
 
-    public static String snapJson(Context c) { return prefs(c).getString(K_SNAP, null); }
+    public static String snapJson(Context c, String area) { return prefs(c).getString(key(K_SNAP, area), null); }
 
-    public static long at(Context c) { return prefs(c).getLong(K_AT, 0L); }
+    public static long at(Context c, String area) { return prefs(c).getLong(key(K_AT, area), 0L); }
 }

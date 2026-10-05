@@ -9,8 +9,25 @@ Android and the installed PWA are untouched: a TWA and a PWA have no widgets.
 
 ## 1. What the learner sees
 
-Three home-screen sizes and three lock-screen shapes, all drawn from the same
-snapshot, every word in the learner's language.
+Three gallery entries (since 5 Oct 2026, evening — owner: "the same widget for
+Welding English as well"):
+
+| Gallery entry | Shows | Reads |
+|---|---|---|
+| **Your road map** | whichever programme is open in the app | the latest snapshot |
+| **General English** | that programme's last state, whatever is open | the snapshot last published while General English was open |
+| **Welding English** | that programme's last state, whatever is open | the snapshot last published while Welding was open |
+
+A learner on both programmes can keep both on the home screen. A programme's
+progress only changes while that programme is open, so its widget is exact
+until the next time it is opened; only the translated labels can lag a
+language change until then. A fixed-programme widget whose programme has
+never been opened shows an invitation in that programme's colours. The plugin
+stores every snapshot twice: as the latest (`be_widget_snapshot`) and under
+its programme (`be_widget_snapshot_ge` / `_pro`); sign-out clears all three.
+
+Each entry comes in three home-screen sizes and three lock-screen shapes, all
+drawn from the same snapshot, every word in the learner's language.
 
 | Size | What is on it | A tap opens |
 |---|---|---|

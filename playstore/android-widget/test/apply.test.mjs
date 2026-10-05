@@ -64,14 +64,19 @@ console.log("\n# a staging-host project");
   const r = apply(dir);
   const m = readFileSync(join(dir, "app/src/main/AndroidManifest.xml"), "utf8");
   const la = readFileSync(join(dir, "app/src/main/java/com/bemastery/app/LauncherActivity.java"), "utf8");
-  ok("1 · the widget sources, layouts, drawables and provider info are copied in", ["java/com/bemastery/app/widget/BEWidgetProvider.java", "java/com/bemastery/app/widget/BEWidgetRenderer.java", "res/layout/be_widget_small.xml", "res/layout/be_widget_medium.xml", "res/layout/be_widget_large.xml", "res/layout/be_widget_empty.xml", "res/xml/be_widget_info.xml", "res/drawable/be_widget_pill_pro.xml", "res/values/be_widget.xml", "res/values-v31/be_widget.xml"].every(f => existsSync(join(dir, "app/src/main", f))));
+  ok("1 · the widget sources, layouts, drawables and the three provider infos are copied in", ["java/com/bemastery/app/widget/BEWidgetProvider.java", "java/com/bemastery/app/widget/BEWidgetProviderGE.java", "java/com/bemastery/app/widget/BEWidgetProviderPro.java", "java/com/bemastery/app/widget/BEWidgetRenderer.java", "res/layout/be_widget_small.xml", "res/layout/be_widget_medium.xml", "res/layout/be_widget_large.xml", "res/layout/be_widget_empty.xml", "res/xml/be_widget_info.xml", "res/xml/be_widget_info_ge.xml", "res/xml/be_widget_info_pro.xml", "res/drawable/be_widget_pill_pro.xml", "res/values/be_widget.xml", "res/values-v31/be_widget.xml"].every(f => existsSync(join(dir, "app/src/main", f))));
   ok("2 · the debug-only preview screen goes under src/debug, never src/main", existsSync(join(dir, "app/src/debug/AndroidManifest.xml")) && existsSync(join(dir, "app/src/debug/java/com/bemastery/app/widget/BEWidgetPreviewActivity.java")) && !existsSync(join(dir, "app/src/main/java/com/bemastery/app/widget/BEWidgetPreviewActivity.java")));
   ok("3 · the feed address follows the host: staging → be-widget-staging", r.api === APIS.staging && readFileSync(join(dir, "app/src/main/res/values/be_widget_api.xml"), "utf8").includes(APIS.staging));
-  ok("4 · the manifest gains INTERNET and the widget receiver with both actions and its provider info, inside <application>", /uses-permission android:name="android.permission.INTERNET"/.test(m) && /<receiver[\s\S]*?\.widget\.BEWidgetProvider[\s\S]*?APPWIDGET_UPDATE[\s\S]*?com\.bemastery\.app\.widget\.REFRESH[\s\S]*?@xml\/be_widget_info[\s\S]*?<\/receiver>\s*<\/application>/.test(m), m);
+  ok("4 · the manifest gains INTERNET and the three widget receivers (open programme / General English / Welding), each with both actions and its own provider info, inside <application>",
+    /uses-permission android:name="android.permission.INTERNET"/.test(m)
+    && /<receiver[\s\S]*?\.widget\.BEWidgetProvider"[\s\S]*?APPWIDGET_UPDATE[\s\S]*?com\.bemastery\.app\.widget\.REFRESH[\s\S]*?@xml\/be_widget_info"/.test(m)
+    && /\.widget\.BEWidgetProviderGE"[\s\S]*?@string\/be_widget_name_ge[\s\S]*?@xml\/be_widget_info_ge"/.test(m)
+    && /\.widget\.BEWidgetProviderPro"[\s\S]*?@string\/be_widget_name_pro[\s\S]*?@xml\/be_widget_info_pro"[\s\S]*?<\/receiver>\s*<\/application>/.test(m)
+    && (m.match(/<receiver/g) || []).length === 3, m);
   ok("5 · LauncherActivity decorates the launch URL with ?wid= and schedules a refresh on start and on return", /return com\.bemastery\.app\.widget\.BEWidgetLaunch\.decorate\(this, uri\);/.test(la) && /protected void onStart\(\)[\s\S]*scheduleRefresh\(this, 25000L\)/.test(la) && /protected void onRestart\(\)[\s\S]*scheduleRefresh\(this, 4000L\)/.test(la) && /^}\s*$/m.test(la), la);
   const m2 = patchManifest(m), la2 = patchLauncher(la);
-  ok("6 · running it again changes nothing (idempotent — safe after every bubblewrap update)", m2 === m && la2 === la && (m.match(/BEWidgetProvider/g) || []).length === 1 && (la.match(/protected void onRestart/g) || []).length === 1,
-    JSON.stringify({ manifestSame: m2 === m, launcherSame: la2 === la, providerMentions: (m.match(/BEWidgetProvider/g) || []).length, onRestartHooks: (la.match(/protected void onRestart/g) || []).length }));
+  ok("6 · running it again changes nothing (idempotent — safe after every bubblewrap update)", m2 === m && la2 === la && (m.match(/<receiver/g) || []).length === 3 && (la.match(/protected void onRestart/g) || []).length === 1,
+    JSON.stringify({ manifestSame: m2 === m, launcherSame: la2 === la, receivers: (m.match(/<receiver/g) || []).length, onRestartHooks: (la.match(/protected void onRestart/g) || []).length }));
   rmSync(dir, { recursive: true, force: true });
 }
 console.log("\n# a production-host project, and refusals");

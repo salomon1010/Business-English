@@ -29,11 +29,23 @@ console.log("\n# publish and read back");
   let r = await j(await call("POST", "/feed", { wid: WID, snap: SNAP }));
   ok("1 · the page publishes a snapshot for its widget id", r.status === 200 && r.body.ok === true && r.body.at === T0, JSON.stringify(r));
   r = await j(await call("GET", `/feed?wid=${WID}`, undefined, ""));
-  ok("2 · the widget (no Origin header) reads it back whole, with when it was published, uncached", r.status === 200 && r.body.at === T0 && r.body.snap.streak === 12 && r.body.snap.today.title === "Donner un point clair" && r.body.snap.labels.streak === "jours de suite" && r.body.snap.steps.length === 12 && /no-store/.test(r.h["cache-control"]), JSON.stringify(r.body));
+  ok("2 · the widget (no Origin header) reads it back whole, with when it was published, uncached", r.status === 200 && r.body.at === T0 && r.body.area === "ge" && r.body.snap.streak === 12 && r.body.snap.today.title === "Donner un point clair" && r.body.snap.labels.streak === "jours de suite" && r.body.snap.steps.length === 12 && /no-store/.test(r.h["cache-control"]), JSON.stringify(r.body));
+  /* the Welding widget (5 Oct 2026): a second programme publishes its own row;
+     one GET serves both, and "latest" follows whichever was open last */
+  await call("POST", "/feed", { wid: WID, snap: { ...SNAP, area: "pro", programme: "Welding English", streak: 4 } }, "https://staging.lomonec.com", T0 + 60_000);
+  r = await j(await call("GET", `/feed?wid=${WID}`, undefined, "", T0 + 61_000));
+  ok("2b · a Welding snapshot is kept beside the General English one: `areas` carries both, the top-level answer is the most recent", r.status === 200 && r.body.area === "pro" && r.body.snap.streak === 4 && r.body.areas.ge && r.body.areas.ge.snap.streak === 12 && r.body.areas.pro && r.body.areas.pro.snap.programme === "Welding English", JSON.stringify(r.body && { area: r.body.area, keys: Object.keys(r.body.areas || {}) }));
+  await call("POST", "/feed", { wid: WID, snap: { ...SNAP, streak: 13 } }, "https://staging.lomonec.com", T0 + 120_000);
+  r = await j(await call("GET", `/feed?wid=${WID}`, undefined, "", T0 + 121_000));
+  ok("2c · publishing General English again updates ITS row only — Welding's stays", r.body.area === "ge" && r.body.areas.ge.snap.streak === 13 && r.body.areas.pro.snap.streak === 4);
   r = await j(await call("GET", `/feed?wid=${WID2}`, undefined, ""));
   ok("3 · an id nobody published for → 404, not an empty snapshot", r.status === 404 && r.body.error === "none");
   r = await j(await call("GET", `/feed?wid=${WID}`, undefined, "", T0 + 31 * 86_400_000));
   ok("4 · a snapshot older than 30 days is gone (404) — a phone that stopped opening the app is forgotten", r.status === 404);
+  const after = await j(await call("DELETE", `/feed?wid=${WID}`));
+  const gone = await j(await call("GET", `/feed?wid=${WID}`, undefined, "", T0 + 130_000));
+  ok("4b · DELETE removes every programme's row for the id", after.status === 200 && gone.status === 404);
+  await call("POST", "/feed", { wid: WID, snap: SNAP });
 }
 
 console.log("\n# what may be stored");

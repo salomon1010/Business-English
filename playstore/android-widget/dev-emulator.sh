@@ -7,7 +7,7 @@
 # Needs Android Studio's SDK (~/Library/Android/sdk) with an AVD named
 # Medium_Phone_API_35 (any name: set AVD=…).
 set -euo pipefail
-APK="${1:?apk}"; OUT="${2:?out.png}"; MOOD="${3:-done}"; LIGHT="${4:-false}"; PRO="${5:-false}"
+APK="${1:?apk}"; OUT="${2:?out.png}"; MOOD="${3:-done}"; LIGHT="${4:-false}"; PRO="${5:-false}"; EMPTY="${6:-false}"
 SDK="${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}"
 ADB="$SDK/platform-tools/adb"
 AVD="${AVD:-Medium_Phone_API_35}"
@@ -24,7 +24,7 @@ if ! "$ADB" devices | grep -q "emulator-.*device"; then
 fi
 "$ADB" install -r "$APK" >/dev/null
 "$ADB" shell am force-stop com.bemastery.app >/dev/null 2>&1 || true
-"$ADB" shell am start -n com.bemastery.app/.widget.BEWidgetPreviewActivity --es mood "$MOOD" --ez light "$LIGHT" --ez pro "$PRO" >/dev/null
+"$ADB" shell am start -n com.bemastery.app/.widget.BEWidgetPreviewActivity --es mood "$MOOD" --ez light "$LIGHT" --ez pro "$PRO" --ez empty "$EMPTY" >/dev/null
 sleep 3
 "$ADB" exec-out screencap -p > "$OUT"
 echo "saved $OUT"

@@ -74,6 +74,16 @@ struct BEWidgetPluginTests {
         #expect(second == nil)
     }
 
+    /// A snapshot is filed under its programme as well as as the latest, so the
+    /// Welding widget keeps Welding's state while General English is open.
+    @Test func aSnapshotIsFiledUnderItsProgramme() {
+        #expect(BEWidgetPlugin.area(of: #"{"v":1,"area":"pro"}"#) == "pro")
+        #expect(BEWidgetPlugin.area(of: #"{"v":1,"area":"ge"}"#) == "ge")
+        #expect(BEWidgetPlugin.area(of: #"{"v":1}"#) == "ge")
+        #expect(BEWidgetPlugin.area(of: #"{"v":1,"area":"nonsense"}"#) == "ge")
+        #expect(BEWidgetPlugin.areas == ["ge", "pro"])
+    }
+
     /// The App Group and key the app writes must be the ones the widget reads.
     /// The widget's copy lives in the extension (BEWidgetModel.swift); the
     /// release checks compare the two source files. Here: the values the app

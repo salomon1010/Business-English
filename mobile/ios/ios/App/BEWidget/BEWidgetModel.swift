@@ -19,6 +19,12 @@ enum BEWidgetShared {
     static let key = "be_widget_snapshot"
     static let scheme = "bemastery"
     static let kind = "BEWidget"
+    /// The app stores the latest snapshot under `key` and each programme's
+    /// last snapshot under `key_<area>` (5 Oct 2026, the Welding widget): the
+    /// "Your road map" widget follows the open programme, the General English
+    /// and Welding widgets each read their own.
+    static func key(for area: String?) -> String { area == nil ? key : key + "_" + area! }
+    static let areas = ["ge", "pro"]
 }
 
 /// Every field is optional: an older app, or a newer one with fields this
@@ -82,9 +88,11 @@ struct BEWidgetSnapshot: Decodable {
 }
 
 enum BEWidgetStore {
-    static func load() -> BEWidgetSnapshot? {
+    /// `area` nil = the latest snapshot whatever the programme; "ge" / "pro" =
+    /// that programme's last snapshot (nil until it has been opened once).
+    static func load(area: String? = nil) -> BEWidgetSnapshot? {
         guard let d = UserDefaults(suiteName: BEWidgetShared.group),
-              let json = d.string(forKey: BEWidgetShared.key) else { return nil }
+              let json = d.string(forKey: BEWidgetShared.key(for: area)) else { return nil }
         return BEWidgetSnapshot.parse(json)
     }
 }
@@ -134,6 +142,9 @@ struct BEWidgetEntry: TimelineEntry {
     let date: Date
     let snap: BEWidgetSnapshot?
     let mood: BEWidgetMood
+    /// Which widget this entry is for: nil follows the open programme, "ge" /
+    /// "pro" is a fixed-programme widget (its empty state names the programme).
+    var area: String? = nil
 
     /// The streak as the app itself would count it at this moment: alive if the
     /// last practice was today or yesterday, otherwise back to zero.
@@ -145,8 +156,8 @@ struct BEWidgetEntry: TimelineEntry {
         }
     }
 
-    static func make(_ snap: BEWidgetSnapshot?, at date: Date) -> BEWidgetEntry {
-        BEWidgetEntry(date: date, snap: snap, mood: BEWidgetMood.of(snap, at: date))
+    static func make(_ snap: BEWidgetSnapshot?, at date: Date, area: String? = nil) -> BEWidgetEntry {
+        BEWidgetEntry(date: date, snap: snap, mood: BEWidgetMood.of(snap, at: date), area: area)
     }
 }
 

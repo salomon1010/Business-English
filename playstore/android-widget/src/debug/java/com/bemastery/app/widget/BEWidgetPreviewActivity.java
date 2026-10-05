@@ -45,6 +45,7 @@ public class BEWidgetPreviewActivity extends Activity {
             + "\"phases\":[{\"label\":\"Foundations\",\"pct\":100,\"state\":\"done\"},{\"label\":\"Fluency\",\"pct\":30,\"state\":\"now\"},{\"label\":\"Influence\",\"pct\":0,\"state\":\"locked\"}],"
             + "\"line\":\"25 minutes today keeps the streak alive.\",\"labels\":{\"streak\":\"day streak\",\"today\":\"Today\",\"words\":\"words due\",\"goal\":\"this week\",\"best\":\"best streak\",\"roadmap\":\"Road map\",\"unit\":\"Week\",\"open\":\"Open\"}}";
         BEWidgetSnapshot s = empty ? null : BEWidgetSnapshot.parse(json);
+        area = empty ? (pro ? "pro" : getIntent().getStringExtra("area")) : null;   // an empty fixed-programme widget names its programme
 
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
@@ -60,8 +61,10 @@ public class BEWidgetPreviewActivity extends Activity {
         setContentView(sv);
     }
 
+    private String area;
+
     private void add(LinearLayout col, BEWidgetSnapshot s, long now, int wDp, int hDp) {
-        RemoteViews rv = BEWidgetRenderer.build(this, s, wDp, hDp, now);
+        RemoteViews rv = BEWidgetRenderer.build(this, s, wDp, hDp, now, area);
         FrameLayout host = new FrameLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(wDp), dp(hDp));
         lp.bottomMargin = dp(16);

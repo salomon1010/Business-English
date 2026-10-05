@@ -19,18 +19,26 @@ import android.widget.RemoteViews;
  * calls {@link #onUpdate} every 30 minutes (be_widget_info.xml); the app's
  * LauncherActivity also asks for a refresh shortly after the app is opened
  * and when the learner comes back from it (the page publishes on both).
+ *
+ * Three gallery entries share this class: this one follows whichever
+ * programme is open in the app ({@link #area()} null); {@link BEWidgetProviderGE}
+ * and {@link BEWidgetProviderPro} each show one programme's last state, so a
+ * learner on both can keep both on the home screen.
  */
 public class BEWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_REFRESH = "com.bemastery.app.widget.REFRESH";
 
+    /** null = the open programme; "ge" / "pro" = that programme only. */
+    protected String area() { return null; }
+
     @Override
     public void onUpdate(Context c, AppWidgetManager mgr, int[] ids) {
-        drawAll(c, mgr, ids);
+        drawAll(c, mgr, ids, area());
         final PendingResult result = goAsync();
         final Context app = c.getApplicationContext();
         new Thread(() -> {
             try {
-                if (BEWidgetFeed.refresh(app)) drawAll(app, AppWidgetManager.getInstance(app), ids(app));
+                if (BEWidgetFeed.refresh(app)) drawEverything(app);
             } catch (Exception ignored) {
             } finally {
                 result.finish();
@@ -40,13 +48,13 @@ public class BEWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onAppWidgetOptionsChanged(Context c, AppWidgetManager mgr, int id, Bundle options) {
-        draw(c, mgr, id);
+        draw(c, mgr, id, area());
     }
 
     @Override
     public void onReceive(Context c, Intent intent) {
         if (intent != null && ACTION_REFRESH.equals(intent.getAction())) {
-            onUpdate(c, AppWidgetManager.getInstance(c), ids(c));
+            onUpdate(c, AppWidgetManager.getInstance(c), ids(c, getClass()));
             return;
         }
         super.onReceive(c, intent);
@@ -54,32 +62,48 @@ public class BEWidgetProvider extends AppWidgetProvider {
 
     // ---- drawing
 
-    static int[] ids(Context c) {
-        return AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c, BEWidgetProvider.class));
+    static final Class<?>[] PROVIDERS = { BEWidgetProvider.class, BEWidgetProviderGE.class, BEWidgetProviderPro.class };
+
+    static int[] ids(Context c, Class<?> provider) {
+        return AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c, provider));
     }
 
-    static void drawAll(Context c, AppWidgetManager mgr, int[] ids) {
+    static String areaOf(Class<?> provider) {
+        return provider == BEWidgetProviderGE.class ? "ge" : provider == BEWidgetProviderPro.class ? "pro" : null;
+    }
+
+    /** Every placed widget of every kind, from what is on the phone now. */
+    static void drawEverything(Context c) {
+        AppWidgetManager mgr = AppWidgetManager.getInstance(c);
+        for (Class<?> p : PROVIDERS) drawAll(c, mgr, ids(c, p), areaOf(p));
+    }
+
+    static void drawAll(Context c, AppWidgetManager mgr, int[] ids, String area) {
         if (ids == null) return;
-        for (int id : ids) draw(c, mgr, id);
+        for (int id : ids) draw(c, mgr, id, area);
     }
 
-    static void draw(Context c, AppWidgetManager mgr, int id) {
-        BEWidgetSnapshot s = BEWidgetSnapshot.parse(BEWidgetStore.snapJson(c));
+    static void draw(Context c, AppWidgetManager mgr, int id, String area) {
+        BEWidgetSnapshot s = BEWidgetSnapshot.parse(BEWidgetStore.snapJson(c, area));
         Bundle o = mgr.getAppWidgetOptions(id);
         int w = o == null ? 0 : o.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0);
         int h = o == null ? 0 : o.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
-        RemoteViews rv = BEWidgetRenderer.build(c, s, w, h, System.currentTimeMillis());
+        RemoteViews rv = BEWidgetRenderer.build(c, s, w, h, System.currentTimeMillis(), area);
         mgr.updateAppWidget(id, rv);
     }
 
-    // ---- asking for a refresh
+    // ---- asking for a refresh (all three kinds at once; one fetch serves them all)
+
+    static boolean anyPlaced(Context c) {
+        for (Class<?> p : PROVIDERS) if (ids(c, p).length > 0) return true;
+        return false;
+    }
 
     /** Redraw every placed widget now, fetching first. Safe when none is placed. */
     public static void requestRefresh(Context c) {
         try {
-            if (ids(c).length == 0) return;
-            Intent i = new Intent(c, BEWidgetProvider.class).setAction(ACTION_REFRESH);
-            c.sendBroadcast(i);
+            if (!anyPlaced(c)) return;
+            c.sendBroadcast(new Intent(c, BEWidgetProvider.class).setAction(ACTION_REFRESH));
         } catch (Exception ignored) {
         }
     }
@@ -87,7 +111,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
     /** The same, a little later — after the page has had time to publish. */
     public static void scheduleRefresh(Context c, long delayMs) {
         try {
-            if (ids(c).length == 0) return;
+            if (!anyPlaced(c)) return;
             Intent i = new Intent(c, BEWidgetProvider.class).setAction(ACTION_REFRESH);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
