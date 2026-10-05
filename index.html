@@ -14667,7 +14667,7 @@ window.shv3Jump=id=>{
 /* no "All videos" chip in either area (owner, 30 Sep 2026): a stale "all" lands on For you (General
    English) or the learner's trade (Welding) */
 function shLibCatSync(){if(!weldStudioOn()&&_shLibCat==="all")_shLibCat="foryou";if(weldStudioOn()&&(_shLibCat==="all"||(_shLibCat!=="foryou"&&_shLibCat!=="mine"&&!(_shCat&&(_shCat.categories||[]).some(c=>c.id===_shLibCat)))))_shLibCat=weldProf()||"foryou"}
-function shLibMount(){shCatLoad().then(()=>{shLibCatSync();const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
+function shLibMount(){shCatLoad().then(()=>{shLibCatSync();const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire();setTimeout(()=>{try{AdManager.placeLibrary()}catch(e){}},200)}})}
 function shLibWire(){
   shLibAllWatch();   /* "All videos" keeps adding rows as the learner scrolls */
   shlHeroStop();_shlHeroI=0;
@@ -15073,6 +15073,7 @@ function shLibHTML(){
   </div></div>`:""}
 
   </div>
+  <div id="shLibAdHost" ${_shLibQ.trim()?"hidden":""}></div>
   <div class="shl-feed" id="shLibFeed">${shLibFeedHTML()}</div>
   <div class="shl-foot" ${_shLibQ.trim()?'style="display:none"':""}>
     <button class="pf-row" onclick="shLibPage()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))} · ${esc(t("sh.tab_history"))}${aList("clips").length+aList("chHist").length?` <em class="sh-tb-n">${aList("clips").length+aList("chHist").length}</em>`:""}</b><small>${esc(t("sh.lib_entry_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
@@ -23949,7 +23950,12 @@ const AD_POLICY=Object.freeze({
     /* shadow_pause (owner, 3 Oct 2026): the one slot inside the Shadow
        workspace, under a PAUSED video and above the transcript. It is a
        PLACEMENT exception, not an eligibility one — see protectedReason(). */
-    contexts:Object.freeze(["home_feed","library","progress_foot","settings_foot","shadow_video"]),
+    /* library_top (owner, 4 Oct 2026): in the Shadow library, between the
+       featured video and the list of videos — the position the owner marked.
+       It is a second slot on that page, above the foot one (`library`), and
+       each placement keeps its own 60 s gap while sharing the hourly and
+       per-visit volume caps below. */
+    contexts:Object.freeze(["home_feed","library","library_top","progress_foot","settings_foot","shadow_video"]),
     minGapMs:60e3, windowMs:60*60e3, maxPerWindow:12, maxPerSession:20, launchGraceMs:0,
   }),
   rewarded:Object.freeze({         /* only ever at the learner's own request */
@@ -24250,7 +24256,7 @@ function beNativeAdsInit(){
       async renderNative(el,placement){
         const place=String(placement||"");
         if(!el||!place){adTrack("ad_suppressed",{format:"native",context:place||"?",reason:"no_el"});return false}
-        try{el.style.minHeight=AD_NATIVE_H+"px"}catch(e){}
+        try{el.style.minHeight=adNativeH(place)+"px"}catch(e){}
         let b;try{b=r4(el)}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"measure_threw"});return false}
         if(b.w<40||b.h<40){adTrack("ad_suppressed",{format:"native",context:place,reason:"size_"+b.w+"x"+b.h});return false}
         let out=null;
@@ -24265,9 +24271,18 @@ function beNativeAdsInit(){
 }
 /* the height the page reserves for a shell-drawn native creative */
 const AD_NATIVE_H=132;
+/* The height the page reserves before asking the shell to draw a creative, so
+   a native ad cannot land on top of the app's own content. The placement is
+   taken so a slot that needs a different reservation can have one without
+   touching the bridge; every slot uses the same height today.
+   This function was CALLED before it existed: the bridge's
+   `el.style.minHeight=adNativeH(place)+"px"` sat inside a try, so the
+   ReferenceError was swallowed and nothing was reserved at all. Caught by
+   tests/ios-ads.mjs B10/B11 (4 Oct 2026). */
+function adNativeH(place){return AD_NATIVE_H}
 
 /* screens whose FOOT may carry one native ad — browsing only, never a recorder */
-const AD_NATIVE_PLACES=Object.freeze({home:"home_feed",review:"progress_foot",shadow:"library",phrasebank:"library"});
+const AD_NATIVE_PLACES=Object.freeze({home:"home_feed",review:"progress_foot",shadow:"library",phrasebank:"library",data:"settings_foot"});   /* data = App Setup: settings_foot was declared in AD_POLICY from the start and never wired (4 Oct 2026) */
 const AD_BREAK_TTL=10*60e3, AD_NATIVE_KEEP_MS=5*60e3;
 let _adBreak=null,_adShowing=false,_adNative={};   /* _adNative[placement] = {el, at}: a shown native ad survives a re-render of its page */
 const adTrack=(name,props)=>{try{track(name,Object.assign({provider:adProvider().id},props||{}))}catch(e){}};
@@ -24349,9 +24364,22 @@ const AdManager={
      Premium never reaches here (planAllowsAds), and an ad already on another
      page is a different placement, so nothing moves on the library pages. */
   placeShadow(){
+    if(!adsTrackAllows())return;            /* same rule — this one reported "no_host" on Welding before the gate (found 4 Oct 2026) */
     const host=document.getElementById("shAdHost");
     if(!host){adTrack("ad_suppressed",{format:"native",context:"shadow_video",reason:"no_host"});return}
     this._fillSlot("shadow_video",host,"append");
+  },
+  /* THE LIBRARY SLOT (owner, 4 Oct 2026): featured video -> ad -> the list.
+     Its own host, like the workspace's, because shLibSync and the "more"
+     toggle rebuild #shLibFeed underneath it and a slot created next to the
+     feed would be thrown away with it. Hidden while searching: an ad above
+     somebody's search results is not "between the video and the list". */
+  placeLibrary(){
+    if(!adsTrackAllows())return;            /* before any event: Welding leaves no ad trace at all */
+    const host=document.getElementById("shLibAdHost");
+    if(!host){adTrack("ad_suppressed",{format:"native",context:"library_top",reason:"no_host"});return}
+    if(host.hidden)return;
+    this._fillSlot("library_top",host,"append");
   },
   /* the ad leaves with the pause: called when playback starts again */
   clearShadow(){

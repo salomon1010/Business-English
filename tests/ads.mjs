@@ -182,6 +182,32 @@ console.log("\n# native / banner");
   ok("N4 · Progress: the slot overlaps no control and adds no horizontal overflow", pr && pr.overlap === 0 && !pr.overflow, JSON.stringify(pr));
   await fresh(); await p.evaluate(() => { go("shadow"); }); await sleep(900);
   ok("N5 · the Shadow LIBRARY (browsing) may carry one", await p.evaluate(() => !!document.querySelector("#v-shadow [data-ad-slot]")));
+  /* the slot the owner asked for: between the featured video and the list */
+  await fresh(); await p.evaluate(() => go("shadow")); await sleep(1500);
+  const lib = await p.evaluate(() => {
+    const host = document.getElementById("shLibAdHost"), s = host && host.querySelector("[data-ad-slot]");
+    if (!s) return { host: !!host, slot: false };
+    const feed = document.getElementById("shLibFeed"), stat = document.getElementById("shLibStatic");
+    const r = s.getBoundingClientRect();
+    const btns = [...document.querySelectorAll("#v-shadow button, .bnav button")].filter(b => b.getBoundingClientRect().width > 0);
+    const hit = b => { const q = b.getBoundingClientRect(); return !(q.right < r.left || q.left > r.right || q.bottom < r.top || q.top > r.bottom); };
+    return { host: true, slot: true, place: s.dataset.placement, label: (s.querySelector(".ad-label") || {}).textContent,
+      filled: /TEST/.test(s.innerText), dashed: getComputedStyle(s).borderTopStyle,
+      afterStatic: !!stat && host.previousElementSibling === stat, beforeFeed: !!feed && host.nextElementSibling === feed,
+      overlap: btns.filter(hit).length, overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      both: document.querySelectorAll("#v-shadow [data-ad-slot]").length };
+  });
+  ok("N5b · the Shadow library carries a second labelled slot between the featured video and the list, overlapping no control", lib.slot && lib.place === "library_top" && lib.label === "Advertisement" && lib.filled && lib.dashed === "dashed" && lib.afterStatic && lib.beforeFeed && lib.overlap === 0 && !lib.overflow, JSON.stringify(lib));
+  ok("N5c · it is a SECOND slot: the foot one is still there, so the page carries both", lib.both === 2, JSON.stringify({ both: lib.both }));
+  /* searching: an ad above somebody's search results is not "between the video and the list" */
+  const searched = await p.evaluate(async () => { _shLibQ = "weld"; shLibMount(); await new Promise(z => setTimeout(z, 900));
+    const h = document.getElementById("shLibAdHost"); return { hidden: !h || h.hidden, slot: !!(h && h.querySelector("[data-ad-slot]")) }; });
+  ok("N5d · while searching the host is hidden and nothing is placed there", searched.hidden && !searched.slot, JSON.stringify(searched));
+  await p.evaluate(() => { _shLibQ = ""; shLibMount(); });
+  /* App Setup's foot slot: declared in AD_POLICY from the start, never wired until now */
+  await fresh(); await p.evaluate(() => go("data")); await sleep(900);
+  const setf = await p.evaluate(() => { const s = document.querySelector("#v-data [data-ad-slot]"); return s ? { place: s.dataset.placement, last: document.getElementById("v-data").lastElementChild === s } : null; });
+  ok("N5e · App Setup carries the settings_foot slot that the policy always declared", !!setf && setf.place === "settings_foot" && setf.last, JSON.stringify(setf));
   await grantPremium("up1"); await signIn(p, "up1");
   ok("N6 · the moment the server says Premium, every slot already on screen is withdrawn", await p.evaluate(() => !document.querySelector("[data-ad-slot]")));
   await ctx.close();
@@ -289,9 +315,10 @@ console.log("\n# Welding is ad-free, at the decision layer");
     inter: await AdManager.interstitial("session_complete"),
     rew: await AdManager.rewarded("extra_practice", "extra_practice", { userInitiated: true }),
     slots: (() => { AdManager.placeNative("home"); AdManager.placeNative("review"); AdManager.placeNative("shadow"); AdManager.placeNative("phrasebank");
+                    AdManager.placeNative("data"); AdManager.placeLibrary();
                     return document.querySelectorAll("[data-ad-slot]").length; })(),
   }));
-  ok("TW7 · Welding: interstitial(), rewarded() and all four native places produce nothing",
+  ok("TW7 · Welding: interstitial(), rewarded() and every native place — the two new ones included — produce nothing",
     direct.inter === false && direct.rew.rewarded === false && direct.slots === 0, JSON.stringify(direct));
 
   /* and the whole visit reported NOTHING — not even a suppression */

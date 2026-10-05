@@ -36,6 +36,7 @@ anywhere.
 |---|---|---|
 | **Interstitial** | natural breaks only: a finished session, Foundations day, Shadow take (report filed), workshop, conversation, or Polish report. Shown over the next browsing page the learner opens. | built, off |
 | **Native / banner** | one labelled, dashed slot at the foot of Home (`home_feed`), Progress (`progress_foot`), the Shadow library (`library`) and the phrase bank (`library`). Never on a session, recorder, conversation, partner or Polish screen. | built, off |
+| **Native, in content** | `library_top` — the Shadow library, between the featured video and the list of videos (owner, 4 Oct 2026). Its own host `#shLibAdHost`, because the feed below it is rebuilt by search, the chips and "show more". Hidden while searching. `settings_foot` — App Setup's foot; the policy declared it from the start and nothing filled it until 4 Oct 2026. Both are the same labelled, dashed card, and both obey the same decide() chain. |
 | **Rewarded** | `AdManager.rewarded(kind, context, {userInitiated:true})`, only from a learner's own tap. The reward is server-verified (§5). **No screen offers one:** no metered Free allowance exists yet for a reward to extend. | built, no entry point |
 | **Sponsored learning content** | the format and its policy exist (`AD_POLICY.sponsored`); `AdManager.sponsored()` returns nothing because no provider supplies it. | designed |
 
