@@ -51,7 +51,11 @@ hold, and it is tried once per visit:
 
 1. `IS_IOS_APP` — the App Store shell;
 2. `flag("ads_enabled")` — off in production;
-3. `adsTrackAllows()` — **Welding never reaches an ad SDK, for any plan**;
+3. `adsTrackAllows()` — **every programme since 5 Oct 2026** (owner). It was
+   General English only; Welding is now in the ad system too, because the
+   Premium that removes ads belongs to the ACCOUNT, not to one programme, so a
+   Welding learner is offered the same way out. Kept as the one line that
+   would put a programme back behind it;
 4. `adsSystemLive()` — see below;
 5. the plugin's own `configure()` answered `available: true`, which means the
    AdMob ids are real *and* Google's consent state is resolved.

@@ -1,5 +1,13 @@
 # Free-tier advertising (Phase 8)
 
+> **Who sees ads (owner, 5 Oct 2026).** Everyone on the **free plan**, on
+> **both programmes** — General English and Welding. Ads used to be General
+> English only, on the reasoning that Premium is surfaced there; that was
+> dropped because the entitlement is per ACCOUNT, so Premium silences ads on
+> any programme and the "Remove ads with Premium" button sits beside every
+> slot wherever the learner is. `adsTrackAllows()` is the single line that
+> would put a programme back behind the line. privacy.html §7b says the same.
+
 Branch `feature/phase8-ads`, built on Phase 7 (`docs/ENTITLEMENTS.md`).
 **Nothing is live:**
 - `ads_enabled` is off everywhere and the production provider is `none`;
@@ -164,7 +172,7 @@ server's view (Phase 7). A Premium learner gets:
     none on learning screens;
   - Premium suppression;
   - Light mode borders;
-  - Welding.
+  - every programme (Welding included since 5 Oct 2026).
 - **Automated tests:**
   - `tests/ads.mjs` 48/48;
   - `backend/entitlements/test/run.mjs` 61/61 (reward single-use and

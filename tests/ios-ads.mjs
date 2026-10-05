@@ -160,8 +160,8 @@ console.log("\n# privacy.html");
   const PRIVACY = read("privacy.html");
   ok("H1 · no claim that the app shows no ads survives anywhere in it", !/shows no ads/.test(PRIVACY) && !/no advertising or social-media trackers/.test(PRIVACY));
   ok("H2 · section 7b says ads are not switched on yet, and says so first", /Ads are not switched on/.test(PRIVACY));
-  ok("H3 · it states the product rule: General English free plan only, Premium removes them, Welding is ad-free",
-    /General English/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && /ad-free for everyone/.test(PRIVACY));
+  ok("H3 · it states the product rule as it now is: the free plan on BOTH programmes, and Premium removes them everywhere",
+    /both programmes/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && !/ad-free for everyone/.test(PRIVACY));
   ok("H4 · it states non-personalised, no IDFA, no tracking prompt", /non-personalised/.test(PRIVACY) && /IDFA/.test(PRIVACY) && /do not ask for permission to track you/.test(PRIVACY));
   ok("H5 · it names the network and what it receives, and does not claim personalised tracking",
     /Google AdMob/.test(PRIVACY) && /coarse location/.test(PRIVACY) && !/personalised advertising profile of you/.test(PRIVACY));
@@ -258,8 +258,8 @@ console.log("\n# the activation guard: a real network only where the plan system
   const { ctx, p } = await open({ track: "welding" });
   const s = await bridge(p);
   const ev = await p.evaluate(() => window.__ev.filter(([n]) => /^ad_|^rewarded_ad_/.test(n)).map(([n]) => n));
-  ok("G4 · WELDING never reaches an ad SDK: no configure call, no bridge, and no ad analytics",
-    s.track === false && s.built === "undefined" && s.calls.length === 0 && ev.length === 0, JSON.stringify({ s, ev }));
+  ok("G4 · WELDING reaches the ad SDK exactly as General English does (owner, 5 Oct 2026: ads on every programme)",
+    s.track === true && s.built === "object" && s.provider === "native", JSON.stringify({ s, ev }));
   await ctx.close();
 }
 {
@@ -514,8 +514,8 @@ console.log("\n# Premium, and the track, still decide before the provider is ask
     AdManager.placeNative("home");
     return { track: adsTrackAllows(), ov: !!document.getElementById("adOv"), slots: document.querySelectorAll("[data-ad-slot]").length,
       calls: window.__ad.calls.filter(c => /show/.test(c)) }; });
-  ok("B18 · switching to Welding mid-visit stops the ad system at once: no interstitial, no new slot",
-    before === 1 && st.track === false && st.ov === false && st.calls.length === 0, JSON.stringify({ before, st }));
+  ok("B18 · switching to Welding mid-visit changes nothing: the ad system keeps running on the other programme",
+    before === 1 && st.track === true && st.slots >= 1, JSON.stringify({ before, st }));
   await ctx.close();
 }
 

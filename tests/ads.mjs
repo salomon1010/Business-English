@@ -270,25 +270,29 @@ console.log("\n# track isolation");
   ok("T1 · Welding: the shared ad system adds no General-English feature (no Practice Partner, no Shadow V2)", !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
   await breakThen(p, "practice_complete", "go('home')");
   const o = await overlay(p);
-  /* REVERSED 2 Oct 2026 (owner): Welding is ad-free for this release. This very
-     path — the workshop debrief's markBreak("practice_complete") — is the one
-     that used to produce an interstitial on Welding, so it is the one that must
-     now produce nothing at all. */
-  ok("T2 · Welding: a finished workshop produces NO interstitial (the debrief path that used to)", o === null, JSON.stringify(o && o.view));
+  /* REVERSED AGAIN 5 Oct 2026 (owner): ads run on every programme, so this
+     path — the workshop debrief's markBreak("practice_complete") — produces an
+     interstitial on Welding exactly as it does on General English. */
+  ok("T2 · Welding: a finished workshop produces an interstitial, like every other programme", o !== null && /TEST/.test(o.creative || ""), JSON.stringify(o && { view: o.view, creative: (o.creative || "").slice(0, 40) }));
   if (o) await closeAd(p);
   await p.evaluate(() => go("practice")); await sleep(600);
   ok("T3 · Welding's Practice page shows the Welding simulation entry, no partner card", await p.evaluate(() => !document.querySelector("#v-practice .pp-entry")));
   await ctx.close();
 }
 
-/* WELDING IS AD-FREE (owner, 2 Oct 2026). Not by hiding a button — by the
-   eligibility layer refusing, so no entry point can reach a provider and no
-   analytics event is reported for a learner who is not in the ad system. */
-console.log("\n# Welding is ad-free, at the decision layer");
+/* ADS ON EVERY PROGRAMME (owner, 5 Oct 2026). Welding was refused at the
+   eligibility layer; it is now treated exactly like General English, and the
+   only thing that silences ads is the PLAN. The checks below are the old
+   Welding ones, turned over: what used to be refused for "track" must now be
+   allowed, and a Welding learner must be offered the same way out. */
+console.log("\n# every programme is in the ad system, and only the plan takes ads away");
 {
   WENV = workerEnv();
   const { ctx, p } = await open("welding");
   await signIn(p, "weldfree");
+  /* the page itself has already placed a slot by now, and native keeps a 60 s
+     gap per placement — clear the log so these answer the question asked */
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); });
   const d = await p.evaluate(() => ({
     track: AdEligibility.trackAllowsAds(),
     flag: flag("ads_enabled"),
@@ -298,17 +302,19 @@ console.log("\n# Welding is ad-free, at the decision layer");
     rew: AdEligibility.decide("rewarded", "extra_practice", { userInitiated: true }),
     spon: AdEligibility.decide("sponsored", "tip_card"),
   }));
-  ok("TW1 · ads_enabled is ON and the plan is Free, so only the TRACK can be refusing", d.flag === true && d.plan === true && d.track === false, JSON.stringify(d.plan));
-  ok("TW2 · Welding: interstitial refused with reason 'track'", d.inter.show === false && d.inter.reason === "track", JSON.stringify(d.inter));
-  ok("TW3 · Welding: native refused with reason 'track'", d.nat.show === false && d.nat.reason === "track", JSON.stringify(d.nat));
-  ok("TW4 · Welding: rewarded refused with reason 'track'", d.rew.show === false && d.rew.reason === "track", JSON.stringify(d.rew));
-  ok("TW5 · Welding: sponsored refused with reason 'track'", d.spon.show === false && d.spon.reason === "track", JSON.stringify(d.spon));
+  ok("TW1 · a free Welding learner is in the ad system: the flag is on, the plan allows ads, and the programme no longer refuses", d.flag === true && d.plan === true && d.track === true, JSON.stringify(d));
+  ok("TW2 · Welding: an interstitial is allowed", d.inter.show === true && d.inter.reason === "ok", JSON.stringify(d.inter));
+  ok("TW3 · Welding: a native slot is allowed", d.nat.show === true && d.nat.reason === "ok", JSON.stringify(d.nat));
+  ok("TW4 · Welding: a rewarded ad the learner asked for is allowed", d.rew.show === true && d.rew.reason === "ok", JSON.stringify(d.rew));
+  ok("TW5 · Welding: sponsored is allowed by the programme (the feature itself still returns nothing)", d.spon.show === true && d.spon.reason === "ok", JSON.stringify(d.spon));
 
   /* markBreak must not even ARM a break: an armed one would be waiting to fire
      on the next navigation, which is how it would leak across a track switch */
-  const armed = await p.evaluate(() => { AdManager.markBreak("practice_complete"); return AdManager.afterNav ? !!window.__adBreakPeek : null; });
-  await p.evaluate(() => go("home")); await sleep(1300);
-  ok("TW6 · Welding: a completed activity does not even arm a break", (await overlay(p)) === null, String(armed));
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); AdManager.markBreak("practice_complete"); });
+  await p.evaluate(() => go("home")); await sleep(1500);
+  const wo = await overlay(p);
+  ok("TW6 · Welding: a completed activity arms a break and the next page shows it", wo !== null, JSON.stringify(wo && wo.view));
+  if (wo) await closeAd(p);
 
   /* every entry point, called directly */
   const direct = await p.evaluate(async () => ({
@@ -318,13 +324,19 @@ console.log("\n# Welding is ad-free, at the decision layer");
                     AdManager.placeNative("data"); AdManager.placeLibrary();
                     return document.querySelectorAll("[data-ad-slot]").length; })(),
   }));
-  ok("TW7 · Welding: interstitial(), rewarded() and every native place — the two new ones included — produce nothing",
-    direct.inter === false && direct.rew.rewarded === false && direct.slots === 0, JSON.stringify(direct));
+  ok("TW7 · Welding: the native places fill, including the two added on 4 Oct — home, Progress, the library (both slots) and App Setup",
+    direct.slots >= 4, JSON.stringify(direct));
 
-  /* and the whole visit reported NOTHING — not even a suppression */
+  /* a Welding learner must be offered the same way out as anyone else:
+     the entitlement is per ACCOUNT, so buying Premium silences ads here too */
+  const esc = await p.evaluate(() => {
+    const s = document.querySelector("[data-ad-slot]");
+    return { slot: !!s, remove: !!(s && s.querySelector(".ad-remove")), offered: premOffered() };
+  });
+  ok("TW8 · and the way out is offered on Welding too: the 'Remove ads with Premium' button sits on the slot whenever billing is live",
+    esc.slot && esc.remove === esc.offered, JSON.stringify(esc));
   const ev = await events(p);
-  ok("TW8 · Welding causes no ad analytics at all: no request, no display, no rewarded, not even a suppression",
-    ev.filter(x => /^ad_|^rewarded_ad_/.test(x)).length === 0, JSON.stringify(ev.filter(x => /^ad_|^rewarded_ad_/.test(x)).slice(0, 5)));
+  ok("TW8b · the ad events are reported on Welding like anywhere else", ev.some(x => /^ad_displayed/.test(x)), JSON.stringify(ev.filter(x => /^ad_/.test(x)).slice(0, 4)));
   await ctx.close();
 }
 {
@@ -337,14 +349,16 @@ console.log("\n# Welding is ad-free, at the decision layer");
   ok("TW9 · General English Free is still eligible — the existing behaviour is preserved", ge.show === true && ge.reason === "ok", JSON.stringify(ge));
 
   const after = await p.evaluate(() => { S.professionalTracks.activeId = "welding"; return AdEligibility.decide("interstitial", "session_complete"); });
-  ok("TW10 · switching GE → Welding inside one session immediately refuses: no decision is cached", after.show === false && after.reason === "track", JSON.stringify(after));
+  ok("TW10 · switching GE → Welding inside one session changes nothing: both programmes are in the ad system", after.show === true && after.reason === "ok", JSON.stringify(after));
   const back = await p.evaluate(() => { S.professionalTracks.activeId = "general-english"; return AdEligibility.decide("interstitial", "session_complete"); });
-  ok("TW11 · switching back to GE restores eligibility: Welding did not poison it either", back.show === true, JSON.stringify(back));
+  ok("TW11 · and switching back is the same", back.show === true, JSON.stringify(back));
 
   await grantPremium("geprem");
   await signIn(p, "geprem");
   const prem = await p.evaluate(() => AdEligibility.decide("interstitial", "session_complete"));
-  ok("TW12 · General English Premium is still suppressed for 'premium', not for 'track'", prem.show === false && prem.reason === "premium", JSON.stringify(prem));
+  ok("TW12 · Premium is still suppressed for 'premium' — the plan is now the ONLY thing that takes ads away", prem.show === false && prem.reason === "premium", JSON.stringify(prem));
+  const wprem = await p.evaluate(() => { S.professionalTracks.activeId = "welding"; return AdEligibility.decide("interstitial", "session_complete"); });
+  ok("TW13 · and a Premium account is ad-free on Welding too: the entitlement is per account, not per programme", wprem.show === false && wprem.reason === "premium", JSON.stringify(wprem));
   await ctx.close();
 }
 

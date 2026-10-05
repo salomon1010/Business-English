@@ -123,9 +123,10 @@ console.log("\n# who never gets one");
 {
   WENV = workerEnv(); const { ctx, p, errs } = await open("welding"); await signIn(p, "w1");
   await clearCaps(p); await resume(p, 60e3);
-  ok("R10 · WELDING Free → no resume ad, and no ad analytics at all (refused before any event)",
-    (await ev(p)).length === 0 && !(await calls(p)).some(x => /^(load|show):/.test(x)), JSON.stringify(await ev(p)));
-  ok("R11 · and no bridge was ever built on Welding", await p.evaluate(() => _adsBridge === false && !window.BENativeAds));
+  /* REVERSED 5 Oct 2026 (owner): every programme is in the ad system. */
+  ok("R10 · WELDING Free → the resume ad arrives, exactly as on General English",
+    (await ev(p)).some(x => /^ad_displayed/.test(x)) && (await calls(p)).some(x => /^show:/.test(x)), JSON.stringify(await ev(p)));
+  ok("R11 · and the bridge is built on Welding too", await p.evaluate(() => _adsBridge === true && !!window.BENativeAds));
   ok("R12 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }
@@ -134,7 +135,10 @@ console.log("\n# who never gets one");
   const { ctx, p, errs } = await open("welding"); await signIn(p, "wprem");
   ok("R12b · (control) Welding learner really is Premium", await p.evaluate(() => entIsPremiumForDisplay() === true));
   await clearCaps(p); await resume(p, 60e3);
-  ok("R13 · WELDING Premium → nothing either", (await ev(p)).length === 0 && !(await calls(p)).some(x => /^(load|show):/.test(x)), JSON.stringify(await ev(p)));
+  /* the PLAN is now the only thing that takes ads away — and it still does,
+     on Welding as anywhere else, because the entitlement is per account */
+  ok("R13 · WELDING Premium → still nothing shown, refused for the plan rather than the programme",
+    !(await calls(p)).some(x => /^show:/.test(x)) && (await ev(p)).some(x => /premium/.test(x)), JSON.stringify(await ev(p)));
   ok("R14 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }

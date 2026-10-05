@@ -280,6 +280,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
   capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
   Store adapters (Play / App Store) answer 501 until Phase 9.
+  **Ads run on EVERY programme (owner, 5 Oct 2026).** `adsTrackAllows()` used
+  to be `isGeneralEnglish()` and is now `true`: a free Welding learner sees
+  ads and removes them by subscribing, because the entitlement is per ACCOUNT
+  (`entIsPremiumForDisplay()`), not per programme, and `premRemoveAdsHTML`
+  offers that way out beside every slot. The plan is now the ONLY thing that
+  takes ads away. privacy.html §7b, `docs/ADVERTISING.md` and
+  `docs/ADS-IOS-RELEASE.md` §3 all say so; the Welding checks in
+  `tests/ads.mjs` (TW1-TW13), `ios-ads.mjs` (G4, B18, H3), `ad-resume.mjs`
+  (R10/R11/R13) and `ad-shadow-pause.mjs` (H21) were turned over to the new
+  rule rather than deleted. Two slots were added the day before:
+  `library_top` (the Shadow library, between the featured video and the list,
+  host `#shLibAdHost`) and `settings_foot` (declared since the first version,
+  never wired).
   **Phase 8 (`feature/phase8-ads`, `docs/ADVERTISING.md`):** `AdManager` is the
   only thing that shows an ad. Completion points call `AdManager.markBreak(ctx)`
   (session / Foundations / Shadow report / workshop / conversation / fresh Polish

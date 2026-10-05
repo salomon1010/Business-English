@@ -23979,7 +23979,17 @@ const _adHolds=new Set();let _adSession={};
    native slot fill, and still report a suppression for a learner who must
    never be in the ad system at all. It throws CLOSED — any error means no ads.
    General English is untouched: there the SERVER's plan still decides. */
-function adsTrackAllows(){try{return isGeneralEnglish()}catch(e){return false}}
+/* ADS RUN ON EVERY PROGRAMME (owner, 5 Oct 2026). They were General English
+   only: Premium removes ads, the Premium offer is surfaced on General
+   English, and the worry was a Welding learner seeing ads with no way out.
+   That worry does not hold — the entitlement is per ACCOUNT, not per
+   programme, so entIsPremiumForDisplay() silences ads on any programme and
+   the "Remove ads with Premium" button beside every slot (premRemoveAdsHTML
+   → premOffered) is offered to a Welding learner too. The owner decided it:
+   a free Welding learner sees ads and can subscribe to remove them.
+   Kept as a function because this is the ONE line that would put a
+   programme back behind the line. */
+function adsTrackAllows(){return true}
 const AdEligibility={
   policy:AD_POLICY,
   planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
@@ -24162,7 +24172,7 @@ function adProvider(){for(const id of ["native","mock"]){const p=AdProviders[id]
    It is built ONLY when every one of these is true, and never rebuilt:
      - this is the App Store shell (IS_IOS_APP);
      - ads_enabled is on;
-     - adsTrackAllows() — Welding never reaches an ad SDK, for any plan;
+     - adsTrackAllows() — every programme, since 5 Oct 2026 (owner);
      - adsSystemLive() — see below;
      - the plugin is present AND its configure() reported available, which
        means the AdMob ids are real and Google's consent state is resolved.
@@ -24305,7 +24315,7 @@ const AdManager={
      app; resolves at once (false) whenever an ad is not appropriate. */
   async interstitial(context){
     if(_adShowing)return false;
-    if(!adsTrackAllows())return false;          // before any event: Welding is not in the ad system
+    if(!adsTrackAllows())return false;          // before any event, so a programme behind the line leaves no trace
     const d=AdEligibility.decide("interstitial",context);
     adTrack("ad_eligibility_checked",{format:"interstitial",context,result:d.show?"eligible":"refused"});
     if(!d.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
@@ -24360,11 +24370,11 @@ const AdManager={
      beside a live recording. Everything about WHETHER it may appear is still
      AdEligibility's: decide() asks flag -> track -> plan -> context ->
      protected -> caps, unchanged, with shadow_pause narrowing exactly one
-     clause of protectedReason(). Welding never reaches here (adsTrackAllows),
-     Premium never reaches here (planAllowsAds), and an ad already on another
+     clause of protectedReason(). Premium never reaches here (planAllowsAds),
+     and an ad already on another
      page is a different placement, so nothing moves on the library pages. */
   placeShadow(){
-    if(!adsTrackAllows())return;            /* same rule — this one reported "no_host" on Welding before the gate (found 4 Oct 2026) */
+    if(!adsTrackAllows())return;            /* the gate comes before any event, so a programme put back behind the line leaves no trace */
     const host=document.getElementById("shAdHost");
     if(!host){adTrack("ad_suppressed",{format:"native",context:"shadow_video",reason:"no_host"});return}
     this._fillSlot("shadow_video",host,"append");
@@ -24375,7 +24385,7 @@ const AdManager={
      feed would be thrown away with it. Hidden while searching: an ad above
      somebody's search results is not "between the video and the list". */
   placeLibrary(){
-    if(!adsTrackAllows())return;            /* before any event: Welding leaves no ad trace at all */
+    if(!adsTrackAllows())return;            /* before any event, so a programme behind the line leaves no trace */
     const host=document.getElementById("shLibAdHost");
     if(!host){adTrack("ad_suppressed",{format:"native",context:"library_top",reason:"no_host"});return}
     if(host.hidden)return;
