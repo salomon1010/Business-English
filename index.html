@@ -6034,10 +6034,19 @@ h1.big{letter-spacing:-.025em}
 .ad-native .ad-remove{float:right;min-height:32px;margin-top:-6px}[dir=rtl] .ad-native .ad-remove{float:left}
 /* the Shadow workspace slot: its own breathing room between the player block
    and the transcript, and it takes no space at all when there is no ad */
-.ad-native[data-placement="shadow_pause"]{margin:12px 0 4px}
 .ad-native{display:block;margin:28px 0 12px;padding:12px;border:1px dashed var(--line2);border-radius:var(--ds-r);background:color-mix(in srgb,var(--card) 70%,transparent)}
 .ad-native .ad-label{margin-bottom:10px}
 .ad-native-body{min-height:64px}
+/* THE STRIP (owner, 5 Oct 2026). Between the video and the transcript, and
+   between the featured video and the list, the slot is a SHORT single row —
+   an icon, a name, a button — not a block that pushes the learner's own
+   content off the screen. The label and the Premium link share one line above
+   it, and the body is the height the shell reserves (adNativeH). */
+.ad-native[data-placement="shadow_video"],.ad-native[data-placement="library_top"]{margin:10px 0 8px;padding:8px 10px}
+.ad-native[data-placement="shadow_video"] .ad-label,.ad-native[data-placement="library_top"] .ad-label{margin-bottom:4px;font-size:10px;letter-spacing:.7px}
+.ad-native[data-placement="shadow_video"] .ad-remove,.ad-native[data-placement="library_top"] .ad-remove{min-height:32px;margin-top:-4px;font-size:11.5px}
+.ad-native[data-placement="shadow_video"] .ad-native-body,.ad-native[data-placement="library_top"] .ad-native-body{min-height:56px}
+.ad-native[data-placement="shadow_video"] .ad-mock,.ad-native[data-placement="library_top"] .ad-mock{min-height:56px;padding:6px 8px;gap:8px}
 .ad-mock{height:100%;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center;color:var(--mut)}
 .ad-mock b{color:var(--txt);font-size:16px}
 .ad-mock p{font-size:13px;max-width:30ch;line-height:1.45}
@@ -15266,7 +15275,7 @@ async function shLoad(c,quiet){
      the first clip of a session spent the only attempt there was and every
      later clip was silently skipped — no request, no suppression, nothing to
      read back. Opening a clip is the boundary it was always meant to have. */
-  _shAdTried=false;
+  _shAdTried=false;try{AdManager.clearShadow()}catch(e){}   /* a new clip asks for its own ad instead of keeping the last one's */
   /* remember the last clip so a page refresh restores the player, transcript and recordings */
   lastClipSet({vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title});save();
   shCounting=false;shPing={};
@@ -15306,7 +15315,13 @@ async function shLoad(c,quiet){
          removed the instant playback resumes. AdEligibility still decides
          whether one may appear at all (Welding, Premium, consent, caps). */
       onStateChange:e=>{if(e&&(e.data===1||e.data===3))shPosterHide();
-        try{if(e&&e.data===2)setTimeout(()=>AdManager.placeShadow(),400);else if(e&&e.data===1)AdManager.clearShadow()}catch(_){}},
+        /* The ad stays while the video PLAYS as well as while it is paused
+           (owner, 3 Oct 2026 — and again 5 Oct: "when the video is up and
+           running, it is not there... it should be permanent"). The eligibility
+           layer has allowed this since 3 Oct; this line was still deleting the
+           slot on play, which is why it was never there during playback.
+           placeShadow is idempotent, so asking on either state is free. */
+        try{if(e&&(e.data===1||e.data===2))setTimeout(()=>AdManager.placeShadow(),400)}catch(_){}},
       onError:()=>{clearInterval(shTick);if(scene){toast(t("scn.audio_err"));return}shVideoError(true)}}});
   renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
@@ -21757,7 +21772,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v621";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v622";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24130,7 +24145,13 @@ const AdProviders={
        but the host test was wrong, and a flag is a preview switch, not a
        boundary. A STAGING iOS bundle still qualifies through beEnv(), which is
        how it is meant to be reviewed. */
-    available(){try{return flag("ads_mock_provider")&&((!IS_IOS_APP&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname))||!!(beEnv()||{}).flags)}catch(e){return false}},
+    /* NEVER in the App Store shell (5 Oct 2026). The shell exists to exercise
+       Google's real SDK, and a TEST card standing in for it would hide a
+       bridge that refused — which is exactly what tests/ios-ads.mjs U5 and
+       tests/ad-resume.mjs R30 caught when the staging flag was turned on.
+       The mock is for the WEB: the staging site in a browser and the Home
+       Screen web app, neither of which has a native bridge at all. */
+    available(){try{if(!flag("ads_mock_provider")||IS_IOS_APP)return false;return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)||!!(beEnv()||{}).flags}catch(e){return false}},
     supports:f=>f==="interstitial"||f==="native"||f==="rewarded",
     preload(f){this._ready[f]=true},
     async load(f){await new Promise(r=>setTimeout(r,120));this._ready[f]=true;return true},
@@ -24296,7 +24317,8 @@ const AD_NATIVE_H=132;
    `el.style.minHeight=adNativeH(place)+"px"` sat inside a try, so the
    ReferenceError was swallowed and nothing was reserved at all. Caught by
    tests/ios-ads.mjs B10/B11 (4 Oct 2026). */
-function adNativeH(place){return AD_NATIVE_H}
+const AD_NATIVE_H_STRIP=76;   /* a single-row strip: an icon, a name, a button — the shape the owner asked for on 5 Oct 2026 */
+function adNativeH(place){return place==="shadow_video"||place==="library_top"?AD_NATIVE_H_STRIP:AD_NATIVE_H}
 
 /* screens whose FOOT may carry one native ad — browsing only, never a recorder */
 const AD_NATIVE_PLACES=Object.freeze({home:"home_feed",review:"progress_foot",shadow:"library",phrasebank:"library",data:"settings_foot"});   /* data = App Setup: settings_foot was declared in AD_POLICY from the start and never wired (4 Oct 2026) */

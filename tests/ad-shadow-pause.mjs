@@ -11,6 +11,7 @@ import { handle } from "../backend/entitlements/entitlements-worker.js";
 const root = new URL("..", import.meta.url).pathname;
 const PORT = +(process.env.PORT || 8535), BASE = `http://127.0.0.1:${PORT}/`;
 const srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(900);
+const SRC = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + String(d).slice(0, 320)}`); };
 const b = await chromium.launch();
 function d1() {
@@ -119,11 +120,16 @@ console.log("\n# while the learner is actually learning, never");
   r = await refused(() => { const d = document.createElement("div"); d.className = "cf-ov show"; d.id = "__ov"; document.body.appendChild(d); },
     () => { const d = document.getElementById("__ov"); if (d) d.remove(); });
   ok("H10 · an open dialog (auth, purchase, confirm) → no ad, and it says so", r.none && r.e.some(x => /protected_dialog/.test(x)), JSON.stringify(r.e));
-  /* and it leaves again when playback resumes */
+  /* and it STAYS when playback resumes (owner, 5 Oct 2026: "when the video is
+     up and running, it is not there... it should be permanent"). The player's
+     state handler used to call clearShadow() on play, which is why it was
+     never there during playback even though the eligibility layer allowed it
+     since 3 Oct. */
   await reset(p); await workspace(p, 2); await p.evaluate(() => AdManager.placeShadow()); await sleep(800);
   const had = !!(await slot(p));
-  await p.evaluate(() => AdManager.clearShadow());
-  ok("H11 · pressing play takes the ad away again", had && !(await slot(p)));
+  await p.evaluate(() => { try { ytPlayer._state = 1; } catch (e) {} AdManager.placeShadow(); }); await sleep(600);
+  ok("H11 · pressing play does NOT take the ad away: it is permanent for the clip", had && !!(await slot(p)));
+  ok("H11b · and the player's own handler no longer deletes it on play", /e\.data===1\|\|e\.data===2/.test(SRC) && !/data===1\)AdManager\.clearShadow/.test(SRC));
   ok("H12 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }

@@ -265,7 +265,10 @@ console.log("\n# the activation guard: a real network only where the plan system
 {
   const { ctx, p } = await open({ ios: NOCAP });
   const s = await bridge(p);
-  ok("G5 · outside the App Store shell there is no native provider at all", s.ios === false && s.built === "undefined" && s.provider === "none", JSON.stringify(s));
+  /* the invariant is the NATIVE bridge, not the absence of any provider: on a
+     staging web page the labelled test card stands in (5 Oct 2026), which is
+     how the owner sees the placements without a device build */
+  ok("G5 · outside the App Store shell no native bridge is built and Google's SDK is never reached", s.ios === false && s.built === "undefined" && s.provider !== "native" && s.calls.length === 0, JSON.stringify(s));
   await ctx.close();
 }
 

@@ -199,6 +199,13 @@ console.log("\n# native / banner");
   });
   ok("N5b · the Shadow library carries a second labelled slot between the featured video and the list, overlapping no control", lib.slot && lib.place === "library_top" && lib.label === "Advertisement" && lib.filled && lib.dashed === "dashed" && lib.afterStatic && lib.beforeFeed && lib.overlap === 0 && !lib.overflow, JSON.stringify(lib));
   ok("N5c · it is a SECOND slot: the foot one is still there, so the page carries both", lib.both === 2, JSON.stringify({ both: lib.both }));
+  /* a SHORT strip, not a block that pushes the list off the screen (owner, 5 Oct 2026) */
+  const sz = await p.evaluate(() => {
+    const top = document.querySelector('[data-ad-slot][data-placement="library_top"]'), foot = document.querySelector('[data-ad-slot][data-placement="library"]');
+    const h = e => e ? Math.round(e.getBoundingClientRect().height) : null;
+    return { top: h(top), foot: h(foot), vh: innerHeight, reserved: adNativeH("library_top"), reservedFoot: adNativeH("home_feed") };
+  });
+  ok("N5f · the in-content slot is a short strip: well under a quarter of the screen, and shorter than the foot slot's reservation", sz.top !== null && sz.top < sz.vh / 4 && sz.reserved < sz.reservedFoot, JSON.stringify(sz));
   /* searching: an ad above somebody's search results is not "between the video and the list" */
   const searched = await p.evaluate(async () => { _shLibQ = "weld"; shLibMount(); await new Promise(z => setTimeout(z, 900));
     const h = document.getElementById("shLibAdHost"); return { hidden: !h || h.hidden, slot: !!(h && h.querySelector("[data-ad-slot]")) }; });
