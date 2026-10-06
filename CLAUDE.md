@@ -1189,7 +1189,17 @@ Features
   transcript** before returning it — an item whose `said` is not in the
   transcript is dropped, and an ABSENT `corrections` field (an older Worker)
   renders nothing while an EMPTY one says the English held up. Test:
-  `tests/polish-report.mjs` (20 checks incl. French). i18n: the new `ex.*`
+  `tests/polish-report.mjs` (20 checks incl. French).
+  **Hear it back (owner, 6 Oct 2026, every programme):** a **Read it aloud**
+  button (`exReadBox`, `.ex-read`, between Polish it and the mic) reads the box
+  with `fbSay`; stopping a recording plays the take straight back
+  (`exPlayBlob`, one shared player); each report keeps its transcript (`tx`)
+  AND its voice — `rep.rec=1`, the blob in IndexedDB under
+  `exRecCtx(area)` (`polish` / `welding:polish`) matched by `ts === rep.at`,
+  pruned with the report (`exRecPrune`); the Polish history (`exHistSheet`) now
+  shows on every programme with plans on or off, each row with the transcript
+  and a play button (`exHistPlay`), and `exHistOpen` hands the take back to the
+  report's audio player. Test: `tests/polish-hear.mjs` (13). i18n: the new `ex.*`
   keys are translated in fr / es / pt / ar and carry the English text in the
   other 11 (same as the rest of the Polish keys) — parity is 2,625 keys in
   every file.

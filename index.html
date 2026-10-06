@@ -3571,6 +3571,9 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:0 1 auto;min-width:0;justify-content:center;min-height:48px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:1 1 auto;width:auto;min-height:48px;font-size:15px;margin:0;padding:0 10px}
 .ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
 .ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
+.ex-btnrow .ex-read{flex:0 0 52px;padding:0}.ex-read.is-on{border-color:var(--acc)!important;color:var(--acc)}
+.ex-hist-tx{display:block;margin-top:2px;font-size:12px;color:var(--mut);white-space:normal;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ex-hist-item{display:flex;align-items:stretch;gap:6px}.ex-hist-item .pf-row{flex:1 1 auto;min-width:0}.ex-hist-play{flex:0 0 48px;min-height:48px;padding:0;justify-content:center}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.ex-timer:empty{display:none}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
@@ -9723,6 +9726,11 @@ const I18N_EN={
  "ex.quick_idioms":"Idioms to memorise",
  "ex.hist_btn":"Your Polish history ({{n}})",
  "ex.hist_h":"Your Polish history",
+ "ex.hist_play":"Play your recording",
+ "ex.hist_no_audio":"This recording is no longer on this phone.",
+ "ex.read_btn":"Read it aloud",
+ "ex.read_stop":"Stop reading",
+ "ex.read_empty":"Type or record something first, then tap to hear it.",
  "ex.hist_locked":"{{n}} older reports are kept for Premium. Premium keeps your last {{top}} Polish reports so you can revisit them.",
  "ex.hist_free_note":"Free keeps your latest report. Premium keeps your last {{top}}.",
  "ex.hist_free_toast":"Report saved. Free keeps your latest report in your history — Premium keeps your last {{top}}.",
@@ -10567,7 +10575,7 @@ function recCtx(base){
 }
 /* Strip the track prefix again — for anything that has to read the original
    key back out of a stored ctx (labels, the phrase index). */
-function recBase(ctx){return String(ctx||"").replace(/^[a-z0-9-]+:(?=phrase|speech-|shadow-|w\d)/,"")}
+function recBase(ctx){return String(ctx||"").replace(/^[a-z0-9-]+:(?=phrase|speech-|shadow-|polish|w\d)/,"")}
 const phRecCtx=ix=>recCtx("phrase"+ix);
 const shRecCtx=vid=>recCtx("shadow-"+vid);
 /* Recordings belonging to the track that is open right now. */
@@ -22015,7 +22023,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v634";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v635";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -22216,6 +22224,7 @@ function exIdleHTML(){
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
       <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
+      <button class="btn btn-g ex-read" id="exReadBtn" onclick="exReadBox()" title="${esc(t("ex.read_btn"))}" aria-label="${esc(t("ex.read_btn"))}">${ic("sound")}</button>
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
@@ -22229,16 +22238,18 @@ function exIdleHTML(){
    sees the latest planLimit("polishHistory"); the older ones it still keeps
    are listed as waiting for Premium, never deleted. */
 function exRepBits(r){const m=(r&&r.m)||{},b=[];if(m.wpm)b.push(t("ex.last_wpm",{n:m.wpm}));if(m.hes!=null)b.push(t("ex.last_hes",{n:m.hes}));b.push(t("ex.last_fill",{n:m.fillerN||0}));return b.join(" · ")}
+/* how many reports the history shows: the plan limit applies only where a plan
+   is in force for that history (exRepKeep's rule); otherwise every kept one */
+function exHistShown(reps){return planOn()&&exAreaKey()===AREA_GEN&&planKey()!=="premium"?Math.min(reps.length,planLimit("polishHistory")||reps.length):reps.length}
 function exHistBtnHTML(){
-  if(!planOn())return "";
-  const n=exReps().length;if(!n)return "";
+  const n=exReps().length;if(!n)return "";   /* every programme, plans on or off (owner, 6 Oct 2026) */
   return `<button class="ex-last ex-hist-btn" onclick="exHistSheet()"><span class="btn-ic">${ic("clock")}</span><span><b>${esc(t("ex.hist_btn",{n}))}</b></span><span class="ex-last-go">›</span></button>`;
 }
 window.exHistSheet=()=>{
   const old=document.getElementById("exHistOv");if(old)old.remove();
   const reps=exReps(),prem=planKey()==="premium",top=planLimit("polishHistory","premium");
-  const show=prem?reps.length:Math.min(reps.length,planLimit("polishHistory"));
-  const rows=reps.slice(0,show).map((r,i)=>`<button class="pf-row" onclick="exHistOpen(${i})"><span class="pf-ic">${ic("chart")}</span><span class="pf-txt"><b>${esc(exRepWhen(r.at))}</b><small>${esc(exRepBits(r))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>`).join("");
+  const show=exHistShown(reps);
+  const rows=reps.slice(0,show).map((r,i)=>`<div class="ex-hist-item"><button class="pf-row" onclick="exHistOpen(${i})"><span class="pf-ic">${ic("chart")}</span><span class="pf-txt"><b>${esc(exRepWhen(r.at))}</b><small>${esc(exRepBits(r))}</small>${r.tx?`<span class="ex-hist-tx">“${esc(r.tx)}”</span>`:""}</span><span class="pf-chev" aria-hidden="true">›</span></button>${r.rec?`<button class="btn btn-g ex-hist-play" onclick="exHistPlay(${i})" title="${esc(t("ex.hist_play"))}" aria-label="${esc(t("ex.hist_play"))}">${ic("play")}</button>`:""}</div>`).join("");
   const more=reps.length-show,cta=!prem&&premOffered()?`<button class="btn-primary ex-hist-cta" onclick="document.getElementById('exHistOv').remove();premiumOpen('polish_history')">${esc(t("prem.compare"))}</button>`:"";
   const foot=more>0?`<div class="ex-hist-lock"><span class="inl-ic">${ic("lock")}</span><p>${esc(t("ex.hist_locked",{n:more,top}))}</p></div>${cta}`
     :(!prem&&premOffered()?`<p class="sub ex-hist-note">${esc(t("ex.hist_free_note",{top}))}</p>${cta}`:"");
@@ -22249,11 +22260,18 @@ window.exHistSheet=()=>{
     <button class="btn btn-g" onclick="document.getElementById('exHistOv').remove()">${t("wc.close")}</button></div>`;
   document.body.appendChild(ov);manIconizeInline(ov);
 };
-window.exHistOpen=i=>{
+window.exHistOpen=async i=>{
   const o=document.getElementById("exHistOv");if(o)o.remove();
-  const reps=exReps(),show=planKey()==="premium"?reps.length:Math.min(reps.length,planLimit("polishHistory"));
+  const reps=exReps(),show=exHistShown(reps);
   if(i>=show)return;const r=reps[i];if(!r)return;
-  ex.report=r;ex.blob=null;exSetUrl(null);ex.showReport=true;ex.repOpen=true;exRenderReport(r);
+  const area=exAreaKey(),got=r.rec?await exRecFor(area,r.at):null;   /* the report's "your audio" player gets the take back */
+  if(exAreaKey()!==area)return;
+  ex.report=r;ex.blob=got?got.blob:null;exSetUrl(got?URL.createObjectURL(got.blob):null);ex.showReport=true;ex.repOpen=true;exRenderReport(r);
+};
+window.exHistPlay=async i=>{
+  const reps=exReps(),r=reps[i];if(!r||i>=exHistShown(reps))return;
+  const got=await exRecFor(exAreaKey(),r.at);
+  if(got&&got.blob)exPlayBlob(got.blob);else toast(t("ex.hist_no_audio"));
 };
 /* ---------- Say it better ----------
    The report is five minutes of work; sometimes the learner only wants the
@@ -22320,6 +22338,41 @@ window.exQuick=async btn=>{
   exQuicking=false;
 };
 window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
+/* ---------- hear it back (owner, 6 Oct 2026) ----------
+   Read it aloud: the app's voice reads what is in the box — typed, pasted or
+   the transcript of a recording — so the learner hears their own words in a
+   clear voice. A second tap stops it. Every programme: Polish is one shared
+   tool (the CONTENT is per area, the button is not). */
+let exReading=false,exReadT=null;
+function exReadPaint(){const b=document.getElementById("exReadBtn");if(!b)return;b.classList.toggle("is-on",exReading);const l=t(exReading?"ex.read_stop":"ex.read_btn");b.title=l;b.setAttribute("aria-label",l)}
+function exReadStop(){exReading=false;clearTimeout(exReadT);fbStopAudio();try{speechSynthesis.cancel()}catch(e){}exReadPaint()}
+window.exReadBox=()=>{
+  if(exReading)return exReadStop();
+  const ta=document.getElementById("exIn"),text=ta?ta.value.replace(/\s+/g," ").trim():"";
+  if(!text)return toast(t("ex.read_empty"));
+  exCoachStop();exPlayStop();
+  exReading=true;exReadPaint();fbSay(text,1);
+  /* fbSay gives no end signal on every path, so the button's "on" look ends on
+     an estimate: ~2.6 words a second, at least 2 s */
+  clearTimeout(exReadT);exReadT=setTimeout(()=>{exReading=false;exReadPaint()},Math.max(2000,text.split(" ").length/2.6*1000+1200));
+};
+/* The learner's own take, played straight after they stop recording, and
+   from the history. One player, so two takes never talk over each other. */
+let _exPlayer=null;
+function exPlayStop(){if(_exPlayer){try{_exPlayer.pause()}catch(e){}try{URL.revokeObjectURL(_exPlayer.src)}catch(e){}_exPlayer=null}}
+function exPlayBlob(blob){
+  if(!blob)return;exPlayStop();exReadStop();
+  try{const a=new Audio(URL.createObjectURL(blob));_exPlayer=a;a.onended=()=>{if(_exPlayer===a)exPlayStop()};const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+}
+/* The voice is kept on the phone, never sent anywhere but the transcription
+   it already goes to: one take per saved report, in the same IndexedDB store
+   as every other recording, filed under the programme it was made in (the
+   recCtx rule: General English keeps the bare key) and matched by the
+   report's timestamp. Takes whose report has left the history are deleted. */
+function exRecCtx(area){return (area||AREA_GEN)===AREA_GEN?"polish":area+":polish"}
+async function exRecSave(area,at,blob){try{await addRec(exRecCtx(area),t("ph.exec_title").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),blob,at)}catch(e){}}
+async function exRecFor(area,at){try{return (await getRecs(exRecCtx(area))).find(r=>r.ts===at)||null}catch(e){return null}}
+async function exRecPrune(area){try{const keep=new Set(exReps(area).map(r=>r.at));for(const r of await getRecs(exRecCtx(area)))if(!keep.has(r.ts))await delRec(r.id)}catch(e){}}
 /* Drag the corner: the box follows the finger; from then on the learner's
    height wins over taGrow (dataset.userSized), never below 120 px. */
 window.exGripStart=e=>{const ta=document.getElementById("exIn");if(!ta)return;e.preventDefault();const g=e.currentTarget;const y0=e.clientY,h0=ta.getBoundingClientRect().height;try{g.setPointerCapture(e.pointerId)}catch(x){}
@@ -22346,7 +22399,7 @@ function exReset(){
   ex.mr=null;ex.stream=null;ex.chunks=[];exListening=false;ex.phase="idle";
 }
 /* Leaving the page mid-recording must not leave the mic open. */
-function exLeave(){exCoachStop();if(ex.phase==="rec"){exReset()}}
+function exLeave(){exCoachStop();exReadStop();exPlayStop();if(ex.phase==="rec"){exReset()}}
 
 /* ---------- recording ---------- */
 window.exRecord=async()=>{
@@ -22366,6 +22419,7 @@ window.exRecord=async()=>{
       const blob=new Blob(ex.chunks,{type:mr.mimeType||"audio/webm"});
       exReset();
       if(secs<EX_MIN_S||blob.size<2000){exStatus(t("ex.rec_min",{s:EX_MIN_S}));return}
+      exPlayBlob(blob);                              /* hear what you just said while it is transcribed (owner, 6 Oct 2026) */
       exRun({blob,secs});
     };
     mr.start(1000);
@@ -22428,10 +22482,12 @@ async function exRun(src){
      against them (exCarryHTML), so the assignment has to be stored, not
      recomputed from an AI answer that will be different next time. */
   const rep={at:Date.now(),tk:area,m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
+  if(src.blob){rep.rec=1;rep.secs=Math.round(src.secs||0);exRecSave(area,rep.at,src.blob)}
   st.report=rep;
   const reps=exReps(area),keep=exRepKeep(area,reps.length),gePlan=area===AREA_GEN&&planOn();
   if(gePlan&&reps[0]&&reps[0].m)rep.pm=reps[0].m;       /* "vs last time" survives a short visible history */
   reps.unshift(rep);if(reps.length>keep)reps.length=keep;
+  exRecPrune(area);
   markPracticed();save();
   if(gePlan&&reps.length>1&&planKey()!=="premium"&&premOffered())setTimeout(()=>{try{toast(t("ex.hist_free_toast",{top:planLimit("polishHistory","premium")}),4200)}catch(e){}},900);
   ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=false;
