@@ -10,7 +10,7 @@
     {
       "id": "21000001",
       "localizations": [],
-      "name": "BE_Mastery_Premium",
+      "name": "BE Mastery Premium",
       "subscriptions": [
         {
           "adHocOffers": [],
@@ -26,9 +26,9 @@
               "locale": "en_US"
             }
           ],
-          "productID": "BEMastery_Premium",
+          "productID": "premium_monthly",
           "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "BEMastery_monthly",
+          "referenceName": "Premium monthly",
           "subscriptionGroupID": "21000001",
           "type": "RecurringSubscription",
           "introductoryOffer": {
@@ -52,9 +52,9 @@
               "locale": "en_US"
             }
           ],
-          "productID": "BEMastery_Annual",
+          "productID": "premium_annual",
           "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "BEMastery_yearly",
+          "referenceName": "Premium annual",
           "subscriptionGroupID": "21000001",
           "type": "RecurringSubscription",
           "introductoryOffer": {

@@ -159,9 +159,9 @@ screen. That is §4.
 ## 3. Console work only the owner can do
 
 ### App Store Connect
-- `BEMastery_Annual` — **$19.99 / year** (owner's tiers, 5 Oct 2026), with a
+- `premium_annual` — **$19.99 / year** (owner's tiers, 5 Oct 2026), with a
   3-day free introductory offer for new subscribers (owner, 6 Oct 2026).
-- `BEMastery_Premium` — **$2.99 / month**, the same 3-day free trial. The
+- `premium_monthly` — **$2.99 / month**, the same 3-day free trial. The
   app shows a trial only when the store reports it.
 - Both in one subscription group, both offered in the app (annual first,
   "Best value"). `mobile/ios/appstore/SUBSCRIPTIONS.md` places both at

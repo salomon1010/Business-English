@@ -48,7 +48,7 @@ const jws = payload => { const d = b64u(JSON.stringify({ alg: "ES256", x5c: APPL
   return d + "." + b64u(nodeSign("sha256", Buffer.from(d), { key: APPLE.leafKey, dsaEncoding: "ieee-p1363" })); };
 let txSeq = 1;
 /* a JWSTransactionDecodedPayload + JWSRenewalInfoDecodedPayload, signed */
-function signedTx({ product = "BEMastery_Premium", token, orig, days = 30, trial = false, env = "Sandbox", revoked = false } = {}) {
+function signedTx({ product = "premium_monthly", token, orig, days = 30, trial = false, env = "Sandbox", revoked = false } = {}) {
   const id = String(2000000000 + txSeq++), o = orig || id;
   const tx = { transactionId: id, originalTransactionId: o, bundleId: "com.lomonec.bemastery", productId: product, purchaseDate: NOW - 60e3, originalPurchaseDate: NOW - 60e3,
     expiresDate: NOW + days * DAY, type: "Auto-Renewable Subscription", inAppOwnershipType: "PURCHASED", environment: env, signedDate: NOW, appAccountToken: token, ...(trial ? { offerType: 1 } : {}), ...(revoked ? { revocationDate: NOW } : {}) };
@@ -72,12 +72,12 @@ const PLUGIN = ([eligible]) => {
       /* mirrors mobile/ios/ios/App/App/BEMastery.storekit (owner, 6 Oct 2026): the
          3-day introductory offer is on BOTH plans, and Apple reports it only
          for an Apple ID that is still eligible (once per subscription group) */
-      { id: "BEMastery_Premium", title: "Premium (monthly)", description: "", displayPrice: "$4.99", price: 4.99, currencyCode: "USD", period: "P1M", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) },
-      { id: "BEMastery_Annual", title: "Annual Premium", description: "", displayPrice: "$24.99", price: 24.99, currencyCode: "USD", period: "P1Y", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) }].filter(p => ids.includes(p.id)) }; },
+      { id: "premium_monthly", title: "Premium (monthly)", description: "", displayPrice: "$4.99", price: 4.99, currencyCode: "USD", period: "P1M", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) },
+      { id: "premium_annual", title: "Annual Premium", description: "", displayPrice: "$24.99", price: 24.99, currencyCode: "USD", period: "P1Y", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) }].filter(p => ids.includes(p.id)) }; },
     purchase: async ({ id, appAccountToken }) => { sk.calls.push("purchase:" + id);
       if (sk.next === "cancel") return { cancelled: true };
       if (sk.next === "pending") return { pending: true };
-      const t = await window.__appleSign({ product: id, token: sk.tokenOverride || appAccountToken, trial: id === "BEMastery_Annual" && sk.eligible, days: id === "BEMastery_Annual" ? 365 : 30 });
+      const t = await window.__appleSign({ product: id, token: sk.tokenOverride || appAccountToken, trial: id === "premium_annual" && sk.eligible, days: id === "premium_annual" ? 365 : 30 });
       sk.owned = [t]; return t; },
     currentEntitlements: async () => { sk.calls.push("currentEntitlements"); return { items: sk.owned }; },
     restore: async () => { sk.calls.push("restore"); return { items: sk.owned }; },
@@ -142,7 +142,7 @@ console.log("\n# the bridge and the store's products");
   ok("I1d · StoreKit is discovered through the repository's one helper, capPlugin",
     shape.viaHelper === "object" && st.native === "object", JSON.stringify(shape));
   ok("I2 · the bridge exposes the whole contract", st.keys === "currentEntitlements,finish,getProducts,manageSubscriptions,onTransaction,pendingTransactions,purchase,restore,supports", st.keys);
-  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("BEMastery_Premium|$4.99|P1M|P3D") && st.products.includes("BEMastery_Annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
+  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("premium_monthly|$4.99|P1M|P3D") && st.products.includes("premium_annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
   const s = await sheet(p);
   /* two plans (tier spec, 5 Oct 2026): annual first, then the monthly Apple sells; both prices are Apple's */
   ok("I4 · the Premium sheet: both App Store plans, annual first at $24.99 / year with the 3-day trial leading it, monthly at $4.99; Apple's EULA and the privacy policy linked", s.plans.length === 2 && /\$24\.99/.test(s.text) && /\$4\.99/.test(s.text) && /3 days free/i.test(s.text) && /Start 3-day free trial/.test(s.cta) && s.eula && s.privacy && /App Store/.test(s.text), JSON.stringify({ plans: s.plans.length, cta: s.cta, eula: s.eula, privacy: s.privacy }));
@@ -157,13 +157,13 @@ console.log("\n# the bridge and the store's products");
 console.log("\n# purchase → the server's verdict → finish");
 {
   const { ctx, p, errs, calls } = await open({ uid: "ic" });
-  await p.evaluate(() => { __sk.next = "cancel"; }); await p.evaluate(() => Billing.buy("BEMastery_Premium"));
+  await p.evaluate(() => { __sk.next = "cancel"; }); await p.evaluate(() => Billing.buy("premium_monthly"));
   ok("P1 · the learner closes Apple's sheet: nothing is sent to the server, still Free", !calls.some(x => /verify/.test(x)) && await p.evaluate(() => !entIsPremiumForDisplay() && Billing.state === "ready"));
-  await p.evaluate(() => { __sk.next = "pending"; }); await p.evaluate(() => Billing.buy("BEMastery_Premium"));
+  await p.evaluate(() => { __sk.next = "pending"; }); await p.evaluate(() => Billing.buy("premium_monthly"));
   ok("P2 · Ask to Buy (pending): 'payment pending', still Free, nothing verified", !calls.some(x => /verify/.test(x)) && await p.evaluate(() => !entIsPremiumForDisplay() && /pending|confirms/i.test(Billing.note)), await p.evaluate(() => Billing.note));
   /* the introductory offer is on the ANNUAL plan now, so this is the purchase
      that carries the trial and must come back as state "trialing" */
-  await p.evaluate(() => { __sk.next = "buy"; }); await p.evaluate(() => Billing.buy("BEMastery_Annual")); await sleep(600);
+  await p.evaluate(() => { __sk.next = "buy"; }); await p.evaluate(() => Billing.buy("premium_annual")); await sleep(600);
   const v = await p.evaluate(() => ({ v: entView(), finished: __sk.finished.slice(), owned: __sk.owned[0] && __sk.owned[0].transactionId }));
   ok("P3 · a purchase with the 3-day trial: the server verifies Apple's JWS and the account's appAccountToken → Premium, state trialing, source app_store", v.v.plan === "premium" && v.v.state === "trialing" && v.v.source === "app_store" && calls.includes("GET /v1/purchases/account-token") && calls.includes("POST /v1/purchases/verify"), JSON.stringify(v.v));
   ok("P4 · the transaction is finished only after the server answered", v.finished.includes(v.owned), JSON.stringify(v));
@@ -174,7 +174,7 @@ console.log("\n# purchase → the server's verdict → finish");
   if (SHOTS) await p.locator("#subCard").screenshot({ path: SHOTS + "/ios-subscription-card.png" });
   /* a renewal delivered by Transaction.updates while the app is open */
   const tok = await p.evaluate(async () => (await (await fetch("https://be-entitlements-staging.nore-ngou.workers.dev/v1/purchases/account-token", { headers: { authorization: "Bearer test-token-ic" } })).json()).appAccountToken);
-  const renewal = signedTx({ product: "BEMastery_Annual", token: tok, orig: v.v && (await p.evaluate(() => __sk.owned[0].originalTransactionId)), days: 365 });
+  const renewal = signedTx({ product: "premium_annual", token: tok, orig: v.v && (await p.evaluate(() => __sk.owned[0].originalTransactionId)), days: 365 });
   await p.evaluate(x => __sk.emit(x), renewal); await sleep(800);
   const r = await p.evaluate(() => ({ v: entView(), finished: __sk.finished.slice() }));
   ok("P7 · Transaction.updates (a change to annual) → sent to the server → the plan follows, and the update is finished", r.v.plan === "premium" && r.v.expiresAt > Date.now() + 300 * 864e5 && r.finished.includes(renewal.transactionId), JSON.stringify(r));
@@ -185,12 +185,12 @@ console.log("\n# purchase → the server's verdict → finish");
 console.log("\n# offline, restore, launch, another account");
 {
   let { ctx, p } = await open({ uid: "id" });
-  NET.down = true; await p.evaluate(() => Billing.buy("BEMastery_Annual")); await sleep(400); NET.down = false;
+  NET.down = true; await p.evaluate(() => Billing.buy("premium_annual")); await sleep(400); NET.down = false;
   const o = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), finished: __sk.finished.length, note: Billing.note }));
   ok("O1 · our server unreachable after Apple took the payment: 'we'll confirm', NOT finished (StoreKit offers it again), still Free for now", !o.prem && o.finished === 0 && /confirm|could not|again/i.test(o.note), JSON.stringify(o));
   await ctx.close();
   const tok = await (async () => { const r = await handle(new Request("http://ent.test/v1/purchases/account-token", { headers: { "x-dev-user": "id" } }), WENV, {}); return (await r.json()).appAccountToken; })();
-  const left = signedTx({ product: "BEMastery_Annual", token: tok, days: 365 });
+  const left = signedTx({ product: "premium_annual", token: tok, days: 365 });
   ({ ctx, p } = await open({ uid: "id", pre: ([x]) => { const t = setInterval(() => { if (window.__sk) { window.__sk.unfinished = [x]; clearInterval(t); } }, 1); }, }));
   await p.evaluate(x => { __sk.unfinished = [x]; }, left);
   await p.evaluate(() => { Billing.provider._listening = false; Billing.provider.listen(); }); await sleep(800);
@@ -199,19 +199,19 @@ console.log("\n# offline, restore, launch, another account");
   await ctx.close();
   ({ ctx, p } = await open({ uid: "ie" }));
   const tIe = await (async () => { const r = await handle(new Request("http://ent.test/v1/purchases/account-token", { headers: { "x-dev-user": "ie" } }), WENV, {}); return (await r.json()).appAccountToken; })();
-  await p.evaluate(x => { __sk.owned = [x]; }, signedTx({ product: "BEMastery_Premium", token: tIe, days: 20 }));
+  await p.evaluate(x => { __sk.owned = [x]; }, signedTx({ product: "premium_monthly", token: tIe, days: 20 }));
   await p.evaluate(() => Billing.restore()); await sleep(300);
   ok("O3 · Restore purchases: AppStore.sync, then the server re-verifies what this Apple ID owns → '1 restored', Premium", await p.evaluate(() => __sk.calls.includes("restore") && entIsPremiumForDisplay() && /1 restored/.test(Billing.note)), await p.evaluate(() => Billing.note));
   await ctx.close();
   ({ ctx, p } = await open({ uid: "if" }));
   await p.evaluate(t => { __sk.tokenOverride = t; }, tIe);   /* bought under ANOTHER account's appAccountToken */
-  await p.evaluate(() => Billing.buy("BEMastery_Premium")); await sleep(400);
+  await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(400);
   const x = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), note: Billing.note, finished: __sk.finished.length }));
   ok("O4 · a transaction carrying another account's appAccountToken is refused ('belongs to another BE Mastery account'), still Free, and finished (the answer is final)", !x.prem && /belongs to another BE Mastery account/.test(x.note) && x.finished === 1, JSON.stringify(x));
   await ctx.close();
   ({ ctx, p } = await open({ uid: "ig" }));
   const tIg = await (async () => { const r = await handle(new Request("http://ent.test/v1/purchases/account-token", { headers: { "x-dev-user": "ig" } }), WENV, {}); return (await r.json()).appAccountToken; })();
-  await p.evaluate(x => __sk.emit(x), signedTx({ product: "BEMastery_Premium", token: tIg, days: 20, env: "Production" })); await sleep(500);
+  await p.evaluate(x => __sk.emit(x), signedTx({ product: "premium_monthly", token: tIg, days: 20, env: "Production" })); await sleep(500);
   ok("O5 · a Production transaction at the Sandbox (staging) server is not accepted — the environments never mix", await p.evaluate(() => !entIsPremiumForDisplay()));
   await ctx.close();
 }
@@ -219,7 +219,7 @@ console.log("\n# offline, restore, launch, another account");
 console.log("\n# the plan follows the server while the app stays open");
 {
   const { ctx, p, calls } = await open({ uid: "ik" });
-  await p.evaluate(() => Billing.buy("BEMastery_Premium")); await sleep(600);
+  await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(600);
   const before = await p.evaluate(() => entIsPremiumForDisplay());
   /* the server now says the plan ended (e.g. an EXPIRED / REFUND notification reached it while the app was open) */
   db.prepare("UPDATE entitlements SET status='revoked' WHERE uid=?").run("dev:ik");
@@ -241,7 +241,7 @@ console.log("\n# the plan follows the server while the app stays open");
 console.log("\n# account deletion and Welding");
 {
   const { ctx, p } = await open({ uid: "ih" });
-  await p.evaluate(() => Billing.buy("BEMastery_Annual")); await sleep(500);
+  await p.evaluate(() => Billing.buy("premium_annual")); await sleep(500);
   let asked = null;
   await p.evaluate(() => { FBauth = FBauth || {}; window.askConfirm = async o => { window.__asked = o; return false; }; });
   await p.evaluate(() => fbDeleteAccount()); asked = await p.evaluate(() => window.__asked && window.__asked.body);

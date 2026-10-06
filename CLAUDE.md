@@ -363,11 +363,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
   P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y (needs its own `trial3d`
   offer — **the trial is 3 days on BOTH plans, both stores, owner 6 Oct 2026**; Apple
-  has no 5-day option). **App Store ids differ (owner, 6 Oct 2026):** `BEMastery_Premium` (P1M) and
-  `BEMastery_Annual` (P1Y) in App Store Connect, group `BE_Mastery_Premium` —
-  `APP_STORE_PRODUCTS` (index.html), `BEStoreKitPlugin.allowed`, `BEMastery.storekit`
-  and the server's `PRODUCTS` carry them; `BILLING_PRODUCTS` stays Play's list.
-  Play ids must be lowercase, so the two stores can never share an id. **Confirmed annual
+  has no 5-day option). **One set of ids on BOTH stores (owner, 6 Oct 2026):**
+  `premium_monthly` / `premium_annual` in App Store Connect too (a brief
+  `BEMastery_*` set was reverted the same day before any product existed in App
+  Store Connect; Play ids must be lowercase, so the Play ids are the only ones both
+  stores can share). `BILLING_PRODUCTS`, `BEStoreKitPlugin.allowed`,
+  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Confirmed annual
   price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
   be changed there — the app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).

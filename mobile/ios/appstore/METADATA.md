@@ -31,8 +31,8 @@ claimed here that the build does not do.
 **Copyright** © 2026 Lomonec LLC
 **Content rights** The app's own lessons, audio and pictures are Lomonec LLC's; the practice photos are AI-generated (`rp-photos/SOURCES.md`). The Shadowing Studio **plays YouTube videos through YouTube's own embedded player** (streamed, not copied into the app). REQUIRES OWNER REVIEW when answering App Store Connect's "third-party content" question — the answer is not "no".
 **In-app purchases / subscriptions** One subscription, two auto-renewable
-plans — `BEMastery_Annual`, **US$19.99/year** (shown first, "Best value"), and
-`BEMastery_Premium`, **US$2.99/month**, each with a 3-day free trial for new
+plans — `premium_annual`, **US$19.99/year** (shown first, "Best value"), and
+`premium_monthly`, **US$2.99/month**, each with a 3-day free trial for new
 subscribers. The trial is shown only when App Store Connect reports it. Prices and the trial are read from StoreKit at runtime and
 are written nowhere in the app, so App Store Connect is the source of truth
 (Apple 3.1.2). Full set-up: `SUBSCRIPTIONS.md`.

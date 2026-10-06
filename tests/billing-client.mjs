@@ -353,12 +353,12 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ({ ctx, p } = await open({ uid: "ola", stub: false, pre: () => {
     window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true }; window.BE_BUILD = { env: "staging", flags: { billing_enabled: true } };   /* the App Store shell ignores be_ent_api: a staging iOS bundle reaches the staging Worker (d4cc447) */
     window.__sk = { purchases: 0 };
-    window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "BEMastery_Annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
+    window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "premium_annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
       purchase: async () => { __sk.purchases++; return { signedTransaction: "x" }; }, restore: async () => [], manageSubscriptions: () => {} };
   } }));
   await p.evaluate(async () => { await Billing.init(); document.querySelector("details.set-plan").open = true; });
   const pv = await p.evaluate(() => Billing.provider && Billing.provider.id);
-  await p.evaluate(() => Billing.buy("BEMastery_Premium"));
+  await p.evaluate(() => Billing.buy("premium_monthly"));
   c = await card(p);
   const sk = await p.evaluate(() => __sk.purchases);
   ok("C6 · iOS shell: if the account token cannot be fetched the purchase does not start and the learner is told it failed (not a silent cancel)", pv === "app_store" && sk === 0 && c.state === "failed" && /did not go through|could not|failed/i.test(c.text), pv + " " + sk + " " + c.state + " " + c.text);

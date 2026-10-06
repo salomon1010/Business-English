@@ -10,8 +10,8 @@ import StoreKit
 struct BEStoreKitPluginTests {
 
     @Test func onlyTheTwoPremiumProductsAreAllowed() {
-        // App Store Connect's ids (6 Oct 2026), not Google Play's premium_* ids.
-        #expect(BEStoreKitPlugin.allowed == ["BEMastery_Premium", "BEMastery_Annual"])
+        // The same ids on the App Store and Google Play (owner, 6 Oct 2026).
+        #expect(BEStoreKitPlugin.allowed == ["premium_monthly", "premium_annual"])
     }
 
     @Test func subscriptionPeriodsBecomeISO8601Durations() {

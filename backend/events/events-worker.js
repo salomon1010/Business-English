@@ -186,8 +186,7 @@ const EVENTS = new Set([
   "rewarded_ad_started", "rewarded_ad_completed",
   // Premium (Phase 12A; Billing in index.html). The purchase funnel and plan
   // changes, as counts of fixed enums: provider (google_play|app_store|promo|
-  // manual), product (premium_monthly|premium_annual on Play, BEMastery_Premium|
-  // BEMastery_Annual on the App Store), reason (cancelled|
+  // manual), product (premium_monthly|premium_annual, both stores), reason (cancelled|
   // store|unconfirmed|bound|rejected|not_paid), result (restored|none|bound|
   // failed), source (tap|launch). NEVER a purchase token, a transaction id,
   // an order id, a price or anything about the learner — the server holds
@@ -229,8 +228,7 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   "competency", "mission", "move", "attempt", "ai", "from",
   // advertising: format, context, provider (reason and result are reused). Appended last.
   "format", "context", "provider",
-  // Premium: the store product id (Play premium_monthly | premium_annual, App Store
-  // BEMastery_Premium | BEMastery_Annual). Appended last.
+  // Premium: the store product id (premium_monthly | premium_annual, both stores). Appended last.
   "product",
   // Home recommendations: the content id, the row variant, the row's rank. Appended last.
   "cid", "variant", "rank"]);
@@ -295,7 +293,7 @@ const LAYOUTS = [
    transaction id (or the first 24 characters of one) into a row. */
 const PREMIUM_ENUMS = Object.freeze({
   provider: ["google_play", "app_store", "promo", "manual", "web", "none"],
-  product: ["premium_monthly", "premium_annual", "premium_promo", "BEMastery_Premium", "BEMastery_Annual"],
+  product: ["premium_monthly", "premium_annual", "premium_promo"],
   reason: ["cancelled", "store", "unconfirmed", "bound", "rejected", "not_paid"],
   result: ["restored", "none", "bound", "failed"],
   source: ["tap", "launch"],

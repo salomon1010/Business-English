@@ -70,9 +70,8 @@ No provider identifier, product id, customer id or uid is ever in it.
   the app and the partner Worker's `TRACKS`; no plan changes that. Add a plan
   by adding an entry.
 - **Products** (`PRODUCTS`): what a store sells → the plan it grants
-  (Google Play `premium_monthly` / `premium_annual`, App Store
-  `BEMastery_Premium` / `BEMastery_Annual`, and `premium_promo` → `premium`).
-  The stores use different ids because Play ids must be lowercase.
+  (`premium_monthly`, `premium_annual` and `premium_promo` → `premium`;
+  the first two are the same ids on the App Store and Google Play).
   Prices are set in the stores, never here or in the app: **US$2.99 / month
   and US$19.99 / year** (owner's tier spec, 5 Oct 2026, `docs/TIERS.md`);
   the app prints whatever the store returns. Note: `premium_promo` is listed

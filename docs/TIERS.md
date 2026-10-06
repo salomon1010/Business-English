@@ -89,8 +89,8 @@ buckets, which are named after the day rather than started by the first hit.
 
 ## 6. What only the owner can do
 
-1. **Set the prices in both stores:** App Store Connect `BEMastery_Annual`
-   US$19.99 / year and `BEMastery_Premium` US$2.99 / month (the monthly plan is
+1. **Set the prices in both stores:** App Store Connect `premium_annual`
+   US$19.99 / year and `premium_monthly` US$2.99 / month (the monthly plan is
    now offered, so it must be approved and available); Play Console the same
    two base plans. The app always shows the store's own `displayPrice`.
    Regional prices must be re-set for the new tiers. **Free trial: 3 days on

@@ -11,18 +11,16 @@
 > Premium was excluded from version 1.1.0. For the release that turns it on,
 > everything below must be entered in App Store Connect first.
 
-Prepared 2026-09-26. **Entered in App Store Connect by the owner on 6 October
-2026**, with the owner's own product ids: `BEMastery_Premium` (monthly) and
-`BEMastery_Annual` (yearly). The app, the plugin and the server were switched
-to those ids the same day.
+Prepared 2026-09-26. **Not yet entered in App Store Connect** (checked 6
+October 2026: the app has no subscription group there). The products Xcode
+showed earlier lived only in a local `.storekit` file.
 
-**Why the App Store and Google Play ids differ.** Google Play product ids may
-contain only lowercase letters, digits, underscores and full stops, and no
-store lets an id be renamed or reused once created. `BEMastery_Premium` can
-therefore never exist on Play, and Play keeps `premium_monthly` /
-`premium_annual`. Everything else is the same on both stores: one Premium
-plan, the same capabilities, US$2.99 a month and US$19.99 a year. The server
-maps all four ids to Premium.
+**One set of ids on both stores (owner, 6 October 2026).** App Store Connect
+must use exactly the Google Play ids, `premium_monthly` and `premium_annual`.
+Play ids may contain only lowercase letters, digits, underscores and full
+stops, and no store lets an id be renamed or reused once created, so these
+two are the only ids both stores can share. The app, the plugin and the
+server accept these two and nothing else.
 
 ## Subscription group
 | Field | Value |
@@ -36,11 +34,11 @@ between them is a *crossgrade* and takes effect at the next renewal. Neither
 plan is a higher tier.
 
 ## Products (IDs must match exactly: the app and the server accept only these)
-Subscription group reference name in App Store Connect: `BE_Mastery_Premium`.
+Subscription group reference name in App Store Connect: `BE Mastery Premium`.
 | Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level | Offered in app |
 |---|---|---|---|---|---|---|
-| `BEMastery_Annual` | BEMastery_yearly | 1 year | **US$19.99** | **Free trial, 3 days**, new subscribers, all territories (owner, 6 Oct 2026) | 1 | **yes — first, "Best value"** |
-| `BEMastery_Premium` | BEMastery_monthly | 1 month | **US$2.99** | **Free trial, 3 days**, new subscribers, all territories | 1 | **yes — second** |
+| `premium_annual` | Premium annual | 1 year | **US$19.99** | **Free trial, 3 days**, new subscribers, all territories (owner, 6 Oct 2026) | 1 | **yes — first, "Best value"** |
+| `premium_monthly` | Premium monthly | 1 month | **US$2.99** | **Free trial, 3 days**, new subscribers, all territories | 1 | **yes — second** |
 
 **The free trial (owner, 6 Oct 2026): 3 days, on both plans, on both stores.**
 The owner asked for 5 days; Apple's free-trial durations are fixed (3 days,
@@ -57,8 +55,7 @@ number is never written in the app.
 | `premium_annual` | `annual`, auto-renewing | P1Y | **US$19.99** | **`trial3d`** — one phase, Free trial, 3 days, new customers (to be ADDED: today only the monthly plan has it) |
 | `premium_monthly` | `monthly`, auto-renewing | P1M | **US$2.99** | `trial3d` — Free trial, 3 days, new customers (exists) |
 
-Play ids stay lowercase (Play refuses capitals); everything else is identical
-to the App Store. Activate both offers; the app reads `freeTrialPeriod` from the
+The ids, prices, periods and trial are identical to the App Store. Activate both offers; the app reads `freeTrialPeriod` from the
 Digital Goods API and shows the badge only when Play reports it.
 
 **The price is never written in the app.** The Premium sheet prints whatever
@@ -82,8 +79,8 @@ it follows them too.
 ## Localisations (English shown; add French first for the audience)
 | Product | Display name | Description |
 |---|---|---|
-| BEMastery_Annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
-| BEMastery_Premium | Premium (monthly) | The same Premium, billed monthly. |
+| premium_annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
+| premium_monthly | Premium (monthly) | The same Premium, billed monthly. |
 
 What Premium adds (the full contract is `docs/TIERS.md`): **120 AI verdicts a
 day** and **240 minutes a day** of your own pasted YouTube video transcribed —

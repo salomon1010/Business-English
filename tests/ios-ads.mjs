@@ -46,15 +46,15 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
   const fx = JSON.parse(read(IOS + "BEMastery.storekit"));
   const subs = fx.subscriptionGroups[0].subscriptions;
   const byId = Object.fromEntries(subs.map(s => [s.productID, s]));
-  /* App Store Connect's ids (owner, 6 Oct 2026) — Google Play keeps premium_* */
-  const M = byId.BEMastery_Premium, A = byId.BEMastery_Annual;
-  ok("S1 · one subscription group with exactly the two App Store products the app sells",
+  /* the same ids on the App Store and Google Play (owner, 6 Oct 2026) */
+  const M = byId.premium_monthly, A = byId.premium_annual;
+  ok("S1 · one subscription group with exactly the two products the app sells",
     fx.subscriptionGroups.length === 1 && subs.length === 2 && !!M && !!A, JSON.stringify(subs.map(s => s.productID)));
   /* the tier spec (docs/TIERS.md, 5 Oct 2026): US$19.99 a year, US$2.99 a month —
      Xcode's local store only; the app always draws the store's own displayPrice */
-  ok("S2 · BEMastery_Annual is $19.99 a year (the tier spec, 5 Oct 2026)",
+  ok("S2 · premium_annual is $19.99 a year (the tier spec, 5 Oct 2026)",
     A.displayPrice === "19.99" && A.recurringSubscriptionPeriod === "P1Y", A.displayPrice + " " + A.recurringSubscriptionPeriod);
-  ok("S3 · BEMastery_Premium is $2.99 a month, and is offered again beside the annual plan",
+  ok("S3 · premium_monthly is $2.99 a month, and is offered again beside the annual plan",
     M.displayPrice === "2.99" && M.recurringSubscriptionPeriod === "P1M", M.displayPrice + " " + M.recurringSubscriptionPeriod);
   /* The 3-day free trial sits on the ANNUAL product, not the monthly one. That
      moved with the Premium line (184f3a0e onwards): annual is the only offer the
@@ -72,18 +72,18 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
     (INDEX.match(/.{0,40}(?:24\.99|19\.99).{0,40}/) || [""])[0]);
   ok("S5 · the price the app draws comes from the product the store returned (displayPrice)",
     /displayPrice/.test(INDEX) && /BILLING_PRODUCTS=Object\.freeze\(\["premium_monthly","premium_annual"\]\)/.test(INDEX));
-  /* one list in three places: the Swift allow-list, the web layer's App Store
+  /* one list in three places: the Swift allow-list, the web layer's product
      list and this fixture. A mismatch is an empty Premium sheet on the iPhone. */
   const SK = read(IOS + "Plugins/BEStoreKitPlugin.swift");
   const swiftIds = ((SK.match(/static let allowed: Set<String> = \[([^\]]*)\]/) || [])[1] || "").match(/"[^"]+"/g) || [];
-  const webIds = ((INDEX.match(/APP_STORE_PRODUCTS=Object\.freeze\(\[([^\]]*)\]\)/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const webIds = ((INDEX.match(/BILLING_PRODUCTS=Object\.freeze\(\[([^\]]*)\]\)/) || [])[1] || "").match(/"[^"]+"/g) || [];
   const fxIds = subs.map(s => JSON.stringify(s.productID));
   const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
-  ok("S6 · BEStoreKitPlugin.allowed, APP_STORE_PRODUCTS and the StoreKit fixture name the same two App Store ids",
-    swiftIds.length === 2 && same(swiftIds, webIds) && same(swiftIds, fxIds) && same(swiftIds, ['"BEMastery_Premium"', '"BEMastery_Annual"']),
+  ok("S6 · BEStoreKitPlugin.allowed, BILLING_PRODUCTS and the StoreKit fixture name the same two ids (one set for both stores)",
+    swiftIds.length === 2 && same(swiftIds, webIds) && same(swiftIds, fxIds) && same(swiftIds, ['"premium_monthly"', '"premium_annual"']),
     JSON.stringify({ swiftIds, webIds, fxIds }));
-  ok("S7 · the StoreKit provider asks for the App Store ids, not Google Play's",
-    /getProducts\(APP_STORE_PRODUCTS\.slice\(\)\)/.test(INDEX) && !/BENativeBilling\.getProducts\(BILLING_PRODUCTS/.test(INDEX));
+  ok("S7 · the StoreKit provider asks for the same product list as Google Play, and no second list exists",
+    /BENativeBilling\.getProducts\(BILLING_PRODUCTS\.slice\(\)\)/.test(INDEX) && !/APP_STORE_PRODUCTS|BEMastery_(Premium|Annual)/.test(INDEX));
 }
 
 /* ============================================================ 2. the Swift plugin, as written */
