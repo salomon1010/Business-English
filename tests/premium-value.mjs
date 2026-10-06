@@ -40,7 +40,7 @@ const PLAY_STUB = trial => {
   window.getDigitalGoodsService = async m => { if (m !== "https://play.google.com/billing") throw new Error("x"); return {
     /* the real configuration (SUBSCRIPTIONS.md, 30 Sep 2026): $24.99 a year, the
        3-day trial on the ANNUAL plan, monthly still sold but never offered */
-    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "24.99" }, subscriptionPeriod: "P1Y", ...(trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
+    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M", ...(trial ? { freeTrialPeriod: "P3D" } : {}) }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "24.99" }, subscriptionPeriod: "P1Y", ...(trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
     listPurchases: async () => { window.__play.lists++; return []; } }; };
   window.PaymentRequest = class { constructor(m) { this.sku = m[0].data.sku; } async show() { window.__play.shows.push(this.sku); throw new DOMException("closed", "AbortError"); } };
 };
@@ -376,7 +376,7 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   ok("D6 · the close X is hidden at first", s && s.xHidden && s.wait, JSON.stringify(s));
   await L.p.keyboard.press("Escape"); await L.p.mouse.click(5, 5); await sleep(200);
   ok("D7 · before the X: Escape and a tap outside do not dismiss it", !!(await launchState(L.p)));
-  ok("D8 · ONE offer: the annual plan, the store's $24.99 / year, the 3-day trial leading it and the CTA; the real benefits listed; no chooser and no monthly price", s.plans.length === 0 && s.sel === "premium_annual" && s.cta === "Start 3-day free trial" && /3 days free/i.test(s.offer) && /\$24\.99/.test(s.offer) && /AI speaking analysis/.test(s.text) && !/\$4\.99|Best value/.test(s.text), JSON.stringify(s));
+  ok("D8 · TWO plans (tier spec, 5 Oct 2026): annual selected, the store's $24.99 / year and $4.99 / month, the 3-day trial leading the CTA; the real benefits listed", s.plans.length === 2 && s.sel === "premium_annual" && s.cta === "Start 3-day free trial" && /3 days free/i.test(s.text) && /\$24\.99/.test(s.text) && /\$4\.99/.test(s.text) && /best value/i.test(s.text) && /AI verdicts a day/.test(s.text), JSON.stringify({ plans: s.plans.length, sel: s.sel, cta: s.cta, text: s.text.replace(/\s+/g, " ").slice(0, 400) }));
   ok("D9 · nothing unbuilt is promised: no 'unlimited', no 'more AI coaching'", !/unlimited|more AI coaching/i.test(s.text));
   if (SHOTS) await L.p.screenshot({ path: SHOTS + "/launch-dark-390-wait.png" });
   await sleep(5200);
@@ -422,13 +422,13 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
     const t = document.getElementById("premOv").innerText, sh = document.querySelector("#premOv .prem-sheet");
     return { t, ben: [...document.querySelectorAll("#premOv .prem-ben li")].map(l => l.innerText.trim()), dir: document.documentElement.dir, over: sh.scrollWidth > sh.clientWidth + 1 }; });
   if (SHOTS) await A.p.screenshot({ path: SHOTS + "/sheet-ar.png" });
-  ok("D20 · Arabic: right-to-left, all four capability benefits translated, no raw keys, fits", ar.dir === "rtl" && ar.ben.length === 4 && /تحليل الذكاء الاصطناعي/.test(ar.ben[0]) && /إحصاءات 30 و90 يومًا/.test(ar.ben[2]) && !/\b(prem|sh|ex|pg)\.[a-z_]+\b/.test(ar.t) && !ar.over, JSON.stringify(ar.ben) + " | " + ar.t.slice(0, 120));
+  ok("D20 · Arabic: right-to-left, all five benefit rows translated, no raw keys, fits", ar.dir === "rtl" && ar.ben.length === 5 && /حكمًا من الذكاء الاصطناعي يوميًا/.test(ar.ben[0]) && /إحصاءات 30 و90 يومًا/.test(ar.ben[3]) && !/\b(prem|sh|ex|pg)\.[a-z_]+\b/.test(ar.t) && !ar.over, JSON.stringify(ar.ben) + " | " + ar.t.slice(0, 120));
   const card = await A.p.evaluate(async () => { premClose(); await setLang("en"); go("data"); for (let i = 0; i < 40 && !document.getElementById("entPlan"); i++) await new Promise(r => setTimeout(r, 50)); return document.getElementById("entPlan").textContent.replace(/\s+/g, " "); });
   /* FOUR rows, not five, since 1 October 2026: "AI feedback spoken back to you"
      was dropped because the capability behind it (ai_verbal_feedback) was checked
      at zero call sites while the TTS route is free — the paywall was selling a
      Free learner something they already had. See docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md D5. */
-  ok("D21 · the Settings Premium card lists the SAME four capabilities the sheet sells, and nothing it cannot enforce, and 'See Premium plans'", /AI speaking analysis/.test(card) && !/spoken back/.test(card) && /Advanced progress/.test(card) && /30- and 90-day analytics/.test(card) && /The AI Coach/.test(card) && /See Premium plans/.test(card), card);
+  ok("D21 · the Settings Premium card lists the SAME benefits the sheet sells, and nothing it cannot enforce, and 'See Premium plans'", /AI verdicts a day/.test(card) && !/spoken back/.test(card) && /Advanced progress/.test(card) && /30- and 90-day analytics/.test(card) && /The AI Coach/.test(card) && /See Premium plans/.test(card), card);
   await A.ctx.close();
 }
 

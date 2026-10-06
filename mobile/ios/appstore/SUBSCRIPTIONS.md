@@ -39,8 +39,27 @@ plan is a higher tier.
 Subscription group reference name in App Store Connect: `BE_Mastery_Premium`.
 | Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level | Offered in app |
 |---|---|---|---|---|---|---|
-| `BEMastery_Annual` | BEMastery_yearly | 1 year | **US$19.99** | only if configured in the store (the app shows a trial only when StoreKit reports one) | 1 | **yes — first, "Best value"** |
-| `BEMastery_Premium` | BEMastery_monthly | 1 month | **US$2.99** | only if configured in the store | 1 | **yes — second** |
+| `BEMastery_Annual` | BEMastery_yearly | 1 year | **US$19.99** | **Free trial, 3 days**, new subscribers, all territories (owner, 6 Oct 2026) | 1 | **yes — first, "Best value"** |
+| `BEMastery_Premium` | BEMastery_monthly | 1 month | **US$2.99** | **Free trial, 3 days**, new subscribers, all territories | 1 | **yes — second** |
+
+**The free trial (owner, 6 Oct 2026): 3 days, on both plans, on both stores.**
+The owner asked for 5 days; Apple's free-trial durations are fixed (3 days,
+1 week, 2 weeks, 1 month, …) and Google Play allows any length from 3 days, so
+3 days is the shortest length both stores can share. Apple grants one
+introductory offer per subscription group per Apple ID, so a learner gets the
+trial once whichever plan they pick. The app shows "3 days free" and "Start
+3-day free trial" only when the store reports the trial for that account; the
+number is never written in the app.
+
+### Google Play — the same set-up (Play Console → Monetise → Subscriptions)
+| Product ID | Base plan | Period | Price (USA) | Offer |
+|---|---|---|---|---|
+| `premium_annual` | `annual`, auto-renewing | P1Y | **US$19.99** | **`trial3d`** — one phase, Free trial, 3 days, new customers (to be ADDED: today only the monthly plan has it) |
+| `premium_monthly` | `monthly`, auto-renewing | P1M | **US$2.99** | `trial3d` — Free trial, 3 days, new customers (exists) |
+
+Play ids stay lowercase (Play refuses capitals); everything else is identical
+to the App Store. Activate both offers; the app reads `freeTrialPeriod` from the
+Digital Goods API and shows the badge only when Play reports it.
 
 **The price is never written in the app.** The Premium sheet prints whatever
 StoreKit returns for each product, and the renewal line under the CTA

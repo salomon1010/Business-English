@@ -93,7 +93,10 @@ buckets, which are named after the day rather than started by the first hit.
    US$19.99 / year and `BEMastery_Premium` US$2.99 / month (the monthly plan is
    now offered, so it must be approved and available); Play Console the same
    two base plans. The app always shows the store's own `displayPrice`.
-   Regional prices must be re-set for the new tiers.
+   Regional prices must be re-set for the new tiers. **Free trial: 3 days on
+   both plans, both stores** (owner, 6 Oct 2026 — Apple has no 5-day option;
+   3 days is the shortest both stores share): an introductory offer on each
+   App Store product, a `trial3d` offer on each Play base plan.
 2. **Switch Premium on when ready:** deploy `be-entitlements` (production D1
    exists, Worker not deployed), set `ENTITLEMENTS_URL` + `PREMIUM_ENFORCED="1"`
    on `be-polish` and redeploy it from `main` (the metering ships with it),

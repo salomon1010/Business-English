@@ -48,10 +48,10 @@ const WDEPS = { fetch: googleFetch };
 const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, welding: { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 /* the Digital Goods API + Payment Request exactly as a Play-billed TWA exposes them (stub) */
 const PLAY_STUB = () => {
-  /* the stub store mirrors the real configuration (SUBSCRIPTIONS.md, 30 Sep 2026):
-     the 3-day free trial is on the ANNUAL plan, which is the only one offered.
-     Monthly stays defined, as it does in the store, to prove it is NOT shown. */
-  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" }, subscriptionPeriod: "P1M" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "EUR", value: "29.99" }, subscriptionPeriod: "P1Y", freeTrialPeriod: "P3D" }],
+  /* the stub store mirrors the real configuration (SUBSCRIPTIONS.md, owner 6 Oct
+     2026): both plans are offered, annual first, and the 3-day free trial
+     (Play offer trial3d) sits on BOTH. */
+  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" }, subscriptionPeriod: "P1M", freeTrialPeriod: "P3D" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "EUR", value: "29.99" }, subscriptionPeriod: "P1Y", freeTrialPeriod: "P3D" }],
     next: { token: null, cancel: false }, owned: [], completes: [], shows: 0 };
   window.getDigitalGoodsService = async method => { if (method !== "https://play.google.com/billing") throw new Error("unsupported"); return {
     getDetails: async ids => window.__play.details.filter(d => ids.includes(d.itemId)),

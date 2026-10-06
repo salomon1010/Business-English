@@ -27,7 +27,7 @@ const PLAY_STUB = owned => {
   window.__play = { lists: 0 }; window.__opened = [];
   window.open = (u) => { window.__opened.push(String(u)); return null; };
   window.getDigitalGoodsService = async m => { if (m !== "https://play.google.com/billing") throw new Error("x"); return {
-    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M", freeTrialPeriod: "P3D" }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y" }].filter(d => ids.includes(d.itemId)),
+    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M", freeTrialPeriod: "P3D" }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y", freeTrialPeriod: "P3D" }].filter(d => ids.includes(d.itemId)),
     listPurchases: async () => { window.__play.lists++; return owned ? [{ itemId: owned, purchaseToken: "tok_" + owned + "_" + "x".repeat(20) }] : []; } }; };
   window.PaymentRequest = class { constructor() {} async show() { throw new DOMException("closed", "AbortError"); } };
 };

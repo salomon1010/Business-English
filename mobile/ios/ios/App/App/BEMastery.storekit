@@ -30,7 +30,13 @@
           "recurringSubscriptionPeriod": "P1M",
           "referenceName": "BEMastery_monthly",
           "subscriptionGroupID": "21000001",
-          "type": "RecurringSubscription"
+          "type": "RecurringSubscription",
+          "introductoryOffer": {
+            "internalID": "21000005",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D"
+          }
         },
         {
           "adHocOffers": [],

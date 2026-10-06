@@ -69,10 +69,10 @@ const PLUGIN = ([eligible]) => {
   const sk = window.__sk = { calls: [], finished: [], listeners: [], owned: [], unfinished: [], next: "buy", eligible };
   const P = {
     getProducts: async ({ ids }) => { sk.calls.push("getProducts"); return { products: [
-      /* mirrors mobile/ios/ios/App/App/BEMastery.storekit (30 Sep 2026): the
-         3-day introductory offer is on ANNUAL at $24.99, and Apple reports it
-         only for an Apple ID that is still eligible */
-      { id: "BEMastery_Premium", title: "Premium (monthly)", description: "", displayPrice: "$4.99", price: 4.99, currencyCode: "USD", period: "P1M", trialEligible: false },
+      /* mirrors mobile/ios/ios/App/App/BEMastery.storekit (owner, 6 Oct 2026): the
+         3-day introductory offer is on BOTH plans, and Apple reports it only
+         for an Apple ID that is still eligible (once per subscription group) */
+      { id: "BEMastery_Premium", title: "Premium (monthly)", description: "", displayPrice: "$4.99", price: 4.99, currencyCode: "USD", period: "P1M", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) },
       { id: "BEMastery_Annual", title: "Annual Premium", description: "", displayPrice: "$24.99", price: 24.99, currencyCode: "USD", period: "P1Y", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) }].filter(p => ids.includes(p.id)) }; },
     purchase: async ({ id, appAccountToken }) => { sk.calls.push("purchase:" + id);
       if (sk.next === "cancel") return { cancelled: true };
@@ -142,7 +142,7 @@ console.log("\n# the bridge and the store's products");
   ok("I1d · StoreKit is discovered through the repository's one helper, capPlugin",
     shape.viaHelper === "object" && st.native === "object", JSON.stringify(shape));
   ok("I2 · the bridge exposes the whole contract", st.keys === "currentEntitlements,finish,getProducts,manageSubscriptions,onTransaction,pendingTransactions,purchase,restore,supports", st.keys);
-  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("BEMastery_Premium|$4.99|P1M|") && st.products.includes("BEMastery_Annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
+  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("BEMastery_Premium|$4.99|P1M|P3D") && st.products.includes("BEMastery_Annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
   const s = await sheet(p);
   /* two plans (tier spec, 5 Oct 2026): annual first, then the monthly Apple sells; both prices are Apple's */
   ok("I4 · the Premium sheet: both App Store plans, annual first at $24.99 / year with the 3-day trial leading it, monthly at $4.99; Apple's EULA and the privacy policy linked", s.plans.length === 2 && /\$24\.99/.test(s.text) && /\$4\.99/.test(s.text) && /3 days free/i.test(s.text) && /Start 3-day free trial/.test(s.cta) && s.eula && s.privacy && /App Store/.test(s.text), JSON.stringify({ plans: s.plans.length, cta: s.cta, eula: s.eula, privacy: s.privacy }));

@@ -53,7 +53,7 @@ identity and no App Store Connect access.
      app.
 5. **App Store Connect:** follow `mobile/ios/appstore/SUBSCRIPTIONS.md`:
    - the Paid Apps agreement, tax and banking;
-   - the group and products with the 3-day free trial;
+   - the group and products, each with the 3-day free trial (both plans);
    - Notifications V2 URLs: Sandbox → staging;
    - a Sandbox tester (Users and Access → Sandbox).
 6. **Staging Worker:** it must carry the latest Apple server code (see "Before
@@ -101,7 +101,7 @@ App Store Server Notifications V2 → POST /v1/billing/app_store                
 |---|---|
 | `Plugins/BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
 | `Lifecycle/BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Hosted by `BridgeView` inside the SwiftUI `BEMasteryApp` (no storyboard, no SceneDelegate). |
-| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1 ($19.99 / year, $2.99 / month); the fixture carries a 3-day introductory offer on the annual product. The app shows a trial only when the store reports one. |
+| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1 ($19.99 / year, $2.99 / month); the fixture carries a 3-day free introductory offer on BOTH products (owner, 6 Oct 2026). The app shows a trial only when the store reports one. |
 
 What the plugin does:
 - **Products:** only `BEMastery_Premium` (monthly) and `BEMastery_Annual`

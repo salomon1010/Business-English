@@ -60,9 +60,11 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
      moved with the Premium line (184f3a0e onwards): annual is the only offer the
      sheet draws, so the trial has to be on the plan a learner can actually pick.
      mobile/ios/appstore/SUBSCRIPTIONS.md is the table this must agree with. */
-  ok("S3b · the 3-day free trial is on the ANNUAL product — the one the sheet offers",
-    A.introductoryOffer && A.introductoryOffer.paymentMode === "free"
-    && A.introductoryOffer.subscriptionPeriod === "P3D" && !M.introductoryOffer,
+  /* owner, 6 Oct 2026: the 3-day free trial is on BOTH plans (Apple grants it
+     once per subscription group, whichever plan is picked). Play mirrors it
+     with a trial3d offer on both base plans. */
+  const io = x => x.introductoryOffer && x.introductoryOffer.paymentMode === "free" && x.introductoryOffer.subscriptionPeriod === "P3D";
+  ok("S3b · the 3-day free trial is on BOTH products (owner, 6 Oct 2026)", io(A) && io(M),
     JSON.stringify({ annual: A.introductoryOffer, monthly: M.introductoryOffer || null }));
   /* the fixture is for Xcode only — the app must never read a price from it */
   const hard = /(?:displayPrice|price)\s*[:=]\s*["']?\$?(?:24\.99|19\.99|4\.99)/.test(INDEX);

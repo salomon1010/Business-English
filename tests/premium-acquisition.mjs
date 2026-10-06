@@ -33,9 +33,10 @@ const grant = (uid, { status = "active", expires = NOW + 30 * DAY, product = "pr
 const PLAY_STUB = ({ trial, products, owned }) => {
   window.__play = { shows: [], lists: 0, noProducts: !products, trial, owned: owned || [] };
   window.getDigitalGoodsService = async m => { if (m !== "https://play.google.com/billing") throw new Error("x"); return {
-    /* the tier spec (docs/TIERS.md, 5 Oct 2026): US$19.99 a year with the 3-day
-       trial on ANNUAL, US$2.99 a month — both sold, both shown, annual first */
-    getDetails: async ids => window.__play.noProducts ? [] : [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "2.99" }, subscriptionPeriod: "P1M" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
+    /* the tier spec (docs/TIERS.md, 5 Oct 2026) + the owner's 6 Oct 2026 trial
+       decision: US$19.99 a year, US$2.99 a month, the 3-day trial on BOTH plans
+       — both sold, both shown, annual first */
+    getDetails: async ids => window.__play.noProducts ? [] : [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "2.99" }, subscriptionPeriod: "P1M", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
     listPurchases: async () => { window.__play.lists++; return window.__play.owned; } }; };
   window.PaymentRequest = class { constructor(m) { this.sku = m[0].data.sku; } async show() { window.__play.shows.push(this.sku); throw new DOMException("closed", "AbortError"); } };
 };
@@ -116,7 +117,7 @@ console.log("\n# A · Free, General English, a store with the 3-day trial on the
   ok("A11 · Restore purchases goes through the existing Billing.restore", await p.evaluate(async () => { document.querySelector(".prem-restore").click(); await new Promise(r => setTimeout(r, 300)); return __play.lists >= 1; }));
   await p.evaluate(() => { const b = [...document.querySelectorAll(".prem-plan")].find(e => /premium_monthly/.test(e.getAttribute("onclick"))); b.click(); });
   await sleep(250); s = await sheet(p);
-  ok("A11b · tapping Monthly selects it: the card lights, the CTA becomes 'Continue with Premium' (no trial on monthly) with the plain cancel note, and Continue buys premium_monthly", s.plans.find(x => x.id === "premium_monthly").on && !s.plans.find(x => x.id === "premium_annual").on && s.cta === "Continue with Premium" && s.cancel === "Cancel anytime in Google Play" && await p.evaluate(async () => { document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 300)); return __play.shows.includes("premium_monthly"); }), JSON.stringify({ plans: s.plans, cta: s.cta, cancel: s.cancel }));
+  ok("A11b · tapping Monthly selects it: the card lights, the CTA keeps the 3-day trial (owner, 6 Oct 2026: the trial is on both plans) with the monthly renewal line, and Continue buys premium_monthly", s.plans.find(x => x.id === "premium_monthly").on && !s.plans.find(x => x.id === "premium_annual").on && s.cta === "Start 3-day free trial" && s.cancel === "Then $2.99 / month. Cancel anytime in Google Play." && await p.evaluate(async () => { document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 300)); return __play.shows.includes("premium_monthly"); }), JSON.stringify({ plans: s.plans, cta: s.cta, cancel: s.cancel }));
   await p.evaluate(() => premPick("premium_annual"));
   ok("A12 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();

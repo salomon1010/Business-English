@@ -10,7 +10,7 @@ verification and product ids are unchanged.
 | Product | Base plan | Period | Prices (sample) | Grace | Offers |
 |---|---|---|---|---|---|
 | `premium_monthly` | `monthly`, ACTIVE, auto-renewing | P1M | **US $2.99 (owner's tiers, 5 Oct 2026)** · the 2026-09-25 sample (FR €5.49 · DE €4.99 · CI/SN XOF 3,400 · CM XAF 3,400 · NG ₦7,130 · MA 57.99 MAD) belongs to the OLD $4.99 price and is to be re-set by the owner for the new tiers | 3 days | `trial3d`, ACTIVE on 2026-09-25: 3-day free trial, new subscribers only — the app shows it only if Play still reports it |
-| `premium_annual` | `annual`, ACTIVE, auto-renewing | P1Y | **US $19.99 (owner's tiers, 5 Oct 2026)** · regional prices below are the 2026-09-25 sample and are to be re-set by the owner for the new tiers | 14 days | none |
+| `premium_annual` | `annual`, ACTIVE, auto-renewing | P1Y | **US $19.99 (owner's tiers, 5 Oct 2026)** · regional prices below are the 2026-09-25 sample and are to be re-set by the owner for the new tiers | 14 days | none yet — **add `trial3d` (Free trial, 3 days)**: the owner's 6 Oct 2026 decision is the trial on BOTH plans |
 
 Both are sold in 173 regions. The Play listings have titles only, with no
 description or benefits.

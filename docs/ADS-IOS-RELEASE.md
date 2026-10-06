@@ -159,10 +159,10 @@ screen. That is §4.
 ## 3. Console work only the owner can do
 
 ### App Store Connect
-- `premium_annual` — **$19.99 / year** (owner's tiers, 5 Oct 2026; check
-  what the console holds and set it to this).
-- `premium_monthly` — **$2.99 / month**. A free trial only if the owner
-  configures one; the app shows a trial only when the store reports it.
+- `BEMastery_Annual` — **$19.99 / year** (owner's tiers, 5 Oct 2026), with a
+  3-day free introductory offer for new subscribers (owner, 6 Oct 2026).
+- `BEMastery_Premium` — **$2.99 / month**, the same 3-day free trial. The
+  app shows a trial only when the store reports it.
 - Both in one subscription group, both offered in the app (annual first,
   "Best value"). `mobile/ios/appstore/SUBSCRIPTIONS.md` places both at
   level 1 (a switch is a crossgrade at the next renewal).
@@ -177,8 +177,9 @@ screen. That is §4.
 ### Google Play
 - `premium_annual` / base plan `annual` — **$19.99 / year** (the regional
   prices Play derives from it must be re-set by the owner for the new tiers).
-- `premium_monthly` / base plan `monthly` — **$2.99 / month**; keep or drop
-  the `trial3d` offer as the owner decides — the app shows a trial only when
+- `premium_monthly` / base plan `monthly` — **$2.99 / month** with the
+  `trial3d` offer; `premium_annual` needs the same `trial3d` offer added
+  (owner, 6 Oct 2026: 3 days on both plans). The app shows a trial only when
   Play reports one.
 - Both activated in the production track's subscription group; both are
   offered in the app, annual first.

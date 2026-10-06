@@ -361,7 +361,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
   ads. Home untouched. The card no longer promises "More AI coaching"
   (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
-  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y. **App Store ids differ (owner, 6 Oct 2026):** `BEMastery_Premium` (P1M) and
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y (needs its own `trial3d`
+  offer — **the trial is 3 days on BOTH plans, both stores, owner 6 Oct 2026**; Apple
+  has no 5-day option). **App Store ids differ (owner, 6 Oct 2026):** `BEMastery_Premium` (P1M) and
   `BEMastery_Annual` (P1Y) in App Store Connect, group `BE_Mastery_Premium` —
   `APP_STORE_PRODUCTS` (index.html), `BEStoreKitPlugin.allowed`, `BEMastery.storekit`
   and the server's `PRODUCTS` carry them; `BILLING_PRODUCTS` stays Play's list.
@@ -517,8 +519,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   - **One offer, never a price in the code.** `premOffer()` returns the annual
     plan only; `premium_monthly` is still honoured for anyone who bought one but
     is not shown. Every figure comes from `Billing.products`, i.e. from App
-    Store Connect / Play (Apple 3.1.2). $24.99/year with a 3-day trial is
-    configured in the store, not here — see `mobile/ios/appstore/SUBSCRIPTIONS.md`.
+    Store Connect / Play (Apple 3.1.2). $19.99/year and $2.99/month, each with a
+    3-day trial, are configured in the store, not here — see `mobile/ios/appstore/SUBSCRIPTIONS.md`.
   - **Locked never means empty**: `premLockHTML(cap, from)` is the one gate card,
     and a locked chart is drawn dimmed inside `.prem-prev` under the offer.
   - Tests: `tests/premium-boundary.mjs` (44, in the default chain),
