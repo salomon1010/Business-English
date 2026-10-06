@@ -146,7 +146,7 @@ const row=await page.evaluate(async()=>{
   tm.textContent="0:02 / 1:30";
   await new Promise(r=>setTimeout(r,60));
   const r=mic.getBoundingClientRect(),t=tm.getBoundingClientRect();
-  const pol=document.querySelector(".ex-polish").getBoundingClientRect();
+  const pol=document.querySelector(".ex-read").getBoundingClientRect();   /* Polish it was removed 6 Oct 2026; the wide Record button sits beside Read it aloud */
   return {micH:Math.round(r.height),timerH:Math.round(t.height),micW:Math.round(r.width),polW:Math.round(pol.width),
     rowW:Math.round(document.querySelector(".ex-btnrow").getBoundingClientRect().width)};
 });

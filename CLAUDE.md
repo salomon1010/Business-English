@@ -1203,12 +1203,13 @@ Features
   report's audio player. The report's **What you said** fold (`.ex-said`) now opens
   with the take above the transcript (`exTxRecMount` → `#exTxRec`: waveform from
   `decodePeaks`, fills as it plays, tap to seek, play/pause, time); typed text keeps
-  the transcript alone. Button row (owner, 6 Oct 2026): Polish it · mic · Read it aloud ·
-  bin. After a RECORDING is analysed, Polish it breathes softly (`ex.cue`, `.is-cue`,
-  `exCue` keyframes, still under reduced motion) until tapped, cleared or a new take;
-  a tap on the SAME words opens the existing report at its better versions — never a
-  second analysis (it would spend another AI verdict); edited words are analysed
-  afresh. Test: `tests/polish-hear.mjs` (19). i18n: the new `ex.*`
+  the transcript alone. Button row (owner, 6 Oct 2026, later the same morning): **Polish it
+  was removed** — a wide **Record** button (`.ex-mic-wide`, key `ex.rec_wide`) · Read it
+  aloud · bin. A recording still produces the full report on its own; typed or pasted
+  text now gets "Another version" only (`exPolish` survives for tests and old callers).
+  The cue (`ex.cue`, `.is-cue`, `exCue` keyframes, still under reduced motion) sits on
+  **Another version** (`#exQuickBtn`): on after a recording is analysed, or when the box
+  holds ≥5 words not yet polished (`exCueReady`); off on its tap, Clear or a new take. Test: `tests/polish-hear.mjs` (19). i18n: the new `ex.*`
   keys are translated in fr / es / pt / ar and carry the English text in the
   other 11 (same as the rest of the Polish keys) — parity is 2,625 keys in
   every file.

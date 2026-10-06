@@ -3572,9 +3572,11 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
 .ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
 .ex-btnrow .ex-read{flex:0 0 52px;padding:0}
-.ex-polish.is-cue{animation:exCue 2.4s ease-in-out infinite;position:relative}
+.ex-btnrow .ex-mic-wide{flex:1 1 auto;width:auto;gap:8px;font-size:15px;font-weight:700;padding:0 14px}
+.ex-btnrow .ex-mic.ex-mic-wide{color:#fff!important;border-color:transparent!important}.ex-mic-wide>svg{width:22px;height:22px;flex:0 0 22px}.ex-mic-wide .ex-mic-l{white-space:nowrap}.ex-mic-wide.is-live .ex-mic-l{display:none}
+.ex-quickbtn.is-cue{animation:exCue 2.4s ease-in-out infinite;position:relative;border-color:color-mix(in srgb,var(--acc) 55%,transparent)!important}
 @keyframes exCue{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent),0 0 0 1px color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--acc) 22%,transparent),0 0 22px 2px color-mix(in srgb,var(--acc) 45%,transparent)}}
-@media(prefers-reduced-motion:reduce){.ex-polish.is-cue{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 40%,transparent)}}
+@media(prefers-reduced-motion:reduce){.ex-quickbtn.is-cue{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 40%,transparent)}}
 .ex-flash{animation:exFlash 1.6s ease-out 1}@keyframes exFlash{0%{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 55%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
 .ex-txrec{margin:0 0 12px}.ex-txrec-row{display:flex;align-items:center;gap:10px}.ex-txrec-play{flex:0 0 44px;min-height:44px;padding:0;justify-content:center;border-radius:50%}.ex-txrec-wave{flex:1 1 auto;min-width:0;width:100%;height:48px;background:var(--card2);border-radius:10px;cursor:pointer;touch-action:manipulation}.ex-txrec-time{flex:0 0 auto;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}.ex-txrec-audio{display:none}.ex-read.is-on{border-color:var(--acc)!important;color:var(--acc)}
 .ex-hist-tx{display:block;margin-top:2px;font-size:12px;color:var(--mut);white-space:normal;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -9556,6 +9558,7 @@ const I18N_EN={
  "ex.clear_btn":"Clear",
  "ex.busy_status":"Polishing… your report opens below.",
  "ex.polish_btn":"Polish it",
+ "ex.rec_wide":"Record",
  "ex.versions_h":"What you should have said",
  "ex.versions_sub":"Your minute, your facts — said the way a professional would. The new idioms and phrases are marked. Say each one aloud until it is yours.",
  "ex.version_new":"New in this version — tap to save",
@@ -22034,7 +22037,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v638";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v639";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -22234,12 +22237,11 @@ function exIdleHTML(){
     ${aiAcctNoticeHTML("polish")}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
-      <button class="btn-primary ex-polish${ex.cue?" is-cue":""}" id="exPolishBtn" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
-      <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
+      <button class="btn-primary ex-mic ex-mic-wide" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span class="ex-mic-l">${esc(t("ex.rec_wide"))}</span><span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-read" id="exReadBtn" onclick="exReadBox()" title="${esc(t("ex.read_btn"))}" aria-label="${esc(t("ex.read_btn"))}">${ic("sound")}</button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
-    <button class="btn btn-g ex-quickbtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
+    <button class="btn btn-g ex-quickbtn${ex.cue?" is-cue":""}" id="exQuickBtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
     <div id="exQuick">${exQuickHTML()}</div>
     <p class="ex-status" id="exSt"></p>
     ${exLastHTML()}${exHistBtnHTML()}`;
@@ -22328,6 +22330,7 @@ window.exQuick=async btn=>{
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
   const area=areaId(),st=exAreaState(area);                /* the versions belong to the text, and the text to this area — fixed before the await */
   if(text!==st.quickFor){st.quick=[];st.quickFor=text}     /* new text in the box → a fresh set */
+  st.cue=false;exCuePaint();
   if(st.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
   exQuicking=true;
   const label=btn.innerHTML;
@@ -22348,7 +22351,7 @@ window.exQuick=async btn=>{
   btn.disabled=false;btn.innerHTML=st.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
   exQuicking=false;
 };
-window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
+window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta);const c=exCueReady(ta.value);if(c!==!!ex.cue){ex.cue=c;exCuePaint()}};
 /* ---------- hear it back (owner, 6 Oct 2026) ----------
    Read it aloud: the app's voice reads what is in the box — typed, pasted or
    the transcript of a recording — so the learner hears their own words in a
@@ -22398,7 +22401,12 @@ window.exClear=()=>{if(ex.phase==="rec")return;ex.cue=false;exCuePaint();ex.draf
    hear the better version". A tap on the SAME text opens that report at its
    better versions instead of analysing it again — a second analysis of
    identical words would spend another AI verdict for nothing. */
-function exCuePaint(){const b=document.getElementById("exPolishBtn");if(b)b.classList.toggle("is-cue",!!ex.cue)}
+/* The cue now sits on "Another version" (owner, 6 Oct 2026: Polish it was
+   removed, the wide Record button took its place): it breathes softly once a
+   recording is done, and whenever the box holds enough words that have not
+   been polished yet. Tapping it, clearing the box or starting a take ends it. */
+function exCuePaint(){const b=document.getElementById("exQuickBtn");if(b)b.classList.toggle("is-cue",!!ex.cue)}
+function exCueReady(text){const tx=String(text||"").replace(/\s+/g," ").trim();return tx.split(" ").length>=5&&tx!==ex.quickFor}
 window.exPolish=()=>{
   if(ex.phase!=="idle")return;
   const ta=document.getElementById("exIn"),text=ta?ta.value.replace(/\s+/g," ").trim():"";
@@ -23289,7 +23297,7 @@ function howPoint(sel){
 const HOW={
   polish:{
     title:"ex.how_title", lead:"ex.how_lead",
-    view:"phrases", point:".ex-polish",
+    view:"phrases", point:".ex-mic",
     art:[
       ()=>`<div class="exd"><div class="exd-head"><b>${esc(exdLbl("ph.exec_title"))}</b><span class="exd-chip">${esc(t("ph.exec_tag"))}</span></div>
         <div class="exd-box" style="min-height:0;color:var(--mut)">${esc(t("ex.in_ph"))}</div>

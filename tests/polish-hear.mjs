@@ -33,7 +33,7 @@ await p.evaluate(() => {
 console.log("\n# the Read it aloud button");
 await p.evaluate(() => go("phrases")); await sleep(400);
 const row = await p.evaluate(() => [...document.querySelectorAll(".ex-btnrow > button")].map(x => x.className.split(" ").find(c => /^ex-/.test(c))));
-ok("H1 · the row is Polish it, mic, Read it aloud, bin — the mic straight after Polish it (owner, 6 Oct 2026)", JSON.stringify(row) === JSON.stringify(["ex-polish", "ex-mic", "ex-read", "ex-clear"]), JSON.stringify(row));
+ok("H1 · the row is a wide Record button, Read it aloud, bin — Polish it removed (owner, 6 Oct 2026)", JSON.stringify(row) === JSON.stringify(["ex-mic", "ex-read", "ex-clear"]), JSON.stringify(row));
 const rd = await p.evaluate(() => { const ta = document.getElementById("exIn"); ta.value = "I introduced myself yesterday and today I will be reciting my job"; exDraft(ta); exReadBox(); const on = document.getElementById("exReadBtn").classList.contains("is-on"); exReadBox(); return { said: window.__said.slice(), on, after: exReading, label: document.getElementById("exReadBtn").getAttribute("aria-label") }; });
 ok("H2 · it reads exactly what is in the box, shows that it is reading, and a second tap stops it", rd.said.length === 1 && /reciting my job/.test(rd.said[0]) && rd.on && rd.after === false && rd.label === "Read it aloud", JSON.stringify(rd));
 const em = await p.evaluate(() => { window.__said = []; const ta = document.getElementById("exIn"); ta.value = ""; exDraft(ta); exReadBox(); return { said: window.__said.length, toast: (document.getElementById("toast") || {}).textContent || "" }; });
@@ -49,22 +49,23 @@ await sleep(400);
 const geRecs = await p.evaluate(async () => (await getRecs("polish")).map(x => x.ts));
 ok("H6 · the voice is saved on the phone under General English, matched to its report", geRecs.length === 1 && geRecs[0] === ge.rep.at, JSON.stringify({ geRecs, at: ge.rep.at }));
 
-console.log("\n# Polish it glows after a recording, and does not pay twice for the same words");
+console.log("\n# Another version glows when there is something to polish");
 const cue = await p.evaluate(async () => {
   go("phrases"); await new Promise(r => setTimeout(r, 300));
-  const b = () => document.getElementById("exPolishBtn");
-  const out = { glow: b().classList.contains("is-cue"), anim: getComputedStyle(b()).animationName };
-  const before = window.__ai; exPolish(); await new Promise(r => setTimeout(r, 400));
-  out.aiCalls = window.__ai - before; out.glowAfter = b().classList.contains("is-cue"); out.report = !!exQ(".ex-rep-card");
-  const ta = document.getElementById("exIn"); ta.value = ta.value + " and I lead the weekly review with the analysts"; exDraft(ta);
-  const b2 = window.__ai, n0 = aList("exRep").length; exPolish(); for (let i = 0; i < 40 && aList("exRep").length === n0; i++) await new Promise(r => setTimeout(r, 100));
-  out.editedCalls = window.__ai - b2;
-  aList("exRep").shift(); save();   /* drop the test-only typed report so the history checks below see the recorded take first */
+  const q = () => document.getElementById("exQuickBtn"), rb = document.getElementById("exRecBtn");
+  const out = { glow: q().classList.contains("is-cue"), anim: getComputedStyle(q()).animationName, wide: rb.getBoundingClientRect().width > document.querySelector(".ex-btnrow").getBoundingClientRect().width * 0.5, label: rb.textContent.trim(), noPolish: !document.querySelector(".ex-polish") };
+  const real = window.fetch; window.fetch = async (u, o) => { let bd = null; try { bd = JSON.parse(o && o.body) } catch (e) {} if (bd && bd.repolish) return { ok: true, json: async () => ({ version: { style: "Better", text: "A better version of what I said today", learn: [] }, idioms: [] }) }; return real(u, o); };
+  await exQuick(q()); await new Promise(r => setTimeout(r, 200));
+  out.afterTap = q().classList.contains("is-cue"); out.version = !!document.querySelector(".ex-qv");
+  exClear(); const ta = document.getElementById("exIn"); out.cleared = q().classList.contains("is-cue");
+  ta.value = "two words"; exDraft(ta); out.short = q().classList.contains("is-cue");
+  ta.value = "I lead a team of ten data engineers in Paris"; exDraft(ta); out.typed = q().classList.contains("is-cue");
+  window.fetch = real; exClear();
   return out;
 });
-ok("H17 · after a recording Polish it glows softly (a breathing animation)", cue.glow && cue.anim === "exCue", JSON.stringify(cue));
-ok("H18 · tapping it on the same words opens the existing report and stops the glow — no second analysis", cue.aiCalls === 0 && !cue.glowAfter && cue.report, JSON.stringify(cue));
-ok("H19 · once the words are edited, Polish it analyses them afresh", cue.editedCalls === 1, JSON.stringify(cue));
+ok("H17 · after a recording, Another version breathes softly and the wide Record button replaces Polish it", cue.glow && cue.anim === "exCue" && cue.wide && /Record/.test(cue.label) && cue.noPolish, JSON.stringify(cue));
+ok("H18 · tapping it gives the better version and ends the glow; Clear ends it too", !cue.afterTap && cue.version && !cue.cleared, JSON.stringify(cue));
+ok("H19 · typed text glows once it has enough words to polish (five), not before", !cue.short && cue.typed, JSON.stringify(cue));
 
 console.log("\n# What you said: the take beside its transcript");
 const said = await p.evaluate(async () => {
@@ -109,7 +110,7 @@ const wd = await p.evaluate(async () => {
   const r = aList("exRep")[0];
   return { area: areaId(), row, rep: r && { tx: r.tx, rec: r.rec, at: r.at }, wRecs: (await getRecs("welding:polish")).map(x => x.ts), gRecs: (await getRecs("polish")).length, histBtn: !!document.querySelector(".ex-hist-btn") };
 });
-ok("H9 · Welding has the same row of buttons", JSON.stringify(wd.row) === JSON.stringify(["ex-polish", "ex-mic", "ex-read", "ex-clear"]), JSON.stringify(wd.row));
+ok("H9 · Welding has the same row of buttons", JSON.stringify(wd.row) === JSON.stringify(["ex-mic", "ex-read", "ex-clear"]), JSON.stringify(wd.row));
 ok("H10 · a Welding take is saved under Welding, never under General English", wd.area === "welding" && wd.rep.rec === 1 && wd.wRecs.length === 1 && wd.wRecs[0] === wd.rep.at && wd.gRecs === 1, JSON.stringify(wd));
 const sep = await p.evaluate(async () => { exHistSheet(); const t = [...document.querySelectorAll("#exHistOv .ex-hist-tx")].map(x => x.textContent).join("|"); document.getElementById("exHistOv").remove(); return t; });
 ok("H11 · the Welding history shows only the Welding take", /strike the arc/.test(sep) && !/walk you through/.test(sep), sep);
