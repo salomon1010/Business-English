@@ -245,7 +245,7 @@ console.log("\n# account deletion and Welding");
   let asked = null;
   await p.evaluate(() => { FBauth = FBauth || {}; window.askConfirm = async o => { window.__asked = o; return false; }; });
   await p.evaluate(() => fbDeleteAccount()); asked = await p.evaluate(() => window.__asked && window.__asked.body);
-  ok("D1 · deleting the account of a paying learner says the App Store subscription is NOT cancelled and where to cancel it", /does not cancel your BE Mastery Premium subscription\. Cancel it in App Store/.test(asked || ""), asked);
+  ok("D1 · deleting the account of a paying learner says the App Store subscription is NOT cancelled and where to cancel it", /does not cancel your BE Mastery Premium subscription\. Cancel it in the App Store/.test(asked || ""), asked);
   await ctx.close();
   const f = await open({ uid: "ii" });
   await f.p.evaluate(() => { FBauth = FBauth || {}; window.askConfirm = async o => { window.__asked = o; return false; }; });

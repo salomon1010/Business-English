@@ -3069,6 +3069,8 @@
  "acc.prem_pending_verify": "Votre paiement est passé, mais nous n’avons pas encore pu le confirmer. Il sera vérifié à la prochaine ouverture de l’app — ou touchez Restaurer les achats.",
  "acc.prem_manage_elsewhere": "Votre abonnement se gère dans {{store}}.",
  "acc.prem_terms": "L’abonnement se renouvelle automatiquement jusqu’à ce que vous l’annuliez dans {{store}}. Le paiement est effectué par {{store}}.",
+ "prem.store_in_app_store": "l’App Store",
+ "prem.store_in_google_play": "Google Play",
  "acc.prem_privacy_link": "Politique de confidentialité",
  "acc.prem_eula_link": "Conditions d’utilisation (CLUF)",
  "ad.label": "Publicité",

@@ -3069,6 +3069,8 @@
  "acc.prem_pending_verify": "Tu pago se ha realizado, pero aún no hemos podido confirmarlo. Se comprobará de nuevo la próxima vez que abras la app, o toca Restaurar compras.",
  "acc.prem_manage_elsewhere": "Tu suscripción se gestiona en {{store}}.",
  "acc.prem_terms": "La suscripción se renueva automáticamente hasta que la canceles en {{store}}. El pago lo cobra {{store}}.",
+ "prem.store_in_app_store": "la App Store",
+ "prem.store_in_google_play": "Google Play",
  "acc.prem_privacy_link": "Política de privacidad",
  "acc.prem_eula_link": "Condiciones de uso (EULA)",
  "ad.label": "Anuncio",

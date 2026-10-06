@@ -7492,6 +7492,8 @@ const I18N_EN={
  "acc.prem_pending_verify":"Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
  "acc.prem_manage_elsewhere":"Your subscription is managed in {{store}}.",
  "acc.prem_terms":"The subscription renews automatically until you cancel it in {{store}}. Payment is taken by {{store}}.",
+ "prem.store_in_app_store":"the App Store",
+ "prem.store_in_google_play":"Google Play",
  "acc.prem_privacy_link":"Privacy policy",
  "acc.prem_eula_link":"Terms of use (EULA)",
  "ad.label":"Advertisement",
@@ -22013,7 +22015,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v632";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v633";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24243,11 +24245,11 @@ function entPlanCardHTML(){
     else store=`<button type="button" class="btn btn-g prem-open" style="margin-top:12px;min-height:44px;width:100%" onclick="premiumOpen('setup')">${esc(t("prem.compare"))}</button><div class="ent-offers" style="display:grid;gap:8px;margin-top:12px">${B.products.map(p=>`<button type="button" class="btn-primary ent-buy" ${B.state==="purchasing"||B.state==="restoring"?"disabled":""} onclick="Billing.buy('${esc(p.id)}')">${esc(t("acc.prem_get"))} · ${esc(p.title)} · ${esc(p.price)}</button>`).join("")}</div>
       <button type="button" class="btn btn-g" style="margin-top:8px;min-height:44px" ${B.state==="restoring"||B.state==="purchasing"?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
     /* store rules (Apple 3.1.2, Play subscriptions policy): renewal terms and the legal links sit beside the offer */
-    if(FBUser&&B.state!=="loading"&&B.products.length){const sn=B.provider.id==="app_store"?"App Store":"Google Play";
+    if(FBUser&&B.state!=="loading"&&B.products.length){const sn=storeInText(B.provider.id==="app_store"?"app_store":"google_play");
       store+=`<p class="sub ent-terms" style="margin-top:10px;font-size:12px">${esc(t("acc.prem_terms",{store:sn}))} <a href="privacy.html" target="_blank" rel="noopener">${esc(t("acc.prem_privacy_link"))}</a>${B.provider.id==="app_store"?` · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">${esc(t("acc.prem_eula_link"))}</a>`:""}</p>`}
   }
   if(live&&prem&&v.source===B.provider.id)store=`<button type="button" class="btn btn-g" style="margin-top:12px;min-height:44px" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`;
-  else if(live&&prem&&(v.source==="google_play"||v.source==="app_store"))store=`<p class="sub" style="margin-top:10px">${esc(t("acc.prem_manage_elsewhere",{store:v.source==="google_play"?"Google Play":"App Store"}))}</p>`;
+  else if(live&&prem&&(v.source==="google_play"||v.source==="app_store"))store=`<p class="sub" style="margin-top:10px">${esc(t("acc.prem_manage_elsewhere",{store:storeInText(v.source)}))}</p>`;
   const note=B&&B.note?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(B.state==="purchasing"?t("acc.prem_buying"):B.state==="restoring"?t("acc.prem_restoring"):B.note)}</p>`:(B&&(B.state==="purchasing"||B.state==="restoring")?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"))}</p>`:"");
   return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
@@ -25188,7 +25190,11 @@ function premOffered(){try{return planOn()||entIsPremiumForDisplay()}catch(e){re
 function premIso(p){const m=/^P(\d+)([DWMY])$/.exec(String(p||""));return m?{n:+m[1],u:m[2]}:null}
 function premTrialDays(p){const x=premIso(p);return !x?0:x.u==="D"?x.n:x.u==="W"?x.n*7:0}
 function premFmt(a,c){try{return new Intl.NumberFormat(undefined,{style:"currency",currency:c}).format(a)}catch(e){return (Math.round(a*100)/100)+" "+c}}
-function premStore(){return Billing.provider&&Billing.provider.id==="app_store"?"App Store":"Google Play"}
+/* the store's name INSIDE a sentence ("cancel it in the App Store"): English needs
+   the article, other languages their own (prem.store_in_*). A bare label such
+   as the "Billed by" row keeps subStoreName. */
+function storeInText(src){return src==="app_store"?t("prem.store_in_app_store"):src==="google_play"?t("prem.store_in_google_play"):""}
+function premStore(){return storeInText(Billing.provider&&Billing.provider.id==="app_store"?"app_store":"google_play")}
 /* ---- ONE offer (owner, 30 September 2026) ----
    The screen sells a single annual subscription. The store decides its price,
    its billing period and whether this Apple ID is still eligible for the free
@@ -25484,8 +25490,8 @@ function subCardHTML(){
     const when=v.expiresAt?row(v.state==="grace"?t("sub.grace_until"):v.renews===false?t("sub.ends"):t("sub.renews"),date(v.expiresAt)):"";
     const warn=v.state==="grace"&&v.expiresAt?t("acc.prem_grace",{date:date(v.expiresAt)}):v.renews===false&&v.expiresAt?t("acc.prem_cancelled",{date:date(v.expiresAt)}):"";
     const sn=subStoreName(v.source);
-    const manage=mine?`<button type="button" class="btn-primary sub-manage" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button><p class="sub-hint">${esc(t("sub.manage_hint",{store:sn}))}</p>`
-      :sn?`<p class="sub-hint">${esc(t("acc.prem_manage_elsewhere",{store:sn}))}</p>`:"";
+    const manage=mine?`<button type="button" class="btn-primary sub-manage" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button><p class="sub-hint">${esc(t("sub.manage_hint",{store:storeInText(v.source)}))}</p>`
+      :sn?`<p class="sub-hint">${esc(t("acc.prem_manage_elsewhere",{store:storeInText(v.source)}))}</p>`:"";
     body=`<dl class="sub-dl">${row(t("sub.plan"),t("prem.cmp_prem")+(plan?" · "+plan:""))}${info&&info.price?row(t("sub.price"),info.price+(info.per?" "+info.per:"")):""}${when}${sn?row(t("sub.store"),sn):""}</dl>
       ${warn?`<p class="sub sub-warn">${esc(warn)}</p>`:""}<div class="sub-acts">${manage}${restore}</div>${note}`;
   }else{
@@ -35434,7 +35440,7 @@ async function fbAppleRevoke(){
 window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
   /* a paying learner is told that the store subscription is not cancelled with the account */
-  let _subNote="";try{const v=entView();if(entIsPremiumForDisplay()&&(v.source==="google_play"||v.source==="app_store"))_subNote="\n\n"+t("auth.delete_sub_note",{store:v.source==="app_store"?"App Store":"Google Play"})}catch(e){}
+  let _subNote="";try{const v=entView();if(entIsPremiumForDisplay()&&(v.source==="google_play"||v.source==="app_store"))_subNote="\n\n"+t("auth.delete_sub_note",{store:storeInText(v.source)})}catch(e){}
   if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm")+_subNote,confirmLabel:t("cf.delete")}))return;
   try{
     /* Sign in with Apple goes FIRST, before anything is erased anywhere: it is

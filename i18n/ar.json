@@ -3069,6 +3069,8 @@
  "acc.prem_pending_verify": "تمّت عملية الدفع، لكننا لم نتمكّن من تأكيدها بعد. سنتحقّق منها مجددًا عند فتح التطبيق في المرة القادمة — أو اضغط على استعادة المشتريات.",
  "acc.prem_manage_elsewhere": "تُدار اشتراكك من خلال {{store}}.",
  "acc.prem_terms": "يتجدّد الاشتراك تلقائيًا إلى أن تلغيه من {{store}}. يتم الدفع عبر {{store}}.",
+ "prem.store_in_app_store": "App Store",
+ "prem.store_in_google_play": "Google Play",
  "acc.prem_privacy_link": "سياسة الخصوصية",
  "acc.prem_eula_link": "شروط الاستخدام (EULA)",
  "ad.label": "إعلان",

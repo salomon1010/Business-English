@@ -3069,6 +3069,8 @@
  "acc.prem_pending_verify": "Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
  "acc.prem_manage_elsewhere": "Your subscription is managed in {{store}}.",
  "acc.prem_terms": "The subscription renews automatically until you cancel it in {{store}}. Payment is taken by {{store}}.",
+ "prem.store_in_app_store": "the App Store",
+ "prem.store_in_google_play": "Google Play",
  "acc.prem_privacy_link": "Privacy policy",
  "acc.prem_eula_link": "Terms of use (EULA)",
  "ad.label": "اشتہار",
