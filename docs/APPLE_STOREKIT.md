@@ -104,7 +104,10 @@ App Store Server Notifications V2 → POST /v1/billing/app_store                
 | `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1 ($19.99 / year, $2.99 / month); the fixture carries a 3-day introductory offer on the annual product. The app shows a trial only when the store reports one. |
 
 What the plugin does:
-- **Products:** only `premium_monthly` and `premium_annual`. For each it
+- **Products:** only `BEMastery_Premium` (monthly) and `BEMastery_Annual`
+  (yearly), App Store Connect's ids since 6 Oct 2026. Google Play sells the
+  same plans as `premium_monthly` / `premium_annual`; Play ids must be
+  lowercase, so the two stores cannot share one id. For each it
   returns the price, currency, period (ISO) and the trial, but the trial
   **only when `isEligibleForIntroOffer`**.
 - **Purchase:** `product.purchase(options: [.appAccountToken(token)])`. The

@@ -11,10 +11,18 @@
 > Premium was excluded from version 1.1.0. For the release that turns it on,
 > everything below must be entered in App Store Connect first.
 
-Prepared 2026-09-26. **Nothing here has been entered in App Store Connect yet**:
-this repository has no App Store Connect access. It is the exact set-up to
-enter, matching the Google Play products and what the app and the server
-already expect.
+Prepared 2026-09-26. **Entered in App Store Connect by the owner on 6 October
+2026**, with the owner's own product ids: `BEMastery_Premium` (monthly) and
+`BEMastery_Annual` (yearly). The app, the plugin and the server were switched
+to those ids the same day.
+
+**Why the App Store and Google Play ids differ.** Google Play product ids may
+contain only lowercase letters, digits, underscores and full stops, and no
+store lets an id be renamed or reused once created. `BEMastery_Premium` can
+therefore never exist on Play, and Play keeps `premium_monthly` /
+`premium_annual`. Everything else is the same on both stores: one Premium
+plan, the same capabilities, US$2.99 a month and US$19.99 a year. The server
+maps all four ids to Premium.
 
 ## Subscription group
 | Field | Value |
@@ -28,10 +36,11 @@ between them is a *crossgrade* and takes effect at the next renewal. Neither
 plan is a higher tier.
 
 ## Products (IDs must match exactly: the app and the server accept only these)
+Subscription group reference name in App Store Connect: `BE_Mastery_Premium`.
 | Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level | Offered in app |
 |---|---|---|---|---|---|---|
-| `premium_annual` | Premium annual | 1 year | **US$19.99** | only if configured in the store (the app shows a trial only when StoreKit reports one) | 1 | **yes — first, "Best value"** |
-| `premium_monthly` | Premium monthly | 1 month | **US$2.99** | only if configured in the store | 1 | **yes — second** |
+| `BEMastery_Annual` | BEMastery_yearly | 1 year | **US$19.99** | only if configured in the store (the app shows a trial only when StoreKit reports one) | 1 | **yes — first, "Best value"** |
+| `BEMastery_Premium` | BEMastery_monthly | 1 month | **US$2.99** | only if configured in the store | 1 | **yes — second** |
 
 **The price is never written in the app.** The Premium sheet prints whatever
 StoreKit returns for each product, and the renewal line under the CTA
@@ -54,8 +63,8 @@ it follows them too.
 ## Localisations (English shown; add French first for the audience)
 | Product | Display name | Description |
 |---|---|---|
-| premium_annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
-| premium_monthly | Premium (monthly) | The same Premium, billed monthly. |
+| BEMastery_Annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
+| BEMastery_Premium | Premium (monthly) | The same Premium, billed monthly. |
 
 What Premium adds (the full contract is `docs/TIERS.md`): **120 AI verdicts a
 day** and **240 minutes a day** of your own pasted YouTube video transcribed —

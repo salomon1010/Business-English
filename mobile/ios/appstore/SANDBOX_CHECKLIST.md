@@ -11,7 +11,7 @@ is untested until someone ticks it on a device.
 |---|---|
 | `billing_enabled` flag on for the build | **OFF** in `FLAGS_DEFAULT` and `FLAGS_IOS` — with it off there is no paywall to test |
 | An entitlement service the app can reach | production `be-entitlements` is **not deployed** (404); staging is |
-| `premium_annual` + `premium_monthly` in App Store Connect | **not entered** (`SUBSCRIPTIONS.md` is the set-up to enter) |
+| `BEMastery_Annual` + `BEMastery_Premium` in App Store Connect | **entered by the owner, 6 Oct 2026** (`SUBSCRIPTIONS.md`) |
 | Sandbox Apple ID | owner's to create (Users and Access → Sandbox Testers) |
 | StoreKit config file for local runs | `BEMastery.storekit` (already in the project) |
 

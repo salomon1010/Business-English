@@ -114,7 +114,7 @@ console.log("\n# ONE StoreKit product — nothing Welding-specific was invented"
   ok("15 · one paywall: premiumOpen is the only entry and there is no welding variant", typeof (await p.evaluate(() => typeof premiumOpen)) === "string" && !/premiumOpenWelding|weldPaywall|premWelding/i.test(src));
   const sk = await (await fetch(BASE + "mobile/ios/ios/App/App/BEMastery.storekit")).json();
   const ids = sk.subscriptionGroups.flatMap(g => g.subscriptions.map(x => x.productID)).sort();
-  ok("16 · the StoreKit configuration still has exactly the two shared products", JSON.stringify(ids) === JSON.stringify(["premium_annual", "premium_monthly"]), JSON.stringify(ids));
+  ok("16 · the StoreKit configuration still has exactly the two shared App Store products", JSON.stringify(ids) === JSON.stringify(["BEMastery_Annual", "BEMastery_Premium"]), JSON.stringify(ids));
   ok("17 · one subscription group, so one trial per Apple ID across both tracks", sk.subscriptionGroups.length === 1);
   await ctx.close();
 }

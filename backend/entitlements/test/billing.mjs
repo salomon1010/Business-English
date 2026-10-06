@@ -255,14 +255,14 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
   const tm = await aToken("max");
   const anotifyEnv = (type, tx, envName, uuid) => call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: type, notificationUUID: uuid, version: "2.0", signedDate: clock,
     data: { bundleId: "com.lomonec.bemastery", environment: envName, signedTransactionInfo: jws(tx) } }) } });
-  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", expiresDate: T0 + 3 * DAY, offerType: 1 }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-20");
+  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "BEMastery_Premium", expiresDate: T0 + 3 * DAY, offerType: 1 }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-20");
   let vm = await view("max");
   ok("A20 · the 3-day introductory offer (offerType 1) → Premium, state trialing", vm.plan === "premium" && vm.state === "trialing", JSON.stringify(vm));
-  await anotify("DID_CHANGE_RENEWAL_PREF", "UPGRADE", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_annual", expiresDate: T0 + 365 * DAY }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-21");
-  let r2 = await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", expiresDate: T0 + 3 * DAY, isUpgraded: true }), null, "u-22");
+  await anotify("DID_CHANGE_RENEWAL_PREF", "UPGRADE", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "BEMastery_Annual", expiresDate: T0 + 365 * DAY }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-21");
+  let r2 = await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "BEMastery_Premium", expiresDate: T0 + 3 * DAY, isUpgraded: true }), null, "u-22");
   vm = await view("max");
   ok("A21 · after an upgrade to annual, a late notification about the upgraded monthly transaction is acknowledged and changes nothing", r2.status === 200 && vm.expiresAt === T0 + 365 * DAY, JSON.stringify(vm));
-  r2 = await averify("max", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", isUpgraded: true }));
+  r2 = await averify("max", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "BEMastery_Premium", isUpgraded: true }));
   ok("A22 · the upgraded transaction itself cannot be submitted as proof (409 superseded)", r2.status === 409 && r2.json.error === "superseded");
   r2 = await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, expiresDate: T0 + 30 * DAY }), null, "u-23");
   ok("A23 · an OLDER renewal arriving late (out of order) does not roll the plan back", r2.status === 200 && (await view("max")).expiresAt === T0 + 365 * DAY);
@@ -285,14 +285,14 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
   clock = T0;
   /* Apple release completion (2026-09-26) */
   const tp = await aToken("pip");
-  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-30");
-  await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 60 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-31");
-  let r3 = await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY, revocationDate: T0 }), null, "u-32");
+  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "BEMastery_Premium", expiresDate: T0 + 30 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-30");
+  await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "BEMastery_Premium", expiresDate: T0 + 60 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-31");
+  let r3 = await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "BEMastery_Premium", expiresDate: T0 + 30 * DAY, revocationDate: T0 }), null, "u-32");
   let vp = await view("pip");
   ok("A29 · a REFUND of an EARLIER period leaves the current paid period standing (Premium until its end)", r3.status === 200 && vp.plan === "premium" && vp.expiresAt === T0 + 60 * DAY, JSON.stringify(vp));
-  r3 = await averify("pip", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY }));
+  r3 = await averify("pip", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "BEMastery_Premium", expiresDate: T0 + 30 * DAY }));
   ok("A30 · the device handing over that older period's transaction is refused (409 superseded), nothing rolls back", r3.status === 409 && (await view("pip")).expiresAt === T0 + 60 * DAY);
-  await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 60 * DAY, revocationDate: T0 }), null, "u-33");
+  await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "BEMastery_Premium", expiresDate: T0 + 60 * DAY, revocationDate: T0 }), null, "u-33");
   ok("A31 · a REFUND of the CURRENT period revokes → Free", (await view("pip")).state === "revoked");
   const tq = await aToken("quin");
   r3 = await averify("quin", atx({ originalTransactionId: "1000000070", appAccountToken: tq.toUpperCase(), expiresDate: T0 + 30 * DAY }));

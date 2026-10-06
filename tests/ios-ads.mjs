@@ -46,30 +46,42 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
   const fx = JSON.parse(read(IOS + "BEMastery.storekit"));
   const subs = fx.subscriptionGroups[0].subscriptions;
   const byId = Object.fromEntries(subs.map(s => [s.productID, s]));
-  ok("S1 · one subscription group with exactly the two products the app sells",
-    fx.subscriptionGroups.length === 1 && subs.length === 2 && !!byId.premium_monthly && !!byId.premium_annual, JSON.stringify(subs.map(s => s.productID)));
+  /* App Store Connect's ids (owner, 6 Oct 2026) — Google Play keeps premium_* */
+  const M = byId.BEMastery_Premium, A = byId.BEMastery_Annual;
+  ok("S1 · one subscription group with exactly the two App Store products the app sells",
+    fx.subscriptionGroups.length === 1 && subs.length === 2 && !!M && !!A, JSON.stringify(subs.map(s => s.productID)));
   /* the tier spec (docs/TIERS.md, 5 Oct 2026): US$19.99 a year, US$2.99 a month —
      Xcode's local store only; the app always draws the store's own displayPrice */
-  ok("S2 · premium_annual is $19.99 a year (the tier spec, 5 Oct 2026)",
-    byId.premium_annual.displayPrice === "19.99" && byId.premium_annual.recurringSubscriptionPeriod === "P1Y",
-    byId.premium_annual.displayPrice + " " + byId.premium_annual.recurringSubscriptionPeriod);
-  ok("S3 · premium_monthly is $2.99 a month, and is offered again beside the annual plan",
-    byId.premium_monthly.displayPrice === "2.99" && byId.premium_monthly.recurringSubscriptionPeriod === "P1M",
-    byId.premium_monthly.displayPrice + " " + byId.premium_monthly.recurringSubscriptionPeriod);
+  ok("S2 · BEMastery_Annual is $19.99 a year (the tier spec, 5 Oct 2026)",
+    A.displayPrice === "19.99" && A.recurringSubscriptionPeriod === "P1Y", A.displayPrice + " " + A.recurringSubscriptionPeriod);
+  ok("S3 · BEMastery_Premium is $2.99 a month, and is offered again beside the annual plan",
+    M.displayPrice === "2.99" && M.recurringSubscriptionPeriod === "P1M", M.displayPrice + " " + M.recurringSubscriptionPeriod);
   /* The 3-day free trial sits on the ANNUAL product, not the monthly one. That
      moved with the Premium line (184f3a0e onwards): annual is the only offer the
      sheet draws, so the trial has to be on the plan a learner can actually pick.
      mobile/ios/appstore/SUBSCRIPTIONS.md is the table this must agree with. */
   ok("S3b · the 3-day free trial is on the ANNUAL product — the one the sheet offers",
-    byId.premium_annual.introductoryOffer && byId.premium_annual.introductoryOffer.paymentMode === "free"
-    && byId.premium_annual.introductoryOffer.subscriptionPeriod === "P3D" && !byId.premium_monthly.introductoryOffer,
-    JSON.stringify({ annual: byId.premium_annual.introductoryOffer, monthly: byId.premium_monthly.introductoryOffer || null }));
+    A.introductoryOffer && A.introductoryOffer.paymentMode === "free"
+    && A.introductoryOffer.subscriptionPeriod === "P3D" && !M.introductoryOffer,
+    JSON.stringify({ annual: A.introductoryOffer, monthly: M.introductoryOffer || null }));
   /* the fixture is for Xcode only — the app must never read a price from it */
   const hard = /(?:displayPrice|price)\s*[:=]\s*["']?\$?(?:24\.99|19\.99|4\.99)/.test(INDEX);
   ok("S4 · the app shows the STORE's own price: no 24.99 / 19.99 / 4.99 is written into index.html", !hard,
     (INDEX.match(/.{0,40}(?:24\.99|19\.99).{0,40}/) || [""])[0]);
   ok("S5 · the price the app draws comes from the product the store returned (displayPrice)",
     /displayPrice/.test(INDEX) && /BILLING_PRODUCTS=Object\.freeze\(\["premium_monthly","premium_annual"\]\)/.test(INDEX));
+  /* one list in three places: the Swift allow-list, the web layer's App Store
+     list and this fixture. A mismatch is an empty Premium sheet on the iPhone. */
+  const SK = read(IOS + "Plugins/BEStoreKitPlugin.swift");
+  const swiftIds = ((SK.match(/static let allowed: Set<String> = \[([^\]]*)\]/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const webIds = ((INDEX.match(/APP_STORE_PRODUCTS=Object\.freeze\(\[([^\]]*)\]\)/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const fxIds = subs.map(s => JSON.stringify(s.productID));
+  const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+  ok("S6 · BEStoreKitPlugin.allowed, APP_STORE_PRODUCTS and the StoreKit fixture name the same two App Store ids",
+    swiftIds.length === 2 && same(swiftIds, webIds) && same(swiftIds, fxIds) && same(swiftIds, ['"BEMastery_Premium"', '"BEMastery_Annual"']),
+    JSON.stringify({ swiftIds, webIds, fxIds }));
+  ok("S7 · the StoreKit provider asks for the App Store ids, not Google Play's",
+    /getProducts\(APP_STORE_PRODUCTS\.slice\(\)\)/.test(INDEX) && !/BENativeBilling\.getProducts\(BILLING_PRODUCTS/.test(INDEX));
 }
 
 /* ============================================================ 2. the Swift plugin, as written */

@@ -12,7 +12,8 @@ import UIKit
 /// web layer, which posts them to be-entitlements (`/v1/purchases/verify`,
 /// `/v1/purchases/restore`). Nothing here decides whether a learner is Premium.
 ///
-/// - Products: only `premium_monthly` and `premium_annual` are ever loaded.
+/// - Products: only `BEMastery_Premium` (monthly) and `BEMastery_Annual`
+///   (yearly) are ever loaded — App Store Connect's ids, not Google Play's.
 /// - Purchases carry the account's `appAccountToken` (from the server), so a
 ///   transaction can only be claimed by the BE Mastery account that bought it.
 /// - A transaction is finished only when the web layer says the server has
@@ -36,8 +37,12 @@ public class BEStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "manageSubscriptions", returnType: CAPPluginReturnPromise),
     ]
 
-    /// the only products this app sells (same ids as Google Play)
-    static let allowed: Set<String> = ["premium_monthly", "premium_annual"]
+    /// The only products this app sells, as App Store Connect names them:
+    /// `BEMastery_Premium` = 1 month, `BEMastery_Annual` = 1 year. Google Play
+    /// sells the same plans as `premium_monthly` / `premium_annual`; the server
+    /// maps all four to Premium. Keep in step with `APP_STORE_PRODUCTS` in
+    /// index.html and `PRODUCTS` in backend/entitlements/src/entitlement-core.js.
+    static let allowed: Set<String> = ["BEMastery_Premium", "BEMastery_Annual"]
 
     private var updates: Task<Void, Never>?
 

@@ -22013,7 +22013,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v629";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v630";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24908,6 +24908,13 @@ function beNativeBilling(){
   return window.BENativeBilling;
 }
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
+/* The App Store sells the same two plans under its OWN ids (App Store Connect,
+   owner, 6 Oct 2026): BEMastery_Premium = 1 month, BEMastery_Annual = 1 year.
+   BILLING_PRODUCTS above stays Google Play's list. Same ids as
+   BEStoreKitPlugin.allowed and the server's PRODUCTS. */
+const APP_STORE_PRODUCTS=Object.freeze(["BEMastery_Premium","BEMastery_Annual"]);
+/* which plan a product id is, for the rare product the store returns without a period */
+const PREM_ANNUAL_IDS=Object.freeze(["premium_annual","BEMastery_Annual"]),PREM_MONTHLY_IDS=Object.freeze(["premium_monthly","BEMastery_Premium"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
 const BillingProviders={
   play:{
@@ -24941,7 +24948,7 @@ const BillingProviders={
     async available(){const N=beNativeBilling();return IS_IOS_APP&&!!(N&&typeof N.purchase==="function")},
     /* the store's own facts, as the Play provider gives them: period and trial
        are ISO 8601; the trial is present only for an eligible Apple ID */
-    async products(){const p=await window.BENativeBilling.getProducts(BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice,
+    async products(){const p=await window.BENativeBilling.getProducts(APP_STORE_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice,
       amount:Number(x.price),currency:x.currencyCode||"",period:x.period||"",trial:x.trial||""}))},
     async purchase(id){
       const tok=await billingApi("GET","/v1/purchases/account-token");
@@ -25204,8 +25211,8 @@ function premOffers(){
   const L=Billing.products||[];
   const per=(x,u)=>{const i=premIso(x.period);return i?i.u===u&&i.n===1:false};
   const mk=(p,kind)=>p?{p,kind,trial:premTrialDays(p.trial)}:null;
-  const annual=mk(L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&x.id==="premium_annual"),"annual");
-  const monthly=mk(L.find(x=>per(x,"M"))||L.find(x=>!x.period&&x.id==="premium_monthly"),"monthly");
+  const annual=mk(L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&PREM_ANNUAL_IDS.includes(x.id)),"annual");
+  const monthly=mk(L.find(x=>per(x,"M"))||L.find(x=>!x.period&&PREM_MONTHLY_IDS.includes(x.id)),"monthly");
   const list=[annual,monthly].filter(Boolean);
   if(!list.length&&L[0])list.push(mk(L[0],"other"));
   return {annual,monthly,list};
@@ -25462,7 +25469,7 @@ function subPlanInfo(){
   let B=null;try{B=Billing}catch(e){}
   const id=B&&B.ownedIds&&B.ownedIds[0];if(!id)return null;
   const p=(B.products||[]).find(x=>x.id===id),x=p?premIso(p.period):null;
-  const kind=(x&&x.n===1&&x.u==="Y")||(!x&&id==="premium_annual")?"annual":(x&&x.n===1&&x.u==="M")||(!x&&id==="premium_monthly")?"monthly":"";
+  const kind=(x&&x.n===1&&x.u==="Y")||(!x&&PREM_ANNUAL_IDS.includes(id))?"annual":(x&&x.n===1&&x.u==="M")||(!x&&PREM_MONTHLY_IDS.includes(id))?"monthly":"";
   return {id,kind,price:p?p.price:"",per:kind==="annual"?t("prem.per_year"):kind==="monthly"?t("prem.per_month"):""};
 }
 function subStoreName(src){return src==="app_store"?"App Store":src==="google_play"?"Google Play":""}

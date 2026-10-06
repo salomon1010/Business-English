@@ -361,7 +361,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
   ads. Home untouched. The card no longer promises "More AI coaching"
   (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
-  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y. **Confirmed annual
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y. **App Store ids differ (owner, 6 Oct 2026):** `BEMastery_Premium` (P1M) and
+  `BEMastery_Annual` (P1Y) in App Store Connect, group `BE_Mastery_Premium` —
+  `APP_STORE_PRODUCTS` (index.html), `BEStoreKitPlugin.allowed`, `BEMastery.storekit`
+  and the server's `PRODUCTS` carry them; `BILLING_PRODUCTS` stays Play's list.
+  Play ids must be lowercase, so the two stores can never share an id. **Confirmed annual
   price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
   be changed there — the app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).

@@ -85,7 +85,7 @@ async function open({ track = "general-english", flags = { billing_enabled: true
   await p.evaluate(() => { go("data"); const d = document.querySelector("details.set-plan"); if (d) d.open = true; }); await sleep(400);
   return { ctx, p, calls, errs };
 }
-const card = p => p.evaluate(() => { const c = document.getElementById("entPlan"); return c ? { text: c.textContent.replace(/\s+/g, " "), buys: [...c.querySelectorAll(".ent-buy")].map(x => x.textContent.replace(/\s+/g, " ")), open: !!(c.closest("details") && c.closest("details").open), signin: !!c.querySelector("[onclick='fbOpenModal()']"), restore: !!c.querySelector("[onclick='Billing.restore()']"), manage: !!c.querySelector("[onclick='Billing.manage()']"), state: Billing.state } : null; });
+const card = p => p.evaluate(() => { const c = document.getElementById("entPlan"); return c ? { text: c.textContent.replace(/\s+/g, " "), buys: [...c.querySelectorAll(".ent-buy")].map(x => x.textContent.replace(/\s+/g, " ")), open: !!(c.closest("details") && c.closest("details").open), signin: !!c.querySelector("[onclick^='fbOpenModal']"), restore: !!c.querySelector("[onclick='Billing.restore()']"), manage: !!c.querySelector("[onclick='Billing.manage()']"), state: Billing.state } : null; });
 
 console.log("\n# production defaults");
 {
@@ -267,7 +267,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   const sheet = pp => pp.evaluate(() => { const o = document.getElementById("premOv"); if (!o) return null; const sh = o.querySelector(".prem-sheet");
     const off = o.querySelector(".prem-offer");
     const offer = off ? { text: off.textContent.replace(/\s+/g, " ").trim(), trial: (off.querySelector(".prem-offer-trial") || {}).textContent || "", price: (off.querySelector(".prem-offer-price") || {}).textContent || "" } : null;
-    const plans = [...o.querySelectorAll(".prem-plan")];   /* the old chooser: must be gone */
+    const plans = [...o.querySelectorAll(".prem-plan")].map(x => x.textContent.replace(/\s+/g, " ").trim());   /* the two plan cards (tier spec, 5 Oct 2026): annual first, then monthly */
     const r = sh.getBoundingClientRect(), btns = [...o.querySelectorAll("button")].filter(b => b.offsetParent).map(b => b.getBoundingClientRect().height);
     return { text: sh.textContent.replace(/\s+/g, " "), plans, offer, ctaText: ((o.querySelector(".prem-cta") || {}).textContent || "").replace(/\s+/g, " ").trim(), radios: o.querySelectorAll('[role="radiogroup"],[role="radio"]').length, cta: !!o.querySelector(".prem-cta"), fits: r.left >= -0.5 && r.right <= innerWidth + 0.5, overflow: document.documentElement.scrollWidth > innerWidth + 1, minBtn: Math.min(...btns), rtl: getComputedStyle(sh).direction }; });
   ({ ctx, p } = await open({ uid: "prq", flags: null }));
@@ -280,14 +280,18 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ok("PR2 · billing live: Profile shows 'BE Mastery Premium · More speaking, shadowing and AI tools' (no ad-free claim while ads are off)", await p.evaluate(() => { const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent) && !/No ads/.test(r.textContent); }));
   await p.evaluate(() => document.querySelector(".pf-prem .pf-row").click()); await sleep(300);
   let sh = await sheet(p);
-  ok("PR3 · ONE offer (owner, 30 Sep 2026): the annual plan, its price straight from the store, per year — no chooser, no radio group, no 'best value', no saving to compare against", sh && sh.offer && /29\.99/.test(sh.offer.price) && /\/ year/.test(sh.offer.price) && sh.plans.length === 0 && sh.radios === 0 && !/Best value|Save \d+%|a month, billed once a year/.test(sh.text), JSON.stringify(sh && { offer: sh.offer, plans: sh.plans.length, radios: sh.radios }));
-  ok("PR4 · the monthly product the store still sells is NOT offered: no monthly price, no '/ month', nothing to choose between", !/4\.49/.test(sh.text) && !/\/ month/.test(sh.text) && !/Monthly/.test(sh.text), sh.text);
-  ok("PR4b · the free trial leads the offer and the CTA, and the renewal line says what happens next, at the store's price, where to cancel", /3 days free/i.test(sh.offer.trial) && /Start 3-day free trial/.test(sh.ctaText) && /Then .*29\.99 \/ year\. Cancel anytime in Google Play\./.test(sh.text), JSON.stringify({ trial: sh.offer.trial, cta: sh.ctaText }));
+  /* TWO PLANS (the owner's tier spec, 5 Oct 2026 — this replaced the 30 Sep
+     "one offer" screen): annual first and tagged "Best value", with the saving
+     computed from the store's own two prices, then monthly. Every figure is
+     the store's: €29.99 / year and €4.49 / month are what the Play mock returns. */
+  ok("PR3 · two plans from the store, annual first with 'Best value' and the saving computed from the store's two prices — a real radio group, nothing typed in", sh && sh.plans.length === 2 && /^Annual/.test(sh.plans[0]) && /Best value/.test(sh.plans[0]) && /29\.99/.test(sh.plans[0]) && /\/ year/.test(sh.plans[0]) && /Save \d+%/.test(sh.plans[0]) && sh.radios === 3 && !sh.offer, JSON.stringify(sh && { plans: sh.plans, radios: sh.radios }));
+  ok("PR4 · the monthly plan is offered second, at the store's monthly price, per month", sh.plans[1] && /^Monthly/.test(sh.plans[1]) && /4\.49/.test(sh.plans[1]) && /\/ month/.test(sh.plans[1]) && !/Best value/.test(sh.plans[1]), sh.plans[1]);
+  ok("PR4b · the free trial leads the plan card and the CTA, and the renewal line says what happens next, at the store's price, where to cancel", /3 days free/i.test(sh.plans[0]) && /Start 3-day free trial/.test(sh.ctaText) && /Then .*29\.99 \/ year\. Cancel anytime in Google Play\./.test(sh.text), JSON.stringify({ plan: sh.plans[0], cta: sh.ctaText }));
   /* FOUR rows, not five, since 1 October 2026: "AI feedback spoken back to you"
      was dropped because the capability behind it (ai_verbal_feedback) was checked
      at zero call sites while the TTS route is free — the paywall was selling a
      Free learner something they already had. See docs/release/FREE_PREMIUM_CAPABILITY_MATRIX.md D5. */
-  ok("PR5 · the benefits are the capabilities Premium actually grants (AI analysis, advanced progress, 30/90-day analytics, AI Coach) and nothing it does not — the 'spoken back' row is gone because nothing enforced it; no ad-free claim while ads are off; the store's renewal terms, Privacy and Restore; no raw key and no {{placeholder}}", /AI speaking analysis/.test(sh.text) && !/spoken back/.test(sh.text) && /Advanced progress/.test(sh.text) && /30- and 90-day analytics/.test(sh.text) && /The AI Coach/.test(sh.text) && !/No ads/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|pg\.|\{\{|More AI coaching/.test(sh.text), sh.text);
+  ok("PR5 · the benefits are the capabilities Premium actually grants (the metered AI verdicts, advanced progress, 30/90-day analytics, AI Coach) and nothing it does not — the 'spoken back' row is gone because nothing enforced it; no ad-free claim while ads are off; the store's renewal terms, Privacy and Restore; no raw key and no {{placeholder}}", /AI verdicts a day/.test(sh.text) && !/spoken back/.test(sh.text) && /Advanced progress/.test(sh.text) && /30- and 90-day analytics/.test(sh.text) && /The AI Coach/.test(sh.text) && !/No ads/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|pg\.|\{\{|More AI coaching/.test(sh.text), sh.text);
   ok("PR6 · there is nothing to pick: the CTA buys the annual plan without a selection step", await p.evaluate(() => _premSel === "premium_annual"), await p.evaluate(() => String(_premSel)));
   /* Google must report the ANNUAL product for this token: the app now buys
      premium_annual, and the Worker refuses a purchase whose claimed product
@@ -308,7 +312,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
     ({ ctx, p } = await open({ uid: "prl" + lang, vp }));
     await p.evaluate(async ([l, th]) => { if (l !== "en") await setLang(l); if (th === "light") setTheme("light"); premiumOpen("test"); }, [lang, theme]); await sleep(600);
     sh = await sheet(p);
-    ok(`PR10 · ${lang} ${vp.width}px ${theme}: the sheet fits, no page overflow, every button ≥ 44 px${lang === "ar" ? ", right-to-left" : ""}, no raw key`, sh && sh.fits && !sh.overflow && sh.minBtn >= 44 && (lang !== "ar" || sh.rtl === "rtl") && !/prem\.|pg\.|\{\{/.test(sh.text) && !!(sh && sh.offer), JSON.stringify({ fits: sh && sh.fits, overflow: sh && sh.overflow, minBtn: sh && sh.minBtn, rtl: sh && sh.rtl, offer: sh && sh.offer }));
+    ok(`PR10 · ${lang} ${vp.width}px ${theme}: the sheet fits, no page overflow, every button ≥ 44 px${lang === "ar" ? ", right-to-left" : ""}, no raw key`, sh && sh.fits && !sh.overflow && sh.minBtn >= 44 && (lang !== "ar" || sh.rtl === "rtl") && !/prem\.|pg\.|\{\{/.test(sh.text) && sh.plans.length === 2, JSON.stringify({ fits: sh && sh.fits, overflow: sh && sh.overflow, minBtn: sh && sh.minBtn, rtl: sh && sh.rtl, plans: sh && sh.plans.length }));
     await ctx.close();
   }
   ({ ctx, p } = await open({ uid: "prs" }));
@@ -318,7 +322,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ({ ctx, p } = await open({ uid: "prn", pre: () => { window.__noPeriod = true; } }));
   await p.evaluate(async () => { __play.details = __play.details.map(d => ({ itemId: d.itemId, title: d.title, price: d.price })); Billing.products = await Billing.provider.products(); premiumOpen("test"); }); await sleep(300);
   sh = await sheet(p);
-  ok("PR12 · a store that reports no period or trial: the annual offer is still found by product id, and NO trial is claimed or invented", !!sh.offer && /29\.99/.test(sh.offer.price) && !/free trial|days free/i.test(sh.text), JSON.stringify({ offer: sh.offer }));
+  ok("PR12 · a store that reports no period or trial: both plans are still found by product id (annual first), and NO trial is claimed or invented", sh.plans.length === 2 && /^Annual/.test(sh.plans[0]) && /29\.99/.test(sh.plans[0]) && !/free trial|days free/i.test(sh.text), JSON.stringify({ plans: sh.plans }));
   await ctx.close();
 
   /* C3: another account on the same device never sees the last one's message */
@@ -349,12 +353,12 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ({ ctx, p } = await open({ uid: "ola", stub: false, pre: () => {
     window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true }; window.BE_BUILD = { env: "staging", flags: { billing_enabled: true } };   /* the App Store shell ignores be_ent_api: a staging iOS bundle reaches the staging Worker (d4cc447) */
     window.__sk = { purchases: 0 };
-    window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "premium_annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
+    window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "BEMastery_Annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
       purchase: async () => { __sk.purchases++; return { signedTransaction: "x" }; }, restore: async () => [], manageSubscriptions: () => {} };
   } }));
   await p.evaluate(async () => { await Billing.init(); document.querySelector("details.set-plan").open = true; });
   const pv = await p.evaluate(() => Billing.provider && Billing.provider.id);
-  await p.evaluate(() => Billing.buy("premium_monthly"));
+  await p.evaluate(() => Billing.buy("BEMastery_Premium"));
   c = await card(p);
   const sk = await p.evaluate(() => __sk.purchases);
   ok("C6 · iOS shell: if the account token cannot be fetched the purchase does not start and the learner is told it failed (not a silent cancel)", pv === "app_store" && sk === 0 && c.state === "failed" && /did not go through|could not|failed/i.test(c.text), pv + " " + sk + " " + c.state + " " + c.text);

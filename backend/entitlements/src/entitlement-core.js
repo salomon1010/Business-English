@@ -58,10 +58,16 @@ export const PLANS = Object.freeze({
 });
 
 /* products are what a store sells; plans are what the app understands.
-   Several products can map to one plan (monthly and annual are both Premium). */
+   Several products can map to one plan (monthly and annual are both Premium).
+   The two stores use DIFFERENT ids (owner, 6 Oct 2026): Google Play sells
+   premium_monthly / premium_annual, App Store Connect sells BEMastery_Premium
+   (monthly) / BEMastery_Annual (yearly). Each verifier only ever sees its own
+   store's ids, because the transaction is signed by that store. */
 export const PRODUCTS = Object.freeze({
-  premium_monthly: "premium",
-  premium_annual: "premium",
+  premium_monthly: "premium",     // Google Play, 1 month
+  premium_annual: "premium",      // Google Play, 1 year
+  BEMastery_Premium: "premium",   // App Store, 1 month
+  BEMastery_Annual: "premium",    // App Store, 1 year
   premium_promo: "premium",
 });
 
