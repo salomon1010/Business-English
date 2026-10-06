@@ -6458,8 +6458,9 @@ function trackSessionLinks(){return curriculumOrEmpty().sessionLinks||{}}
    the session button, the Home lesson card (both via sessGo) and the Practice tab's
    pick. Without the studio flag Welding's Shadow tab IS the lines list already. */
 function sessDest(v){return v==="shadow"&&weldStudioOn()?"lines":v}
-function sessLinkIc(L){return sessDest(L.v)==="lines"?"doc":L.ic}
-function sessLinkLabel(L){if(L&&sessDest(L.v)==="lines")return t("sess.link_lines");const k=L&&L.lk==="sess.link_phrases"&&L.v!=="phrases"?"sess.link_"+L.v:L&&L.lk;return t(k in I18N_EN?k:L.lk)}
+function sessIsLines(L){return !!L&&L.v==="shadow"&&isProfessionalJourney()}   /* Welding, studio on or off */
+function sessLinkIc(L){return sessIsLines(L)?"doc":L.ic}
+function sessLinkLabel(L){if(sessIsLines(L))return t("sess.link_lines");const k=L&&L.lk==="sess.link_phrases"&&L.v!=="phrases"?"sess.link_"+L.v:L&&L.lk;return t(k in I18N_EN?k:L.lk)}
 function trackTemplates(){return curriculumOrEmpty().templates||{}}
 function trackWeeks(){
   const weeks=curriculumOrEmpty().weeks||[];
@@ -22056,7 +22057,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v640";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v641";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.

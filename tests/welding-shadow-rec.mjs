@@ -39,6 +39,16 @@ console.log("\n# Welding, studio on: the shadow recommendation is the workplace 
   ok("6 · no JavaScript errors", errs.length === 0, errs.join(" | "));
   await ctx.close(); }
 
+console.log("\n# Welding, studio off (production today): the Shadow tab IS the workplace lines");
+{ const { ctx, p, errs } = await open("welding", { flags: { welding_studio_enabled: false } });
+  await p.evaluate(() => go("session", 1, "Mon")); await sleep(900);
+  const s = await p.evaluate(() => (document.querySelector(".sess-jump") || {}).innerText || "");
+  await p.evaluate(() => document.querySelector(".sess-jump").click()); await sleep(900);
+  const l = await p.evaluate(() => ({ v: cur.v, lines: !!document.querySelector("#v-shadow .sh-lines") }));
+  ok("9 · session Mon: the button reads Practise text shadowing and opens the workplace lines", /Practise text shadowing/.test(s) && l.v === "shadow" && l.lines, JSON.stringify({ s, l }));
+  ok("10 · no JavaScript errors", errs.length === 0, errs.join(" | "));
+  await ctx.close(); }
+
 console.log("\n# General English is unchanged");
 { const { ctx, p, errs } = await open("general-english");
   await p.evaluate(() => go("practice")); await sleep(900);
