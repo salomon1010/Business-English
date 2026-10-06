@@ -1,10 +1,12 @@
 # App Store Connect — BE Mastery Premium subscriptions
 
-> **ONE OFFER (owner, 30 September 2026).** The app sells a single annual
-> subscription at **US$24.99** with a **3-day free trial**. The monthly product
-> stays defined so that anyone who ever bought one keeps Premium and can manage
-> it, but it is **not offered anywhere in the app** — `premOffer()` returns the
-> annual plan only.
+> **TWO PLANS (owner, 5 October 2026 — supersedes the 30 September "one
+> offer" note).** The app offers **both** subscriptions: **US$19.99 / year**
+> and **US$2.99 / month**, annual first and tagged "Best value" (44% off the
+> monthly run-rate). One subscription; the same capabilities on General
+> English and Welding. A free trial is shown **only if the store reports
+> one** — the app never assumes. The tier contract (daily allowances, storage
+> limits, ads) is `docs/TIERS.md`.
 >
 > Premium was excluded from version 1.1.0. For the release that turns it on,
 > everything below must be entered in App Store Connect first.
@@ -28,34 +30,43 @@ plan is a higher tier.
 ## Products (IDs must match exactly: the app and the server accept only these)
 | Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level | Offered in app |
 |---|---|---|---|---|---|---|
-| `premium_annual` | Premium annual | 1 year | **US$24.99** | **Free trial, 3 days, new subscribers only** | 1 | **yes — the only offer** |
-| `premium_monthly` | Premium monthly | 1 month | US$4.99 | none | 1 | no (kept so an existing subscriber is honoured) |
+| `premium_annual` | Premium annual | 1 year | **US$19.99** | only if configured in the store (the app shows a trial only when StoreKit reports one) | 1 | **yes — first, "Best value"** |
+| `premium_monthly` | Premium monthly | 1 month | **US$2.99** | only if configured in the store | 1 | **yes — second** |
 
-**The price is never written in the app.** `premOfferHTML()` prints whatever
-StoreKit returns for `premium_annual`, and the renewal line under the CTA
+**The price is never written in the app.** The Premium sheet prints whatever
+StoreKit returns for each product, and the renewal line under the CTA
 (`prem.then`) prints the same figure. If App Store Connect says something other
-than $24.99, the app will say that instead — which is the required behaviour
-(Apple 3.1.2), not a bug. Setting the price here is the only way to change it.
+than $19.99 / $2.99, the app will say that instead — which is the required
+behaviour (Apple 3.1.2), not a bug. Setting the price here is the only way to
+change it. The "Save N%" tag is computed from the store's own two prices, so
+it follows them too.
 
 - **Other countries:** let App Store Connect derive the prices from the US
-  price, then review them. The Play prices (for example €5.49 / €20.99 in
-  France) are set separately and need not match.
+  price, then review them. The Play prices are set separately and need not
+  match; the regional figures recorded earlier belong to the old tiers and
+  must be re-set by the owner.
 - **Trial eligibility:** Apple grants an introductory offer once per
   subscription group per Apple ID. The app shows the trial only when StoreKit
   says the Apple ID is eligible (`isEligibleForIntroOffer`); it never assumes.
+  Whether a trial exists at all is the store's configuration, not the app's.
 - **No other products, and no offer codes or promotional offers.**
 
 ## Localisations (English shown; add French first for the audience)
 | Product | Display name | Description |
 |---|---|---|
-| premium_annual | Annual Premium | AI speaking analysis, AI verbal feedback, advanced progress, 30- and 90-day analytics and the AI Coach. Billed once a year. |
+| premium_annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
 | premium_monthly | Premium (monthly) | The same Premium, billed monthly. |
 
-The descriptions promise only the capabilities Premium actually grants —
-`CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`, which is the
-same list the app's `ENT_CAPS` and the paywall's benefit rows read. Ad-free is
-deliberately absent while `ads_enabled` is off: there are no ads to remove yet.
-Keep this table in step with that list.
+What Premium adds (the full contract is `docs/TIERS.md`): **120 AI verdicts a
+day** and **240 minutes a day** of your own pasted YouTube video transcribed —
+fair-use ceilings, **never described as "unlimited"**; the 30- and 90-day
+analytics and long-term record; personalised recommendations; the AI coach
+(within the 120); larger storage (100 saved Shadow videos, 20 YouTube imports,
+50 Polish reports, 30 saved clips); and no ads anywhere. The descriptions
+promise only what Premium actually grants — `CAPABILITIES` in
+`backend/entitlements/src/entitlement-core.js`, the same list the app's
+`ENT_CAPS` and the paywall's benefit rows read. Keep this table in step with
+that list.
 
 ## Review information per product
 - **Screenshot:** the Premium sheet on an iPhone (Profile → *BE Mastery

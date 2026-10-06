@@ -43,10 +43,11 @@ identity and no App Store Connect access.
    Scheme* → Run → Options → *StoreKit Configuration* = `BEMastery.storekit`.
    Run on a simulator or device, sign in with a test account, open Premium.
    Check:
-   - annual first, then monthly with the 3-day trial. The figures come from
-     `BEMastery.storekit`, which still declares **$19.99 / year** and $4.99 /
-     month: update that fixture to **$24.99 / year** to match the confirmed
-     price before using it to judge the sheet;
+   - annual first ("Best value"), then monthly. The figures come from
+     `BEMastery.storekit`, which declares **$19.99 / year** and **$2.99 /
+     month** (owner's tiers, 5 Oct 2026 — `docs/TIERS.md`); a trial badge
+     appears only where the fixture (or the store) carries an introductory
+     offer;
    - buying monthly → Premium · Monthly in App Setup → Subscription;
    - Debug → StoreKit → *Manage Transactions*: refund → Free on return to the
      app.
@@ -100,7 +101,7 @@ App Store Server Notifications V2 → POST /v1/billing/app_store                
 |---|---|
 | `Plugins/BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
 | `Lifecycle/BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Hosted by `BridgeView` inside the SwiftUI `BEMasteryApp` (no storyboard, no SceneDelegate). |
-| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1, a 3-day free trial on monthly. |
+| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1 ($19.99 / year, $2.99 / month); the fixture carries a 3-day introductory offer on the annual product. The app shows a trial only when the store reports one. |
 
 What the plugin does:
 - **Products:** only `premium_monthly` and `premium_annual`. For each it
@@ -191,8 +192,8 @@ Added in this workstream:
 ## Sandbox / TestFlight test matrix (to run on a device)
 | # | Test | Expected |
 |---|---|---|
-| 1 | Products load | $4.99 / month (3-day trial if eligible), **$24.99 / year**; Annual first |
-| 2 | Monthly purchase with trial | Premium, state trialing; the card shows Premium · Monthly |
+| 1 | Products load | **$19.99 / year** and **$2.99 / month**; Annual first, "Best value"; a trial badge only if the store configures one and the Apple ID is eligible |
+| 2 | Monthly purchase (with trial, if the store configures one) | Premium (state trialing when a trial applied); the card shows Premium · Monthly |
 | 3 | Annual purchase | Premium; renews in a year (sandbox: accelerated) |
 | 4 | Trial eligibility | a second trial on the same Sandbox Apple ID is not offered |
 | 5 | Restore on a second device | "1 restored", Premium |

@@ -15,13 +15,13 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "4.99",
+          "displayPrice": "2.99",
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "21000002",
           "localizations": [
             {
-              "description": "The same Premium, billed monthly. Not offered in the app.",
+              "description": "The same Premium, billed monthly.",
               "displayName": "Premium (monthly)",
               "locale": "en_US"
             }
@@ -35,13 +35,13 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "24.99",
+          "displayPrice": "19.99",
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "21000003",
           "localizations": [
             {
-              "description": "AI speaking analysis, AI verbal feedback, advanced progress, 30- and 90-day analytics and the AI Coach. Billed once a year.",
+              "description": "120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year.",
               "displayName": "Annual Premium",
               "locale": "en_US"
             }

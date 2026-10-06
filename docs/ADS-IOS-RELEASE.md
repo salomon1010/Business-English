@@ -25,7 +25,7 @@ undeployed file change.
 
 | Piece | Where | State |
 |---|---|---|
-| Annual price $24.99 | `mobile/ios/ios/App/App/BEMastery.storekit` | done (Xcode's local store only — the app always draws the store's own `displayPrice`) |
+| Prices $19.99 / year, $2.99 / month (owner's tiers, 5 Oct 2026) | `mobile/ios/ios/App/App/BEMastery.storekit` | done (Xcode's local store only — the app always draws the store's own `displayPrice`) |
 | Production entitlement D1 | `be-entitlements`, `ead9ecb9-7f95-45f7-a751-9d09c62febc4` | created and migrated 0001–0004 |
 | Production entitlement config | `backend/entitlements/wrangler.toml` `[vars]` | written; four secrets and two RTDN values still missing (§3) |
 | AdMob provider | `mobile/ios/ios/App/App/Plugins/BEAdsPlugin.swift` | written, builds clean (Debug + Release) against GMA 12.14.0 and UMP 3.1.0 |
@@ -51,11 +51,11 @@ hold, and it is tried once per visit:
 
 1. `IS_IOS_APP` — the App Store shell;
 2. `flag("ads_enabled")` — off in production;
-3. `adsTrackAllows()` — **every programme since 5 Oct 2026** (owner). It was
-   General English only; Welding is now in the ad system too, because the
-   Premium that removes ads belongs to the ACCOUNT, not to one programme, so a
-   Welding learner is offered the same way out. Kept as the one line that
-   would put a programme back behind it;
+3. `adsTrackAllows()` — **General English only** (owner's tier spec, 5 Oct
+   2026, `docs/TIERS.md`; it returns `isGeneralEnglish()`). Welding shows no
+   ad on any plan, and Premium shows none anywhere. An earlier note the same
+   day had put every programme in the ad system; that was reversed by the
+   tier spec. This is the one line that decides which programme carries ads;
 4. `adsSystemLive()` — see below;
 5. the plugin's own `configure()` answered `available: true`, which means the
    AdMob ids are real *and* Google's consent state is resolved.
@@ -159,10 +159,13 @@ screen. That is §4.
 ## 3. Console work only the owner can do
 
 ### App Store Connect
-- `premium_annual` — **$24.99 / year** (it is $19.99 there today).
-- `premium_monthly` — $4.99 / month, keep the 3-day free introductory offer.
-- Both in one subscription group, `premium_annual` ranked above
-  `premium_monthly` so an upgrade is immediate.
+- `premium_annual` — **$19.99 / year** (owner's tiers, 5 Oct 2026; check
+  what the console holds and set it to this).
+- `premium_monthly` — **$2.99 / month**. A free trial only if the owner
+  configures one; the app shows a trial only when the store reports it.
+- Both in one subscription group, both offered in the app (annual first,
+  "Best value"). `mobile/ios/appstore/SUBSCRIPTIONS.md` places both at
+  level 1 (a switch is a crossgrade at the next renewal).
 - Paid Applications Agreement active, banking and tax complete — StoreKit
   returns no products until it is.
 - Review notes: say that ads are off in this build and that Premium needs a
@@ -172,9 +175,13 @@ screen. That is §4.
   `ads_enabled` is false.
 
 ### Google Play
-- `premium_annual` / base plan `annual` — **$24.99 / year**.
-- `premium_monthly` / base plan `monthly` — $4.99 / month with offer `trial3d`.
-- Both activated in the production track's subscription group.
+- `premium_annual` / base plan `annual` — **$19.99 / year** (the regional
+  prices Play derives from it must be re-set by the owner for the new tiers).
+- `premium_monthly` / base plan `monthly` — **$2.99 / month**; keep or drop
+  the `trial3d` offer as the owner decides — the app shows a trial only when
+  Play reports one.
+- Both activated in the production track's subscription group; both are
+  offered in the app, annual first.
 
 ### AdMob
 - Register the app (iOS, bundle id `com.lomonec.bemastery`) → copy the **app
@@ -216,7 +223,7 @@ stand in for. Nothing below may be reported as done on the strength of §2.
 | D2 | Premium **restore** on a second device returns the plan | two devices, same Apple ID |
 | D3 | Premium **suppresses ads**: no interstitial, no native slot, anywhere | a Premium account with `ads_enabled` on |
 | D4 | **GE Free sees one ad**: finish a session, move on, the interstitial appears over a non-protected page, closes cleanly | AdMob test device |
-| D5 | **Welding shows no ad** and fires no ad event, on the same device, before and after switching tracks | the events dataset, queried after |
+| D5 | **Welding shows no ad** on any plan and fires no ad event, on the same device, before and after switching tracks (correct again under the 5 Oct 2026 tier spec: `adsTrackAllows()` is `isGeneralEnglish()`) | the events dataset, queried after |
 | D6 | **UMP consent** form appears in an EEA region, and the answer is remembered | a VPN or a real EEA device |
 | D7 | **NPA**: the request carries `npa=1` (verify in the AdMob request log) | AdMob console |
 | D8 | **Consent refused** → no ad request is made at all | repeat D6, refusing |

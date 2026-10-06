@@ -25,11 +25,11 @@ path, and needs the products entered first — rows 13–22.
 
 | # | Case | Expected |
 |---|---|---|
-| 1 | Open the Premium sheet | One annual offer. Price, period and trial come from StoreKit, not from the app (`premOfferHTML`) |
-| 2 | Price shown vs the config file | Matches `displayPrice` exactly; change the file, the app follows |
-| 3 | Trial on a fresh Apple ID | "3 days free" badge, then `prem.then` naming the renewal price |
+| 1 | Open the Premium sheet | Two plans: Annual first and selected, tagged "Best value" with the saving computed from the store's two prices, then Monthly. Price, period and trial come from StoreKit, not from the app |
+| 2 | Price shown vs the config file | Matches `displayPrice` exactly ($19.99 / year, $2.99 / month in `BEMastery.storekit`); change the file, the app follows |
+| 3 | Trial on a fresh Apple ID (only if the store configures one) | "N days free" badge on the plan that carries it, then `prem.then` naming the renewal price. No trial in the store → no badge |
 | 4 | Trial on an Apple ID that already used it | No trial badge — `isEligibleForIntroOffer` is false, and the app never assumes |
-| 5 | Buy the annual plan | Sheet completes, `appAccountToken` sent, server asked to verify, Premium appears |
+| 5 | Buy the annual plan, then (a second Apple ID) the monthly plan | Sheet completes, `appAccountToken` sent, server asked to verify, Premium appears; the Subscription card names the plan bought |
 | 6 | Cancel the purchase sheet | `{cancelled:true}`, no state change, no error toast |
 | 7 | Ask to Buy / pending | `{pending:true}`; nothing granted; it arrives later through `Transaction.updates` |
 | 8 | Kill the app mid-purchase | The transaction is unfinished; next launch offers it again (`pendingTransactions`) |

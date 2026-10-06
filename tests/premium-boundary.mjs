@@ -4,9 +4,12 @@
    The server half — who is allowed to SPEND — is proved in
    backend/test-premium-gate.mjs against the real Worker module. This file is
    about the app: that one gate decides everything, that a Free learner keeps
-   the practice and loses only the AI, that a paying learner loses nothing,
-   that Welding is untouched, and that with Premium not on sale — production
-   today — nothing whatever is gated. */
+   the practice and the AI's VERDICTS are metered (3 a day; 120 a day on
+   Premium as a fair-use ceiling — the tier spec, docs/TIERS.md, 5 Oct 2026)
+   rather than locked, that the 30/90-day analytics and the Home picks stay
+   hard locks, that a paying learner loses nothing, that Welding is under the
+   same rule, and that with Premium not on sale — production today — nothing
+   whatever is gated. */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 import { CAPABILITIES } from "../backend/entitlements/src/entitlement-core.js";
 const root = new URL("..", import.meta.url).pathname;
@@ -27,7 +30,10 @@ async function open({ track = "general-english", billing = true, api = true, pla
   await ctx.addInitScript(([s, api, flags]) => { localStorage.setItem("be12_v1", s); if (api) localStorage.setItem("be_ent_api", "http://ent.test"); if (flags) localStorage.setItem("be_flags", JSON.stringify(flags)); },
     [seed(track), api, billing ? { billing_enabled: true, home_v2_enabled: true } : { home_v2_enabled: true }]);
   const ai = [];                                   // every request that reaches the AI Worker
-  await ctx.route(u => /be-polish/.test(u.href), r => { ai.push({ url: r.request().url(), auth: r.request().headers()["authorization"] || null, body: r.request().postData() }); r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }); });
+  /* the Worker's metered answers carry X-BE-Allowance (the tier spec, 5 Oct
+     2026) and expose it through CORS, exactly as backend/polish-worker.js does */
+  const ALLOW = JSON.stringify({ used: 1, limit: 3, resetAt: Date.now() + 3600e3, plan: "free" });
+  await ctx.route(u => /be-polish/.test(u.href), r => { ai.push({ url: r.request().url(), auth: r.request().headers()["authorization"] || null, body: r.request().postData() }); r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*", "access-control-expose-headers": "X-BE-Allowance, X-BE-Video-Allowance", "x-be-allowance": ALLOW }, body: "{}" }); });
   await ctx.route(u => /be-events|be-partner|cloudflareinsights|youtube|ytimg/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
   await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(plan) }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
@@ -71,23 +77,39 @@ console.log("\n# production today — Premium is not on sale, so NOTHING is gate
   await ctx.close();
 }
 
-console.log("\n# a FREE account, with Premium on sale");
-let freeAi = null;
+console.log("\n# a FREE account, with Premium on sale — the verdicts are METERED, not locked (the tier spec, 5 Oct 2026)");
+const SPENT = plan => JSON.stringify({ used: plan === "premium" ? 120 : 3, limit: plan === "premium" ? 120 : 3, resetAt: Date.now() + 3600e3, plan, at: Date.now() });
 {
   const { ctx, p, ai, errs } = await open({ plan: FREE });
   const g = await gates(p);
-  ok("10 · every Premium capability is withheld", CAPABILITIES.every(k => g.has[k] === false), JSON.stringify(g.has));
-  ok("11 · the AI analysis gate is closed", g.aiOffAnalysis === true && g.gated === true);
-  const card = await p.evaluate(() => premLockHTML("ai_analysis", "test"));
-  ok("12 · the gate card names the capability, explains it, says the practice is still saved, and offers the sheet", /AI speaking analysis/.test(card) && /pronunciation, grammar, vocabulary and fluency/.test(card) && /still recorded and saved/.test(card) && /premiumOpen\('test'\)/.test(card) && /Unlock Premium/.test(card), card.slice(0, 200));
-  ok("13 · it carries no raw i18n key and no unfilled placeholder", !/prem\.|\{\{/.test(card), card.slice(0, 200));
-  /* the practice itself must still run: the report path short-circuits to the
-     app's own offline path rather than throwing or calling the AI */
-  await p.evaluate(() => { try { mvExReport && mvExReport("k"); } catch (e) {} });
+  ok("10 · hasEntitlement is false for every capability on Free — the PLAN grants nothing; what is metered is decided below", CAPABILITIES.every(k => g.has[k] === false), JSON.stringify(g.has));
+  ok("11 · the AI analysis gate is OPEN for a Free learner with today's allowance: ai_analysis and ai_coach are metered (entLocked false), the two hard locks stay",
+    g.aiOffAnalysis === false && g.gated === true && g.locked.ai_analysis === false && g.locked.ai_coach === false && g.locked.advanced_progress === true && g.locked.recommended_content === true, JSON.stringify(g));
+  ok("12 · with allowance left the gate card renders NOTHING for the AI (the hard-locked ones still draw theirs)", await p.evaluate(() => premLockHTML("ai_analysis", "test") === "" && premLockHTML("ai_coach", "test") === "" && /prem-lock/.test(premLockHTML("advanced_progress", "test"))));
+  /* the report path really goes to the Worker now, and the Worker's count comes
+     back. A decodable take is needed — fbAssess re-encodes the audio to WAV
+     before it sends it — so this is half a second of silence in a WAV header. */
+  await p.evaluate(async () => {
+    const sr = 16000, n = sr / 2, ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab), wr = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+    wr(0, "RIFF"); dv.setUint32(4, 36 + n * 2, true); wr(8, "WAVE"); wr(12, "fmt "); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); wr(36, "data"); dv.setUint32(40, n * 2, true);
+    await fbAssess(new Blob([ab], { type: "audio/wav" }), "hi");
+  });
   await sleep(400);
-  freeAi = ai.slice();
-  ok("14 · asking for a report made NO call to the AI Worker", ai.length === 0, JSON.stringify(ai));
-  ok("15 · the message says it is Premium, not that the learner is offline", await p.evaluate(() => /Premium/.test(aiOffNote("ai_analysis")) && !/connection/.test(aiOffNote("ai_analysis"))), await p.evaluate(() => aiOffNote("ai_analysis")));
+  const stored = await p.evaluate(() => JSON.parse(localStorage.getItem("be_ai_allow") || "null"));
+  ok("14 · asking for a pronunciation verdict DOES call the AI Worker, with the account's token, and the X-BE-Allowance header it answers with is stored (1 of 3 used)",
+    ai.length === 1 && /"assess"/.test(ai[0].body || "") && ai[0].auth === "Bearer tok-u1" && stored && stored.used === 1 && stored.limit === 3 && stored.plan === "free", JSON.stringify({ ai: ai.map(x => x.auth), stored }));
+  ok("14b · and the allowance line says what is left, with the reset time", await p.evaluate(() => /2 of 3 AI verdicts left today/.test(aiAllowNote()) && aiAllowOut() === false), await p.evaluate(() => aiAllowNote()));
+  /* today's three are spent: the gate closes and the card says when it comes back */
+  await p.evaluate(s => localStorage.setItem("be_ai_allow", s), SPENT("free"));
+  const g2 = await gates(p);
+  const card = await p.evaluate(() => premLockHTML("ai_analysis", "test"));
+  ok("13 · with the allowance SPENT the gate closes (aiOff true), while entLocked stays false — it is the count, not the plan",
+    g2.aiOffAnalysis === true && g2.locked.ai_analysis === false && await p.evaluate(() => aiAllowOut() === true), JSON.stringify(g2));
+  ok("13b · the allowance card: 'Daily allowance' chip, 'Today's AI verdicts are used up', the Free number and the Premium number, the reset time, the practice still saved, and the offer — never 'unlimited'",
+    /prem-lock prem-allow/.test(card) && /Daily allowance/.test(card) && /Today's AI verdicts are used up/.test(card) && /Free includes 3 AI verdicts a day/.test(card) && /Premium gives 120 a day/.test(card)
+    && /still recorded and saved/.test(card) && /premiumOpen\('test'\)/.test(card) && /prem-lock-go/.test(card) && /Unlock Premium/.test(card) && !/unlimited/i.test(card), card.slice(0, 400));
+  ok("13c · it carries no raw i18n key and no unfilled placeholder", !/\bprem\.[a-z_]+|\bai\.[a-z_]+|\{\{/.test(card), card.slice(0, 200));
+  ok("15 · the message names the allowance and the reset time, not Premium-as-a-lock and not the connection", await p.evaluate(() => /used today's 3 AI verdicts/.test(aiOffNote("ai_analysis")) && /come back at/.test(aiOffNote("ai_analysis")) && !/connection/.test(aiOffNote("ai_analysis"))), await p.evaluate(() => aiOffNote("ai_analysis")));
   ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -102,6 +124,11 @@ console.log("\n# a PREMIUM account loses nothing");
   const signed = await p.evaluate(async () => { await fetch(POLISH_API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: "hi" }) }); return true; });
   await sleep(250);
   ok("20 · an AI request carries the account's Firebase token, so the Worker can decide for itself", signed && ai.length === 1 && ai[0].auth === "Bearer tok-u1", JSON.stringify(ai.map(x => x.auth)));
+  /* Premium is metered too — 120 a day is a fair-use ceiling, not "unlimited" */
+  await p.evaluate(s => localStorage.setItem("be_ai_allow", s), SPENT("premium"));
+  const fair = await p.evaluate(() => ({ off: aiOff("ai_analysis"), card: premLockHTML("ai_analysis", "t"), note: aiAllowNote() }));
+  ok("20b · a paying learner at the fair-use ceiling: the gate closes, the card says 'fair-use ceiling' with the reset time, and carries NO offer — there is nothing to sell",
+    fair.off === true && /prem-allow/.test(fair.card) && /fair-use ceiling of 120 AI verdicts/.test(fair.card) && !/prem-lock-go|Unlock Premium/.test(fair.card) && !/unlimited/i.test(fair.card) && /fair-use/.test(fair.note), JSON.stringify(fair).slice(0, 400));
   ok("21 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -110,8 +137,9 @@ console.log("\n# Welding shares the ONE subscription (owner, 30 September 2026 �
 {
   const { ctx, p, errs } = await open({ track: "welding", plan: FREE });
   const g = await gates(p);
-  ok("22 · a Welding learner on the Free plan is gated by the SAME rule as General English", g.gated === true && CAPABILITIES.every(k => g.has[k] === false), JSON.stringify(g.has));
-  ok("23 · the AI gate is closed on Welding too", g.aiOffAnalysis === true);
+  ok("22 · a Welding learner on the Free plan is under the SAME rule as General English: the plan grants nothing, the verdicts are metered", g.gated === true && CAPABILITIES.every(k => g.has[k] === false) && g.locked.ai_analysis === false, JSON.stringify(g.has));
+  ok("23 · the AI gate is OPEN on Welding too while today's allowance holds — and closes the same way once it is spent", g.aiOffAnalysis === false
+    && await p.evaluate(s => { localStorage.setItem("be_ai_allow", s); const r = aiOff("ai_analysis") === true && /prem-allow/.test(premLockHTML("ai_analysis", "t")); localStorage.removeItem("be_ai_allow"); return r; }, SPENT("free")));
   ok("24 · the 30/90-day panel is drawn on Welding, from Welding's own record", await p.evaluate(() => /Your last 30 days/.test(pgWindowsHTML())));
   ok("25 · Premium IS offered on Welding — one product, one paywall", await p.evaluate(() => premOffered() === true));
   ok("26 · no JavaScript errors", !errs.length, errs.join(" | "));
@@ -172,14 +200,18 @@ console.log("\n# Home: the reason stays, the picks are Premium (owner, 30 Septem
   await u.ctx.close(); await ctx.close();
 }
 
-console.log("\n# the AI coach stays reachable (owner, 23 September 2026) — the tap reaches the offer");
+console.log("\n# the AI coach stays reachable (owner, 23 September 2026) — metered like every other verdict (5 Oct 2026)");
 {
   const { ctx, p } = await open({ plan: FREE });
   const c = await p.evaluate(() => ppAiChoiceHTML("session"));
-  ok("39 · the AI coach card still renders on the start screen, tagged Premium", /pp-fallback/.test(c) && /pp-prem-tag/.test(c) && /Premium/.test(c), c.slice(0, 200));
-  ok("40 · starting a coach session opens the offer instead, and starts nothing", await p.evaluate(async () => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === "ai_coach" && !ppAiActive(); }));
+  ok("39 · the AI coach card renders on the start screen with NO Premium tag — a Free learner's 3 verdicts a day include coach replies", /pp-fallback/.test(c) && !/pp-prem-tag/.test(c), c.slice(0, 200));
+  /* the partner Worker is stubbed 404 here, so the session cannot open — what
+     matters is which door the tap reaches: the coach, never the paywall */
+  ok("40 · starting a coach session with allowance left does NOT open the offer", await p.evaluate(async () => { let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === null; }));
+  ok("40b · with today's verdicts spent the tap says so and opens the offer, and starts nothing", await p.evaluate(async s => { localStorage.setItem("be_ai_allow", s); let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === "ai_coach" && !ppAiActive(); }, SPENT("free")));
   const u = await open({ plan: PREMIUM });
-  ok("41 · a paying learner's card carries no Premium tag", !/pp-prem-tag/.test(await u.p.evaluate(() => ppAiChoiceHTML("session"))));
+  ok("41 · a paying learner's card carries no Premium tag either", !/pp-prem-tag/.test(await u.p.evaluate(() => ppAiChoiceHTML("session"))));
+  ok("41b · a paying learner at the fair-use ceiling is told, and NOT sent to the paywall", await u.p.evaluate(async s => { localStorage.setItem("be_ai_allow", s); let opened = null; const o = window.premiumOpen; window.premiumOpen = f => { opened = f; }; await ppAiStart("choice"); window.premiumOpen = o; return opened === null && !ppAiActive(); }, SPENT("premium")));
   await u.ctx.close(); await ctx.close();
 }
 

@@ -343,6 +343,71 @@ const CHAT_PURPOSE_ANON = new Set(["shadow"]);
    is well under what one learner reading a transcript needs */
 const SHADOW_PER_MIN = 20, SHADOW_PER_DAY = 400;
 
+/* ============================================================================
+   THE DAILY AI ALLOWANCE (owner's tier spec, 5 October 2026)
+   ----------------------------------------------------------------------------
+   The AI's VERDICTS — a speaking report (`analyse`, `mvreport`, chat purpose
+   `report`), a pronunciation assessment (`assess`) and an AI coach reply (chat
+   purpose `coach`) — are no longer a Premium LOCK. They are METERED per
+   account per UTC day: a Free account gets VERDICTS_FREE_PER_DAY, a Premium
+   account VERDICTS_PREMIUM_PER_DAY. The Premium number is a fair-use ceiling
+   against a compromised account, not a feature, and must never be sold as
+   "unlimited". One verdict = one call on one of those routes. The count lives
+   in the same Durable Object the other limits use, in a bucket named after
+   the UTC day, so it turns over at UTC midnight for everyone and the app can
+   show the reset in local time.
+
+   Being heard stays unmetered: `transcribe`, `tts`, `polish`, `repolish`,
+   `captions` and chat purposes `practice` / `shadow` cost no verdict (the
+   account limits in perAccount still hold them).
+
+   `ytai` (the learner's own YouTube video transcribed) is metered the same
+   way but in SECONDS OF VIDEO: YTAI_FREE_SEC_PER_DAY for Free,
+   YTAI_PREMIUM_SEC_PER_DAY for Premium, charged at what the request would
+   cost (a whole video is charged at YTAI_MAX_SEC, a window at its length).
+
+   Every answer on a metered route carries `X-BE-Allowance` (verdicts) or
+   `X-BE-Video-Allowance` (seconds): {used, limit, resetAt, plan}. A refusal is
+   429 {error:"allowance", scope:"verdicts"|"video", limit, used, resetAt,
+   plan, retryAfter}. The client reads the header in its one fetch wrapper.
+   ============================================================================ */
+const VERDICT_CAPS = new Set(["ai_analysis", "ai_coach"]);
+const VERDICTS_FREE_PER_DAY = 3, VERDICTS_PREMIUM_PER_DAY = 120;
+const YTAI_FREE_SEC_PER_DAY = 30 * 60, YTAI_PREMIUM_SEC_PER_DAY = 240 * 60;
+const utcDay = now => new Date(now).toISOString().slice(0, 10);
+const utcMidnightAfter = now => { const d = new Date(now); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1); };
+/* the header rides on `cors`, which every json() of this request spreads into
+   its headers — one place to set, no handler to touch */
+function allowanceHeader(cors, name, state) {
+  try {
+    cors[name] = JSON.stringify(state);
+    cors["Access-Control-Expose-Headers"] = "X-BE-Allowance, X-BE-Video-Allowance, Retry-After";
+  } catch (e) {}
+}
+function allowanceRefused(cors, scope, limitN, resetAt, plan, now) {
+  const retryAfter = Math.max(1, Math.ceil((resetAt - now) / 1000));
+  /* `used` is exact for verdicts (one call = one unit, so a refusal means the
+     bucket is full) and unknown for the seconds budget (a 30-minute request can
+     be refused with 20 minutes still unspent) — so it is omitted there rather
+     than guessed */
+  const body = { error: "allowance", scope, limit: limitN, resetAt, plan, retryAfter };
+  if (scope === "verdicts") body.used = limitN;
+  return json(body, 429, { ...cors, "Retry-After": String(retryAfter), "Access-Control-Expose-Headers": "X-BE-Allowance, X-BE-Video-Allowance, Retry-After" });
+}
+/* one verdict against the account's day bucket; null = carry on */
+async function verdictAllowance(a, env, cors) {
+  const id = a.uid ? "u:" + a.uid : (a.key ? "t:" + a.key : null);
+  if (!id) return null;
+  const now = Date.now(), plan = a.premium ? "premium" : "free";
+  const limitN = a.premium ? VERDICTS_PREMIUM_PER_DAY : VERDICTS_FREE_PER_DAY;
+  const name = "verdict:" + utcDay(now), resetAt = utcMidnightAfter(now);
+  const r = await consume(env, "acct:" + id, [{ name, limit: limitN, windowMs: 86_400_000 }]);
+  if (!r.ok) return allowanceRefused(cors, "verdicts", limitN, resetAt, plan, now);
+  const used = Math.min(limitN, Number((r.counts && r.counts[name]) || 0) || 0);
+  allowanceHeader(cors, "X-BE-Allowance", { used, limit: limitN, resetAt, plan });
+  return null;
+}
+
 /* The account a token belongs to, for the rate-limit bucket ONLY.
 
    This is the token's own `sub` claim, read without verifying the signature —
@@ -375,7 +440,7 @@ async function capabilities(req, env) {
   const key = await tokenKey(tok);
   const uid = tokenSub(tok);
   const hit = entCache.get(key);
-  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps, key, uid };
+  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps, key, uid, premium: hit.premium === true };
   let r;
   try {
     r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } });
@@ -394,9 +459,13 @@ async function capabilities(req, env) {
      capability. Removed from CAPABILITIES in entitlement-core.js too; an older
      deployed entitlements Worker that still sends it is simply ignored here. */
   for (const k of ["ad_free", "ai_analysis", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
+  /* the TIER, for the daily allowance: the view's own plan when it is paid and
+     in force; ad_free as the fallback for an older entitlements Worker that
+     sends capabilities only. A promo that grants part of Premium stays Free. */
+  const premium = (j && j.plan === "premium" && j.paid === true && caps.ad_free === true) || (caps.ad_free === true && !(j && j.plan));
   if (entCache.size > 5000) entCache.clear();
-  entCache.set(key, { at: Date.now(), caps, uid });
-  return { caps, key, uid };
+  entCache.set(key, { at: Date.now(), caps, uid, premium });
+  return { caps, key, uid, premium };
 }
 /* Returns a Response to send instead, or null to carry on. */
 /* ============================================================================
@@ -513,8 +582,14 @@ async function premiumGate(req, env, route, cors, purpose) {
   /* the service is down: a paying learner must not be told they are Free, and
      no paid work is done on a guess. 503 is retriable and honest. */
   if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
-  if (!a.caps[cap]) return json({ error: "premium_required", capability: cap }, 402, cors);
-  return await perAccount(a, env, cors);
+  /* a VERDICT capability is metered, not locked (the tier spec): Free and
+     Premium both pass here and the day bucket decides; anything else that
+     names a capability the account lacks is still 402 */
+  if (!a.caps[cap] && !VERDICT_CAPS.has(cap)) return json({ error: "premium_required", capability: cap }, 402, cors);
+  const held = await perAccount(a, env, cors);
+  if (held) return held;
+  if (VERDICT_CAPS.has(cap)) return await verdictAllowance(a, env, cors);
+  return null;
 }
 /* per-ACCOUNT rate limit: an IP limit alone is useless behind carrier NAT, and
    once every call carries a uid the account is the right unit to hold.
@@ -1438,12 +1513,28 @@ export default {
            the uid be-entitlements accepted, read back from the cached answer.
            Either way the subject string is the same shape, so one learner has
            one bucket whichever mode the Worker is in — and the cap is no
-           longer inert in production. */
+           longer inert in production.
+           METERED IN SECONDS OF VIDEO per UTC day (the tier spec, 5 Oct 2026):
+           30 minutes on Free, 240 on Premium, charged at what the request
+           would cost — a whole video at YTAI_MAX_SEC, a window at its length —
+           in the same all-or-nothing bucket as the per-minute brake. The
+           per-call day counts (YTAI_ACCT_PER_DAY / YTAI_PREM_PER_DAY) are
+           replaced by that budget; the per-minute caps stay. */
         const a = acct.subject || await acctSubject(request, env);
         const prem = tier === "premium";
-        if (a) { const l = await limit(env, a, "ytaiacct",
-                                       prem ? YTAI_PREM_PER_MIN : YTAI_ACCT_PER_MIN,
-                                       prem ? YTAI_PREM_PER_DAY : YTAI_ACCT_PER_DAY, cors); if (l) return l; } }
+        if (a) {
+          const now = Date.now(), budget = prem ? YTAI_PREMIUM_SEC_PER_DAY : YTAI_FREE_SEC_PER_DAY;
+          const name = "ytaisec:" + utcDay(now), resetAt = utcMidnightAfter(now), cost = ytaiCostSec(win);
+          const r = await consume(env, a, [
+            { name: "ytaiacct:min", limit: prem ? YTAI_PREM_PER_MIN : YTAI_ACCT_PER_MIN, windowMs: 60_000 },
+            { name, limit: budget, windowMs: 86_400_000, cost },
+          ]);
+          if (!r.ok) {
+            if (r.bucket === "ytaiacct:min") return json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
+            return allowanceRefused(cors, "video", budget, resetAt, prem ? "premium" : "free", now);
+          }
+          allowanceHeader(cors, "X-BE-Video-Allowance", { used: Math.min(budget, Number((r.counts && r.counts[name]) || 0) || 0), limit: budget, resetAt, plan: prem ? "premium" : "free" });
+        } }
       try {
         const out = await geminiCaptions(env, vid, win);
         if (!out.error && cache) {

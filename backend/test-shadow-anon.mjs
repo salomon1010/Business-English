@@ -47,10 +47,14 @@ console.log("\n# the exception is EXACTLY one purpose");
   ok("B2 · anonymous `coach` (the AI coach) is still refused", r.status === 401, JSON.stringify(r));
   r = await ask(CHAT("report"));
   ok("B3 · anonymous `report` (AI analysis) is still refused", r.status === 401, JSON.stringify(r));
-  r = await ask(CHAT("coach"), { token: tok() });
-  ok("B4 · and a signed-in FREE learner still cannot have the AI coach: Premium is unchanged", r.status === 402 && r.j.error === "premium_required", JSON.stringify(r));
-  r = await ask(CHAT("report"), { token: tok() });
-  ok("B5 · …nor the AI report", r.status === 402, JSON.stringify(r));
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): coach and report are AI VERDICTS,
+     metered at 3 a day for a Free account — not locked. One account, four asks. */
+  const free = tok();
+  r = await ask(CHAT("coach"), { token: free });
+  ok("B4 · a signed-in FREE learner gets an AI coach reply — it is one of the day's 3 verdicts, not a Premium lock", r.status === 200, JSON.stringify(r));
+  await ask(CHAT("report"), { token: free }); await ask(CHAT("report"), { token: free });
+  r = await ask(CHAT("report"), { token: free });
+  ok("B5 · …and the fourth verdict of the day is refused: 429 allowance, scope verdicts, limit 3", r.status === 429 && r.j.error === "allowance" && r.j.scope === "verdicts" && r.j.limit === 3, JSON.stringify(r));
   r = await ask({ analyse: { transcript: "this is a long enough sentence to pass", metrics: {} } });
   ok("B6 · the analyse route is still account-gated for an anonymous caller", r.status === 401, JSON.stringify(r));
   r = await ask({ ytai: { url: "https://youtu.be/abc", vid: "abc" } });

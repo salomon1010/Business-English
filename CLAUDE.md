@@ -280,16 +280,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
   capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
   Store adapters (Play / App Store) answer 501 until Phase 9.
-  **Ads run on EVERY programme (owner, 5 Oct 2026).** `adsTrackAllows()` used
-  to be `isGeneralEnglish()` and is now `true`: a free Welding learner sees
-  ads and removes them by subscribing, because the entitlement is per ACCOUNT
-  (`entIsPremiumForDisplay()`), not per programme, and `premRemoveAdsHTML`
-  offers that way out beside every slot. The plan is now the ONLY thing that
-  takes ads away. privacy.html §7b, `docs/ADVERTISING.md` and
-  `docs/ADS-IOS-RELEASE.md` §3 all say so; the Welding checks in
-  `tests/ads.mjs` (TW1-TW13), `ios-ads.mjs` (G4, B18, H3), `ad-resume.mjs`
-  (R10/R11/R13) and `ad-shadow-pause.mjs` (H21) were turned over to the new
-  rule rather than deleted. Two slots were added the day before:
+  **Ads: General English only (the tier spec, 5 Oct 2026, evening — this
+  REVERSED the morning's "every programme" decision).** `adsTrackAllows()` is
+  `isGeneralEnglish()`; Welding shows no ad on any plan; Premium removes ads
+  everywhere. privacy.html §7b, `docs/ADVERTISING.md`, `docs/ADS-IOS-RELEASE.md`
+  and the Welding checks in `tests/ads.mjs` (TW1-TW13), `ios-ads.mjs` (G4, B18,
+  H3), `ad-resume.mjs` (R10/R11/R13), `ad-shadow-pause.mjs` (H21) and
+  `welding-premium.mjs` (22, 24) follow that rule. Two slots were added on 4 Oct:
   `library_top` (the Shadow library, between the featured video and the list,
   host `#shLibAdHost`) and `settings_foot` (declared since the first version,
   never wired).
@@ -425,11 +422,37 @@ not JS, and `new Function` chokes on it. Check it separately with
   row was tested.
   `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
   check every GE-only feature makes — Welding gets exactly the app it has today.
+- **THE TIERS (owner's spec, 5 Oct 2026 — `docs/TIERS.md` is the source of
+  truth; it supersedes every older rule in this section that contradicts it).**
+  Premium is US$2.99/month or US$19.99/year, both plans offered (annual first,
+  saving computed from the store's two prices — `premOffers / premSaving /
+  premPick`), one subscription, the same on both programmes. The AI's VERDICTS
+  (speaking reports, pronunciation scores, AI coach replies — routes/purposes
+  with `ai_analysis` / `ai_coach`) are **METERED, not locked**: Free 3 a day,
+  Premium 120 a day (fair use, never "unlimited"), per UTC day, in be-polish
+  (`VERDICT_CAPS`, `verdictAllowance`, bucket `verdict:<day>`, 429
+  `{error:"allowance",scope:"verdicts"}`, header `X-BE-Allowance`); the
+  learner's own YouTube video is metered in seconds (`ytaisec:<day>`, 1800 /
+  14400 a day, `scope:"video"`, `X-BE-Video-Allowance`). Client: `ENT_METERED`
+  makes `entLocked()` false for those two caps; `aiAllowance / aiAllowOut /
+  aiAllowNote / ytAllowNote`, `aiAllowTap` in the one fetch wrapper,
+  `localStorage.be_ai_allow` / `be_yt_allow` (display only); `premLockHTML`
+  draws the allowance card only when spent; `aiOff()` adds "spent". Being
+  heard (transcribe, tts, polish, repolish, captions, practice chat) stays
+  unmetered; `advanced_progress` and `recommended_content` stay hard locks.
+  **Ads: General English only** — `adsTrackAllows()` is `isGeneralEnglish()`
+  again; Welding shows no ad on any plan (reverses the 5 Oct morning note
+  above). `PLAN_LIMITS_TRACK` is empty: 2/1/1/1 Free and 100/20/50/30 Premium
+  on both programmes. Copy never says "unlimited" (`prem.headline` /
+  `prem.on_h` changed; new `ai.allow_*`, `sh.cap_allow_*`, `prem.cmp_*`).
+  Tests: `backend/test-premium-gate.mjs` (92), `backend/test-rate-limit.mjs`
+  (67), the client suites turned to the metered contract.
 - **Premium / entitlements — READ BEFORE TOUCHING ANY AI PATH.** Premium is
   **not on sale**: `ENT_API` is empty and `billing_enabled` is false, so
   `planOn()` is false, `entGated()` is false, and **every learner has every
   feature exactly as before**. Nothing below changes production until the owner
-  deploys `be-entitlements` and sets both.
+  deploys `be-entitlements` and sets both. (Where the bullets below say the
+  AI verdict is "Premium" or "locked", read "metered — see THE TIERS above".)
   - **One gate.** `hasEntitlement(cap)` is the only Premium question in
     index.html — there is no second `if premium` rule. `entLocked(cap)` is its
     negative, `entGated()` says where a gate is in force (billing on **and** an
@@ -471,9 +494,10 @@ not JS, and `new Function` chokes on it. Check it separately with
     practice (Practice Partner), role-play replies, Executive Polish's rewrite
     (its *history* is capped by `PLAN_LIMITS`), captions, TTS, and the three
     phrases `ppLiveHelp` offers during a live call. Free is a complete product.
-  - **Welding is never gated at all** — Premium is sold on General English only,
-    so Welding must never lose something it cannot buy back. `entGated()`
-    enforces this; do not "fix" it.
+  - **Welding is gated by the SAME rule** (owner, 30 Sep 2026, confirmed by the
+    5 Oct tier spec): one subscription, the same capabilities and limits on
+    both programmes. `entGated()` is `planOn()` with no track term. (An older
+    version of this bullet said Welding was never gated; that was reversed.)
   - **The boundary is the Worker, not the page.** `backend/polish-worker.js`
     verifies the caller's Firebase token against `be-entitlements` before it
     spends anything, behind `PREMIUM_ENFORCED` + `ENTITLEMENTS_URL` (both off).

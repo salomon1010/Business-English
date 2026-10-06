@@ -123,10 +123,12 @@ console.log("\n# who never gets one");
 {
   WENV = workerEnv(); const { ctx, p, errs } = await open("welding"); await signIn(p, "w1");
   await clearCaps(p); await resume(p, 60e3);
-  /* REVERSED 5 Oct 2026 (owner): every programme is in the ad system. */
-  ok("R10 · WELDING Free → the resume ad arrives, exactly as on General English",
-    (await ev(p)).some(x => /^ad_displayed/.test(x)) && (await calls(p)).some(x => /^show:/.test(x)), JSON.stringify(await ev(p)));
-  ok("R11 · and the bridge is built on Welding too", await p.evaluate(() => _adsBridge === true && !!window.BENativeAds));
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only and
+     Welding shows none on any plan — the resume path is refused for the
+     programme before the SDK is asked, and leaves no ad event at all */
+  ok("R10 · WELDING Free → NO resume ad: nothing displayed, the SDK never asked to show, and no ad event written (the programme refuses before any event)",
+    !(await sawResume(p)) && !(await calls(p)).some(x => /^(load|show):/.test(x)) && (await ev(p)).length === 0 && await p.evaluate(() => adsTrackAllows() === false && AdEligibility.decide("interstitial", "app_resume").reason === "track"), JSON.stringify({ ev: await ev(p), calls: await calls(p) }));
+  ok("R11 · and the bridge is NOT built on Welding — the SDK is never configured where no ad may run", await p.evaluate(() => _adsBridge !== true && !window.BENativeAds), await p.evaluate(() => String(_adsBridge)));
   ok("R12 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }
@@ -135,10 +137,10 @@ console.log("\n# who never gets one");
   const { ctx, p, errs } = await open("welding"); await signIn(p, "wprem");
   ok("R12b · (control) Welding learner really is Premium", await p.evaluate(() => entIsPremiumForDisplay() === true));
   await clearCaps(p); await resume(p, 60e3);
-  /* the PLAN is now the only thing that takes ads away — and it still does,
-     on Welding as anywhere else, because the entitlement is per account */
-  ok("R13 · WELDING Premium → still nothing shown, refused for the plan rather than the programme",
-    !(await calls(p)).some(x => /^show:/.test(x)) && (await ev(p)).some(x => /premium/.test(x)), JSON.stringify(await ev(p)));
+  /* on Welding the programme rule comes before the plan: a Premium learner is
+     refused for "track" too, so Welding shows no ads on ANY plan */
+  ok("R13 · WELDING Premium → still nothing shown, and the reason is the programme ('track'), not the plan",
+    !(await sawResume(p)) && !(await calls(p)).some(x => /^(load|show):/.test(x)) && (await ev(p)).length === 0 && await p.evaluate(() => AdEligibility.decide("interstitial", "app_resume").reason === "track"), JSON.stringify(await ev(p)));
   ok("R14 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }

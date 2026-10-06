@@ -169,9 +169,10 @@ console.log("\n# who never gets it, and the caps");
 {
   WENV = workerEnv(); const { ctx, p, errs } = await open("welding"); await signIn(p, "sw1");
   await reset(p); await workspace(p, 2); await p.evaluate(() => AdManager.placeShadow()); await sleep(800);
-  /* REVERSED 5 Oct 2026 (owner): ads run on every programme, so a Welding
-     learner gets the same slot under the video as a General English one. */
-  ok("H21 · WELDING, paused Shadow → the same slot under the video, reported the same way", !!(await slot(p)) && (await ev(p)).some(x => /ad_displayed:native:shadow_video/.test(x)), JSON.stringify(await ev(p)));
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only and
+     Welding shows none on any plan — placeShadow() returns before any event. */
+  ok("H21 · WELDING, paused Shadow → NO slot under the video, nothing requested and no ad event at all (the programme refuses before any event)",
+    !(await slot(p)) && (await ev(p)).length === 0 && await p.evaluate(() => adsTrackAllows() === false && !document.querySelector("[data-ad-slot]")), JSON.stringify(await ev(p)));
   ok("H22 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }

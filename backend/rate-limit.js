@@ -106,8 +106,8 @@ export class RateLimiter {
       if (refused) {
         return j({ ok: false, bucket: refused.bucket, retryAfter: Math.max(1, Math.ceil((refused.resetAt - now) / 1000)) });
       }
-      const put = {};
-      for (const r of recs) put[r.k] = { count: r.count + r.cost, resetAt: r.resetAt };
+      const put = {}, counts = {};
+      for (const r of recs) { put[r.k] = { count: r.count + r.cost, resetAt: r.resetAt }; counts[r.b.name] = r.count + r.cost; }
       await this.state.storage.put(put);
       /* storage is billed and kept forever unless something deletes it. The
          alarm fires once the longest window has passed and wipes the object,
@@ -116,7 +116,10 @@ export class RateLimiter {
         const at = await this.state.storage.getAlarm();
         if (at == null || at < longest) await this.state.storage.setAlarm(longest + 1000);
       } catch (e) { /* alarms unavailable (a stub in a test): hygiene only, never correctness */ }
-      return j({ ok: true });
+      /* `counts` (5 Oct 2026): what each bucket stands at AFTER this call, so a
+         daily allowance can tell the learner "2 of 3 used" without a second
+         round trip. Additive — every older caller reads `ok` and nothing else. */
+      return j({ ok: true, counts });
     });
   }
 
@@ -159,7 +162,7 @@ export async function consume(env, subject, buckets) {
     });
     if (!r.ok) return { ok: true, degraded: true };
     const out = await r.json();
-    return out && out.ok === false ? { ok: false, bucket: out.bucket, retryAfter: out.retryAfter } : { ok: true };
+    return out && out.ok === false ? { ok: false, bucket: out.bucket, retryAfter: out.retryAfter } : { ok: true, counts: (out && out.counts) || {} };
   } catch (e) {
     console.log("rate-limit degraded: " + String((e && e.message) || e));
     return { ok: true, degraded: true };
@@ -181,8 +184,9 @@ export function memConsume(subject, buckets, now = Date.now()) {
     if (count + cost > b.limit) return { ok: false, bucket: b.name, retryAfter: Math.max(1, Math.ceil((resetAt - now) / 1000)), degraded: true };
     recs.push([b.name, { count: count + cost, resetAt }]);
   }
-  for (const [k, v] of recs) m.set(k, v);
+  const counts = {};
+  for (const [k, v] of recs) { m.set(k, v); counts[k] = v.count; }
   if (mem.size > 5000) mem.clear();      // crude memory guard, as before
-  return { ok: true, degraded: true };
+  return { ok: true, degraded: true, counts };
 }
 export function _memReset() { mem.clear(); }     // tests only

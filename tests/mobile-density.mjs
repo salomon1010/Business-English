@@ -103,13 +103,18 @@ const geDone = seed("general-english", { days: { w1Mon: true, w1Tue: true }, dat
   ok("14 · Free keeps this week's four numbers and the certificate milestone", ess === 5, String(ess));
   await p.click(".pg-rec-go"); await sleep(700);
   ok("15 · 'See Premium plans' opens the plans sheet, from progress_record", await p.evaluate(() => { const o = document.getElementById("premOv"); return !!o && o.dataset.from === "progress_record" }));
-  await p.evaluate(() => { window.entIsPremiumForDisplay = () => true; premClose && premClose(); go("review") }); await sleep(900);
+  /* a REAL Premium view: the app calls its own entIsPremiumForDisplay, so a
+     window stub never reached it — a signed-in uid and the cached server view do */
+  await p.evaluate(() => { FBUser = { uid: "u-prem", getIdToken: async () => "t" };
+    localStorage.setItem("be_ent_view", JSON.stringify({ uid: "u-prem", at: Date.now(), view: { plan: "premium", paid: true, state: "active", ads: false, capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true } } }));
+    _entView = null; _entUid = null; premClose && premClose(); go("review") }); await sleep(900);
   const pr = await p.evaluate(recState);
   ok("16 · a Premium learner: the full report, no Premium card", !pr.lock && pr.stats && pr.year === 1, JSON.stringify(pr));
   ok("16b · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p, errs } = await open(seed("welding", { days: { "welding:w1Mon": true } }), 375, "en", true); await view(p, "review");
   const r = await p.evaluate(recState);
-  ok("17 · plans on, Welding (Premium is General English only): the report as before", r.plans && !r.lock && r.stats && r.year === 1, JSON.stringify(r)); await ctx.close(); }
+  /* the tier spec (5 Oct 2026): one subscription, the same rule on both programmes */
+  ok("17 · plans on, Welding Free: the SAME split as General English — current progress kept, the history is the Premium card", r.plans && r.lock, JSON.stringify(r)); await ctx.close(); }
 for (const [lang, h] of [["fr", "Votre historique complet fait partie de Premium"], ["ar", "سجلّك التاريخي الكامل جزء من Premium"]]) {
   const { ctx, p } = await open(geDone, 375, lang, true); await view(p, "review");
   const r = await p.evaluate(() => { const l = document.querySelector(".pg-rec-lock"); if (!l) return null; const b = l.getBoundingClientRect(); return { t: l.innerText, dir: getComputedStyle(l).direction, off: [...l.querySelectorAll("*")].some(e => { const q = e.getBoundingClientRect(); return q.width && (q.left < b.left - 1 || q.right > b.right + 1) }) } });

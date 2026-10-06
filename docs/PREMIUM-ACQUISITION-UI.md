@@ -21,10 +21,13 @@ outside the scroll box, so it never covers content.
   (saved Shadow videos, YouTube imports, Polish reports), plus *No ads* only
   while `ads_enabled` is on. Nothing else is promised (no AI, Partner or
   simulation claims).
-- **Plans (`premPlanHTML`):** the store's products, Annual first and
-  selected, `BEST VALUE` tag, per-month figure and the saving computed from
-  the store's own prices; Monthly with a `3 DAYS FREE` badge and the trial
-  line **only when the store reports a trial**. No Weekly (no such product).
+- **Plans (`premPlanHTML`):** the store's two products — **two plans again
+  under the owner's tier spec of 5 Oct 2026** (`docs/TIERS.md`): Annual first
+  and selected, `BEST VALUE` tag, per-month figure and the saving computed
+  from the store's own prices; Monthly with an `N DAYS FREE` badge and the
+  trial line **only when the store reports a trial**. No Weekly (no such
+  product). The store prices are US$19.99 / year and US$2.99 / month; the
+  sheet prints whatever the store returns.
 - **CTA (`premFootHTML`):** one primary button — *Start N-day free trial*
   when the selected plan has a trial, else *Continue with Premium* — with
   *Cancel anytime in Google Play* under it.
@@ -44,10 +47,13 @@ outside the scroll box, so it never covers content.
   `PREM_LAUNCH_WAIT` (5 s), then reveals it; Escape and the backdrop honour
   the same wait. New safety net `premWaiting()`: the wait also ends by the
   clock (`data-t0`), so a lost timer can never trap the learner.
-- **General English boundary:** `premOffered()` is now
-  `(planOn() && isGeneralEnglish()) || Premium`. A Free Welding learner sees
-  no Premium row, card, launch offer or "Remove ads" link; a paying learner
-  keeps the Subscription row/card on either track.
+- **General English boundary (as built on this branch, 26 Sep 2026):**
+  `premOffered()` was `(planOn() && isGeneralEnglish()) || Premium`, so a
+  Free Welding learner saw no Premium row, card, launch offer or "Remove ads"
+  link. **Superseded by the owner's tier spec of 5 Oct 2026** (`docs/TIERS.md`):
+  one subscription with the same capabilities on both programmes, so Premium
+  is offered on Welding too. Welding shows no ads on any plan, so a "Remove
+  ads" link never appears there.
 - **Settings → Subscription:** the card from `31514e4` is unchanged (Free:
   plan + *See Premium plans* + Restore; Premium: plan name, store price and
   period, renewal date, Billed by, Manage in the store, Restore).

@@ -136,15 +136,19 @@ console.log("\n# free vs premium");
      per-MINUTE ceiling of each tier. That is the honest reading and it is
      enough to prove the tiering: the day windows are the same mechanism with a
      longer window, and test-rate-limit.mjs winds the clock to prove those. */
-  let n = 0;
-  for (let i = 0; i < 11; i++) { const r = await ask(env, { ip: "5.0.0." + i, uid: "free-1" }); if (r.status === 200) n++; }
-  ok("T17 · a FREE account is held at 4 a minute, per ACCOUNT — changing address does not help",
-    n === 4, String(n));
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): the account's day is a budget of
+     SECONDS of video — 30 min Free, 240 min Premium — and a whole video is
+     charged at YTAI_MAX_SEC (30 min). So Free gets ONE whole video a day,
+     Premium eight; the refusal is 429 allowance, scope video. */
+  let n = 0, last = null;
+  for (let i = 0; i < 11; i++) { const r = await ask(env, { ip: "5.0.0." + i, uid: "free-1" }); if (r.status === 200) n++; else last = r; }
+  ok("T17 · a FREE account gets ONE whole video a day (30 min), per ACCOUNT — changing address does not help; the next is 429 allowance (video)",
+    n === 1 && last && last.status === 429 && last.j.error === "allowance" && last.j.scope === "video", JSON.stringify({ n, last }));
   reset(); gem.premium = true;
   let m = 0;
   for (let i = 0; i < 41; i++) { const r = await ask(ENV_ON(), { ip: "6.0.0." + (i % 7), uid: "prem-1" }); if (r.status === 200) m++; }
-  ok("T18 · a PREMIUM account gets the highest allowance, still a ceiling", m === 8, String(m));
-  ok("T19 · …and it is higher than the free one, which is the point", 8 > 4);
+  ok("T18 · a PREMIUM account gets eight whole videos (240 min), still a ceiling", m === 8, String(m));
+  ok("T19 · …and it is higher than the free one, which is the point", m > n);
 }
 
 console.log("\n# a token that cannot be verified is refused, not quietly demoted to anonymous");

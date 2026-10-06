@@ -33,7 +33,7 @@ async function open({ dgs, preview = true }) {
   await p.evaluate(async () => { await Billing.init(); });   /* signed out: the store is still looked up, as at boot (same as premium-acquisition.mjs) */
   await p.evaluate(() => premiumOpen("test")); await sleep(1800);
   const s = await p.evaluate(() => { const o = document.getElementById("premOv"); const t = o ? o.innerText : "";
-    return { open: !!o, provider: Billing.provider ? Billing.provider.id : null, state: Billing.state, preview: !!(o && o.querySelector(".prem-preview")), unavail: !!(o && o.querySelector(".prem-unavail")), noStore: /no_store/.test(t), price: /24\.99/.test(t), asked: window.__dgsAsked || 0, text: t.slice(0, 200) }; });
+    return { open: !!o, provider: Billing.provider ? Billing.provider.id : null, state: Billing.state, preview: !!(o && o.querySelector(".prem-preview")), unavail: !!(o && o.querySelector(".prem-unavail")), noStore: /no_store/.test(t), price: /19\.99/.test(t), asked: window.__dgsAsked || 0, text: t.slice(0, 200) }; });
   await ctx.close(); return { ...s, errs };
 }
 

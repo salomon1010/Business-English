@@ -48,11 +48,13 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
   const byId = Object.fromEntries(subs.map(s => [s.productID, s]));
   ok("S1 · one subscription group with exactly the two products the app sells",
     fx.subscriptionGroups.length === 1 && subs.length === 2 && !!byId.premium_monthly && !!byId.premium_annual, JSON.stringify(subs.map(s => s.productID)));
-  ok("S2 · premium_annual is $24.99 a year (owner, 2 Oct 2026)",
-    byId.premium_annual.displayPrice === "24.99" && byId.premium_annual.recurringSubscriptionPeriod === "P1Y",
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): US$19.99 a year, US$2.99 a month —
+     Xcode's local store only; the app always draws the store's own displayPrice */
+  ok("S2 · premium_annual is $19.99 a year (the tier spec, 5 Oct 2026)",
+    byId.premium_annual.displayPrice === "19.99" && byId.premium_annual.recurringSubscriptionPeriod === "P1Y",
     byId.premium_annual.displayPrice + " " + byId.premium_annual.recurringSubscriptionPeriod);
-  ok("S3 · monthly pricing is untouched: $4.99 a month",
-    byId.premium_monthly.displayPrice === "4.99" && byId.premium_monthly.recurringSubscriptionPeriod === "P1M",
+  ok("S3 · premium_monthly is $2.99 a month, and is offered again beside the annual plan",
+    byId.premium_monthly.displayPrice === "2.99" && byId.premium_monthly.recurringSubscriptionPeriod === "P1M",
     byId.premium_monthly.displayPrice + " " + byId.premium_monthly.recurringSubscriptionPeriod);
   /* The 3-day free trial sits on the ANNUAL product, not the monthly one. That
      moved with the Premium line (184f3a0e onwards): annual is the only offer the
@@ -158,10 +160,13 @@ console.log("\n# Info.plist and PrivacyInfo.xcprivacy");
 console.log("\n# privacy.html");
 {
   const PRIVACY = read("privacy.html");
-  ok("H1 · no claim that the app shows no ads survives anywhere in it", !/shows no ads/.test(PRIVACY) && !/no advertising or social-media trackers/.test(PRIVACY));
+  /* the only "shows no ads" left is the true one — Welding's — and the old
+     app-wide "no advertising or social-media trackers" claim is gone */
+  ok("H1 · no claim that the APP shows no ads survives anywhere in it — the one 'shows no ads' is the Welding sentence",
+    (PRIVACY.match(/shows no ads/g) || []).length === (PRIVACY.match(/Welding shows no ads on any plan/g) || []).length && (PRIVACY.match(/shows no ads/g) || []).length >= 1 && !/no advertising or social-media trackers/.test(PRIVACY));
   ok("H2 · section 7b says ads are not switched on yet, and says so first", /Ads are not switched on/.test(PRIVACY));
-  ok("H3 · it states the product rule as it now is: the free plan on BOTH programmes, and Premium removes them everywhere",
-    /both programmes/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && !/ad-free for everyone/.test(PRIVACY));
+  ok("H3 · it states the product rule as it now is (the tier spec, 5 Oct 2026): the free plan, General English only; Welding shows no ads on any plan; Premium removes them completely",
+    /On the free plan, in <b>General English only<\/b>/.test(PRIVACY) && /Welding shows no ads on any plan/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && !/both programmes/.test(PRIVACY) && !/ad-free for everyone/.test(PRIVACY));
   ok("H4 · it states non-personalised, no IDFA, no tracking prompt", /non-personalised/.test(PRIVACY) && /IDFA/.test(PRIVACY) && /do not ask for permission to track you/.test(PRIVACY));
   ok("H5 · it names the network and what it receives, and does not claim personalised tracking",
     /Google AdMob/.test(PRIVACY) && /coarse location/.test(PRIVACY) && !/personalised advertising profile of you/.test(PRIVACY));
@@ -258,8 +263,10 @@ console.log("\n# the activation guard: a real network only where the plan system
   const { ctx, p } = await open({ track: "welding" });
   const s = await bridge(p);
   const ev = await p.evaluate(() => window.__ev.filter(([n]) => /^ad_|^rewarded_ad_/.test(n)).map(([n]) => n));
-  ok("G4 · WELDING reaches the ad SDK exactly as General English does (owner, 5 Oct 2026: ads on every programme)",
-    s.track === true && s.built === "object" && s.provider === "native", JSON.stringify({ s, ev }));
+  /* the tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only and
+     Welding shows none on any plan — so the SDK is never even built there */
+  ok("G4 · WELDING never reaches the ad SDK: the programme refuses (adsTrackAllows false), no bridge is built, the provider stays 'none', no call and no ad event",
+    s.track === false && s.built === "undefined" && s.provider === "none" && s.calls.length === 0 && ev.length === 0, JSON.stringify({ s, ev }));
   await ctx.close();
 }
 {
@@ -517,8 +524,12 @@ console.log("\n# Premium, and the track, still decide before the provider is ask
     AdManager.placeNative("home");
     return { track: adsTrackAllows(), ov: !!document.getElementById("adOv"), slots: document.querySelectorAll("[data-ad-slot]").length,
       calls: window.__ad.calls.filter(c => /show/.test(c)) }; });
-  ok("B18 · switching to Welding mid-visit changes nothing: the ad system keeps running on the other programme",
-    before === 1 && st.track === true && st.slots >= 1, JSON.stringify({ before, st }));
+  /* the tier spec (5 Oct 2026): the moment the open programme is Welding, the
+     ad system stops — no break fires, no new slot is placed, the SDK is not
+     asked to show anything. The slot Home already carried is not torn down (it
+     is behind the page the learner left), so the count must not GROW. */
+  ok("B18 · switching to Welding mid-visit stops the ad system: the programme refuses, no overlay, no new slot, no show call",
+    before === 1 && st.track === false && st.ov === false && st.slots <= before && st.calls.length === 0, JSON.stringify({ before, st }));
   await ctx.close();
 }
 

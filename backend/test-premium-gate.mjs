@@ -1,7 +1,23 @@
 /* be-polish — the server-side entitlement boundary (Phase 8, 30 Sep 2026).
    Run: node backend/test-premium-gate.mjs
    The Worker module in Node. be-entitlements and OpenAI are stand-ins: no key,
-   no network, no cost. Every assertion here is about who is allowed to spend. */
+   no network, no cost. Every assertion here is about who is allowed to spend.
+
+   THE METERED CONTRACT (owner's tier spec, 5 Oct 2026). The AI's VERDICTS —
+   `assess`, `analyse`, `mvreport`, chat purposes `coach` and `report` — are no
+   longer a Premium LOCK. They are a daily ALLOWANCE per account per UTC day:
+   Free 3, Premium 120, counted in the bucket `verdict:<YYYY-MM-DD>`. The first
+   verdicts answer 200 and reach the provider; the one after the allowance is
+   429 {error:"allowance", scope:"verdicts", limit, used, resetAt, plan,
+   retryAfter} with Retry-After, and reaches NO provider. A 200 carries
+   `X-BE-Allowance` = {used, limit, resetAt, plan}. The tier is Premium only
+   when the view says plan "premium" AND paid true (or, from an older
+   entitlements Worker with no `plan`, ad_free true); nothing the client sends
+   can change it. 402 premium_required no longer occurs for these capabilities.
+   Unchanged: 401 without a token, the free routes (heard, spoken to, polished —
+   no verdict spent), 503 when the service fails, the 30/min 600/day backstop.
+   The limiter here is the in-memory fallback (no DO), which persists across
+   the run — so every account that must start fresh gets its own token. */
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 300)}`); };
 
 /* be-entitlements: answers from `ent.reply(auth)`; every call is recorded.
@@ -41,9 +57,18 @@ async function ask(body, { env = ON, token = null, ip = null } = {}) {
   const headers = { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip || "10.0.0." + (++ipN) };
   if (token) headers.authorization = "Bearer " + token;
   const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers, body: JSON.stringify(body) }), { OPENAI_KEY: "k", ...env });
-  return { status: r.status, j: await r.json().catch(() => null) };
+  return { status: r.status, j: await r.json().catch(() => null), h: r.headers };
 }
-const tok = () => "t" + (++tokN) + ".x.y";                      // a fresh token each time: never a cache hit
+const tok = () => "t" + (++tokN) + ".x.y";                      // a fresh token each time: never a cache hit, and (no parseable `sub`) its own account
+/* the allowance a 200 reports: {used, limit, resetAt, plan}, or null when the route is not metered */
+const allow = r => { try { return JSON.parse(r.h.get("X-BE-Allowance")); } catch (e) { return null; } };
+const DAY_MS = 86_400_000;
+const utcMidnight = at => new Date(at).toISOString().endsWith("T00:00:00.000Z");
+/* a 429 of the metered kind, as the contract spells it */
+const refused = (r, plan, limitN) => r.status === 429 && !!r.j && r.j.error === "allowance" && r.j.scope === "verdicts" && r.j.limit === limitN && r.j.used === limitN && r.j.plan === plan
+  && r.j.resetAt > Date.now() && r.j.resetAt - Date.now() <= DAY_MS && Number(r.h.get("Retry-After")) > 0;
+/* a 200 on the Free allowance: the header says limit 3, plan free — never 120, never premium */
+const onFree = r => r.status === 200 && !!allow(r) && allow(r).limit === 3 && allow(r).plan === "free";
 /* the SPEECH-TO-TEXT route: a raw audio body, not JSON. It had no coverage here
    at all until the 1 Oct 2026 shakeout, which is how it went unnoticed that a
    Free learner could not be heard. */
@@ -51,7 +76,7 @@ async function askAudio({ token, env = { PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL
   const headers = { origin: "https://app.lomonec.com", "content-type": "audio/webm", "CF-Connecting-IP": ip || "10.0.0." + (++ipN) };
   if (token) headers.authorization = "Bearer " + token;
   const r = await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers, body: new Uint8Array(2048) }), { OPENAI_KEY: "k", ...env });
-  return { status: r.status, j: await r.json().catch(() => null) };
+  return { status: r.status, j: await r.json().catch(() => null), h: r.headers };
 }
 const ANALYSE = { analyse: { transcript: "this is a long enough sentence to pass", metrics: {} } };
 const ASSESS  = { assess: "hello world", audio: "AAAA", format: "wav" };
@@ -76,19 +101,30 @@ console.log("\n# Enforcement ON — the boundary");
 ent.calls = []; ai.calls = [];
 r = await ask(ANALYSE);
 ok("B1 · no Authorization header → 401, and no AI call was made", r.status === 401 && r.j.error === "auth_required" && ai.calls.length === 0, r.status);
+/* ONE Free account through its day: the five verdict routes draw on one bucket */
 ent.reply = () => view(FREE);
 ai.calls = [];
+const freeA = tok();
+r = await ask(ANALYSE, { token: freeA });
+let al = allow(r);
+ok("B2 · a signed-in FREE account GETS analysis (200) — a verdict is metered, not locked", r.status === 200 && !!r.j && !r.j.error, r.status + " " + JSON.stringify(r.j).slice(0, 80));
+ok("B3 · …the provider WAS called, and X-BE-Allowance reads 1/3 on plan free, exposed to the browser",
+   ai.calls.length === 1 && al && al.used === 1 && al.limit === 3 && al.plan === "free" && /X-BE-Allowance/.test(r.h.get("Access-Control-Expose-Headers") || ""),
+   ai.calls.length + " " + JSON.stringify(al) + " expose=" + r.h.get("Access-Control-Expose-Headers"));
+r = await ask(ASSESS, { token: freeA }); al = allow(r);
+ok("B4 · a FREE account gets pronunciation assessment too — the same bucket, 2/3", r.status === 200 && al && al.used === 2 && al.limit === 3, r.status + " " + JSON.stringify(al));
+r = await ask(REPORT, { token: freeA }); al = allow(r);
+ok("B5 · …and the speaking report: 3/3, the day's allowance now spent", r.status === 200 && al && al.used === 3 && al.limit === 3, r.status + " " + JSON.stringify(al));
+ai.calls = [];
+r = await ask(CHAT("coach"), { token: freeA });
+ok("B6 · the 4th verdict (the AI coach) on that account is 429 allowance — scope verdicts, limit 3, used 3, plan free, resetAt = the next UTC midnight",
+   refused(r, "free", 3) && utcMidnight(r.j.resetAt), r.status + " " + JSON.stringify(r.j) + " retry=" + r.h.get("Retry-After"));
+ok("B7 · …Retry-After agrees with the body, and NO provider call was made — a refusal costs nothing",
+   Number(r.h.get("Retry-After")) === r.j.retryAfter && r.j.retryAfter > 0 && ai.calls.length === 0, r.h.get("Retry-After") + " vs " + (r.j && r.j.retryAfter) + " provider=" + ai.calls.length);
+r = await ask(CHAT("report"), { token: freeA });
+ok("B8 · a report chat on the spent account is refused the same way — coach and report draw on ONE bucket", refused(r, "free", 3) && ai.calls.length === 0, r.status + " " + JSON.stringify(r.j));
 r = await ask(ANALYSE, { token: tok() });
-ok("B2 · a signed-in FREE account is refused analysis (402 premium_required)", r.status === 402 && r.j.error === "premium_required" && r.j.capability === "ai_analysis", JSON.stringify(r.j));
-ok("B3 · …and no AI provider call was made, so nothing was spent", ai.calls.length === 0, ai.calls.join(","));
-r = await ask(ASSESS, { token: tok() });
-ok("B4 · a FREE account is refused pronunciation assessment", r.status === 402, r.status);
-r = await ask(REPORT, { token: tok() });
-ok("B5 · a FREE account is refused the speaking report", r.status === 402, r.status);
-r = await ask(CHAT("coach"), { token: tok() });
-ok("B6 · a FREE account is refused the AI coach", r.status === 402 && r.j.capability === "ai_coach", JSON.stringify(r.j));
-r = await ask(CHAT("report"), { token: tok() });
-ok("B7 · a FREE account is refused a report chat", r.status === 402 && r.j.capability === "ai_analysis", JSON.stringify(r.j));
+ok("B9 · a DIFFERENT Free account still has its own 3 — the allowance is per account", onFree(r) && allow(r).used === 1, r.status + " " + JSON.stringify(allow(r)));
 
 console.log("\n# Free routes stay free — the practice itself is never metered");
 r = await ask(CHAT("practice"), { token: tok() });
@@ -113,8 +149,13 @@ r = await askAudio();
 ok("C7 · …but being heard still needs an account while enforcement is on", r.status === 401 && r.j.error === "auth_required", r.status);
 r = await askAudio({ token: tok(), env: OFF });
 ok("C8 · with enforcement off it behaves exactly as production does today", r.status === 200, r.status);
-ok("C9 · the paid routes did NOT move with it — a FREE account is still refused the assessment of what it said",
-   (await ask(ASSESS, { token: tok() })).status === 402 && (await ask(REPORT, { token: tok() })).status === 402);
+{ /* one account: heard first (no verdict spent), then judged (verdicts counted) */
+  const tC = tok();
+  const heard = await askAudio({ token: tC });
+  const a1 = await ask(ASSESS, { token: tC }), a2 = await ask(REPORT, { token: tC });
+  ok("C9 · the metered routes did NOT become free with it — being heard spends no verdict (no X-BE-Allowance), while the assessment and the report of what was said count 1/3 and 2/3",
+     heard.status === 200 && heard.h.get("X-BE-Allowance") === null && onFree(a1) && allow(a1).used === 1 && onFree(a2) && allow(a2).used === 2,
+     heard.status + " " + heard.h.get("X-BE-Allowance") + " | " + a1.status + " " + JSON.stringify(allow(a1)) + " | " + a2.status + " " + JSON.stringify(allow(a2))); }
 
 console.log("\n# A paying account gets everything it bought");
 ent.reply = () => view(PREM);
@@ -122,6 +163,10 @@ for (const [n, b, cap] of [["analysis", ANALYSE, "ai_analysis"], ["assessment", 
   r = await ask(b, { token: tok() });
   ok(`D· a PREMIUM account gets ${n}`, r.status === 200, r.status + " " + JSON.stringify(r.j));
 }
+/* Premium is METERED too, at 120 a day: asserted from the header after one
+   call, not by exhausting it — the 30/min account backstop would bite first. */
+al = allow(r);
+ok("D5 · …and a Premium verdict is metered at 120 a day, plan premium (X-BE-Allowance after one call: 1/120)", al && al.used === 1 && al.limit === 120 && al.plan === "premium" && al.resetAt > Date.now() && al.resetAt - Date.now() <= DAY_MS, JSON.stringify(al));
 
 console.log("\n# The service itself is down");
 ent.reply = () => new Response("nope", { status: 500 });
@@ -153,8 +198,14 @@ r = await ask(ANALYSE, { env: ON });
 ok("G2 · an empty Authorization header is not an account", r.status === 401, r.status);
 
 console.log("\n# Client spoofing — the server is the only authority (brief 9-12, 16)");
+/* ONE Free account sends eight different "I am Premium" claims in a row. If any
+   of them raised the ceiling, the header would read limit 120 / plan premium,
+   or a 4th verdict would pass. Exactly three may pass — the three any Free
+   account has — and they pass as FREE. */
 ent.reply = () => view(FREE);
 ai.calls = [];
+const spoofer = tok();
+let passed = 0, nth = 0;
 for (const [n, extra] of [
   ["premium:true in the body",        { premium: true }],
   ["isPremium:true in the body",      { isPremium: true }],
@@ -165,45 +216,61 @@ for (const [n, extra] of [
   ["entitlement:'premium'",           { entitlement: "premium" }],
   ["uid of another account",          { uid: "someone-else" }],
 ]) {
-  r = await ask({ ...ANALYSE, ...extra }, { token: tok() });
-  ok(`H· a FREE account sending ${n} is still refused (402)`, r.status === 402, r.status + " " + JSON.stringify(r.j));
+  nth++;
+  r = await ask({ ...ANALYSE, ...extra }, { token: spoofer });
+  if (r.status === 200) passed++;
+  ok(`H· a FREE account sending ${n} stays on the Free allowance (${nth <= 3 ? "200 as free, " + nth + "/3" : "429 allowance, plan free"} — never premium, never 120)`,
+     nth <= 3 ? onFree(r) && allow(r).used === nth : refused(r, "free", 3), r.status + " " + JSON.stringify(allow(r) || r.j));
 }
-ok("H9 · …and not one of those spoofs reached the AI provider", ai.calls.length === 0, ai.calls.join(","));
+ok("H9 · …exactly 3 of the 8 spoofs reached the provider — the three any Free account has; the claims bought a fourth for none of them", passed === 3 && ai.calls.length === 3, passed + " passed, provider=" + ai.calls.length);
 
-/* the same claims as query string and as headers, since neither is the body */
+/* the same claims as query string and as headers, since neither is the body —
+   sent by the SPENT account, so a claim that re-keyed or raised the bucket
+   would show as a 200 */
 async function raw(url, headers, body, env = ON) {
   const r = await W.fetch(new Request(url, { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": "10.1.0." + (++ipN), ...headers }, body: JSON.stringify(body) }), { OPENAI_KEY: "k", ...env });
-  return { status: r.status, j: await r.json().catch(() => null) };
+  return { status: r.status, j: await r.json().catch(() => null), h: r.headers };
 }
 ai.calls = [];
-r = await raw("https://be-polish.test/?premium=1&plan=premium&capability=ai_analysis", { authorization: "Bearer " + tok() }, ANALYSE);
-ok("H10 · the same claims as QUERY PARAMETERS are refused", r.status === 402, r.status);
-r = await raw("https://be-polish.test/", { authorization: "Bearer " + tok(), "x-premium": "true", "x-plan": "premium", "x-dev-user": "admin", "x-capability": "ai_analysis" }, ANALYSE);
-ok("H11 · the same claims as HEADERS are refused (no DEV_AUTH back door in be-polish)", r.status === 402, r.status);
+r = await raw("https://be-polish.test/?premium=1&plan=premium&capability=ai_analysis", { authorization: "Bearer " + spoofer }, ANALYSE);
+ok("H10 · the same claims as QUERY PARAMETERS neither raise nor re-key the allowance: the spent account is still 429 allowance, plan free", refused(r, "free", 3), r.status + " " + JSON.stringify(r.j));
+r = await raw("https://be-polish.test/", { authorization: "Bearer " + spoofer, "x-premium": "true", "x-plan": "premium", "x-dev-user": "admin", "x-capability": "ai_analysis" }, ANALYSE);
+ok("H11 · the same claims as HEADERS do not either (no DEV_AUTH back door in be-polish)", refused(r, "free", 3), r.status + " " + JSON.stringify(r.j));
 ok("H12 · …and neither spent anything", ai.calls.length === 0, ai.calls.join(","));
 
 console.log("\n# An entitlement that is no longer in force (brief 6, 7, 8)");
-/* be-entitlements resolves expiry and revocation itself and answers with FREE
-   capabilities. What is tested here is that be-polish reads CAPABILITIES and
-   never the plan / paid / state labels beside them — so a view that still says
-   "premium" while carrying nothing grants nothing. */
+/* be-entitlements resolves expiry and revocation itself: `resolve()` in
+   entitlement-core.js answers view("free", status) for every not-in-force
+   record — plan "free", paid false, FREE capabilities, the status kept as a
+   label. Those are the shapes used here, plus one that keeps the "premium"
+   label while unpaid. Each must sit on the Free allowance: 3 a day, then 429.
+   NOT asserted: the old adversarial shape {plan premium, paid true, FREE
+   capabilities}, which the real service cannot produce; be-polish now reads
+   the tier from plan+paid and would meter it at 120 — see the report. */
+const fourFree = async (token) => { const out = []; for (let i = 0; i < 4; i++) out.push(await ask(ANALYSE, { token })); return out; };
+const freeDay = out => out.slice(0, 3).every((x, i) => onFree(x) && allow(x).used === i + 1) && refused(out[3], "free", 3);
 for (const [n, body] of [
-  ["expired",  { plan: "premium", paid: true, state: "expired",  capabilities: FREE }],
-  ["revoked",  { plan: "premium", paid: true, state: "revoked",  capabilities: FREE }],
-  ["in a payment_pending state", { plan: "premium", paid: true, state: "payment_pending", capabilities: FREE }],
+  ["expired",  { plan: "free", paid: false, state: "expired",  capabilities: FREE }],
+  ["revoked",  { plan: "free", paid: false, state: "revoked",  capabilities: FREE }],
+  ["in a payment_pending state", { plan: "free", paid: false, state: "payment_pending", capabilities: FREE }],
+  ["still LABELLED premium but unpaid", { plan: "premium", paid: false, state: "expired", capabilities: FREE }],
 ]) {
   ent.reply = () => new Response(JSON.stringify(body), { status: 200 });
   ai.calls = [];
-  r = await ask(ANALYSE, { token: tok() });
-  ok(`I· an ${n} entitlement is refused (402) even though the view still says plan premium, paid true`, r.status === 402 && ai.calls.length === 0, r.status + " " + ai.calls.length);
+  const out = await fourFree(tok());
+  ok(`I· an entitlement ${n} is on the FREE allowance: three verdicts pass as free (limit 3), the 4th is 429 allowance, and the provider was called 3 times`,
+     freeDay(out) && ai.calls.length === 3, JSON.stringify(out.map(x => [x.status, allow(x) || (x.j && x.j.error)])) + " provider=" + ai.calls.length);
 }
-ent.reply = () => new Response(JSON.stringify({ plan: "premium", paid: true, capabilities: "yes-all-of-them" }), { status: 200 });
+/* a capabilities block that is not an object: the tier falls to Free, and the
+   `ad_free` fallback for an older Worker cannot be tripped by garbage */
+ent.reply = () => new Response(JSON.stringify({ paid: true, state: "active", capabilities: "yes-all-of-them" }), { status: 200 });
 ai.calls = [];
-r = await ask(ANALYSE, { token: tok() });
-ok("I4 · a malformed capabilities field grants nothing (402), and spends nothing", r.status === 402 && ai.calls.length === 0, r.status);
+{ const out = await fourFree(tok());
+  ok("I5 · a malformed capabilities field (no plan, paid true) grants Free only: 3 pass, the 4th is 429 allowance, and nothing beyond 3 was spent",
+     freeDay(out) && ai.calls.length === 3, JSON.stringify(out.map(x => [x.status, allow(x) || (x.j && x.j.error)])) + " provider=" + ai.calls.length); }
 ent.reply = () => new Response("<html>not json</html>", { status: 200 });
 r = await ask(ANALYSE, { token: tok() });
-ok("I5 · an entitlement response that is not JSON → 503, never a guess", r.status === 503, r.status);
+ok("I6 · an entitlement response that is not JSON → 503, never a guess", r.status === 503, r.status);
 
 console.log("\n# Track (brief 13-15) — ONE entitlement, and no server-held track data");
 ent.reply = () => view(PREM);
@@ -211,13 +278,18 @@ for (const t of ["general", "welding"]) {
   r = await ask({ analyse: { ...ANALYSE.analyse, context: { track: t, task: "brief the team" } } }, { token: tok() });
   ok(`J· a PREMIUM account gets analysis on ${t} — one subscription covers both tracks`, r.status === 200, r.status);
 }
+/* ONE Free account, five track values: the first three pass as free, the
+   fourth and fifth are refused — no value opens a second bucket or a larger one */
 ent.reply = () => view(FREE);
 ai.calls = [];
-for (const t of ["general", "welding", "admin", "../welding", ""]) {
-  r = await ask({ analyse: { ...ANALYSE.analyse, context: { track: t, task: "x" } } }, { token: tok() });
-  ok(`J· a FREE account is refused whatever it puts in track (${t || "empty"})`, r.status === 402, r.status);
-}
-ok("J8 · no track value let a FREE account spend", ai.calls.length === 0, ai.calls.join(","));
+{ const tJ = tok(); let i = 0;
+  for (const t of ["general", "welding", "admin", "../welding", ""]) {
+    i++;
+    r = await ask({ analyse: { ...ANALYSE.analyse, context: { track: t, task: "x" } } }, { token: tJ });
+    ok(`J· a FREE account's allowance is the same whatever it puts in track (${t || "empty"}): ${i <= 3 ? "200 as free, " + i + "/3" : "429 allowance"}`,
+       i <= 3 ? onFree(r) && allow(r).used === i : refused(r, "free", 3), r.status + " " + JSON.stringify(allow(r) || r.j));
+  } }
+ok("J8 · no track value let a FREE account spend past its 3", ai.calls.length === 3, ai.calls.length + " provider calls");
 
 console.log("\n# Profession + standards (brief 16-21) — neither reaches this Worker");
 /* professional-standards.js is a CLIENT module; be-polish has no profession and
@@ -225,16 +297,19 @@ console.log("\n# Profession + standards (brief 16-21) — neither reaches this W
    string to displace. These assert that such fields are inert, not trusted. */
 ent.reply = () => view(FREE);
 ai.calls = [];
-for (const [n, extra] of [
-  ["profession:'HSE Officer'",              { profession: "HSE Officer" }],
-  ["profession inside the context",         { context: { track: "welding", profession: "Refinery Operator", task: "x" } }],
-  ["a fabricated standard + clause",        { standard: "AWS D1.1", clause: "12.4", requirement: "anything I like" }],
-  ["standards inside the context",          { context: { track: "welding", standards: [{ code: "AWS D1.1", clause: "99.9" }], task: "x" } }],
-]) {
-  r = await ask({ analyse: { ...ANALYSE.analyse, ...extra } }, { token: tok() });
-  ok(`K· ${n} does not buy a FREE account anything (402)`, r.status === 402, r.status);
-}
-ok("K5 · …and none of it reached the provider", ai.calls.length === 0, ai.calls.join(","));
+{ const tK = tok(); let i = 0;
+  for (const [n, extra] of [
+    ["profession:'HSE Officer'",              { profession: "HSE Officer" }],
+    ["profession inside the context",         { context: { track: "welding", profession: "Refinery Operator", task: "x" } }],
+    ["a fabricated standard + clause",        { standard: "AWS D1.1", clause: "12.4", requirement: "anything I like" }],
+    ["standards inside the context",          { context: { track: "welding", standards: [{ code: "AWS D1.1", clause: "99.9" }], task: "x" } }],
+  ]) {
+    i++;
+    r = await ask({ analyse: { ...ANALYSE.analyse, ...extra } }, { token: tK });
+    ok(`K· ${n} buys a FREE account nothing beyond its 3 (${i <= 3 ? "200 as free, " + i + "/3" : "the 4th is 429 allowance"})`,
+       i <= 3 ? onFree(r) && allow(r).used === i : refused(r, "free", 3), r.status + " " + JSON.stringify(allow(r) || r.j));
+  } }
+ok("K5 · …and only the three allowed verdicts reached the provider — none of it bought a fourth", ai.calls.length === 3, ai.calls.length + " provider calls");
 ent.reply = () => view(PREM);
 const seen = [];
 const realFetch = globalThis.fetch;
@@ -342,9 +417,10 @@ console.log("\n# V. an OLDER entitlements Worker that still sends the removed ca
 ent.calls = []; ai.calls = [];
 const STALE_FREE = { ...FREE, ai_verbal_feedback: true, some_future_cap: true };
 ent.reply = () => view(STALE_FREE);
-r = await ask(ANALYSE, { token: tok() });
-ok("V1 · a stale answer carrying ai_verbal_feedback:true still cannot buy ai_analysis", r.status === 402 && r.j.error === "premium_required", JSON.stringify(r.j));
-ok("V2 · …and no provider call was made on the strength of an unknown field", ai.calls.length === 0, ai.calls.join(","));
+{ const out = await fourFree(tok());
+  ok("V1 · a stale answer carrying ai_verbal_feedback:true buys no tier: the account is on the Free allowance (limit 3, plan free) and the 4th verdict is 429 allowance",
+     freeDay(out), JSON.stringify(out.map(x => [x.status, allow(x) || (x.j && x.j.error)])));
+  ok("V2 · …and exactly three provider calls were made — the unknown field paid for none beyond them", ai.calls.length === 3, ai.calls.length + " provider calls"); }
 r = await askAudio({ token: tok() });
 ok("V3 · the free spoken turn is unaffected by the extra field", r.status === 200, r.status);
 const STALE_PREM = { ...PREM, ai_verbal_feedback: true, some_future_cap: true };

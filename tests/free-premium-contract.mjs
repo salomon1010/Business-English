@@ -16,9 +16,14 @@
      3. Shadow translation is FREE for a signed-in Free learner.
      4. The Shadow Challenge: capture, transcription, participation and the
         coverage / rhythm / completion feedback are FREE; the per-word
-        pronunciation score and the AI meaning verdict are Premium.
+        pronunciation score and the AI meaning verdict are AI VERDICTS —
+        METERED, not locked (the tier spec, docs/TIERS.md, 5 Oct 2026): a
+        Free account has 3 a day, Premium 120 a day as a fair-use ceiling.
+        With today's allowance the Free learner gets the real verdict; once
+        it is spent the gate closes and the card says when it comes back.
      5. Nothing a Free learner had has moved to Premium.
-     6. Every benefit the paywall SELLS is enforced somewhere. No phantoms.
+     6. Every benefit the paywall SELLS is enforced somewhere — a capability
+        gate or a metered allowance. No phantoms.
      7. A refusal never lies about why.
 
    Three learners, each a separate browser context: signed out, signed in Free,
@@ -124,6 +129,10 @@ const record = async (L, sel = "#svChRecBtn") => {
   await L.p.click(sel);
 };
 const panelText = L => L.p.evaluate(() => (document.querySelector("#svCh")?.innerText || "").replace(/\s+/g, " ").trim());
+/* the Worker's count as the client remembers it (localStorage.be_ai_allow): today's allowance spent */
+const SPENT = plan => JSON.stringify({ used: plan === "premium" ? 120 : 3, limit: plan === "premium" ? 120 : 3, resetAt: Date.now() + 3600e3, plan, at: Date.now() });
+const spend = (L, plan = "free") => L.p.evaluate(s => localStorage.setItem("be_ai_allow", s), SPENT(plan));
+const unspend = L => L.p.evaluate(() => localStorage.removeItem("be_ai_allow"));
 
 /* ========================================================================== */
 console.log("\n# 1. ANONYMOUS — no account, therefore no AI (the approved model)");
@@ -157,7 +166,7 @@ console.log("\n# 2. AUTHENTICATED FREE — the basic spoken loop is whole");
   const g = await L.p.evaluate(() => ({ gated: entGated(), noAcct: aiNoAccount(), stt: sttOff(), ai: aiOff("ai_analysis"), plan: entView().plan }));
   ok("2.1 · signed in, Free, and the gate is live — so this is the real Premium-on shape", g.gated === true && g.plan === "free" && g.noAcct === false, JSON.stringify(g));
   ok("2.2 · transcription is NOT withheld: microphone -> recording -> words is free", g.stt === false);
-  ok("2.3 · …while the AI's judgement is still withheld, which is the product", g.ai === true);
+  ok("2.3 · …and the AI's judgement is NOT withheld while today's allowance holds — the verdicts are metered, not locked", g.ai === false && await L.p.evaluate(() => entLocked("ai_analysis") === false && entLocked("ai_coach") === false), JSON.stringify(g));
   const turn = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); const said = await fbTranscribe(b); return { said, why: fbTxWhy() }; });
   ok("2.4 · a Free learner's spoken answer comes back as words", /delivery date/.test(turn.said) && !turn.why, JSON.stringify(turn));
   ok("2.5 · the call was attributed to the account (a token went with it), which is what makes free metering possible",
@@ -168,9 +177,21 @@ console.log("\n# 2. AUTHENTICATED FREE — the basic spoken loop is whole");
     && !L.calls.some(c => c.route === "chat:report" || c.route === "chat:coach"), JSON.stringify(L.calls.map(c => c.route)));
   const words = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); const w = await fbWords(b); return Array.isArray(w) && w.length; });
   ok("2.8 · per-word TIMINGS (the free transcript) are available; it is the per-word SCORE that is paid", words > 0, String(words));
-  const assess = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); return await fbAssess(b, "we must agree"); });
-  ok("2.9 · the pronunciation grade returns null for a Free learner — the one gate, in one place (fbAssess)", assess === null, JSON.stringify(assess));
-  ok("2.10 · …and it made no request, so a refusal costs nothing", !L.calls.some(c => c.route === "assess"), JSON.stringify(L.calls.map(c => c.route)));
+  /* fbAssess re-encodes the take to WAV before sending, so the blob has to
+     decode: half a second of silence in a WAV header */
+  const WAV = `(() => { const sr = 16000, n = sr / 2, ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab), wr = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+    wr(0, "RIFF"); dv.setUint32(4, 36 + n * 2, true); wr(8, "WAVE"); wr(12, "fmt "); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); wr(36, "data"); dv.setUint32(40, n * 2, true);
+    return new Blob([ab], { type: "audio/wav" }); })()`;
+  const assess = await L.p.evaluate(async wav => await fbAssess(eval(wav), "we must agree"), WAV);
+  ok("2.9 · the pronunciation grade IS returned to a Free learner with allowance — fbAssess is the one gate, and it is open", assess && assess.mode === "ai" && Array.isArray(assess.words) && assess.words.length === 3, JSON.stringify(assess));
+  ok("2.10 · …and the request was made over the account's token, which is how the Worker counts it against today's 3", L.calls.some(c => c.route === "assess" && /^Bearer /.test(c.auth || "")), JSON.stringify(L.calls.map(c => c.route)));
+  /* today's three are spent: the same gate closes, in the same place */
+  await spend(L);
+  const out = await L.p.evaluate(async wav => ({ off: aiOff("ai_analysis"), locked: entLocked("ai_analysis"), note: aiOffNote("ai_analysis"), reset: allowResetText(aiAllowance()), card: premLockHTML("ai_analysis", "t"), assess: await fbAssess(eval(wav), "the delivery") }), WAV);
+  ok("2.11 · with today's allowance SPENT, aiOff is true while entLocked stays false — the count closes the gate, not the plan", out.off === true && out.locked === false, JSON.stringify({ off: out.off, locked: out.locked }));
+  ok("2.12 · …the note names the allowance and the time it comes back, never the connection", /used today's 3 AI verdicts/.test(out.note) && out.reset && out.note.includes(out.reset) && !/connection|online/i.test(out.note), out.note);
+  ok("2.13 · …the allowance card is drawn with the offer (a Free learner can buy more), and never says 'unlimited'", /prem-lock prem-allow/.test(out.card) && /prem-lock-go/.test(out.card) && /Today's AI verdicts are used up/.test(out.card) && !/unlimited/i.test(out.card), out.card.slice(0, 300));
+  ok("2.14 · …and fbAssess returns null WITHOUT a request: a spent allowance costs nothing", out.assess === null && L.calls.filter(c => c.route === "assess").length === 1, JSON.stringify(L.calls.map(c => c.route)));
   await L.ctx.close();
 }
 
@@ -186,12 +207,19 @@ console.log("\n# 3. THE SHADOW CHALLENGE, FREE — participation and basic feedb
   ok("3.3 · coverage and word accuracy are there, computed on the device from the free transcript", fb && fb.coverage > 0 && fb.total > 0 && fb.ok_ > 0, JSON.stringify(fb));
   ok("3.4 · a verdict is there — Free closes the Speak -> Feedback loop", fb && !!fb.verdict, JSON.stringify(fb));
   ok("3.5 · the WORDS dimension is reported", fb && fb.dims.words && fb.dims.words !== "na", JSON.stringify(fb && fb.dims));
-  ok("3.6 · the PRONUNCIATION dimension is absent, because that is the paid part", fb && (!fb.dims.pron || fb.dims.pron === "na") && fb.pronMode == null, JSON.stringify(fb));
+  ok("3.6 · the PRONUNCIATION dimension is PRESENT — the Worker's assess answered, and a Free learner's allowance covers it", fb && fb.dims.pron && fb.dims.pron !== "na" && fb.pronMode === "ai", JSON.stringify(fb));
   const txt = await panelText(L);
-  ok("3.7 · the panel says the pronunciation score is Premium, in words", /pronunciation score is in Premium/i.test(txt), txt.slice(0, 500));
+  ok("3.7 · the panel says nothing about Premium or a spent allowance — there is nothing to say while the allowance holds", !/used up|in Premium|Unlock Premium/i.test(txt), txt.slice(0, 500));
   ok("3.8 · and NOWHERE does it blame the connection — the exact lie the owner reported as 'intermittent'", !/connection|online/i.test(txt), (txt.match(/[^.]*connection[^.]*\./i) || [""])[0]);
-  ok("3.9 · one upgrade offer under the report, not a lock in place of the practice", await L.p.evaluate(() => document.querySelectorAll("#svCh .prem-lock").length === 1 && !!document.querySelector("#svCh .sv-ch-rep")));
-  ok("3.10 · no assess call was made anywhere in the rung", !L.calls.some(c => c.route === "assess"), JSON.stringify(L.calls.map(c => c.route)));
+  ok("3.9 · no lock and no offer under the report: the practice AND its verdict are the learner's", await L.p.evaluate(() => document.querySelectorAll("#svCh .prem-lock").length === 0 && !!document.querySelector("#svCh .sv-ch-rep")));
+  ok("3.10 · the assess call WAS made, with the account's token", L.calls.some(c => c.route === "assess" && /^Bearer /.test(c.auth || "")), JSON.stringify(L.calls.map(c => c.route)));
+  /* the same report, once today's verdicts are spent: the dimension note says
+     so in words and the allowance card appears under it — the practice stays */
+  await spend(L);
+  const sp = await L.p.evaluate(() => ({ dims: svChDimsHTML(svCh.fb).replace(/<[^>]+>/g, " "), card: premLockHTML("ai_analysis", "challenge") }));
+  ok("3.10b · with the allowance spent the pronunciation note says today's AI verdicts are used up, and the allowance card (with its offer) is drawn — no connection blamed",
+    /pronunciation score is an AI verdict, and today's are used up/i.test(sp.dims) && !/connection|online/i.test(sp.dims) && /prem-allow/.test(sp.card) && /prem-lock-go/.test(sp.card), JSON.stringify(sp).slice(0, 400));
+  await unspend(L);
   ok("3.11 · the attempt is kept in the learner's own history like any other", await L.p.evaluate(() => aList("chHist").length >= 1));
   ok("3.12 · no page error", L.errs.length === 0, L.errs.join(" | "));
   await L.ctx.close();
@@ -208,7 +236,13 @@ console.log("\n# 4. THE SAME RUNG, PREMIUM — the paid depth arrives on top");
   ok("4.1 · Premium gets the per-word pronunciation grade the Free learner was told about", fb && fb.pronMode === "ai" && fb.pron && fb.pron !== "na", JSON.stringify(fb));
   ok("4.2 · the assess route WAS called, with the account's token", L.calls.some(c => c.route === "assess" && /^Bearer /.test(c.auth || "")), JSON.stringify(L.calls.map(c => c.route)));
   const txt = await panelText(L);
-  ok("4.3 · no Premium note and no offer, because there is nothing to offer", !/is in Premium/i.test(txt) && await L.p.evaluate(() => !document.querySelector("#svCh .prem-lock")));
+  ok("4.3 · no Premium note and no offer, because there is nothing to offer", !/is in Premium|used up/i.test(txt) && await L.p.evaluate(() => !document.querySelector("#svCh .prem-lock")));
+  /* Premium is metered too: 120 a day is a fair-use ceiling, never "unlimited" */
+  await spend(L, "premium");
+  const fair = await L.p.evaluate(() => ({ off: aiOff("ai_analysis"), card: premLockHTML("ai_analysis", "t"), note: aiOffNote("ai_analysis") }));
+  ok("4.3b · a paying learner at the fair-use ceiling: the gate closes, the card names the ceiling and the reset time, and carries NO offer (nothing to sell)",
+    fair.off === true && /prem-allow/.test(fair.card) && /fair-use ceiling of 120 AI verdicts/.test(fair.card) && !/prem-lock-go|Unlock Premium/.test(fair.card) && !/unlimited/i.test(fair.card + fair.note), JSON.stringify(fair).slice(0, 400));
+  await unspend(L);
   ok("4.4 · Premium and Free took the SAME code path — one implementation, assess: null or assess: {}, never a parallel one",
     await L.p.evaluate(() => typeof ShadowSync.challenge === "function" && !!ShadowSync.challenge("we must agree", "we must agree", { assess: null }).verdict));
   await L.ctx.close();
@@ -222,10 +256,14 @@ console.log("\n# 5. THE OTHER FIVE RUNGS, FREE — nothing is a dead end");
   const got = await L.p.waitForFunction(() => svCh && svCh.retell && svCh.retell.res, null, { timeout: 20000 }).then(() => true, () => false);
   const r = await L.p.evaluate(() => svCh.retell && ({ res: svCh.retell.res, prem: !!svCh.retell.prem, heard: svCh.retell.heard, err: svCh.err }));
   ok("5.1 · RETELL: a Free learner is heard and the attempt completes", got && r && r.res && r.res.ok === true && !!r.heard, JSON.stringify(r));
-  ok("5.2 · …it is marked as the Premium-judged part being absent, not as a pass it did not earn", r && r.prem === true && r.res.why === "free", JSON.stringify(r && r.res));
+  ok("5.2 · …and the verdict is the AI's own, not a pass marked 'Premium judges this' — the meaning check is one of today's 3", r && r.prem === false && r.res.why === "" && r.res.tip === "Say it a little slower.", JSON.stringify(r && r.res));
   const rt = await panelText(L);
-  ok("5.3 · …and the panel says Premium judges the meaning, with no mention of a connection", /Premium judges whether your words carried the meaning/i.test(rt) && !/connection/i.test(rt), rt.slice(0, 400));
-  ok("5.4 · …and the paid meaning call was never made", !L.calls.some(c => c.route === "chat:report"), JSON.stringify(L.calls.map(c => c.route)));
+  ok("5.3 · …the panel carries the AI's feedback, says nothing about a spent allowance and nothing about a connection", /Say it a little slower/.test(rt) && !/used up|comes back tomorrow/i.test(rt) && !/connection/i.test(rt), rt.slice(0, 400));
+  ok("5.4 · …and the meaning call WAS made, over the report purpose, with the account's token", L.calls.some(c => c.route === "chat:report" && /^Bearer /.test(c.auth || "")), JSON.stringify(L.calls.map(c => c.route)));
+  /* once today's verdicts are spent the rung still completes — marked as
+     unjudged, with the allowance wording, never a fabricated pass */
+  const spentWord = await L.p.evaluate(() => t("sv.ch_retell_prem"));
+  ok("5.4b · the spent-allowance wording for this rung says 'recorded and counted' and that the verdict comes back, not 'Premium judges it'", /Recorded and counted/.test(spentWord) && /AI verdict/.test(spentWord) && /used up/.test(spentWord) && !/Premium judges/.test(spentWord) && !/connection/i.test(spentWord), spentWord);
   /* the local guards still refuse the two ways out of the exercise — a Free
      pass is not a free pass */
   const guard = await L.p.evaluate(() => { const s = svChSegObj(); return { echo: ShadowSync.retellCheck(s.text, s.text).echo, thin: ShadowSync.retellCheck("yes", s.text).thin }; });
@@ -258,8 +296,10 @@ console.log("\n# 6. NOTHING MOVED FREE -> PREMIUM, and no phantom is sold");
     !g.rows.some(r => /spoken back|read back|aloud/i.test(r)), JSON.stringify(g.rows));
   /* every remaining benefit row must correspond to something that is actually
      enforced. This is the rule that was broken: a row with no gate behind it. */
-  ok("6.4 · every benefit still sold maps to an enforcement point (ai_analysis, advanced_progress, ai_coach)",
-    g.rows.length >= 3 && g.rows.every(r => /AI|progress|analytics|Coach|video/i.test(r)), JSON.stringify(g.rows));
+  ok("6.4 · every benefit still sold maps to an enforcement point: a capability gate (advanced_progress, ai_coach) or a metered allowance (AI verdicts, video minutes)",
+    g.rows.length >= 4 && g.rows.every(r => /AI verdicts a day|minutes a day of your own YouTube|progress|analytics|Coach|Shadow videos/i.test(r)) && !g.rows.some(r => /unlimited/i.test(r)), JSON.stringify(g.rows));
+  ok("6.4b · the allowance rows name the Premium numbers (120 verdicts, 240 minutes) and call them fair use — never 'unlimited'",
+    g.rows.some(r => /^120 AI verdicts a day \(fair use\)/.test(r)) && g.rows.some(r => /^240 minutes a day/.test(r)), JSON.stringify(g.rows));
   ok("6.5 · ad-free is enforced through the plan's own `ads` field, so it is not a phantom either", g.ads === true);
   ok("6.6 · the natural voice is still FREE: it reads lessons and characters, which is content, not a verdict",
     await L.p.evaluate(() => typeof fbSay === "function" && !/aiOff\(/.test(String(fbSay))));
@@ -281,10 +321,13 @@ console.log("\n# 7. A REFUSAL NEVER LIES (D3 in the matrix)");
      not classify, so the condition is `.err==="acct"||aiNoAccount()`. Broader
      than before, never narrower — the pattern follows it. */
   const acct = [...src.matchAll(/\.err==="acct"\|\|aiNoAccount\(\)\?t\("ai\.need_acct"\)/g)].length;
-  ok("7.2 · every error chain that can say 'offline' can also say 'Premium' and 'sign in'", chains > 0 && prem === chains && acct === chains, `net ${chains} / premium ${prem} / acct ${acct}`);
+  ok("7.2 · every error chain that can say 'offline' can also say 'allowance spent' (err \"premium\") and 'sign in'", chains > 0 && prem === chains && acct === chains, `net ${chains} / premium ${prem} / acct ${acct}`);
   const L = await learner({ plan: FREE });
-  const fix = await L.p.evaluate(async () => { const d = { phase: "grading", err: null }; window.fbFix = window.fbFix || {}; return { locked: entLocked("ai_analysis"), note: aiOffNote("ai_analysis") }; });
-  ok("7.3 · and the shared note for a Free learner names Premium, not the network", /Premium|plan/i.test(fix.note) && !/connection|online/i.test(fix.note), fix.note);
+  await spend(L);
+  const fix = await L.p.evaluate(async () => ({ locked: entLocked("ai_analysis"), off: aiOff("ai_analysis"), note: aiOffNote("ai_analysis"), chain: t("sv.ch_err_prem"), sess: t("sess.report_prem") }));
+  ok("7.3 · and the shared note for a Free learner whose verdicts are spent names the AI verdicts and the allowance, not the network", fix.off === true && /AI verdicts/.test(fix.note) && /come back at/.test(fix.note) && !/connection|online/i.test(fix.note), fix.note);
+  ok("7.3b · the graders' \"premium\" error and the session's note both say 'AI verdicts … used up', and that the recording is saved — neither blames the network nor calls it a lock",
+    /today's AI verdicts, and they are used up/.test(fix.chain) && /recording is saved/.test(fix.chain) && /Today's AI verdicts are used up/.test(fix.sess) && /recording is saved/.test(fix.sess) && !/connection|online|unlock/i.test(fix.chain + fix.sess), JSON.stringify(fix));
   await L.ctx.close();
 }
 
@@ -292,7 +335,8 @@ console.log("\n# 8. WELDING — one subscription, and the free loop whole on bot
 {
   const L = await learner({ track: "welding", plan: FREE });
   const g = await L.p.evaluate(() => ({ area: areaId(), gated: entGated(), stt: sttOff(), ai: aiOff("ai_analysis"), rows: premBenefitRows().map(r => t(r[0], r[2] || {})) }));
-  ok("8.1 · a Welding learner is held by the SAME rule — the boundary carries no track term", g.area === "welding" && g.gated === true && g.ai === true, JSON.stringify(g));
+  ok("8.1 · a Welding learner is held by the SAME metered rule — the boundary carries no track term: the AI runs on today's allowance, and stops the same way once it is spent",
+    g.area === "welding" && g.gated === true && g.ai === false && await L.p.evaluate(s => { localStorage.setItem("be_ai_allow", s); const r = aiOff("ai_analysis") === true && /prem-allow/.test(premLockHTML("ai_analysis", "t")); localStorage.removeItem("be_ai_allow"); return r; }, SPENT("free")), JSON.stringify(g));
   ok("8.2 · and is heard for free, exactly as on General English: the workshop and the interview stay usable", g.stt === false);
   const turn = await L.p.evaluate(async () => { const b = new Blob([new Uint8Array(4000)], { type: "audio/webm" }); return { said: await fbTranscribe(b), why: fbTxWhy() }; });
   ok("8.3 · a Welding spoken turn comes back as words, with no Premium wall mid-activity", /delivery date/.test(turn.said) && !turn.why, JSON.stringify(turn));
@@ -426,17 +470,19 @@ console.log("\n# 9. F7 — the account requirement is stated BEFORE the activity
   ok("9.15 · a signed-in FREE learner sees NO account notice — the requirement is met", f.needed === false && f.html === "" && f.polish === false, JSON.stringify(f));
   await FREEL.ctx.close();
 
-  /* 4. Premium-required functionality still says Premium, not "account" */
+  /* 4. the allowance card still says "allowance", not "account" */
   const PR = await learner({ plan: FREE });
+  const lock0 = await PR.p.evaluate(() => premLockHTML("ai_analysis", "t"));
+  await spend(PR);
   const pr = await PR.p.evaluate(() => ({
     lock: premLockHTML("ai_analysis", "t"),
     note: aiOffNote("ai_analysis"),
     acct: aiAcctNoticeHTML("t"),
   }));
-  ok("9.16 · the Premium card is still the Premium card for a signed-in Free learner",
-    /prem-lock/.test(pr.lock) && /premiumOpen/.test(pr.lock) && !/acct-link/.test(pr.lock), pr.lock.slice(0, 200));
+  ok("9.16 · for a signed-in Free learner the AI card is drawn only once today's verdicts are spent — and then it is the allowance card with the offer, never the account link",
+    lock0 === "" && /prem-lock prem-allow/.test(pr.lock) && /premiumOpen/.test(pr.lock) && !/acct-link/.test(pr.lock), pr.lock.slice(0, 200));
   ok("9.17 · …and the two messages are never both shown: the account one is empty here", pr.acct === "", pr.acct);
-  ok("9.18 · …and the Premium note does not mention an account or signing in",
+  ok("9.18 · …and the allowance note does not mention an account or signing in",
     !/sign in|create an account/i.test(pr.note), pr.note);
   await PR.ctx.close();
 

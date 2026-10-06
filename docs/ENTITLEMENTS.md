@@ -59,11 +59,27 @@ record. The client displays the server's last answer, bound to the uid, for at
 most 12 hours and never past its own expiry. With no deployment (`ENT_API = ""`)
 everyone is Free and no request is made.
 
-The Premium card in App Setup:
-- lists ad-free learning, more AI coaching and practice each day, and new
+**Metered, not locked (owner's tier spec, 5 Oct 2026 — `docs/TIERS.md`).**
+The capabilities `ai_analysis` and `ai_coach` are no longer a yes/no gate.
+be-polish's `premiumGate` meters the routes behind them per UTC day: **3 AI
+verdicts a day on Free, 120 on Premium**; past the ceiling the route answers
+`429 allowance`, not 402. Pasted-video transcription (`ytai`) is metered in
+seconds of video per UTC day (1,800 Free / 14,400 Premium). The headers
+`X-BE-Allowance` and `X-BE-Video-Allowance` carry `{used, limit, resetAt,
+plan}`. Premium's ceilings are fair use and are never described as
+"unlimited". `advanced_progress` and `recommended_content` stay hard-locked
+on Free. The same plan applies on General English and Welding. Signed-out
+learners reach no AI route except Shadow translation and IPA.
+
+The Premium card in App Setup, as built in this phase:
+- listed ad-free learning, more AI coaching and practice each day, and new
   Premium features as they arrive;
-- shows "Coming soon" for Free and "Active until …" for Premium;
-- has no price and no purchase button.
+- showed "Coming soon" for Free and "Active until …" for Premium;
+- had no price and no purchase button.
+
+(The card and the paywall were rebuilt later — `docs/PREMIUM-ACQUISITION.md`,
+`docs/PREMIUM-ACQUISITION-UI.md`; the current promises are those in
+`docs/TIERS.md`.)
 
 ## 4. Advertising readiness
 
@@ -71,7 +87,11 @@ The Premium card in App Setup:
 this order:
 
 1. `flag("ads_enabled")`: **off** in production and on staging this phase.
-2. The plan, from the server view: Premium means no ads of any format.
+1b. The programme (`adsTrackAllows()` = `isGeneralEnglish()`, owner's tier
+   spec, 5 Oct 2026): ads are **General English only**, on the free plan
+   (anonymous or Free account). **Welding shows no ad on any plan.**
+2. The plan, from the server view: Premium means no ads of any format,
+   anywhere.
 3. The format is known: `interstitial`, `native`, `rewarded`, `sponsored`.
 4. The context is allowed for that format. Interstitials only at natural
    breaks: `lesson_complete`, `shadow_complete`, `practice_complete`,

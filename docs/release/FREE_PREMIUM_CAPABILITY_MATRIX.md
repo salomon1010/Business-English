@@ -1,3 +1,5 @@
+> Superseded on 5 Oct 2026 by docs/TIERS.md (metered AI allowance, two plans, ads on General English only).
+
 # BE Mastery — the authoritative Free / Premium capability matrix
 
 **Status: REVIEWED AND IMPLEMENTED — READY FOR REVIEW, NOT MERGED, NOT DEPLOYED**

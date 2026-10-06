@@ -5976,6 +5976,20 @@ h1.big{letter-spacing:-.025em}
 .prem-preview{display:flex;gap:9px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border:1px dashed color-mix(in srgb,var(--gold) 46%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 9%,transparent);color:var(--mut);font-size:12.5px;line-height:1.45}
 .prem-preview svg{width:16px;height:16px;flex:none;color:var(--gold);margin-top:1px}
 .prem-offer{display:grid;gap:4px;text-align:center;padding:20px 16px 18px;border:1.5px solid var(--acc);border-radius:18px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 0 0 1px var(--acc) inset,0 10px 26px var(--cta-tint,transparent)}
+/* the two-plan picker (tier spec, 5 Oct 2026): annual lit first, monthly beside it */
+.prem-plans-l{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.prem-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prem-plan{display:grid;gap:4px;text-align:left;padding:14px 14px 12px;border:1.5px solid color-mix(in srgb,var(--mut) 35%,transparent);border-radius:16px;background:color-mix(in srgb,var(--card) 90%,transparent);color:var(--txt);cursor:pointer;font:inherit}
+.prem-plan.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset,0 10px 26px var(--cta-tint,transparent)}
+.prem-plan-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.prem-plan-name{font-size:13px;font-weight:700}
+.prem-plan-badge{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:999px;color:#fff;background:var(--grad,var(--acc))}
+.prem-plan-price{display:flex;align-items:baseline;gap:4px;font-size:12px;color:var(--mut)}
+.prem-plan-price b{font-size:20px;color:var(--txt)}
+.prem-plan-save{font-size:11px;font-weight:700;color:var(--green)}
+.prem-plan-trial{font-size:11px;font-weight:600;color:var(--acc2)}
+.ai-allow{margin:6px 0 0}.ai-allow.out{color:var(--gold)}
+@media (max-width:360px){.prem-plans{grid-template-columns:1fr}}
 .prem-offer-trial{margin:0;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
 .prem-offer-name{margin:0;font-size:16px;font-weight:700;color:var(--txt)}
 .prem-offer-price{margin:2px 0 0;display:flex;align-items:baseline;justify-content:center;gap:6px;flex-wrap:wrap}
@@ -7370,9 +7384,9 @@ const I18N_EN={
  "acc.free_8":"Interface and glosses in 15 languages",
  "acc.prem_1":"Ad-free learning",
  "prem.h":"BE Mastery Premium",
- "prem.headline":"Speak with confidence. Practice without limits.",
- "prem.lede":"Unlock more of BE Mastery's speaking, shadowing, and AI practice tools.",
- "prem.on_h":"You're on Premium. Practice without limits.",
+ "prem.headline":"Speak with confidence. Go further every day.",
+ "prem.lede":"More AI verdicts a day, your own videos transcribed, your long-term progress — and no ads.",
+ "prem.on_h":"You're on Premium. Thank you for backing your practice.",
  "prem.b_noads":"No ads — ever, before, during or after your practice.",
  "prem.b_all":"Everything you use today stays included: every lesson, track and practice tool.",
  "prem.best":"Best value",
@@ -7428,20 +7442,32 @@ const I18N_EN={
  "prem.offer_annual":"Annual Premium",
  "prem.preview":"Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app.",
  "prem.then":"Then {{price}} / {{per}}. Cancel anytime in {{store}}.",
- "prem.b_ai":"AI speaking analysis — pronunciation, grammar, vocabulary and fluency",
+ "prem.b_ai":"{{n}} AI verdicts a day (fair use): speaking reports, pronunciation scores and AI coach replies",
+ "prem.b_yt_min":"{{n}} minutes a day of your own YouTube videos, transcribed",
+ "prem.cmp_ai":"AI verdicts a day","prem.cmp_perday":"{{n}} a day","prem.cmp_fair":"{{n}} a day (fair use)",
+ "prem.cmp_ytmin":"Your YouTube videos, transcribed","prem.cmp_min":"{{n}} min a day",
+ "prem.cmp_ads":"Ads","prem.cmp_yes":"Yes","prem.cmp_none":"None",
+ "ai.allow_chip":"Daily allowance",
+ "ai.allow_out":"You've used today's {{n}} AI verdicts. They come back at {{time}}. Premium gives {{top}} a day.",
+ "ai.allow_fair":"You've reached today's fair-use ceiling of {{n}} AI verdicts. It resets at {{time}}.",
+ "ai.allow_left":"{{n}} of {{total}} AI verdicts left today (resets {{time}}).",
+ "sh.cap_allow_t":"Today's video minutes are used",
+ "sh.cap_allow_b":"Free transcribes {{n}} minutes of your own videos a day; Premium {{top}}. Yours come back at {{time}}.",
+ "sh.cap_allow_fair":"You've reached today's fair-use ceiling of {{n}} video minutes. It resets at {{time}}.",
+ "sh.cap_allow_left":"{{n}} of {{total}} video minutes left today (resets {{time}}).",
  "prem.b_progress":"Advanced progress: your speaking trends over time",
  "prem.b_analytics":"30- and 90-day analytics",
  "prem.b_coach":"The AI Coach, whenever you want another round of practice",
  "prem.lock_cta":"Unlock Premium",
- "prem.lock_ai_h":"AI speaking analysis",
- "prem.lock_ai_b":"Unlock personalised pronunciation, grammar, vocabulary and fluency feedback on everything you say.",
+ "prem.lock_ai_h":"Today's AI verdicts are used up",
+ "prem.lock_ai_b":"Free includes {{n}} AI verdicts a day — a speaking report, a pronunciation score or an AI coach reply each. Yours come back at {{time}}. Premium gives {{top}} a day.",
  "prem.lock_coach_h":"AI Coach",
  "prem.lock_coach_b":"Practise with the AI coach and get detailed feedback on every answer.",
  "prem.lock_prog_h":"Unlock 30- and 90-day progress",
  "prem.lock_prog_b":"See how your speaking performance changes over time.",
  "prem.lock_rec_h":"Recommended for you",
  "prem.lock_rec_b":"Open this recommendation, practise it, and get the AI feedback that goes with it.",
- "prem.kept":"Your practice is still recorded and saved — only the AI analysis is Premium.",
+ "prem.kept":"Your practice is still recorded and saved — only the AI's verdict waits.",
  "acc.prem_2":"More AI coaching and practice each day",
  "acc.prem_3":"New Premium features as they arrive",
  "acc.prem_active":"Active",
@@ -7762,7 +7788,7 @@ const I18N_EN={
  "sess.report_none":"Record yourself first — the report is built from your recording.",
  "sess.report_short":"Speak for at least {{n}} seconds to get a report.",
  "sess.report_off":"The report needs a connection. Your recording is saved — come back online and tap Get my report.",
- "sess.report_prem":"The AI report is part of Premium. Your recording is saved, and your practice still counts.",
+ "sess.report_prem":"Today's AI verdicts are used up — the report comes back tomorrow. Your recording is saved, and your practice still counts.",
  "ai.acct_chip":"Free account",
  "ai.acct_h":"The AI parts need a free account",
  "ai.acct_b":"Transcription, translation and spoken feedback run on our servers, so they need an account to belong to. Creating one is free — there is no card and nothing to pay.",
@@ -7844,9 +7870,9 @@ const I18N_EN={
  "sv.ch_use_good":"You used “{{phrase}}” in your own sentence.","sv.ch_use_missed":"I did not hear “{{phrase}}”. Say a sentence that includes it.",
  "sv.ch_use_longer":"Add a little more — who, what, or when.","sv.ch_use_done":"Done",
  "sv.ch_ai_note":"AI feedback from your recording — it can mishear. You can always record again.",
- "sv.ch_err_prem":"That part of the feedback is in Premium. Everything your device can measure is below, and your recording is saved.",
- "sv.ch_pron_prem":"Coverage, words and rhythm are yours. The word-by-word pronunciation score is in Premium.",
- "sv.ch_retell_prem":"Recorded and counted. Premium judges whether your words carried the meaning, and says what to add.",
+ "sv.ch_err_prem":"That verdict needs one of today's AI verdicts, and they are used up. Everything your device can measure is below, and your recording is saved.",
+ "sv.ch_pron_prem":"Coverage, words and rhythm are yours. The word-by-word pronunciation score is an AI verdict, and today's are used up.",
+ "sv.ch_retell_prem":"Recorded and counted. The meaning check is an AI verdict — today's are used up, and it comes back tomorrow.",
  "sv.ch_retell_counted":"You said it in your own words — that is the exercise, and it counts.",
  "sv.ch_err_net":"Feedback needs a connection. Your recording is saved — retry when you are online.","sv.ch_err_retry":"Retry feedback",
  "sv.ch_err_mic":"Microphone access is needed to record. Allow the microphone and try again.","sv.ch_err_short":"That was too short to grade. Say the whole line.",
@@ -19361,7 +19387,7 @@ async function fbFixGrade(d,blob){
   /* D3: this said "needs a connection" to a Free learner who had one. The
      graded drill IS the AI's judgement, so it stays Premium — what changes is
      that the refusal names its real reason. */
-  if(aiOff("ai_analysis")){d.phase="ready";d.err=entLocked("ai_analysis")?"premium":aiNoAccount()?"acct":"net";fbFixDraw();return}
+  if(aiOff("ai_analysis")){d.phase="ready";d.err=(entLocked("ai_analysis")||aiAllowOut())?"premium":aiNoAccount()?"acct":"net";fbFixDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,d.word).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -21987,7 +22013,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v628";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v629";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -22035,12 +22061,14 @@ const POLISH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.polish)return e
        Worker will refuse. Bounded, and only ever on a device with an owner. */
     if(!tok)try{if(fbAuthPending()){await fbAuthSettled(5000);
       if(typeof FBUser!=="undefined"&&FBUser&&typeof FBUser.getIdToken==="function")tok=await FBUser.getIdToken()}}catch(e){}
-    if(!tok)return nat(input,init);
+    if(!tok)return aiAllowTap(await nat(input,init));
     const o=Object.assign({},init||{});
     let h;try{h=new Headers((o.headers)||(input&&typeof input==="object"&&input.headers)||{})}catch(e){h=new Headers()}
     h.set("authorization","Bearer "+tok);
     o.headers=h;
-    return nat(input,o);
+    /* every be-polish answer passes through aiAllowTap: the day's allowance
+       rides on its headers (the tier spec, 5 Oct 2026) */
+    return aiAllowTap(await nat(input,o));
   };
   signed.bePolishSigned=true;
   window.fetch=signed;
@@ -23898,8 +23926,55 @@ function hasEntitlement(cap){
 }
 /* "this is Premium and you do not have it" — the question a locked card asks.
    False while nothing is gated, so no lock is ever drawn in production today. */
-function entLocked(cap){return entGated()&&!hasEntitlement(cap)}
+/* METERED, NOT LOCKED (the owner's tier spec, 5 October 2026). The AI's
+   VERDICTS — a speaking report, a pronunciation score, an AI coach reply — are
+   no longer a Premium lock: a Free account gets 3 a day, Premium 120 a day (a
+   fair-use ceiling, never "unlimited"), counted by the Worker per UTC day. So
+   for these two capabilities entLocked() is FALSE on every plan; what can stop
+   a Free learner is the day's allowance being spent (aiAllowOut), and the card
+   for that says when it comes back. advanced_progress and recommended_content
+   stay hard locks. */
+const ENT_METERED=Object.freeze({ai_analysis:true,ai_coach:true});
+function entLocked(cap){return entGated()&&!hasEntitlement(cap)&&!ENT_METERED[cap]}
 window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
+/* ---- the daily allowance, as the Worker last reported it ----
+   be-polish answers every metered call with X-BE-Allowance {used, limit,
+   resetAt, plan} (and X-BE-Video-Allowance for the learner's own YouTube
+   minutes); a refusal is 429 {error:"allowance", scope}. The one fetch wrapper
+   beside POLISH_API hands every answer to aiAllowTap(), so this is the client's
+   memory of the server's count — display and economy only, never the gate: the
+   Worker refuses on its own whatever this says. Kept outside S (never synced,
+   per device). */
+const AI_ALLOW_KEY="be_ai_allow",YT_ALLOW_KEY="be_yt_allow";
+const VERDICTS_FREE=3,VERDICTS_PREMIUM=120,YT_MIN_FREE=30,YT_MIN_PREMIUM=240;   /* for copy only; the Worker holds the numbers */
+function allowRead(key){try{const a=JSON.parse(localStorage.getItem(key)||"null");if(!a||!(+a.resetAt>Date.now()))return null;return a}catch(e){return null}}
+function allowWrite(key,a){try{if(!a||!Number.isFinite(+a.limit)||!Number.isFinite(+a.resetAt))return;
+  localStorage.setItem(key,JSON.stringify({used:Number.isFinite(+a.used)?+a.used:+a.limit,limit:+a.limit,resetAt:+a.resetAt,plan:a.plan==="premium"?"premium":"free",at:Date.now()}))}catch(e){}}
+function aiAllowance(){return allowRead(AI_ALLOW_KEY)}
+function ytAllowance(){return allowRead(YT_ALLOW_KEY)}
+function aiAllowOut(){const a=aiAllowance();return !!(a&&a.used>=a.limit)}
+function allowResetText(a){try{return new Date(+a.resetAt).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})}catch(e){return ""}}
+/* the sentence for the state: spent (Free, with the Premium number), at the
+   fair-use ceiling (Premium), or how many are left */
+function aiAllowNote(){
+  const a=aiAllowance();if(!a)return "";const time=allowResetText(a);
+  if(a.used>=a.limit)return a.plan==="premium"?t("ai.allow_fair",{n:a.limit,time}):t("ai.allow_out",{n:a.limit,time,top:VERDICTS_PREMIUM});
+  return t("ai.allow_left",{n:a.limit-a.used,total:a.limit,time});
+}
+function ytAllowNote(){const a=ytAllowance();if(!a)return "";const time=allowResetText(a),mins=Math.round(a.limit/60);
+  return a.used>=a.limit?(a.plan==="premium"?t("sh.cap_allow_fair",{n:mins,time}):t("sh.cap_allow_b",{n:mins,top:YT_MIN_PREMIUM,time})):t("sh.cap_allow_left",{n:Math.max(0,Math.round((a.limit-a.used)/60)),total:mins,time})}
+function aiAllowTap(res){
+  try{
+    const h=res.headers.get("x-be-allowance");if(h)allowWrite(AI_ALLOW_KEY,JSON.parse(h));
+    const v=res.headers.get("x-be-video-allowance");if(v)allowWrite(YT_ALLOW_KEY,JSON.parse(v));
+    if(res.status===429)res.clone().json().then(j=>{if(j&&j.error==="allowance")allowWrite(j.scope==="video"?YT_ALLOW_KEY:AI_ALLOW_KEY,{used:j.limit,limit:j.limit,resetAt:j.resetAt,plan:j.plan})}).catch(()=>{});
+  }catch(e){}
+  return res;
+}
+/* a small line under a Record card: what is left today (nothing when the
+   server has not spoken yet, or when no gate is in force) */
+function aiAllowHTML(){try{if(!entGated())return "";const a=aiAllowance();if(!a)return "";return `<p class="pp-fine ai-allow${a.used>=a.limit?" out":""}">${esc(aiAllowNote())}</p>`}catch(e){return ""}}
+window.aiAllowance=aiAllowance;window.aiAllowOut=aiAllowOut;window.aiAllowNote=aiAllowNote;window.ytAllowance=ytAllowance;
 /* ---- the AI gate, in the shape every AI call site already used ----
    Every paid AI path in this file guarded itself with
    `!POLISH_API||!navigator.onLine`. aiOff(capability) is that same question
@@ -23934,7 +24009,7 @@ function aiNoAccount(){try{return planOn()&&!entUid()&&!fbAuthPending()}catch(e)
    transcribed" about a video that is perfectly fine. */
 function ytaiNoAccount(){try{return !entUid()&&!fbAuthPending()}catch(e){return false}}
 window.ytaiNoAccount=ytaiNoAccount;
-function aiOff(cap){try{return !POLISH_API||!navigator.onLine||aiNoAccount()||entLocked(cap)}catch(e){return true}}
+function aiOff(cap){try{return !POLISH_API||!navigator.onLine||aiNoAccount()||entLocked(cap)||(!!ENT_METERED[cap]&&aiAllowOut())}catch(e){return true}}
 function aiOn(cap){return !aiOff(cap)}
 /* The speech-to-text route costs no capability (ROUTE_CAP.transcribe is null —
    being heard is free, owner 1 October 2026), but with enforcement on it still
@@ -23950,8 +24025,8 @@ function sttOn(){return !sttOff()}
    sign-in fixes — the learner is online and taps Try again forever. Each caller
    keeps its own wording for the GENUINE cases (offline, rate-limited, Premium)
    and passes it as the fallback; only the signed-out case is overridden. */
-function aiErrText(key){try{return aiNoAccount()?t("ai.need_acct"):t(key)}catch(e){return t(key)}}
-function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
+function aiErrText(key){try{return aiNoAccount()?t("ai.need_acct"):aiAllowOut()?aiAllowNote():t(key)}catch(e){return t(key)}}
+function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):(ENT_METERED[cap]&&aiAllowOut())?aiAllowNote():entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
 /* ---- F7: say an account is needed BEFORE the activity, not after a turn fails ----
    The owner's model (1 Oct 2026): AI needs an AUTHENTICATED ACCOUNT, and a Free
    account is enough. Anonymous learners get no AI. Premium is a separate thing
@@ -24046,7 +24121,9 @@ function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){re
    The paywall (premBenHTML) and App Setup's plan card both read THIS, so the
    two can never describe Premium differently. */
 function premBenefitRows(){
-  const rows=[["prem.b_ai","mic"],["prem.b_progress","chart"],["prem.b_analytics","calendar"]];
+  /* the tier spec (5 Oct 2026): the verdicts and the video minutes are DAILY
+     ALLOWANCES with fair-use ceilings — the numbers are named, "unlimited" never is */
+  const rows=[["prem.b_ai","mic",{n:VERDICTS_PREMIUM}],["prem.b_yt_min","video",{n:YT_MIN_PREMIUM}],["prem.b_progress","chart"],["prem.b_analytics","calendar"]];
   let ge=true;try{ge=isGeneralEnglish()}catch(e){}
   if(ge)rows.push(["prem.b_coach","star"]);
   else{let n=100;try{n=planLimit("savedShadow","premium")}catch(e){}rows.push(["prem.b_videos","bookmark",{n}])}
@@ -24060,9 +24137,10 @@ function planKey(){try{return entApiBase()&&entIsPremiumForDisplay()?"premium":"
    already had, so nothing there changes.
    Premium rows are deliberately absent: a paying learner gets the same headroom
    on either track. */
-const PLAN_LIMITS_TRACK=Object.freeze({
-  welding:Object.freeze({free:Object.freeze({savedShadow:1,savedClips:1,youtubeImports:1})})
-});
+/* EMPTY since the tier spec (5 Oct 2026): "same capabilities on General
+   English and Welding" — one Free tier, one Premium tier, PLAN_LIMITS for
+   both. The shape stays so a per-track number is one line if it ever returns. */
+const PLAN_LIMITS_TRACK=Object.freeze({});
 function planLimit(name,plan){
   const k=plan||planKey();
   try{const o=PLAN_LIMITS_TRACK[areaId()];if(o&&o[k]&&o[k][name]!==undefined)return o[k][name]}catch(e){}
@@ -24244,7 +24322,11 @@ const _adHolds=new Set();let _adSession={};
    a free Welding learner sees ads and can subscribe to remove them.
    Kept as a function because this is the ONE line that would put a
    programme back behind the line. */
-function adsTrackAllows(){return true}
+/* GENERAL ENGLISH ONLY AGAIN (the owner's tier spec, 5 Oct 2026, evening): ads
+   on the free plan in General English; Welding shows no ad on any plan;
+   Premium removes them everywhere. Kept as a function because this is the
+   ONE line that decides which programme is in the ad system. */
+function adsTrackAllows(){try{return isGeneralEnglish()}catch(e){return false}}
 const AdEligibility={
   policy:AD_POLICY,
   planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
@@ -25115,26 +25197,43 @@ function premStore(){return Billing.provider&&Billing.provider.id==="app_store"?
    bought one, and such a learner keeps Premium and can manage it; it is simply
    not offered here. Two competing prices on one screen is the confusion this
    replaces. */
-function premOffer(){
+/* TWO PLANS AGAIN (the owner's tier spec, 5 Oct 2026): annual first ("Best
+   value", with the saving computed from the store's own two prices), then
+   monthly. Every figure still comes from the store; nothing here knows a price. */
+function premOffers(){
   const L=Billing.products||[];
   const per=(x,u)=>{const i=premIso(x.period);return i?i.u===u&&i.n===1:false};
-  /* the annual product, by the store's own period; its id only as a fallback
-     when the store returned no period at all */
-  const p=L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&x.id==="premium_annual")||L.find(x=>x.id!=="premium_monthly")||L[0];
-  if(!p)return null;
-  const kind=(per(p,"Y")||p.id==="premium_annual")?"annual":(per(p,"M")||p.id==="premium_monthly")?"monthly":"other";
-  return {p,kind,trial:premTrialDays(p.trial)};
+  const mk=(p,kind)=>p?{p,kind,trial:premTrialDays(p.trial)}:null;
+  const annual=mk(L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&x.id==="premium_annual"),"annual");
+  const monthly=mk(L.find(x=>per(x,"M"))||L.find(x=>!x.period&&x.id==="premium_monthly"),"monthly");
+  const list=[annual,monthly].filter(Boolean);
+  if(!list.length&&L[0])list.push(mk(L[0],"other"));
+  return {annual,monthly,list};
 }
+/* the offer the CTA will buy: the learner's pick, else annual, else whatever the store has */
+function premOffer(){const o=premOffers();if(!o.list.length)return null;return o.list.find(x=>x.p.id===_premSel)||o.annual||o.list[0]}
+/* the annual saving against twelve months of the monthly price, from the
+   store's numeric amounts in one currency; 0 when it cannot be computed honestly */
+function premSaving(o){try{if(!o.annual||!o.monthly||o.annual.p.currency!==o.monthly.p.currency)return 0;const a=+o.annual.p.amount,m=+o.monthly.p.amount;if(!(a>0&&m>0))return 0;return Math.max(0,Math.min(90,Math.round((1-a/(m*12))*100)))}catch(e){return 0}}
+window.premPick=id=>{_premSel=String(id||"");premDraw()};
 function premPeriodLabel(kind){return kind==="annual"?t("prem.per_year"):kind==="monthly"?t("prem.per_month"):""}
-/* the offer block: the free trial first (it is the offer), then the plan name
-   and the store's price. No radio group, no "best value", no saving to
-   compare against — there is only one thing to buy. */
-function premOfferHTML(o){
-  return `<div class="prem-offer">
-    ${o.trial?`<p class="prem-offer-trial">${esc(t("prem.trial_badge",{n:o.trial}))}</p>`:""}
-    <p class="prem-offer-name">${esc(o.kind==="annual"?t("prem.offer_annual"):o.kind==="monthly"?t("prem.plan_monthly"):o.p.title)}</p>
-    <p class="prem-offer-price"><b>${esc(o.p.price)}</b><span>${esc(premPeriodLabel(o.kind))}</span></p>
+/* the plan picker: one card per plan the store sells, the chosen one lit; a
+   lone product falls back to the single offer block */
+function premOfferHTML(sel){
+  const o=premOffers();
+  if(o.list.length<2)return `<div class="prem-offer">
+    ${sel.trial?`<p class="prem-offer-trial">${esc(t("prem.trial_badge",{n:sel.trial}))}</p>`:""}
+    <p class="prem-offer-name">${esc(sel.kind==="annual"?t("prem.offer_annual"):sel.kind==="monthly"?t("prem.plan_monthly"):sel.p.title)}</p>
+    <p class="prem-offer-price"><b>${esc(sel.p.price)}</b><span>${esc(premPeriodLabel(sel.kind))}</span></p>
   </div>`;
+  const sv=premSaving(o);
+  return `<p class="prem-plans-l">${esc(t("prem.plans_label"))}</p><div class="prem-plans" role="radiogroup" aria-label="${esc(t("prem.plans_label"))}">${o.list.map(x=>{
+    const on=x.p.id===sel.p.id,annual=x.kind==="annual";
+    return `<button type="button" role="radio" aria-checked="${on?"true":"false"}" class="prem-plan${on?" on":""}" onclick="premPick('${esc(x.p.id)}')">
+      <span class="prem-plan-top"><span class="prem-plan-name">${esc(annual?t("prem.plan_annual"):x.kind==="monthly"?t("prem.plan_monthly"):x.p.title)}</span>${annual?`<span class="prem-plan-badge">${esc(t("prem.best"))}</span>`:""}</span>
+      <span class="prem-plan-price"><b>${esc(x.p.price)}</b><span>${esc(premPeriodLabel(x.kind))}</span></span>
+      ${annual&&sv?`<span class="prem-plan-save">${esc(t("prem.save",{n:sv}))}</span>`:""}${x.trial?`<span class="prem-plan-trial">${esc(t("prem.trial_badge",{n:x.trial}))}</span>`:""}
+    </button>`}).join("")}</div>`;
 }
 /* the headline's second sentence carries the gradient — one translated string,
    split at its first sentence end; a single sentence stays plain */
@@ -25147,7 +25246,7 @@ function premHeadHTML(str){const m=/^(.*?[.!?。؟])\s+(\S[\s\S]*)$/.exec(String
    removal of an ad nobody sees would not be true. */
 function premBenHTML(){
   const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
-  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")}catch(e){}   /* the five capabilities are granted on both tracks */
+  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}   /* the five capabilities are granted on both tracks; the ad-free row only where ads exist (General English) */
   const rows=[];
   if(ge)premBenefitRows().forEach(r=>rows.push(li(r[0],r[1],r[2])));
   if(ads)rows.push(li("prem.b_noads","ban"));
@@ -25233,8 +25332,10 @@ function premCmpHTML(){
   if(!planOn())return "";                               /* only where the limits are in force — now both tracks */
   const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
   const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
+  let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}
+  /* the tier spec (5 Oct 2026): the daily allowances lead, then storage, then ads where they exist */
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
-    <tbody>${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}</tbody></table>`;
+    <tbody>${row("prem.cmp_ai",esc(t("prem.cmp_perday",{n:VERDICTS_FREE})),esc(t("prem.cmp_fair",{n:VERDICTS_PREMIUM})))}${row("prem.cmp_ytmin",esc(t("prem.cmp_min",{n:YT_MIN_FREE})),esc(t("prem.cmp_min",{n:YT_MIN_PREMIUM})))}${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}${ads?row("prem.cmp_ads",esc(t("prem.cmp_yes")),esc(t("prem.cmp_none"))):""}</tbody></table>`;
 }
 /* hero → benefits → plans → CTA. The X is first in the DOM (first tab stop). */
 function premSheetHTML(wait){
@@ -25412,6 +25513,19 @@ window.subOpen=()=>{
    no blurred numbers held back (docs/ETHICAL_UX_PSYCHOLOGY_AUDIT.md).
    Returns "" when the capability is not locked, so a call site is one line. */
 function premLockHTML(cap,from,o){
+  /* a METERED capability (the AI verdicts) draws a card only once today's
+     allowance is spent — and that card says when it comes back. A paying
+     learner at the fair-use ceiling gets the same card without the offer. */
+  if(ENT_METERED[cap]){
+    if(!entGated()||!aiAllowOut())return "";
+    const a=aiAllowance(),prem=!!(a&&a.plan==="premium"),time=allowResetText(a);
+    return `<div class="card prem-lock prem-allow" data-cap="${esc(cap)}">
+      <p class="prem-lock-h"><span class="chip prem-lock-chip">${ic("clock")} ${esc(t("ai.allow_chip"))}</span><span>${esc(t("prem.lock_ai_h"))}</span></p>
+      <p class="prem-lock-b">${esc(prem?t("ai.allow_fair",{n:a.limit,time}):t("prem.lock_ai_b",{n:a.limit,time,top:VERDICTS_PREMIUM}))}</p>
+      ${o&&o.kept===false?"":`<p class="prem-lock-kept">${esc(t("prem.kept"))}</p>`}
+      ${prem?"":`<button type="button" class="prem-lock-go" onclick="premiumOpen('${esc(String(from||cap))}')">${ic("lock")}${esc(t("prem.lock_cta"))}</button>`}
+    </div>`;
+  }
   if(!entLocked(cap))return "";
   const k=o&&o.k||{ai_analysis:"ai",advanced_progress:"prog",ai_coach:"coach",recommended_content:"rec"}[cap];
   if(!k)return "";
@@ -26418,9 +26532,9 @@ let svNoCap=null;         // "paste" | "ear" — which way on the learner chose 
 function svNoCapWhy(){return _capErr[shClip&&shClip.vid]||null}
 function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)}
 function svNoCapTitle(){const w=svNoCapWhy();
-  return /auth_required/.test(w||"")?t("sh.cap_acct_t"):/rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_t"):/allowance/.test(w||"")?t("sh.cap_allow_t"):/rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
 function svNoCapBody(){const w=svNoCapWhy();
-  return /auth_required/.test(w||"")?t("sh.cap_acct_b"):/rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
+  return /auth_required/.test(w||"")?t("sh.cap_acct_b"):/allowance/.test(w||"")?(ytAllowNote()||t("sh.cap_allow_b",{n:YT_MIN_FREE,top:YT_MIN_PREMIUM,time:""})):/rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
 window.svNoCapRetry=()=>{
   const vid=shClip&&shClip.vid;if(!vid)return;
   delete _capCache[vid];delete _capErr[vid];
@@ -27451,7 +27565,7 @@ function svChDimsHTML(fb){
      audio model was not available (sv.ch_pron_na), or the grade is still on its
      way (nothing is said). The first is the common case for a Free learner now
      that the rest of the rung is theirs. */
-  if(entLocked("ai_analysis"))notes.push(t("sv.ch_pron_prem"));
+  if(entLocked("ai_analysis")||aiAllowOut())notes.push(t("sv.ch_pron_prem"));
   else if(fb.pronMode==="whisper"||(fb.pronMode===null&&!svCh.pending&&svCh.assessTried))notes.push(t("sv.ch_pron_na"));
   if(fb.rhythm)notes.push(t("sv.ch_rhythm_est"));
   return `<div class="sv-ch-dims">${chips}</div>${notes.length?`<p class="pp-fine">${notes.join(" ")}</p>`:""}`;
@@ -30161,6 +30275,10 @@ window.ppAiStart=async(reason)=>{
      (owner, 23 September 2026 — the AI coach is always reachable); what the tap
      reaches while Free is the offer, not an error and not a disappeared card. */
   if(entLocked("ai_coach"))return premiumOpen("ai_coach");
+  /* metered (the tier spec): a Free learner's 3 verdicts a day include coach
+     replies; once they are spent the tap says so and offers Premium, a paying
+     learner at the fair-use ceiling is told when it comes back */
+  if(aiAllowOut()){toast(aiAllowNote());if(!entIsPremiumForDisplay())premiumOpen("ai_coach");return}
   let a=ppAiActive();
   if(!a){
     if(ppBusy)return;ppBusy=true;

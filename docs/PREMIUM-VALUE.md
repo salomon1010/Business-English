@@ -14,10 +14,10 @@ every learner keeps the app exactly as it was. The suite checks this: P1–P3.
 
 | Capability | Free | Premium | Enforced |
 |---|---|---|---|
-| `savedShadow`: videos saved from the BE Mastery library | 2 (owner, 27 Sep 2026; was 5) | 100 | yes, General English |
-| `savedClips`: Shadow passages kept in My clips (the star) | 1 | 30 | yes, General English |
-| `youtubeImports`: YouTube videos added by pasting a link | 1 (owner, 27 Sep 2026; was 2) | 20 | yes, General English |
-| `polishHistory`: Polish reports you can revisit | 1 (latest) | 50 | yes, General English |
+| `savedShadow`: videos saved from the BE Mastery library | 2 (owner, 27 Sep 2026; was 5) | 100 | yes, both programmes |
+| `savedClips`: Shadow passages kept in My clips (the star) | 1 | 30 | yes, both programmes |
+| `youtubeImports`: YouTube videos added by pasting a link | 1 (owner, 27 Sep 2026; was 2) | 20 | yes, both programmes |
+| `polishHistory`: Polish reports you can revisit | 1 (latest) | 50 | yes, both programmes |
 | `aiConversationDaily`, `aiSimulationDaily`, `partnerSessionMin`, `partnerSessionsDaily`, `reportHistory`, `progressHistoryDays` | null | null | **no**, named for later |
 
 - **Plan:** `planKey()` returns `premium` only when the server's answer says so
@@ -25,7 +25,26 @@ every learner keeps the app exactly as it was. The suite checks this: P1–P3.
   hand-written cache is replaced by the next server answer, and counts for
   nothing without a service.
 - **Reading a limit:** `planLimit(name[, plan])`. The table is frozen.
-- **Welding** gets none of it. Every caller checks `isGeneralEnglish()`.
+- **Both programmes, the same limits (owner's tier spec, 5 Oct 2026,
+  `docs/TIERS.md`).** One subscription grants the same capabilities on General
+  English and Welding, so the storage limits above apply on both. The earlier
+  rule that Welding got none of it, and the later Welding override of 1/1/1,
+  are both withdrawn. Welding still shows no ads on any plan — that is the
+  ad rule, not a storage rule.
+
+## Daily allowances
+
+Storage is not the only limit. A Free account has **3 AI verdicts a day**
+(one speaking report, one pronunciation assessment or one AI coach reply
+each) and **30 minutes a day** of its own pasted YouTube video transcribed;
+Premium has **120 verdicts** and **240 minutes** a day. Those are fair-use
+ceilings and must never be called "unlimited". They reset at UTC midnight,
+shown in local time, and are metered by the Worker (`premiumGate` in
+`backend/polish-worker.js`, headers `X-BE-Allowance` /
+`X-BE-Video-Allowance`), not by this table. Being heard — transcription,
+the natural voice, library captions and the Executive Polish rewrite — is
+free and unmetered. Without an account there is no AI route except Shadow
+translation and IPA. The full contract is `docs/TIERS.md`.
 
 ## Shadow: one list, two kinds
 

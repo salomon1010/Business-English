@@ -145,6 +145,17 @@ console.log("\n# A. the Durable Object's own semantics");
   /* a malformed consume is refused, not silently allowed */
   const bad = async b => (await (ns.get(ns.idFromName("ip:x"))).fetch("https://r.invalid/c", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ buckets: b }) })).status;
   ok("A11 · a malformed bucket list is a 400, never an unmetered pass", await bad([]) === 400 && await bad([{ name: "", limit: 1, windowMs: 1000 }]) === 400 && await bad([{ name: "n", limit: 0, windowMs: 1000 }]) === 400);
+  /* `counts` (5 Oct 2026): what each bucket stands at AFTER the call, so the
+     daily allowance can say "2 of 3 used" without a second round trip */
+  const nsN = makeNamespace();
+  const C = [{ name: "c:min", limit: 5, windowMs: 60_000 }];
+  await consume(env(nsN), "ip:cnt", C);
+  const second = await consume(env(nsN), "ip:cnt", C);
+  memConsume("ip:cnt2", C);
+  const memSecond = memConsume("ip:cnt2", C);
+  ok("A12 · a pass returns `counts`: after two hits the bucket stands at 2 — from the DO and from the fallback alike",
+    second.ok === true && second.counts && second.counts["c:min"] === 2 && memSecond.ok === true && memSecond.counts && memSecond.counts["c:min"] === 2,
+    JSON.stringify([second, memSecond]));
 }
 
 console.log("\n# B. ACROSS ISOLATES — the defect that made the numbers meaningless");
@@ -250,9 +261,17 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
      provider stubbed by the global fetch at the top of this file — the limiter
      and ordering under test are the real ones. No live-provider claim is made. */
   const tokOf = sub => "eyJhbGciOiJSUzI1NiJ9." + Buffer.from(JSON.stringify({ sub })).toString("base64url") + ".sig";
+  /* `win`: true = the app's first-minute window, [from, to] = that stretch, false = the whole video */
   const call = (W, e, { ip, token, win = true } = {}) => W.fetch(new Request("https://be-polish.test/", { method: "POST",
     headers: { origin: "https://app.lomonec.com", "content-type": "application/json", "CF-Connecting-IP": ip, ...(token ? { authorization: "Bearer " + token } : {}) },
-    body: JSON.stringify(win ? { ytai: "abcdefghijk", from: 0, to: 60 } : { ytai: "abcdefghijk" }) }), e);
+    body: JSON.stringify(win ? { ytai: "abcdefghijk", from: Array.isArray(win) ? win[0] : 0, to: Array.isArray(win) ? win[1] : 60 } : { ytai: "abcdefghijk" }) }), e);
+  const videoAllow = r => { try { return JSON.parse(r.headers.get("X-BE-Video-Allowance")); } catch (e) { return null; } };
+  const utcMidnight = at => new Date(at).toISOString().endsWith("T00:00:00.000Z");
+  /* "a minute passes": the per-account per-MINUTE brake shares the all-or-
+     nothing consume with the day budget and is checked first, so to reach the
+     budget through the Worker the minute window is wound on in the DO's own
+     storage — the same move A7 makes. Nothing else in the object is touched. */
+  const minutePasses = (ns, subject) => { const m = ns.get(ns.idFromName(subject))._map; if (m.has("b:ytaiacct:min")) m.set("b:ytaiacct:min", { count: 0, resetAt: Date.now() - 1 }); };
 
   /* --- can an unauthenticated caller spend on the paid route? --- */
   { const ns = makeNamespace(), e = env(ns, true);
@@ -287,22 +306,72 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     ok("E6 · YTAI_WIN_PER_MIN 12 per IP: 13th and 14th refused although every call is a DIFFERENT account", out.filter(x => x === 429).length === 2 && out.slice(0, 12).every(x => x === 200), JSON.stringify(out));
     ok("E7 · changing account does NOT bypass the IP cap", out[12] === 429 && out[13] === 429, JSON.stringify(out)); }
 
-  /* --- the IP brake is checked BEFORE the account brake --- */
+  /* --- the per-account budget is in SECONDS OF VIDEO (the tier spec, 5 Oct 2026).
+         A whole video is charged at YTAI_MAX_SEC = 1800 s and Free has 1800 s a
+         UTC day, so ONE whole video passes and the second is refused as an
+         ALLOWANCE, not a rate. A fresh IP per request, so only the account can bite. --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-order");
     ai.calls = [];
-    const whole = [];
-    for (let i = 0; i < 4; i++) whole.push((await call(W1, e, { ip: "23.0.0.1", token: tk, win: false })).status);
-    ok("E8 · whole-video path: YTAI_PER_MIN 2 per IP bites before the account's 4", whole.filter(x => x === 429).length === 2 && whole.slice(0, 2).every(x => x === 200), JSON.stringify(whole)); }
+    const r1 = await call(W1, e, { ip: "23.0.0.1", token: tk, win: false });
+    const h1 = videoAllow(r1);
+    const r2 = await call(W2, e, { ip: "23.0.0.2", token: tk, win: false });
+    const j2 = await r2.json().catch(() => null);
+    ok("E8 · whole-video path, FREE: the first passes and X-BE-Video-Allowance reads 1800/1800 s; the SECOND on the same account is 429 allowance, scope video",
+      r1.status === 200 && h1 && h1.used === 1800 && h1.limit === 1800 && h1.plan === "free"
+      && r2.status === 429 && j2 && j2.error === "allowance" && j2.scope === "video" && j2.limit === 1800 && j2.plan === "free",
+      r1.status + " " + JSON.stringify(h1) + " | " + r2.status + " " + JSON.stringify(j2));
+    ok("E8b · …the refusal names the next UTC midnight, carries Retry-After, and the provider was called ONCE",
+      j2 && j2.resetAt > Date.now() && j2.resetAt - Date.now() <= 86_400_000 && utcMidnight(j2.resetAt) && Number(r2.headers.get("Retry-After")) > 0 && ai.calls.length === 1,
+      JSON.stringify(j2) + " retry=" + r2.headers.get("Retry-After") + " provider=" + ai.calls.length);
+    /* the per-IP minute cap is untouched by the budget: ONE address, three accounts */
+    const ipOut = [];
+    for (let i = 0; i < 3; i++) { const r = await call(W1, e, { ip: "23.0.0.9", token: tokOf("uid-ipc" + i), win: false }); ipOut.push([r.status, ((await r.json().catch(() => null)) || {}).error]); }
+    ok("E8c · the per-IP cap is unaffected: YTAI_PER_MIN 2 still refuses the third whole video from one address as rate_limited, although each is a different account",
+      ipOut[0][0] === 200 && ipOut[1][0] === 200 && ipOut[2][0] === 429 && ipOut[2][1] === "rate_limited", JSON.stringify(ipOut)); }
 
-  /* --- Free and Premium are treated identically: ytai carries no capability --- */
+  /* --- the same budget in WINDOWS: six 5-minute windows are 1800 s, the seventh is over --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-win"), subject = "acct:u:uid-win";
+    ai.calls = [];
+    const out = [];
+    for (let i = 0; i < 7; i++) {
+      /* the seventh looks at the first stretch again — there is no edge cache in
+         this harness, so it costs what any window costs */
+      const w = i < 6 ? [i * 300, (i + 1) * 300] : [0, 300];
+      const r = await call(i % 2 ? W1 : W2, e, { ip: "26.0.0." + i, token: tk, win: w });
+      out.push({ status: r.status, allow: videoAllow(r), body: r.status === 429 ? await r.json().catch(() => null) : null });
+      minutePasses(ns, subject);
+    }
+    ok("E8d · FREE, windows: six 300 s windows pass (6 x 300 = 1800, the header counting up to 1800/1800) and the seventh is 429 allowance, scope video",
+      out.slice(0, 6).every(x => x.status === 200) && out[5].allow && out[5].allow.used === 1800 && out[5].allow.limit === 1800
+      && out[6].status === 429 && out[6].body && out[6].body.error === "allowance" && out[6].body.scope === "video" && out[6].body.limit === 1800 && out[6].body.plan === "free",
+      JSON.stringify(out.map(x => [x.status, x.allow && x.allow.used, x.body && x.body.error])));
+    ok("E8e · …and the provider was called six times, not seven", ai.calls.length === 6, String(ai.calls.length)); }
+
+  /* --- Premium: eight whole videos (8 x 1800 = 14400 s), the ninth is over --- */
+  { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-prem8"), subject = "acct:u:uid-prem8";
+    ent.reply = () => view(true); ai.calls = [];
+    const out = [];
+    for (let i = 0; i < 9; i++) {
+      const r = await call(i % 2 ? W1 : W2, e, { ip: "27.0.0." + i, token: tk, win: false });
+      out.push({ status: r.status, allow: videoAllow(r), body: r.status === 429 ? await r.json().catch(() => null) : null });
+      minutePasses(ns, subject);
+    }
+    ent.reply = () => view(false);
+    ok("E8f · PREMIUM: eight whole videos pass (header limit 14400, plan premium) and the ninth is 429 allowance with plan premium",
+      out.slice(0, 8).every(x => x.status === 200 && x.allow && x.allow.limit === 14400 && x.allow.plan === "premium") && out[7].allow.used === 14400
+      && out[8].status === 429 && out[8].body && out[8].body.error === "allowance" && out[8].body.scope === "video" && out[8].body.limit === 14400 && out[8].body.plan === "premium" && ai.calls.length === 8,
+      JSON.stringify(out.map(x => [x.status, x.allow && x.allow.used, x.body && x.body.error])) + " provider=" + ai.calls.length); }
+
+  /* --- ytai carries no capability on either plan; the plans differ only in budget --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-free");
     ent.reply = () => view(false); ai.calls = [];
     const f = await call(W1, e, { ip: "24.0.0.1", token: tk });
     ent.reply = () => view(true);
     const pr = await call(W1, e, { ip: "24.0.0.2", token: tokOf("uid-prem") });
     ent.reply = () => view(false);
-    ok("E9 · a FREE account may transcribe a pasted video — ROUTE_CAP.ytai is null, by decision", f.status === 200, f.status);
-    ok("E10 · and Premium gets no larger allowance: the limits are identical on both plans", pr.status === 200, pr.status); }
+    const fa = videoAllow(f), pa = videoAllow(pr);
+    ok("E9 · a FREE account may transcribe a pasted video — ROUTE_CAP.ytai is null, by decision; a 60 s window costs 60 of its 1800 s", f.status === 200 && fa && fa.used === 60 && fa.limit === 1800 && fa.plan === "free", f.status + " " + JSON.stringify(fa));
+    ok("E10 · Premium is not locked out of it either, and the difference between the plans is the BUDGET alone: 14400 s, plan premium", pr.status === 200 && pa && pa.used === 60 && pa.limit === 14400 && pa.plan === "premium", pr.status + " " + JSON.stringify(pa)); }
 
   /* --- the one deliberate way past the brake: a cached answer --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-cache");
@@ -324,15 +393,17 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     ok("E12 · …and the provider was called ONCE for nine requests", ai.calls.length === n1 && n1 === 1, "provider calls=" + ai.calls.length);
     delete globalThis.caches; }
 
-  /* --- the DAILY bucket. The per-minute bucket always bites first through the
-         Worker, so the day window is asserted on the object itself. --- */
+  /* --- the DAILY budget on the object itself: the bucket the Worker writes is
+         `ytaisec:<UTC day>`, counted in seconds with a per-call `cost`, so it
+         turns over at UTC midnight (a new NAME) and not a minute sooner. --- */
   { const ns = makeNamespace();
-    const DAY = [{ name: "ytaiacct:day", limit: 10, windowMs: 86_400_000 }];
+    const name = "ytaisec:" + new Date().toISOString().slice(0, 10);
+    const SEC = [{ name, limit: 1800, windowMs: 86_400_000, cost: 300 }];
     const out = [];
-    for (let i = 0; i < 12; i++) out.push((await consume(env(ns), "acct:u:uid-day", DAY)).ok);
-    ok("E13 · the DAILY bucket is real: 10 allowed, then refused, on an 86,400,000 ms window", out.filter(Boolean).length === 10 && out.slice(10).every(x => x === false), JSON.stringify(out));
-    const st = ns.get(ns.idFromName("acct:u:uid-day"))._map.get("b:ytaiacct:day");
-    ok("E14 · …and its reset is a day away, so it is not a per-minute window wearing a day's name", st.resetAt - Date.now() > 86_000_000, JSON.stringify(st)); }
+    for (let i = 0; i < 8; i++) out.push((await consume(env(ns), "acct:u:uid-day", SEC)).ok);
+    ok("E13 · the DAILY budget is real and counted in SECONDS: six 300 s windows fill 1800, the seventh and eighth are refused", out.filter(Boolean).length === 6 && out.slice(6).every(x => x === false), JSON.stringify(out));
+    const st = ns.get(ns.idFromName("acct:u:uid-day"))._map.get("b:" + name);
+    ok("E14 · …it stands at exactly 1800 (a refusal consumed nothing) and its window is a day long, not a minute wearing a day's name", st.count === 1800 && st.resetAt - Date.now() > 86_000_000, JSON.stringify(st)); }
 }
 
 console.log("\n# J1. ytai requires an ACCOUNT even with PREMIUM_ENFORCED off");

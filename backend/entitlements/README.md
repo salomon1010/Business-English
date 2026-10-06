@@ -71,6 +71,11 @@ No provider identifier, product id, customer id or uid is ever in it.
   by adding an entry.
 - **Products** (`PRODUCTS`): what a store sells → the plan it grants
   (`premium_monthly`, `premium_annual` and `premium_promo` → `premium`).
+  Prices are set in the stores, never here or in the app: **US$2.99 / month
+  and US$19.99 / year** (owner's tier spec, 5 Oct 2026, `docs/TIERS.md`);
+  the app prints whatever the store returns. Note: `premium_promo` is listed
+  here and in `PRODUCTS`, but no store sells it and no billing adapter
+  produces it — a label only, flagged for the owner, not changed.
 - **Statuses**: `active`, `trialing`, `grace` are in force until `expires_at`.
   `expired` and `revoked` are not. A record that has not started yet reads
   `pending` (Free). Anything malformed reads `invalid` (Free).
