@@ -1199,7 +1199,10 @@ Features
   pruned with the report (`exRecPrune`); the Polish history (`exHistSheet`) now
   shows on every programme with plans on or off, each row with the transcript
   and a play button (`exHistPlay`), and `exHistOpen` hands the take back to the
-  report's audio player. Test: `tests/polish-hear.mjs` (13). i18n: the new `ex.*`
+  report's audio player. The report's **What you said** fold (`.ex-said`) now opens
+  with the take above the transcript (`exTxRecMount` → `#exTxRec`: waveform from
+  `decodePeaks`, fills as it plays, tap to seek, play/pause, time); typed text keeps
+  the transcript alone. Test: `tests/polish-hear.mjs` (16). i18n: the new `ex.*`
   keys are translated in fr / es / pt / ar and carry the English text in the
   other 11 (same as the rest of the Polish keys) — parity is 2,625 keys in
   every file.

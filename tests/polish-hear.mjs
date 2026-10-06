@@ -49,6 +49,25 @@ await sleep(400);
 const geRecs = await p.evaluate(async () => (await getRecs("polish")).map(x => x.ts));
 ok("H6 · the voice is saved on the phone under General English, matched to its report", geRecs.length === 1 && geRecs[0] === ge.rep.at, JSON.stringify({ geRecs, at: ge.rep.at }));
 
+console.log("\n# What you said: the take beside its transcript");
+const said = await p.evaluate(async () => {
+  exRenderReport(aList("exRep")[0]); await new Promise(r => setTimeout(r, 900));
+  const f = exQ(".ex-said"), box = exQ("#exTxRec");
+  const out = { open: !!(f && f.open), shown: !!(box && !box.hidden), canvas: !!(box && box.querySelector("canvas.ex-txrec-wave")), audio: !!(box && box.querySelector("audio[src^='blob:']")), tx: (f && f.querySelector(".ex-tx") || {}).textContent || "", order: box ? (box.compareDocumentPosition(f.querySelector(".ex-tx")) & 4) === 4 : false };
+  const au = box.querySelector("audio"), btn = box.querySelector(".ex-txrec-play");
+  btn.click(); await new Promise(r => setTimeout(r, 700)); out.playing = !au.paused; out.icon = btn.innerHTML.length > 0;
+  btn.click(); await new Promise(r => setTimeout(r, 200)); out.paused = au.paused;
+  const cv = box.querySelector("canvas"), r = cv.getBoundingClientRect();
+  cv.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.left + r.width * 0.5, clientY: r.top + 5 })); await new Promise(r => setTimeout(r, 300));
+  out.seek = au.currentTime > 0; au.pause();
+  out.time = (box.querySelector(".ex-txrec-time") || {}).textContent || "";
+  return out;
+});
+ok("H14 · after a recording the 'What you said' fold opens with the waveform and the player above the transcript", said.open && said.shown && said.canvas && said.audio && /walk you through my role/.test(said.tx) && said.order, JSON.stringify(said));
+ok("H15 · play and pause work, a tap on the waveform jumps into the take, and the time is shown", said.playing && said.paused && said.seek && /\d:\d\d \/ \d:\d\d/.test(said.time), JSON.stringify(said));
+const typed = await p.evaluate(async () => { const tx = "Typed words only, no recording behind them at all here"; const r = { at: Date.now(), tk: areaId(), m: exTextStats(tx, null, null), ai: null, tx, targets: [] }; ex.blob = null; exSetUrl(null); exRenderReport(r); await new Promise(r => setTimeout(r, 400)); const box = exQ("#exTxRec"), f = exQ(".ex-said"); return { hidden: !box || box.hidden, open: !!(f && f.open), tx: (f && f.querySelector(".ex-tx") || {}).textContent || "" }; });
+ok("H16 · a typed-text report keeps the transcript alone — no empty player", typed.hidden && !typed.open && /Typed words only/.test(typed.tx), JSON.stringify(typed));
+
 console.log("\n# the history — plans OFF, as in production today");
 const hi = await p.evaluate(async () => {
   exRenderReport(aList("exRep")[0]); ex.showReport = false; go("phrases"); await new Promise(r => setTimeout(r, 300));

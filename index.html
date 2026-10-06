@@ -3571,7 +3571,8 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:0 1 auto;min-width:0;justify-content:center;min-height:48px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:1 1 auto;width:auto;min-height:48px;font-size:15px;margin:0;padding:0 10px}
 .ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
 .ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
-.ex-btnrow .ex-read{flex:0 0 52px;padding:0}.ex-read.is-on{border-color:var(--acc)!important;color:var(--acc)}
+.ex-btnrow .ex-read{flex:0 0 52px;padding:0}
+.ex-txrec{margin:0 0 12px}.ex-txrec-row{display:flex;align-items:center;gap:10px}.ex-txrec-play{flex:0 0 44px;min-height:44px;padding:0;justify-content:center;border-radius:50%}.ex-txrec-wave{flex:1 1 auto;min-width:0;width:100%;height:48px;background:var(--card2);border-radius:10px;cursor:pointer;touch-action:manipulation}.ex-txrec-time{flex:0 0 auto;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}.ex-txrec-audio{display:none}.ex-read.is-on{border-color:var(--acc)!important;color:var(--acc)}
 .ex-hist-tx{display:block;margin-top:2px;font-size:12px;color:var(--mut);white-space:normal;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .ex-hist-item{display:flex;align-items:stretch;gap:6px}.ex-hist-item .pf-row{flex:1 1 auto;min-width:0}.ex-hist-play{flex:0 0 48px;min-height:48px;padding:0;justify-content:center}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.ex-timer:empty{display:none}
@@ -22023,7 +22024,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v635";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v636";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23154,11 +23155,55 @@ function exRenderReport(rep,quiet){
       <button class="btn-primary ex-againbtn" onclick="exAgainGo()">${tIc("ex.again_btn","mic")}</button>
     </div>
 
-    <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
-      <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
+    <details class="home-more ex-sec ex-said"${(exHost?exHost.url:ex.url)||rep.rec?" open":""}><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
+      <div class="home-more-body"><div class="ex-txrec" id="exTxRec" hidden></div><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
     </div>
   </details>`;
   exReportShow(html,quiet);
+  exTxRecMount(rep);
+}
+/* ---------- What you said: the take beside its transcript (owner, 6 Oct 2026) ----------
+   The fold at the foot of the report carries the recording itself — a
+   waveform that fills in as it plays (tap it to jump), a play/pause button
+   and the time — above the transcript, so the learner reads and hears the
+   same minute. The take is the one in hand (a fresh recording, or the history
+   entry that was just opened), else the saved one for this report. Drawn only
+   when there is audio; typed text keeps the transcript alone. */
+async function exTxRecBlob(rep){
+  const url=exHost?exHost.url:ex.url;
+  if(!exHost&&ex.blob)return ex.blob;
+  if(url){try{return await (await fetch(url)).blob()}catch(e){}}
+  if(rep&&rep.rec){const got=await exRecFor(rep.tk||exAreaKey(),rep.at);if(got&&got.blob)return got.blob}
+  return null;
+}
+async function exTxRecMount(rep){
+  const box=exQ("#exTxRec");if(!box)return;
+  const blob=await exTxRecBlob(rep);if(!blob||!box.isConnected)return;
+  let pk=null;try{pk=await decodePeaks(blob,120)}catch(e){}
+  if(!box.isConnected)return;
+  const url=URL.createObjectURL(blob),dur=pk&&pk.dur?pk.dur:0,fmt=x=>exFmtS(x||0);
+  box.hidden=false;
+  box.innerHTML=`<div class="ex-txrec-row">
+      <button type="button" class="btn btn-g ex-txrec-play" aria-label="${esc(t("ex.hist_play"))}" title="${esc(t("ex.hist_play"))}">${ic("play")}</button>
+      <canvas class="ex-txrec-wave" width="600" height="72" role="img" aria-label="${esc(t("wave.title"))}"></canvas>
+      <span class="ex-txrec-time">${fmt(0)} / ${fmt(dur)}</span>
+    </div><audio class="ex-txrec-audio" preload="metadata" src="${url}"></audio>`;
+  manIconizeInline(box);
+  const cv=box.querySelector("canvas"),au=box.querySelector("audio"),btn=box.querySelector(".ex-txrec-play"),tm=box.querySelector(".ex-txrec-time");
+  const draw=f=>{
+    const g=cv.getContext("2d"),W=cv.width,H=cv.height,mid=H/2;g.clearRect(0,0,W,H);
+    const peaks=pk?pk.peaks:new Array(120).fill(.25),bw=W/peaks.length;
+    const on=dsRgba("--live-rgb",.9,"rgba(34,211,238,.9)"),off=dsHexA("--txt",.28,"rgba(255,255,255,.28)");
+    for(let i=0;i<peaks.length;i++){const h=Math.max(2,peaks[i]*(H/2-4));g.fillStyle=(i+.5)/peaks.length<=f?on:off;g.fillRect(i*bw,mid-h,Math.max(1.5,bw*.68),h*2)}
+  };
+  const total=()=>(isFinite(au.duration)&&au.duration>0?au.duration:dur)||0;
+  const paint=()=>{const T=total();draw(T?au.currentTime/T:0);tm.textContent=fmt(au.currentTime)+" / "+fmt(T)};
+  draw(0);
+  btn.onclick=()=>{if(au.paused){exPlayStop();exReadStop();exCoachStop();const p=au.play();if(p&&p.catch)p.catch(()=>{})}else au.pause()};
+  au.onplay=()=>{btn.innerHTML=ic("pause");manIconizeInline(btn)};
+  au.onpause=au.onended=()=>{btn.innerHTML=ic("play");manIconizeInline(btn);paint()};
+  au.ontimeupdate=paint;
+  cv.onclick=e=>{const r=cv.getBoundingClientRect(),T=total();if(!T)return;au.currentTime=Math.max(0,Math.min(T,(e.clientX-r.left)/r.width*T));paint();if(au.paused){const p=au.play();if(p&&p.catch)p.catch(()=>{})}};
 }
 function exRepWhen(at){try{const d=new Date(at),now=new Date();return d.toDateString()===now.toDateString()?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString()}catch(e){return ""}}
 window.exAgain=()=>exStartAgain();   /* old name; exStartAgain is defined further down */
