@@ -211,7 +211,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   through `exQ`/`exQA` scoped to the host's wrap, `exAgainGo` points back at
   the session mic; `go()` clears it. `recToggle` → `sessRecDone` runs it on
   save; **Get my report** (`sessReportLast`) sends the newest take. Test:
-  `tests/session-report.mjs` (16).
+  `tests/session-report.mjs` (16). **The take plays straight back on Stop** (owner, 6 Oct
+  2026): `sessRecDone` calls `exPlayBlob` for the open session's key only.
   The browser speech-recognition transcript ("My transcript" card, Analyze my
   last recording, the word-by-word `fbOut` panel and the `shTrend` strip) was
   **removed from the session page the same day** (owner: the AI report replaces

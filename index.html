@@ -18586,7 +18586,13 @@ async function sessRepMount(key){
   }
   manIconizeInline(w);
 }
-function sessRecDone(ctx,blob,secs){if(_sessCur&&_sessCur.key===ctx&&document.getElementById("sessRepWrap"))sessReport(ctx,blob,secs)}
+/* the session's take: heard straight back the moment Stop is tapped (owner,
+   6 Oct 2026 — the same as Executive Polish), while the report is prepared */
+function sessRecDone(ctx,blob,secs){
+  if(!_sessCur||_sessCur.key!==ctx)return;
+  try{exPlayBlob(blob)}catch(e){}
+  if(document.getElementById("sessRepWrap"))sessReport(ctx,blob,secs);
+}
 window.sessReportLast=async key=>{
   const recs=await getRecs(key);
   if(!recs[0])return toast(t("sess.report_none"));
@@ -22028,7 +22034,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v637";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v638";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.

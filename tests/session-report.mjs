@@ -127,6 +127,14 @@ await page.evaluate(()=>go("session",1,"Mon"));await sleep(700);
 const s2=await page.evaluate(()=>document.querySelectorAll("#sessRepWrap .wr-fold").length===4);
 ok("The stored report is back after the note",s2);
 
+/* owner, 6 Oct 2026: a session take is heard straight back when Stop is tapped */
+const hb=await page.evaluate(()=>{const real={p:window.exPlayBlob,r:window.sessReport};const played=[];window.exPlayBlob=b=>played.push(b.size);window.sessReport=()=>{};
+  const key=dayKey(1,"Mon");sessRecDone(key,new Blob([new Uint8Array(4321)],{type:"audio/webm"}),9);
+  sessRecDone("phrase3",new Blob([new Uint8Array(999)],{type:"audio/webm"}),4);
+  window.exPlayBlob=real.p;window.sessReport=real.r;return played});
+ok("A session recording plays straight back when it is saved",hb.length>=1&&hb[0]===4321,JSON.stringify(hb));
+ok("…and a recording made anywhere else does not trigger the session's playback",hb.length===1,JSON.stringify(hb));
+
 ok("No page errors",errors.length===0,errors.join(" | "));
 await browser.close();if(server)server.kill();
 console.log(`\n${res.filter(Boolean).length}/${res.length} passed`);
