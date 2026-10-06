@@ -88,6 +88,9 @@ business english,speaking,pronunciation,fluency,professional,meetings,interview,
 - Contests, gambling, medical, violence, sexual content, profanity: **None** in the app's own content.
 - Advertising: **None**.
 If the questionnaire rates stranger communication at 18+, accept it — Practice Partner requires 18+ anyway.
+**Set 6 Oct 2026:** the questionnaire alone computed 4+; the owner raised it with the
+age-rating override to **18+** (`ageRatingOverrideV2 = EIGHTEEN_PLUS`; the older
+`appStoreAgeRating` field reads 17+), matching Practice Partner's own 18+ rule.
 
 ## App Privacy (nutrition labels) — `PRIVACY_ANSWERS.md`
 
