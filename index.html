@@ -3572,6 +3572,10 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
 .ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
 .ex-btnrow .ex-read{flex:0 0 52px;padding:0}
+.ex-polish.is-cue{animation:exCue 2.4s ease-in-out infinite;position:relative}
+@keyframes exCue{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent),0 0 0 1px color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--acc) 22%,transparent),0 0 22px 2px color-mix(in srgb,var(--acc) 45%,transparent)}}
+@media(prefers-reduced-motion:reduce){.ex-polish.is-cue{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 40%,transparent)}}
+.ex-flash{animation:exFlash 1.6s ease-out 1}@keyframes exFlash{0%{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 55%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
 .ex-txrec{margin:0 0 12px}.ex-txrec-row{display:flex;align-items:center;gap:10px}.ex-txrec-play{flex:0 0 44px;min-height:44px;padding:0;justify-content:center;border-radius:50%}.ex-txrec-wave{flex:1 1 auto;min-width:0;width:100%;height:48px;background:var(--card2);border-radius:10px;cursor:pointer;touch-action:manipulation}.ex-txrec-time{flex:0 0 auto;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}.ex-txrec-audio{display:none}.ex-read.is-on{border-color:var(--acc)!important;color:var(--acc)}
 .ex-hist-tx{display:block;margin-top:2px;font-size:12px;color:var(--mut);white-space:normal;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .ex-hist-item{display:flex;align-items:stretch;gap:6px}.ex-hist-item .pf-row{flex:1 1 auto;min-width:0}.ex-hist-play{flex:0 0 48px;min-height:48px;padding:0;justify-content:center}
@@ -22024,7 +22028,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v636";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v637";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -22162,7 +22166,7 @@ const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","mayb
    timer) stays the device's, not an area's: there is one microphone.
    Transient on purpose: a refresh empties it, as before. Nothing here is
    persisted or synced — the saved reports are, per area, in exRepA. */
-const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:false,quick:[],quickFor:""};
+const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:false,quick:[],quickFor:"",cue:false};
 const _exArea={};                                   /* areaId → that programme's Polish content */
 function exAreaFresh(){const o={};Object.keys(EX_AREA_FIELDS).forEach(k=>{const v=EX_AREA_FIELDS[k];o[k]=Array.isArray(v)?[]:v});return o}
 function exAreaKey(){try{return areaId()}catch(e){return AREA_GEN}}   /* areaId() needs S; nothing reads ex before boot, but a throw here would take the page down */
@@ -22224,9 +22228,9 @@ function exIdleHTML(){
     ${aiAcctNoticeHTML("polish")}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
-      <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
-      <button class="btn btn-g ex-read" id="exReadBtn" onclick="exReadBox()" title="${esc(t("ex.read_btn"))}" aria-label="${esc(t("ex.read_btn"))}">${ic("sound")}</button>
+      <button class="btn-primary ex-polish${ex.cue?" is-cue":""}" id="exPolishBtn" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
+      <button class="btn btn-g ex-read" id="exReadBtn" onclick="exReadBox()" title="${esc(t("ex.read_btn"))}" aria-label="${esc(t("ex.read_btn"))}">${ic("sound")}</button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
     <button class="btn btn-g ex-quickbtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
@@ -22380,13 +22384,26 @@ window.exGripStart=e=>{const ta=document.getElementById("exIn");if(!ta)return;e.
   const move=ev=>{const h=Math.max(120,Math.round(h0+ev.clientY-y0));ta.style.height=h+"px";ta.dataset.userSized="1";ta.style.overflowY=ta.scrollHeight>h+2?"auto":"hidden"};
   const up=()=>{g.removeEventListener("pointermove",move);g.removeEventListener("pointerup",up);g.removeEventListener("pointercancel",up)};
   g.addEventListener("pointermove",move);g.addEventListener("pointerup",up);g.addEventListener("pointercancel",up)};
-window.exClear=()=>{if(ex.phase==="rec")return;ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);ex.quick=[];ex.quickFor="";const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exQuickPaint();exStatus("")};
+window.exClear=()=>{if(ex.phase==="rec")return;ex.cue=false;exCuePaint();ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);ex.quick=[];ex.quickFor="";const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exQuickPaint();exStatus("")};
 /* Polish it: the recording's audio goes with its own transcript; edited or
    typed text is measured as text only. */
+/* After a recording the box holds the transcript and the report already
+   exists; Polish it glows softly (owner, 6 Oct 2026) to say "now polish it and
+   hear the better version". A tap on the SAME text opens that report at its
+   better versions instead of analysing it again — a second analysis of
+   identical words would spend another AI verdict for nothing. */
+function exCuePaint(){const b=document.getElementById("exPolishBtn");if(b)b.classList.toggle("is-cue",!!ex.cue)}
 window.exPolish=()=>{
   if(ex.phase!=="idle")return;
   const ta=document.getElementById("exIn"),text=ta?ta.value.replace(/\s+/g," ").trim():"";
   if(!text||text.split(" ").length<5)return toast(t("ex.type_first_toast"));
+  const had=ex.cue;ex.cue=false;exCuePaint();
+  const r=ex.report;
+  if(r&&r.tx&&r.tx.replace(/\s+/g," ").trim()===text&&ex.take&&ex.take.text===text){
+    ex.showReport=true;ex.repOpen=true;exRenderReport(r);
+    setTimeout(()=>{const v=exQ(".ex-version")||exQ(".ex-rep-card");if(v){try{v.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}v.classList.add("ex-flash");setTimeout(()=>v.classList.remove("ex-flash"),1600)}},120);
+    return;
+  }
   const tk=ex.take;
   if(tk&&tk.text===text)exRun({blob:tk.blob,secs:tk.secs,pre:tk});
   else exRun({text});
@@ -22406,6 +22423,7 @@ function exLeave(){exCoachStop();exReadStop();exPlayStop();if(ex.phase==="rec"){
 window.exRecord=async()=>{
   if(ex.phase==="rec"){exStopRec();return}
   if(ex.phase!=="idle")return;
+  ex.cue=false;exCuePaint();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==="undefined")return toast(t("ex.rec_unsupported"));
   if(rec&&rec.mr&&rec.mr.state==="recording")return toast(t("ex.rec_busy"));
   try{
@@ -22492,6 +22510,7 @@ async function exRun(src){
   markPracticed();save();
   if(gePlan&&reps.length>1&&planKey()!=="premium"&&premOffered())setTimeout(()=>{try{toast(t("ex.hist_free_toast",{top:planLimit("polishHistory","premium")}),4200)}catch(e){}},900);
   ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=false;
+  if(src.blob&&!src.pre){st.cue=true;if(here())exCuePaint()}
   if(here()&&cur.v==="phrases"&&!exHost){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
