@@ -17,8 +17,8 @@
  * mismatch — the routing is easy to get subtly wrong (a day session, for one,
  * renders into the journey container, not a container of its own).
  */
-const { chromium } = require("playwright-core");
 const path = require("path");
+let chromium; try { ({ chromium } = require("playwright-core")); } catch (e) { ({ chromium } = require(path.join(__dirname, "..", "..", "tests", "node_modules", "playwright"))); }
 const fs = require("fs");
 
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -138,6 +138,21 @@ const seed = () => {
   // seed once for the origin; the iframe shares it. The iframe must NOT hold the
   // app while we seed: since save() became a deferred write that flushes on
   // pagehide, an app booted before the seed would overwrite it on navigation.
+  /* IOS=1: the App Store build — the iframe's app sees the Capacitor shell
+     (IS_IOS_APP), so Play links and web-only rows disappear as on the iPhone.
+     Every native plugin is present and inert: no store products (billing is
+     off in production anyway), no ad provider, no push prompt. */
+  if (process.env.IOS === "1") await page.addInitScript(() => {
+    if (window === window.top) return;
+    const none = async () => ({});
+    const P = {
+      BEStoreKit: { getProducts: async () => ({ products: [] }), purchase: none, restore: async () => ({ items: [] }), currentEntitlements: async () => ({ items: [] }), pendingTransactions: async () => ({ items: [] }), finish: none, manageSubscriptions: none, addListener: () => ({ remove() {} }) },
+      BEAds: { configure: async () => ({ available: false }) },
+      BEPush: { status: async () => ({ permission: "prompt" }), addListener: () => ({ remove() {} }) },
+      BEWidget: { update: async () => ({ stored: true }), clear: none, pendingOpen: async () => ({}), addListener: () => ({ remove() {} }) },
+    };
+    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, Plugins: P, PluginHeaders: Object.keys(P).map(name => ({ name })) };
+  });
   await page.goto(BASE + "/scripts/store-art/frame.html?u=about:blank");
   if (process.env.PARTNER === "1") {
     const api = (u, p, b) => fetch(PARTNER_API + p, { method: "POST", headers: { "x-dev-user": u, "content-type": "application/json" }, body: JSON.stringify(b) });
