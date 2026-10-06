@@ -320,7 +320,7 @@ const e1 = await E.page.evaluate(async () => {
   const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code0: tg.querySelector("small")?.innerText, ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 500));
   const b0 = document.getElementById("svShTr"); r.frLang = b0.getAttribute("lang"); r.frText = b0.querySelector(".sv-sh-tr-x")?.innerText; r.noPick = !document.getElementById("svTrPop"); r.trLang0 = S.profile.trLang;
-  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 250));   /* past the 150 ms fade, which slides the list 8 px */
   const ov = document.getElementById("svTrPop"), rows = ov ? [...ov.querySelectorAll(".sv-tr-opt")] : []; const pr = ov && ov.getBoundingClientRect(), tr = document.getElementById("svShTrBtnLang").getBoundingClientRect();
   r.small = !!pr && pr.width <= 232 && pr.height <= 266 && (Math.abs(pr.top - tr.bottom - 6) < 2 || Math.abs(tr.top - pr.bottom - 6) < 2) && pr.left >= 11 && pr.right <= innerWidth - 11; r.box = pr && [Math.round(pr.width), Math.round(pr.height)]; r.flags = !!rows[0] && !!rows[0].querySelector(".lang-ic");
   r.expanded = document.getElementById("svShTrBtnLang").getAttribute("aria-expanded");

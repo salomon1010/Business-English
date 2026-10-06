@@ -3419,5 +3419,13 @@
  "sh.cap_allow_t": "Today's video minutes are used",
  "sh.cap_allow_b": "Free transcribes {{n}} minutes of your own videos a day; Premium {{top}}. Yours come back at {{time}}.",
  "sh.cap_allow_fair": "You've reached today's fair-use ceiling of {{n}} video minutes. It resets at {{time}}.",
- "sh.cap_allow_left": "{{n}} of {{total}} video minutes left today (resets {{time}})."
+ "sh.cap_allow_left": "{{n}} of {{total}} video minutes left today (resets {{time}}).",
+ "sh.cap_trial_t": "Your free trial is used",
+ "sh.cap_trial_b": "Free includes {{n}} minutes of your own videos, once. Premium transcribes {{top}} minutes a day.",
+ "sh.cap_trial_left": "{{n}} of {{total}} free trial minutes left.",
+ "sh.cap_fail_t": "We couldn't make the transcript",
+ "sh.cap_fail_b": "The problem is on our side, not with the video. Try again in a moment.",
+ "sh.cap_prem_s": "See Premium",
+ "tools.why_lines": "This step is about sound and rhythm. Text shadowing gives you real workshop lines to hear, read and say back — the way you will answer on the job.",
+ "sess.link_lines": "Practise text shadowing"
 }

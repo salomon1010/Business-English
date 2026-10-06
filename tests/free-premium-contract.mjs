@@ -298,8 +298,8 @@ console.log("\n# 6. NOTHING MOVED FREE -> PREMIUM, and no phantom is sold");
      enforced. This is the rule that was broken: a row with no gate behind it. */
   ok("6.4 · every benefit still sold maps to an enforcement point: a capability gate (advanced_progress, ai_coach) or a metered allowance (AI verdicts, video minutes)",
     g.rows.length >= 4 && g.rows.every(r => /AI verdicts a day|minutes a day of your own YouTube|progress|analytics|Coach|Shadow videos/i.test(r)) && !g.rows.some(r => /unlimited/i.test(r)), JSON.stringify(g.rows));
-  ok("6.4b · the allowance rows name the Premium numbers (120 verdicts, 240 minutes) and call them fair use — never 'unlimited'",
-    g.rows.some(r => /^120 AI verdicts a day \(fair use\)/.test(r)) && g.rows.some(r => /^240 minutes a day/.test(r)), JSON.stringify(g.rows));
+  ok("6.4b · the allowance rows name the Premium numbers (120 verdicts, 60 minutes — owner, 6 Oct 2026) and call them fair use — never 'unlimited'",
+    g.rows.some(r => /^120 AI verdicts a day \(fair use\)/.test(r)) && g.rows.some(r => /^60 minutes a day/.test(r)), JSON.stringify(g.rows));
   ok("6.5 · ad-free is enforced through the plan's own `ads` field, so it is not a phantom either", g.ads === true);
   ok("6.6 · the natural voice is still FREE: it reads lessons and characters, which is content, not a verdict",
     await L.p.evaluate(() => typeof fbSay === "function" && !/aiOff\(/.test(String(fbSay))));

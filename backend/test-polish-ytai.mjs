@@ -23,7 +23,10 @@ globalThis.fetch = async (url, init) => {
      itself is proved, including that an anonymous caller gets 401 and spends
      nothing. */
   if (String(url).includes("/v1/entitlement")) {
-    return new Response(JSON.stringify({ plan: "free", paid: false, capabilities: { ad_free: false, ai_analysis: false, advanced_progress: false, ai_coach: false, recommended_content: false } }), { status: 200 });
+    /* a PREMIUM view: the older-app checks send a whole video (1800 s), which
+       is more than the Free trial (owner, 6 Oct 2026). Plans are tested in
+       test-rate-limit.mjs and test-ytai-tiers.mjs, not here. */
+    return new Response(JSON.stringify({ plan: "premium", paid: true, capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true } }), { status: 200 });
   }
   if (String(url).includes("generativelanguage.googleapis.com")) {
     const body = JSON.parse(init.body); gem.calls.push(body);

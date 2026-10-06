@@ -6451,7 +6451,15 @@ function trackSessionLinks(){return curriculumOrEmpty().sessionLinks||{}}
    3-second race on a slow connection) would fetch a new pack whose key it does
    not know and print "sess.link_roleplay" on the button — reproduced 29 Sep
    2026. Label keys a pack uses must already exist in every index.html in use. */
-function sessLinkLabel(L){const k=L&&L.lk==="sess.link_phrases"&&L.v!=="phrases"?"sess.link_"+L.v:L&&L.lk;return t(k in I18N_EN?k:L.lk)}
+/* On Welding the shadowing to PRACTISE is Practice text shadowing — real workshop
+   lines to hear, read and say back, which is what trains a welder to answer on the
+   job (owner, 6 Oct 2026). The video Shadow Studio stays on the Shadow tab to
+   explore. So every recommendation that points at "shadow" lands on "lines" there:
+   the session button, the Home lesson card (both via sessGo) and the Practice tab's
+   pick. Without the studio flag Welding's Shadow tab IS the lines list already. */
+function sessDest(v){return v==="shadow"&&weldStudioOn()?"lines":v}
+function sessLinkIc(L){return sessDest(L.v)==="lines"?"doc":L.ic}
+function sessLinkLabel(L){if(L&&sessDest(L.v)==="lines")return t("sess.link_lines");const k=L&&L.lk==="sess.link_phrases"&&L.v!=="phrases"?"sess.link_"+L.v:L&&L.lk;return t(k in I18N_EN?k:L.lk)}
 function trackTemplates(){return curriculumOrEmpty().templates||{}}
 function trackWeeks(){
   const weeks=curriculumOrEmpty().weeks||[];
@@ -7465,6 +7473,12 @@ const I18N_EN={
  "sh.cap_allow_b":"Free transcribes {{n}} minutes of your own videos a day; Premium {{top}}. Yours come back at {{time}}.",
  "sh.cap_allow_fair":"You've reached today's fair-use ceiling of {{n}} video minutes. It resets at {{time}}.",
  "sh.cap_allow_left":"{{n}} of {{total}} video minutes left today (resets {{time}}).",
+ "sh.cap_trial_t":"Your free trial is used",
+ "sh.cap_trial_b":"Free includes {{n}} minutes of your own videos, once. Premium transcribes {{top}} minutes a day.",
+ "sh.cap_trial_left":"{{n}} of {{total}} free trial minutes left.",
+ "sh.cap_fail_t":"We couldn't make the transcript",
+ "sh.cap_fail_b":"The problem is on our side, not with the video. Try again in a moment.",
+ "sh.cap_prem_s":"See Premium",
  "prem.b_progress":"Advanced progress: your speaking trends over time",
  "prem.b_analytics":"30- and 90-day analytics",
  "prem.b_coach":"The AI Coach, whenever you want another round of practice",
@@ -7774,6 +7788,7 @@ const I18N_EN={
  "sess.link_shadow":"Open the Shadow Studio",
  "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
  "sess.link_shadow_why_fri":"Drill your weakest clip here, then record the improved version.",
+ "sess.link_lines":"Practise text shadowing",
  "sess.link_phrases":"Open the Phrase Lab","sess.link_roleplay":"Practise with your AI mentor","sess.link_simulation":"Open the workplace simulation",
  "sess.link_phrases_why":"Study and record this week's phrases and idioms in the Phrase Lab.",
  "sess.link_review":"Open the Reviews tab",
@@ -8790,6 +8805,7 @@ const I18N_EN={
  "tools.lines_sub":"Real lines from your workshops. Hear each one, then say it back.",
  "tools.career":"Career Destination",
  "tools.career_sub":"Choose where you want to work and see what that destination asks of you.",
+ "tools.why_lines":"This step is about sound and rhythm. Text shadowing gives you real workshop lines to hear, read and say back — the way you will answer on the job.",
  "tools.why_shadow":"This step is about sound and rhythm. Shadowing gives you a native model to copy before you record.",
  "tools.why_phrases":"This step is a speaking task. Phrase Lab gives you the sentences to build it from, and Executive Polish upgrades what you say.",
  "tools.why_vocab":"This step is about words. Flashcards and quizzes make them stick before you have to use them.",
@@ -10842,7 +10858,7 @@ function navOn(b,on){b.classList.toggle("on",on);if(on)b.setAttribute("aria-curr
 /* Remembers the session a jump-button came from, so the destination tab can
    offer a "back to your session" breadcrumb. */
 let SESS_RETURN=null;
-window.sessGo=function(v,w,d){SESS_RETURN={v,w,d};go(v)};
+window.sessGo=function(v,w,d){v=sessDest(v);SESS_RETURN={v,w,d};go(v)};
 /* Page switches jump to the top; they must not glide there. html has
    scroll-behavior:smooth for deliberate in-page jumps, which turned every tab
    change into an animated scroll running underneath the new page's render and
@@ -12791,7 +12807,8 @@ function homeHeroHTML(c,vis){
 function homeRecDest(c){
   const k=c.kind;
   if(k==="lesson"||k==="comeback"){const L=(trackSessionLinks()||{})[c.d];
-    if(L&&["shadow","phrases","practice","partner","review"].includes(L.v))return {dest:L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})};
+    if(L&&["shadow","phrases","practice","partner","review"].includes(L.v)){const lines=sessDest(L.v)==="lines";
+      return {dest:lines?"lines":L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:lines?t("tools.lines_sub"):t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})}}
     return {dest:"journey",go:c.go,line:c.title,ctx:c.kicker||""}}
   const m={words:"practice",challenge:"shadow",shadow:"shadow",partner_now:"partner",partner_streak:"partner",ai_coach:"partner"}[k];
   return m?{dest:m,go:c.go,line:c.sub||c.desc,ctx:c.title}:null;
@@ -13702,7 +13719,7 @@ function rSession(el,w,d){
   <h1 class="big">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessLinkIc(sessionLinks[d]))}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
   ${scnOn()&&sessionLinks[d]&&sessionLinks[d].v==="shadow"?`<div id="scnSess"></div>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
@@ -13818,7 +13835,7 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
     <p class="sub">${esc(t("sess.v2_sub"))}</p>
     <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
   </section>
-  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessLinkIc(sessionLinks[d]))}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   ${mvDockHTML(prim,sec)}`;
   manIconizeInline(el);
@@ -16049,7 +16066,9 @@ async function shCapAsk(vid,dur,win){
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify(Object.assign({ytai:vid,dur:dur>0?Math.round(dur):0},win?{from:win.from,to:win.to}:{}))});
     const j=await r.json();
-    _capErr[vid]=(r.ok&&j&&j.cues&&j.cues.length)?null:((j&&j.error)||("http_"+r.status));
+    /* a spent Free trial is told apart here, not from the stored allowance,
+       which aiAllowTap writes a moment later */
+    _capErr[vid]=(r.ok&&j&&j.cues&&j.cues.length)?null:j&&j.error==="allowance"&&j.trial===true?"allowance_trial":((j&&j.error)||("http_"+r.status));
     return r.ok?j:null;
   }catch(e){_capErr[vid]="offline";return null}
 }
@@ -22037,7 +22056,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v639";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v640";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24082,10 +24101,15 @@ window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
    Worker refuses on its own whatever this says. Kept outside S (never synced,
    per device). */
 const AI_ALLOW_KEY="be_ai_allow",YT_ALLOW_KEY="be_yt_allow";
-const VERDICTS_FREE=3,VERDICTS_PREMIUM=120,YT_MIN_FREE=30,YT_MIN_PREMIUM=240;   /* for copy only; the Worker holds the numbers */
+/* YT_MIN_FREE is the Free TRIAL — once, in total, not a day (owner, 6 Oct 2026):
+   your own YouTube video, transcribed, is a Premium feature */
+const VERDICTS_FREE=3,VERDICTS_PREMIUM=120,YT_MIN_FREE=10,YT_MIN_PREMIUM=60;   /* for copy only; the Worker holds the numbers */
 function allowRead(key){try{const a=JSON.parse(localStorage.getItem(key)||"null");if(!a||!(+a.resetAt>Date.now()))return null;return a}catch(e){return null}}
-function allowWrite(key,a){try{if(!a||!Number.isFinite(+a.limit)||!Number.isFinite(+a.resetAt))return;
-  localStorage.setItem(key,JSON.stringify({used:Number.isFinite(+a.used)?+a.used:+a.limit,limit:+a.limit,resetAt:+a.resetAt,plan:a.plan==="premium"?"premium":"free",at:Date.now()}))}catch(e){}}
+/* a trial has no reset; it is kept for 30 days here (display only — the
+   Worker's answer replaces it on the next request) */
+function allowWrite(key,a){try{if(!a||!Number.isFinite(+a.limit))return;const trial=a.trial===true;
+  const resetAt=trial?Date.now()+30*86400000:+a.resetAt;if(!Number.isFinite(resetAt))return;
+  localStorage.setItem(key,JSON.stringify({used:Number.isFinite(+a.used)?+a.used:+a.limit,limit:+a.limit,resetAt,plan:a.plan==="premium"?"premium":"free",trial,at:Date.now()}))}catch(e){}}
 function aiAllowance(){return allowRead(AI_ALLOW_KEY)}
 function ytAllowance(){return allowRead(YT_ALLOW_KEY)}
 function aiAllowOut(){const a=aiAllowance();return !!(a&&a.used>=a.limit)}
@@ -24098,12 +24122,13 @@ function aiAllowNote(){
   return t("ai.allow_left",{n:a.limit-a.used,total:a.limit,time});
 }
 function ytAllowNote(){const a=ytAllowance();if(!a)return "";const time=allowResetText(a),mins=Math.round(a.limit/60);
+  if(a.trial)return a.used>=a.limit?t("sh.cap_trial_b",{n:mins,top:YT_MIN_PREMIUM}):t("sh.cap_trial_left",{n:Math.max(0,Math.round((a.limit-a.used)/60)),total:mins});
   return a.used>=a.limit?(a.plan==="premium"?t("sh.cap_allow_fair",{n:mins,time}):t("sh.cap_allow_b",{n:mins,top:YT_MIN_PREMIUM,time})):t("sh.cap_allow_left",{n:Math.max(0,Math.round((a.limit-a.used)/60)),total:mins,time})}
 function aiAllowTap(res){
   try{
     const h=res.headers.get("x-be-allowance");if(h)allowWrite(AI_ALLOW_KEY,JSON.parse(h));
     const v=res.headers.get("x-be-video-allowance");if(v)allowWrite(YT_ALLOW_KEY,JSON.parse(v));
-    if(res.status===429)res.clone().json().then(j=>{if(j&&j.error==="allowance")allowWrite(j.scope==="video"?YT_ALLOW_KEY:AI_ALLOW_KEY,{used:j.limit,limit:j.limit,resetAt:j.resetAt,plan:j.plan})}).catch(()=>{});
+    if(res.status===429)res.clone().json().then(j=>{if(j&&j.error==="allowance")allowWrite(j.scope==="video"?YT_ALLOW_KEY:AI_ALLOW_KEY,{used:j.limit,limit:j.limit,resetAt:j.resetAt,plan:j.plan,trial:j.trial===true})}).catch(()=>{});
   }catch(e){}
   return res;
 }
@@ -25954,6 +25979,7 @@ function svRender(){
       ? `<div class="sv-empty sv-nocap">${ic("info")}
           <div class="sv-nocap-t"><b>${esc(svNoCapTitle())}</b><small>${esc(svNoCapBody())}</small></div>
           <div class="sv-nocap-acts">
+            ${svNoCapTrial()&&premOffered()?`<button class="btn-primary btn-sm" onclick="premiumOpen('yt_trial')">${esc(t("sh.cap_prem_s"))}</button>`:""}
             ${svNoCapRetryable()?`<button class="btn-primary btn-sm" onclick="svNoCapRetry()" title="${esc(t("sh.cap_retry"))}" aria-label="${esc(t("sh.cap_retry"))}">${tIc("sh.cap_retry_s","repeat")}</button>`:""}
             <button class="btn btn-g btn-sm" onclick="svNoCapPaste()" title="${esc(t("sh.nocap_paste"))}" aria-label="${esc(t("sh.nocap_paste"))}">${tIc("sh.nocap_paste_s","doc")}</button>
             <button class="btn btn-g btn-sm" onclick="svNoCapEar()" title="${esc(t("sh.nocap_ear"))}" aria-label="${esc(t("sh.nocap_ear"))}">${tIc("sh.nocap_ear_s","mic")}</button>
@@ -26682,10 +26708,19 @@ let svCh=null,svChStopAt=null;
 let svNoCap=null;         // "paste" | "ear" — which way on the learner chose for a video with no transcript
 /* Which of the three things went wrong, in the learner's words. */
 function svNoCapWhy(){return _capErr[shClip&&shClip.vid]||null}
-function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)}
+/* a spent Free trial: retrying cannot help, Premium can (owner, 6 Oct 2026) */
+function svNoCapTrial(){return svNoCapWhy()==="allowance_trial"}
+/* OUR side failed — the provider, its key or credit, the Worker, the network.
+   The video is fine, so the card must not say YouTube refused it. */
+function svNoCapServer(){return /^(gemini_|ytai_failed|no_key|http_5|auth_unavailable|offline)/.test(svNoCapWhy()||"")}
+function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)&&!svNoCapTrial()}
 function svNoCapTitle(){const w=svNoCapWhy();
+  if(svNoCapTrial())return t("sh.cap_trial_t");
+  if(svNoCapServer())return t("sh.cap_fail_t");
   return /auth_required/.test(w||"")?t("sh.cap_acct_t"):/allowance/.test(w||"")?t("sh.cap_allow_t"):/rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
 function svNoCapBody(){const w=svNoCapWhy();
+  if(svNoCapTrial())return t("sh.cap_trial_b",{n:YT_MIN_FREE,top:YT_MIN_PREMIUM});
+  if(svNoCapServer())return t("sh.cap_fail_b");
   return /auth_required/.test(w||"")?t("sh.cap_acct_b"):/allowance/.test(w||"")?(ytAllowNote()||t("sh.cap_allow_b",{n:YT_MIN_FREE,top:YT_MIN_PREMIUM,time:""})):/rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
 window.svNoCapRetry=()=>{
   const vid=shClip&&shClip.vid;if(!vid)return;
@@ -30837,7 +30872,8 @@ function pathToolPick(){
   if(totalDone()>=trackSessionCount())return {id:"phrases",why:t("tools.why_done")};
   const d=currentPos().d;
   const map={Mon:"shadow",Fri:"shadow",Tue:"phrases",Wed:"vocab",Thu:"sim",Sat:isProfessionalJourney()?"sim":"phrases",Sun:"vocab"};
-  const id=map[d]||"phrases";
+  let id=map[d]||"phrases";
+  if(id==="shadow"&&isProfessionalJourney())id="lines";   /* Welding practises on the workplace lines (sessDest) */
   return {id,why:t("tools.why_"+id)};
 }
 window.pathToolGo=(id)=>{

@@ -306,61 +306,64 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     ok("E6 · YTAI_WIN_PER_MIN 12 per IP: 13th and 14th refused although every call is a DIFFERENT account", out.filter(x => x === 429).length === 2 && out.slice(0, 12).every(x => x === 200), JSON.stringify(out));
     ok("E7 · changing account does NOT bypass the IP cap", out[12] === 429 && out[13] === 429, JSON.stringify(out)); }
 
-  /* --- the per-account budget is in SECONDS OF VIDEO (the tier spec, 5 Oct 2026).
-         A whole video is charged at YTAI_MAX_SEC = 1800 s and Free has 1800 s a
-         UTC day, so ONE whole video passes and the second is refused as an
-         ALLOWANCE, not a rate. A fresh IP per request, so only the account can bite. --- */
+  /* --- the per-account budget is in SECONDS OF VIDEO. With enforcement on (the
+         only state in which Premium can be bought), Free is a ONE-OFF TRIAL of
+         YTAI_FREE_TRIAL_SEC = 600 s in total (owner, 6 Oct 2026) and Premium
+         is 3600 s a UTC day. A whole video is charged at YTAI_MAX_SEC = 1800 s,
+         so a Free account can never afford one. A fresh IP per request, so
+         only the account can bite. --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-order");
     ai.calls = [];
     const r1 = await call(W1, e, { ip: "23.0.0.1", token: tk, win: false });
-    const h1 = videoAllow(r1);
-    const r2 = await call(W2, e, { ip: "23.0.0.2", token: tk, win: false });
-    const j2 = await r2.json().catch(() => null);
-    ok("E8 · whole-video path, FREE: the first passes and X-BE-Video-Allowance reads 1800/1800 s; the SECOND on the same account is 429 allowance, scope video",
-      r1.status === 200 && h1 && h1.used === 1800 && h1.limit === 1800 && h1.plan === "free"
-      && r2.status === 429 && j2 && j2.error === "allowance" && j2.scope === "video" && j2.limit === 1800 && j2.plan === "free",
-      r1.status + " " + JSON.stringify(h1) + " | " + r2.status + " " + JSON.stringify(j2));
-    ok("E8b · …the refusal names the next UTC midnight, carries Retry-After, and the provider was called ONCE",
-      j2 && j2.resetAt > Date.now() && j2.resetAt - Date.now() <= 86_400_000 && utcMidnight(j2.resetAt) && Number(r2.headers.get("Retry-After")) > 0 && ai.calls.length === 1,
-      JSON.stringify(j2) + " retry=" + r2.headers.get("Retry-After") + " provider=" + ai.calls.length);
-    /* the per-IP minute cap is untouched by the budget: ONE address, three accounts */
+    const j1 = await r1.json().catch(() => null);
+    ok("E8 · whole-video path, FREE: 1800 s is more than the 600 s trial, so it is 429 allowance, scope video, trial:true — before any provider call",
+      r1.status === 429 && j1 && j1.error === "allowance" && j1.scope === "video" && j1.limit === 600 && j1.plan === "free" && j1.trial === true && ai.calls.length === 0,
+      r1.status + " " + JSON.stringify(j1) + " provider=" + ai.calls.length);
+    ok("E8b · …a spent trial names no reset and sends no Retry-After: there is nothing to wait for, the answer is Premium",
+      j1 && j1.resetAt === undefined && j1.retryAfter === undefined && r1.headers.get("Retry-After") === null,
+      JSON.stringify(j1) + " retry=" + r1.headers.get("Retry-After"));
+    /* the per-IP minute cap is untouched by the budget: ONE address, three PREMIUM accounts */
+    ent.reply = () => view(true);
     const ipOut = [];
     for (let i = 0; i < 3; i++) { const r = await call(W1, e, { ip: "23.0.0.9", token: tokOf("uid-ipc" + i), win: false }); ipOut.push([r.status, ((await r.json().catch(() => null)) || {}).error]); }
+    ent.reply = () => view(false);
     ok("E8c · the per-IP cap is unaffected: YTAI_PER_MIN 2 still refuses the third whole video from one address as rate_limited, although each is a different account",
       ipOut[0][0] === 200 && ipOut[1][0] === 200 && ipOut[2][0] === 429 && ipOut[2][1] === "rate_limited", JSON.stringify(ipOut)); }
 
-  /* --- the same budget in WINDOWS: six 5-minute windows are 1800 s, the seventh is over --- */
+  /* --- the trial in WINDOWS: two 5-minute windows are 600 s, the third is over, and it never turns over --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-win"), subject = "acct:u:uid-win";
     ai.calls = [];
     const out = [];
-    for (let i = 0; i < 7; i++) {
-      /* the seventh looks at the first stretch again — there is no edge cache in
-         this harness, so it costs what any window costs */
-      const w = i < 6 ? [i * 300, (i + 1) * 300] : [0, 300];
-      const r = await call(i % 2 ? W1 : W2, e, { ip: "26.0.0." + i, token: tk, win: w });
+    for (let i = 0; i < 3; i++) {
+      const r = await call(i % 2 ? W1 : W2, e, { ip: "26.0.0." + i, token: tk, win: [i * 300, (i + 1) * 300] });
       out.push({ status: r.status, allow: videoAllow(r), body: r.status === 429 ? await r.json().catch(() => null) : null });
       minutePasses(ns, subject);
     }
-    ok("E8d · FREE, windows: six 300 s windows pass (6 x 300 = 1800, the header counting up to 1800/1800) and the seventh is 429 allowance, scope video",
-      out.slice(0, 6).every(x => x.status === 200) && out[5].allow && out[5].allow.used === 1800 && out[5].allow.limit === 1800
-      && out[6].status === 429 && out[6].body && out[6].body.error === "allowance" && out[6].body.scope === "video" && out[6].body.limit === 1800 && out[6].body.plan === "free",
+    ok("E8d · FREE, windows: two 300 s windows pass (the header counting to 600/600, trial:true, no resetAt) and the third is 429 allowance with trial:true",
+      out.slice(0, 2).every(x => x.status === 200 && x.allow && x.allow.trial === true && x.allow.resetAt === undefined) && out[1].allow.used === 600 && out[1].allow.limit === 600
+      && out[2].status === 429 && out[2].body && out[2].body.error === "allowance" && out[2].body.trial === true && out[2].body.limit === 600,
       JSON.stringify(out.map(x => [x.status, x.allow && x.allow.used, x.body && x.body.error])));
-    ok("E8e · …and the provider was called six times, not seven", ai.calls.length === 6, String(ai.calls.length)); }
+    ok("E8e · …the provider was called twice, not three times", ai.calls.length === 2, String(ai.calls.length));
+    const st = ns.get(ns.idFromName(subject))._map.get("b:ytaitrial");
+    ok("E8e2 · …and the trial bucket has no day in its name and a window of decades, so it does not come back tomorrow",
+      st && st.count === 600 && st.resetAt - Date.now() > 50 * 365 * 86_400_000, JSON.stringify(st)); }
 
-  /* --- Premium: eight whole videos (8 x 1800 = 14400 s), the ninth is over --- */
+  /* --- Premium: two whole videos (2 x 1800 = 3600 s), the third is over --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-prem8"), subject = "acct:u:uid-prem8";
     ent.reply = () => view(true); ai.calls = [];
     const out = [];
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 3; i++) {
       const r = await call(i % 2 ? W1 : W2, e, { ip: "27.0.0." + i, token: tk, win: false });
-      out.push({ status: r.status, allow: videoAllow(r), body: r.status === 429 ? await r.json().catch(() => null) : null });
+      out.push({ status: r.status, allow: videoAllow(r), body: r.status === 429 ? await r.json().catch(() => null) : null, retry: r.headers.get("Retry-After") });
       minutePasses(ns, subject);
     }
     ent.reply = () => view(false);
-    ok("E8f · PREMIUM: eight whole videos pass (header limit 14400, plan premium) and the ninth is 429 allowance with plan premium",
-      out.slice(0, 8).every(x => x.status === 200 && x.allow && x.allow.limit === 14400 && x.allow.plan === "premium") && out[7].allow.used === 14400
-      && out[8].status === 429 && out[8].body && out[8].body.error === "allowance" && out[8].body.scope === "video" && out[8].body.limit === 14400 && out[8].body.plan === "premium" && ai.calls.length === 8,
-      JSON.stringify(out.map(x => [x.status, x.allow && x.allow.used, x.body && x.body.error])) + " provider=" + ai.calls.length); }
+    ok("E8f · PREMIUM: two whole videos pass (header limit 3600, plan premium) and the third is 429 allowance with plan premium",
+      out.slice(0, 2).every(x => x.status === 200 && x.allow && x.allow.limit === 3600 && x.allow.plan === "premium" && !x.allow.trial) && out[1].allow.used === 3600
+      && out[2].status === 429 && out[2].body && out[2].body.error === "allowance" && out[2].body.scope === "video" && out[2].body.limit === 3600 && out[2].body.plan === "premium" && ai.calls.length === 2,
+      JSON.stringify(out.map(x => [x.status, x.allow && x.allow.used, x.body && x.body.error])) + " provider=" + ai.calls.length);
+    ok("E8g · …Premium's refusal names the next UTC midnight and carries Retry-After",
+      out[2].body && utcMidnight(out[2].body.resetAt) && Number(out[2].retry) > 0, JSON.stringify(out[2].body) + " retry=" + out[2].retry); }
 
   /* --- ytai carries no capability on either plan; the plans differ only in budget --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-free");
@@ -370,8 +373,8 @@ console.log("\n# E. ytai — the bypass questions, answered deterministically (f
     const pr = await call(W1, e, { ip: "24.0.0.2", token: tokOf("uid-prem") });
     ent.reply = () => view(false);
     const fa = videoAllow(f), pa = videoAllow(pr);
-    ok("E9 · a FREE account may transcribe a pasted video — ROUTE_CAP.ytai is null, by decision; a 60 s window costs 60 of its 1800 s", f.status === 200 && fa && fa.used === 60 && fa.limit === 1800 && fa.plan === "free", f.status + " " + JSON.stringify(fa));
-    ok("E10 · Premium is not locked out of it either, and the difference between the plans is the BUDGET alone: 14400 s, plan premium", pr.status === 200 && pa && pa.used === 60 && pa.limit === 14400 && pa.plan === "premium", pr.status + " " + JSON.stringify(pa)); }
+    ok("E9 · a FREE account may still try a pasted video — ROUTE_CAP.ytai is null; a 60 s window costs 60 of its 600 s trial", f.status === 200 && fa && fa.used === 60 && fa.limit === 600 && fa.plan === "free" && fa.trial === true, f.status + " " + JSON.stringify(fa));
+    ok("E10 · Premium: 3600 s a day, plan premium, not a trial", pr.status === 200 && pa && pa.used === 60 && pa.limit === 3600 && pa.plan === "premium" && !pa.trial, pr.status + " " + JSON.stringify(pa)); }
 
   /* --- the one deliberate way past the brake: a cached answer --- */
   { const ns = makeNamespace(), e = env(ns, true), tk = tokOf("uid-cache");
@@ -500,6 +503,13 @@ console.log("\n# J1. ytai requires an ACCOUNT even with PREMIUM_ENFORCED off");
     for (let i = 0; i < 6; i++) out.push((await ytai(i % 2 ? W1 : W2, OFFENV(ns), { ip: "32.0.0." + i, token: tk })).status);
     ok("J1.5 · YTAI_ACCT_PER_MIN 4 now bites with enforcement OFF, across six IPs and two isolates", out.filter(x => x === 429).length === 2 && out.slice(0, 4).every(x => x === 200), JSON.stringify(out));
     ok("J1.5b · …and the provider was called 4 times, not 6", ai.calls.length === 4, String(ai.calls.length)); }
+
+  /* 5c — with enforcement OFF nobody can buy Premium, so there is no trial:
+     a verified account keeps the 30-minute day (owner, 6 Oct 2026) */
+  { const ns = makeNamespace(); ai.calls = [];
+    const r = await ytai(W1, OFFENV(ns), { ip: "32.1.0.1", token: await mint({ sub: "uid-offday" }) });
+    let h = null; try { h = JSON.parse(r.headers.get("X-BE-Video-Allowance")); } catch (e) {}
+    ok("J1.5c · enforcement OFF: no trial — the header reads a 1800 s day with a reset, plan free", r.status === 200 && h && h.limit === 1800 && h.plan === "free" && !h.trial && h.resetAt > Date.now(), r.status + " " + JSON.stringify(h)); }
 
   /* 6 — the IP cap still holds, across accounts */
   { const ns = makeNamespace(); ai.calls = [];

@@ -373,7 +373,19 @@ const SHADOW_PER_MIN = 20, SHADOW_PER_DAY = 400;
    ============================================================================ */
 const VERDICT_CAPS = new Set(["ai_analysis", "ai_coach"]);
 const VERDICTS_FREE_PER_DAY = 3, VERDICTS_PREMIUM_PER_DAY = 120;
-const YTAI_FREE_SEC_PER_DAY = 30 * 60, YTAI_PREMIUM_SEC_PER_DAY = 240 * 60;
+const YTAI_FREE_SEC_PER_DAY = 30 * 60, YTAI_PREMIUM_SEC_PER_DAY = 60 * 60;
+/* THE FREE TRIAL (owner, 6 Oct 2026): transcribing your own YouTube video is a
+   Premium feature. A Free account gets YTAI_FREE_TRIAL_SEC of video ONCE, in
+   total — enough to see it work — and then the Premium offer. It applies only
+   while enforcement is on, because that is the only state in which Premium can
+   be bought; with enforcement off every verified account is "free" and keeps
+   YTAI_FREE_SEC_PER_DAY, so no learner loses the feature before it is on sale.
+   The bucket is named without a day and its window is a century, i.e. it never
+   turns over. A cached video is still served free to anyone (it costs nothing).
+   Premium went from 240 to 60 minutes a day the same day: at ~$0.32 an hour of
+   video, 4 hours a day could cost more than the plan earns. */
+const YTAI_FREE_TRIAL_SEC = 10 * 60;
+const YTAI_TRIAL_WINDOW_MS = 100 * 365 * 86_400_000;
 const utcDay = now => new Date(now).toISOString().slice(0, 10);
 const utcMidnightAfter = now => { const d = new Date(now); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1); };
 /* the header rides on `cors`, which every json() of this request spreads into
@@ -1522,18 +1534,25 @@ export default {
            replaced by that budget; the per-minute caps stay. */
         const a = acct.subject || await acctSubject(request, env);
         const prem = tier === "premium";
+        /* Free while Premium is on sale = the one-off trial (YTAI_FREE_TRIAL_SEC) */
+        const trial = !prem && premiumOn(env);
         if (a) {
-          const now = Date.now(), budget = prem ? YTAI_PREMIUM_SEC_PER_DAY : YTAI_FREE_SEC_PER_DAY;
-          const name = "ytaisec:" + utcDay(now), resetAt = utcMidnightAfter(now), cost = ytaiCostSec(win);
+          const now = Date.now(), budget = prem ? YTAI_PREMIUM_SEC_PER_DAY : trial ? YTAI_FREE_TRIAL_SEC : YTAI_FREE_SEC_PER_DAY;
+          const name = trial ? "ytaitrial" : "ytaisec:" + utcDay(now), resetAt = utcMidnightAfter(now), cost = ytaiCostSec(win);
           const r = await consume(env, a, [
             { name: "ytaiacct:min", limit: prem ? YTAI_PREM_PER_MIN : YTAI_ACCT_PER_MIN, windowMs: 60_000 },
-            { name, limit: budget, windowMs: 86_400_000, cost },
+            { name, limit: budget, windowMs: trial ? YTAI_TRIAL_WINDOW_MS : 86_400_000, cost },
           ]);
           if (!r.ok) {
             if (r.bucket === "ytaiacct:min") return json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
+            /* a spent trial has nothing to wait for — the answer is Premium — so
+               it says trial:true and carries no resetAt and no Retry-After */
+            if (trial) return json({ error: "allowance", scope: "video", limit: budget, plan: "free", trial: true }, 429, { ...cors, "Access-Control-Expose-Headers": "X-BE-Allowance, X-BE-Video-Allowance, Retry-After" });
             return allowanceRefused(cors, "video", budget, resetAt, prem ? "premium" : "free", now);
           }
-          allowanceHeader(cors, "X-BE-Video-Allowance", { used: Math.min(budget, Number((r.counts && r.counts[name]) || 0) || 0), limit: budget, resetAt, plan: prem ? "premium" : "free" });
+          const used = Math.min(budget, Number((r.counts && r.counts[name]) || 0) || 0);
+          allowanceHeader(cors, "X-BE-Video-Allowance", trial ? { used, limit: budget, plan: "free", trial: true }
+                                                              : { used, limit: budget, resetAt, plan: prem ? "premium" : "free" });
         } }
       try {
         const out = await geminiCaptions(env, vid, win);

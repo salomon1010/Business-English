@@ -123,7 +123,11 @@ console.log("\n# a signed-in learner never draws on the anonymous pool");
      only one where this harness can present a token the Worker will accept
      (be-entitlements is stubbed; Google's JWKS is not). The pool is global, so
      emptying it above is still the condition being tested. */
+  /* a PREMIUM learner: a whole video is more than the Free trial (owner,
+     6 Oct 2026), and what is tested here is the pool, not the plan */
+  gem.premium = true;
   const c = await ask({ ...ENV_ON(), YTAI_ANON_USD_DAY: env.YTAI_ANON_USD_DAY }, { ip: "4.0.0.3", uid: "signed-in-1" });
+  gem.premium = false;
   ok("T16 · a learner with an account is unaffected — a busy day of strangers cannot lock them out",
     c.status === 200, JSON.stringify(c).slice(0, 200));
 }
@@ -136,18 +140,18 @@ console.log("\n# free vs premium");
      per-MINUTE ceiling of each tier. That is the honest reading and it is
      enough to prove the tiering: the day windows are the same mechanism with a
      longer window, and test-rate-limit.mjs winds the clock to prove those. */
-  /* the tier spec (docs/TIERS.md, 5 Oct 2026): the account's day is a budget of
-     SECONDS of video — 30 min Free, 240 min Premium — and a whole video is
-     charged at YTAI_MAX_SEC (30 min). So Free gets ONE whole video a day,
-     Premium eight; the refusal is 429 allowance, scope video. */
+  /* the budget is SECONDS of video and a whole video is charged at
+     YTAI_MAX_SEC (30 min). With Premium on sale, Free is a one-off 10-minute
+     trial and Premium 60 min a day (owner, 6 Oct 2026): so Free can afford NO
+     whole video and Premium two; the refusal is 429 allowance, scope video. */
   let n = 0, last = null;
   for (let i = 0; i < 11; i++) { const r = await ask(env, { ip: "5.0.0." + i, uid: "free-1" }); if (r.status === 200) n++; else last = r; }
-  ok("T17 · a FREE account gets ONE whole video a day (30 min), per ACCOUNT — changing address does not help; the next is 429 allowance (video)",
-    n === 1 && last && last.status === 429 && last.j.error === "allowance" && last.j.scope === "video", JSON.stringify({ n, last }));
+  ok("T17 · a FREE account gets NO whole video (the trial is 10 min), per ACCOUNT — changing address does not help; it is 429 allowance (video, trial)",
+    n === 0 && last && last.status === 429 && last.j.error === "allowance" && last.j.scope === "video" && last.j.trial === true, JSON.stringify({ n, last }));
   reset(); gem.premium = true;
   let m = 0;
   for (let i = 0; i < 41; i++) { const r = await ask(ENV_ON(), { ip: "6.0.0." + (i % 7), uid: "prem-1" }); if (r.status === 200) m++; }
-  ok("T18 · a PREMIUM account gets eight whole videos (240 min), still a ceiling", m === 8, String(m));
+  ok("T18 · a PREMIUM account gets two whole videos (60 min), still a ceiling", m === 2, String(m));
   ok("T19 · …and it is higher than the free one, which is the point", m > n);
 }
 

@@ -80,6 +80,12 @@ async function learner(id, track) {
   page.on("pageerror", e => errors.push(id + ": " + e.message));
   await page.goto(BASE + "/index.html?coach=" + Date.now() + "#shadow", { waitUntil: "load" });
   await page.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-ov,.wc-ov").forEach(e => e.remove()); window.__ev = []; window.track = (n, p) => { window.__ev.push({ n, p: p || null }); }; });
+  /* Since 3 Oct 2026 the Shadow report is written in the learner's Shadow TRANSLATION
+     language (svRepLang), which is never English and defaults to French for an
+     English-app learner. This suite checks the report's content, so it pins the report
+     to the app language; the language loop below still swaps DICT for fr/es/pt/ar.
+     The translation-language rule itself is covered by shadow-helpers.mjs. */
+  await page.evaluate(() => { window.svRepLang = () => null; });
   return { ctx, page, id };
 }
 const txt = (page, sel) => page.evaluate(s => (document.querySelector(s)?.innerText || "").replace(/\s+/g, " ").trim(), sel);

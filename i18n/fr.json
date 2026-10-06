@@ -3419,5 +3419,13 @@
  "sh.cap_allow_t": "Les minutes vidéo du jour sont utilisées",
  "sh.cap_allow_b": "L'offre gratuite transcrit {{n}} minutes de vos propres vidéos par jour ; Premium {{top}}. Les vôtres reviennent à {{time}}.",
  "sh.cap_allow_fair": "Vous avez atteint le plafond d'usage raisonnable du jour : {{n}} minutes de vidéo. Il se remet à zéro à {{time}}.",
- "sh.cap_allow_left": "{{n}} minutes vidéo sur {{total}} restantes aujourd'hui (remise à zéro à {{time}})."
+ "sh.cap_allow_left": "{{n}} minutes vidéo sur {{total}} restantes aujourd'hui (remise à zéro à {{time}}).",
+ "sh.cap_trial_t": "Votre essai gratuit est utilisé",
+ "sh.cap_trial_b": "La version gratuite inclut {{n}} minutes de vos propres vidéos, une seule fois. Premium transcrit {{top}} minutes par jour.",
+ "sh.cap_trial_left": "Il reste {{n}} des {{total}} minutes d'essai gratuit.",
+ "sh.cap_fail_t": "Nous n'avons pas pu créer la transcription",
+ "sh.cap_fail_b": "Le problème vient de chez nous, pas de la vidéo. Réessayez dans un instant.",
+ "sh.cap_prem_s": "Voir Premium",
+ "tools.why_lines": "Cette étape porte sur les sons et le rythme. Le shadowing de texte vous donne de vraies phrases d'atelier à écouter, lire et répéter — comme vous répondrez au travail.",
+ "sess.link_lines": "Pratiquer le shadowing de texte"
 }
