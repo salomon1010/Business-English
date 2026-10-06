@@ -265,6 +265,23 @@ console.log("\n# account deletion and Welding");
   await w.ctx.close();
 }
 
+console.log("\n# signed out on the iPhone: the sheet starts billing itself (owner's phone, 6 Oct 2026)");
+{
+  /* no saved session = the sign-in SDK never loads = fbOnAuth never runs =
+     Billing.init() never ran. The sheet used to say "Premium can't be bought on
+     this device" (plugin_ok_no_products) to a learner who only had to sign in. */
+  const { ctx, p, errs } = await open({ uid: null });
+  const before = await p.evaluate(() => ({ ran: !!Billing._ran, provider: Billing.provider && Billing.provider.id }));
+  await p.evaluate(() => premiumOpen("t")); await sleep(700);
+  const s = await p.evaluate(() => { const o = document.getElementById("premOv"); return { provider: Billing.provider && Billing.provider.id, signin: !!o.querySelector(".prem-signin"), unavail: !!o.querySelector(".prem-unavail"), text: o.innerText.replace(/\s+/g, " ") }; });
+  ok("SO1 · signed out, no init yet: opening Premium finds the App Store and asks to sign in — not 'can't be bought on this device'", !before.ran && s.provider === "app_store" && s.signin && !s.unavail && !/can't be bought|plugin_ok_no_products/.test(s.text), JSON.stringify({ before, ...s, text: s.text.slice(-160) }));
+  await p.evaluate(async () => { premClose(); FBUser = { uid: "so1", email: "so1@test", getIdToken: async () => "test-token-so1" }; await entRefresh(); await Billing.init(); });
+  const s2 = await sheet(p);
+  ok("SO2 · after signing in, the same sheet shows both App Store plans", s2.plans.length === 2 && !/can't be bought/.test(s2.text), JSON.stringify({ plans: s2.plans }));
+  ok("SO3 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

@@ -22015,7 +22015,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v633";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v634";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25082,6 +25082,7 @@ window.billingWhy=billingWhy;
 const Billing={
   state:"idle",products:[],provider:null,note:"",_uid:null,_reconciled:null,
   async init(){
+    this._ran=true;   /* premiumOpen asks this: a sheet opened before any init must start one */
     /* a different account (or none) never sees the last one's purchase message */
     const uid=FBUser?FBUser.uid:null;
     if(uid!==this._uid){this._uid=uid;this.state="idle";this.note=""}
@@ -25398,9 +25399,17 @@ window.premiumOpen=(from)=>{
        · a provider that answered with no products — ask it again.
      The open web is left alone: getDigitalGoodsService either exists or it does
      not, so retrying there would only flash a skeleton before the same answer. */
-  if(planOn()&&FBUser&&["loading","purchasing","restoring"].indexOf(Billing.state)<0
-     &&((IS_IOS_APP&&!Billing.provider)||(Billing.provider&&!Billing.products.length))){
-    Billing.state="loading";try{Billing.init()}catch(e){}
+  /* SIGNED OUT (owner's iPhone, 6 Oct 2026): Billing.init() runs from
+     fbOnAuth, and a learner with no saved session never loads the sign-in SDK,
+     so init never ran at all — the sheet then said "Premium can't be bought on
+     this device" (plugin_ok_no_products) instead of "Sign in to get Premium".
+     So the sheet starts init itself when none has run, or when the store shell
+     still has no provider; it marks the sheet "loading" only for a signed-in
+     learner, because a signed-out init stops before asking the store and would
+     leave a skeleton that never resolves. */
+  if(planOn()&&["loading","purchasing","restoring"].indexOf(Billing.state)<0
+     &&(!Billing._ran||(IS_IOS_APP&&!Billing.provider)||(FBUser&&Billing.provider&&!Billing.products.length))){
+    if(FBUser)Billing.state="loading";try{Billing.init()}catch(e){}
   }
   ov.onclick=e=>{if(e.target===ov&&!premWaiting(ov))premClose()};
   ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet${launch?" prem-launch":""}" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML(launch)}</div>`;

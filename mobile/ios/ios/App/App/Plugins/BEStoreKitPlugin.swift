@@ -70,6 +70,12 @@ public class BEStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
         Task {
             do {
                 let list = try await Product.products(for: ids)
+                #if DEBUG
+                // Debug builds only: what Apple answered, so "no products" can be
+                // told apart from a storefront or account problem in Xcode's console.
+                let storefront = await Storefront.current
+                print("BEStoreKit getProducts asked=\(ids.sorted()) returned=\(list.map(\.id).sorted()) storefront=\(storefront?.countryCode ?? "none")")
+                #endif
                 var out: [[String: Any]] = []
                 for p in list {
                     var o: [String: Any] = [
@@ -93,6 +99,9 @@ public class BEStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                 }
                 call.resolve(["products": out])
             } catch {
+                #if DEBUG
+                print("BEStoreKit getProducts failed: \(error)")
+                #endif
                 call.reject("products_failed", nil, error)
             }
         }
