@@ -11,9 +11,14 @@
 > Premium was excluded from version 1.1.0. For the release that turns it on,
 > everything below must be entered in App Store Connect first.
 
-Prepared 2026-09-26. **Not yet entered in App Store Connect** (checked 6
-October 2026: the app has no subscription group there). The products Xcode
-showed earlier lived only in a local `.storekit` file.
+Prepared 2026-09-26. **Entered in App Store Connect on 6 October 2026**
+through the App Store Connect API (team key A88M365B2K, App Manager): group
+`BE Mastery Premium` (22444441) with an en-US display name; `premium_monthly`
+(6819570240) and `premium_annual` (6819570241), both level 1, en-US name and
+description, available in all 175 territories with Apple's equalised price for
+US$2.99 / US$19.99, a free 3-day introductory offer in every territory, and the
+Premium sheet as the review screenshot. Both read **Ready to Submit**; they are
+reviewed with the first app version that carries them.
 
 **One set of ids on both stores (owner, 6 October 2026).** App Store Connect
 must use exactly the Google Play ids, `premium_monthly` and `premium_annual`.
