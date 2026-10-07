@@ -3,8 +3,21 @@
    and the scroll-in reveal. */
 (function () {
   "use strict";
+  var FR = document.documentElement.lang.indexOf("fr") === 0;
   var y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
+
+  /* language drop-down: closes on an outside tap or Escape, and keeps the
+     section the visitor is reading when they switch */
+  [].forEach.call(document.querySelectorAll("[data-lang]"), function (d) {
+    document.addEventListener("click", function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && d.open) { d.open = false; d.querySelector("summary").focus(); }
+    });
+    [].forEach.call(d.querySelectorAll(".lang-menu a"), function (a) {
+      a.addEventListener("click", function () { if (location.hash) a.href = a.getAttribute("href") + location.hash; });
+    });
+  });
 
   /* fixed bar: frosted once the page moves; the link of the section in view lights up */
   var bar = document.getElementById("topbar");
@@ -29,7 +42,8 @@
   if (btn && links) {
     var set = function (open) {
       btn.setAttribute("aria-expanded", open ? "true" : "false");
-      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      btn.setAttribute("aria-label", open ? (FR ? "Fermer le menu" : "Close menu")
+                                          : (FR ? "Ouvrir le menu" : "Open menu"));
       links.classList.toggle("open", open);
       if (open && bar) bar.classList.add("scrolled");
       else update();

@@ -6,6 +6,9 @@
 <title>Lomonec — AI automation, agentic AI and software</title>
 <meta name="description" content="Lomonec builds AI automation, AI agents and software for small service businesses, and makes its own apps, starting with BE Mastery. Book an AI Automation Quick Audit.">
 <link rel="canonical" href="https://lomonec.com/">
+<link rel="alternate" hreflang="en" href="https://lomonec.com/">
+<link rel="alternate" hreflang="fr" href="https://lomonec.com/fr/">
+<link rel="alternate" hreflang="x-default" href="https://lomonec.com/">
 <meta name="theme-color" content="#2a1a5e">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
@@ -20,7 +23,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"LOMON EC LLC","alternateName":"Lomonec","url":"https://lomonec.com/","logo":"https://lomonec.com/assets/logo.png","email":"contact@lomonec.com","sameAs":["https://www.youtube.com/@lomonec","https://www.tiktok.com/@lomonec"]}
 </script>
-<link rel="stylesheet" href="assets/lomonec.css?v=20261007d">
+<link rel="stylesheet" href="assets/lomonec.css?v=20261007e">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -29,7 +32,6 @@
 <header class="topbar" id="topbar">
   <nav class="nav wrap" aria-label="Main">
     <a class="logo" href="#top" aria-label="Lomonec home"><span class="logo-bar"></span>LOMON<span>EC</span></a>
-    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu"><i></i><i></i></button>
     <ul class="nav-links" id="navLinks">
       <li><a href="#services">Services</a></li>
       <li><a href="#apps">Apps</a></li>
@@ -37,6 +39,16 @@
       <li><a href="#how">How it works</a></li>
       <li><a href="#contact" class="nav-cta"><span>Book an audit</span></a></li>
     </ul>
+    <!-- Language: a real link per page, so it works without JS and crawlers
+         find the French page. lomonec.js closes it on an outside tap. -->
+    <details class="lang" data-lang>
+      <summary aria-label="Language: English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>EN</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="lang-menu">
+        <a href="/" hreflang="en" lang="en" aria-current="true">English</a>
+        <a href="/fr/" hreflang="fr" lang="fr" aria-current="false">Français</a>
+      </div>
+    </details>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu"><i></i><i></i></button>
   </nav>
   <span class="topbar-scan" aria-hidden="true"></span>
 </header>
@@ -214,6 +226,6 @@
   <p class="wrap legal">© <span id="year">2026</span> LOMON EC LLC</p>
 </footer>
 
-<script src="assets/lomonec.js?v=20261007d" defer></script>
+<script src="assets/lomonec.js?v=20261007e" defer></script>
 </body>
 </html>

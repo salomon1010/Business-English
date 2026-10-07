@@ -16,8 +16,12 @@
   var PAGE = document.body.dataset.page || "home";
   var ROOT = document.body.dataset.root || "";
   var HOME = PAGE === "home";
+  /* French page (bemastery/fr/): T(en, fr) picks the visible wording */
+  var FR = !!C.fr;
+  function T(en, fr) { return FR ? fr : en; }
+  /* "/x" is already absolute: the ROOT prefix is only for relative links */
   function href(h) {
-    if (!h || /^(https?:|mailto:)/.test(h)) return h;
+    if (!h || /^(https?:|mailto:|\/)/.test(h)) return h;
     if (h.charAt(0) === "#") return HOME ? h : (ROOT || "./") + h;
     return ROOT + h;
   }
@@ -54,19 +58,22 @@
   function storeBtn(st, source, size) {
     var live = st.status === "live" && st.url;
     var cls  = "store" + (live ? "" : " is-soon") + (size ? " " + size : "");
-    var top  = live ? (st.key === "ios" ? "Download on the" : "Get it on")
-                    : "Coming soon on";
+    var top  = live ? (st.key === "ios" ? T("Download on the", "Télécharger dans l'") : T("Get it on", "Disponible sur"))
+                    : T("Coming soon on", "Bientôt sur");
     var name = st.key === "ios" ? "App Store" : "Google Play";
     var body = '<span class="mkw">' + MARK[st.key] + '</span>' +
                '<span class="stxt"><small>' + top + '</small><b>' + name + '</b></span>' +
-               (live ? "" : '<span class="soon-tag">Soon</span>');
+               (live ? "" : '<span class="soon-tag">' + T("Soon", "Bientôt") + '</span>');
     if (!live) {
-      return '<span class="' + cls + '" role="img" aria-label="BE Mastery is not on the ' +
-             name + ' yet — coming soon">' + body + '</span>';
+      return '<span class="' + cls + '" role="img" aria-label="' +
+             T("BE Mastery is not on the " + name + " yet — coming soon",
+               "BE Mastery n'est pas encore sur " + (st.key === "ios" ? "l'" : "") + name + " — bientôt disponible") +
+             '">' + body + '</span>';
     }
     return '<a class="' + cls + '" href="' + st.url + '" target="_blank" rel="noopener noreferrer"' +
            ' data-ev="' + EV[st.key] + '" data-ev-source="' + source + '"' +
-           ' aria-label="' + top + " " + name + ' (opens in a new tab)">' + body + '</a>';
+           ' aria-label="' + top + (FR && st.key === "ios" ? "" : " ") + name +
+           T(" (opens in a new tab)", " (s'ouvre dans un nouvel onglet)") + '">' + body + '</a>';
   }
 
   /* The note under the store buttons. It is rendered from the same status the
@@ -87,8 +94,12 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
       'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.1"/></svg>' +
-      '<span>The ' + oss.join(" and ") + ' app is on its way to the ' +
-      names.join(" and ") + '. It will be listed here the moment it is live.</span>';
+      (FR
+        ? '<span>L\'app ' + oss.join(" et ") + ' arrive bientôt sur ' +
+          soon.map(function (st) { return st.key === "ios" ? "l'App Store" : "Google Play"; }).join(" et ") +
+          '. Elle sera indiquée ici dès sa mise en ligne.</span>'
+        : '<span>The ' + oss.join(" and ") + ' app is on its way to the ' +
+          names.join(" and ") + '. It will be listed here the moment it is live.</span>');
   }
 
   /* every [data-stores] host renders both stores, in the order given */
@@ -118,9 +129,10 @@
     if (!brand || $("#nav .parent-chip")) return;
     var a = document.createElement("a");
     a.className = "parent-chip";
-    a.href = "/";
-    a.setAttribute("aria-label", "Back to Lomonec, the company behind BE Mastery");
-    a.title = "Lomonec — the company behind BE Mastery";
+    a.href = C.home || "/";
+    a.setAttribute("aria-label", T("Back to Lomonec, the company behind BE Mastery",
+                                   "Retour à Lomonec, l'entreprise derrière BE Mastery"));
+    a.title = T("Lomonec — the company behind BE Mastery", "Lomonec — l'entreprise derrière BE Mastery");
     a.innerHTML = '<span class="pc-in">' + BACK_SVG + WORD + '</span>';
     /* under the brand, not beside it: the bar has no width to spare */
     var g = document.createElement("div");
@@ -142,7 +154,7 @@
     }
     if (menu) {
       menu.innerHTML =
-        '<a class="menu-parent" href="/">' + BACK_SVG + 'Back to ' + WORD + '</a>' +
+        '<a class="menu-parent" href="' + (C.home || "/") + '">' + BACK_SVG + T("Back to ", "Retour à ") + WORD + '</a>' +
         C.nav.map(function (n) {
           return '<a href="' + href(n.href) + '"' +
                  (n.page === PAGE ? ' aria-current="page"' : "") + '>' + n.label + '</a>';
@@ -204,8 +216,9 @@
       host.innerHTML = live.map(function (s) {
         return '<a href="' + s.url + '" target="_blank" rel="noopener noreferrer" ' +
                'data-ev="social_link_clicked" data-ev-kind="' + s.key + '" ' +
-               'title="BE Mastery on ' + s.label + '" aria-label="BE Mastery on ' + s.label +
-               ' (opens in a new tab)">' + svg(ICON[s.key]) + '</a>';
+               'title="' + T("BE Mastery on ", "BE Mastery sur ") + s.label + '" aria-label="' +
+               T("BE Mastery on ", "BE Mastery sur ") + s.label +
+               T(" (opens in a new tab)", " (s'ouvre dans un nouvel onglet)") + '">' + svg(ICON[s.key]) + '</a>';
       }).join("");
     });
   }
@@ -236,16 +249,16 @@
     var s = C.stats || {};
     if (s.rating) {
       var pill = $("#heroPill");
-      if (pill) pill.innerHTML = '<span class="dot"></span>' + s.rating + ' on Google Play';
+      if (pill) pill.innerHTML = '<span class="dot"></span>' + s.rating + T(" on Google Play", " sur Google Play");
     }
     if (s.downloads && s.learners) {
       var set = function (k, n, l) {
         var a = $('[data-n="' + k + '"]'), b = $('[data-l="' + k + '"]');
         if (a) a.textContent = n; if (b) b.textContent = l;
       };
-      set("a", s.downloads, "Downloads");
-      set("b", s.rating || "—", "Google Play rating");
-      set("c", s.learners, "Active learners");
+      set("a", s.downloads, T("Downloads", "Téléchargements"));
+      set("b", s.rating || "—", T("Google Play rating", "Note Google Play"));
+      set("c", s.learners, T("Active learners", "Apprenants actifs"));
     }
   }
 
@@ -446,7 +459,22 @@
     });
   }
 
+  /* language drop-down: closes on an outside tap or Escape, and keeps the
+     section the visitor is reading when they switch */
+  function initLang() {
+    $$("[data-lang]").forEach(function (d) {
+      document.addEventListener("click", function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && d.open) { d.open = false; $("summary", d).focus(); }
+      });
+      $$(".lang-menu a", d).forEach(function (a) {
+        a.addEventListener("click", function () { if (location.hash) a.href = a.getAttribute("href") + location.hash; });
+      });
+    });
+  }
+
   function init() {
+    initLang();
     buildNav(); initMenu(); initNavState(); initAnchorJump();
     buildStores(); buildStoreNote(); buildSocial(); buildFooter(); applyStats();
     if (window.MotionSystem) window.MotionSystem.init();

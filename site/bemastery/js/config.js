@@ -11,6 +11,11 @@
    ─────────────────────────────────────────────────────────────────────────── */
 window.BEM = (function () {
 
+  /* the page's language: <html lang="fr"> on bemastery/fr/. L(en, fr) picks
+     the label; everything else (URLs, statuses) is shared. */
+  var FR = document.documentElement.lang.indexOf("fr") === 0;
+  function L(en, fr) { return FR ? fr : en; }
+
   /* ── store URLs ─────────────────────────────────────────────────────────
      GOOGLE_PLAY_URL — live, verified: the listing is public and the TWA ships
      from it (playstore/README.md, CLAUDE.md).
@@ -28,6 +33,8 @@ window.BEM = (function () {
   var APP = "https://app.lomonec.com/";
 
   return {
+    fr:   FR,
+    home: FR ? "/fr/" : "/",
     app:  APP,
     play: GOOGLE_PLAY_URL,
 
@@ -39,22 +46,22 @@ window.BEM = (function () {
         os:     "iPhone",
         url:    APP_STORE_URL,
         status: APP_STORE_URL && IOS_LIVE ? "live" : "coming_soon",
-        live:   "Download on the App Store",
-        soon:   "Coming soon on the App Store"
+        live:   L("Download on the App Store", "Télécharger dans l'App Store"),
+        soon:   L("Coming soon on the App Store", "Bientôt sur l'App Store")
       },
       android: {
         key:    "android",
         os:     "Android",
         url:    GOOGLE_PLAY_URL,
         status: "live",
-        live:   "Get it on Google Play",
-        soon:   "Coming soon on Google Play"
+        live:   L("Get it on Google Play", "Disponible sur Google Play"),
+        soon:   L("Coming soon on Google Play", "Bientôt sur Google Play")
       }
     },
 
     cta: {
-      primary:   { label: "Download the app",   href: "#download" },
-      secondary: { label: "See how it works",   href: "#method"   }
+      primary:   { label: L("Download the app", "Télécharger l'app"), href: "#download" },
+      secondary: { label: L("See how it works", "Voir comment ça marche"), href: "#method"   }
     },
 
     /* desktop nav + mobile menu are rendered from this list. One word each
@@ -63,15 +70,15 @@ window.BEM = (function () {
        into a link back to that section. page:"…" = its own page, and marks
        itself current there (matched against <body data-page>). */
     nav: [
-      { label: "New",                  href: "#new"     },
-      { label: "Method",               href: "#method"  },
-      { label: "Features",             href: "#inside"  },
+      { label: L("New", "Nouveautés"),      href: "#new"     },
+      { label: L("Method", "Méthode"),        href: "#method"  },
+      { label: L("Features", "Fonctions"),    href: "#inside"  },
       { label: "Shadowing",            href: "#shadow"  },
-      { label: "Welding",              href: "#welding" },
-      { label: "Pricing",              href: "#pricing" },
+      { label: L("Welding", "Soudage"),       href: "#welding" },
+      { label: L("Pricing", "Tarifs"),        href: "#pricing" },
       { label: "Widgets",              href: "#widgets" },
       { label: "FAQ",                  href: "#faq"     },
-      { label: "Team",                 href: "team.html", page: "team" }
+      { label: L("Team", "Équipe"),          href: "team.html", page: "team" }
     ],
 
     /* VERIFIED 2026-09-22: youtube + tiktok are Lomonec's own channels and are
@@ -87,31 +94,31 @@ window.BEM = (function () {
     /* only pages that actually exist are listed here. A link with store:"ios"
        is rendered only once that store is live. */
     footer: [
-      { title:"Product", links:[
-        { label:"General English",      href:"#paths"   },
+      { title:L("Product", "Produit"), links:[
+        { label:L("General English", "Anglais général"), href:"#paths" },
         { label:"Practice Partner",     href:"#partner" },
         { label:"Shadow Studio",        href:"#shadow"  },
-        { label:"AI Coach",             href:"#coach"   },
-        { label:"Welding English",      href:"#welding" },
-        { label:"Home-screen widgets",  href:"#widgets" },
-        { label:"Pricing",              href:"#pricing" },
+        { label:L("AI Coach", "Coach IA"),   href:"#coach"   },
+        { label:L("Welding English", "Anglais du soudage"), href:"#welding" },
+        { label:L("Home-screen widgets", "Widgets d'écran d'accueil"), href:"#widgets" },
+        { label:L("Pricing", "Tarifs"),      href:"#pricing" },
         { label:"FAQ",                  href:"#faq"     }
       ]},
-      { title:"Company", links:[
-        { label:"Lomonec",         href:"/" },
-        { label:"About BE Mastery", href:"https://app.lomonec.com/flyer.html" },
-        { label:"Team",             href:"team.html" },
+      { title:L("Company", "Entreprise"), links:[
+        { label:"Lomonec",         href:FR ? "/fr/" : "/" },
+        { label:L("About BE Mastery", "À propos de BE Mastery"), href:"https://app.lomonec.com/flyer.html" + L("", "?lang=fr") },
+        { label:L("Team", "Équipe"),        href:"team.html" },
         { label:"Blog",             href:"blog/" },
         { label:"Contact",          href:"mailto:contact@lomonec.com" },
-        { label:"Help centre",      href:"https://app.lomonec.com/manual/en.html" }
+        { label:L("Help centre", "Centre d'aide"), href:"https://app.lomonec.com/manual/" + L("en", "fr") + ".html" }
       ]},
-      { title:"Download", links:[
+      { title:L("Download", "Télécharger"), links:[
         { label:"Google Play", href:GOOGLE_PLAY_URL, store:"android" },
         { label:"App Store",   href:APP_STORE_URL,   store:"ios"     }
       ]},
-      { title:"Legal", links:[
-        { label:"Privacy",        href:"https://app.lomonec.com/privacy.html" },
-        { label:"Delete account", href:"https://app.lomonec.com/delete-account.html" }
+      { title:L("Legal", "Mentions légales"), links:[
+        { label:L("Privacy", "Confidentialité"), href:"https://app.lomonec.com/privacy.html" },
+        { label:L("Delete account", "Supprimer le compte"), href:"https://app.lomonec.com/delete-account.html" }
       ]}
     ],
 

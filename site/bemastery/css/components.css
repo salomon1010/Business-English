@@ -71,6 +71,39 @@
 .nav-actions{display:flex;align-items:center;gap:8px;flex:none}
 .nav-actions .signin{font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 12px}
 .nav-actions .signin:hover{color:var(--color-text)}
+/* language drop-down: a glass pill, a dark card under it */
+.lang{position:relative;flex:none}
+.lang summary{list-style:none;display:flex;align-items:center;gap:6px;height:42px;padding:0 12px;cursor:pointer;
+  border-radius:var(--radius-pill);border:1px solid var(--color-border);background:var(--color-surface);
+  color:var(--color-muted);font-size:13.5px;font-weight:600;letter-spacing:.05em;
+  transition:color var(--dur) var(--ease-soft),border-color var(--dur) var(--ease-soft)}
+.lang summary::-webkit-details-marker{display:none}
+.lang summary:hover,.lang[open] summary{color:var(--color-text);border-color:var(--color-border-strong)}
+.lang summary svg{width:16px;height:16px}
+.lang summary .chev{width:12px;height:12px;transition:transform var(--dur) var(--ease-out)}
+.lang[open] summary .chev{transform:rotate(180deg)}
+.lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:70;min-width:160px;padding:6px;
+  border-radius:var(--radius);background:rgba(11,14,28,.97);border:1px solid var(--color-border);
+  box-shadow:var(--shadow-float);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.lang-menu a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;
+  border-radius:var(--radius-sm);font-size:14.5px;font-weight:500;color:var(--color-muted)}
+.lang-menu a:hover{background:var(--color-surface);color:var(--color-text)}
+.lang-menu a[aria-current="true"]{color:var(--color-text)}
+.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid var(--color-accent);
+  border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px)}
+/* a phone has no room for brand + language + Download + menu: the menu and
+   the hero already carry the download, so the bar's button goes */
+@media (max-width:480px){
+  .nav-actions .btn-primary{display:none}
+}
+@media (max-width:420px){
+  .lang summary{padding:0 10px;gap:4px}
+  .lang summary .chev{display:none}
+}
+@media (max-width:340px){
+  .nav .bar{gap:10px}
+  .lang summary svg{display:none}
+}
 .menu-btn{display:none;width:42px;height:42px;border-radius:var(--radius-pill);
   border:1px solid var(--color-border);background:var(--color-surface);place-items:center}
 .menu-btn svg{width:20px;height:20px}

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://lomonec.com/</loc></url>
+  <url><loc>https://lomonec.com/fr/</loc></url>
   <url><loc>https://lomonec.com/bemastery/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/fr/</loc></url>
   <url><loc>https://lomonec.com/bemastery/blog/</loc></url>
   <url><loc>https://lomonec.com/bemastery/team.html</loc></url>
 </urlset>

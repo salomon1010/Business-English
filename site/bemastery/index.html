@@ -6,6 +6,9 @@
 <title>BE Mastery — AI English Speaking Practice</title>
 <meta name="description" content="Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.">
 <link rel="canonical" href="https://lomonec.com/bemastery/">
+<link rel="alternate" hreflang="en" href="https://lomonec.com/bemastery/">
+<link rel="alternate" hreflang="fr" href="https://lomonec.com/bemastery/fr/">
+<link rel="alternate" hreflang="x-default" href="https://lomonec.com/bemastery/">
 <meta name="theme-color" content="#080b16">
 <meta name="apple-mobile-web-app-title" content="BE Mastery">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -42,7 +45,7 @@
 </script>
 <link rel="stylesheet" href="css/tokens.css?v=20261007f">
 <link rel="stylesheet" href="css/base.css?v=20261007f">
-<link rel="stylesheet" href="css/components.css?v=20261007g">
+<link rel="stylesheet" href="css/components.css?v=20261007h">
 <link rel="stylesheet" href="css/sections.css?v=20261007f">
 <link rel="stylesheet" href="css/dynamic.css?v=20261007f">
 </head>
@@ -64,6 +67,15 @@
       <a class="brand" href="#top"><img src="img/logo.svg" alt="" width="29" height="29">BE&nbsp;<span class="grad">Mastery</span></a>
       <nav class="nav-links" id="navLinks" aria-label="Main"></nav>
       <div class="nav-actions">
+        <!-- Language: a real link per page, so it works without JS and
+             crawlers find the French page. app.js closes it on an outside tap. -->
+        <details class="lang" data-lang>
+          <summary aria-label="Language: English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>EN</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="lang-menu">
+            <a href="/bemastery/" hreflang="en" lang="en" aria-current="true">English</a>
+            <a href="/bemastery/fr/" hreflang="fr" lang="fr" aria-current="false">Français</a>
+          </div>
+        </details>
         <a class="btn btn-primary btn-sm" href="#download" data-ev="hero_cta_clicked" data-ev-source="nav">Download app</a>
         <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
@@ -796,9 +808,9 @@
 
 </div><!-- /page -->
 
-<script src="js/config.js?v=20261007f"></script>
+<script src="js/config.js?v=20261007h"></script>
 <script src="js/analytics.js?v=20261007f" defer></script>
 <script src="js/motion.js?v=20261007f" defer></script>
-<script src="js/app.js?v=20261007g" defer></script>
+<script src="js/app.js?v=20261007h" defer></script>
 </body>
 </html>
