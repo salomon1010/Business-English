@@ -356,6 +356,29 @@ if (SHOT) {
 
 ok("No JavaScript errors on either learner's page", errors.length === 0, errors.join(" | "));
 
+/* ---------- one voice: a take is heard ONCE after Stop (owner, 6 Oct 2026 — it played twice, an echo) ---------- */
+const echo = await A.page.evaluate(async () => {
+  const played = []; const orig = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () { if (/^blob:/.test(this.src)) played.push(this); try { return orig.call(this).catch(() => {}); } catch (e) { return Promise.resolve(); } };
+  const blob = new Blob([new Uint8Array(4000)], { type: "audio/webm" });
+  await addRec(shRecCtx(shClip.vid), "echo test", blob);
+  const T = "So I applied to one job and I applied to probably around ninety";
+  fbCtx = { vid: shClip.vid, recCtx: shRecCtx(shClip.vid) }; fbT0 = Date.now() - 6000;
+  const heard = svTakePlayback(blob);            /* Stop: the take plays at once */
+  fbShowResults(T, T, "new");                    /* the report lands a moment later */
+  await new Promise(r => setTimeout(r, 900));
+  const afterStop = played.length, stillOn = played.filter(a => !a.paused).length;
+  played.length = 0;
+  fbCtx = { vid: shClip.vid, recCtx: shRecCtx(shClip.vid) }; fbT0 = Date.now() - 6000;
+  fbShowResults(T, T, "new");                    /* a report with no Stop playback before it */
+  await new Promise(r => setTimeout(r, 900));
+  const reportOnly = played.length;
+  HTMLMediaElement.prototype.play = orig; svChStopAll(); fbOwnStop();
+  return { heard, afterStop, stillOn, reportOnly };
+});
+ok("One voice: after Stop the take plays once — the report that follows does not play it again (no echo)", echo.heard === true && echo.afterStop === 1 && echo.stillOn <= 1, JSON.stringify(echo));
+ok("…and a report that arrives without the Stop playback still plays the fresh take itself, once", echo.reportOnly === 1, JSON.stringify(echo));
+
 await browser.close(); if (server) server.kill();
 const fails = res.filter(r => !r.pass).length;
 console.log(`\n${res.length - fails}/${res.length} pass (${BASE})`);

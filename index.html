@@ -12305,6 +12305,7 @@ async function fbPlayOwn(rep,quiet){
   try{const recs=await getRecs(r.recCtx);blob=recs&&recs[0]&&recs[0].blob}catch(e){}
   if(!blob){if(!quiet)toast(t("mv.hist_norec"));return false}
   try{fbStopAudio()}catch(e){}
+  try{if(fbAud){fbAud.pause();fbAud=null}}catch(e){}   /* the Shadow take player: one voice at a time */
   fbOwnStop();
   const a=_fbOwnA=new Audio(URL.createObjectURL(blob));
   a.onended=()=>{if(_fbOwnA===a)fbOwnStop()};
@@ -19672,7 +19673,7 @@ function fbShowResultsBody(targetText,heardText,fromRec,outId){
      2026): the score and the voice that earned it arrive together. Only for a
      take just recorded — a report redrawn from history stays silent — and
      `quiet` so a missing recording never raises a toast nobody asked for. */
-  if(fromRec==="new")setTimeout(()=>{fbPlayOwn(_rep,true)},350);
+  if(fromRec==="new"){if(typeof _svTakeHeard!=="undefined"&&_svTakeHeard)_svTakeHeard=false;else setTimeout(()=>{fbPlayOwn(_rep,true)},350)}
   /* a word saved from anywhere in this report counts once, whichever control did it */
   if(!out.dataset.fbcWired){out.dataset.fbcWired="1";out.addEventListener("click",e=>{
     const b=e.target&&e.target.closest?e.target.closest(".voc-save,.voc-chip,.voc-pick-all"):null;if(!b)return;
@@ -22057,7 +22058,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v641";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v642";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -27873,6 +27874,7 @@ function svChPlayBlob(blob,s0,s1){
   return new Promise(res=>{
     if(!blob){toast(t("sv.ch_no_take"));return res()}
     if(fbAud){try{fbAud.pause()}catch(e){}}
+    try{fbOwnStop()}catch(e){}   /* the report's take player: one voice at a time */
     const a=new Audio(URL.createObjectURL(blob));fbAud=a;
     const go=d=>{const st=s0!=null?Math.max(0,s0-0.06):0,en=s1!=null?Math.min(d,s1+0.1):d;
       a.currentTime=st;a.play().catch(()=>res());
@@ -27891,6 +27893,11 @@ function svChPlayBlob(blob,s0,s1){
    looping), and any other play cancels it, because svChPlayBlob owns the one
    audio element the studio uses. Only inside the workspace: a session or a
    mission take goes through the same recorder and must not start talking. */
+/* Set when the Shadow workspace has just played a take on Stop. The report that
+   follows would play the same take again 350 ms after it draws (fbShowResults) —
+   two players, one voice twice, heard as an echo (owner, 6 Oct 2026). The report
+   consumes the flag and stays silent for that take. */
+let _svTakeHeard=false;
 function svTakePlayback(blob){
   try{
     if(!blob||blob.size<1200)return false;
@@ -27898,7 +27905,7 @@ function svTakePlayback(blob){
     try{svChStopAll()}catch(e){}
     try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
     try{toast(t("sv.take_playback"))}catch(e){}
-    svChPlayBlob(blob);
+    svChPlayBlob(blob);_svTakeHeard=true;
     return true;
   }catch(e){return false}
 }
