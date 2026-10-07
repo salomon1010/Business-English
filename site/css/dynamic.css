@@ -138,3 +138,7 @@
 @media (max-width:560px){.new-grid{grid-template-columns:1fr}}
 
 @media (prefers-reduced-motion:reduce){.wgi,.wd-widget{animation:none}.shot-phone{transition:none}}
+/* Welding photo grid: same cards as "Inside the app", gold edge */
+.inside-weld{margin-top:18px}
+.inside-weld .in-card{border-color:rgba(245,184,61,.28)}
+.inside-weld .in-card:hover{border-color:rgba(245,184,61,.6)}
