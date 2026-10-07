@@ -3428,5 +3428,6 @@
  "sh.cap_prem_s": "Ver Premium",
  "tools.why_lines": "Este paso trata del sonido y el ritmo. El shadowing de texto te da frases reales del taller para escuchar, leer y repetir, como responderás en el trabajo.",
  "sess.link_lines": "Practicar shadowing de texto",
- "prem.cmp_trial": "{{n}} min de prueba, una vez"
+ "prem.cmp_trial": "{{n}} min de prueba, una vez",
+ "area.counts_short": "Solo se muestra tu progreso en {{area}}."
 }

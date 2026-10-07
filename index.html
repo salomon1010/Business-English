@@ -67,7 +67,7 @@
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=84"></script>
 <script src="shadow-sync.js?v=8"></script>
-<script src="shadow-scenes.js?v=1"></script>
+<script src="shadow-scenes.js?v=2"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
 <script src="career-center.js?v=80"></script>
 <script src="professional-skills-passport.js?v=85"></script>
@@ -1806,10 +1806,14 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .area-scope p{margin:6px 0 11px;font-size:12.5px;color:var(--mut);line-height:1.55}
 .area-scope .btn{width:auto}
 /* The compact form on Profile: a caption, not a banner. */
-.area-note{max-width:560px;margin:2px auto 4px;padding:0 18px;text-align:center;
-  font-size:12.5px;line-height:1.55;color:var(--mut)}
-.area-note-go{display:inline;padding:0;border:0;background:none;cursor:pointer;
-  font:inherit;font-weight:700;color:var(--acc2);text-decoration:underline;text-underline-offset:2px}
+.area-note{max-width:560px;margin:2px auto 12px;padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.area-note-t{margin:0;max-width:100%;font-size:12.5px;line-height:1.4;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.area-note-go{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 13px;border:1px solid color-mix(in srgb,var(--acc2) 45%,transparent);
+  border-radius:10px;background:color-mix(in srgb,var(--acc2) 10%,transparent);color:var(--acc2);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
+  transition:background var(--ds-fast,.18s),transform var(--ds-fast,.18s)}
+.area-note-go .btn-ic{display:inline-grid;width:14px;height:14px}.area-note-go .btn-ic svg{width:14px;height:14px}
+.area-note-go:hover{background:color-mix(in srgb,var(--acc2) 18%,transparent)}.area-note-go:active{transform:scale(.97)}
+.area-note-go:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .pg-h{margin:20px 0 8px;font-size:15px}
 .pg-ess .pcal-week{margin-top:0}
 .pg-ess .grid{margin-top:14px}
@@ -8861,6 +8865,7 @@ const I18N_EN={
  "area.scope_pro":"Everything below counts only the English you have practised for the trade — the toolbox talk, the permit, the handover, the questions a supervisor actually asks. Your general English is measured on its own page.",
  "area.switch":"Open your {{area}} review",
  "area.counts":"These counts cover your {{area}} work only — the other area keeps its own record.",
+ "area.counts_short":"Showing your {{area}} progress only.",
  "area.switch_profile":"Open your {{area}} profile","area.switch_to":"Switch to {{area}}",
  "gauge.no_data":"Record a speaking-feedback session to measure your pace",
  "gauge.warming":"Warming up — natives average 140–160 wpm; push the pace a little",
@@ -22066,7 +22071,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v643";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v644";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -31379,8 +31384,9 @@ function areaNoteHTML(view){
   const pro=areaIsPro(),rev=view==="review";
   const other=pro?"general-english":"welding";
   const otherName=pro?t("area.name_gen"):t("area.name_pro");
-  return `<p class="area-note">${esc(t("area.counts",{area:areaLabel()}))}
-    <button class="area-note-go" onclick="${rev?"areaGoReview":"areaGoProfile"}('${other}')">${esc(t("area.switch_to",{area:otherName}))}</button></p>`;
+  /* one short line, then the way across as a small centred button (owner, 6 Oct 2026) */
+  return `<div class="area-note"><p class="area-note-t">${esc(t("area.counts_short",{area:areaLabel()}))}</p>
+    <button class="area-note-go" onclick="${rev?"areaGoReview":"areaGoProfile"}('${other}')"><span class="btn-ic">${ic("repeat")}</span>${esc(t("area.switch_to",{area:otherName}))}</button></div>`;
 }
 /* The switch buttons on Profile and Progress land on the other area's Home like every
    other switch (owner, 28 Sep 2026); they used to land on the same page. */

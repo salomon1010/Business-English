@@ -3428,5 +3428,6 @@
  "sh.cap_prem_s": "Voir Premium",
  "tools.why_lines": "Cette étape porte sur les sons et le rythme. Le shadowing de texte vous donne de vraies phrases d'atelier à écouter, lire et répéter — comme vous répondrez au travail.",
  "sess.link_lines": "Pratiquer le shadowing de texte",
- "prem.cmp_trial": "{{n}} min d'essai, une fois"
+ "prem.cmp_trial": "{{n}} min d'essai, une fois",
+ "area.counts_short": "Seule votre progression en {{area}} est affichée."
 }
