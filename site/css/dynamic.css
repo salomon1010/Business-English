@@ -113,6 +113,19 @@
 .shot figcaption{margin-top:16px;display:flex;flex-direction:column;gap:3px}
 .shot figcaption b{color:#fff;font-size:15px}.shot figcaption span{color:var(--color-muted);font-size:13px}
 .shot:nth-child(even) figcaption{margin-top:38px}
+/* galleries inside a section's .wrap: the wrap already centres them */
+.wrap .shots{padding:10px 4px 30px;margin-top:8px}
+.shots-h{margin:56px 0 6px;text-align:center;font-size:22px;color:#fff}
+.shots-home{justify-content:center}
+.shots-home .shot{width:250px}
+.shots-weld .shot-phone{border-color:rgba(245,184,61,.45);box-shadow:var(--shadow-float),0 0 40px -12px rgba(245,184,61,.45)}
+@media (max-width:820px){.shots-home{justify-content:flex-start}}
+/* welding facts strip */
+.wd-facts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px}
+.wd-facts div{padding:18px 20px;border-radius:var(--radius-lg);border:1px solid rgba(245,184,61,.28);background:linear-gradient(160deg,rgba(245,184,61,.10),rgba(245,184,61,.02))}
+.wd-facts b{display:block;font-size:34px;line-height:1;color:#f5b83d;margin-bottom:8px}
+.wd-facts span{color:var(--color-muted);font-size:14px;line-height:1.45}
+@media (max-width:760px){.wd-facts{grid-template-columns:repeat(2,1fr)}}
 
 /* ── what's new ──────────────────────────────────────────────────────────── */
 .new-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px}
