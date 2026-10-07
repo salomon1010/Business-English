@@ -5892,8 +5892,8 @@ h1.big{letter-spacing:-.025em}
    card from 600px. The body scrolls; the CTA foot is pinned and never covers
    content because it sits outside the scroll box. Colour comes only from the
    theme tokens (Signal / Forge, dark / light), so nothing here is hard-coded. */
-.prem-ov{padding:0;place-items:end center}
-.prem-sheet{max-width:none;width:100%;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column;
+.prem-ov{padding:env(safe-area-inset-top,0px) 0 0;place-items:end center}   /* the sheet never rises under the clock / battery (owner, 6 Oct 2026) */
+.prem-sheet{max-width:none;width:100%;max-height:calc(100vh - 20px);max-height:calc(100dvh - env(safe-area-inset-top,0px) - 12px);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column;transition:max-height .3s var(--ds-ease-out,ease-out);
   background:var(--bg2);border-radius:var(--ds-r-lg,24px) var(--ds-r-lg,24px) 0 0;border-bottom:0;animation:premUp .32s var(--ds-ease-out,ease-out)}
 @keyframes premUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
 @media (min-width:600px){.prem-ov{padding:22px;place-items:center}.prem-sheet{max-width:440px;max-height:90vh;border-radius:22px;border-bottom:1px solid var(--line2)}}
@@ -6020,6 +6020,14 @@ h1.big{letter-spacing:-.025em}
 .prem-more-ic{display:inline-grid;place-items:center;width:18px;height:18px;color:var(--mut);transition:transform var(--ds-fast,.18s)}.prem-more-ic svg{width:16px;height:16px}
 .prem-more[open] .prem-more-ic{transform:rotate(180deg)}
 .prem-more-body{padding:0 14px 12px}
+.prem-more[open] .prem-more-body{animation:premFold .32s var(--ds-ease-out,ease-out) both}
+.prem-more[open] .prem-cmp tbody tr{animation:premRow .34s var(--ds-ease-out,ease-out) both}
+.prem-more[open] .prem-cmp tbody tr:nth-child(2){animation-delay:.04s}.prem-more[open] .prem-cmp tbody tr:nth-child(3){animation-delay:.08s}
+.prem-more[open] .prem-cmp tbody tr:nth-child(4){animation-delay:.12s}.prem-more[open] .prem-cmp tbody tr:nth-child(5){animation-delay:.16s}
+.prem-more[open] .prem-cmp tbody tr:nth-child(n+6){animation-delay:.2s}
+@keyframes premFold{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes premRow{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.prem-more[open] .prem-more-body,.prem-more[open] .prem-cmp tbody tr{animation:none}}
 .prem-all{display:flex;gap:8px;align-items:flex-start;margin:0;font-size:13px;color:var(--mut);line-height:1.45}.prem-all .inl-ic{color:var(--green);margin:2px 0 0;flex:none}
 .prem-terms{font-size:11.5px;color:var(--mut2);text-align:center;margin:14px 0 0;line-height:1.45;max-width:none}
 .prem-legal{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 4px;margin:2px 0 0}
@@ -7464,7 +7472,7 @@ const I18N_EN={
  "prem.b_ai":"{{n}} AI verdicts a day (fair use): speaking reports, pronunciation scores and AI coach replies",
  "prem.b_yt_min":"{{n}} minutes a day of your own YouTube videos, transcribed",
  "prem.cmp_ai":"AI verdicts a day","prem.cmp_perday":"{{n}} a day","prem.cmp_fair":"{{n}} a day (fair use)",
- "prem.cmp_ytmin":"Your YouTube videos, transcribed","prem.cmp_min":"{{n}} min a day",
+ "prem.cmp_ytmin":"Your YouTube videos, transcribed","prem.cmp_min":"{{n}} min a day","prem.cmp_trial":"{{n}} min to try, once",
  "prem.cmp_ads":"Ads","prem.cmp_yes":"Yes","prem.cmp_none":"None",
  "ai.allow_chip":"Daily allowance",
  "ai.allow_out":"You've used today's {{n}} AI verdicts. They come back at {{time}}. Premium gives {{top}} a day.",
@@ -22058,7 +22066,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v642";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v643";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25506,7 +25514,7 @@ function premCmpHTML(){
   let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}
   /* the tier spec (5 Oct 2026): the daily allowances lead, then storage, then ads where they exist */
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
-    <tbody>${row("prem.cmp_ai",esc(t("prem.cmp_perday",{n:VERDICTS_FREE})),esc(t("prem.cmp_fair",{n:VERDICTS_PREMIUM})))}${row("prem.cmp_ytmin",esc(t("prem.cmp_min",{n:YT_MIN_FREE})),esc(t("prem.cmp_min",{n:YT_MIN_PREMIUM})))}${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}${ads?row("prem.cmp_ads",esc(t("prem.cmp_yes")),esc(t("prem.cmp_none"))):""}</tbody></table>`;
+    <tbody>${row("prem.cmp_ai",esc(t("prem.cmp_perday",{n:VERDICTS_FREE})),esc(t("prem.cmp_fair",{n:VERDICTS_PREMIUM})))}${row("prem.cmp_ytmin",esc(t("prem.cmp_trial",{n:YT_MIN_FREE})),esc(t("prem.cmp_min",{n:YT_MIN_PREMIUM})))}${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}${ads?row("prem.cmp_ads",esc(t("prem.cmp_yes")),esc(t("prem.cmp_none"))):""}</tbody></table>`;
 }
 /* hero → benefits → plans → CTA. The X is first in the DOM (first tab stop). */
 function premSheetHTML(wait){
@@ -25576,6 +25584,12 @@ window.premiumOpen=(from)=>{
   ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet${launch?" prem-launch":""}" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML(launch)}</div>`;
   if(launch)setTimeout(()=>{if(!ov.isConnected)return;delete ov.dataset.xwait;const x=ov.querySelector(".prem-x");if(x){x.hidden=false;x.classList.add("prem-x-in")}},PREM_LAUNCH_WAIT);
   document.body.appendChild(ov);document.addEventListener("keydown",premKey,true);
+  /* "See what's included": the sheet scrolls itself to the opened table, smoothly,
+     rather than the page jumping (toggle does not bubble, so it is caught on the way down) */
+  ov.addEventListener("toggle",e=>{const d=e.target;if(!d||!d.classList||!d.classList.contains("prem-more")||!d.open)return;
+    const sc=ov.querySelector(".prem-scroll");if(!sc)return;
+    setTimeout(()=>{const r=d.getBoundingClientRect(),s=sc.getBoundingClientRect(),over=r.bottom-s.bottom+12;
+      if(over>0)sc.scrollTo({top:sc.scrollTop+Math.min(over,Math.max(0,r.top-s.top-12)),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})},40)},true);
   /* focus goes INTO the dialog (screen readers land on it), not onto a button */
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };

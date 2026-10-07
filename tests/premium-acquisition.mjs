@@ -101,7 +101,7 @@ console.log("\n# A · Free, General English, a store with the 3-day trial on the
   /* the tier spec (5 Oct 2026): the verdicts and the video minutes are DAILY
      ALLOWANCES with their numbers named, then the two hard-locked capabilities,
      then the AI Coach on General English. Never "unlimited". */
-  ok("A2 · benefits: 120 AI verdicts a day (fair use), 240 video minutes a day, advanced progress, 30/90-day analytics, the AI Coach; no ad-free claim while ads are off; nothing 'unlimited'", s.ben.length === 5 && /^120 AI verdicts a day \(fair use\)/.test(s.ben[0]) && /^240 minutes a day/.test(s.ben[1]) && /^Advanced progress/.test(s.ben[2]) && s.ben[3] === "30- and 90-day analytics" && /^The AI Coach/.test(s.ben[4]) && !/No ads/.test(s.text) && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
+  ok("A2 · benefits: 120 AI verdicts a day (fair use), 60 video minutes a day (owner, 6 Oct 2026), advanced progress, 30/90-day analytics, the AI Coach; no ad-free claim while ads are off; nothing 'unlimited'", s.ben.length === 5 && /^120 AI verdicts a day \(fair use\)/.test(s.ben[0]) && /^60 minutes a day/.test(s.ben[1]) && /^Advanced progress/.test(s.ben[2]) && s.ben[3] === "30- and 90-day analytics" && /^The AI Coach/.test(s.ben[4]) && !/No ads/.test(s.text) && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
   const [an, mo] = s.plans;
   ok("A3 · TWO plans, annual first and chosen: 'Best value', $19.99 / year, 'Save 44%' computed from the store's two prices, the 3-day trial; then Monthly at $2.99 / month — one radio group", s.plans.length === 2 && an.id === "premium_annual" && an.on && an.checked === "true" && /^best value$/i.test(an.badge) && /\$19\.99/.test(an.price) && /\/ year/.test(an.price) && an.save === "Save 44%" && /3 days free/i.test(an.trial) && mo.id === "premium_monthly" && !mo.on && /\$2\.99/.test(mo.price) && /\/ month/.test(mo.price) && !mo.badge && s.radios === 3 && !/week/i.test(s.text), JSON.stringify({ plans: s.plans, radios: s.radios }));
   ok("A4 · one primary CTA 'Start 3-day free trial', pinned in a foot inside the viewport, with the renewal terms under it: what is charged next, at the store's price, and where to cancel", s.ctas === 1 && s.cta === "Start 3-day free trial" && s.ctaIn && s.footIn && s.cancel === "Then $19.99 / year. Cancel anytime in Google Play.", JSON.stringify({ ctas: s.ctas, cta: s.cta, ctaIn: s.ctaIn, footIn: s.footIn, cancel: s.cancel }));
@@ -245,6 +245,26 @@ for (const [lab, flags, want] of [["production defaults (ads off, billing off)",
   ok(`L2 · Settings Premium card, ${lab}: 'Ad-free learning' ${want ? "listed" : "absent"}`, r !== null && /Ad-free learning/.test(r) === want, r);
   await ctx.close();
 }
+
+/* "See what's included" (owner, 6 Oct 2026): opening it must not push the sheet up
+   under the status bar, the table animates in, and the sheet glides to it */
+{ const { ctx, p } = await open({ uid: "p1", vp: { width: 390, height: 664 } });   /* a short phone: the fold cannot fit without scrolling */
+  await openSheet(p);
+  const r = await p.evaluate(async () => {
+    const sh = document.querySelector(".prem-sheet"), sc = sh.querySelector(".prem-scroll"), d = sh.querySelector(".prem-more");
+    const top0 = sh.getBoundingClientRect().top, y0 = sc.scrollTop;
+    d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 60));
+    const anim = getComputedStyle(d.querySelector(".prem-more-body")).animationName, rowAnim = getComputedStyle(d.querySelector(".prem-cmp tbody tr")).animationName;
+    await new Promise(r => setTimeout(r, 900));
+    const t = d.querySelector(".prem-cmp").getBoundingClientRect(), s = sc.getBoundingClientRect();
+    return { top0: Math.round(top0), top1: Math.round(sh.getBoundingClientRect().top), scrolled: sc.scrollTop > y0, tableBottomInView: t.bottom <= s.bottom + 1, anim, rowAnim,
+      trial: /10 min to try, once/.test(d.innerText), notADay: !/10 min a day/.test(d.innerText) };
+  });
+  ok("P1 · opening 'See what's included' keeps the sheet below the top edge (12 px gap + the safe area), never under the clock", r.top1 >= 12, JSON.stringify(r));
+  ok("P2 · …the content arrives with an animation (fold + each row)", r.anim === "premFold" && r.rowAnim === "premRow", JSON.stringify(r));
+  ok("P3 · …and the sheet glides down to the opened table instead of leaving it below the fold", r.scrolled && r.tableBottomInView, JSON.stringify(r));
+  ok("P4 · Free's own videos read as a one-off trial ('10 min to try, once'), not '10 min a day'", r.trial && r.notADay, JSON.stringify(r));
+  await ctx.close(); }
 
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
