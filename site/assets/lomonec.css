@@ -17,13 +17,15 @@ img{max-width:100%;height:auto;display:block}
 a{color:var(--indigo)}
 h1,h2,h3{line-height:1.2;margin:0}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
-.skip{position:absolute;left:-999px;top:8px;background:#fff;padding:8px 14px;border-radius:8px;z-index:10}
-.skip:focus{left:8px}
+.skip{position:absolute;inset-inline-start:-999px;top:8px;background:#fff;padding:8px 14px;border-radius:8px;z-index:10}
+.skip:focus{inset-inline-start:8px}
 :focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 
 /* logo — drawn in type so it stays sharp at every size */
 .logo{display:inline-flex;flex-wrap:wrap;width:max-content;font-weight:900;font-size:26px;letter-spacing:.02em;color:#fff;text-decoration:none;line-height:1}
 .logo span:not(.logo-bar){color:var(--lav)}
+/* a logo reads left to right on Arabic and Urdu pages too */
+[dir="rtl"] .logo{direction:ltr}
 .logo-bar{flex-basis:100%;max-width:2.3em;height:4px;background:var(--lav);margin-bottom:4px}
 
 /* ── top bar: fixed, clear over the hero, frosted glass once scrolled ───── */
@@ -61,7 +63,7 @@ h1,h2,h3{line-height:1.2;margin:0}
 .nav-toggle[aria-expanded="true"] i:first-child{top:21px;transform:rotate(45deg)}
 .nav-toggle[aria-expanded="true"] i:last-child{top:21px;transform:rotate(-45deg)}
 /* language drop-down: a small glass pill, a white card under it */
-.nav>.logo{margin-right:auto}
+.nav>.logo{margin-inline-end:auto}
 .lang{position:relative;flex:none}
 .lang summary{list-style:none;display:flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:999px;cursor:pointer;
   background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);color:#e6e1ff;font-weight:700;font-size:13.5px;letter-spacing:.05em;
@@ -71,13 +73,17 @@ h1,h2,h3{line-height:1.2;margin:0}
 .lang .flag{width:20px!important;height:14px!important;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(31,32,51,.14)}
 .lang summary .chev{width:12px;height:12px;transition:transform .25s}
 .lang[open] summary .chev{transform:rotate(180deg)}
-.lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:160px;padding:6px;border-radius:var(--radius);
+/* 16 languages: two columns, scrolls if the screen is short */
+.lang-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:60;padding:6px;border-radius:var(--radius);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;width:min(380px,calc(100vw - 28px));
+  max-height:calc(100vh - 110px);overflow-y:auto;overscroll-behavior:contain;
   background:#fff;border:1px solid var(--line);box-shadow:0 18px 40px rgba(31,20,71,.28)}
-.lang-menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
-  color:var(--text);text-decoration:none;font-weight:600;font-size:15px}
+.lang-menu a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;min-width:0;
+  color:var(--text);text-decoration:none;font-weight:600;font-size:14px}
+.lang-menu a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lang-menu a:hover{background:var(--tint)}
 .lang-menu a[aria-current="true"]{color:var(--indigo)}
-.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-left:auto}
+.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-inline-start:auto;flex:none}
 
 /* ── hero: gradient, drifting light, a receding grid ─────────────────────── */
 .hero{position:relative;overflow:hidden;background:var(--hero);color:#fff;padding:96px 0 96px}
@@ -236,6 +242,9 @@ section[id]{scroll-margin-top:84px}
   .c4{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:760px){
+  /* the language list opens across the bar, not from the small button */
+  .lang{position:static}
+  .lang-menu{inset-inline:16px;width:auto;top:calc(100% - 8px);max-height:calc(100vh - 100px)}
   .nav-toggle{display:block}
   .nav-links{position:absolute;top:calc(100% + 6px);left:16px;right:16px;flex-direction:column;align-items:stretch;gap:2px;
     background:#1c1248;border:1px solid rgba(160,140,255,.25);border-radius:18px;padding:10px;z-index:5;

@@ -49,16 +49,18 @@
 /* ── navigation ──────────────────────────────────────────────────────────── */
 .nav{position:sticky;top:0;z-index:60;padding:14px 0;transition:padding var(--dur) var(--ease-soft)}
 .nav .bar{display:flex;align-items:center;gap:18px;border:1px solid transparent;
-  border-radius:var(--radius-pill);padding:8px 8px 8px 16px;
+  border-radius:var(--radius-pill);padding-block:8px;padding-inline:16px 8px;
   transition:background var(--dur) var(--ease-soft),border-color var(--dur) var(--ease-soft),
              box-shadow var(--dur) var(--ease-soft),padding var(--dur) var(--ease-soft)}
 .nav.scrolled{padding:8px 0}
 .nav.scrolled .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
   backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
-  box-shadow:0 10px 34px rgba(0,0,0,.4);padding:6px 6px 6px 16px}
+  box-shadow:0 10px 34px rgba(0,0,0,.4);padding-block:6px;padding-inline:16px 6px}
 .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18.5px;letter-spacing:-.01em;flex:none}
+/* a logo reads left to right on Arabic and Urdu pages too */
+[dir="rtl"] .brand,[dir="rtl"] .pc-in{direction:ltr}
 .brand img{width:29px;height:29px;border-radius:8px}
-.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-links{display:flex;gap:2px;margin-inline-start:auto}
 .nav-links a{white-space:nowrap;font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 14px;
   border-radius:var(--radius-pill);position:relative;transition:color var(--dur) var(--ease-soft)}
 .nav-links a::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:1.5px;border-radius:2px;
@@ -82,19 +84,28 @@
 .lang .flag{width:20px!important;height:14px!important;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
 .lang summary .chev{width:12px;height:12px;transition:transform var(--dur) var(--ease-out)}
 .lang[open] summary .chev{transform:rotate(180deg)}
-.lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:70;min-width:160px;padding:6px;
+/* 16 languages: two columns, scrolls if the screen is short */
+.lang-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:70;padding:6px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;width:min(380px,calc(100vw - 28px));
+  max-height:calc(100vh - 110px);overflow-y:auto;overscroll-behavior:contain;
   border-radius:var(--radius);background:rgba(11,14,28,.97);border:1px solid var(--color-border);
   box-shadow:var(--shadow-float);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.lang-menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:var(--radius-sm);font-size:14.5px;font-weight:500;color:var(--color-muted)}
+.lang-menu a{display:flex;align-items:center;gap:10px;padding:9px 10px;min-width:0;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--color-muted)}
+.lang-menu a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lang-menu a:hover{background:var(--color-surface);color:var(--color-text)}
 .lang-menu a[aria-current="true"]{color:var(--color-text)}
 .lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid var(--color-accent);
-  border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-left:auto}
+  border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-inline-start:auto;flex:none}
 /* a phone has no room for brand + language + Download + menu: the menu and
    the hero already carry the download, so the bar's button goes */
 @media (max-width:480px){
   .nav-actions .btn-primary{display:none}
+}
+/* phones: the language list opens across the bar, not from the small button */
+@media (max-width:560px){
+  .lang{position:static}
+  .lang-menu{inset-inline:14px;width:auto;top:calc(100% - 4px);max-height:calc(100vh - 96px)}
 }
 @media (max-width:420px){
   .lang summary{padding:0 10px;gap:4px}
@@ -111,7 +122,7 @@
 @media (max-width:1000px){
   .nav-links,.nav-actions .signin{display:none}
   /* the hidden links no longer push the buttons right: do it here */
-  .nav-actions{margin-left:auto}
+  .nav-actions{margin-inline-start:auto}
   .menu-btn{display:grid}
   .nav .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
     backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}

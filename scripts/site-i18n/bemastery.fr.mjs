@@ -6,7 +6,6 @@
    (the sample sentences, the IPA, the workshop lines). Other names follow
    i18n/fr.json: Feuille de route, Fondations, Défi, Simulations de vie,
    Anglais général, Anglais du soudage. */
-import { UK, FR } from "./flags.mjs";
 const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 const GET = `Obtenir l'app`;
 
@@ -15,25 +14,18 @@ export default [
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — Pratique de l'anglais oral avec l'IA`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
    `Entraînez-vous à parler anglais avec l'IA, imitez de vrais orateurs et pratiquez avec de vrais apprenants. BE Mastery est une app d'expression orale, 25 minutes par jour — gratuite sur Google Play, bientôt sur l'App Store.`],
-  [`<link rel="canonical" href="https://lomonec.com/bemastery/">`, `<link rel="canonical" href="https://lomonec.com/bemastery/fr/">`],
-  [`<meta property="og:url" content="https://lomonec.com/bemastery/">`, `<meta property="og:url" content="https://lomonec.com/bemastery/fr/">`],
   [`Practise with AI. Shadow real speakers. Practise with real people. Download the BE Mastery speaking app — free on Google Play, and soon on the App Store.`,
    `Pratiquez avec l'IA. Imitez de vrais orateurs. Pratiquez avec de vraies personnes. Téléchargez l'app BE Mastery — gratuite sur Google Play, bientôt sur l'App Store.`],
   [`Practise with AI. Shadow real speakers. Practise with real people. Free on Google Play, and soon on the App Store.`,
    `Pratiquez avec l'IA. Imitez de vrais orateurs. Pratiquez avec de vraies personnes. Gratuite sur Google Play, bientôt sur l'App Store.`],
   [`BE Mastery — a speaking practice session shown on a phone`, `BE Mastery — une séance d'expression orale sur un téléphone`],
-  [`"url":"https://lomonec.com/bemastery/",`, `"url":"https://lomonec.com/bemastery/fr/",`],
   [`"description":"Practise English speaking with AI, shadow real speakers and practise with real learners. A guided 12-week programme of 25-minute spoken sessions."`,
    `"description":"Entraînez-vous à parler anglais avec l'IA, imitez de vrais orateurs et pratiquez avec de vrais apprenants. Un programme guidé de 12 semaines, en séances orales de 25 minutes."`],
 
   // bar — data-root sends the script-built links (team, blog) one level up
-  [`<body>`, `<body data-root="../">`],
   [`>Skip to content<`, `>Aller au contenu<`],
   [`aria-label="Main"`, `aria-label="Principal"`],
   [`aria-label="Open menu"`, `aria-label="Ouvrir le menu"`],
-  [`<summary aria-label="Language: English">${UK}<span>EN</span>`, `<summary aria-label="Langue${NB}: français">${FR}<span>FR</span>`],
-  [`lang="en" aria-current="true"`, `lang="en" aria-current="false"`],
-  [`lang="fr" aria-current="false"`, `lang="fr" aria-current="true"`],
   [`>Download app<`, `>Télécharger<`],
 
   // hero
@@ -480,5 +472,4 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>Hors ligne</b><span>Pratiquez sans réseau</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 langues</b><span>Un accompagnement dans la vôtre</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>Gagnez l'assurance de parler quand ça compte.</p>`],
-  [`<a href="/">LOMON EC LLC</a>`, `<a href="/fr/">LOMON EC LLC</a>`],
 ];

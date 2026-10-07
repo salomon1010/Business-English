@@ -200,27 +200,34 @@ so `app.js` turns `#section` links into links back to the home page.
 - The nav has no room for an eighth item at 1,024 px, which is why
   "Professional English" is in the footer and not the top bar.
 
-## French pages (7 Oct 2026)
+## Translated pages (7 Oct 2026) — the app's 16 languages
 
-`/fr/` and `/bemastery/fr/` are the French copies of the two home pages,
-reached from the EN / FR drop-down (`details.lang`) in each top bar. They are
-**generated — never edit them by hand**. After any change to `index.html` or
-`bemastery/index.html`, run from the repo root:
+`/<code>/` and `/bemastery/<code>/` (fr es pt it de ru ar ur hi bn id vi zh ja
+ko) are translated copies of the two home pages, reached from the flag
+drop-down (`details.lang`) in each top bar. They are **generated — never edit
+them by hand**. After any change to `index.html` or `bemastery/index.html`, or
+to the L()/T() labels in `bemastery/js/config.js` / `app.js`, run from the repo
+root:
 
 ```
-node scripts/site-fr/build.mjs
+node scripts/site-i18n/build.mjs          # every language
+node scripts/site-i18n/leftover.mjs es    # what still looks English on one
 ```
 
-It copies the English page, sets `lang="fr"`, points relative paths one folder
-up and swaps each string in `scripts/site-fr/home.fr.mjs` /
-`bemastery.fr.mjs`. If an English sentence was edited, its entry no longer
-matches: the build stops and lists it — translate it in the dictionary and run
-again. A new English sentence that is not in the dictionary stays English, so
-read the French page after adding copy. The labels drawn by the scripts
-(menu, footer, store badges) come from `L()` in `js/config.js` and `T()` in
-`js/app.js`, keyed on `<html lang>`. Team and blog are English only. The
-French was machine-written: a native speaker should read it before it is
-promoted.
+Per language, `scripts/site-i18n/` holds `home.<code>.mjs` and
+`bemastery.<code>.mjs` (`[english, translation]` pairs) and `labels.<code>.mjs`
+(the words the page scripts draw; built into `bemastery/js/i18n/<code>.js`,
+which sets `window.BEM_I18N`). The build copies the English page, sets
+`lang` (and `dir="rtl"` for ar/ur), points relative paths one folder up and
+swaps each string. An English sentence that was edited no longer matches: the
+build stops and lists it — translate it in every language and run again. A
+NEW English sentence stays English until it is added, so run `leftover.mjs`
+after adding copy. The build also rewrites, in the English pages, the
+drop-down and the hreflang links between the `<!-- i18n:… -->` markers, from
+`langs.mjs` (names + inline-SVG flags; a flag stands for a language by
+convention only — Arabic shows Saudi Arabia, Portuguese Brazil, English the
+UK). Team and blog are English only. All 15 translations were machine-written:
+a native speaker should read each before it is promoted.
 
 ## Assets
 

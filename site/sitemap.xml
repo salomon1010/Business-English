@@ -2,8 +2,36 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://lomonec.com/</loc></url>
   <url><loc>https://lomonec.com/fr/</loc></url>
+  <url><loc>https://lomonec.com/es/</loc></url>
+  <url><loc>https://lomonec.com/pt/</loc></url>
+  <url><loc>https://lomonec.com/it/</loc></url>
+  <url><loc>https://lomonec.com/de/</loc></url>
+  <url><loc>https://lomonec.com/ru/</loc></url>
+  <url><loc>https://lomonec.com/ar/</loc></url>
+  <url><loc>https://lomonec.com/ur/</loc></url>
+  <url><loc>https://lomonec.com/hi/</loc></url>
+  <url><loc>https://lomonec.com/bn/</loc></url>
+  <url><loc>https://lomonec.com/id/</loc></url>
+  <url><loc>https://lomonec.com/vi/</loc></url>
+  <url><loc>https://lomonec.com/zh/</loc></url>
+  <url><loc>https://lomonec.com/ja/</loc></url>
+  <url><loc>https://lomonec.com/ko/</loc></url>
   <url><loc>https://lomonec.com/bemastery/</loc></url>
   <url><loc>https://lomonec.com/bemastery/fr/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/es/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/pt/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/it/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/de/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/ru/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/ar/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/ur/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/hi/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/bn/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/id/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/vi/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/zh/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/ja/</loc></url>
+  <url><loc>https://lomonec.com/bemastery/ko/</loc></url>
   <url><loc>https://lomonec.com/bemastery/blog/</loc></url>
   <url><loc>https://lomonec.com/bemastery/team.html</loc></url>
 </urlset>

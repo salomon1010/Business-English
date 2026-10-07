@@ -11,8 +11,8 @@ a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--color-accent);outline-offset:3px;border-radius:6px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--color-primary);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
-.skip:focus{left:20px}
+.skip{position:absolute;inset-inline-start:-9999px;top:10px;z-index:100;background:var(--color-primary);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
+.skip:focus{inset-inline-start:20px}
 
 /* type scale */
 h1,h2,h3,h4{line-height:1.12;letter-spacing:-.02em;font-weight:700;text-wrap:balance}

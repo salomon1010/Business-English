@@ -1,6 +1,5 @@
 /* lomonec.com company page — English → French. Each entry is an exact
    string from site/index.html and its French replacement. */
-import { UK, FR } from "./flags.mjs";
 const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 
 export default [
@@ -8,8 +7,6 @@ export default [
   [`Lomonec — AI automation, agentic AI and software`, `Lomonec — automatisation IA, IA agentique et logiciels`],
   [`Lomonec builds AI automation, AI agents and software for small service businesses, and makes its own apps, starting with BE Mastery. Book an AI Automation Quick Audit.`,
    `Lomonec conçoit des automatisations IA, des agents IA et des logiciels pour les petites entreprises de services, et crée ses propres apps, à commencer par BE Mastery. Réservez un audit express d'automatisation IA.`],
-  [`<link rel="canonical" href="https://lomonec.com/">`, `<link rel="canonical" href="https://lomonec.com/fr/">`],
-  [`<meta property="og:url" content="https://lomonec.com/">`, `<meta property="og:url" content="https://lomonec.com/fr/">`],
   [`AI automation for small service businesses, software development, and our own apps. Start with an AI Automation Quick Audit.`,
    `Automatisation IA pour les petites entreprises de services, développement logiciel et nos propres apps. Commencez par un audit express d'automatisation IA.`],
   [`AI automation for small service businesses, software development, and our own apps.`,
@@ -23,10 +20,6 @@ export default [
   [`<a href="#industries">Industries</a>`, `<a href="#industries">Secteurs</a>`],
   [`<a href="#how">How it works</a>`, `<a href="#how">Comment ça marche</a>`],
   [`<span>Book an audit</span>`, `<span>Réserver un audit</span>`],
-  [`<summary aria-label="Language: English">${UK}<span>EN</span>`, `<summary aria-label="Langue${NB}: français">${FR}<span>FR</span>`],
-  [`lang="en" aria-current="true"`, `lang="en" aria-current="false"`],
-  [`lang="fr" aria-current="false"`, `lang="fr" aria-current="true"`],
-  [`href="/bemastery/"`, `href="/bemastery/fr/"`],
 
   // hero
   [`AI automation · Agentic AI · Software · Apps`, `Automatisation IA · IA agentique · Logiciels · Apps`],
