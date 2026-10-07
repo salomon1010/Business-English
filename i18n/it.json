@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Passa a Premium per sbloccare questo widget",
  "wg.recs_h": "Consigliati per te",
  "wg.recs_none": "Esercitati un po': i tuoi consigli appariranno qui.",
- "wg.recs_more": "Altro"
+ "wg.recs_more": "Altro",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

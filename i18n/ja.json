@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Premium でこのウィジェットのロックを解除",
  "wg.recs_h": "あなたへのおすすめ",
  "wg.recs_none": "少し練習すると、おすすめがここに表示されます。",
- "wg.recs_more": "もっと"
+ "wg.recs_more": "もっと",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

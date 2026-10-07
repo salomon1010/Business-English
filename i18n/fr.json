@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Passez à Premium pour débloquer ce widget",
  "wg.recs_h": "Recommandé pour vous",
  "wg.recs_none": "Pratiquez un peu — vos recommandations apparaîtront ici.",
- "wg.recs_more": "Plus"
+ "wg.recs_more": "Plus",
+ "mic.blocked_play": "⚠️ Le micro est désactivé pour BE Mastery. Appuyez longuement sur l'icône BE Mastery, touchez Paramètres du site › Micro › Autoriser, puis réessayez."
 }

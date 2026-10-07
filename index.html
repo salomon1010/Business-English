@@ -141,7 +141,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",widget:"https://be-widget-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",widget:"https://be-widget-staging.nore-ngou.workers.dev",authProxy:"auth-staging.lomonec.com",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -9861,6 +9861,7 @@ const I18N_EN={
  "rec.save_failed_toast":"⚠️ This browser blocked the save. Open the app from your home-screen icon, or turn off Private Browsing.",
  "rec.recording_state":"Recording… tap to stop",
  "rec.mic_denied_toast":"⚠️ Microphone access denied — allow the mic in your browser.",
+ "mic.blocked_play":"⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again.",
  "mic.blocked_ios":"⚠️ Microphone access is off for BE Mastery. Turn it on in Settings › BE Mastery › Microphone, then try again.",
  "sr.blocked_ios":"BE Mastery can't listen yet. In Settings › BE Mastery, turn on Microphone and Speech Recognition, then tap again.",
  "sr.network":"Speech recognition couldn't connect. Check your internet connection, then try again.",
@@ -18842,12 +18843,13 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
    microphone, 'service-not-allowed' refused speech recognition (W3C codes).
    Everywhere else the caller's own wording stands, unchanged. */
 function srErrText(code,fallback){
-  if(!IS_IOS_APP)return fallback;
+  /* the Play app: the permission is Chrome's, reached from the app icon's Site settings shortcut */
+  if(!IS_IOS_APP){if(isPlayApp()&&(code==="not-allowed"||code==="service-not-allowed"))return t("mic.blocked_play");return fallback}
   if(code==="not-allowed"||code==="service-not-allowed")return t("sr.blocked_ios");
   if(code==="network")return t("sr.network");
   return fallback;
 }
-function micDeniedText(key){return IS_IOS_APP?t("mic.blocked_ios"):t(key)}
+function micDeniedText(key){return IS_IOS_APP?t("mic.blocked_ios"):isPlayApp()?t("mic.blocked_play"):t(key)}
 let fbT0=0;
 const FILLERS=["um","uh","er","erm","ah","hmm","mmm"];
 function fbTokens(s){return String(s).toLowerCase().replace(/[‿/|·…]/g," ").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).filter(Boolean)}
@@ -21356,7 +21358,7 @@ function simSpeakBrowser(text,gender,done){
    "sometimes it works, sometimes nothing happens" behaviour. */
 function simUsesManualVoiceTurn(){return true}
 /* the simulation's own wording on the web; the iPhone app points to Settings */
-function simMicBlockedText(){return IS_IOS_APP?t("sr.blocked_ios"):'Microphone blocked — allow it in your browser settings, then tap again'}
+function simMicBlockedText(){return IS_IOS_APP?t("sr.blocked_ios"):isPlayApp()?t("mic.blocked_play"):'Microphone blocked — allow it in your browser settings, then tap again'}
 function simReturnToReady(status='Your turn — tap the microphone to speak'){
   if(simRun)simRun.listening=false;
   simSetStatus(status);
@@ -22148,7 +22150,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v645";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v646";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23948,6 +23950,7 @@ const FLAGS_DEFAULT={
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
+  auth_proxy_enabled:false,            // Google / Apple sign-in INSIDE the installed Play app (owner, 6 Oct 2026): Firebase\'s authDomain becomes auth.lomonec.com (backend/auth-proxy). Off until that Worker answers and the redirect URIs are in Google Cloud + Apple
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
@@ -23977,6 +23980,7 @@ const FLAGS_STAGING={
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console
+  auth_proxy_enabled:false,            // Google / Apple sign-in INSIDE the installed Play app (owner, 6 Oct 2026): Firebase\'s authDomain becomes auth.lomonec.com (backend/auth-proxy). Off until that Worker answers and the redirect URIs are in Google Cloud + Apple
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
      TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
@@ -24006,6 +24010,22 @@ const FLAGS_STAGING={
    website and the Android app keep FLAGS_DEFAULT until it is released there.
    Only the names listed here differ from FLAGS_DEFAULT. */
 const FLAGS_IOS={home_v2_enabled:true};
+/* The Play app gets the SAME store-app defaults (owner, 6 Oct 2026: "everything
+   that works in the Apple version must work on Android"). It is a Trusted Web
+   Activity on app.lomonec.com, so it is recognised, not built: Chrome's referrer
+   on launch is android-app://com.bemastery.app, and the app puts its widget id on
+   every launch URL (?wid=, kept in be_widget_wid). Either signal, on Android,
+   marks this session as the Play app; a plain browser never has them. */
+function isPlayApp(){
+  try{
+    if(sessionStorage.getItem("be_twa")==="1")return true;
+    const android=/Android/.test(navigator.userAgent||"");
+    const ref=/^android-app:\/\/com\.bemastery\.app/.test(document.referrer||"");
+    const wid=/[?&]wid=[a-f0-9]{32}/.test(location.search)||!!localStorage.getItem("be_widget_wid");
+    if(android&&(ref||wid)){sessionStorage.setItem("be_twa","1");return true}
+  }catch(e){}
+  return false;
+}
 /* A tester on a phone has no console to set be_flags with, so the URL can:
    ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
    this device, ?flags=off clears every override, and ?flags=-name turns one
@@ -24049,7 +24069,7 @@ function flag(name){
   if(env&&env.flags)return !!FLAGS_STAGING[name];
   /* the App Store build (IS_IOS_APP is a const further up this script: read it safely) */
   let ios=false;try{ios=IS_IOS_APP}catch(e){}
-  if(ios&&name in FLAGS_IOS)return !!FLAGS_IOS[name];
+  if((ios||isPlayApp())&&name in FLAGS_IOS)return !!FLAGS_IOS[name];   /* both store apps */
   return !!FLAGS_DEFAULT[name];
 }
 /* The one boundary every General-English-only feature checks. Welding, and any
@@ -25328,6 +25348,8 @@ function billingWhy(){
       if(typeof N.purchase!=="function")return "no_purchase_fn";
       return "plugin_ok_no_products";
     }
+    /* the Play app: Chrome's Digital Goods API is the store */
+    if(isPlayApp())return ("getDigitalGoodsService" in window)?"play_no_products":"no_digital_goods";
     return "no_store";
   }catch(e){return "threw"}
 }
@@ -25554,10 +25576,10 @@ function premMainHTML(){
   if(B.state==="loading")return `<div aria-hidden="true"><div class="prem-skel"></div></div><p class="sub prem-loading" role="status">${esc(t("acc.prem_loading"))}</p>`;
   if(!B.provider){
     const why=billingWhy();
-    try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":"none",reason:String(why).slice(0,24)})}catch(e){}
+    try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":isPlayApp()?"google_play":"none",reason:String(why).slice(0,24)})}catch(e){}
     /* the code is shown, small, under the message: a learner can read it back
        to us and it is the difference between a guess and an answer */
-    return premUnavailHTML(t(IS_IOS_APP?"prem.unavailable_ios":"prem.unavailable"),"",false)
+    return premUnavailHTML(t(IS_IOS_APP||isPlayApp()?"prem.unavailable_ios":"prem.unavailable"),"",false)   /* inside either store app: "close and reopen", never "get it from Google Play" */
       +`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
   }
   /* A purchase needs an account, so every REAL store asks to sign in first and
@@ -25661,7 +25683,7 @@ window.premiumOpen=(from)=>{
      learner, because a signed-out init stops before asking the store and would
      leave a skeleton that never resolves. */
   if(planOn()&&["loading","purchasing","restoring"].indexOf(Billing.state)<0
-     &&(!Billing._ran||(IS_IOS_APP&&!Billing.provider)||(FBUser&&Billing.provider&&!Billing.products.length))){
+     &&(!Billing._ran||((IS_IOS_APP||isPlayApp())&&!Billing.provider)||(FBUser&&Billing.provider&&!Billing.products.length))){
     if(FBUser)Billing.state="loading";try{Billing.init()}catch(e){}
   }
   ov.onclick=e=>{if(e.target===ov&&!premWaiting(ov))premClose()};
@@ -34728,6 +34750,8 @@ const FB_PARTS=["firebase-app-compat.js","firebase-auth-compat.js","firebase-fir
 function fbInit(){
   try{
     if(FBauth||!window.firebase||!window.FB_CONFIG||!FB_CONFIG.apiKey)return !!FBauth;
+    /* the installed apps on our domain sign in through our own helper host (see fbAuthSameOrigin) */
+    try{if(!IS_IOS_APP&&flag("auth_proxy_enabled")&&/(^|\.)lomonec\.com$/.test(location.hostname))FB_CONFIG.authDomain=fbAuthProxyHost()}catch(e){}
     firebase.initializeApp(FB_CONFIG);
     FBauth=firebase.auth();FBdb=firebase.firestore();
     FBauth.onAuthStateChanged(fbOnAuth);
@@ -35380,7 +35404,15 @@ function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mo
    social_signin_web_enabled (production OFF until the providers are on in the
    console). The Firebase session, FBUser, first sync and the ID token every
    Worker verifies are identical to a password sign-in. */
-function fbAuthSameOrigin(){try{return !!(window.FB_CONFIG&&FB_CONFIG.authDomain&&String(FB_CONFIG.authDomain).toLowerCase()===location.hostname.toLowerCase())}catch(e){return false}}
+/* Same SITE, not only same origin (6 Oct 2026): with Firebase's helper served from
+   auth.lomonec.com (backend/auth-proxy) the redirect returns to app.lomonec.com,
+   because storage is partitioned by site and the two are siblings. That is what
+   lets the installed Play app — which has no popup opener — sign in with Google
+   and Apple like the iPhone app. */
+function fbSite(h){h=String(h||"").toLowerCase().replace(/:\d+$/,"");const p=h.split(".");return p.length>2?p.slice(-2).join("."):h}
+function fbAuthSameOrigin(){try{const a=window.FB_CONFIG&&FB_CONFIG.authDomain;return !!a&&(String(a).toLowerCase()===location.hostname.toLowerCase()||(/\.lomonec\.com$/.test(location.hostname)&&fbSite(a)===fbSite(location.hostname)))}catch(e){return false}}
+/* the helper's own host for this environment (staging: auth-staging.lomonec.com) */
+function fbAuthProxyHost(){try{const e=window.beEnv&&beEnv();return (e&&e.authProxy)||"auth.lomonec.com"}catch(x){return "auth.lomonec.com"}}
 function socialWebOn(){
   try{
     if(IS_IOS_APP)return false;

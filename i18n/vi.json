@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Nâng cấp Premium để mở tiện ích này",
  "wg.recs_h": "Gợi ý cho bạn",
  "wg.recs_none": "Luyện tập một chút — gợi ý của bạn sẽ hiện ở đây.",
- "wg.recs_more": "Thêm"
+ "wg.recs_more": "Thêm",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

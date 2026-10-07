@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "升级 Premium 即可解锁此小组件",
  "wg.recs_h": "为你推荐",
  "wg.recs_none": "先练习一下——你的推荐会显示在这里。",
- "wg.recs_more": "更多"
+ "wg.recs_more": "更多",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Premium으로 이 위젯을 잠금 해제하세요",
  "wg.recs_h": "추천 학습",
  "wg.recs_none": "조금 연습하면 추천이 여기에 표시됩니다.",
- "wg.recs_more": "더 보기"
+ "wg.recs_more": "더 보기",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

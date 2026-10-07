@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "یہ ویجیٹ کھولنے کے لیے Premium لیں",
  "wg.recs_h": "آپ کے لیے تجویز کردہ",
  "wg.recs_none": "تھوڑی مشق کریں — آپ کی تجاویز یہاں نظر آئیں گی۔",
- "wg.recs_more": "مزید"
+ "wg.recs_more": "مزید",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }

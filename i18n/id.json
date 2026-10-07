@@ -3434,5 +3434,6 @@
  "wg.lock_prem": "Berlangganan Premium untuk membuka widget ini",
  "wg.recs_h": "Rekomendasi untuk Anda",
  "wg.recs_none": "Berlatihlah sedikit — rekomendasi Anda akan muncul di sini.",
- "wg.recs_more": "Lainnya"
+ "wg.recs_more": "Lainnya",
+ "mic.blocked_play": "⚠️ Microphone access is off for BE Mastery. Touch and hold the BE Mastery icon, tap Site settings › Microphone › Allow, then try again."
 }
