@@ -82,6 +82,10 @@
   .hero-grid{grid-template-columns:1fr;gap:26px}
   .stage{min-height:clamp(400px,90vw,500px)}
   .hero .lede,.hero-fine{max-width:none}
+  /* the strip sits under the phone, not over its lower half (owner, 7 Oct 2026) */
+  .stage{margin-bottom:64px}
+  .pipeline{bottom:auto;top:calc(100% + 26px);width:max-content;max-width:calc(100vw - 40px);
+    flex-wrap:wrap;justify-content:center;row-gap:6px}
 }
 
 /* ── narrative sections ──────────────────────────────────────────────────── */
