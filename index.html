@@ -5105,8 +5105,6 @@ html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-
 /* HELP CENTRE (the "?" landing) */
 /* was background:var(--grad) with white text — ~1.9:1 at the gradient's cyan
    end, on the largest type of the screen */
-.help-hero{background:var(--accent-fill);border-radius:20px;padding:34px 26px;text-align:center;color:var(--on-accent);margin-bottom:14px}
-.help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.25}
 /* Search bar stays pinned below the top nav so the term can be changed while scrolling */
 /* sits BELOW the sticky "‹ Profile · Help & guide" bar, not on top of it.
    Background stays transparent — the blur alone keeps content readable, and a
@@ -5123,37 +5121,103 @@ html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-
 .help-search{max-width:520px;margin:0 auto;position:relative}
 .help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .help-search-ic svg{width:18px;height:18px}
-.hero-ic{display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
-.hero-ic svg{width:24px;height:24px}
 .help-search input{width:100%;border:1px solid var(--line2);border-radius:14px;padding:14px 108px 14px 44px;font-size:16px;color:var(--txt);background:var(--card2);box-shadow:0 4px 18px rgba(0,0,0,.12);transition:border-color .15s,box-shadow .15s}
 .help-search input:focus{outline:none;border-color:var(--acc);box-shadow:0 4px 22px color-mix(in srgb,var(--accent) 25%,transparent)}
 .help-nav{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:4px}
+.help-nav[hidden]{display:none}   /* display:flex above beat the hidden attribute, so 0/0 showed before any search */
 .help-count{font-size:12px;font-weight:700;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-right:4px;min-width:34px;text-align:right}
 .help-arrow{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;transition:.12s}
 .help-arrow:hover{border-color:var(--acc);color:var(--acc)}
 .help-arrow:active{transform:scale(.9)}
 .help-arrow:disabled{opacity:.35;cursor:default;pointer-events:none}
 .help-hl.cur{background:#fb923c;color:#1a0f02;box-shadow:0 0 0 2px rgba(251,146,60,.55)}
-/* Manual sections as disclosures — see helpCollapse(). */
-.help-sec{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);
-  box-shadow:var(--sh-1);margin-bottom:10px;overflow:hidden}
-.help-sec>summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:14px 16px;
-  cursor:pointer;font-size:15.5px;font-weight:800;line-height:1.35;list-style:none;transition:background .12s}
-.help-sec>summary::-webkit-details-marker{display:none}
-.help-sec>summary::after{content:"▸";margin-left:auto;flex:none;color:var(--mut);font-size:15px;transition:transform .15s}
-.help-sec[open]>summary::after{transform:rotate(90deg)}
-.help-sec>summary:hover{background:var(--hover)}
-.help-sec>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.help-sec[open]>summary{border-bottom:1px solid var(--line)}
-.help-sec-ic{flex:none;line-height:0;color:var(--accent)}
-.help-sec-ic svg{width:20px;height:20px}
-.help-sec>summary .no{flex:none;font-size:12px;font-weight:800;color:var(--on-accent);
-  min-width:22px;height:22px;display:inline-grid;place-items:center;
-  background:var(--accent-fill);border-radius:7px}
-.help-sec-body{padding:4px 16px 18px}
+/* ── Help centre (helpBuild): hero, topic tiles, reading view, pager ──────
+   Topics are a grid of tiles — two a row on a phone — each with a small
+   glowing picture panel. A tile opens ONE topic; "‹ All topics" and the
+   previous / next cards bring you back or onward. Motion is light and stops
+   under prefers-reduced-motion. */
+.help-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:24px;padding:22px 20px 20px;text-align:center;color:#fff;margin-bottom:12px;
+  background:radial-gradient(120% 120% at 85% 0%,rgba(94,231,255,.35),transparent 55%),linear-gradient(135deg,#2a1a6e,#4f46e5 60%,#7c3aed);
+  box-shadow:0 18px 44px rgba(79,70,229,.28)}
+.help-hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);
+  background-size:26px 26px;-webkit-mask-image:radial-gradient(circle at 50% 40%,#000 15%,transparent 72%);mask-image:radial-gradient(circle at 50% 40%,#000 15%,transparent 72%)}
+.help-hero-fx{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.help-hero-fx i{position:absolute;border-radius:50%;filter:blur(36px);opacity:.55;animation:helpDrift 14s ease-in-out infinite alternate}
+.help-hero-fx i:first-child{width:180px;height:180px;background:#22d3ee;left:-50px;bottom:-70px}
+.help-hero-fx i:last-child{width:220px;height:220px;background:#a855f7;right:-60px;top:-80px;animation-duration:18s}
+@keyframes helpDrift{to{transform:translate(24px,-16px) scale(1.12)}}
+.help-hero-badge{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;margin-bottom:10px;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);box-shadow:0 0 24px rgba(94,231,255,.45),inset 0 0 14px rgba(255,255,255,.12)}
+.help-hero-badge svg{width:22px;height:22px;filter:drop-shadow(0 0 6px rgba(255,255,255,.7))}
+.help-hero h1{font-size:clamp(21px,5vw,28px);font-weight:800;line-height:1.22;color:#fff}
+.help-hero-sub{margin:8px 0 0;font-size:14.5px;color:rgba(255,255,255,.82)}
+
+/* states — see helpBuild() */
+.manual-doc.help-mode section.help-topic{display:none;margin:0}
+.manual-doc.help-mode.reading section.help-topic.on{display:block}
+.manual-doc.help-mode.searching section.help-topic{display:block;margin-bottom:18px}
+.manual-doc.help-mode.reading .help-grid,.manual-doc.help-mode.searching .help-grid{display:none}
+.help-readbar,.help-pager{display:none}
+.manual-doc.help-mode.reading .help-readbar{display:block}
+.manual-doc.help-mode.reading .help-pager{display:grid}
+
+/* the topic grid */
+.help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 8px}
+@media(min-width:720px){.help-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}}
+.help-tile{--g1:#2a1a6e;--g2:#4f46e5;--gl:#a5b4fc;display:flex;flex-direction:column;text-align:left;padding:0;overflow:hidden;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);border-radius:18px;color:var(--txt);font:inherit;
+  box-shadow:var(--sh-1);transition:transform .25s cubic-bezier(.16,.84,.44,1),border-color .25s,box-shadow .25s;
+  animation:helpIn .45s cubic-bezier(.16,.84,.44,1) both}
+.help-tile:nth-child(4n+2){--g1:#0f2f5c;--g2:#0e7fb8;--gl:#67e8f9}
+.help-tile:nth-child(4n+3){--g1:#3b1268;--g2:#8b3fd9;--gl:#e9b8ff}
+.help-tile:nth-child(4n+4){--g1:#141038;--g2:#3a2fa8;--gl:#93a0ff}
+.help-tile:hover{border-color:color-mix(in srgb,var(--gl) 60%,var(--line));box-shadow:0 14px 34px rgba(79,70,229,.18);transform:translateY(-2px)}
+.help-tile:active{transform:scale(.97)}
+.help-tile:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.help-tile-art{position:relative;display:grid;place-items:center;aspect-ratio:16/8;color:#fff;
+  background:radial-gradient(110% 100% at 80% 0%,color-mix(in srgb,var(--gl) 55%,transparent),transparent 60%),linear-gradient(135deg,var(--g1),var(--g2))}
+.help-tile-art::after{content:"";position:absolute;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 0 26px color-mix(in srgb,var(--gl) 70%,transparent)}
+.help-tile-art svg{position:relative;z-index:1;width:26px;height:26px;filter:drop-shadow(0 0 7px var(--gl));transition:transform .4s cubic-bezier(.16,.84,.44,1)}
+.help-tile:hover .help-tile-art svg{transform:translateY(-2px) scale(1.08)}
+.help-tile-no{position:absolute;left:9px;top:8px;z-index:1;min-width:22px;height:22px;padding:0 6px;border-radius:99px;display:grid;place-items:center;
+  font-size:11px;font-weight:800;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28)}
+.help-tile-t{padding:11px 12px 0;font-size:14.5px;font-weight:800;line-height:1.28}
+.help-tile-s{padding:5px 12px 13px;font-size:12.5px;line-height:1.4;color:var(--mut);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.help-tile-t:last-child{padding-bottom:13px}
+@keyframes helpIn{from{opacity:0;transform:translateY(10px)}}
+.help-tile:nth-child(n+5){animation-delay:.05s}.help-tile:nth-child(n+9){animation-delay:.1s}.help-tile:nth-child(n+13){animation-delay:.15s}
+
+/* reading one topic */
+.help-back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px 0 10px;margin:2px 0 12px;border-radius:99px;cursor:pointer;
+  font:inherit;font-size:14.5px;font-weight:700;color:var(--acc2);background:var(--card2);border:1px solid var(--line2)}
+.help-back svg{width:18px;height:18px;transform:rotate(90deg)}   /* chevron points down; a quarter turn points it back */
+html[dir="rtl"] .help-back svg{transform:rotate(-90deg)}
+.help-back:hover{border-color:var(--acc)}
+.manual-doc.help-mode section.help-topic.on{animation:helpIn .35s cubic-bezier(.16,.84,.44,1) both}
+.manual-doc h2.help-topic-h{display:flex;align-items:center;gap:12px;font-size:21px;line-height:1.25;font-weight:800;margin:0 0 12px}
+.help-topic-ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;color:#fff;
+  background:linear-gradient(135deg,#2a1a6e,#4f46e5 60%,#7c3aed);box-shadow:0 0 18px rgba(99,102,241,.45)}
+.help-topic-ic svg{width:22px;height:22px}
+.help-pager{grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 6px}
+.help-pg{display:flex;flex-direction:column;gap:3px;min-height:64px;padding:11px 14px;border-radius:14px;cursor:pointer;text-align:left;font:inherit;
+  background:var(--card2);border:1px solid var(--line2);color:var(--txt);transition:border-color .2s,transform .2s}
+.help-pg:hover{border-color:var(--acc)}
+.help-pg:active{transform:scale(.98)}
+.help-pg-next{text-align:right;align-items:flex-end}
+.help-pg-k{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--acc2)}
+.help-pg-prev .help-pg-k::before{content:"‹ "}
+.help-pg-next .help-pg-k::after{content:" ›"}
+.help-pg-t{font-size:14px;font-weight:700;line-height:1.3}
+html[dir="rtl"] .help-pg,html[dir="rtl"] .help-tile{text-align:right}
+html[dir="rtl"] .help-pg-next{text-align:left;align-items:flex-start}
+@media(prefers-reduced-motion:reduce){
+  .help-hero-fx i,.help-tile,.manual-doc.help-mode section.help-topic.on{animation:none}
+  .help-tile:hover,.help-tile:active,.help-pg:active{transform:none}
+}
 .manual-title{font-size:19px;font-weight:800;line-height:1.3;margin-bottom:8px}
-html[dir="rtl"] .help-sec>summary::after{transform:scaleX(-1)}
-html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90deg)}
 /* the search prev/next arrows were 26px */
 .help-arrow{min-width:44px;min-height:44px}
 #v-manual .manual-doc a{min-height:44px;display:inline-flex;align-items:center;color:var(--acc2)}
@@ -10194,6 +10258,10 @@ const I18N_EN={
  "help.row_sub":"Guides, answers and troubleshooting",
  "help.search_ph":"Search the guide…",
  "help.no_results":"No matches. Try another word, or pick a topic above.",
+ "help.sub":"Search, or tap a topic.",
+ "help.all":"All topics",
+ "help.prev":"Previous",
+ "help.next":"Next",
  "gfix.0.cat":"Word form","gfix.0.note":"“Information” is uncountable — never plural.",
  "gfix.1.cat":"Word form","gfix.1.note":"“Advice” is uncountable — use “a piece of advice”.",
  "gfix.2.cat":"Word form","gfix.2.note":"“Feedback” is uncountable.",
@@ -11023,7 +11091,10 @@ async function rManual(el,embedded){
       <span>${t("profile.help")}</span>
     </div>`}
     <div class="help-hero">
-      <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
+      <span class="help-hero-fx" aria-hidden="true"><i></i><i></i></span>
+      <span class="help-hero-badge" aria-hidden="true">${ic("hand")}</span>
+      <h1>${greet}</h1>
+      <p class="help-hero-sub">${esc(t("help.sub"))}</p>
     </div>
     ${iosCardHTML()}
     <div class="help-searchbar">
@@ -11032,37 +11103,92 @@ async function rManual(el,embedded){
     <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
     <div class="manual-doc help-mode" id="manualDoc">${html}</div>`;
   const md=document.getElementById("manualDoc");
-  if(md){manIconize(md);helpCollapse(md);}
+  _helpOpenId=null;
+  if(md){manIconize(md);helpBuild(md);}
   _helpOrig=md?md.innerHTML:"";   // clean copy for search highlighting/reset
   syncEyebrowH();                 // the eyebrow exists only now, after the fetch
   jumpTop();
 }
-/* The manual rendered as one 28,000px document — 34 handset screens of prose
-   under the topic cards, all of it in the DOM at once. Each section becomes a
-   closed disclosure so the default view is "here are the fourteen topics",
-   and the answer is one tap away. The manual/*.html files are untouched; this
-   is a post-process, so all 15 translations get it for free. */
-function helpCollapse(md){
-  md.querySelectorAll("section[id^='man-']").forEach(sec=>{
-    if(sec.querySelector(":scope > details.help-sec"))return;
+/* The help centre has three states on ONE rendered manual:
+   - topics  (default): a grid of topic tiles, two a row on a phone; every
+     section is hidden.
+   - reading (#manualDoc.reading): one section, with "‹ All topics" above it
+     and previous / next topic cards under it.
+   - search  (#manualDoc.searching): every section that matches, highlighted.
+   The manual/*.html files are only read, never changed — this is a
+   post-process, so all 15 translations get the same layout. A section's
+   data-sum (English only, for now) becomes the line under its tile title;
+   without it the tile shows the title alone. The back bar and the pager live
+   OUTSIDE the sections so search never matches their text. */
+let _helpOpenId=null;
+function helpTitle(sec){
+  const h=sec.querySelector(":scope > h2");
+  if(!h)return sec.id;
+  const c=h.cloneNode(true);
+  c.querySelectorAll(".no,.man-ic").forEach(x=>x.remove());
+  return c.textContent.replace(/\s+/g," ").trim();
+}
+function helpBuild(md){
+  const secs=[...md.querySelectorAll("section[id^='man-']")];
+  if(!secs.length)return;
+  const tiles=secs.map((sec,i)=>{
+    const title=helpTitle(sec), icon=HELP_ICONS[sec.id]||"help", sum=sec.dataset.sum||"";
+    sec.classList.add("help-topic");
     const h=sec.querySelector(":scope > h2");
-    const d=document.createElement("details");
-    d.className="help-sec";
-    const sum=document.createElement("summary");
-    sum.innerHTML=`<span class="help-sec-ic">${ic(HELP_ICONS[sec.id]||"help")}</span>`+(h?h.innerHTML:sec.id);
-    if(h)h.remove();
-    const body=document.createElement("div");
-    body.className="help-sec-body";
-    while(sec.firstChild)body.appendChild(sec.firstChild);
-    d.appendChild(sum);d.appendChild(body);
-    sec.appendChild(d);
-  });
+    if(h){h.className="help-topic-h";h.innerHTML=`<span class="help-topic-ic">${ic(icon)}</span><span>${esc(title)}</span>`;}
+    return `<button type="button" class="help-tile" onclick="helpOpen('${sec.id}')"><span class="help-tile-art">${ic(icon)}<span class="help-tile-no">${i+1}</span></span><span class="help-tile-t">${esc(title)}</span>${sum?`<span class="help-tile-s">${esc(sum)}</span>`:""}</button>`;
+  }).join("");
+  const host=secs[0].parentNode;
+  const grid=document.createElement("div");
+  grid.className="help-grid";grid.innerHTML=tiles;
+  host.insertBefore(grid,secs[0]);
+  const bar=document.createElement("div");
+  bar.className="help-readbar";
+  bar.innerHTML=`<button type="button" class="help-back" onclick="helpBack()">${ic("chevron")}<span>${esc(t("help.all"))}</span></button>`;
+  host.insertBefore(bar,secs[0]);
+  const pager=document.createElement("nav");
+  pager.className="help-pager";pager.id="helpPager";
+  host.appendChild(pager);
   /* the manual carries its own <h1>; the view already has one in the hero */
   md.querySelectorAll("h1").forEach(h=>{
     const h2=document.createElement("h2");
     h2.className="manual-title";h2.innerHTML=h.innerHTML;
     h.replaceWith(h2);
   });
+}
+window.helpOpen=function(id){
+  const md=document.getElementById("manualDoc");
+  const sec=md&&md.querySelector("#"+id);
+  if(!sec)return;
+  _helpOpenId=id;
+  md.classList.add("reading");md.classList.remove("searching");
+  md.querySelectorAll("section.help-topic").forEach(s=>s.classList.toggle("on",s===sec));
+  const all=[...md.querySelectorAll("section.help-topic")], i=all.indexOf(sec);
+  const card=(s,dir)=>s?`<button type="button" class="help-pg help-pg-${dir}" onclick="helpOpen('${s.id}')"><span class="help-pg-k">${esc(t(dir==="prev"?"help.prev":"help.next"))}</span><span class="help-pg-t">${esc(helpTitle(s))}</span></button>`:`<span></span>`;
+  const pager=document.getElementById("helpPager");
+  if(pager)pager.innerHTML=card(all[i-1],"prev")+card(all[i+1],"next");
+  helpScrollTop();
+};
+window.helpBack=function(){
+  const md=document.getElementById("manualDoc");
+  if(!md)return;
+  const was=_helpOpenId;
+  _helpOpenId=null;
+  md.classList.remove("reading");
+  md.querySelectorAll("section.help-topic.on").forEach(s=>s.classList.remove("on"));
+  helpScrollTop();
+  const tile=was&&md.querySelector(`.help-tile[onclick*="'${was}'"]`);
+  if(tile)tile.focus({preventScroll:true});
+};
+/* top of the manual, just under the sticky search bar */
+function helpScrollTop(){
+  const md=document.getElementById("manualDoc");
+  const sb=document.querySelector(".help-searchbar");
+  if(!md)return;
+  /* where the search bar sits once it is stuck, not where it is now */
+  const off=sb?(parseFloat(getComputedStyle(sb).top)||0)+sb.offsetHeight+8:8;
+  const y=md.getBoundingClientRect().top+window.scrollY-off;
+  window.scrollTo({top:Math.max(0,y),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
 }
 /* wrap every occurrence of the search term in <mark class="help-hl"> within a section */
 function helpHighlight(root,q){
@@ -11083,7 +11209,7 @@ function helpHighlight(root,q){
     node.parentNode.replaceChild(frag,node);
   });
 }
-const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
+const HELP_ICONS={"man-start":"rocket","man-foundations":"list","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-practice":"dumbbell","man-partner":"partners","man-progress":"chart","man-track":"torch","man-account":"user","man-reminders":"phone","man-share":"trophy","man-week-plan":"calendar","man-faq":"help"};
 let _helpHits=[],_helpIdx=-1,_helpQ="";
 window.helpFilter=function(q){
   q=(q||"").trim().toLowerCase();
@@ -11091,13 +11217,18 @@ window.helpFilter=function(q){
   const nr=document.getElementById("helpNoRes");
   if(!doc)return;
   if(_helpOrig)doc.innerHTML=_helpOrig;   // reset previous highlights + visibility
-  const secs=doc.querySelectorAll("section");
+  const secs=doc.querySelectorAll("section.help-topic");
   _helpQ=q;
-  if(!q){    secs.forEach(s=>{s.style.display="";const d=s.querySelector("details.help-sec");if(d)d.open=false;});
-    if(nr)nr.style.display="none";_helpHits=[];_helpIdx=-1;helpSyncNav();return;}
+  if(!q){
+    doc.classList.remove("searching");
+    secs.forEach(s=>{s.style.display="";});
+    if(nr)nr.style.display="none";_helpHits=[];_helpIdx=-1;helpSyncNav();
+    if(_helpOpenId)helpOpen(_helpOpenId);   // back to the topic the search started from
+    return;}
+  /* a search shows every matching topic in full, wherever the learner was */
+  doc.classList.add("searching");doc.classList.remove("reading");
   let any=false;
   secs.forEach(s=>{const hit=s.textContent.toLowerCase().includes(q);s.style.display=hit?"":"none";
-    const d=s.querySelector("details.help-sec");if(d)d.open=hit;   // a match must be visible, not hidden in a closed section
     if(hit){any=true;helpHighlight(s,q);}});
   if(nr)nr.style.display=any?"none":"";
   _helpHits=[...doc.querySelectorAll(".help-hl")];   // every match, in document order
@@ -22150,7 +22281,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v649";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v650";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
