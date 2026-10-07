@@ -215,24 +215,23 @@ Other sessions often hold 80xx ports serving *other* checkouts — confirm with
 
 ## Deploy to lomonec.com
 
-`lomonec.com` serves nothing today (2026-09-21). Two options; the first is
-simpler because the DNS zone is already on Cloudflare.
-
-**A. Cloudflare Pages (recommended)**
+**LIVE since 7 Oct 2026** as the Worker `lomonec-site` (static assets, no
+code) on the custom domains `lomonec.com` and `www.lomonec.com`. Config is
+`wrangler.jsonc` in this folder; `.assetsignore` keeps the README, the config
+and `img/widgets/_home.html` (the composer for the widget home-screen shots)
+off the web. Redeploy after every change:
 ```
-npx wrangler pages project create lomonec-site --production-branch main
-npx wrangler pages deploy site --project-name lomonec-site
+cd site && npx wrangler deploy
 ```
-Then Cloudflare dashboard → Workers & Pages → lomonec-site → Custom domains →
-add `lomonec.com` and `www.lomonec.com` (Cloudflare writes the DNS records).
-Redeploy after every change with the second command.
+**Not Pages:** wrangler 4.148 turns `wrangler pages project create` into a
+Workers deploy of whatever folder it runs in — it began uploading a whole
+repo checkout as a Worker named after the folder. Never run it here.
 
-**B. GitHub Pages, second repo**
-Push this folder to `salomon1010/lomonec-site`, enable Pages on `main`, add a
-`CNAME` file containing `lomonec.com`, and point the apex `A` records at GitHub
-Pages' IPs plus `www` → `salomon1010.github.io`.
+At launch the App Store badge is "Coming soon" (`IOS_LIVE = false` in
+`js/config.js`) and the Welding copy leaves out the 534-video studio, which is
+off in production. Flip `IOS_LIVE` and redeploy the day Apple releases 1.1.0.
 
-Either way, when the site is live:
+Still to do now the site is live:
 - submit `https://lomonec.com/sitemap.xml` in Google Search Console;
 - ping IndexNow for Bing: the key file at the app root only covers
   `app.lomonec.com`, so lomonec.com needs its own key file first.

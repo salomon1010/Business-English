@@ -1,0 +1,6 @@
+wrangler.jsonc
+.assetsignore
+README.md
+.DS_Store
+.wrangler
+img/widgets/_home.html

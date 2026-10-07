@@ -1,0 +1,16 @@
+// lomonec.com — the marketing site, served as static files by a Worker
+// (Cloudflare's replacement for Pages; `wrangler pages project create` now
+// redirects here). Deploy from this folder:  npx wrangler deploy
+// .assetsignore keeps this file, the README and the widget-shot composer out.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "lomonec-site",
+  "compatibility_date": "2026-10-06",
+  "assets": { "directory": "." },
+  "routes": [
+    { "pattern": "lomonec.com", "custom_domain": true },
+    { "pattern": "www.lomonec.com", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
+}
