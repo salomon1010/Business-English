@@ -25,7 +25,9 @@ partitions storage by site. The fix is Firebase's own "proxy" option:
 the same site as the app. The client switches with the flag `auth_proxy_enabled`
 (OFF everywhere until these are done):
 
-1. Deploy the Worker (creates the DNS record):
+1. Deploy the Worker (creates the DNS record). **Staging DONE 6 Oct 2026** — `be-auth-staging`
+   on auth-staging.lomonec.com (version 59a6dd3d): handler / iframe / handler.js answer 200,
+   Apple's POST is forwarded, any other path 404. Production: not yet.
    `cd backend/auth-proxy && npx wrangler deploy --env staging` (auth-staging.lomonec.com,
    validation project) and later `--env ""` (auth.lomonec.com).
 2. Google Cloud console → APIs & Services → Credentials → the Firebase **Web client**
@@ -55,7 +57,8 @@ and the rating card. The iPhone's push still waits for the APNs key (docs/IOS_NO
 
 ## Still to ship on Android
 
-- **The new AAB** (versionCode 10): the widgets live in the native shell (docs/ANDROID_WIDGET.md §3).
+- **The new AAB** (versionCode 10, versionName 1.1.1 — set in playstore/twa-manifest.json on
+  6 Oct 2026; the staging manifest keeps 9, the internal-test build): the widgets live in the native shell (docs/ANDROID_WIDGET.md §3).
 - **be-widget in production**: create the D1, deploy, set `WIDGET_API` — until then the
   production page publishes nothing to the Android widget.
 
