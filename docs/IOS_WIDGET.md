@@ -179,3 +179,31 @@ invitation.
 | 8 | Sign out → the widget shows the invitation; sign in → it fills again |
 | 9 | Light theme in the app → light widget |
 | 10 | Arabic / Urdu: right-to-left layout |
+
+## Locks and the Recommendations widget (owner, 6 Oct 2026)
+
+**Who may use which widget.** The snapshot carries `gate = {signedIn, full, recs}`
+(`widgetGate()` in index.html): signed out → every widget is drawn locked (grey ghost,
+lock, "Sign in to use this widget"; a tap opens the sign-in sheet) and the snapshot
+carries no progress at all (`widgetPublic`); signed in → the small and lock-screen
+widgets; Premium → medium and large (`advanced_progress`) and the Recommendations widget
+(`recommended_content`). The plan question is `hasEntitlement`, which answers true while
+no plan is in force — so in production today a signed-in learner has every widget, and
+on staging (plans live) the locks show. Display only; the app enforces everything again.
+A snapshot without `gate` (an older app) draws unlocked. Lock: `BEWidgetLock.of`,
+`BELockedView` (BEWidgetLockView.swift); the content under a lock is the learner's own
+(or the sample learner's when signed out) with its links switched off (`BELink`,
+`beWidgetURL`, env `beLinksOff`) so the lock's single tap is the only one.
+
+**Recommendations widget** (`BEWidgetRecs`, medium + large, BEWidgetRecs.swift): Home's
+own rows (`widgetRecs()` → `homeRows`), ≤12, each title / kind / why / picture / place
+(nudgeGo's `{view, act, args}`). Tap: `bemastery://open?rec=1&view=…&act=…&a0..a2&ch=1`
+→ `BEWidgetBox.route` (allow-listed views and actions, plain arguments) →
+`widgetOpenRoute({rec})` → `nudgeGo`. **Widgets cannot scroll** (Apple): on iOS 17+ two
+arrow buttons page the list inside the widget (`BERecPageIntent`, App Group key
+`be_widget_rec_page`); iOS 15–16 show the first page and "More" opens Home. Pictures:
+the APP's plugin (`BEWidgetThumbCache`) saves each one into the App Group
+(`BEWidgetThumbs/<sha256-12>.jpg`, 240 px), only from `i.ytimg.com` / `img.youtube.com`
+or the bundled `home-shots/` / `rp-photos/`; the widget only reads files. A scene's SVG
+poster cannot be drawn by a widget, so it shows the kind's icon.
+Tests: `tests/ios-widget.mjs` L1–L8, `BEWidgetPluginTests` (17), `check-release.mjs`.

@@ -224,7 +224,7 @@ struct BESmallView: View {
                 .foregroundColor(pal.muted)
                 .lineLimit(1)
         }
-        .widgetURL(BEWidgetLink.today(s))
+        .beWidgetURL(BEWidgetLink.today(s))
     }
 }
 
@@ -234,7 +234,7 @@ struct BEMediumView: View {
     let pal: BEPalette
     var body: some View {
         HStack(spacing: 14) {
-            Link(destination: BEWidgetLink.progress) {
+            BELink(BEWidgetLink.progress) {
                 VStack(spacing: 4) {
                     BEStreakRing(entry: entry, pal: pal, size: 74)
                     Text(s.label("streak", "day streak"))
@@ -264,16 +264,16 @@ struct BEMediumView: View {
                     .minimumScaleFactor(0.8)
                 Spacer(minLength: 2)
                 HStack(spacing: 6) {
-                    Link(destination: BEWidgetLink.today(s)) {
+                    BELink(BEWidgetLink.today(s)) {
                         BECta(text: s.today?.cta ?? s.label("open", "Open"), pal: pal)
                     }
                     if let n = s.words, n > 0 {
-                        Link(destination: BEWidgetLink.words) {
+                        BELink(BEWidgetLink.words) {
                             BEChip(icon: "text.book.closed.fill", text: "\(n)", tint: pal.acc2, pal: pal)
                         }
                     }
                 }
-                Link(destination: BEWidgetLink.roadmap) {
+                BELink(BEWidgetLink.roadmap) {
                     VStack(alignment: .leading, spacing: 3) {
                         BERoadStrip(steps: s.steps ?? [], pal: pal, height: 6)
                         HStack {
@@ -305,13 +305,13 @@ struct BELargeView: View {
                     .foregroundColor(pal.text)
                     .lineLimit(1)
                 Spacer()
-                Link(destination: BEWidgetLink.progress) {
+                BELink(BEWidgetLink.progress) {
                     BEChip(icon: "flame.fill", text: "\(entry.streak) " + s.label("streak", "day streak"),
                            tint: entry.mood == .done ? pal.gold : (entry.mood == .atRisk ? pal.red : pal.acc2), pal: pal)
                 }
             }
             // today
-            Link(destination: BEWidgetLink.today(s)) {
+            BELink(BEWidgetLink.today(s)) {
                 HStack(spacing: 12) {
                     BEStreakRing(entry: entry, pal: pal, size: 64)
                     VStack(alignment: .leading, spacing: 4) {
@@ -329,7 +329,7 @@ struct BELargeView: View {
                 .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(pal.card))
             }
             // road map
-            Link(destination: BEWidgetLink.roadmap) {
+            BELink(BEWidgetLink.roadmap) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(s.label("roadmap", "Road map")).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundColor(pal.text)
@@ -357,13 +357,13 @@ struct BELargeView: View {
             }
             // three facts
             HStack(spacing: 8) {
-                Link(destination: BEWidgetLink.progress) {
+                BELink(BEWidgetLink.progress) {
                     BEStat(value: "\(s.weekGoal?.n ?? 0)/\(s.weekGoal?.goal ?? 6)", label: s.label("goal", "this week"), icon: "calendar", tint: pal.acc, pal: pal)
                 }
-                Link(destination: BEWidgetLink.words) {
+                BELink(BEWidgetLink.words) {
                     BEStat(value: "\(s.words ?? 0)", label: s.label("words", "words due"), icon: "text.book.closed.fill", tint: pal.acc2, pal: pal)
                 }
-                Link(destination: BEWidgetLink.progress) {
+                BELink(BEWidgetLink.progress) {
                     BEStat(value: "\(s.best ?? 0)", label: s.label("best", "best streak"), icon: "trophy.fill", tint: pal.gold, pal: pal)
                 }
             }
@@ -414,7 +414,7 @@ struct BEEmptyView: View {
                 .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(pal.muted).lineLimit(3)
             BERoadStrip(steps: [], pal: pal, height: 6)
         }
-        .widgetURL(BEWidgetLink.roadmap)
+        .beWidgetURL(BEWidgetLink.roadmap)
     }
 }
 
@@ -435,13 +435,13 @@ struct BEAccessoryView: View {
                 Text("\(entry.streak)").font(.system(.title3, design: .rounded).weight(.heavy))
             }
             .gaugeStyle(.accessoryCircular)
-            .widgetURL(BEWidgetLink.today(s))
+            .beWidgetURL(BEWidgetLink.today(s))
         case .accessoryInline:
             HStack {
                 Image(systemName: "flame.fill")
                 Text("\(entry.streak) · \(s?.today?.kicker ?? "BE Mastery")")
             }
-            .widgetURL(BEWidgetLink.today(s))
+            .beWidgetURL(BEWidgetLink.today(s))
         default:
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
@@ -454,7 +454,7 @@ struct BEAccessoryView: View {
                 Text(s?.today?.title ?? "Open BE Mastery").font(.system(size: 12, weight: .semibold, design: .rounded)).lineLimit(1)
                 ProgressView(value: s?.overallProgress ?? 0).tint(.white)
             }
-            .widgetURL(BEWidgetLink.today(s))
+            .beWidgetURL(BEWidgetLink.today(s))
         }
     }
 }
@@ -472,9 +472,15 @@ struct BEWidgetEntryView: View {
 
     var body: some View {
         let pal = BEPalette.make(entry.snap, area: entry.area)
+        /* small and lock-screen: signed in; medium and large: Premium (owner, 6 Oct 2026) */
+        let tier = family == .systemSmall ? "small" : (family == .systemMedium || family == .systemLarge ? "full" : "small")
+        let lock = BEWidgetLock.of(entry.snap, tier: tier)
         Group {
             if #available(iOS 16.0, *), family.isAccessory {
-                BEAccessoryView(entry: entry, s: entry.snap)
+                if lock == .none { BEAccessoryView(entry: entry, s: entry.snap) } else { BEAccessoryLockedView(s: entry.snap) }
+            } else if lock != .none {
+                BELockedView(lock: lock, s: entry.snap, pal: pal, compact: family == .systemSmall) { home(pal, sample: true) }
+                    .beWidgetBackground(pal.bg)
             } else {
                 home(pal).beWidgetBackground(pal.bg)
             }
@@ -482,12 +488,17 @@ struct BEWidgetEntryView: View {
         .environment(\.layoutDirection, (entry.snap?.isRTL ?? false) ? .rightToLeft : .leftToRight)
     }
 
-    @ViewBuilder private func home(_ pal: BEPalette) -> some View {
-        if let s = entry.snap {
+    /// `sample`: under a lock the learner sees the widget's real shape — their own
+    /// progress when the app has sent it, the sample learner when it has not
+    /// (signed out, the app sends none).
+    @ViewBuilder private func home(_ pal: BEPalette, sample: Bool = false) -> some View {
+        let shown: BEWidgetSnapshot? = (sample && entry.snap?.week == nil) ? BEWidgetSample.snapshot(area: entry.area) : entry.snap
+        if let s = shown {
+            let e = sample && entry.snap?.week == nil ? BEWidgetEntry.make(s, at: entry.date, area: entry.area) : entry
             switch family {
-            case .systemSmall: BESmallView(entry: entry, s: s, pal: pal)
-            case .systemMedium: BEMediumView(entry: entry, s: s, pal: pal)
-            default: BELargeView(entry: entry, s: s, pal: pal)
+            case .systemSmall: BESmallView(entry: e, s: s, pal: pal)
+            case .systemMedium: BEMediumView(entry: e, s: s, pal: pal)
+            default: BELargeView(entry: e, s: s, pal: pal)
             }
         } else {
             BEEmptyView(pal: pal, area: entry.area)

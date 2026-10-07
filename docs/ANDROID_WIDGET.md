@@ -155,3 +155,21 @@ A widget is a native change, so it ships only with a **new AAB** — versionCode
 | 6 | Sign out → the invitation; sign in → it fills again on the next refresh |
 | 7 | Aeroplane mode → the last snapshot stays, no blank |
 | 8 | At 18:00 with nothing done the flame is red; after midnight (UTC) "done" becomes "pending" |
+
+## Locks and the Recommendations widget (owner, 6 Oct 2026)
+
+Same rules as iOS (docs/IOS_WIDGET.md): the snapshot's `gate` locks the widgets —
+signed out every widget, signed in without Premium the medium/large sizes and the
+Recommendations widget. `BEWidgetSnapshot.lockOf`; `BEWidgetRenderer.locked` draws a grey
+ghost of the layout (a bitmap — RemoteViews cannot blur or grey a live layout), a lock or
+crown and one line; a tap opens `?widget=signin|premium`, which index.html routes
+(`widgetFeedBoot`). The **Recommendations widget** (`BEWidgetRecsProvider`, 4x2–4x4) is a
+real scrolling `ListView` fed by `BEWidgetRecsService` (thumbnails fetched off the main
+thread into the app cache, only YouTube's thumbnail host or the app's own
+`home-shots/` / `rp-photos/`); a row opens `?widget=rec&wv=&wa=&w0..w2&wch=` →
+`widgetOpenRoute({rec})` → `nudgeGo`. be-widget's `shapeSnap` allow-lists `gate` and
+`recs` (views, actions, picture hosts, argument shape). `apply.mjs` adds the fourth
+receiver and the `BIND_REMOTEVIEWS` service. Verified on the emulator: the lock states
+(debug preview, `dev-emulator.sh … free|out`); the unlocked list itself needs a placed
+widget on a phone (the preview cannot host a RemoteViews adapter).
+Tests: `tests/android-widget.mjs` (13), `backend/widget/test/run.mjs` (23), `apply.test.mjs` (8).

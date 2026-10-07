@@ -53,6 +53,14 @@ console.log("\n# what may be stored");
   const s = shapeSnap({ ...SNAP, name: "Alex", email: "alex@example.com", uid: "u1", transcript: "I said…", labels: { ...SNAP.labels, "Evil-Key": "x", toolong: "y".repeat(300) }, today: { ...SNAP.today, extra: "no" }, steps: ["done", "wat"], streak: "12" });
   ok("5 · unknown keys are dropped at every level — a name, an email, a uid or a transcript can never be parked here", s && !("name" in s) && !("email" in s) && !("uid" in s) && !("transcript" in s) && !("extra" in s.today) && !("Evil-Key" in s.labels), JSON.stringify(s));
   ok("6 · strings are capped, numbers coerced, step states forced into the four the widget knows", s && s.labels.toolong.length === 80 && s.streak === 12 && s.steps[1] === "locked", JSON.stringify(s && { l: s.labels.toolong && s.labels.toolong.length, st: s.steps }));
+  /* the widget locks and the Recommendations list (owner, 6 Oct 2026) */
+  const g = shapeSnap({ ...SNAP, gate: { signedIn: true, full: "yes", recs: true, uid: "u1" }, recs: [
+    { t: "A clip", s: "Watch", why: "Because…", k: "video", img: "https://i.ytimg.com/vi/MZAjfsyJa1U/mqdefault.jpg", min: 6, go: { view: "shadow", act: "clip", a: ["MZAjfsyJa1U", "0", "0"], ch: true }, email: "x@y" },
+    { t: "Words", k: "words", img: "home-shots/vocab.jpg", go: { view: "practice", act: "study-due" } },
+    { t: "Bad", k: "video", img: "https://evil.example/x.jpg", go: { view: "settings", act: "wipe", a: ["../../etc", "ok"] } } ] });
+  ok("6b · gate keeps three booleans only (a non-true value is false, an extra key is dropped)", g && g.gate.signedIn === true && g.gate.full === false && g.gate.recs === true && !("uid" in g.gate), JSON.stringify(g && g.gate));
+  ok("6c · a recommendation keeps its text, an allowed picture and a nudgeGo place; unknown keys go", g && g.recs.length === 3 && g.recs[0].img.startsWith("https://i.ytimg.com/") && g.recs[0].go.view === "shadow" && g.recs[0].go.a.length === 3 && g.recs[0].go.ch === true && !("email" in g.recs[0]) && g.recs[1].img === "home-shots/vocab.jpg", JSON.stringify(g && g.recs));
+  ok("6d · a picture from anywhere else, an unknown place or action, and an unsafe argument are dropped", g && g.recs[2].img === undefined && g.recs[2].go.view === undefined && g.recs[2].go.act === undefined && g.recs[2].go.a.join() === "ok", JSON.stringify(g && g.recs[2]));
   ok("7 · not a version-1 object → refused", shapeSnap({ v: 2 }) === null && shapeSnap([1]) === null && shapeSnap(null) === null && shapeSnap("x") === null);
   let r = await j(await call("POST", "/feed", { wid: WID, snap: { v: 2 } }));
   ok("8 · … and the route says 400 snapshot", r.status === 400 && r.body.error === "snapshot");

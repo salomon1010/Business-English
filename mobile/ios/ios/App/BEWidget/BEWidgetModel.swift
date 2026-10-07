@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import CryptoKit
 
 /// BE Mastery — what the home-screen widget knows, and how it reads the clock.
 ///
@@ -61,6 +62,17 @@ struct BEWidgetSnapshot: Decodable {
     var phases: [Phase]?
     var line: String?
     var labels: [String: String]?
+    /// Who may use which widget (owner, 6 Oct 2026). Absent = an app from before
+    /// the rule, drawn unlocked as it always was.
+    struct Gate: Decodable { var signedIn: Bool?; var full: Bool?; var recs: Bool? }
+    var gate: Gate?
+    /// The Recommendations widget's list, Home's own order.
+    struct Rec: Decodable {
+        struct Go: Decodable { var view: String?; var act: String?; var a: [String]?; var ch: Bool? }
+        var t: String?; var s: String?; var why: String?; var k: String?
+        var img: String?; var min: Int?; var ext: Bool?; var go: Go?
+    }
+    var recs: [Rec]?
 
     static func parse(_ json: String) -> BEWidgetSnapshot? {
         guard let data = json.data(using: .utf8), data.count <= 16_384 else { return nil }
@@ -85,6 +97,52 @@ struct BEWidgetSnapshot: Decodable {
         guard let o = overall, let t = o.total, t > 0 else { return 0 }
         return min(1, max(0, Double(o.done ?? 0) / Double(t)))
     }
+}
+
+/// Which lock, if any, a widget of a given kind wears.
+enum BEWidgetLock {
+    case none, signIn, premium
+
+    /// `tier`: "small" (the small home-screen and lock-screen widgets), "full"
+    /// (medium and large), "recs" (the Recommendations widget). No snapshot at
+    /// all means nobody has signed in on this phone: locked, "Sign in".
+    static func of(_ s: BEWidgetSnapshot?, tier: String) -> BEWidgetLock {
+        guard let s = s else { return .signIn }
+        guard let g = s.gate else { return .none }
+        if g.signedIn != true { return .signIn }
+        switch tier {
+        case "full": return g.full == true ? .none : .premium
+        case "recs": return g.recs == true ? .none : .premium
+        default: return .none
+        }
+    }
+}
+
+/// A recommendation's picture, saved by the app into the App Group (the
+/// widget cannot fetch from the network while it draws). The file name is a
+/// hash of the picture's address, computed the same way by the app's plugin.
+enum BEWidgetThumbs {
+    static let folder = "BEWidgetThumbs"
+    static func dir() -> URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: BEWidgetShared.group)?
+            .appendingPathComponent(folder, isDirectory: true)
+    }
+    static func name(for img: String) -> String {
+        let digest = SHA256.hash(data: Data(img.utf8))
+        return digest.prefix(12).map { String(format: "%02x", $0) }.joined() + ".jpg"
+    }
+    static func url(for img: String?) -> URL? {
+        guard let img = img, !img.isEmpty, let d = dir() else { return nil }
+        let u = d.appendingPathComponent(name(for: img))
+        return FileManager.default.fileExists(atPath: u.path) ? u : nil
+    }
+}
+
+/// The page the Recommendations widget is on, moved by its arrows.
+enum BEWidgetRecPage {
+    static let key = "be_widget_rec_page"
+    static func get() -> Int { UserDefaults(suiteName: BEWidgetShared.group)?.integer(forKey: key) ?? 0 }
+    static func set(_ n: Int) { UserDefaults(suiteName: BEWidgetShared.group)?.set(max(0, n), forKey: key) }
 }
 
 enum BEWidgetStore {
@@ -199,4 +257,21 @@ enum BEWidgetLink {
     static let roadmap = url(view: "journey")
     static let words = url(view: "practice", act: "words")
     static let progress = url(view: "review")
+    /// A locked widget: the sign-in sheet, or the Premium offer.
+    static func unlock(_ lock: BEWidgetLock) -> URL { url(view: "home", act: lock == .premium ? "premium" : "signin") }
+
+    /// One recommendation: exactly the place its Home card opens.
+    /// `bemastery://open?rec=1&view=shadow&act=clip&a0=…&a1=…&a2=…&ch=1`
+    static func rec(_ r: BEWidgetSnapshot.Rec) -> URL {
+        guard let g = r.go, let view = g.view, !view.isEmpty else { return url(view: "home") }
+        var c = URLComponents()
+        c.scheme = BEWidgetShared.scheme
+        c.host = "open"
+        var q = [URLQueryItem(name: "rec", value: "1"), URLQueryItem(name: "view", value: view)]
+        if let a = g.act, !a.isEmpty { q.append(URLQueryItem(name: "act", value: a)) }
+        for (i, v) in (g.a ?? []).prefix(3).enumerated() { q.append(URLQueryItem(name: "a\(i)", value: v)) }
+        if g.ch == true { q.append(URLQueryItem(name: "ch", value: "1")) }
+        c.queryItems = q
+        return c.url ?? url(view: "home")
+    }
 }

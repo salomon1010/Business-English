@@ -33,6 +33,23 @@ public final class BEWidgetSnapshot {
     public final List<String> steps = new ArrayList<>();
     public final List<String[]> phases = new ArrayList<>();   // {label, pct, state}
     private final JSONObject labels;
+    /** Who may use which widget (owner, 6 Oct 2026). hasGate false = an app from before the rule: unlocked. */
+    public final boolean hasGate, signedIn, full, recsOn;
+    /** One recommendation: what the card shows, and where a tap goes (nudgeGo's view / act / args). */
+    public static final class Rec {
+        public final String t, s, why, k, img, view, act; public final int min; public final boolean ch;
+        public final List<String> a = new ArrayList<>();
+        Rec(JSONObject o) {
+            t = o.optString("t", ""); s = o.optString("s", ""); why = o.optString("why", ""); k = o.optString("k", "");
+            img = o.optString("img", ""); min = o.optInt("min", 0);
+            JSONObject g = o.optJSONObject("go");
+            view = g == null ? "" : g.optString("view", ""); act = g == null ? "" : g.optString("act", "");
+            ch = g != null && g.optBoolean("ch", false);
+            JSONArray aa = g == null ? null : g.optJSONArray("a");
+            if (aa != null) for (int i = 0; i < Math.min(3, aa.length()); i++) a.add(aa.optString(i, ""));
+        }
+    }
+    public final List<Rec> recs = new ArrayList<>();
 
     private BEWidgetSnapshot(JSONObject o) {
         lang = o.optString("lang", "en");
@@ -76,6 +93,13 @@ public final class BEWidgetSnapshot {
         }
         JSONObject L = o.optJSONObject("labels");
         labels = L == null ? new JSONObject() : L;
+        JSONObject gt = o.optJSONObject("gate");
+        hasGate = gt != null;
+        signedIn = gt == null || gt.optBoolean("signedIn", false);
+        full = gt == null || gt.optBoolean("full", false);
+        recsOn = gt == null || gt.optBoolean("recs", false);
+        JSONArray rc = o.optJSONArray("recs");
+        if (rc != null) for (int i = 0; i < Math.min(12, rc.length()); i++) { JSONObject r = rc.optJSONObject(i); if (r != null) recs.add(new Rec(r)); }
     }
 
     /** Null for anything that is not a version-1 snapshot. */
@@ -94,6 +118,17 @@ public final class BEWidgetSnapshot {
     public String label(String key, String fallback) {
         String v = labels.optString(key, "");
         return v.trim().isEmpty() ? fallback : v;
+    }
+
+    /** The lock a widget of this tier wears: 0 none, 1 sign in, 2 Premium. "small" | "full" | "recs". */
+    public static final int LOCK_NONE = 0, LOCK_SIGNIN = 1, LOCK_PREMIUM = 2;
+    public static int lockOf(BEWidgetSnapshot s, String tier) {
+        if (s == null) return LOCK_SIGNIN;               // nobody has signed in on this phone
+        if (!s.hasGate) return LOCK_NONE;
+        if (!s.signedIn) return LOCK_SIGNIN;
+        if ("full".equals(tier)) return s.full ? LOCK_NONE : LOCK_PREMIUM;
+        if ("recs".equals(tier)) return s.recsOn ? LOCK_NONE : LOCK_PREMIUM;
+        return LOCK_NONE;
     }
 
     public boolean isLight() { return "light".equals(theme); }

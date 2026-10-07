@@ -76,6 +76,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
     static void drawEverything(Context c) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(c);
         for (Class<?> p : PROVIDERS) drawAll(c, mgr, ids(c, p), areaOf(p));
+        BEWidgetRecsProvider.drawEverything(c);   // the Recommendations widget reads the same snapshot
     }
 
     static void drawAll(Context c, AppWidgetManager mgr, int[] ids, String area) {
@@ -96,7 +97,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
 
     static boolean anyPlaced(Context c) {
         for (Class<?> p : PROVIDERS) if (ids(c, p).length > 0) return true;
-        return false;
+        return BEWidgetRecsProvider.ids(c).length > 0;
     }
 
     /** Redraw every placed widget now, fetching first. Safe when none is placed. */

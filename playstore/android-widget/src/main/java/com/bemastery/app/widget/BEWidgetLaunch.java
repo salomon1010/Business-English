@@ -67,4 +67,27 @@ public final class BEWidgetLaunch {
     public static PendingIntent words(Context c) { return open(c, 3, "words", "practice"); }
     public static PendingIntent progress(Context c) { return open(c, 4, "1", "review"); }
     public static PendingIntent home(Context c) { return open(c, 5, "1", ""); }
+    /** A locked widget: the sign-in sheet, or the Premium offer (owner, 6 Oct 2026). */
+    public static PendingIntent unlock(Context c, boolean premium) { return open(c, premium ? 7 : 6, premium ? "premium" : "signin", ""); }
+
+    /** The Recommendations list's tap template: each row fills in its own address (rec()). Mutable, so the fill-in can set the data. */
+    public static PendingIntent recTemplate(Context c) {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setClassName(c.getPackageName(), c.getPackageName() + ".LauncherActivity");
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 31) flags |= PendingIntent.FLAG_MUTABLE;
+        return PendingIntent.getActivity(c, 8, i, flags);
+    }
+
+    /** One recommendation: {@code https://host/?widget=rec&wv=shadow&wa=clip&w0=<vid>&wch=1}. */
+    public static Intent rec(Context c, BEWidgetSnapshot.Rec r) {
+        String base = c.getString(R.string.launchUrl);
+        if (!base.endsWith("/")) base = base + "/";
+        Uri.Builder u = Uri.parse(base).buildUpon().appendQueryParameter("widget", "rec").appendQueryParameter("wv", r.view);
+        if (!r.act.isEmpty()) u.appendQueryParameter("wa", r.act);
+        for (int i = 0; i < r.a.size() && i < 3; i++) u.appendQueryParameter("w" + i, r.a.get(i));
+        if (r.ch) u.appendQueryParameter("wch", "1");
+        return new Intent().setData(u.build());
+    }
 }

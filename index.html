@@ -7178,6 +7178,8 @@ const I18N_EN={
  "profile.sub_default":"Practising English with BE Mastery",
  "profile.day_streak":"day streak",
  "wg.risk":"Keep your streak alive tonight","wg.start":"Start a new streak today",
+ "wg.lock_signin":"Sign in to use this widget","wg.lock_prem":"Go Premium to unlock this widget",
+ "wg.recs_h":"Recommended for you","wg.recs_none":"Practise a little — your recommendations will appear here.","wg.recs_more":"More",
  "setup.title":"App Setup",
  "setup.sub":"Your settings and what BE Mastery does.",
  "setup.row_sub":"Settings and about the app",
@@ -17740,6 +17742,55 @@ function widgetGoParse(s){
   if(!m)return {view:"home"};
   const o={view:m[1]};if(m[2])o.w=+m[2];if(m[3])o.d=m[3];return o;
 }
+/* WHO MAY USE WHICH WIDGET (owner, 6 Oct 2026). Signed out: every widget is
+   drawn locked, in grey, with "Sign in". Signed in: the small widget (and the
+   lock-screen ones). Premium: the medium and large widgets (advanced_progress)
+   and the Recommendations widget (recommended_content). The ONE plan question
+   is hasEntitlement, which answers true while no plan is in force — so in
+   production today a signed-in learner has every widget, exactly as the app
+   itself gates nothing; on staging, where plans are live, the locks show.
+   This is DISPLAY: the widget shows the learner's own progress and links into
+   the app, which enforces everything again. */
+function widgetGate(){
+  const si=(()=>{try{return !!FBUser}catch(e){return false}})();
+  const has=c=>{try{return hasEntitlement(c)}catch(e){return false}};
+  return {signedIn:si,full:si&&has("advanced_progress"),recs:si&&has("recommended_content")};
+}
+/* The Recommendations widget's list: Home's own rows (homeRows — the same
+   engine, the same order), flattened, one entry per thing, at most 12. Each
+   carries what the card shows (title, line, the row's reason, a picture) and
+   where a tap goes, as nudgeGo's own {view, act, args} — the widget never
+   decides a destination. Pictures: a clip's YouTube thumbnail (https), else
+   the app's own screenshot of the page it opens (a bundled path); a scene's
+   poster is SVG, which a widget cannot draw, so it gets the icon. Locked rows
+   are not listed at all when the learner lacks the plan — the widget shows
+   its lock instead, never a teaser of the picks. Cached for 30 s: the engine
+   is cheap, but save() runs on every tap. */
+let _wgRecs={at:0,v:[]};
+function widgetRecs(){
+  if(Date.now()-_wgRecs.at<30000)return _wgRecs.v;
+  const out=[],seen=new Set();
+  try{
+    for(const r of homeRows("")||[]){
+      let why="";try{why=t(homeRowKey(r),r.vars||{})}catch(e){}
+      for(const it of r.items||[]){
+        const id=(it.vid||"")+"|"+it.type+"|"+(it.title||"")+"|"+(it.args||[]).join(",");if(seen.has(id))continue;seen.add(id);
+        let img="";
+        if(it.vid&&!scnIs(it.vid))img="https://i.ytimg.com/vi/"+it.vid+"/mqdefault.jpg";
+        else if(it.type==="roleplay"){try{const k=rpPhotoKey({id:it.cid,persona:it.persona});if(k)img="rp-photos/"+k+".jpg"}catch(e){}}
+        if(!img&&!it.vid)img=homeShot(it.type)||"";
+        const a=(it.args||[]).slice(0,3).map(x=>String(x).slice(0,40));
+        out.push({t:String(homeItemTitle(it)||"").slice(0,90),s:String(homeItemLine(it)||"").slice(0,80),why:String(why||"").slice(0,90),k:String(it.type||""),
+          img,min:it.dur?Math.max(1,Math.round(it.dur/60)):0,ext:!!it.external,
+          go:{view:String(it.view||"home"),act:String(it.act||""),a,ch:!!it.challenge}});
+        if(out.length>=12)break;
+      }
+      if(out.length>=12)break;
+    }
+  }catch(e){}
+  _wgRecs={at:Date.now(),v:out};
+  return out;
+}
 function widgetSnapshot(){
   const safe=(f,d)=>{try{const v=f();return v==null?d:v}catch(e){return d}};
   const str=(f,d)=>{const v=safe(f,d);return typeof v==="string"&&v.trim()?v.trim():d};
@@ -17762,6 +17813,8 @@ function widgetSnapshot(){
   const unit=str(()=>(pro?rmUnit(1):t("rm.week_n",{n:1})).replace(/\s*\d+\s*$/,""),pro?"Stage":"Week");
   return {
     v:1,at:Date.now(),lang,dir:["ar","ur"].includes(lang)?"rtl":"ltr",
+    gate:widgetGate(),
+    recs:widgetRecs(),
     theme:document.documentElement.getAttribute("data-theme")==="light"?"light":"dark",
     area:pro?"pro":"ge",
     programme:key(pro?"area.name_pro":"area.name_gen",null,pro?"Welding English":"General English"),
@@ -17781,8 +17834,20 @@ function widgetSnapshot(){
       best:key("cal.best_streak",null,"best streak"),roadmap:key("rm.btn",null,"Road map"),unit,
       open:key("home.cta_continue",null,"Continue"),done:key("home.done_h",null,"Today's practice is done"),
       risk:key("wg.risk",null,"Keep your streak alive tonight"),start:key("wg.start",null,"Start a new streak today"),
+      lsign:key("wg.lock_signin",null,"Sign in to use this widget"),lprem:key("wg.lock_prem",null,"Go Premium to unlock this widget"),
+      recs:key("wg.recs_h",null,"Recommended for you"),recnone:key("wg.recs_none",null,"Practise a little — your recommendations will appear here."),
+      recmore:key("wg.recs_more",null,"More"),
     },
   };
+}
+/* What actually leaves the page. Signed out, the widgets are drawn locked, so
+   they get the lock's words and nothing of the learner's progress; without the
+   Recommendations plan, no recommendation travels. */
+function widgetPublic(s){
+  const g=s.gate||{};
+  if(!g.recs)s.recs=[];
+  if(!g.signedIn)return {v:1,at:s.at,lang:s.lang,dir:s.dir,theme:s.theme,area:s.area,programme:s.programme,gate:g,recs:[],labels:s.labels};
+  return s;
 }
 /* Debounced, and sent only when something the widget shows has changed:
    WidgetKit gives an app a daily budget of redraws, and save() runs on
@@ -17797,7 +17862,7 @@ function widgetSync(force){
     /* no profile = nobody to show (onboarding, or just signed out): the
        widget is emptied once, not fed a blank learner */
     if(!S||!S.profile){if(_wgLast!=="∅"){widgetClear();_wgLast="∅"}return}
-    let json;try{json=JSON.stringify(widgetSnapshot())}catch(e){return}
+    let json;try{json=JSON.stringify(widgetPublic(widgetSnapshot()))}catch(e){return}
     const sig=json.replace(/"at":\d+,/,"");
     if(sig===_wgLast)return;
     _wgLast=sig;
@@ -17818,13 +17883,25 @@ function widgetClear(){
 function widgetFeedBoot(){
   if(widgetFeedOn()){widgetSync(true);setTimeout(()=>{try{widgetSync(true)}catch(e){}},2500)}
   if(window._wgLaunch==="words")setTimeout(()=>{try{go("practice");pracStudyDue()}catch(e){}},400);
+  /* Android: a recommendation, or a locked widget's sign-in / Premium tap */
+  if(window._wgLaunch==="rec"&&window._wgRec)setTimeout(()=>{try{widgetOpenRoute({rec:window._wgRec})}catch(e){}},500);
+  if(window._wgLaunch==="signin"||window._wgLaunch==="premium")setTimeout(()=>{try{widgetOpenRoute({act:window._wgLaunch})}catch(e){}},500);
 }
 /* A tap on the widget: the plugin has already reduced the URL to a known
    view and, at most, a week, a day and an action. The same destinations the
    nudges reach, so a widget tap behaves like a notification tap. */
 const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases"];
+/* the kinds of place a recommendation can open (nudgeGo's own views) */
+const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay"];
 function widgetOpenRoute(d){
   if(!d||typeof d!=="object")return false;
+  /* a locked widget: the sign-in sheet, or the Premium offer where it exists */
+  if(d.act==="signin"){try{go("home");setTimeout(()=>{try{fbOpenModal("in")}catch(e){}},300)}catch(e){}return true}
+  if(d.act==="premium"){try{go("home");setTimeout(()=>{try{if(premOffered())premiumOpen("widget")}catch(e){}},300)}catch(e){}return true}
+  /* a recommendation: exactly what the Home card would have done */
+  if(d.rec&&typeof d.rec==="object"){const r=d.rec,v=String(r.view||"");
+    if(WG_REC_VIEWS.includes(v)){try{return nudgeGo({view:v,act:String(r.act||""),args:Array.isArray(r.a)?r.a.map(String):[],kind:r.ch?"challenge":"",challenge:!!r.ch})}catch(e){return false}}
+    try{go("home")}catch(e){}return true}
   const v=String(d.view||"journey");
   if(!WG_VIEWS.includes(v))return false;
   try{
@@ -22071,7 +22148,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v644";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v645";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23957,7 +24034,9 @@ const FLAGS_IOS={home_v2_enabled:true};
     if(w==null&&a==null)return;
     if(w&&/^[a-f0-9]{32}$/.test(w))localStorage.setItem("be_widget_wid",w);
     if(a!=null)window._wgLaunch=a||"1";
-    q.delete("wid");q.delete("widget");const rest=q.toString();
+    /* a recommendation tapped on the Android widget: its place, as nudgeGo takes it */
+    if(a==="rec")window._wgRec={view:q.get("wv")||"",act:q.get("wa")||"",a:["w0","w1","w2"].map(k=>q.get(k)).filter(x=>x&&/^[A-Za-z0-9_.:-]{1,40}$/.test(x)),ch:q.get("wch")==="1"};
+    ["wid","widget","wv","wa","w0","w1","w2","wch"].forEach(k=>q.delete(k));const rest=q.toString();
     history.replaceState(null,"",location.pathname+(rest?"?"+rest:"")+location.hash);
   }catch(e){}
 })();
@@ -24361,7 +24440,7 @@ async function entRefresh(){
       try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,at:Date.now(),view:v}))}catch(e){}
       return v;
     }catch(e){return entView()}
-    finally{_entBusy=null;entApply()}
+    finally{_entBusy=null;entApply();try{_wgRecs.at=0;widgetSync(true)}catch(e){}}
   })();
   return _entBusy;
 }
@@ -34684,6 +34763,7 @@ function fbConfigured(){return !!(window.FB_CONFIG&&FB_CONFIG.apiKey)}
 
 function fbOnAuth(u){
   FBUser=u;
+  try{_wgRecs.at=0;widgetSync(true)}catch(e){}   /* the widgets lock or unlock with the account */
   _fbAuthSeen=true;try{if(_fbAuthSettleRes){_fbAuthSettleRes();_fbAuthSettleRes=null}}catch(e){}
   try{entRefresh()}catch(e){}
   try{Billing.init().then(()=>{

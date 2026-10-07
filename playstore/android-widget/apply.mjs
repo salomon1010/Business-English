@@ -50,6 +50,17 @@ const RECEIVER = `
   + receiver("BEWidgetProviderGE", "be_widget_name_ge", "be_widget_info_ge")
   + receiver("BEWidgetProviderPro", "be_widget_name_pro", "be_widget_info_pro");
 
+/* the Recommendations widget (owner, 6 Oct 2026): its own receiver, and the
+   service that fills its scrolling list (only the system may bind to it) */
+const RECS = `
+        <!-- BE Mastery Recommendations widget (Premium) -->`
+  + receiver("BEWidgetRecsProvider", "be_widget_name_recs", "be_widget_info_recs") + `
+        <service
+            android:name=".widget.BEWidgetRecsService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+`;
+
 const HOOKS = `
     /* BE Mastery home-screen widget (playstore/android-widget): the page
        publishes its snapshot shortly after a launch and when it is left, so
@@ -70,7 +81,8 @@ const HOOKS = `
 export function patchManifest(xml) {
   let out = xml;
   if (!/android\.permission\.INTERNET/.test(out)) out = out.replace(/(<manifest\b[^>]*>)/, `$1\n\n    <uses-permission android:name="android.permission.INTERNET" />\n`);
-  if (!/BEWidgetProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECEIVER}    </application>`);
+  if (!/\.widget\.BEWidgetProvider"/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECEIVER}    </application>`);
+  if (!/BEWidgetRecsProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECS}    </application>`);
   return out;
 }
 

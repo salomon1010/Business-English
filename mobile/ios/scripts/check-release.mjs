@@ -219,8 +219,15 @@ console.log("\n== Info.plist / privacy manifest");
     ok("the app writes and the widget reads the SAME App Group and key",
       c(wplug, "group") === GROUP && c(wmodel, "group") === GROUP && !!c(wplug, "key") && c(wplug, "key") === c(wmodel, "key"),
       `${c(wplug, "group")}/${c(wplug, "key")} vs ${c(wmodel, "group")}/${c(wmodel, "key")}`);
-    ok("widget sources: nothing logged, nothing fetched (the widget draws the snapshot and nothing else)",
-      ![wplug, wmodel, wview].some(s => /\bprint\(|NSLog|os_log|URLSession|URLRequest/.test(s)));
+    /* the widget EXTENSION never fetches or logs: it draws what the App Group holds. Since
+       6 Oct 2026 the APP's plugin fetches the Recommendations widget's pictures — only
+       inside BEWidgetThumbCache, only from YouTube's thumbnail hosts, nothing logged. */
+    const wrecs = read(join(ios, "ios", "App", "BEWidget", "BEWidgetRecs.swift")), wlock = read(join(ios, "ios", "App", "BEWidget", "BEWidgetLockView.swift"));
+    ok("widget sources: the extension logs nothing and fetches nothing (it draws the snapshot and the saved pictures)",
+      ![wmodel, wview, wrecs, wlock].some(s => /\bprint\(|NSLog|os_log|URLSession|URLRequest/.test(s)) && !/\bprint\(|NSLog|os_log/.test(wplug));
+    { const cache = (wplug.split("enum BEWidgetThumbCache")[1] || ""), outside = wplug.split("enum BEWidgetThumbCache")[0];
+      ok("the app's widget plugin fetches only the Recommendations pictures, from YouTube's thumbnail hosts",
+        !/URLSession|URLRequest/.test(outside) && /hosts: Set<String> = \["i\.ytimg\.com", "img\.youtube\.com"\]/.test(cache) && /hosts\.contains\(h\)/.test(cache)); }
     ok("Info.plist registers the bemastery:// scheme the widget opens, and the scene routes it through BEWidgetBox",
       /<key>CFBundleURLSchemes<\/key>\s*<array>\s*<string>bemastery<\/string>/.test(plist) && /BEWidgetBox\.shared\.deliver\(url: url\)/.test(app));
     ok("widget taps are allow-listed (view, week, weekday, action) before they reach the web layer",

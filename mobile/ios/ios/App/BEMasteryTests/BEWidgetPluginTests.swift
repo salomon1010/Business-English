@@ -92,4 +92,40 @@ struct BEWidgetPluginTests {
         #expect(BEWidgetPlugin.group == "group.com.lomonec.bemastery")
         #expect(BEWidgetPlugin.key == "be_widget_snapshot")
     }
+
+    /// A recommendation tap (owner, 6 Oct 2026): only a place a Home card opens,
+    /// a known action and plain arguments survive.
+    @Test func aRecommendationTapIsReducedToAKnownPlace() throws {
+        let ok = try #require(URL(string: "bemastery://open?rec=1&view=shadow&act=clip&a0=MZAjfsyJa1U&a1=0&a2=12&ch=1"))
+        let r = try #require(BEWidgetBox.route(ok))
+        let rec = try #require(r["rec"] as? [String: Any])
+        #expect(rec["view"] as? String == "shadow")
+        #expect(rec["act"] as? String == "clip")
+        #expect((rec["a"] as? [String]) == ["MZAjfsyJa1U", "0", "12"])
+        #expect(rec["ch"] as? Bool == true)
+        let bad = try #require(URL(string: "bemastery://open?rec=1&view=settings&act=wipe"))
+        #expect(BEWidgetBox.route(bad) == nil)
+        let odd = try #require(URL(string: "bemastery://open?rec=1&view=practice&act=wipe&a0=../x"))
+        let r2 = try #require(BEWidgetBox.route(odd)?["rec"] as? [String: Any])
+        #expect(r2["act"] == nil)
+        #expect((r2["a"] as? [String]) == [])
+    }
+
+    /// A locked widget opens the sign-in sheet or the Premium offer.
+    @Test func aLockedWidgetTapIsAllowed() throws {
+        let su = try #require(URL(string: "bemastery://open?view=home&act=signin"))
+        let s = try #require(BEWidgetBox.route(su))
+        #expect(s["act"] as? String == "signin")
+        let pu = try #require(URL(string: "bemastery://open?view=home&act=premium"))
+        let p = try #require(BEWidgetBox.route(pu))
+        #expect(p["act"] as? String == "premium")
+    }
+
+    /// The picture's file name must be the one the widget computes (BEWidgetThumbs.name).
+    @Test func thumbnailNamesAreStable() {
+        let n = BEWidgetThumbCache.name(for: "https://i.ytimg.com/vi/MZAjfsyJa1U/mqdefault.jpg")
+        #expect(n.count == 28 && n.hasSuffix(".jpg"))
+        #expect(n == BEWidgetThumbCache.name(for: "https://i.ytimg.com/vi/MZAjfsyJa1U/mqdefault.jpg"))
+        #expect(n != BEWidgetThumbCache.name(for: "home-shots/vocab.jpg"))
+    }
 }

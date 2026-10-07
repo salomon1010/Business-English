@@ -36,6 +36,9 @@ const str = (v, n) => (typeof v === "string" ? v.replace(/[\u0000-\u001f]/g, "")
 const int = (v, lo, hi) => (Number.isFinite(+v) ? Math.max(lo, Math.min(hi, Math.round(+v))) : undefined);
 const obj = (v, f) => (v && typeof v === "object" && !Array.isArray(v) ? f(v) : undefined);
 const clean = o => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));
+const REC_VIEWS = new Set(["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay"]);
+const REC_ACTS = new Set(["clip", "trouble", "study-due", "ai"]);
+const REC_IMG = /^(https:\/\/(i\.ytimg\.com|img\.youtube\.com)\/vi\/[A-Za-z0-9_-]{11}\/[a-z]+\.jpg|(home-shots|rp-photos)\/[A-Za-z0-9_-]{1,60}\.jpg)$/;
 export function shapeSnap(s) {
   if (!s || typeof s !== "object" || Array.isArray(s) || s.v !== 1) return null;
   const out = clean({
@@ -56,6 +59,18 @@ export function shapeSnap(s) {
     steps: Array.isArray(s.steps) ? s.steps.slice(0, 40).map(x => (STEP_STATES.has(x) ? x : "locked")) : undefined,
     phases: Array.isArray(s.phases) ? s.phases.slice(0, 6).map(p => clean({ label: str(p && p.label, 40), pct: int(p && p.pct, 0, 100), state: str(p && p.state, 10) })) : undefined,
     line: str(s.line, 160),
+    /* who may use which widget (owner, 6 Oct 2026): three booleans, nothing else */
+    gate: obj(s.gate, g => ({ signedIn: g.signedIn === true, full: g.full === true, recs: g.recs === true })),
+    /* the Recommendations widget's list: text, a kind, a picture from an allowed
+       place (YouTube's thumbnail host, or one of the app's own bundled pictures),
+       and the place a tap opens as nudgeGo takes it */
+    recs: Array.isArray(s.recs) ? s.recs.slice(0, 12).map(r => r && typeof r === "object" ? clean({
+      t: str(r.t, 90), s: str(r.s, 80), why: str(r.why, 90), k: str(r.k, 16),
+      img: typeof r.img === "string" && REC_IMG.test(r.img) ? r.img : undefined,
+      min: int(r.min, 0, 600), ext: r.ext === true ? true : undefined,
+      go: obj(r.go, g => clean({ view: REC_VIEWS.has(g.view) ? g.view : undefined, act: REC_ACTS.has(g.act) ? g.act : undefined,
+        a: Array.isArray(g.a) ? g.a.slice(0, 3).filter(x => typeof x === "string" && /^[A-Za-z0-9_.:-]{1,40}$/.test(x)) : undefined, ch: g.ch === true ? true : undefined })),
+    }) : null).filter(Boolean) : undefined,
     labels: obj(s.labels, L => Object.fromEntries(Object.entries(L).slice(0, 24).filter(([k, v]) => /^[a-z]{1,16}$/.test(k) && typeof v === "string").map(([k, v]) => [k, str(v, 80)]))),
   });
   const json = JSON.stringify(out);

@@ -3429,5 +3429,10 @@
  "tools.why_lines": "Este paso trata del sonido y el ritmo. El shadowing de texto te da frases reales del taller para escuchar, leer y repetir, como responderás en el trabajo.",
  "sess.link_lines": "Practicar shadowing de texto",
  "prem.cmp_trial": "{{n}} min de prueba, una vez",
- "area.counts_short": "Solo se muestra tu progreso en {{area}}."
+ "area.counts_short": "Solo se muestra tu progreso en {{area}}.",
+ "wg.lock_signin": "Inicia sesión para usar este widget",
+ "wg.lock_prem": "Hazte Premium para desbloquear este widget",
+ "wg.recs_h": "Recomendado para ti",
+ "wg.recs_none": "Practica un poco: tus recomendaciones aparecerán aquí.",
+ "wg.recs_more": "Más"
 }

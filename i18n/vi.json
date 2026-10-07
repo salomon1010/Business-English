@@ -3429,5 +3429,10 @@
  "tools.why_lines": "This step is about sound and rhythm. Text shadowing gives you real workshop lines to hear, read and say back — the way you will answer on the job.",
  "sess.link_lines": "Practise text shadowing",
  "prem.cmp_trial": "{{n}} min to try, once",
- "area.counts_short": "Chỉ hiển thị tiến độ {{area}} của bạn."
+ "area.counts_short": "Chỉ hiển thị tiến độ {{area}} của bạn.",
+ "wg.lock_signin": "Đăng nhập để dùng tiện ích này",
+ "wg.lock_prem": "Nâng cấp Premium để mở tiện ích này",
+ "wg.recs_h": "Gợi ý cho bạn",
+ "wg.recs_none": "Luyện tập một chút — gợi ý của bạn sẽ hiện ở đây.",
+ "wg.recs_more": "Thêm"
 }

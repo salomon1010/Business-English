@@ -27,7 +27,7 @@ const seed = (extra = {}) => JSON.stringify({ profile: { name: "Alex", lang: "en
   fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } },
   days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1, ...extra });
 
-async function open({ query = "", hash = "", state = {}, flags = null, staging = true } = {}) {
+async function open({ query = "", hash = "", state = {}, flags = null, staging = true, signedIn = true } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   await ctx.addInitScript(([s, f, st]) => { localStorage.setItem("be12_v1", s); if (f) localStorage.setItem("be_flags", f); if (st) window.BE_BUILD = { env: "staging", flags: {} }; }, [seed(state), flags ? JSON.stringify(flags) : null, staging]);
   const feed = [];
@@ -40,6 +40,8 @@ async function open({ query = "", hash = "", state = {}, flags = null, staging =
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html" + query + hash); await sleep(3400);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#ppFab").forEach(e => e.remove()));
+  /* signed out, the widgets get no progress (owner, 6 Oct 2026): the checks about what a widget SHOWS need a signed-in learner */
+  if (signedIn) { await p.evaluate(() => { try { FBUser = { uid: "wg-test", email: "", getIdToken: async () => "t" }; _wgRecs.at = 0; widgetSync(true); } catch (e) {} }); await sleep(300); }
   return { ctx, p, feed, errs };
 }
 const posts = feed => feed.filter(f => f.method === "POST");
@@ -51,7 +53,7 @@ console.log("\n# the Play app hands the page its widget id on the launch URL");
   const g = await p.evaluate(() => ({ wid: localStorage.getItem("be_widget_wid"), on: widgetFeedOn(), api: WIDGET_API, url: location.search, hash: location.hash }));
   ok("1 · ?wid= is kept, ?widget= consumed, both stripped from the address, the feed is on and points at staging", g.wid === WID && g.on && /be-widget-staging/.test(g.api) && g.url === "" , JSON.stringify(g));
   const pb = posts(feed);
-  ok("2 · the page published its snapshot to the feed at boot — version 1, under that id", pb.length >= 1 && pb[0].path === "/feed" && pb[0].body.wid === WID && pb[0].body.snap && pb[0].body.snap.v === 1 && pb[0].body.snap.today && pb[0].body.snap.today.view, JSON.stringify(pb[0] && { path: pb[0].path, wid: pb[0].body.wid, v: pb[0].body.snap && pb[0].body.snap.v }));
+  ok("2 · the page published its snapshot to the feed at boot — version 1, under that id", pb.length >= 1 && pb.every(x => x.path === "/feed" && x.body.wid === WID && x.body.snap && x.body.snap.v === 1) && pb[pb.length - 1].body.snap.today && pb[pb.length - 1].body.snap.today.view   /* the latest: the first can be the signed-out one (locked, no progress) */, JSON.stringify(pb[0] && { path: pb[0].path, wid: pb[0].body.wid, v: pb[0].body.snap && pb[0].body.snap.v }));
   ok("3 · ?widget=words landed on Practice (the due words), not Home", /^#practice/.test(g.hash), g.hash);
   const raw = JSON.stringify(pb[0] && pb[0].body);
   ok("4 · nothing personal travels: no name, no email, no uid", !/Alex|alex@example\.com|uid/.test(raw), raw.slice(0, 200));

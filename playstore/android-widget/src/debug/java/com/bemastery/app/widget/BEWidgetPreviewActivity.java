@@ -24,6 +24,8 @@ public class BEWidgetPreviewActivity extends Activity {
         boolean light = getIntent().getBooleanExtra("light", false);
         boolean pro = getIntent().getBooleanExtra("pro", false);
         boolean empty = getIntent().getBooleanExtra("empty", false);
+        /* "free": signed in without Premium; "out": signed out (6 Oct 2026, the widget locks) */
+        String gate = getIntent().getStringExtra("gate");
         long now = System.currentTimeMillis();
         /* "risk" needs an evening: pretend it is 20:00 local today; "pending" a morning (09:00) */
         if ("risk".equals(mood) || "pending".equals(mood)) {
@@ -43,8 +45,9 @@ public class BEWidgetPreviewActivity extends Activity {
             + "\"today\":{\"kind\":\"week\",\"kicker\":\"Week 3 · Tuesday\",\"title\":\"Give a clear status update\",\"cta\":\"Continue Week 3\",\"view\":\"session\",\"w\":3,\"d\":\"Tue\"},"
             + "\"steps\":[\"done\",\"done\",\"now\",\"next\",\"locked\",\"locked\",\"locked\",\"locked\",\"locked\",\"locked\",\"locked\",\"locked\"],"
             + "\"phases\":[{\"label\":\"Foundations\",\"pct\":100,\"state\":\"done\"},{\"label\":\"Fluency\",\"pct\":30,\"state\":\"now\"},{\"label\":\"Influence\",\"pct\":0,\"state\":\"locked\"}],"
+            + ("free".equals(gate) ? "\"gate\":{\"signedIn\":true,\"full\":false,\"recs\":false}," : "")
             + "\"line\":\"25 minutes today keeps the streak alive.\",\"labels\":{\"streak\":\"day streak\",\"today\":\"Today\",\"words\":\"words due\",\"goal\":\"this week\",\"best\":\"best streak\",\"roadmap\":\"Road map\",\"unit\":\"Week\",\"open\":\"Open\"}}";
-        BEWidgetSnapshot s = empty ? null : BEWidgetSnapshot.parse(json);
+        BEWidgetSnapshot s = empty || "out".equals(gate) ? null : BEWidgetSnapshot.parse(json);
         area = empty ? (pro ? "pro" : getIntent().getStringExtra("area")) : null;   // an empty fixed-programme widget names its programme
 
         LinearLayout col = new LinearLayout(this);
@@ -56,6 +59,10 @@ public class BEWidgetPreviewActivity extends Activity {
         add(col, s, now, 160, 160);
         add(col, s, now, 340, 160);
         add(col, s, now, 340, 360);
+        if (gate != null) {   // the Recommendations widget, locked
+            int lock = BEWidgetSnapshot.lockOf(s, "recs");
+            if (lock != BEWidgetSnapshot.LOCK_NONE) addRv(col, BEWidgetRenderer.locked(this, s, lock, BEWidgetRenderer.GHOST_RECS, 340, 200, null), 340, 200);
+        }
         ScrollView sv = new ScrollView(this);
         sv.addView(col);
         setContentView(sv);
@@ -64,7 +71,10 @@ public class BEWidgetPreviewActivity extends Activity {
     private String area;
 
     private void add(LinearLayout col, BEWidgetSnapshot s, long now, int wDp, int hDp) {
-        RemoteViews rv = BEWidgetRenderer.build(this, s, wDp, hDp, now, area);
+        addRv(col, BEWidgetRenderer.build(this, s, wDp, hDp, now, area), wDp, hDp);
+    }
+
+    private void addRv(LinearLayout col, RemoteViews rv, int wDp, int hDp) {
         FrameLayout host = new FrameLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(wDp), dp(hDp));
         lp.bottomMargin = dp(16);
