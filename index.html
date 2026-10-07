@@ -20327,7 +20327,7 @@ function rPractice(el){
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
     <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
-    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small><span class="pp-how-link" role="button" tabindex="0" onclick="event.stopPropagation();ppHowSheet()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();ppHowSheet()}">${ic("info")} ${t("pp.how_btn")}</span></span>
+    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
     <span class="rp-entry-go">→</span>
     <span class="pp-online-pill" id="ppEntryOnline" style="display:none"></span>
   </button>`:""}
