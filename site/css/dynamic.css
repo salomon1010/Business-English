@@ -86,3 +86,42 @@
   .wg-ring .arc{stroke-dashoffset:70}
   .wd-bar i{width:100%}
 }
+
+/* ── real widget pictures (Xcode renders of the shipped widgets) ─────────── */
+.wgi{display:block;width:100%;height:auto;filter:drop-shadow(0 26px 48px rgba(0,0,0,.55))}
+.wgi-med,.wgi-lock,.wd-widget{border-radius:7%/15%}
+.wgi-small{border-radius:14%}
+.wgi-recs{border-radius:7%/6.6%}
+.wg-collage{position:relative;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto auto;gap:18px;align-items:center}
+.wgi-recs{grid-column:1;grid-row:1/4;animation:wgFloat 8s ease-in-out infinite alternate}
+.wgi-small{grid-column:2;grid-row:1;width:72%;justify-self:center;animation:wgFloat 6.5s ease-in-out -1.5s infinite alternate}
+.wgi-med{grid-column:2;grid-row:2;animation:wgFloat 7.5s ease-in-out -3s infinite alternate}
+.wgi-lock{grid-column:2;grid-row:3;opacity:.9;animation:wgFloat 9s ease-in-out -4.5s infinite alternate}
+.wd-widget{margin:4px 0 16px;animation:wgFloat 7s ease-in-out infinite alternate}
+@media (max-width:760px){.wg-collage{grid-template-columns:1fr 1fr}.wgi-recs{grid-column:1/3;grid-row:auto}.wgi-small,.wgi-med,.wgi-lock{grid-row:auto}.wgi-small,.wgi-med,.wgi-lock{grid-column:1/3}.wgi-small{width:55%}}
+
+/* ── screen gallery: phone frames drifting sideways; a finger can scroll it ── */
+.screens-sec{padding-bottom:40px}
+.shots{display:flex;gap:28px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px max(20px,calc((100vw - var(--maxw))/2)) 30px;scrollbar-width:none}
+.shots::-webkit-scrollbar{display:none}
+.shot{flex:none;width:230px;margin:0;scroll-snap-align:center;text-align:center}
+.shot-phone{position:relative;border-radius:34px;padding:8px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.03));border:1px solid var(--color-border-strong);box-shadow:var(--shadow-float);transition:transform .5s var(--ease-out)}
+.shot-phone img{display:block;width:100%;height:auto;border-radius:27px}
+.shot:hover .shot-phone{transform:translateY(-8px) rotate(-1.2deg)}
+.shot:nth-child(even) .shot-phone{transform:translateY(22px)}
+.shot:nth-child(even):hover .shot-phone{transform:translateY(12px) rotate(1.2deg)}
+.shot figcaption{margin-top:16px;display:flex;flex-direction:column;gap:3px}
+.shot figcaption b{color:#fff;font-size:15px}.shot figcaption span{color:var(--color-muted);font-size:13px}
+.shot:nth-child(even) figcaption{margin-top:38px}
+
+/* ── what's new ──────────────────────────────────────────────────────────── */
+.new-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px}
+.new-card{padding:20px;border-radius:var(--radius-lg);position:relative;overflow:hidden;transition:transform var(--dur) var(--ease-out),border-color var(--dur)}
+.new-card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad-text);opacity:.8}
+.new-card:hover{transform:translateY(-4px);border-color:var(--color-border-strong)}
+.new-date{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#22d3ee;margin-bottom:10px}
+.new-card h3{margin:0 0 6px;font-size:17px;color:#fff}.new-card p{margin:0;color:var(--color-muted);font-size:14px;line-height:1.5}
+@media (max-width:980px){.new-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.new-grid{grid-template-columns:1fr}}
+
+@media (prefers-reduced-motion:reduce){.wgi,.wd-widget{animation:none}.shot-phone{transition:none}}

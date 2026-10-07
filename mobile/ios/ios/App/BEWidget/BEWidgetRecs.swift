@@ -277,3 +277,16 @@ struct BEWidgetSmallSignedOut_Previews: PreviewProvider {
             .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
+/* Marketing renders (the website's widget pictures, 7 Oct 2026): the sample learner only. */
+struct BEWidgetSiteSmall_Previews: PreviewProvider {
+    static var previews: some View { BEWidgetEntryView(entry: BEWidgetEntry.make(BEWidgetSample.snapshot, at: Date())).previewContext(WidgetPreviewContext(family: .systemSmall)) }
+}
+struct BEWidgetSiteMedium_Previews: PreviewProvider {
+    static var previews: some View { BEWidgetEntryView(entry: BEWidgetEntry.make(BEWidgetSample.snapshot, at: Date())).previewContext(WidgetPreviewContext(family: .systemMedium)) }
+}
+struct BEWidgetSiteLarge_Previews: PreviewProvider {
+    static var previews: some View { BEWidgetEntryView(entry: BEWidgetEntry.make(BEWidgetSample.snapshot, at: Date())).previewContext(WidgetPreviewContext(family: .systemLarge)) }
+}
+struct BEWidgetSiteWelding_Previews: PreviewProvider {
+    static var previews: some View { BEWidgetEntryView(entry: BEWidgetEntry.make(BEWidgetSample.snapshot(area: "pro"), at: Date(), area: "pro")).previewContext(WidgetPreviewContext(family: .systemMedium)) }
+}

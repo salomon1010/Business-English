@@ -63,14 +63,14 @@ window.BEM = (function () {
        into a link back to that section. page:"…" = its own page, and marks
        itself current there (matched against <body data-page>). */
     nav: [
+      { label: "New",                  href: "#new"     },
       { label: "Method",               href: "#method"  },
       { label: "Features",             href: "#inside"  },
       { label: "Shadowing",            href: "#shadow"  },
-      { label: "Partners",             href: "#partner" },
       { label: "Welding",              href: "#welding" },
       { label: "Pricing",              href: "#pricing" },
+      { label: "Widgets",              href: "#widgets" },
       { label: "FAQ",                  href: "#faq"     },
-      { label: "Blog",                 href: "blog/",     page: "blog" },
       { label: "Team",                 href: "team.html", page: "team" }
     ],
 
