@@ -22150,7 +22150,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v647";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v648";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -35042,6 +35042,22 @@ async function fbFirstSync(u){
     /* a returning user who logged in from onboarding: their profile came from the
        cloud, so dismiss the onboarding overlay and drop them into the app */
     if(S.profile){const ob=document.getElementById("obWrap");if(ob)ob.remove()}
+    /* A NEW account signed in from the welcome screen (owner, 7 Oct 2026: "I signed in,
+       but this page just stayed there"). With Google / Apple in the installed app the page
+       leaves for the provider and comes back with a reload, so there is no cloud profile and
+       nothing closed the overlay. Signing in IS the answer to the welcome screen: finish
+       onboarding with what is known — the name typed there, else the provider's first name —
+       in the language the app is showing, and land where onboarding lands. */
+    else if(document.getElementById("obWrap")){
+      try{
+        const given=String((u&&u.displayName)||"").trim().split(/\s+/)[0]||"";
+        OB.name=(OB.name||"").trim()||given.slice(0,40);
+        OB.lang=OB.lang||String(document.documentElement.lang||"en").slice(0,2)||"en";
+        obFinish();
+        try{toast(t("auth.signed_in_toast"))}catch(e){}
+      }catch(e){}
+      fbSyncing=false;return;
+    }
     /* a returning user may have a UI language saved in their cloud profile — apply it */
     if(dictMissing()){await loadLangDict(S.profile.lang);applyDirLang(S.profile.lang)}
     if(cloud)toast(S.profile&&S.profile.name?t("auth.welcome_back_named_toast",{name:S.profile.name}):t("auth.welcome_back_toast"));
