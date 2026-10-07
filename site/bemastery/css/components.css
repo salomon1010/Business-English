@@ -110,6 +110,8 @@
 .mobile-menu{display:none}
 @media (max-width:1000px){
   .nav-links,.nav-actions .signin{display:none}
+  /* the hidden links no longer push the buttons right: do it here */
+  .nav-actions{margin-left:auto}
   .menu-btn{display:grid}
   .nav .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
     backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
