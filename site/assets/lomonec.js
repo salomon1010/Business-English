@@ -48,7 +48,7 @@
      visible on load ever blinks; without IntersectionObserver nothing hides. */
   if (!("IntersectionObserver" in window)) return;
   if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var els = document.querySelectorAll(".section-title,.section-lede,.card,.app-card,.flow>li,.facts>div,.weeks>li,.split>div,.cta .wrap>*");
+  var els = document.querySelectorAll(".section-title,.section-lede,.sub,.card,.pain,.flow>li,.facts>div,.cta .wrap>*");
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       if (!en.isIntersecting) return;
