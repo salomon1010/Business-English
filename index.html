@@ -4657,6 +4657,15 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .voc-save.on{background:color-mix(in srgb,var(--green) 16%,transparent);
   border-color:color-mix(in srgb,var(--green) 45%,transparent);color:var(--green)}
 .voc-save.on:hover{background:color-mix(in srgb,var(--green) 26%,transparent)}
+/* Not saved must look plainly different from saved (owner, 7 Oct 2026: after a
+   tap "it's still green", because the row vanished and the next word's green
+   tick slid into its place). Not saved = an empty dashed outline with the
+   bookmark; on the word list the tapped row now stays, faded, so the change
+   is seen and a second tap puts the word back. */
+.voc-save:not(.on){background:transparent;border:1.5px dashed var(--line2);color:var(--mut)}
+.voc-save:not(.on):hover{border-color:var(--mut);color:var(--txt)}
+.voc-row.voc-off{border-style:dashed;background:transparent}
+.voc-row.voc-off .wd,.voc-row.voc-off .voc-lvl{opacity:.45}
 .voc-chev{color:var(--mut);flex:none;font-size:12px}
 .voc-lvl{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.5px}
 .voc-lvl.a{background:rgba(52,211,153,.15);color:var(--green)}
@@ -20129,9 +20138,15 @@ window.vocSave=(w,l)=>{
     b.setAttribute("aria-pressed",String(on));
     const lbl=t(on?"voc.saved_title":"voc.save_title");
     b.setAttribute("aria-label",lbl);b.setAttribute("title",lbl);};
+  /* on the word list itself, redrawing would make the row vanish and the next
+     word's green tick take its place — so the row stays, faded, until the
+     list is next drawn, and a second tap saves it again */
+  const row=b&&b.closest("#vlBox")?b.closest(".voc-row"):null;
   if(vocHas(w)){vocDrop(w);paint(false);toast(t("voc.removed_toast"))}
   else{vocPut(w,l);paint(true);toast(t("voc.saved_toast"))}
-  save();vlRender();
+  save();
+  if(row)row.classList.toggle("voc-off",!vocHas(w));
+  else vlRender();
 };
 /* The words a learner missed are the whole point of a report, and they were
    printed as dead chips. Tap one and it goes to Practice, where the study cards,
@@ -22281,7 +22296,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v650";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v651";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
