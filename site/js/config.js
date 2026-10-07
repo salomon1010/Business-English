@@ -19,7 +19,7 @@ window.BEM = (function () {
      AND it has been released: until then the listing page answers 404, and
      the badge would be a dead link. false = an honest "Coming soon" badge.   */
   var APP_STORE_URL   = "https://apps.apple.com/app/id6817207864";
-  var IOS_LIVE        = true;
+  var IOS_LIVE        = false;
   var GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.bemastery.app";
 
   /* The app's own pages (privacy, help, delete account). BE Mastery is used
