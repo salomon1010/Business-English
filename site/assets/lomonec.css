@@ -62,6 +62,14 @@ h1,h2,h3{line-height:1.2;margin:0}
 .nav-toggle i:first-child{top:17px}.nav-toggle i:last-child{top:25px}
 .nav-toggle[aria-expanded="true"] i:first-child{top:21px;transform:rotate(45deg)}
 .nav-toggle[aria-expanded="true"] i:last-child{top:21px;transform:rotate(-45deg)}
+/* language switch (see langSwap in the page script): the browser cross-fades
+   between the two language pages, and the arriving page skips its entrance
+   animation, so the words simply change in place */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+.lang-swap .hero-body>*{animation:none}
+.lang-swap-in .rv{transition:none}
 /* language drop-down: a small glass pill, a white card under it */
 .nav>.logo{margin-inline-end:auto}
 .lang{position:relative;flex:none}

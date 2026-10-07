@@ -53,9 +53,20 @@ function langBlock(p, lang, labels) {
       ` aria-current="${l.code === lang.code}">${l.flag}<span dir="auto">${l.name}</span></a>\n`).join("") +
     `${i}  </div>\n${i}</details>`;
 }
+/* head of every page: the hreflang links, then two things that make a
+   language switch feel instant —
+   · speculation rules: Chrome starts loading (prerenders) a language as soon
+     as its link is pressed or hovered (Safari ignores this; the page scripts
+     prefetch on press instead);
+   · a flag check, before anything paints: a page reached from the language
+     menu skips its entrance animation (html.lang-swap, set by the menu's
+     click handler in sessionStorage — see langSwap in app.js / lomonec.js). */
+const SPEC = JSON.stringify({ prerender: [{ where: { selector_matches: ".lang-menu a" }, eagerness: "moderate" }] });
+const SWAP = '<script>try{if(sessionStorage.getItem("be_lang_swap"))document.documentElement.classList.add("lang-swap","lang-swap-in")}catch(e){}</script>';
 function alternates(p) {
   return BUILT.map((l) => `<link rel="alternate" hreflang="${l.code}" href="https://lomonec.com${url(p, l.code)}">`)
-    .concat(`<link rel="alternate" hreflang="x-default" href="https://lomonec.com${p.base}">`).join("\n");
+    .concat(`<link rel="alternate" hreflang="x-default" href="https://lomonec.com${p.base}">`,
+            `<script type="speculationrules">${SPEC}</script>`, SWAP).join("\n");
 }
 function region(html, name, inner) {
   const re = new RegExp(`(<!-- i18n:${name} -->)[\\s\\S]*?(<!-- /i18n:${name} -->)`);

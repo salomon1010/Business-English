@@ -7,17 +7,85 @@
   var y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
 
-  /* language drop-down: closes on an outside tap or Escape, and keeps the
-     section the visitor is reading when they switch */
-  [].forEach.call(document.querySelectorAll("[data-lang]"), function (d) {
-    document.addEventListener("click", function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && d.open) { d.open = false; d.querySelector("summary").focus(); }
+  /* ── language switch: feel instant ─────────────────────────────────────
+     Each language is its own page. To make the change feel like the words
+     simply turn into another language:
+     · press (pointerdown/hover/focus) a language → its page is prefetched,
+       so the click usually finds it already downloaded;
+     · click → remember the section on screen and how far through it the
+       reader is (sessionStorage "be_lang_swap");
+     · the new page (html.lang-swap, set by the inline head script) skips its
+       entrance animation, returns to that spot at once, and the browser
+       cross-fades (@view-transition in the CSS). */
+  function langSwapAway() {
+    var y = window.scrollY, best = null;
+    [].forEach.call(document.querySelectorAll("main [id], section[id]"), function (el) {
+      var t = el.getBoundingClientRect().top + y;
+      if (t <= y + 1 && (!best || t >= best.t)) best = { id: el.id, t: t, h: el.offsetHeight || 1 };
     });
-    [].forEach.call(d.querySelectorAll(".lang-menu a"), function (a) {
-      a.addEventListener("click", function () { if (location.hash) a.href = a.getAttribute("href") + location.hash; });
+    try {
+      sessionStorage.setItem("be_lang_swap", JSON.stringify(best ? { id: best.id, f: (y - best.t) / best.h } : { y: y }));
+    } catch (e) {}
+  }
+  function langSwapArrive() {
+    var raw = null;
+    try { raw = sessionStorage.getItem("be_lang_swap"); sessionStorage.removeItem("be_lang_swap"); } catch (e) {}
+    var html = document.documentElement;
+    if (!raw) return;
+    var at;
+    try { at = JSON.parse(raw); } catch (e) { at = {}; }
+    var el = at.id && document.getElementById(at.id);
+    /* a scroll asked for while the page is still being laid out can be
+       dropped, and pictures above may still change heights: place the
+       reader now, on the next frame and at load — unless they have already
+       started scrolling themselves */
+    var moved = false;
+    function stop() { moved = true; }
+    ["wheel", "touchstart", "keydown"].forEach(function (t) { window.addEventListener(t, stop, { once: true, passive: true }); });
+    function place() {
+      if (moved) return;
+      /* the same fraction of the same section: sections differ in height per language */
+      var y = el ? el.getBoundingClientRect().top + window.scrollY + (at.f || 0) * el.offsetHeight : (at.y || 0);
+      if (y <= 0) return;
+      html.style.scrollBehavior = "auto";
+      window.scrollTo(0, y);
+      html.style.scrollBehavior = "";
+    }
+    place();
+    requestAnimationFrame(place);
+    if (document.readyState === "complete") setTimeout(place, 0);
+    else window.addEventListener("load", place, { once: true });
+    /* entrance transitions come back for what the reader scrolls to next */
+    setTimeout(function () { html.classList.remove("lang-swap-in"); }, 1200);
+  }
+  function initLang() {
+    langSwapArrive();
+    var fetched = {};
+    [].forEach.call(document.querySelectorAll("[data-lang]"), function (d) {
+      document.addEventListener("click", function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && d.open) { d.open = false; d.querySelector("summary").focus(); }
+      });
+      [].forEach.call(d.querySelectorAll(".lang-menu a"), function (a) {
+        var href = a.getAttribute("href");
+        function prefetch() {
+          if (fetched[href] || a.getAttribute("aria-current") === "true") return;
+          fetched[href] = 1;
+          var l = document.createElement("link");
+          l.rel = "prefetch"; l.href = href; l.as = "document";
+          document.head.appendChild(l);
+        }
+        a.addEventListener("pointerdown", prefetch);
+        a.addEventListener("mouseenter", prefetch);
+        a.addEventListener("focus", prefetch);
+        a.addEventListener("click", function (e) {
+          if (a.getAttribute("aria-current") === "true") { e.preventDefault(); d.open = false; return; }
+          langSwapAway();
+        });
+      });
     });
-  });
+  }
+  initLang();
 
   /* fixed bar: frosted once the page moves; the link of the section in view lights up */
   var bar = document.getElementById("topbar");

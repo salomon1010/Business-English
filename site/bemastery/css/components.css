@@ -73,6 +73,14 @@
 .nav-actions{display:flex;align-items:center;gap:8px;flex:none}
 .nav-actions .signin{font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 12px}
 .nav-actions .signin:hover{color:var(--color-text)}
+/* language switch (see langSwap in the page script): the browser cross-fades
+   between the two language pages, and the arriving page skips its entrance
+   animation, so the words simply change in place */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+.lang-swap .hero h1 .line>span{animation:none;transform:none;opacity:1}
+.lang-swap-in [data-reveal]{transition:none}
 /* language drop-down: a glass pill, a dark card under it */
 .lang{position:relative;flex:none}
 .lang summary{list-style:none;display:flex;align-items:center;gap:6px;height:42px;padding:0 12px;cursor:pointer;
