@@ -5,7 +5,7 @@
    1. Copy blog/_template.html to blog/<slug>.html and write the article in it
       (title, description, canonical URL and date are in its <head>).
    2. Add an entry below with the same slug.
-   3. Add https://lomonec.com/blog/<slug>.html to sitemap.xml.
+   3. Add https://lomonec.com/bemastery/blog/<slug>.html to sitemap.xml.
 
    author: an id from js/team.js ("founder", …) or "team" for
            "BE Mastery Team". An id whose entry has no name falls back to

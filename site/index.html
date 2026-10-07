@@ -3,802 +3,318 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BE Mastery — AI English Speaking Practice</title>
-<meta name="description" content="Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.">
+<title>Lomonec — AI automation, agentic AI and software</title>
+<meta name="description" content="Lomonec builds AI automation, AI agents and software for small service businesses, and makes its own apps, starting with BE Mastery. Book a $295 AI Automation Quick Audit.">
 <link rel="canonical" href="https://lomonec.com/">
-<meta name="theme-color" content="#080b16">
-<meta name="apple-mobile-web-app-title" content="BE Mastery">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#2a1a5e">
+<meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="BE Mastery">
+<meta property="og:site_name" content="Lomonec">
 <meta property="og:url" content="https://lomonec.com/">
-<meta property="og:title" content="BE Mastery — AI English Speaking Practice">
-<meta property="og:description" content="Practise with AI. Shadow real speakers. Practise with real people. Download the BE Mastery speaking app — free on Google Play, and soon on the App Store.">
-<meta property="og:image" content="https://app.lomonec.com/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="BE Mastery — a speaking practice session shown on a phone">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="BE Mastery — AI English Speaking Practice">
-<meta name="twitter:description" content="Practise with AI. Shadow real speakers. Practise with real people. Free on Google Play, and soon on the App Store.">
-<meta name="twitter:image" content="https://app.lomonec.com/og.png">
-<!-- App links for both stores. Safari shows its own "Open in the App Store"
-     banner from apple-itunes-app (app id 6817207864). -->
-<meta name="apple-itunes-app" content="app-id=6817207864">
-<meta property="al:ios:url" content="https://apps.apple.com/app/id6817207864">
-<meta property="al:ios:app_store_id" content="6817207864">
-<meta property="al:ios:app_name" content="BE Mastery">
-<meta property="al:android:url" content="https://play.google.com/store/apps/details?id=com.bemastery.app">
-<meta property="al:android:package" content="com.bemastery.app">
-<meta property="al:android:app_name" content="BE Mastery">
-<link rel="icon" type="image/svg+xml" href="img/logo.svg">
-<link rel="apple-touch-icon" href="img/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Structured data: the app is on both stores. -->
+<meta property="og:title" content="Lomonec — AI automation, agentic AI and software">
+<meta property="og:description" content="AI automation for small service businesses, software development, and our own apps. Start with a $295 AI Automation Quick Audit.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lomonec — AI automation, agentic AI and software">
+<meta name="twitter:description" content="AI automation for small service businesses, software development, and our own apps.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"MobileApplication","name":"BE Mastery","alternateName":"Business English Mastery","applicationCategory":"EducationalApplication","operatingSystem":"iOS 15 or later, Android 6 or later","url":"https://lomonec.com/","installUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","fr","es","pt","ar","de","it","ru","hi","bn","ur","id","vi","zh","ja","ko"],"publisher":{"@type":"Organization","name":"LOMON EC LLC","url":"https://lomonec.com/","email":"contact@lomonec.com"},"description":"Practise English speaking with AI, shadow real speakers and practise with real learners. A guided 12-week programme of 25-minute spoken sessions."}
+{"@context":"https://schema.org","@type":"Organization","name":"LOMON EC LLC","alternateName":"Lomonec","url":"https://lomonec.com/","logo":"https://lomonec.com/assets/logo.png","email":"contact@lomonec.com","sameAs":["https://www.youtube.com/@lomonec","https://www.tiktok.com/@lomonec"],"makesOffer":{"@type":"Offer","name":"AI Automation Quick Audit","price":"295","priceCurrency":"USD"}}
 </script>
-<link rel="stylesheet" href="css/tokens.css?v=20261007f">
-<link rel="stylesheet" href="css/base.css?v=20261007f">
-<link rel="stylesheet" href="css/components.css?v=20261007f">
-<link rel="stylesheet" href="css/sections.css?v=20261007f">
-<link rel="stylesheet" href="css/dynamic.css?v=20261007f">
+<link rel="stylesheet" href="assets/lomonec.css?v=20261007a">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- AmbientBackground: slow light fields, a faint grid, and the particle field -->
-<div class="ambient" aria-hidden="true">
-  <div class="field f1"></div><div class="field f2"></div><div class="field f3"></div>
-  <div class="grid"></div>
-  <canvas id="particles"></canvas>
-</div>
+<header class="hero" id="top">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="logo" href="#top" aria-label="Lomonec home"><span class="logo-bar"></span>LOMON<span>EC</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks">Menu</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#apps">Apps</a></li>
+      <li><a href="#industries">Industries</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact" class="nav-cta">Book an audit</a></li>
+    </ul>
+  </nav>
 
-<div class="page">
-
-<header class="nav" id="nav">
-  <div class="wrap">
-    <div class="bar">
-      <a class="brand" href="#top"><img src="img/logo.svg" alt="" width="29" height="29">BE&nbsp;<span class="grad">Mastery</span></a>
-      <nav class="nav-links" id="navLinks" aria-label="Main"></nav>
-      <div class="nav-actions">
-        <a class="btn btn-primary btn-sm" href="#download" data-ev="hero_cta_clicked" data-ev-source="nav">Download app</a>
-        <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
-        </button>
-      </div>
+  <div class="wrap hero-body">
+    <p class="kicker">AI automation · Agentic AI · Software · Apps</p>
+    <h1>Software and AI that take the busywork off your desk.</h1>
+    <p class="lede">Lomonec builds AI automations and AI agents for small service businesses, develops software, and makes its own apps. We start with the simple automations that pay off first: faster replies to leads, fewer no-shows, less copy-paste admin.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-light" href="#contact">Book the Quick Audit — $295</a>
+      <a class="btn btn-ghost" href="#apps">See our apps</a>
     </div>
   </div>
 </header>
-<div class="mobile-menu" id="mobileMenu" data-open="false"></div>
 
 <main id="main">
 
-<!-- ── HERO ─────────────────────────────────────────────────────────────── -->
-<section class="hero" id="hero">
-  <a id="top" tabindex="-1" aria-hidden="true"></a>
-  <div class="wrap hero-grid">
-    <div>
-      <span class="label" id="heroPill"><span class="dot"></span>AI + human speaking practice</span>
-      <h1>
-        <span class="line"><span>Speak English</span></span>
-        <span class="line"><span>like you belong</span></span>
-        <span class="line"><span class="grad">in the room.</span></span>
-      </h1>
-      <p class="lede">Practise with AI. Shadow real speakers. Practise with real people. Build the confidence for real conversations.</p>
-
-      <!-- Primary CTA is the download itself. The stores are rendered from
-           js/config.js, so an unpublished store shows "Coming soon" and is
-           not a link. -->
-      <p class="cta-kicker">Download BE Mastery</p>
-      <div class="stores" data-stores="hero" data-store-size="lg"></div>
-      <div class="hero-cta">
-        <a class="btn btn-ghost" href="#method" data-ev="hero_cta_clicked" data-ev-source="hero_secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3z"/></svg>
-          See how it works
-        </a>
-      </div>
-      <p class="hero-fine">Free on Android, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.</p>
-      <div class="hero-chips">
-        <span class="chip"><b>84</b> guided sessions</span>
-        <span class="chip"><b>12</b> weeks</span>
-        <span class="chip"><b>152</b> phrases</span>
-        <span class="chip"><b>25</b> min a day</span>
-      </div>
-    </div>
-
-    <!-- SpeakingInterface: a live session, not a static screenshot -->
-    <div class="stage" data-stage>
-      <div class="stage-inner">
-        <div class="stage-ring" aria-hidden="true"></div>
-        <div class="stage-ring r2" aria-hidden="true"></div>
-
-        <div class="float" style="left:-7%;top:4%" data-float data-depth="1.1" data-float-speed="8">
-          <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v11"/><path d="m8 14 3 3 5-6"/></svg></span>
-          <span class="fc"><span class="ft">Pronunciation</span><span class="fv"><span class="up">+12%</span> this week</span></span>
-        </div>
-
-        <div class="float" style="right:-9%;top:20%" data-float data-depth="0.7" data-float-speed="10">
-          <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17.5" cy="9.5" r="2.5"/><path d="M15 19a4.5 4.5 0 0 1 6.5-4"/></svg></span>
-          <span class="fc"><span class="ft">Practice Partner</span><span class="fv">Match found</span></span>
-        </div>
-
-        <div class="float" style="left:-9%;bottom:24%" data-float data-depth="1.4" data-float-speed="7">
-          <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/></svg></span>
-          <span class="fc"><span class="ft">AI feedback</span><span class="fv">Ready</span></span>
-        </div>
-
-        <div class="float" style="right:-6%;bottom:6%" data-float data-depth="0.9" data-float-speed="9">
-          <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20.5h16M6.5 20.5v-6M12 20.5V6M17.5 20.5v-9"/></svg></span>
-          <span class="fc"><span class="ft">Speaking streak</span><span class="fv">7 days</span></span>
-        </div>
-
-        <div class="device">
-          <img src="img/phone-session.webp" width="540" height="1200" alt="The BE Mastery app: today's session — the 25-minute practice timer, the phrases to say aloud and the recorder" fetchpriority="high">
-        </div>
-
-        <div class="pipeline" aria-hidden="true">
-          <span class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-          <span data-stage-step>Voice</span><span class="sep"></span>
-          <span data-stage-step>Transcript</span><span class="sep"></span>
-          <span data-stage-step>Analysis</span><span class="sep"></span>
-          <span data-stage-step>Feedback</span>
-        </div>
-      </div>
-    </div>
+<!-- What Lomonec does -->
+<section class="section wrap" id="services">
+  <h2 class="eyebrow">What we do</h2>
+  <p class="section-title">Four kinds of work, one aim: less manual effort.</p>
+  <div class="grid4">
+    <article class="card">
+      <h3>AI automation consulting</h3>
+      <p>We find the repetitive work in your day and automate it: missed-call follow-up, reminders, quote chasing, review requests.</p>
+    </article>
+    <article class="card">
+      <h3>Agentic AI</h3>
+      <p>AI agents that answer common questions, capture leads and hand the conversation to your staff with full context.</p>
+    </article>
+    <article class="card">
+      <h3>Software development</h3>
+      <p>Web apps, mobile apps and the back-end services behind them, built and maintained by the same team.</p>
+    </article>
+    <article class="card">
+      <h3>Our own apps</h3>
+      <p>We build and publish our own products. The first is BE Mastery, an English speaking practice app.</p>
+    </article>
   </div>
 </section>
 
-<!-- FeatureStream: everything inside, drifting past (paused for reduced motion) -->
-<div class="marquee" aria-label="What is inside BE Mastery">
-  <div class="mq-track"><span class="mq-i"><i aria-hidden="true"></i>Daily 25-minute sessions</span><span class="mq-i"><i aria-hidden="true"></i>AI speaking report</span><span class="mq-i"><i aria-hidden="true"></i>Shadow Studio</span><span class="mq-i"><i aria-hidden="true"></i>Translate &amp; IPA</span><span class="mq-i"><i aria-hidden="true"></i>Challenge ladder</span><span class="mq-i"><i aria-hidden="true"></i>Practice Partner</span><span class="mq-i"><i aria-hidden="true"></i>Live voice calls</span><span class="mq-i"><i aria-hidden="true"></i>14 Life Simulations</span><span class="mq-i"><i aria-hidden="true"></i>Phrase Lab</span><span class="mq-i"><i aria-hidden="true"></i>Executive Polish</span><span class="mq-i"><i aria-hidden="true"></i>Home-screen widgets</span><span class="mq-i"><i aria-hidden="true"></i>Welding English</span><span class="mq-i"><i aria-hidden="true"></i>10 trades</span><span class="mq-i"><i aria-hidden="true"></i>Sign in with Apple</span><span class="mq-i"><i aria-hidden="true"></i>Sign in with Google</span><span class="mq-i"><i aria-hidden="true"></i>15 languages</span><span class="mq-i"><i aria-hidden="true"></i>Daily 25-minute sessions</span><span class="mq-i"><i aria-hidden="true"></i>AI speaking report</span><span class="mq-i"><i aria-hidden="true"></i>Shadow Studio</span><span class="mq-i"><i aria-hidden="true"></i>Translate &amp; IPA</span><span class="mq-i"><i aria-hidden="true"></i>Challenge ladder</span><span class="mq-i"><i aria-hidden="true"></i>Practice Partner</span><span class="mq-i"><i aria-hidden="true"></i>Live voice calls</span><span class="mq-i"><i aria-hidden="true"></i>14 Life Simulations</span><span class="mq-i"><i aria-hidden="true"></i>Phrase Lab</span><span class="mq-i"><i aria-hidden="true"></i>Executive Polish</span><span class="mq-i"><i aria-hidden="true"></i>Home-screen widgets</span><span class="mq-i"><i aria-hidden="true"></i>Welding English</span><span class="mq-i"><i aria-hidden="true"></i>10 trades</span><span class="mq-i"><i aria-hidden="true"></i>Sign in with Apple</span><span class="mq-i"><i aria-hidden="true"></i>Sign in with Google</span><span class="mq-i"><i aria-hidden="true"></i>15 languages</span></div>
-</div>
-
-<!-- ScreenGallery: the app's own screens (the App Store set, sample learner "Alex") -->
-<section class="section screens-sec" id="screens" aria-label="Screens from the app">
+<!-- Apps -->
+<section class="section band" id="apps">
   <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="dot"></span>Inside BE Mastery</span>
-      <h2>The real app, <span class="grad">screen by screen</span>.</h2>
-    </div>
-  </div>
-  <div class="shots" data-shots><figure class="shot" data-reveal data-reveal-delay="0"><div class="shot-phone"><img src="img/screens/01-session.webp" width="506" height="1100" alt="BE Mastery: Today's session" loading="lazy"></div><figcaption><b>Today's session</b><span>Timer, phrases to say aloud, your recorder</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="60"><div class="shot-phone"><img src="img/screens/02-journey.webp" width="506" height="1100" alt="BE Mastery: The road map" loading="lazy"></div><figcaption><b>The road map</b><span>Twelve weeks, one beacon: you are here</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="120"><div class="shot-phone"><img src="img/screens/03-practice.webp" width="506" height="1100" alt="BE Mastery: Practice" loading="lazy"></div><figcaption><b>Practice</b><span>Every tool, the best one for today first</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="180"><div class="shot-phone"><img src="img/screens/04-phrases.webp" width="506" height="1100" alt="BE Mastery: Phrase Lab" loading="lazy"></div><figcaption><b>Phrase Lab</b><span>Say it your way, hear it the boardroom way</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="240"><div class="shot-phone"><img src="img/screens/05-progress.webp" width="506" height="1100" alt="BE Mastery: Progress" loading="lazy"></div><figcaption><b>Progress</b><span>Streak, calendar and every report kept</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="300"><div class="shot-phone"><img src="img/screens/06-trend.webp" width="506" height="1100" alt="BE Mastery: Your trend" loading="lazy"></div><figcaption><b>Your trend</b><span>Four skills measured on your own takes</span></figcaption></figure></div>
-</section>
-
-<!-- WhatsNew: dated, and only what is built -->
-<section class="section" id="new">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="dot"></span>What's new</span>
-      <h2>Always getting <span class="grad">better</span>.</h2>
-      <p class="lede" style="margin:16px auto 0">The latest additions to BE Mastery.</p>
-    </div>
-    <div class="new-grid"><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">Oct 2026</span><h3>Coming to iPhone</h3><p>The iPhone app is with Apple for review. One account will carry your progress on both phones.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">Oct 2026</span><h3>Sign in with Apple or Google</h3><p>One tap to back up your progress and carry it between iPhone and Android.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">Oct 2026</span><h3>Home-screen widgets</h3><p>Your streak, today's step and your Recommendations, without opening the app.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">Oct 2026</span><h3>Hear yourself back</h3><p>Every take plays back the moment you stop, and Phrase Lab reads your text aloud.</p></article><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">Sep 2026</span><h3>Welding English studio</h3><p>Ten trades, workplace simulations, interview coaches and real workshop lines to shadow.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">Sep 2026</span><h3>Translate and IPA</h3><p>See each Shadow line in your language and in phonetics, word by word.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">Sep 2026</span><h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">Sep 2026</span><h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p></article></div>
-  </div>
-</section>
-
-<!-- ── 01 THE PROBLEM ───────────────────────────────────────────────────── -->
-<section class="section problem" id="problem">
-  <div class="wrap grid2">
-    <div data-reveal>
-      <span class="label"><span class="n">01</span> The problem</span>
-      <blockquote>Knowing English isn't the same as speaking confidently.</blockquote>
-    </div>
-    <div class="stack" data-reveal data-reveal-delay="120">
-      <p class="lede">You read it fine. You follow the meeting. Then it's your turn, and the sentence you had ready arrives a beat too late — so you say the shorter, smaller version instead.</p>
-      <p class="lede">That gap isn't knowledge. It's rehearsal. It closes the same way it closes for musicians and athletes: a little, out loud, every day.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── 02 / 03 THE METHOD + THE SYSTEM ──────────────────────────────────── -->
-<section class="section" id="method">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">02</span> The method</span>
-      <h2>Twenty-five minutes. <span class="grad">Every day.</span></h2>
-      <p class="lede" style="margin:16px auto 0">One guided session a day for twelve weeks, in four short steps. You don't choose what to study. The road map already knows. You just show up and speak.</p>
-    </div>
-
-    <div class="loop" role="list">
-      <div class="node" role="listitem" data-reveal>
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <h3>Listen</h3><p>Today's phrases, or a real speaker, and the situation they belong to.</p>
-      </div>
-      <div class="node" role="listitem" data-reveal data-reveal-delay="90">
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></div>
-        <h3>Practise aloud</h3><p>Shadow it until the rhythm stops feeling foreign.</p>
-      </div>
-      <div class="node" role="listitem" data-reveal data-reveal-delay="180">
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></div>
-        <h3>Record</h3><p>Say it in your own voice. This is the part that counts.</p>
-      </div>
-      <div class="node" role="listitem" data-reveal data-reveal-delay="270">
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="m5 17 .9 2.1L8 20l-2.1.9L5 23l-.9-2.1L2 20l2.1-.9z"/></svg></div>
-        <h3>Read the report</h3><p>How you came across, what to fix, your sentences rebuilt.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ── 03 INSIDE THE APP ─────────────────────────────────────────────────────
-     A teaser grid, the way the big speaking apps do it: one picture, one line,
-     no mechanics. The pictures are the app's own Explore art (illustrations;
-     rp-photos are AI-generated, see rp-photos/SOURCES.md in the app repo).
-     ─────────────────────────────────────────────────────────────────────── -->
-<section class="section" id="inside">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">03</span> Inside the app</span>
-      <h2>Everything you need to <span class="grad">speak, not just study</span>.</h2>
-      <p class="lede" style="margin:16px auto 0">Open the app and your page is already waiting: today's session first, then the practice that fits it.</p>
-    </div>
-    <div class="inside">
-      <article class="in-card glass" data-reveal><img src="img/inside/simulation.webp" alt="" width="512" height="512" loading="lazy"><div><h3>Life Simulations</h3><p>Practise a real conversation — the interview, the stand-up, the salary talk — before it happens.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="60"><img src="img/inside/partner.webp" alt="" width="386" height="434" loading="lazy"><div><h3>Practice Partner</h3><p>Speak with another learner who is practising right now, or call them live.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="120"><img src="img/inside/phrases.webp" alt="" width="373" height="434" loading="lazy"><div><h3>Phrase Lab</h3><p>Say it your way, hear it the boardroom way.</p></div></article>
-      <article class="in-card glass" data-reveal><img src="img/inside/grammar.webp" alt="" width="398" height="320" loading="lazy"><div><h3>Grammar exercises</h3><p>Short, interactive drills on the grammar you actually use when you speak.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="60"><img src="img/inside/vocab.webp" alt="" width="374" height="434" loading="lazy"><div><h3>Your words</h3><p>The words you stumbled on come back until they stop being a stumble.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="120"><img src="img/inside/roadmap.webp" alt="" width="375" height="434" loading="lazy"><div><h3>Road map</h3><p>Twelve weeks, one day at a time. You always know what comes next.</p></div></article>
-    </div>
-    <p class="mini-cta center" data-reveal><span>There is more inside than we show here.</span>
-      <a href="#download" data-ev="hero_cta_clicked" data-ev-source="inside">Open it in the app
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+    <h2 class="eyebrow">Our apps</h2>
+    <p class="section-title">Apps made by Lomonec.</p>
+    <div class="apps">
+      <a class="app-card" href="/bemastery/">
+        <img class="app-shot" src="bemastery/img/phone-home.webp" alt="The BE Mastery home screen on a phone" width="540" height="1200" loading="lazy">
+        <div class="app-text">
+          <p class="app-tag">English speaking practice</p>
+          <h3>BE Mastery</h3>
+          <p>Practise speaking English for 25 minutes a day. A 12-week guided plan, shadowing real speakers, an AI coach and practice with real learners. Two programmes: General English and Welding English.</p>
+          <p class="app-meta">On Google Play now. With Apple for review.</p>
+          <span class="app-link">Explore BE Mastery →</span>
+        </div>
       </a>
-    </p>
-  </div>
-</section>
-
-<!-- ── 04 SHADOW STUDIO ─────────────────────────────────────────────────────
-     Drawn from the live app (be12-v479): the video library, the Watch page,
-     the Shadow paragraph card (word chips, Translate, Pronunciation), the
-     Challenge ladder and the post-shadow coach report. Recreated in HTML on
-     purpose: the app's own screens show YouTube artwork, which is someone
-     else's likeness and copyright. The sample line is ours.
-     ─────────────────────────────────────────────────────────────────────── -->
-<section class="section" id="shadow">
-  <div class="wrap split">
-    <div data-reveal>
-      <span class="label"><span class="n">04</span> Shadow Studio</span>
-      <h2>Borrow the rhythm of someone who <span class="grad">already sounds right</span>.</h2>
-      <p class="lede" style="margin-top:16px">Pick a real talk, interview or lesson. Watch it with the words lighting up, shadow it one paragraph at a time, then say it without looking. When you do, it's yours.</p>
-      <div class="steps-inline" role="tablist" aria-label="Shadow Studio pages" data-studio-tabs>
-        <button type="button" role="tab" data-studio-tab="watch" aria-selected="true">Watch</button>
-        <button type="button" role="tab" data-studio-tab="shadow" aria-selected="false">Shadow</button>
-        <button type="button" role="tab" data-studio-tab="challenge" aria-selected="false">Challenge</button>
-      </div>
-      <ul class="bullets">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Watch</b> — the video stays on top and the transcript runs underneath in short paragraphs, with the word being said lit up.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Shadow</b> — the clip loops on one paragraph. Tap a word to hear it, see the line in your own language and in IPA, then record.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Challenge</b> — the same paragraph with less help each time, until you can say it unseen and then in your own words.</span></li>
-      </ul>
-      <p class="mini-cta"><span>Shadow Studio lives in the app.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="shadow">Get the app
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </p>
-    </div>
-
-    <!-- Studio: one phone-shaped frame, three pages. The tabs on the left
-         switch it; it also turns the pages itself while on screen (app.js). -->
-    <div class="art" data-reveal data-reveal-delay="120">
-      <div class="studio" data-studio data-page="watch">
-        <div class="st-top">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
-          <span class="st-dot" aria-hidden="true"></span>
-          <span class="st-title">Give a clear update in the stand-up</span>
-          <svg class="st-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+      <div class="app-card app-soon" aria-label="More apps coming">
+        <div class="app-text">
+          <p class="app-tag">In development</p>
+          <h3>More apps on the way</h3>
+          <p>New Lomonec apps will be listed here as they are released.</p>
         </div>
-        <div class="videoish st-video" aria-hidden="true">
-          <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-          <span class="bar"><i></i></span>
-        </div>
-
-        <!-- WATCH -->
-        <div class="st-pane" data-pane="watch" role="tabpanel" aria-label="Watch">
-          <div class="st-para on">
-            <p class="transcript"><w>I</w> <w>want</w> <w>to</w> <w>make</w> <w>sure</w> <w>we</w> <w>are</w> <w>aligned</w> <w>before</w> <w>we</w> <w>commit</w> <w>to</w> <w>the</w> <w>deadline.</w></p>
-          </div>
-          <p class="st-dim">So here is where we are. The design is finished, and testing starts on Monday.</p>
-          <p class="st-dim">The one risk is the supplier, and I will know more by Thursday.</p>
-        </div>
-
-        <!-- SHADOW -->
-        <div class="st-pane" data-pane="shadow" role="tabpanel" aria-label="Shadow" hidden>
-          <div class="st-head"><span>Original transcript</span><span class="st-nav"><i>«</i>5 / 64<i>»</i></span></div>
-          <div class="st-card">
-            <p class="chips"><span>I</span><span>want</span><span>to</span><span>make</span><span>sure</span><span>we</span><span>are</span><span class="hot">aligned</span><span>before</span><span>we</span><span>commit</span><span>to</span><span>the</span><span>deadline.</span></p>
-            <p class="st-tr" lang="fr">Je veux m'assurer que nous sommes d'accord avant de nous engager sur l'échéance.</p>
-            <p class="st-ipa">/aɪ wɑnt tə meɪk ʃʊr wi ɑr əˈlaɪnd bɪˈfɔr wi kəˈmɪt tə ðə ˈdɛdˌlaɪn/</p>
-            <div class="st-sw">
-              <span class="sw on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>Translate</span>
-              <span class="sw on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>Pronunciation</span>
-              <span class="sw ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></span>
-            </div>
-          </div>
-          <p class="st-hint">The clip loops on this paragraph. Tap a word to hear it, translate it, then record.</p>
-        </div>
-
-        <!-- CHALLENGE -->
-        <div class="st-pane" data-pane="challenge" role="tabpanel" aria-label="Challenge" hidden>
-          <div class="st-eyebrow">Did you hear it?</div>
-          <ol class="rungs" aria-label="Challenge steps">
-            <li class="on">Listen</li><li>Together</li><li>From memory</li><li>Unseen</li><li>In your words</li>
-          </ol>
-          <div class="st-card st-blanks">I want to make sure we are <u>&nbsp;</u> before we <u>&nbsp;</u> to the deadline.</div>
-          <div class="st-picks"><span>aligned</span><span>agreed</span><span>commit</span><span>common</span></div>
-          <div class="st-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Check</div>
-        </div>
-
-        <div class="st-dock" aria-hidden="true">
-          <span class="dk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M8 5v14l11-7z"/></svg></span>
-          <span class="dk main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3"/></svg>Shadow</span>
-          <span class="dk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg></span>
-          <span class="dk ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></svg></span>
-          <span class="dk txt">1×</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Around the studio: where clips come from, how the Challenge climbs,
-       and what comes back after a take. -->
-  <div class="wrap">
-    <div class="shadow-more">
-      <article class="glass sm-card" data-reveal>
-        <div class="sm-k">The library</div>
-        <h3>Hundreds of real videos, sorted for work.</h3>
-        <div class="lib">
-          <div class="lib-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>What do you want to practise?</div>
-          <div class="lib-chips"><span class="on">For you</span><span>Meetings</span><span>Presentations</span><span>Interviews</span><span>Everyday</span></div>
-          <div class="lib-row"><span class="thumb" aria-hidden="true"></span><span><b>This week · Week 1</b><i>Fits your plan</i></span></div>
-          <div class="lib-row"><span class="thumb t2" aria-hidden="true"></span><span><b>Meetings · 11 min</b><i class="tx">Transcript</i></span></div>
-        </div>
-        <p>Search by topic, or take the pick for this week of your plan. Any video link works too.</p>
-      </article>
-
-      <article class="glass sm-card" data-reveal data-reveal-delay="90">
-        <div class="sm-k">The Challenge</div>
-        <h3>Less help every round. The app decides when.</h3>
-        <ol class="ladder">
-          <li><b>Listen</b></li>
-          <li><b>Together</b></li>
-          <li><b>From memory</b></li>
-          <li><b>Unseen</b></li>
-          <li><b>In your words</b></li>
-        </ol>
-        <p>Five rounds, each with less help, until the sentence is yours.</p>
-      </article>
-
-      <article class="glass sm-card" data-reveal data-reveal-delay="180">
-        <div class="sm-k">After every take</div>
-        <h3>One screen. One word to fix.</h3>
-        <div class="rep">
-          <div class="rep-top"><span class="rep-ok">Shadow complete</span><span class="rep-v">A solid start — let's fix one word.</span></div>
-          <div class="rep-sum"><span><i>Words clear</i><b>12 / 14</b></span><span><i>Pace</i><b>Natural</b></span></div>
-          <div class="rep-focus">
-            <i>Today's focus</i>
-            <b>aligned</b><em>/əˈlaɪnd/</em>
-            <div class="rep-steps"><span>Listen</span><span>Say it</span><span>Compare</span></div>
-          </div>
-        </div>
-        <p>Every report is kept, with the words that tripped you, so you pick up where you left off.</p>
-      </article>
-    </div>
-    <p class="hero-fine sm-foot" data-reveal>The library, Watch, Shadow and Challenge are part of General English. Translation and pronunciation are written by AI and need a connection. The report above is an example; yours is built from your own recording.</p>
-  </div>
-</section>
-
-<!-- ── 05 AI PRACTICE + THE SPEAKING REPORT ─────────────────────────────────
-     The report is the app's one speaking report (Executive Polish's), which
-     since be12-v457–v468 also comes back on every "Record yourself" card and
-     at the end of every Life Simulation. Tabs and headings are the app's own.
-     ─────────────────────────────────────────────────────────────────────── -->
-<section class="section" id="coach">
-  <div class="wrap split rev">
-    <div class="art" data-reveal>
-      <div class="glass panel report">
-        <div class="panel-top"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">Your speaking report</span></div>
-        <div class="rp-tabs" aria-hidden="true"><span>Listen</span><span class="on">Fix</span><span>Build</span><span>Upgrade</span><span>Say it again</span></div>
-        <p class="rp-meta">How you came across · 131 words in 62 seconds</p>
-        <div class="coach-line">
-          <div class="who">You said</div>
-          I am responsible <s>of</s> managing the team, and <s>we are finishing</s> the tests since Monday.
-        </div>
-        <div class="coach-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-        <div class="coach-line">
-          <div class="who"><span class="ai">AI</span> · what you should have said</div>
-          I am responsible <b>for</b> managing the team, and <b>we have been running</b> the tests <b>since</b> Monday.
-        </div>
-        <p class="rp-rule"><b>responsible for</b> + -ing · <b>since</b> + a start point takes <i>have been</i> + -ing</p>
-        <div class="rp-up"><span class="k">Upgrade</span><b>get it over the line</b><span class="d">to finish something that was hard to complete</span></div>
-        <div class="coach-say">
-          <span class="mic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
-          <span><b>Say it better</b> — hear the whole minute said the way a professional would, as often as you want.</span>
-        </div>
-      </div>
-    </div>
-    <div data-reveal data-reveal-delay="120">
-      <span class="label"><span class="n">05</span> AI practice</span>
-      <h2>Practise before the <span class="grad">real conversation</span>.</h2>
-      <p class="lede" style="margin-top:16px">Talk for a minute about your project, your role or the update you owe someone. The report tells you how you came across, fixes what you got wrong, rebuilds your sentences and gives you better words. Then the coach reads it to you.</p>
-      <ul class="bullets">
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>14 Life Simulations:</b> a job interview, a salary negotiation, the daily stand-up, a hotel check-in. The character answers you out loud.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>In every daily session:</b> record yourself and the report comes back, judged against that day's task.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Anything written by AI is labelled as AI. It coaches you. It never pretends to be a person.</span></li>
-      </ul>
-      <p class="mini-cta"><span>Rehearse it on your phone, out loud.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="coach">Get the app
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- ── 06 PRACTICE PARTNER ──────────────────────────────────────────────── -->
-<section class="section" id="partner">
-  <div class="wrap split">
-    <div data-reveal>
-      <span class="label"><span class="n">06</span> Practice Partner</span>
-      <h2>AI can help you practise. <span class="grad">People help you use it.</span></h2>
-      <p class="lede" style="margin-top:16px">See who else is practising right now and work through today's speaking task together — in short voice turns, or on a live call.</p>
-      <ul class="bullets">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Practise live:</b> a real-time voice call with the person you are practising with. Nothing is recorded.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Nobody there yet?</b> The AI coach is always one tap away, clearly marked as AI.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>First names only. No photos, no profiles, no feed. Leave or block at any time.</span></li>
-      </ul>
-      <p class="hero-fine" style="margin-top:20px">Practice Partner is part of General English and is for adults (18+).</p>
-      <p class="mini-cta"><span>Practice Partner is in the app.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="partner">Get the app
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </p>
-    </div>
-
-    <div class="art" data-reveal data-reveal-delay="120">
-      <div class="netflow">
-        <span class="nnode"><span class="av">You</span>Today's speaking task</span>
-        <span class="netlink" aria-hidden="true"></span>
-        <span class="nnode core">Who is practising now</span>
-        <span class="netlink" aria-hidden="true"></span>
-        <p class="netcap">Pick someone, or be picked</p>
-        <div class="netfan">
-          <span class="nnode"><span class="av">A</span>Amina<span class="tagline">B1 · evenings</span></span>
-          <span class="nnode"><span class="av">J</span>Jonas<span class="tagline">B2 · mornings</span></span>
-          <span class="nnode"><span class="av">P</span>Priya<span class="tagline">B1 · weekends</span></span>
-        </div>
-        <span class="netlink" aria-hidden="true"></span>
-        <div class="netpair">
-          <span class="nnode">Take turns</span>
-          <span class="nnode live"><span class="ldot" aria-hidden="true"></span>Practise live</span>
-        </div>
-        <span class="netlink" aria-hidden="true"></span>
-        <span class="nnode out">Feedback → practise again</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── PROGRESS ─────────────────────────────────────────────────────────── -->
-<section class="section" id="progress">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">07</span> Progress</span>
-      <h2>See yourself <span class="grad">improve</span>.</h2>
-      <p class="lede" style="margin:16px auto 0">Not a percentage of a course. The same four things measured on the takes you actually recorded, round after round, so improvement is something you can point at.</p>
-    </div>
-
-    <div class="rounds">
-      <div class="glass chartcard" data-reveal>
-        <div class="panel-top"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">Speaking report</span></div>
-        <div class="roundtabs" id="roundTabs" aria-hidden="true">
-          <span>Round 1</span><span>Round 2</span><span>Round 3</span><span>Round 4</span>
-        </div>
-        <div class="chart" id="chart">
-          <div class="track"><span class="name">Pronunciation</span><span class="rail"><span class="fill" data-metric="p"></span></span><span class="num" data-num="p">0</span></div>
-          <div class="track"><span class="name">Vocabulary</span><span class="rail"><span class="fill" data-metric="v"></span></span><span class="num" data-num="v">0</span></div>
-          <div class="track"><span class="name">Structure</span><span class="rail"><span class="fill" data-metric="s"></span></span><span class="num" data-num="s">0</span></div>
-          <div class="track"><span class="name">Fluency</span><span class="rail"><span class="fill" data-metric="f"></span></span><span class="num" data-num="f">0</span></div>
-        </div>
-        <p class="chartfoot">An illustration of the report shape — your own numbers come from your own recordings.</p>
-      </div>
-
-      <div data-reveal data-reveal-delay="120">
-        <ul class="bullets">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>A streak and a lit-up calendar for the habit itself — six days a week is the target, not seven.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Every report is kept: your Shadow history, every Life Simulation attempt, and the words that keep coming back across sessions.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Words you stumbled on return on a spacing schedule until they stop being a stumble.</span></li>
-        </ul>
-        <!-- The certificate, kept small on purpose: nobody has earned one yet,
-             and it is a completion certificate, not a proof of level. -->
-        <div class="cert-peek">
-          <img src="img/certificate-example.jpg" width="960" height="679" loading="lazy"
-               alt="Example certificate of completion for a sample learner, Alex Johnson, Business English Mastery">
-          <div>
-            <b>Your certificate</b>
-            <p>Finish all 84 sessions and it unlocks with your name on it. Download it as a PDF or share it.</p>
-            <small>It shows you completed the programme. It is not an English-level test. Example shown.</small>
-          </div>
-        </div>
-        <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:28px">
-          <div class="stat glass"><div class="n" data-n="a">84</div><div class="l" data-l="a">Guided sessions</div></div>
-          <div class="stat glass"><div class="n" data-n="b">152</div><div class="l" data-l="b">Phrases</div></div>
-          <div class="stat glass"><div class="n" data-n="c">15</div><div class="l" data-l="c">Languages</div></div>
-        </div>
-        <p class="hero-fine" style="margin-top:18px">Works offline. Recordings are saved on your device — we never keep a copy.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ── HOME-SCREEN WIDGETS ──────────────────────────────────────────────────
-     Built 5–6 Oct 2026 on both platforms: the road-map widgets (small, medium,
-     large; lock screen on iPhone) and the Recommendations widget. -->
-<section class="section" id="widgets">
-  <div class="wrap split rev">
-    <div class="art" data-reveal>
-      <div class="wg-collage">
-        <img class="wgi wgi-recs" src="img/widgets/w-recs-large.webp" width="760" height="797" alt="The Recommendations widget: four picks for today, each with a picture, what it is and why it was chosen" loading="lazy">
-        <img class="wgi wgi-med" src="img/widgets/w-medium.webp" width="760" height="357" alt="The medium road-map widget: a 12-day streak ring, today's step and the button to continue Week 3" loading="lazy">
-        <img class="wgi wgi-small" src="img/widgets/w-small.webp" width="760" height="760" alt="The small widget: the streak and today's step" loading="lazy">
-        <img class="wgi wgi-lock" src="img/widgets/w-locked.webp" width="760" height="357" alt="A locked widget in grey: Go Premium to unlock this widget" loading="lazy">
-      </div>
-    </div>
-    <div data-reveal data-reveal-delay="120">
-      <span class="label"><span class="n">08</span> On your home screen</span>
-      <h2>Your next step, <span class="grad">before you even open the app</span>.</h2>
-      <p class="lede" style="margin-top:16px">Widgets for iPhone and Android show your streak, today's step and your place on the road map. One tap lands on the exact lesson.</p>
-      <ul class="bullets">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Small, medium and large,</b> plus the lock screen on iPhone. A General English and a Welding English widget, side by side if you study both.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Recommendations:</b> what the app picked for you today — videos, challenges, practice — with pictures, one tap from your home screen.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>The flame and the message follow the clock: done, waiting, or keep your streak alive tonight.</span></li>
-      </ul>
-      <p class="hero-fine" style="margin-top:18px">Sign in to use the widgets. The larger widgets and Recommendations are part of Premium.</p>
-    </div>
-  </div>
-  <div class="wrap">
-    <h3 class="shots-h" data-reveal>On your home screen</h3>
-    <div class="shots shots-home" data-shots><figure class="shot" data-reveal data-reveal-delay="0"><div class="shot-phone"><img src="img/widgets/home-ge.webp" width="660" height="1434" alt="A home screen with the small and the large BE Mastery widgets: a 12-day streak, today's step and the road map" loading="lazy"></div><figcaption><b>Small and large</b><span>Streak, today's step, the road map</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="80"><div class="shot-phone"><img src="img/widgets/home-recs.webp" width="660" height="1434" alt="A home screen with the Recommendations widget and the medium widget" loading="lazy"></div><figcaption><b>Recommended for you</b><span>Today's picks, one tap away</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="160"><div class="shot-phone"><img src="img/widgets/home-both.webp" width="660" height="1434" alt="A home screen with a Welding English widget, a General English widget and a locked Recommendations widget" loading="lazy"></div><figcaption><b>Both programmes</b><span>Welding and General English side by side</span></figcaption></figure></div>
-  </div>
-</section>
-
-<!-- ── 08 WHO IT'S FOR ───────────────────────────────────────────────── -->
-<section class="section" id="who">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">09</span> Who it's for</span>
-      <h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>
-    </div>
-    <div class="who">
-      <div class="who-card glass" data-reveal><b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p></div>
-      <div class="who-card glass" data-reveal data-reveal-delay="60"><b>Before an interview</b><p>Answer the questions out loud, hear how you came across, and fix it before the day.</p></div>
-      <div class="who-card glass" data-reveal data-reveal-delay="120"><b>Moving abroad for work</b><p>Settle in faster: small talk, handovers, calls and the paperwork conversations.</p></div>
-      <div class="who-card glass" data-reveal data-reveal-delay="180"><b>Skilled trades</b><p>Welders get their own programme: the workshop, safety, quality checks and the interview.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ── 09 TWO PATHS ─────────────────────────────────────────────────────── -->
-<section class="section" id="paths">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">10</span> Two programmes</span>
-      <h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>
-      <p class="lede" style="margin:16px auto 0">Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.</p>
-    </div>
-    <div class="paths">
-      <div class="path general" data-reveal>
-        <span class="tag">General English</span>
-        <h3>For meetings, interviews and everyday work</h3>
-        <p class="muted">The full speaking system, from foundations to executive communication.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Daily speaking practice and a 12-week road map</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Shadow Studio: hundreds of real videos to watch, shadow and master</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Practice Partner: voice turns or live calls with real people</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>The speaking report, Phrase Lab, grammar exercises and 14 Life Simulations</span></li>
-        </ul>
-        <p class="foot">Practice Partner and human practice belong to this programme only.</p>
-      </div>
-
-      <div class="path trade" data-reveal data-reveal-delay="120">
-        <span class="tag">Welding professional English</span>
-        <h3>For the workshop, the site and the interview</h3>
-        <p class="muted">A technical programme built around the conversations a welder actually has.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Technical vocabulary and workshop communication</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Safety briefings, quality checks and handovers</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Workshop interviews, with a report from each interviewer</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Professional interview coaches, judged against the trade's own standards</span></li>
-        </ul>
-        <div class="flow" aria-label="Workshop communication chain">
-          <span>Supervisor</span><i>→</i><span>Worker</span><i>→</i><span>Safety</span><i>→</i><span>QA</span><i>→</i><span>Interview</span>
-        </div>
-        <p class="foot">Starts with fifteen days of Foundations in your own language if you need them.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ── WELDING PROFESSIONAL ENGLISH ─────────────────────────────────────────
-     The second programme, told on its own: the trades it serves, the workshop
-     lines, the workplace video library and the interview coaches. -->
-<section class="section" id="welding">
-  <div class="wrap split">
-    <div data-reveal>
-      <span class="label"><span class="n">11</span> Welding English</span>
-      <h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>
-      <p class="lede" style="margin-top:16px">A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.</p>
-      <ul class="bullets">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Practice text shadowing:</b> real lines from your workshops. Hear each one, read it, say it back — the way you will answer on the job.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Workplace simulations and interview coaches:</b> the toolbox talk, the permit, the handover and the hiring interview, each with a report against the trade's own standards.</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.</span></li>
-      </ul>
-      <p class="mini-cta"><span>Choose Welding English when you open the app.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="welding">Get the app
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </p>
-    </div>
-    <div class="art" data-reveal data-reveal-delay="120">
-      <div class="glass weld-card">
-        <div class="wd-k">Ten trades, one programme</div>
-        <div class="wd-chips"><span class="wd-chip" style="--i:0">Welder</span><span class="wd-chip" style="--i:1">Pipefitter</span><span class="wd-chip" style="--i:2">Boilermaker</span><span class="wd-chip" style="--i:3">Millwright</span><span class="wd-chip" style="--i:4">Refinery Operator</span><span class="wd-chip" style="--i:5">Instrumentation Technician</span><span class="wd-chip" style="--i:6">Industrial Electrician</span><span class="wd-chip" style="--i:7">HSE Officer</span><span class="wd-chip" style="--i:8">NDT Technician</span><span class="wd-chip" style="--i:9">Process Engineer</span></div>
-        <img class="wgi wd-widget" src="img/widgets/w-welding.webp" width="760" height="357" alt="The Welding English widget: a 5-day streak and today's step, Report a weld defect clearly" loading="lazy">
-        <div class="wd-line">
-          <span class="wd-who">Supervisor</span>
-          <p>“Check the root pass before you start the fill. Tell me if you see any porosity.”</p>
-          <span class="wd-who you">You</span>
-          <p class="wd-ans">“Understood. I'll check the root pass and report any porosity before I start the fill.”</p>
-          <div class="wd-bar" aria-hidden="true"><i></i></div>
-        </div>
-        <div class="flow" aria-label="Workshop communication chain">
-          <span>Supervisor</span><i>→</i><span>Worker</span><i>→</i><span>Safety</span><i>→</i><span>QA</span><i>→</i><span>Interview</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="wrap">
-    <div class="wd-facts" data-reveal>
-      <div><b>12</b><span>stages, from the first day in the workshop to the interview</span></div>
-      <div><b>84</b><span>sessions of 25 minutes</span></div>
-      <div><b>10</b><span>trades, each with its own workshop lines</span></div>
-      <div><b>15</b><span>days of Foundations in your language</span></div>
-    </div>
-    <h3 class="shots-h" data-reveal>Built for the workshop</h3>
-    <div class="inside inside-weld">
-      <article class="in-card glass" data-reveal><img src="img/inside/welding-convo.webp" alt="" width="640" height="400" loading="lazy"><div><h3>Workplace simulations</h3><p>Talk it through before the shift — the handover, the permit, the safety stop, the first day in a new workshop.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="60"><img src="img/inside/welding-vocab.webp" alt="" width="640" height="401" loading="lazy"><div><h3>Trade vocabulary</h3><p>Torch, arc, root pass, weld bead: the words of your trade, heard and said in real sentences.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="120"><img src="img/inside/welding-grammar.webp" alt="" width="640" height="400" loading="lazy"><div><h3>Grammar for the job</h3><p>Short drills built from workshop sentences — the grammar you need to report, ask and confirm.</p></div></article>
-      <article class="in-card glass" data-reveal><img src="img/inside/welding-phrases.webp" alt="" width="640" height="401" loading="lazy"><div><h3>Your words</h3><p>Every word you trip on comes back with its sound and meaning until it sticks.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="60"><img src="img/inside/welding-roadmap.webp" alt="" width="640" height="400" loading="lazy"><div><h3>Road map</h3><p>Twelve stages, from your first day in the workshop to the hiring interview. You always know the next step.</p></div></article>
-      <article class="in-card glass" data-reveal data-reveal-delay="120"><img src="img/inside/welding-progress.webp" alt="" width="640" height="400" loading="lazy"><div><h3>Career readiness</h3><p>See how completely you explain your work in English, measured against your trade's expectations.</p></div></article>
-    </div>
-    <h3 class="shots-h" data-reveal>Inside Welding English</h3>
-  </div>
-  <div class="shots shots-weld" data-shots><figure class="shot" data-reveal data-reveal-delay="0"><div class="shot-phone"><img src="img/welding/01-roadmap.webp" width="660" height="1434" alt="Welding English: the 12-stage road map, Stage 1 Entering the Workshop" loading="lazy"></div><figcaption><b>The road map</b><span>Twelve stages, workshop to interview</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="60"><div class="shot-phone"><img src="img/welding/02-practice.webp" width="660" height="1434" alt="Welding English: Practice, with the best tool for today's step" loading="lazy"></div><figcaption><b>Practice</b><span>The best tool for today's step, first</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="120"><div class="shot-phone"><img src="img/welding/03-lines.webp" width="660" height="1434" alt="Welding English: workplace lines to shadow, spoken by the recruiter and the supervisor" loading="lazy"></div><figcaption><b>Workplace lines</b><span>Hear the line, say it back, get a report</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="180"><div class="shot-phone"><img src="img/welding/04-simulation.webp" width="660" height="1434" alt="Welding English: workplace simulations, from the first day to the shift handover" loading="lazy"></div><figcaption><b>Workplace simulations</b><span>First day, handover, equipment, safety</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="240"><div class="shot-phone"><img src="img/welding/05-career.webp" width="660" height="1434" alt="Welding English: career destination, readiness and the interview coaches" loading="lazy"></div><figcaption><b>Career and interviews</b><span>Your destination, readiness and coaches</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="300"><div class="shot-phone"><img src="img/welding/06-progress.webp" width="660" height="1434" alt="Welding English: progress for the welding programme only" loading="lazy"></div><figcaption><b>Your own progress</b><span>Kept apart from General English</span></figcaption></figure></div>
-</section>
-
-<!-- ── 10 PRICING ───────────────────────────────────────────────────────
-     HONEST BY CONSTRUCTION. There is no billing in this product: no Play
-     Billing, no Stripe, no RevenueCat, and the app's own Premium row renders
-     a "coming soon" chip. So this section prints no price. The moment a real
-     SKU exists, put its real figures here and nowhere else.
-     ─────────────────────────────────────────────────────────────────────── -->
-<section class="section" id="pricing">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">12</span> Pricing</span>
-      <h2>Free <span class="grad">to start</span>.</h2>
-      <p class="lede" style="margin:16px auto 0">The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.</p>
-    </div>
-
-    <div class="plans">
-      <div class="plan glass now" data-reveal>
-        <span class="tag">Available now</span>
-        <div class="price"><b>Free</b></div>
-        <p class="muted">The whole programme, on iPhone and Android.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>84 guided 25-minute sessions across 12 weeks</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Shadow Studio, the speaking report and Executive Polish</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Practice Partner with live calls, on General English (18+)</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Guidance in 15 languages, and it works offline</span></li>
-        </ul>
-        <a class="btn btn-primary" href="#download" data-ev="hero_cta_clicked" data-ev-source="pricing">
-          Get the app
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </div>
-
-      <div class="plan glass later" data-reveal data-reveal-delay="120">
-        <span class="tag soon">In preparation</span>
-        <div class="price"><b>Premium</b></div>
-        <p class="muted">One subscription for both programmes, for learners who practise every day. It is not on sale yet — when it is, the price will be shown here and in the store.</p>
-        <ul class="dim">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><span>Many more AI speaking reports and coach replies every day</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><span>Your own YouTube videos, transcribed for shadowing</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><span>30- and 90-day progress, and recommendations picked for you</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><span>The larger home-screen widgets and the Recommendations widget</span></li>
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── 11 FAQ ─────────────────────────────────────────────────────────── -->
-<section class="section" id="faq">
-  <div class="wrap">
-    <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">13</span> Questions</span>
-      <h2>Before you <span class="grad">download</span>.</h2>
-    </div>
-    <div class="faq" data-reveal>
-      <details class="faq-q glass"><summary>Is BE Mastery free?<span class="faq-chev" aria-hidden="true"></span></summary><p>Yes. The full twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today, with no card needed. A Premium plan is on its way; its price will be shown before anything is charged.</p></details>
-      <details class="faq-q glass"><summary>Do I need an account?<span class="faq-chev" aria-hidden="true"></span></summary><p>No. You can start straight away. Sign in with Apple, Google or email when you want your progress backed up — then it follows you between your iPhone and your Android phone.</p></details>
-      <details class="faq-q glass"><summary>What level do I need?<span class="faq-chev" aria-hidden="true"></span></summary><p>If you can read English but freeze when you speak, you are the learner it was built for. A short check at the start places you, and a gentler Foundations stage is there if you need it.</p></details>
-      <details class="faq-q glass"><summary>Can I use it in my own language?<span class="faq-chev" aria-hidden="true"></span></summary><p>The guidance, menus and help are available in 15 languages, including French, Spanish, Portuguese and Arabic. The practice itself is in English.</p></details>
-      <details class="faq-q glass"><summary>Is it on iPhone and Android?<span class="faq-chev" aria-hidden="true"></span></summary><p>Yes. BE Mastery is on Google Play now, and the iPhone app is with Apple for review. Sign in with the same account on both and your progress, words and reports come with you.</p></details>
-      <details class="faq-q glass"><summary>Who hears my recordings?<span class="faq-chev" aria-hidden="true"></span></summary><p>Your recordings are saved on your own device. To score a take, it is sent securely to our AI provider and not kept by us. Practice Partner live calls are never recorded.</p></details>
-      <details class="faq-q glass"><summary>Is Practice Partner safe?<span class="faq-chev" aria-hidden="true"></span></summary><p>It is for adults (18+), shows first names only, and has no photos or profiles. You can leave, block or report at any time.</p></details>
-      <details class="faq-q glass"><summary>Is there a programme for my trade?<span class="faq-chev" aria-hidden="true"></span></summary><p>Yes, for welding and the trades around it: welders, pipefitters, boilermakers, millwrights, refinery operators, instrumentation technicians, industrial electricians, HSE officers, NDT technicians and process engineers. Choose Welding English when you open the app.</p></details>
-      <details class="faq-q glass"><summary>Is the certificate an English test?<span class="faq-chev" aria-hidden="true"></span></summary><p>No. It shows you completed the programme, with your name on it. It is not a level test.</p></details>
-    </div>
-  </div>
-</section>
-
-<!-- ── 12 DOWNLOAD ──────────────────────────────────────────────────────── -->
-<section class="section download" id="download">
-  <div class="wrap">
-    <div class="cta-panel" data-reveal>
-      <span class="label"><span class="n">14</span> Get the app</span>
-      <h2>Your speaking practice <span class="grad">goes with you</span>.</h2>
-      <p class="lede" style="margin-left:auto;margin-right:auto">Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.</p>
-
-      <div class="stores center" data-stores="download" data-store-size="lg"></div>
-
-      <p class="store-note" data-store-note hidden></p>
-
-      <ul class="dl-facts">
-        <li><b>iPhone &amp; Android</b><span>One account, both phones</span></li>
-        <li><b>Free</b><span>No card, no trial timer</span></li>
-        <li><b>Offline</b><span>Practise with no signal</span></li>
-        <li><b>15 languages</b><span>Guidance in your own</span></li>
+<!-- AI automation -->
+<section class="section wrap" id="automation">
+  <h2 class="eyebrow">AI automation for service businesses</h2>
+  <p class="section-title">Stop losing leads and wasting staff time on repetitive admin.</p>
+  <div class="split">
+    <div>
+      <h3 class="sub">Is this you?</h3>
+      <ul class="dots">
+        <li>Missed calls or slow lead response</li>
+        <li>Too much time on repetitive follow-up</li>
+        <li>No-shows and manual reminders</li>
+        <li>Quote requests that go cold</li>
+        <li>The same questions answered over and over, by people</li>
+        <li>Staff doing copy-paste admin work</li>
       </ul>
     </div>
+    <div>
+      <h3 class="sub">What we automate</h3>
+      <ul class="ticks">
+        <li><b>Missed-call follow-up</b> — recover leads that would otherwise be lost</li>
+        <li><b>Appointment reminders</b> — fewer no-shows and reschedules</li>
+        <li><b>Quote and estimate follow-up</b> — convert more pending jobs</li>
+        <li><b>Customer FAQs</b> — fewer repetitive messages</li>
+        <li><b>Review requests</b> — more Google reviews</li>
+        <li><b>Invoice and payment reminders</b> — better collections</li>
+        <li><b>Internal admin</b> — data entry, updates, summaries, reporting</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Example workflow -->
+<section class="section band" id="example">
+  <div class="wrap">
+    <h2 class="eyebrow">Example automation</h2>
+    <p class="section-title">Missed-call text-back.</p>
+    <p class="section-lede">What happens when a customer calls and nobody can pick up.</p>
+    <ol class="flow">
+      <li class="step"><b>Customer calls your business</b><span>You're with a client, on a job, or it's after hours.</span></li>
+      <li class="step step-warn"><b>The call goes unanswered</b><span>Without automation, the lead calls the next business on Google.</span></li>
+      <li class="flow-gap">within 30 seconds</li>
+      <li class="step"><b>An instant text goes out automatically</b><span>“Hi, this is [Business]. Sorry we missed your call — how can we help? Book directly here: [link]”</span></li>
+      <li class="step-pair">
+        <div class="step"><b>The lead replies by text</b><span>The conversation is captured and routed to you or your staff with full context.</span></div>
+        <div class="step"><b>The lead books via the link</b><span>The appointment lands on your calendar. No phone tag.</span></div>
+      </li>
+      <li class="step"><b>Automatic reminder before the appointment</b><span>A confirmation and reminder sequence cuts no-shows.</span></li>
+      <li class="step"><b>Review request after the visit</b><span>Happy customer → Google review → more calls next month.</span></li>
+    </ol>
+    <div class="facts">
+      <div><b>&lt; 30 sec</b><span>to reply to every missed call</span></div>
+      <div><b>24 / 7</b><span>works after hours and at weekends</span></div>
+      <div><b>Hands-off</b><span>no staff action to send the reply once live</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Industries -->
+<section class="section wrap" id="industries">
+  <h2 class="eyebrow">Who it's for</h2>
+  <p class="section-title">Local businesses with a lot of client messages and bookings.</p>
+  <div class="grid3">
+    <article class="card ind ind-salon">
+      <p class="ind-tag">Salons, braiding and beauty</p>
+      <h3>Your chairs should be full — not your voicemail.</h3>
+      <ul class="ticks">
+        <li>Missed-call text-back that captures the booking</li>
+        <li>Automatic appointment reminders</li>
+        <li>Instant answers on pricing, hours and availability</li>
+        <li>Review requests and rebooking nudges after each visit</li>
+        <li>Intake forms routed to the right stylist</li>
+      </ul>
+    </article>
+    <article class="card ind ind-clinic">
+      <p class="ind-tag">Clinics, med spas, dental and therapy</p>
+      <h3>Less admin. Fewer no-shows. Better patient communication.</h3>
+      <ul class="ticks">
+        <li>Appointment reminder and confirmation sequences</li>
+        <li>Intake follow-up before the visit, not in the lobby</li>
+        <li>FAQ workflows for hours, insurance and preparation</li>
+        <li>Post-visit follow-up and review requests</li>
+        <li>Recall and rebooking reminders for due patients</li>
+      </ul>
+    </article>
+    <article class="card ind ind-home">
+      <p class="ind-tag">Cleaning, HVAC, plumbing, roofing, handyman</p>
+      <h3>The fastest quote usually wins the job.</h3>
+      <ul class="ticks">
+        <li>Missed-call text-back and website lead capture</li>
+        <li>Automatic quote and estimate follow-up</li>
+        <li>Appointment and job reminders</li>
+        <li>Review requests after every completed job</li>
+        <li>Invoice and payment reminders that don't feel awkward</li>
+      </ul>
+    </article>
+  </div>
+  <p class="note">Also real estate and other local businesses with repetitive client communication and scheduling.</p>
+</section>
+
+<!-- How it works -->
+<section class="section band" id="how">
+  <div class="wrap">
+    <h2 class="eyebrow">How it works</h2>
+    <p class="section-title">Start small. Scale when the value is proven.</p>
+    <div class="grid3">
+      <article class="card num"><span>1</span><h3>Quick Audit</h3><p>A focused 60–75 minute session on one or two of your workflows. You get a prioritised 30-day roadmap and a simple ROI snapshot.</p></article>
+      <article class="card num"><span>2</span><h3>Quick win</h3><p>We recommend the one automation with the best payoff for your business, and can set it up for you.</p></article>
+      <article class="card num"><span>3</span><h3>Scale what works</h3><p>Add more automations only when the first one proves its value. You choose what to implement, with us or on your own.</p></article>
+    </div>
+    <p class="note">The audit stands on its own. There is never an obligation to continue.</p>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section wrap" id="pricing">
+  <h2 class="eyebrow">Pricing</h2>
+  <p class="section-title">Simple, transparent options.</p>
+  <div class="grid4 prices">
+    <article class="card price price-first">
+      <p class="badge">Start here</p>
+      <h3>AI Automation Quick Audit</h3>
+      <p class="amount">$295</p>
+      <p>A diagnostic review of one or two workflows to find where automation cuts admin and speeds up follow-up.</p>
+      <ul class="ticks">
+        <li>60–75 min discovery call</li>
+        <li>Workflow and pain-point analysis</li>
+        <li>Top automation opportunities</li>
+        <li>Simple ROI snapshot</li>
+        <li>30-day automation roadmap</li>
+        <li>One recommended quick win</li>
+      </ul>
+    </article>
+    <article class="card price">
+      <h3>Audit + Quick-Win Setup</h3>
+      <p class="amount">$1,250</p>
+      <p>Everything in the audit, plus one approved automation, for example missed-call text-back, reminders, quote follow-up or review requests.</p>
+      <ul class="ticks">
+        <li>All audit deliverables</li>
+        <li>Workflow design and setup</li>
+        <li>Testing and launch</li>
+        <li>Simple handoff instructions</li>
+      </ul>
+    </article>
+    <article class="card price">
+      <h3>Growth Automation Sprint</h3>
+      <p class="amount">$2,500 – $3,500</p>
+      <p>For businesses ready to make several improvements at once. Final scope depends on tools and complexity.</p>
+      <ul class="ticks">
+        <li>Full audit</li>
+        <li>Setup of up to 3 automations</li>
+        <li>Testing, launch and handoff</li>
+        <li>Workflow documentation</li>
+        <li>2 weeks of post-launch support</li>
+      </ul>
+    </article>
+    <article class="card price">
+      <h3>Ongoing Automation Support</h3>
+      <p class="amount">from $500<small> / month</small></p>
+      <p>Keep automations healthy and keep improving them month by month.</p>
+      <ul class="ticks">
+        <li>Troubleshooting and workflow updates</li>
+        <li>Prompt and automation adjustments</li>
+        <li>Monthly optimisation review</li>
+        <li>Light support for new requests</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- What the audit looks like -->
+<section class="section band" id="roadmap">
+  <div class="wrap">
+    <h2 class="eyebrow">What the audit gives you</h2>
+    <p class="section-title">A 30-day roadmap you can act on.</p>
+    <p class="section-lede">An example for a small salon. Every business gets its own plan.</p>
+    <ol class="weeks">
+      <li><span>Week 1</span><p><b>Quick win: missed-call text-back.</b> Every unanswered call triggers an instant text with a booking link. Set up, tested with staff phones, launched.</p></li>
+      <li><span>Week 2</span><p><b>Appointment reminders.</b> A confirmation at booking, reminders 48 hours and 3 hours before, and an easy reschedule link. The front desk stops texting by hand.</p></li>
+      <li><span>Week 3</span><p><b>Review requests.</b> Two hours after checkout, clients get a thank-you text with a direct Google review link. Non-responders get one gentle nudge.</p></li>
+      <li><span>Week 4</span><p><b>Measure and tune.</b> Review recovered leads, no-show rate and review count. Adjust timing and wording. Decide on phase 2.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="cta" id="contact">
+  <div class="wrap">
+    <h2>Book your AI Automation Quick Audit — $295</h2>
+    <p>Tell us about your business and the work you'd like to stop doing by hand. We'll reply to arrange a time.</p>
+    <a class="btn btn-light" href="mailto:contact@lomonec.com?subject=AI%20Automation%20Quick%20Audit">Email contact@lomonec.com</a>
   </div>
 </section>
 
 </main>
 
 <footer class="footer">
-  <div class="wrap">
-    <div class="f-grid">
-      <div class="f-brand">
-        <a class="brand" href="#top"><img src="img/logo.svg" alt="" width="29" height="29">BE&nbsp;<span class="grad">Mastery</span></a>
-        <p>Build the confidence to speak when it matters.</p>
-        <div class="stores sm" data-stores="footer" data-store-size="sm"></div>
-        <div class="social" data-social style="margin-top:18px"></div>
-      </div>
-      <div id="footerCols" style="display:contents"></div>
+  <div class="wrap footer-in">
+    <div>
+      <a class="logo logo-sm" href="#top" aria-label="Lomonec home"><span class="logo-bar"></span>LOMON<span>EC</span></a>
+      <p>AI automation, agentic AI, software and apps.</p>
     </div>
-    <div class="f-bottom">
-      <span>© <span id="year">2026</span> LOMON EC LLC · BE Mastery</span>
-      <span><a href="mailto:contact@lomonec.com">contact@lomonec.com</a></span>
-    </div>
+    <ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="/bemastery/">BE Mastery</a></li>
+      <li><a href="mailto:contact@lomonec.com">contact@lomonec.com</a></li>
+      <li><a href="https://www.youtube.com/@lomonec" rel="noopener">YouTube</a></li>
+      <li><a href="https://www.tiktok.com/@lomonec" rel="noopener">TikTok</a></li>
+    </ul>
   </div>
+  <p class="wrap legal">© <span id="year">2026</span> LOMON EC LLC</p>
 </footer>
 
-</div><!-- /page -->
-
-<script src="js/config.js?v=20261007f"></script>
-<script src="js/analytics.js?v=20261007f" defer></script>
-<script src="js/motion.js?v=20261007f" defer></script>
-<script src="js/app.js?v=20261007f" defer></script>
+<script src="assets/lomonec.js?v=20261007a" defer></script>
 </body>
 </html>

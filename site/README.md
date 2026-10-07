@@ -1,5 +1,14 @@
 # lomonec.com — public marketing site
 
+**Layout since 7 Oct 2026:** `lomonec.com/` is the **company** page (Lomonec:
+AI automation consulting, agentic AI, software, our apps) — `index.html` +
+`assets/` (its own CSS/JS, the logo files from the sales kit). Each app has its
+own folder; **BE Mastery is `bemastery/`** (everything described below lives
+there now, all paths relative). `_redirects` sends the old `/team.html` and
+`/blog/…` addresses to their new homes. Public contact is
+`contact@lomonec.com` — never a personal name or address. To add an app: give
+it a folder and a card in the "Our apps" section of `index.html`.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 

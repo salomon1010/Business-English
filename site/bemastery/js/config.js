@@ -98,6 +98,7 @@ window.BEM = (function () {
         { label:"FAQ",                  href:"#faq"     }
       ]},
       { title:"Company", links:[
+        { label:"Lomonec",         href:"/" },
         { label:"About BE Mastery", href:"https://app.lomonec.com/flyer.html" },
         { label:"Team",             href:"team.html" },
         { label:"Blog",             href:"blog/" },

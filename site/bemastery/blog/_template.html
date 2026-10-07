@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Blog — BE Mastery</title>
-<meta name="description" content="Short, practical guides on speaking English with confidence at work: daily routines, useful phrases and what to listen for when you play yourself back.">
-<link rel="canonical" href="https://lomonec.com/blog/">
+<title>Post title — BE Mastery Blog</title>
+<meta name="description" content="One or two sentences that say what the reader will be able to do after reading. Shown in search results.">
+<link rel="canonical" href="https://lomonec.com/bemastery/blog/SLUG.html">
 <meta name="theme-color" content="#080b16">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta property="og:type" content="website">
+<!-- TEMPLATE: copy to blog/<slug>.html, replace every CAPITALISED placeholder,
+     delete the next line, then add the post to js/blog.js and sitemap.xml. -->
+<meta name="robots" content="noindex">
+<meta property="og:type" content="article">
 <meta property="og:site_name" content="BE Mastery">
-<meta property="og:url" content="https://lomonec.com/blog/">
-<meta property="og:title" content="Blog — BE Mastery">
-<meta property="og:description" content="Short, practical guides on speaking English with confidence at work: daily routines, useful phrases and what to listen for when you play yourself back.">
+<meta property="og:url" content="https://lomonec.com/bemastery/blog/SLUG.html">
+<meta property="og:title" content="Post title — BE Mastery Blog">
+<meta property="og:description" content="One or two sentences that say what the reader will be able to do after reading. Shown in search results.">
 <meta property="og:image" content="https://app.lomonec.com/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="../img/logo.svg">
@@ -55,29 +57,42 @@
 <div class="mobile-menu" id="mobileMenu" data-open="false"></div>
 
 <main id="main">
+<div class="wrap">
+<article class="article">
+  <header data-reveal>
+    <a class="back" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All guides</a>
+    <span class="cat">Speaking</span>
+    <h1>Post title</h1>
+    <p class="lede">The same one or two sentences as the description: what the reader gets from this post.</p>
+    <!-- author: an id from js/team.js, or "team". Keep the date the same as js/blog.js. -->
+    <div data-byline data-author="team" data-date="2026-10-01" data-minutes="6"></div>
+  </header>
 
-<section class="page-head">
-  <div class="wrap" data-reveal>
-    <span class="label">Blog</span>
-    <h1>English speaking <span class="grad">guides</span>.</h1>
-    <p class="lede">Short, practical guides on speaking English with confidence at work: daily routines, useful phrases and what to listen for when you play yourself back.</p>
+  <div class="prose">
+    <p>Open with the situation the reader is in. One short paragraph.</p>
+
+    <h2>A section heading</h2>
+    <p>Short paragraphs. Concrete examples. One idea per paragraph.</p>
+    <ul>
+      <li>A list works well for steps or phrases.</li>
+      <li><strong>Bold</strong> the phrase the reader should say out loud.</li>
+    </ul>
+
+    <blockquote>A phrase to practise, set apart.</blockquote>
+
+    <h2>What to do next</h2>
+    <p>End with one thing to try today.</p>
   </div>
-</section>
 
-<!-- The list is rendered from js/blog.js, newest first. -->
-<div class="page-body">
-  <div class="wrap">
-    <div class="posts" data-posts></div>
-
-    <div class="empty glass" data-posts-empty hidden>
-      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
-      <h2>The first guides are on their way.</h2>
-      <p>Until then, the <a class="grad" href="https://app.lomonec.com/manual/en.html">help centre</a> explains every part of the programme, step by step.</p>
-    </div>
-  </div>
+  <aside class="cta-panel">
+    <h2>Practise this in the app.</h2>
+    <p class="muted">Twenty-five minutes a day: a guided session, a real speaker to shadow and feedback on what you said.</p>
+    <div class="stores center" data-stores="blog" data-store-size="lg"></div>
+  </aside>
+</article>
 </div>
-
 </main>
+
 
 <footer class="footer">
   <div class="wrap">
@@ -91,7 +106,7 @@
       <div id="footerCols" style="display:contents"></div>
     </div>
     <div class="f-bottom">
-      <span>© <span id="year">2026</span> LOMON EC LLC · BE Mastery</span>
+      <span>© <span id="year">2026</span> <a href="/">LOMON EC LLC</a> · BE Mastery</span>
       <span><a href="mailto:contact@lomonec.com">contact@lomonec.com</a></span>
     </div>
   </div>

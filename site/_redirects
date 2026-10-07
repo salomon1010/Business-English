@@ -1,0 +1,3 @@
+/team.html /bemastery/team.html 301
+/blog /bemastery/blog/ 301
+/blog/* /bemastery/blog/:splat 301
