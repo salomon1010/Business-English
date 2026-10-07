@@ -22150,7 +22150,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v648";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v649";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23949,8 +23949,8 @@ const FLAGS_DEFAULT={
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
-  social_signin_web_enabled:false,     // Google + Apple sign-in on the WEB through Firebase's popup (owner, 4 Oct 2026). OFF in production until the two providers are switched on in the be-mastery Firebase console (docs/auth/SOCIAL_SIGNIN.md §2.4) — a button that fails is worse than none. ON on staging.
-  auth_proxy_enabled:false,            // Google / Apple sign-in INSIDE the installed Play app (owner, 6 Oct 2026): Firebase\'s authDomain becomes auth.lomonec.com (backend/auth-proxy). Off until that Worker answers and the redirect URIs are in Google Cloud + Apple
+  social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
+  auth_proxy_enabled:true,             // Firebase's helper on auth.lomonec.com (be-auth, deployed d8b9896a 7 Oct 2026): what lets the installed Play app finish a Google / Apple sign-in
   billing_preview_provider:false       // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host

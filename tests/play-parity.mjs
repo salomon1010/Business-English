@@ -36,9 +36,9 @@ console.log("\n# the Play app is recognised, a browser is not");
   ok("5 · a desktop browser is not the Play app and keeps the website's defaults", r.play === false && r.v2 === false && !/Site settings/.test(r.mic), JSON.stringify(r));
   await ctx.close(); }
 console.log("\n# Google and Apple sign-in inside the installed Play app");
-{ const { p, ctx } = await open({ query: "?wid=abababababababababababababababab", standalone: true, flags: { social_signin_web_enabled: true } });
-  const r = await p.evaluate(() => ({ dom: FB_CONFIG.authDomain, same: fbAuthSameOrigin(), on: socialWebOn() }));
-  ok("6 · without the proxy (production today) the installed app hides Google / Apple — firebaseapp.com cannot hand the result back", r.dom === "be-mastery.firebaseapp.com" && r.same === false && r.on === false, JSON.stringify(r));
+{ const { p, ctx } = await open({ query: "?wid=abababababababababababababababab", standalone: true, flags: { social_signin_web_enabled: true, auth_proxy_enabled: false } });
+  const r = await p.evaluate(async () => { try { await fbLoad(); } catch (e) {} return { dom: FB_CONFIG.authDomain, same: fbAuthSameOrigin(), on: socialWebOn() }; });
+  ok("6 · with the proxy switched off the installed app hides Google / Apple — firebaseapp.com cannot hand the result back", r.dom === "be-mastery.firebaseapp.com" && r.same === false && r.on === false, JSON.stringify(r));
   await ctx.close(); }
 { const { p, ctx } = await open({ query: "?wid=abababababababababababababababab", standalone: true, flags: { social_signin_web_enabled: true, auth_proxy_enabled: true } });
   const r = await p.evaluate(async () => { try { await fbLoad(); } catch (e) {} return { dom: FB_CONFIG.authDomain, same: fbAuthSameOrigin(), on: socialWebOn(), auth: !!FBauth }; });
