@@ -178,3 +178,29 @@ a.store:hover{transform:translateY(-2px);border-color:rgba(129,140,248,.55);
   .stores:not(.sm) .store .soon-tag{margin-left:auto}
   .stores.sm{justify-content:flex-start}
 }
+
+/* ── parent chip: the way back to lomonec.com ─────────────────────────────
+   A small pill under the brand, inside a slowly turning light ring; the
+   arrow slides on hover. Injected by buildParent() in app.js. */
+.brand-group{display:flex;flex-direction:column;align-items:flex-start;gap:3px;flex:none}
+@property --pc-spin{syntax:"<angle>";inherits:false;initial-value:0deg}
+.parent-chip{position:relative;display:inline-flex;flex:none;padding:1px;margin-left:36px;border-radius:var(--radius-pill);
+  background:conic-gradient(from var(--pc-spin),rgba(165,180,252,.15),var(--color-accent),var(--color-secondary),rgba(165,180,252,.15) 70%);
+  animation:pcSpin 5s linear infinite;transition:box-shadow var(--dur) var(--ease-soft)}
+.parent-chip .pc-in{display:inline-flex;align-items:center;gap:3px;padding:2px 9px 2px 5px;border-radius:inherit;
+  background:rgba(10,13,26,.88);color:var(--color-muted);font-size:9.5px;line-height:1.3;font-weight:700;letter-spacing:.16em;
+  transition:color var(--dur) var(--ease-soft),background var(--dur) var(--ease-soft)}
+.parent-chip svg{width:11px;height:11px}
+.menu-parent svg{width:14px;height:14px}
+.parent-chip svg,.menu-parent svg{transition:transform var(--dur) var(--ease-out)}
+.pc-word b{color:#a08cff;font-weight:800}
+.parent-chip:hover,.parent-chip:focus-visible{box-shadow:0 0 18px rgba(34,211,238,.35)}
+.parent-chip:hover .pc-in{color:var(--color-text);background:rgba(20,22,48,.92)}
+.parent-chip:hover svg,.menu-parent:hover svg{transform:translateX(-3px)}
+@keyframes pcSpin{to{--pc-spin:360deg}}
+.menu-parent{display:flex!important;align-items:center;gap:8px;font-size:13px!important;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--color-muted);
+  border:1px solid var(--color-border);margin-bottom:6px;
+  background:linear-gradient(100deg,rgba(99,102,241,.14),rgba(34,211,238,.08))}
+.menu-parent .pc-word{letter-spacing:.14em}
+@media (prefers-reduced-motion:reduce){.parent-chip{animation:none}}

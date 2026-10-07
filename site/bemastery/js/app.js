@@ -108,7 +108,30 @@
   }
 
   /* ── navigation ──────────────────────────────────────────────────────── */
+  /* the way back to the company site: a pill under the brand on every page,
+     and the first row of the mobile menu */
+  var BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+  var WORD = '<span class="pc-word">LOMON<b>EC</b></span>';
+  function buildParent() {
+    var brand = $("#nav .brand");
+    if (!brand || $("#nav .parent-chip")) return;
+    var a = document.createElement("a");
+    a.className = "parent-chip";
+    a.href = "/";
+    a.setAttribute("aria-label", "Back to Lomonec, the company behind BE Mastery");
+    a.title = "Lomonec — the company behind BE Mastery";
+    a.innerHTML = '<span class="pc-in">' + BACK_SVG + WORD + '</span>';
+    /* under the brand, not beside it: the bar has no width to spare */
+    var g = document.createElement("div");
+    g.className = "brand-group";
+    brand.parentNode.insertBefore(g, brand);
+    g.appendChild(brand);
+    g.appendChild(a);
+  }
+
   function buildNav() {
+    buildParent();
     var links = $("#navLinks"), menu = $("#mobileMenu");
     if (links) {
       links.innerHTML = C.nav.map(function (n) {
@@ -119,6 +142,7 @@
     }
     if (menu) {
       menu.innerHTML =
+        '<a class="menu-parent" href="/">' + BACK_SVG + 'Back to ' + WORD + '</a>' +
         C.nav.map(function (n) {
           return '<a href="' + href(n.href) + '"' +
                  (n.page === PAGE ? ' aria-current="page"' : "") + '>' + n.label + '</a>';
