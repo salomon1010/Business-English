@@ -509,7 +509,15 @@
 .in-card h3{font-size:17px;margin-bottom:6px}
 .in-card p{color:var(--color-muted);font-size:14.5px;line-height:1.5}
 @media (max-width:900px){.inside{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.inside{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}}
+/* phones keep two columns (owner, 7 Oct 2026: one full-width card was far
+   too big); the card's type and padding shrink to fit */
+@media (max-width:560px){
+  .inside{gap:10px}
+  .in-card{border-radius:var(--radius)}
+  .in-card>div{padding:11px 12px 14px}
+  .in-card h3{font-size:14.5px;margin-bottom:4px}
+  .in-card p{font-size:12.5px;line-height:1.45}
+}
 .mini-cta.center{justify-content:center;text-align:center;margin-top:28px}
 
 /* ── Who it's for ───────────────────────────────────────────────────────── */
