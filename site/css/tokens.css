@@ -19,7 +19,7 @@
   --color-positive:#34d399;
 
   /* text */
-  --color-text:#eef1fb;
+  --color-text:#cbd0e2;          /* softer than near-white, the app's own body text since 2026-09-28 */
   --color-muted:#a2a7c4;
   --color-muted-2:#767c9d;
 

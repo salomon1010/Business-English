@@ -26,7 +26,9 @@ p{text-wrap:pretty}
 
 /* layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter)}
-.section{padding:clamp(72px,9vw,124px) 0;position:relative;overflow:hidden}
+/* Owner, 2026-09-28: less air — 124 → 88px at most, and a jump from the menu lands the section's
+   first line ~16px under the bar (scroll-padding-top 92 + this negative margin) instead of 130px. */
+.section{--sec-pad:clamp(56px,6.5vw,88px);padding:var(--sec-pad) 0;position:relative;overflow:hidden;scroll-margin-top:calc(10px - var(--sec-pad))}
 .section-head{max-width:62ch}
 .section-head.center{margin:0 auto;text-align:center}
 .stack-sm>*+*{margin-top:12px}

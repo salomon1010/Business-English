@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team — BE Mastery</title>
+<meta name="description" content="The people who build BE Mastery, the English speaking practice app from LOMON EC LLC, and the contributors who have helped along the way.">
+<link rel="canonical" href="https://lomonec.com/team.html">
+<meta name="theme-color" content="#080b16">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BE Mastery">
+<meta property="og:url" content="https://lomonec.com/team.html">
+<meta property="og:title" content="Team — BE Mastery">
+<meta property="og:description" content="The people who build BE Mastery, and the contributors who have helped along the way.">
+<meta property="og:image" content="https://app.lomonec.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="img/logo.svg">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css?v=20261007a">
+<link rel="stylesheet" href="css/base.css?v=20261007a">
+<link rel="stylesheet" href="css/components.css?v=20261007a">
+<link rel="stylesheet" href="css/sections.css?v=20261007a">
+<link rel="stylesheet" href="css/dynamic.css?v=20261007a">
+<link rel="stylesheet" href="css/pages.css?v=20261007a">
+</head>
+<body data-page="team" data-root="">
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="ambient" aria-hidden="true">
+  <div class="field f1"></div><div class="field f2"></div><div class="field f3"></div>
+  <div class="grid"></div>
+  <canvas id="particles"></canvas>
+</div>
+
+<div class="page">
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="./"><img src="img/logo.svg" alt="" width="29" height="29">BE&nbsp;<span class="grad">Mastery</span></a>
+      <nav class="nav-links" id="navLinks" aria-label="Main"></nav>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-sm" href="./#download" data-ev="hero_cta_clicked" data-ev-source="team_nav">Download app</a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu" data-open="false"></div>
+
+<main id="main">
+
+<section class="page-head">
+  <div class="wrap" data-reveal>
+    <span class="label">Team</span>
+    <h1>The people behind <span class="grad">BE Mastery</span>.</h1>
+    <p class="lede">BE Mastery is made by LOMON EC LLC. These are the people who build it, and the people who have helped along the way.</p>
+  </div>
+</section>
+
+<!-- Both grids are rendered from js/team.js. A group with nobody in it
+     hides its whole section. -->
+<div class="page-body">
+  <div class="wrap">
+    <section data-team-section aria-labelledby="makersH">
+      <div class="sub-head" data-reveal>
+        <h2 id="makersH">The makers</h2>
+      </div>
+      <div class="people" data-team="core"></div>
+    </section>
+
+    <section data-team-section aria-labelledby="contribH" hidden>
+      <div class="sub-head" data-reveal>
+        <h2 id="contribH">Contributors</h2>
+        <p>People outside the core team who have reviewed translations, written lessons, tested the app or improved it in other ways.</p>
+      </div>
+      <div class="people" data-team="contributor"></div>
+    </section>
+
+    <aside class="join glass" data-reveal>
+      <h2>Want to contribute?</h2>
+      <p>We welcome help with translation review, lesson content and testing on real phones. Write to us and tell us what you would like to work on.</p>
+      <a class="btn btn-ghost" href="mailto:contact@lomonec.com?subject=Contributing%20to%20BE%20Mastery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+        contact@lomonec.com
+      </a>
+    </aside>
+  </div>
+</div>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="f-grid">
+      <div class="f-brand">
+        <a class="brand" href="./"><img src="img/logo.svg" alt="" width="29" height="29">BE&nbsp;<span class="grad">Mastery</span></a>
+        <p>Build the confidence to speak when it matters.</p>
+        <div class="stores sm" data-stores="footer" data-store-size="sm"></div>
+        <div class="social" data-social style="margin-top:18px"></div>
+      </div>
+      <div id="footerCols" style="display:contents"></div>
+    </div>
+    <div class="f-bottom">
+      <span>© <span id="year">2026</span> LOMON EC LLC · BE Mastery</span>
+      <span><a href="mailto:contact@lomonec.com">contact@lomonec.com</a></span>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /page -->
+
+<script src="js/config.js?v=20261007a"></script>
+<script src="js/team.js?v=20261007a"></script>
+<script src="js/blog.js?v=20261007a"></script>
+<script src="js/analytics.js?v=20261007a" defer></script>
+<script src="js/motion.js?v=20261007a" defer></script>
+<script src="js/pages.js?v=20261007a" defer></script>
+<script src="js/app.js?v=20261007a" defer></script>
+</body>
+</html>

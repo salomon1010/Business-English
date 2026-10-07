@@ -59,14 +59,15 @@
 .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18.5px;letter-spacing:-.01em;flex:none}
 .brand img{width:29px;height:29px;border-radius:8px}
 .nav-links{display:flex;gap:2px;margin-left:auto}
-.nav-links a{font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 14px;
+.nav-links a{white-space:nowrap;font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 14px;
   border-radius:var(--radius-pill);position:relative;transition:color var(--dur) var(--ease-soft)}
 .nav-links a::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:1.5px;border-radius:2px;
   background:var(--grad-text);transform:scaleX(0);transform-origin:left;
   transition:transform var(--dur) var(--ease-out)}
 .nav-links a:hover{color:var(--color-text)}
-.nav-links a:hover::after,.nav-links a[aria-current="true"]::after{transform:scaleX(1)}
-.nav-links a[aria-current="true"]{color:var(--color-text)}
+.nav-links a:hover::after,.nav-links a[aria-current="true"]::after,
+.nav-links a[aria-current="page"]::after{transform:scaleX(1)}
+.nav-links a[aria-current="true"],.nav-links a[aria-current="page"]{color:var(--color-text)}
 .nav-actions{display:flex;align-items:center;gap:8px;flex:none}
 .nav-actions .signin{font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 12px}
 .nav-actions .signin:hover{color:var(--color-text)}
@@ -87,7 +88,8 @@
   .mobile-menu[data-open="true"]{opacity:1;transform:none;pointer-events:auto}
   .mobile-menu a{display:block;padding:13px 16px;border-radius:var(--radius-sm);
     font-size:16px;color:var(--color-muted)}
-  .mobile-menu a:hover,.mobile-menu a:focus-visible{background:var(--color-surface);color:var(--color-text)}
+  .mobile-menu a:hover,.mobile-menu a:focus-visible,
+  .mobile-menu a[aria-current="page"]{background:var(--color-surface);color:var(--color-text)}
   .mobile-menu .sep{height:1px;background:var(--color-border);margin:8px 6px}
   .mobile-menu .btn{width:100%;margin-top:4px}
 }
@@ -120,3 +122,59 @@
 .social a:hover{color:var(--color-text);border-color:rgba(129,140,248,.45);
   background:rgba(99,102,241,.14);transform:translateY(-3px)}
 .social a:hover svg{transform:scale(1.1)}
+
+/* ── store badges ──────────────────────────────────────────────────────────
+   One component for both stores and both states. A store that is not live
+   renders as .is-soon: same shape, no link, visibly inert. */
+.stores{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.stores.center{justify-content:center}
+.stores.sm{margin-top:20px;gap:10px}
+.store{display:inline-flex;align-items:center;gap:12px;padding:11px 20px 11px 16px;
+  border:1px solid var(--color-border-strong);border-radius:14px;
+  background:linear-gradient(162deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  color:var(--color-text);position:relative;
+  transition:transform var(--dur) var(--ease-out),border-color var(--dur) var(--ease-out),
+             box-shadow var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
+a.store:hover{transform:translateY(-2px);border-color:rgba(129,140,248,.55);
+  background:linear-gradient(162deg,rgba(255,255,255,.1),rgba(255,255,255,.05));
+  box-shadow:0 16px 38px rgba(0,0,0,.42)}
+.store .mkw{width:26px;height:26px;display:grid;place-items:center;flex:none}
+.store .mk{width:24px;height:24px}
+.store .stxt{display:grid;gap:1px;line-height:1.15;text-align:left}
+.store .stxt small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted-2)}
+.store .stxt b{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.store.lg{padding:13px 24px 13px 18px}
+.store.lg .mkw,.store.lg .mk{width:28px;height:28px}
+.store.lg .stxt b{font-size:17.5px}
+.store.sm{padding:9px 16px 9px 13px;border-radius:12px}
+.store.sm .mkw,.store.sm .mk{width:20px;height:20px}
+.store.sm .stxt b{font-size:14px}
+.store.sm .stxt small{font-size:9.5px}
+
+/* not published yet — dimmed, not a link, and it says so */
+.store.is-soon{opacity:.62;border-style:dashed;cursor:default}
+.store.is-soon .stxt small{color:var(--color-muted-2)}
+.store .soon-tag{margin-left:4px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-pill);
+  background:rgba(34,211,238,.13);color:var(--color-accent);border:1px solid rgba(34,211,238,.28)}
+.store.sm .soon-tag{display:none}
+
+/* the small line that introduces the badges */
+.cta-kicker{margin-top:26px;font-size:12px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--color-muted-2)}
+
+/* "this lives in the app" line under a feature preview */
+.mini-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px;
+  font-size:14.5px;color:var(--color-muted)}
+.mini-cta a{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--color-primary-bright)}
+.mini-cta a svg{width:15px;height:15px;transition:transform var(--dur) var(--ease-out)}
+.mini-cta a:hover svg{transform:translateX(3px)}
+
+/* On a phone the store buttons ARE the page's job: full width, one per row,
+   large tap targets. */
+@media (max-width:560px){
+  .stores:not(.sm){display:grid;grid-template-columns:1fr;gap:10px}
+  .stores:not(.sm) .store{width:100%;justify-content:flex-start;padding:14px 18px}
+  .stores:not(.sm) .store .soon-tag{margin-left:auto}
+  .stores.sm{justify-content:flex-start}
+}
