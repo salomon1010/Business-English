@@ -6,6 +6,7 @@
    (the sample sentences, the IPA, the workshop lines). Other names follow
    i18n/fr.json: Feuille de route, Fondations, Défi, Simulations de vie,
    Anglais général, Anglais du soudage. */
+import { UK, FR } from "./flags.mjs";
 const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 const GET = `Obtenir l'app`;
 
@@ -30,8 +31,7 @@ export default [
   [`>Skip to content<`, `>Aller au contenu<`],
   [`aria-label="Main"`, `aria-label="Principal"`],
   [`aria-label="Open menu"`, `aria-label="Ouvrir le menu"`],
-  [`<summary aria-label="Language: English">`, `<summary aria-label="Langue${NB}: français">`],
-  [`<span>EN</span><svg class="chev"`, `<span>FR</span><svg class="chev"`],
+  [`<summary aria-label="Language: English">${UK}<span>EN</span>`, `<summary aria-label="Langue${NB}: français">${FR}<span>FR</span>`],
   [`lang="en" aria-current="true"`, `lang="en" aria-current="false"`],
   [`lang="fr" aria-current="false"`, `lang="fr" aria-current="true"`],
   [`>Download app<`, `>Télécharger<`],

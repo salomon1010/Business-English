@@ -68,16 +68,16 @@ h1,h2,h3{line-height:1.2;margin:0}
   transition:background .25s,color .25s}
 .lang summary::-webkit-details-marker{display:none}
 .lang summary:hover,.lang[open] summary{background:rgba(255,255,255,.18);color:#fff}
-.lang summary svg{width:16px;height:16px}
+.lang .flag{width:20px!important;height:14px!important;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(31,32,51,.14)}
 .lang summary .chev{width:12px;height:12px;transition:transform .25s}
 .lang[open] summary .chev{transform:rotate(180deg)}
 .lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:160px;padding:6px;border-radius:var(--radius);
   background:#fff;border:1px solid var(--line);box-shadow:0 18px 40px rgba(31,20,71,.28)}
-.lang-menu a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;
+.lang-menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
   color:var(--text);text-decoration:none;font-weight:600;font-size:15px}
 .lang-menu a:hover{background:var(--tint)}
 .lang-menu a[aria-current="true"]{color:var(--indigo)}
-.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px)}
+.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-left:auto}
 
 /* ── hero: gradient, drifting light, a receding grid ─────────────────────── */
 .hero{position:relative;overflow:hidden;background:var(--hero);color:#fff;padding:96px 0 96px}

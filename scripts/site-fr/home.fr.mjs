@@ -1,5 +1,6 @@
 /* lomonec.com company page — English → French. Each entry is an exact
    string from site/index.html and its French replacement. */
+import { UK, FR } from "./flags.mjs";
 const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 
 export default [
@@ -22,8 +23,7 @@ export default [
   [`<a href="#industries">Industries</a>`, `<a href="#industries">Secteurs</a>`],
   [`<a href="#how">How it works</a>`, `<a href="#how">Comment ça marche</a>`],
   [`<span>Book an audit</span>`, `<span>Réserver un audit</span>`],
-  [`<summary aria-label="Language: English">`, `<summary aria-label="Langue${NB}: français">`],
-  [`<span>EN</span><svg class="chev"`, `<span>FR</span><svg class="chev"`],
+  [`<summary aria-label="Language: English">${UK}<span>EN</span>`, `<summary aria-label="Langue${NB}: français">${FR}<span>FR</span>`],
   [`lang="en" aria-current="true"`, `lang="en" aria-current="false"`],
   [`lang="fr" aria-current="false"`, `lang="fr" aria-current="true"`],
   [`href="/bemastery/"`, `href="/bemastery/fr/"`],
