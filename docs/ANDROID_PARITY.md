@@ -36,7 +36,8 @@ the same site as the app. The client switches with the flag `auth_proxy_enabled`
    on the validation project's client).
 3. Apple Developer → Identifiers → the **Services ID** used by Firebase's Apple provider →
    Return URLs → add the same URL(s).
-Then: `auth_proxy_enabled:true` in FLAGS_STAGING, test on a phone, then in FLAGS_DEFAULT.
+**Staging DONE 7 Oct 2026:** Google client redirect URI + JS origins added (be-mastery-test), Apple Services ID `com.lomonec.bemastery.signin` Website URLs set (auth-staging / auth / both firebaseapp.com hosts, comma-separated), Apple enabled in the test project; both providers' own sign-in pages open through auth-staging.lomonec.com; `auth_proxy_enabled:true` in FLAGS_STAGING (be12-v647).
+Production still needs: deploy `--env ""` (auth.lomonec.com), the production Google web client (`847739483036-…`) redirect URI `https://auth.lomonec.com/__/auth/handler`, `auth.lomonec.com` in the production project's Authorized domains, then `auth_proxy_enabled:true` and `social_signin_web_enabled:true` in FLAGS_DEFAULT.
 `social_signin_web_enabled` must also be on (it is on staging, off in production).
 
 ## Still different, by platform (not fixable in the web layer)

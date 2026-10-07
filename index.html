@@ -22150,7 +22150,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v646";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v647";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23980,7 +23980,7 @@ const FLAGS_STAGING={
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console
-  auth_proxy_enabled:false,            // Google / Apple sign-in INSIDE the installed Play app (owner, 6 Oct 2026): Firebase\'s authDomain becomes auth.lomonec.com (backend/auth-proxy). Off until that Worker answers and the redirect URIs are in Google Cloud + Apple
+  auth_proxy_enabled:true,             // staging: Google + Apple through auth-staging.lomonec.com (verified 7 Oct 2026: both providers' own sign-in pages open)
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
      TEST UNITS, not a real network: BEAdsPlugin substitutes them only where
