@@ -155,6 +155,22 @@ server's view (Phase 7). A Premium learner gets:
 6. Turn `ads_enabled` on, watch `ad_suppressed` reasons and retention for a
    week, then tune `AD_POLICY`.
 
+### 9b. The AdMob account (created by the owner, 8 Oct 2026)
+
+Publisher `pub-2222980379604934` (Lomonec). AdMob ids are public by design
+(they ship inside every app binary); what must never happen is a developer
+or tester requesting a REAL ad, so every debug / staging build swaps the
+units for Google's test units (`BEAdsPlugin.testUnitsAllowed`).
+
+| App | App ID | Interstitial | Native advanced | Wired in |
+|---|---|---|---|---|
+| iOS | `ca-app-pub-2222980379604934~5854778049` | `ca-app-pub-2222980379604934/2444172761` | `ca-app-pub-2222980379604934/2737570820` | `mobile/ios/ios/App/App/Info.plist` |
+| Android | `ca-app-pub-2222980379604934~8875603763` | `ca-app-pub-2222980379604934/7191910447` | `ca-app-pub-2222980379604934/1935625045` | **nowhere yet** — the Play app is a TWA with no native ad bridge |
+
+`app-ads.txt` on lomonec.com authorises the publisher. Still open on the
+owner's side: the AdMob payment profile, and linking the App Store listing
+once it is published (the Android app is already linked to its Play listing).
+
 ## 10. Verification
 - **Physical-device check (2026-09-24): PASSED**, reported by the owner after
   testing on a real iPhone. The preview served commit `931b805` unchanged, and
