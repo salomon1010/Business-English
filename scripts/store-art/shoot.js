@@ -23,7 +23,7 @@ const fs = require("fs");
 
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const BASE = process.env.BASE || "http://localhost:8765";
-const OUT_ROOT = process.env.OUT_ROOT || "store-art-2026-09";
+const OUT_ROOT = process.env.OUT_ROOT || "store-art-2026-10";
 
 const PRESETS = {
   // css box the app lays out in, then the multiplier that hits Play's pixel size
@@ -35,23 +35,75 @@ const PRESETS = {
 
 // go = router args, applied directly rather than via the hash so boot order can't
 // race us; scrollTo = css px to scroll the frame before the shot
+/* The Executive Polish speaking report, drawn by the app's own exRenderReport
+   from demo data (the same fixture shape tests/polish-report.mjs uses), so the
+   shot needs no live AI call and the wording is stable run to run. */
+const polishReport = async (w) => {
+  const AI = {
+    key_message: "The launch moves one week so we can fix the payment bug first.", clarity: "fuzzy",
+    sharper: "We are moving the launch to the 14th so we can fix the payment bug first.",
+    level: "B1+", level_note: "Your update is clear, but the decision arrives last.",
+    structure: ["Status", "The problem", "The decision"], structure_note: "Lead with the decision, then the reason.",
+    answer_directly: "Open with the new date.", example: "We are moving the launch to the 14th.",
+    evidence: "You named the bug but not its impact.",
+    credibility: "You said 'I think maybe we should wait', which reads as a wish, not a decision.",
+    hedges: [{ said: "I think maybe", better: "We will" }],
+    corrections: [
+      { said: "we have discovered a bug yesterday", fix: "we discovered a bug yesterday", why: "Use the past simple with a finished time like 'yesterday'.", kind: "tense" },
+      { said: "the customers can loose their payment", fix: "customers could lose their payment", why: "'Lose' is the verb; 'loose' means not tight.", kind: "word choice" }],
+    sentences: [
+      { said: "so I think maybe we should wait one more week", rebuilt: "We are moving the launch by one week, to the 14th.", pattern: "We are moving [what] to [when].", pattern_use: "When you announce a decision." },
+      { said: "because yesterday we have discovered a bug", rebuilt: "Because we found a payment bug yesterday, we need five more days.", pattern: "Because [fact], we need [what].", pattern_use: "When the reason must come first." }],
+    words: [
+      { said: "a big problem", better: "a blocker", meaning: "Something that stops the work.", example: "The payment bug is a blocker for launch." },
+      { said: "wait", better: "push back", meaning: "Move to a later date.", example: "We will push back the launch by a week." }],
+    collocations: [{ said: "do a decision", better: "make a decision", why: "Decisions are made, not done." }],
+    remember_title: "Decision first", remember_body: "Say the new date in your first sentence. The reason comes second.",
+    next_recording: "Give the same update in 45 seconds, opening with the new date.",
+    quick_win_title: "Cut the hedges", quick_win_goal: "No 'I think' and no 'maybe' in the next minute.",
+    concept_title: "One idea per sentence", concept_body: "Your middle section held three ideas in one breath.",
+    coach_script: "You sounded calm, and your facts were right. The hedging is what costs you. You said 'I think maybe we should wait'. A project lead says 'We are moving the launch to the 14th.' Your grammar slip was the tense: we discovered, not we have discovered. Record the same update again and open with the date.",
+    versions: [
+      { style: "Clear and direct", text: "We are moving the launch to the 14th. Yesterday we found a payment bug. Customers could lose a payment, so we need five more days to fix and test it.", learn: ["moving the launch"] },
+      { style: "Executive polish", text: "We are pushing the launch back a week, to the 14th. Yesterday's payment bug is a blocker: shipping now would put customer payments at risk. Five days lets us fix it and test it properly.", learn: ["pushing back", "a blocker", "at risk"] }],
+    idioms: [
+      { idiom: "back to the drawing board", meaning: "Start again.", when: "A plan has failed.", example: "If the fix fails, it is back to the drawing board." },
+      { idiom: "on the same page", meaning: "Everyone agrees.", when: "Before a decision.", example: "I want the whole team on the same page by Friday." },
+      { idiom: "a moving target", meaning: "Something that keeps changing.", when: "Scope keeps shifting.", example: "The scope has been a moving target all month." },
+      { idiom: "buy some time", meaning: "Get a short delay.", when: "Asking for a delay.", example: "One week buys us time to test properly." }]
+  };
+  const m = { sec: 58, words: 96, wpm: 99, fillers: [{ w: "um", n: 2 }, { w: "you know", n: 1 }], fillerN: 3, hedges: [{ w: "i think", n: 1 }, { w: "maybe", n: 1 }], hedgeN: 2, sents: 4, wps: 24, ttr: 68, hes: 4, hesList: [{ t: 6, len: 1.1 }, { t: 31, len: 0.8 }], semis: 2.4, pitch: null };
+  const prev = { at: Date.now() - 86400000, tk: w.areaId(), m: { ...m, fillerN: 6, hedgeN: 4, wpm: 88 }, ai: null, tx: "earlier take", targets: ["on the same page", "a blocker", "push back", "buy some time"] };
+  const rep = { at: Date.now(), tk: w.areaId(), m, ai: AI, sttFailed: false,
+    tx: "um so the status update is that the launch was planned for the 7th but um yesterday we have discovered a bug in the payment and the customers can loose their payment so I think maybe we should wait one more week you know to fix it",
+    targets: w.exTargets(AI) };
+  const L = w.aList("exRep"); L.length = 0; L.push(rep, prev);
+  const ex = w.eval("ex");   // a top-level const, so not a window property
+  ex.report = rep; ex.showReport = true; ex.repOpen = true;
+  w.exRenderReport(rep, true);
+  await new Promise(r => setTimeout(r, 400));
+  const wrap = w.document.getElementById("exReportWrap");
+  if (wrap) w.scrollTo(0, wrap.getBoundingClientRect().top + w.scrollY - 70);
+};
+
 const SHOTS = [
-  { file: "01-dashboard", go: ["home"] },
-  { file: "02-journey",   go: ["journey"] },
-  { file: "03-phrases",   go: ["phrases"] },
-  // Progress lives on its own tab since v418 (Profile became Settings): the
-  // week's story and the key numbers sit at the top of it
-  { file: "04-progress",  go: ["review"], settle: 900 },
-  // a day session deliberately renders into the journey view's container
-  { file: "05-session",   go: ["session", 1, "Mon"], expect: "v-journey" },
+  { file: "01-journey",   go: ["journey"] },
+  { file: "02-polish",    go: ["phrases"], settle: 900, after: polishReport, afterSettle: 900 },
   // Shadow is deliberately absent: every dense screen in the studio renders
   // third-party YouTube artwork, and the one that doesn't (Trouble words) is
   // two-thirds empty. Practice fills the slot instead — it is the spaced-
   // repetition gym, which nothing else in the set shows.
-  { file: "06-practice",  go: ["practice"], settle: 4500 },
-  // the charts (pronunciation journey, vocabulary growth, speaking speed) sit
-  // under the story and the numbers on the Progress tab
-  { file: "07-trend",     go: ["review"], settle: 1100, scrollTo: 500 },
+  { file: "03-practice",  go: ["practice"], settle: 4500 },
+  // Life Simulations: the scenario list behind the Practice tab's card
+  { file: "04-roleplay",  go: ["roleplay"], settle: 900 },
+  // a day session deliberately renders into the journey view's container
+  { file: "05-session",   go: ["session", 1, "Mon"], expect: "v-journey" },
+  // Progress lives on its own tab since v418 (Profile became Settings): the
+  // week's story and the key numbers sit at the top of it
+  { file: "06-progress",  go: ["review"], settle: 900 },
+  { file: "07-phrasebank", go: ["phrasebank", 1], settle: 900 },
+  // Home is left out (Oct 2026): with one programme card it is two-thirds
+  // empty, and the old 07-trend scroll no longer reaches the charts.
 ];
 // Practice Partner (App Store set): real UI against the local be-partner Worker
 // (wrangler dev, DEV_AUTH) — "Alex" is consented, "Sam" is in line, so the page
