@@ -14,7 +14,7 @@ const V = { W: "S0kfnpgY-Gs", SH: "-5q6tNovay8", CF: "mmfo9spNaWA" }; const T = 
    heading and one offer bar instead (homeRowsHTML), which is premium-boundary.mjs's subject, not
    this file's — and on staging, where FLAGS_STAGING turns billing on, this suite would otherwise
    be testing the locked rendering by accident. */
-const FLAGS = { billing_enabled: false, home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
+const FLAGS = { billing_enabled: false, home_v2_enabled: true, welding_studio_enabled: false /* pinned off: these rows are the General English engine; Welding with the studio is tests/welding-studio.mjs */, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
 const ENGINE = process.env.BROWSER === "webkit" ? webkit : chromium; console.log(`  engine: ${process.env.BROWSER || "chromium"} · ${BASE}`);
 const b = await ENGINE.launch();
 const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? { home_v2_enabled: false } : FLAGS)); localStorage.setItem("be_theme", "dark");
@@ -128,7 +128,7 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
 /* ---------- Welding: nothing of this ---------- */
 { const { ctx, p } = await open({ history: true, area: "welding" });
   const w = await p.evaluate(() => ({ rows: document.querySelectorAll(".hx-row").length, txt: /Because you|Start here/.test(document.getElementById("v-home").textContent), ev: __ev.filter(e => /^rec/.test(e[0])).length, engine: NudgeEngine.rows(nudgeSignals(), homeContent()).length }));
-  ok("26 · Welding: no rows, no 'Because you', no recommendation event, and the engine itself returns nothing for the area", w.rows === 0 && !w.txt && w.ev === 0 && w.engine === 0, JSON.stringify(w));
+  ok("26 · Welding (studio off): no rows, no 'Because you', no recommendation event, and the engine itself returns nothing for the area", w.rows === 0 && !w.txt && w.ev === 0 && w.engine === 0, JSON.stringify(w));
   await ctx.close(); }
 /* ---------- flag off: today's Home ---------- */
 { const { ctx, p } = await open({ history: true, flag: false });

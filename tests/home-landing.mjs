@@ -21,7 +21,7 @@ async function open(state, opts = {}) {
   await ctx.route(u => /be-events|cloudflareinsights|be-partner|be-push|entitlements|be-polish|be-mail|youtube\.com|gstatic/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
   await ctx.addInitScript(([s, flags, view]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1);
     if (s) localStorage.setItem("be12_v1", s); if (flags) localStorage.setItem("be_flags", flags); if (view) sessionStorage.setItem("be_view", view); },
-    [state ? JSON.stringify(seed(state)) : null, JSON.stringify({ home_v2_enabled: !opts.flagOff })   /* explicit both ways: the staging host turns Home V2 on by default */, opts.view || null]);
+    [state ? JSON.stringify(seed(state)) : null, JSON.stringify({ home_v2_enabled: !opts.flagOff, welding_studio_enabled: !!opts.weldStudio })   /* the Welding studio is ON in production since be12-v654; these checks pin it, and tests/welding-studio.mjs covers it on */   /* explicit both ways: the staging host turns Home V2 on by default */, opts.view || null]);
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => { if (!/network error/i.test(e.message)) errs.push(e.message); });
   await p.goto(BASE + "/index.html" + (opts.url || "")); await sleep(2500);
   return { ctx, p, errs };
@@ -48,7 +48,7 @@ console.log("\n# onboarding");
   ok("5 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p } = await open(null);
   const r = await onboard(p, "welding");
-  ok("6 · Welding (no Home V2) still lands on the road map, unchanged", r.v === "journey" && r.welcome, JSON.stringify(r)); await ctx.close(); }
+  ok("6 · Welding with the Welding studio off (no Home V2) still lands on the road map, unchanged", r.v === "journey" && r.welcome, JSON.stringify(r)); await ctx.close(); }
 { const { ctx, p } = await open(null, { flagOff: true });
   const r = await onboard(p, "general-english");
   ok("7 · home_v2_enabled off (production today): onboarding still lands on the road map", r.v === "journey", JSON.stringify(r)); await ctx.close(); }
