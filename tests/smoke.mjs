@@ -78,9 +78,11 @@ const home = await page.evaluate(async () => {
   const f = fndState(); delete f.placed; delete f.checkedAt; delete f.finished; save();
   go("shadow"); await new Promise(r => setTimeout(r, 100)); go("home"); await new Promise(r => setTimeout(r, 500));
   const cards = [...document.getElementById("v-home").querySelectorAll(":scope > .card, :scope > section.card, :scope > button.card")].map(c => c.className);
-  return { first: cards[0] || "", optional: cards.filter(c => /home-ios|home-rate|coach-card/.test(c)).length, popup: !!document.getElementById("fndCheckOv") };
+  /* Home V2 (production since be12-v653) carries the placement check as its hero, not as a card */
+  const hx = document.querySelector("#v-home .hx");
+  return { first: cards[0] || "", hv2: homeV2On(), hero: hx ? hx.dataset.kind : "", optional: cards.filter(c => /home-ios|home-rate|coach-card/.test(c)).length, popup: !!document.getElementById("fndCheckOv") };
 });
-ok("Home: the placement check is the first card, and does not pop up on its own", /fnd-home/.test(home.first) && !home.popup, JSON.stringify(home));
+ok("Home: the placement check comes first (the first card, or Home V2's hero), and does not pop up on its own", (home.hv2 ? home.hero === "placement" : /fnd-home/.test(home.first)) && !home.popup, JSON.stringify(home));
 ok("Home: at most one optional card", home.optional <= 1, String(home.optional));
 
 /* ── the road-map notice waits to be read ── */
@@ -163,7 +165,8 @@ const land = await page.evaluate(async () => {
   }
   return out;
 });
-ok("Onboarding lands on the road map, not Home — General English", land["general-english"].v === "journey" && !land["general-english"].homeFirst && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
+/* Home V2 is where General English onboarding lands (owner, 27 Sep 2026); the old Home sends it to the road map */
+ok("Onboarding lands on the road map, not Home — General English (Home V2 when it is on)", (land["general-english"].hv2 ? land["general-english"].v === "home" : (land["general-english"].v === "journey" && !land["general-english"].homeFirst)) && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
 /* with welding_studio_enabled (staging) Welding has Home V2, and Home V2 is where onboarding lands (the General English rule) */
 ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected (Home V2 when the Welding studio is on)", (land["welding"].hv2 ? land["welding"].v === "home" : (land["welding"].v === "journey" && !land["welding"].homeFirst)) && land["welding"].track === "welding", JSON.stringify(land["welding"]));
 
@@ -183,9 +186,11 @@ await page.evaluate(() => {
 await page.goto(BASE + "/index.html?back=" + Date.now(), { waitUntil: "load" }); await wait(1200);
 const back = await page.evaluate(() => {
   const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
-  return { hash: location.hash, now: inView(document.querySelector(".rm2-cur")), next: inView(document.querySelector(".rm2-next")), strip: !!document.getElementById("rmCel") };
+  const hx = document.querySelector("#v-home .hx");
+  return { hash: location.hash, hv2: homeV2On(), hero: hx ? hx.dataset.kind : "", now: inView(document.querySelector(".rm2-cur")), next: inView(document.querySelector(".rm2-next")), strip: !!document.getElementById("rmCel") };
 });
-ok("Back after 3 h: opens the road map with the current stage and what is next on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
+/* Home V2: a comeback lands on Home, whose hero is the next step (owner, 27 Sep 2026) */
+ok("Back after 3 h: opens the road map with the current stage and what is next on screen, and the welcome-back strip (Home V2: Home, with the next step as its hero)", back.hv2 ? (back.hash === "#home" && !!back.hero) : (back.hash === "#journey" && back.now && back.next && back.strip), JSON.stringify(back));
 
 /* ── switching area lands on the other area's HOME, with the "You're now in …" strip (owner, 28 Sep 2026) ── */
 const sw = await page.evaluate(async () => {
