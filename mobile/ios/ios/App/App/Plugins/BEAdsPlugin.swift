@@ -31,12 +31,12 @@ import UserMessagingPlatform
 /// - **Non-personalised ads only (this release).** Every request carries
 ///   `npa=1`, so no IDFA and no App Tracking Transparency prompt. There is
 ///   deliberately no `ATTrackingManager` call anywhere in this file.
-/// - **Real ad unit ids come from Info.plist** (`BEAdsAppId`,
-///   `BEAdsInterstitialUnitId`, `BEAdsNativeUnitId`). Until the owner fills
-///   them in with AdMob's own values, a Release build reports unavailable
-///   rather than showing Google's test creatives to real learners. A STAGING
-///   build may use Google's test units, so the ad path can be certified on a
-///   device before an AdMob account exists — but only when BOTH
+/// - **Real ad unit ids come from Info.plist** (`GADApplicationIdentifier`,
+///   `BEAdsInterstitialUnitId`, `BEAdsNativeUnitId` — Lomonec's AdMob ids
+///   since 8 Oct 2026). An absent or malformed id still means unavailable,
+///   never Google's test creatives in front of real learners. A STAGING
+///   build uses Google's test units INSTEAD of the real ones, so the ad path
+///   can be certified on a device without a single real request — but only when BOTH
 ///   `BEAdsAllowTestUnits` is true in Info.plist AND the bundle carries a
 ///   Sandbox receipt (TestFlight). A Debug build is allowed outright. A
 ///   production App Store build has a production receipt, so leaving that key
@@ -81,14 +81,14 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         return s.range(of: "^ca-app-pub-[0-9]{16}/[0-9]{10}$", options: .regularExpression) != nil
     }
 
-    /// Google's own always-fills test units. Used in a debug build, and in a
-    /// staging build that asks for them AND is not a production App Store
-    /// build; a production build without real ids reports unavailable instead.
+    /// Google's own always-fills test units. Used — in place of the real units
+    /// in Info.plist — in a debug build, and in a staging build that asks for
+    /// them AND is not a production App Store build.
     static let testInterstitial = "ca-app-pub-3940256099942544/4411468910"
     static let testNative = "ca-app-pub-3940256099942544/3986624511"
-    /// Google's own test APP id. NOT used as a fallback — it is the value the
-    /// Debug configuration puts in Info.plist (BE_ADS_APP_ID), because the SDK
-    /// reads that key itself. Kept here so the pair is documented together.
+    /// Google's own test APP id. Not used: since 8 Oct 2026 Info.plist carries
+    /// the real AdMob app id in every configuration (Google's guidance is the
+    /// real app id with test UNITS). Kept so the test pair is documented together.
     static let testAppId = "ca-app-pub-3940256099942544~1458002511"
 
     /// A TestFlight build: StoreKit gives it a "sandboxReceipt". A build sold
@@ -145,17 +145,17 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         let appId = BEAdsPlugin.plistString("BEAdsAppId") ?? BEAdsPlugin.plistString("GADApplicationIdentifier")
         var inter = BEAdsPlugin.plistString("BEAdsInterstitialUnitId")
         var nativeU = BEAdsPlugin.plistString("BEAdsNativeUnitId")
-        // Ad UNIT ids may fall back to Google's test units. The APP id may NOT:
-        // MobileAds.start reads GADApplicationIdentifier out of Info.plist
-        // itself, so a value this plugin substitutes would never reach it, and
-        // starting the SDK against an invalid identifier raises an exception
-        // Swift cannot catch. The app id therefore has to be valid IN THE PLIST,
-        // which is set per build configuration (BE_ADS_APP_ID): Google's test
-        // app id in Debug, the placeholder in Release. A Release build with the
-        // placeholder answers not_configured and never starts the SDK.
+        // Wherever test creatives are allowed (a debug build, a staging TestFlight
+        // build), the ad UNITS are Google's test units, ALWAYS — even though the
+        // plist now carries the real AdMob units (8 Oct 2026). Developers and
+        // testers must never request a real ad: AdMob treats that as invalid
+        // traffic. The APP id is not swapped: MobileAds.start reads
+        // GADApplicationIdentifier out of Info.plist itself, and Google's own
+        // guidance is the real app id with test units. Only a production App
+        // Store build (production receipt) requests the real units.
         if BEAdsPlugin.testUnitsAllowed {
-            if !BEAdsPlugin.validUnitId(inter) { inter = BEAdsPlugin.testInterstitial }
-            if !BEAdsPlugin.validUnitId(nativeU) { nativeU = BEAdsPlugin.testNative }
+            inter = BEAdsPlugin.testInterstitial
+            nativeU = BEAdsPlugin.testNative
         }
         guard BEAdsPlugin.validAppId(appId), BEAdsPlugin.validUnitId(inter), BEAdsPlugin.validUnitId(nativeU) else {
             call.resolve(BEAdsPlugin.unavailable("not_configured")); return

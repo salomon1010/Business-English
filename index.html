@@ -22372,7 +22372,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v653";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v654";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24161,7 +24161,7 @@ const FLAGS_DEFAULT={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
-  welding_studio_enabled:false,        // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Staging on, OFF in production until the owner releases it
+  welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
