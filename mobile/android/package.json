@@ -1,0 +1,19 @@
+{
+  "name": "be-mastery-android",
+  "private": true,
+  "version": "1.1.1",
+  "description": "BE Mastery — Android app shell (Capacitor) around the web app in the repository root. Replaces the Play TWA; see docs/ANDROID_NATIVE_SHELL_PLAN.md.",
+  "scripts": {
+    "sync-web": "node ../ios/scripts/sync-web.mjs --out www --platform android",
+    "sync": "node ../ios/scripts/sync-web.mjs --out www --platform android && npx cap sync android",
+    "sync:staging": "node ../ios/scripts/sync-web.mjs --out www --platform android --staging && npx cap sync android",
+    "open": "npx cap open android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  }
+}
