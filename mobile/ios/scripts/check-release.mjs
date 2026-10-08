@@ -71,13 +71,33 @@ console.log("\n== Xcode project");
   const pbx = read(join(ios, "ios", "App", "App.xcodeproj", "project.pbxproj"));
   const all = (re) => [...pbx.matchAll(re)].map(m => m[1]);
   const same = (xs) => xs.length >= 2 && new Set(xs).size === 1;
+  /* the App target's two configurations carry the store bundle id; the two
+     test bundles (BEMasteryTests, BEMasteryUITests) have their own ids under
+     the same organisation and are never uploaded */
   const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g);
-  ok("bundle id com.lomonec.bemastery in every configuration", same(bid) && bid[0] === "com.lomonec.bemastery", bid.join(", "));
+  /* an app extension's id must be PREFIXED by the app's (Apple's signing rule),
+     so the notification service's own id is expected beside it (5 Oct 2026) */
+  const appBid = bid.filter(b => !/Tests$/.test(b) && !/^com\.lomonec\.bemastery\./.test(b)), testBid = bid.filter(b => /Tests$/.test(b));
+  const extBid = bid.filter(b => /^com\.lomonec\.bemastery\./.test(b));
+  ok("bundle id com.lomonec.bemastery in every App configuration", same(appBid) && appBid[0] === "com.lomonec.bemastery", bid.join(", "));
+  ok("every extension id is prefixed by the app's, as Apple requires",
+    extBid.every(b => b.startsWith("com.lomonec.bemastery.")), extBid.join(", ") || "none");
+  ok("test bundles under com.lomonec.* only", testBid.length > 0 && testBid.every(b => b.startsWith("com.lomonec.")), testBid.join(", "));
   const ver = all(/MARKETING_VERSION = ([\d.]+);/g), bld = all(/CURRENT_PROJECT_VERSION = (\d+);/g);
   ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
   const pkgv = JSON.parse(read(join(ios, "package.json"))).version;
   ok(`package.json version ${pkgv} = MARKETING_VERSION`, pkgv === ver[0]);
-  ok("deployment target iOS 15.0", all(/IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/g).every(v => v === "15.0"));
+  /* per build-configuration block: the App target's blocks carry the store
+     bundle id, the project-level blocks carry none, and the test bundles carry
+     their own ids. The test bundles sit on iOS 17 because the XCTest / Testing
+     frameworks in the iOS 27 SDK are built for 17; the APP must stay on 15. */
+  const blocks = pbx.split("isa = XCBuildConfiguration;").slice(1).map(b => b.slice(0, b.indexOf("name = ") + 40));
+  const appBlocks = blocks.filter(b => !/PRODUCT_BUNDLE_IDENTIFIER = com\.lomonec\.[A-Za-z]*Tests;/.test(b));
+  const testBlocks = blocks.filter(b => /PRODUCT_BUNDLE_IDENTIFIER = com\.lomonec\.[A-Za-z]*Tests;/.test(b));
+  const pick = (bs, re) => bs.map(b => (re.exec(b) || [])[1]).filter(Boolean);
+  const appDt = pick(appBlocks, /IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/), testDt = pick(testBlocks, /IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/);
+  ok(`deployment target iOS 15.0 in the App target and the project (${appDt.join(", ")})`, appDt.length >= 2 && appDt.every(v => v === "15.0"));
+  ok(`test bundles on iOS 17.0 (XCTest in the iOS 27 SDK needs it; ${testDt.join(", ")})`, testDt.length >= 2 && testDt.every(v => v === "17.0"));
   ok("iPhone only (TARGETED_DEVICE_FAMILY = 1)", all(/TARGETED_DEVICE_FAMILY = ([^;]+);/g).every(v => v === "1"));
   ok("automatic signing", all(/CODE_SIGN_STYLE = (\w+);/g).every(v => v === "Automatic"));
   const team = all(/DEVELOPMENT_TEAM = ([^;]+);/g);
@@ -105,6 +125,118 @@ console.log("\n== Info.plist / privacy manifest");
     ok(`${l}.lproj/InfoPlist.strings: microphone, speech recognition and camera, in the project`, ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription", "NSCameraUsageDescription"].every(k => s.includes(`"${k}"`)) && pbx.includes(`path = ${l}.lproj/InfoPlist.strings;`));
   }
   ok("ITSAppUsesNonExemptEncryption = NO", /<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\/>/.test(plist));
+  /* Sign in with Apple (Oct 2026): the capability is an entitlement, and a
+     signed build needs the matching App ID capability in the Apple Developer
+     portal — docs/auth/SOCIAL_SIGNIN.md.
+
+     BEGoogleIosClientID is now FILLED IN (2 Oct 2026), so the check is no
+     longer "the key exists": it is that the value is a real iOS OAuth client
+     of this very Firebase project. The project number comes from index.html's
+     own FB_CONFIG rather than being written here, so a client minted in the
+     wrong Google Cloud project fails before the archive instead of at the end
+     of a learner's sign-in. The id is public by design (an iOS OAuth client
+     has no secret); the plist is still checked for anything that is not. */
+  {
+    const gid = (plist.match(/<key>BEGoogleIosClientID<\/key>\s*<string>([^<]*)<\/string>/) || [])[1] || "";
+    const gproj = (read(join(root, "index.html")).match(/messagingSenderId:"(\d+)"/) || [])[1] || "";
+    ok("BEGoogleIosClientID is a configured iOS OAuth client of this Firebase project (Google sign-in is offered)",
+      !!gproj && gid.startsWith(gproj + "-") && /^\d+-[a-z0-9]{16,}\.apps\.googleusercontent\.com$/.test(gid),
+      `len=${gid.length} project=${gproj || "?"}`);
+    ok("Info.plist carries no secret (the client id is public; a client secret, key or token would not be)",
+      !/client_secret|BEGIN PRIVATE KEY|AuthKey_|-----BEGIN/.test(plist));
+  }
+  {
+    const ent = join(ios, "ios", "App", "App", "App.entitlements");
+    ok("App.entitlements present", existsSync(ent));
+    const e = existsSync(ent) ? read(ent) : "";
+    ok("entitlements: Sign in with Apple (Default)", /<key>com\.apple\.developer\.applesignin<\/key>\s*<array>\s*<string>Default<\/string>\s*<\/array>/.test(e));
+    /* Push was added 4 Oct 2026 (docs/IOS_NOTIFICATIONS.md). Its value must be
+       one of Apple's two environments — an empty or invented string signs, then
+       silently swallows every notification. */
+    ok("entitlements: push notifications (development here; the App Store export rewrites it to production)",
+      /<key>aps-environment<\/key>\s*<string>(development|production)<\/string>/.test(e));
+    /* The App Group (5 Oct 2026) is how the home-screen widget reads what the
+       app publishes — docs/IOS_WIDGET.md. One group, the project's own id. */
+    const GROUP = "group.com.lomonec.bemastery";
+    ok("entitlements: the widget's App Group, and only that group",
+      new RegExp(`<key>com\\.apple\\.security\\.application-groups</key>\\s*<array>\\s*<string>${GROUP.replace(/\./g, "\\.")}</string>\\s*</array>`).test(e));
+    const allowed = new Set(["com.apple.developer.applesignin", "aps-environment", "com.apple.security.application-groups"]);
+    const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => !allowed.has(k));
+    ok(`entitlements: nothing else requested (${extra.length ? extra.join(", ") : "none"})`, extra.length === 0);
+    const sign = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = ([^;]+);/g)].map(m => m[1]);
+    ok("CODE_SIGN_ENTITLEMENTS: App/App.entitlements in both app configurations, BEWidgetExtension.entitlements in both widget configurations",
+      sign.filter(v => v === "App/App.entitlements").length === 2 && sign.filter(v => v === "BEWidgetExtension.entitlements").length === 2 && sign.length === 4, sign.join(", "));
+    const went = join(ios, "ios", "App", "BEWidgetExtension.entitlements");
+    ok("the widget extension carries the same App Group and nothing else",
+      existsSync(went) && read(went).includes(`<string>${GROUP}</string>`) && [...read(went).matchAll(/<key>([^<]+)<\/key>/g)].every(m => m[1] === "com.apple.security.application-groups"));
+    ok("BEAuthPlugin.swift compiled into the app target", /BEAuthPlugin\.swift in Sources/.test(pbx));
+    ok("BEPushPlugin.swift + BEAppDelegate.swift compiled into the app target", /BEPushPlugin\.swift in Sources/.test(pbx) && /BEAppDelegate\.swift in Sources/.test(pbx));
+    const vc = read(join(ios, "ios", "App", "App", "Lifecycle", "BEBridgeViewController.swift"));
+    ok("BEAuth registered on the Capacitor bridge", /registerPluginInstance\(BEAuthPlugin\(\)\)/.test(vc));
+    ok("BEPush registered on the Capacitor bridge", /registerPluginInstance\(BEPushPlugin\(\)\)/.test(vc));
+    const app = read(join(ios, "ios", "App", "App", "Lifecycle", "BEMasteryApp.swift"));
+    /* Apple hands the device token and the tap to the application delegate and
+       nowhere else: without the adaptor the plugin can never get a token. */
+    ok("the app delegate is installed, so a device token and a tap have somewhere to arrive",
+      /@UIApplicationDelegateAdaptor\(BEAppDelegate\.self\)/.test(app));
+    const pushSrc = read(join(ios, "ios", "App", "App", "Plugins", "BEPushPlugin.swift"));
+    ok("BEPushPlugin: nothing logged (a device token identifies an install)", !/\bprint\(|NSLog|os_log/.test(pushSrc));
+    /* The picture on a notification (5 Oct 2026): only a notification SERVICE
+       extension can attach one, and only a real app extension is loaded for
+       it — an ExtensionKit extension never is. */
+    ok("BEPushService is an app-extension target with the notification service point",
+      /BEPushService\.appex in Embed Foundation Extensions/.test(pbx)
+      && /"com\.apple\.product-type\.app-extension"/.test(pbx)
+      && /com\.apple\.usernotifications\.service/.test(read(join(ios, "ios", "App", "BEPushService", "Info.plist"))));
+    const svc = read(join(ios, "ios", "App", "BEPushService", "NotificationService.swift"));
+    ok("BEPushService: reads be.image, https only, and never logs the learner's notification",
+      /be\["image"\]/.test(svc) && /scheme == "https"/.test(svc) && !/\bprint\(|NSLog|os_log/.test(svc));
+    ok("BEPushService runs on the same iOS as the app (15.0), not only on the newest",
+      !/BEPushService[\s\S]{0,4000}?IPHONEOS_DEPLOYMENT_TARGET = 2[0-9]\.0;/.test(pbx));
+    /* A leftover target from the first attempt: the Generic Extension template
+       makes an EXTENSIONKIT extension, which iOS never loads for notifications,
+       and an empty one would fail App Store validation. Delete it in Xcode
+       (select BENotificationService → right-click → Delete). */
+    ok("no leftover BENotificationService target (delete it in Xcode — it is an ExtensionKit stub that cannot serve notifications)",
+      !/BENotificationService/.test(pbx));
+    /* The home-screen widget (5 Oct 2026, docs/IOS_WIDGET.md): a WidgetKit
+       extension fed through the App Group by the BEWidget plugin; a tap opens
+       bemastery://open?view=… which only BEWidgetBox.route may interpret. */
+    ok("BEWidgetPlugin.swift compiled into the app target and registered on the bridge",
+      /BEWidgetPlugin\.swift in Sources/.test(pbx) && /registerPluginInstance\(BEWidgetPlugin\(\)\)/.test(vc));
+    ok("BEWidgetExtension is an app-extension target with the WidgetKit extension point",
+      /BEWidgetExtension\.appex in Embed Foundation Extensions/.test(pbx)
+      && /com\.apple\.widgetkit-extension/.test(read(join(ios, "ios", "App", "BEWidget", "Info.plist"))));
+    ok("BEWidgetExtension runs on the same iOS as the app (15.0), iPhone only, iOS only",
+      !/BEWidgetExtension[\s\S]{0,4000}?IPHONEOS_DEPLOYMENT_TARGET = 2[0-9]\.0;/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2000}?IPHONEOS_DEPLOYMENT_TARGET = 15\.0;/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2500}?SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";/.test(pbx)
+      && /INFOPLIST_FILE = BEWidget\/Info\.plist;[\s\S]{0,2500}?TARGETED_DEVICE_FAMILY = 1;/.test(pbx));
+    const wplug = read(join(ios, "ios", "App", "App", "Plugins", "BEWidgetPlugin.swift"));
+    const wmodel = read(join(ios, "ios", "App", "BEWidget", "BEWidgetModel.swift"));
+    const wview = read(join(ios, "ios", "App", "BEWidget", "BEWidget.swift"));
+    const c = (src, name) => (src.match(new RegExp(`static let ${name} = "([^"]+)"`)) || [])[1];
+    ok("the app writes and the widget reads the SAME App Group and key",
+      c(wplug, "group") === GROUP && c(wmodel, "group") === GROUP && !!c(wplug, "key") && c(wplug, "key") === c(wmodel, "key"),
+      `${c(wplug, "group")}/${c(wplug, "key")} vs ${c(wmodel, "group")}/${c(wmodel, "key")}`);
+    /* the widget EXTENSION never fetches or logs: it draws what the App Group holds. Since
+       6 Oct 2026 the APP's plugin fetches the Recommendations widget's pictures — only
+       inside BEWidgetThumbCache, only from YouTube's thumbnail hosts, nothing logged. */
+    const wrecs = read(join(ios, "ios", "App", "BEWidget", "BEWidgetRecs.swift")), wlock = read(join(ios, "ios", "App", "BEWidget", "BEWidgetLockView.swift"));
+    ok("widget sources: the extension logs nothing and fetches nothing (it draws the snapshot and the saved pictures)",
+      ![wmodel, wview, wrecs, wlock].some(s => /\bprint\(|NSLog|os_log|URLSession|URLRequest/.test(s)) && !/\bprint\(|NSLog|os_log/.test(wplug));
+    { const cache = (wplug.split("enum BEWidgetThumbCache")[1] || ""), outside = wplug.split("enum BEWidgetThumbCache")[0];
+      ok("the app's widget plugin fetches only the Recommendations pictures, from YouTube's thumbnail hosts",
+        !/URLSession|URLRequest/.test(outside) && /hosts: Set<String> = \["i\.ytimg\.com", "img\.youtube\.com"\]/.test(cache) && /hosts\.contains\(h\)/.test(cache)); }
+    ok("Info.plist registers the bemastery:// scheme the widget opens, and the scene routes it through BEWidgetBox",
+      /<key>CFBundleURLSchemes<\/key>\s*<array>\s*<string>bemastery<\/string>/.test(plist) && /BEWidgetBox\.shared\.deliver\(url: url\)/.test(app));
+    ok("widget taps are allow-listed (view, week, weekday, action) before they reach the web layer",
+      /static let views: Set<String>/.test(wplug) && /static let days: Set<String>/.test(wplug) && /\(1\.\.\.52\)\.contains/.test(wplug));
+    const sw = read(join(ios, "ios", "App", "App", "Plugins", "BEAuthPlugin.swift"));
+    ok("BEAuthPlugin: no client secret, nothing logged", !/client_secret/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
+    ok("BEAuthPlugin: Apple request is nonce-bound (SHA-256)", /request\.nonce = Self\.sha256\(raw\)/.test(sw));
+    ok("BEAuthPlugin: Google uses PKCE (S256) and checks state", /code_challenge_method/.test(sw) && /value\("state"\) == state/.test(sw));
+  }
   ok("portrait only on iPhone", /<key>UISupportedInterfaceOrientations<\/key>\s*<array>\s*<string>UIInterfaceOrientationPortrait<\/string>\s*<\/array>/.test(plist));
   for (const k of ["NSPhotoLibraryUsageDescription", "NSLocationWhenInUseUsageDescription", "NSContactsUsageDescription", "NSBluetoothAlwaysUsageDescription"]) ok(`${k} absent (not used by the app)`, !has(k));
   const pm = read(join(ios, "ios", "App", "App", "PrivacyInfo.xcprivacy"));

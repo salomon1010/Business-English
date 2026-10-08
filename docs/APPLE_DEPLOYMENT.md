@@ -47,7 +47,10 @@ Never run `pod install`; the project has no Podfile by design.
 ## C. Apple Developer setup (once per app)
 1. Certificates, Identifiers & Profiles → Identifiers → **App ID**
    `com.lomonec.bemastery`, explicit, description "BE Mastery". Capabilities:
-   none (no push, no Sign in with Apple, no associated domains).
+   **Sign in with Apple** and **Push Notifications** — both are in the committed
+   entitlements, and a build will not sign until the App ID carries them
+   (docs/auth/SOCIAL_SIGNIN.md, docs/IOS_NOTIFICATIONS.md). No associated
+   domains, no iCloud. Push also needs an APNs auth key: IOS_NOTIFICATIONS §2.2.
 2. App Store Connect → My Apps → **+ New App**: platform iOS, name
    *BE Mastery — Business English*, primary language English (U.K.), bundle id
    `com.lomonec.bemastery`, SKU `be-mastery-ios`, full access.

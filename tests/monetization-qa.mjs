@@ -79,7 +79,7 @@ const MEASURE = () => {
     dir: getComputedStyle(c).direction,
     adsAllowed: AdEligibility.planAllowsAds(), prem: entIsPremiumForDisplay(),
     manage: !!c.querySelector("[onclick='Billing.manage()']"), buys: c.querySelectorAll(".ent-buy").length,
-    signin: !!c.querySelector("[onclick='fbOpenModal()']"), restore: !!c.querySelector("[onclick='Billing.restore()']"),
+    signin: !!c.querySelector("[onclick=\"fbOpenModal('in')\"]"), restore: !!c.querySelector("[onclick='Billing.restore()']"),
     terms: !!c.querySelector(".ent-terms a[href='privacy.html']") && /Google Play/.test((c.querySelector(".ent-terms") || {}).textContent || ""),
   };
 };

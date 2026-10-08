@@ -1,0 +1,26 @@
+# be-auth — Firebase's sign-in helper on our own domain (README.md).
+# NOT deployed yet: deploying it creates the auth.lomonec.com DNS record (owner decision).
+#   production:  npx wrangler deploy --env ""
+#   staging:     npx wrangler deploy --env staging
+name = "be-auth"
+main = "auth-proxy.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "auth.lomonec.com", custom_domain = true }]
+
+[vars]
+FIREBASE_HOST = "be-mastery.firebaseapp.com"
+
+[observability]
+enabled = false   # the handler's URLs carry one-time OAuth codes: never record them
+
+[env.staging]
+name = "be-auth-staging"
+workers_dev = false
+routes = [{ pattern = "auth-staging.lomonec.com", custom_domain = true }]
+
+[env.staging.vars]
+FIREBASE_HOST = "be-mastery-test.firebaseapp.com"
+
+[env.staging.observability]
+enabled = false

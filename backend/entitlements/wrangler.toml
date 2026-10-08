@@ -1,20 +1,40 @@
 # be-entitlements — the server-side source of truth for a learner's plan.
-# NOT DEPLOYED. The D1 database does not exist yet; database_id is a
-# placeholder so an accidental `wrangler deploy` fails instead of binding to
-# something else. Setup (owner, when Phase 9 billing is ready):
-#   npx wrangler d1 create be-entitlements        -> paste the id below
-#   npx wrangler d1 migrations apply be-entitlements --remote
+# NOT DEPLOYED. The production D1 database EXISTS and is migrated (0001-0004,
+# 2 Oct 2026); the Worker itself has never been deployed and no production
+# secret is set, so every store route would answer 501 until the owner sets
+# them. The client is still inert: ENT_API is empty and billing_enabled is OFF.
+# Remaining owner steps before `npx wrangler deploy --env ""`:
 #   npx wrangler secret put ADMIN_TOKEN           (>= 32 random chars; owner only)
 #   openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY   (seals stored Play tokens)
+#   npx wrangler secret put APP_ACCOUNT_SECRET    (>= 32 chars; NOT the staging value)
+#   npx wrangler secret put GOOGLE_SA_JSON        (the Play service-account key)
+# and the two RTDN vars below, which need a production Pub/Sub push
+# subscription and a production custom domain that do not exist yet.
 # Keep [observability] traces OFF: Google API URLs carry the purchase token.
-#   npx wrangler deploy --env ""
 name = "be-entitlements"
 main = "entitlements-worker.js"
 compatibility_date = "2026-09-01"
 
 [vars]
 FIREBASE_PROJECT_ID = "be-mastery"
+# capacitor://localhost is the App Store shell's own origin: without it the
+# iOS app cannot reach this Worker at all, so Premium would be web-only.
 ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost"
+# Apple (StoreKit 2 JWS). Production AND Sandbox: Sandbox is what App Review
+# itself buys with, so a Production-only list fails review.
+APPLE_BUNDLE_ID = "com.lomonec.bemastery"
+APPLE_ENVIRONMENTS = "Production,Sandbox"
+# SHA-256 of Apple Root CA - G3 (public). Pinned so a JWS chain must end in
+# Apple's own root. Same value as staging, by design: it is Apple's root.
+APPLE_ROOT_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179"
+# Google Play. PLAY_PACKAGE is the production listing; the two RTDN values are
+# NOT set, because the production push subscription and the production custom
+# domain do not exist yet. google-play.js answers 501 while GOOGLE_SA_JSON is
+# unset and throws rtdn_not_configured on a notification, which is the honest
+# behaviour: no half-verified purchase is ever accepted.
+PLAY_PACKAGE = "com.bemastery.app"
+# RTDN_AUDIENCE  = "https://entitlements.lomonec.com/v1/billing/google_play"  (owner)
+# RTDN_SA_EMAIL  = the production push subscription's service account         (owner)
 
 # Observability OFF, explicitly: Workers traces record outbound fetch URLs,
 # and the Google Play API URL carries the purchase token (Phase 10/11 review).
@@ -24,7 +44,7 @@ enabled = false
 [[d1_databases]]
 binding = "DB"
 database_name = "be-entitlements"
-database_id = "REPLACE-WITH-D1-ID"
+database_id = "ead9ecb9-7f95-45f7-a751-9d09c62febc4"   # be-entitlements, created 2026-10-02
 migrations_dir = "migrations"
 
 # local development: wrangler dev --env dev (X-Dev-User instead of Firebase)

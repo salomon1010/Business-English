@@ -33,4 +33,11 @@ Notes for the reviewer
 - Welding English is a second programme; Practice Partner, the AI coach and Shadow Studio's Challenge exist only on General English, enforced on the server against the account's programme.
 - Transcripts, first names and shared phrases are screened automatically for phone numbers, e-mail addresses, links and social handles; there is no text chat. Audio is not screened automatically; reports are reviewed by Lomonec LLC.
 - Reminders appear inside the app only.
+- **Developer tools (disclosed, Apple 2.3.1).** Tapping *Program start date* in
+  Profile → Settings five times toggles a "GitHub sync" row. It is the maker's own
+  backup tool — it writes a copy of the learner's own progress JSON to a GitHub
+  repository the learner supplies a token for. It is off until deliberately
+  revealed, stores nothing remotely on its own, collects nothing about the
+  learner, and is not needed to review any feature above. Disclosed here because
+  it is reachable in the shipped build.
 - Support: contact@lomonec.com — account deletion page: https://app.lomonec.com/delete-account.html

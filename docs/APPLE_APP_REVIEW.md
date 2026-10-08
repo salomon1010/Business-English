@@ -147,7 +147,7 @@ App Store Connect's *Sign-in required* fields.
 
 ## Known limitations to state, not hide
 - No purchases in this version (StoreKit code present but switched off).
-- Reminders appear inside the app only (no push notifications in the iPhone app).
+- Reminders are notifications (daily reminder, partner invitations, learning nudges). Permission is asked only when the learner switches the reminder on, never at launch; refusing leaves the in-app reminder working. See docs/IOS_NOTIFICATIONS.md.
 - Shadow Studio video needs a connection (YouTube through the relay page).
 - Google sign-in is hidden; e-mail/password only.
 - Audio is not screened automatically; reports are reviewed by hand

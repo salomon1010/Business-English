@@ -1,5 +1,14 @@
 # lomonec.com — public marketing site
 
+**Layout since 7 Oct 2026:** `lomonec.com/` is the **company** page (Lomonec:
+AI automation consulting, agentic AI, software, our apps) — `index.html` +
+`assets/` (its own CSS/JS, the logo files from the sales kit). Each app has its
+own folder; **BE Mastery is `bemastery/`** (everything described below lives
+there now, all paths relative). `_redirects` sends the old `/team.html` and
+`/blog/…` addresses to their new homes. Public contact is
+`contact@lomonec.com` — never a personal name or address. To add an app: give
+it a folder and a card in the "Our apps" section of `index.html`.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 
@@ -9,13 +18,75 @@ css/tokens.css        design tokens — every colour/radius/timing resolves here
 css/base.css          reset, type scale, layout primitives
 css/components.css    nav, buttons, glass cards, floating cards, social
 css/sections.css      ambient background, hero stage, per-section layout
-js/config.js          SINGLE SOURCE for nav, CTAs, social URLs, footer, stats
+js/config.js          SINGLE SOURCE for store URLs, nav, CTAs, social, footer
 js/motion.js          MotionSystem — one rAF loop, one 4 s pulse scheduler
-js/app.js             renders nav/social/footer from config, wires the hero
+js/app.js             renders nav/stores/social/footer from config, wires the hero
+js/team.js            the people on team.html and in blog bylines
+js/blog.js            the list of blog posts
+js/pages.js           renders the team grid, blog list and bylines
+css/pages.css         team, blog list and article layout
+js/analytics.js       9 anonymous counts → the be-events Worker (see below)
 ```
 
+The page sells the **app**. It is not the app, and it does not try to be one:
+every feature section shows a preview and then points at the store buttons.
+`app.lomonec.com` is no longer offered as the way in — it appears twice, as
+"Sign in" for people who already have an account, and as the stop-gap for
+iPhone and desktop while there is no App Store listing.
+
 The page tells one story in order: the problem → the method → Shadow Studio →
-AI Coach → Practice Partner → progress → two programmes → start.
+AI Coach → Practice Partner → how it fits → progress → two programmes →
+pricing → download.
+
+## Stores — the page cannot claim a listing that does not exist
+
+`js/config.js` holds `APP_STORE_URL` and `GOOGLE_PLAY_URL` and nothing else
+decides what the page says:
+
+| store | today | what renders |
+|---|---|---|
+| Google Play | **live** — `com.bemastery.app` | a real link, `google_play_clicked` |
+| App Store | **no listing** — `APP_STORE_URL` is `""` | a dashed, dimmed, non-link badge reading "Coming soon on the App Store", out of the tab order |
+
+**To go live on iOS:** paste the listing URL into `APP_STORE_URL`. That single
+edit turns both badges into links, adds the App Store row to the footer, starts
+`app_store_clicked` firing and **removes** the "not on the App Store yet" note
+under the download section, which is rendered from the same status
+(`buildStoreNote`). Nothing else needs touching. Verified by temporarily
+filling the constant in and reloading, 2026-09-22.
+
+### Store badges
+
+The two marks are drawn inline: the Play mark as its four facets in the
+official colours, the Apple mark as its standard silhouette. **Before launch
+these should be swapped for the official badge artwork** — Apple Marketing
+Resources and the Google Play badge generator — because both brand guidelines
+ask for the supplied asset rather than a redrawing. The swap is local to
+`MARK` in `js/app.js` and the `.store` rules in `css/components.css`.
+
+## Analytics
+
+`js/analytics.js` posts nine counts to the same `be-events` Worker the app
+uses — `sendBeacon` with a `text/plain` Blob, no cookie, no device id, no
+third party:
+
+`website_visit` · `hero_cta_clicked` · `app_store_clicked` ·
+`google_play_clicked` · `pricing_viewed` · `practice_partner_viewed` ·
+`shadow_viewed` · `download_section_viewed` · `social_link_clicked`
+
+Only two prop keys are sent, `source` (hero | nav | download | pricing |
+footer | menu | …) and `kind` (the social channel). Both were already on the
+Worker's `PROP_KEYS`, so that list is untouched.
+
+> **The Worker must be redeployed before any of this records anything.**
+> `backend/events/events-worker.js` was changed in the same commit: the nine
+> names were added to `EVENTS` and `https://lomonec.com` +
+> `https://www.lomonec.com` to `ALLOWED_ORIGINS`. Until that deploy, every
+> event is dropped with a 204 — a well-formed no-op, which is the safe
+> direction. Deploying it is the owner's call.
+
+Events are suppressed on `localhost`, so a local check never writes into the
+production dataset.
 
 ## Motion
 
@@ -33,38 +104,144 @@ the app changes when this folder changes.
 
 ## Only claim what is switched ON in production
 
-The copy was written against the live app (`be12-v429`, 2026-09-22) and its
+The copy was re-checked against the live app (`be12-v479`, 2026-09-24) and its
 `FLAGS_DEFAULT`. Before adding a feature to this page, check the flag:
 
 - **On, and on the page:** Practice Partner (`practice_partner_enabled`, with
-  matching / voice / AI fallback / notifications), Shadow Studio V2 and the
-  five-rung Challenge ladder (`shadow_studio_v2_enabled`,
-  `shadow_challenge_enabled`), Executive Polish's one-minute speech report,
-  Life Simulations, Foundations, the trade track, the road map.
-- **Off, so deliberately absent:** the searchable 301-video Shadow library
-  (`shadow_library_enabled`), live WebRTC calls between partners
-  (`practice_partner_live_enabled`, and the Worker's `LIVE_ENABLED="0"`),
-  Apply It (`shadow_apply_phrase_enabled`). There is also **no iOS App Store
-  listing** — do not add an App Store badge.
+  matching / voice / AI coach / notifications) **and live calls** (these follow
+  the Worker's `LIVE_ENABLED`, set to "1" on 2026-09-24, not the client flag).
+  Shadow Studio V2 with the video library (`shadow_library_enabled`, about 300
+  videos) and the Challenge ladder (`shadow_challenge_enabled`). The speaking
+  report: Executive Polish, every session's "Record yourself" card, and every
+  Life Simulation (14 `SCENARIOS`). The certificate after all 84 sessions.
+  Foundations, the trade track, the road map.
+- **Off, so deliberately absent:** Apply It (`shadow_apply_phrase_enabled`)
+  and the V2 daily missions (hidden app-wide since be12-v463). There is **no
+  iOS App Store listing**, which is why the App Store badge renders as "Coming
+  soon" rather than as a link. See § Stores.
+- **The Shadow artwork is drawn, not screenshotted.** The app's Shadow screens
+  show YouTube thumbnails and players, which are someone else's likeness and
+  copyright. The studio frame, library card, ladder and report in `#shadow`
+  are HTML copies of the app's layout with our own sample line. Keep it that
+  way, and do not name the library's channels here.
+- **The Challenge ladder is "up to" five steps.** "Together" needs real word
+  timing, so clips without it skip that step (`svChRungs`).
+- **Pricing:** there is **no billing anywhere in this product** — no Play
+  Billing, no Stripe, no RevenueCat, and the app's own Premium row renders a
+  "coming soon" chip. The Pricing section therefore prints **no figure**: one
+  card says Free, the other says a paid tier is in preparation and states
+  plainly that no price is shown because none is configured. Put real numbers
+  there the day a real SKU exists, and not before.
 - **Privacy wording:** recordings are *saved on the device and we keep no copy*;
   they ARE sent to the Worker and on to OpenAI for scoring. Do not write
   "your recordings never leave your phone" — `privacy.html` §2 says otherwise.
+
+## What the page shows, and what it keeps for the app (2026-09-28)
+
+Rewritten after reading the landing pages of Speak, ELSA Speak, Praktika and
+Cambly (Duolingo's did not render for the reader). They all share the same
+shape: an outcome-led hero with the store buttons, a three-step method, a
+feature grid with one picture and one line per feature, "who it is for", proof
+(ratings, reviews), light pricing, an FAQ and a final download call. None of
+them explains how a feature works inside — no rules, no algorithms, no content
+counts beyond one headline number. The page now follows that:
+
+- **Shown:** the promise, the daily method, a picture grid of what is inside
+  (`#inside`, art in `img/inside/`), Shadow Studio, the AI coach, Practice
+  Partner, progress and the certificate, who it is for (`#who`), the two
+  programmes, "free to start", an FAQ (`#faq`) and the download.
+- **Kept for the app:** the Challenge rules, how the queue and matching work,
+  the "double yes", the five report steps, the "how it fits together" loop
+  (section removed), exact content counts other than 84 / 152 / 14 / 15.
+- **Never:** invented ratings, reviews or learner numbers (see below).
+
+### Claims that need staging features in production first
+
+lomonec.com is not live. The copy was updated against **staging be12-v568**,
+so before the site goes public these must be on app.lomonec.com, or the lines
+removed:
+
+- Grammar exercises (Inside grid, General English list) — Home V2 Explore card.
+- "Open the app and your page is already waiting" (Inside intro) — Home V2.
+- Welding: "a report from each interviewer" and "professional interview
+  coaches, judged against the trade's own standards".
+- "A Premium plan is on its way" (Pricing, FAQ) — billing is off everywhere;
+  no price is printed until a real one exists.
+
+The hero phone is now `img/phone-session.webp` — the redesigned session day,
+shot from the staging line with the neutral "Alex" profile. Home V2 was not
+used: its hero reel shows YouTube artwork. The site's body text follows the
+app's softer `#cbd0e2` (`--color-text`).
 
 ## Real numbers only
 
 `STATS` at the top of `<body>` holds the Google Play figures (`rating`,
 `downloads`, `learners`). All three ship empty, and the page then shows product
-facts (84 sessions / 152 phrases / 15 languages) in the trust band and a
-"Free · Google Play + web · Works offline" pill in the hero. Paste figures from
-Play Console when there are figures worth showing; nothing is invented.
+facts (84 sessions / 152 phrases / 15 languages) in the hero chips and a
+"Free to start · No account needed · Works offline once installed · Guidance in
+15 languages" line under the store buttons. Paste figures from Play Console
+when there are figures worth showing; nothing is invented.
+
+## Team and blog
+
+Two inner pages share the home page's nav and footer. `<body data-page>` names
+the page and `data-root` is the path back to the root (`"../"` under `blog/`),
+so `app.js` turns `#section` links into links back to the home page.
+
+- **`team.html`** is rendered from **`js/team.js`**. `group:"core"` → "The
+  makers", `group:"contributor"` → "Contributors" (hidden while empty). An
+  entry with `name:""` is never published; on localhost it shows as a dashed
+  "fill me in" card. Photos go in `img/team/` (square, 600×600 or more); with
+  no photo the card shows initials.
+- **`blog/index.html`** lists **`js/blog.js`**, newest first; a future date
+  stays hidden until that day. To publish: copy `blog/_template.html` to
+  `blog/<slug>.html`, write it, add the entry to `js/blog.js`, add the URL to
+  `sitemap.xml`. `author` is a team id or `"team"` (BE Mastery Team).
+- The nav has no room for an eighth item at 1,024 px, which is why
+  "Professional English" is in the footer and not the top bar.
+
+## Translated pages (7 Oct 2026) — the app's 16 languages
+
+`/<code>/` and `/bemastery/<code>/` (fr es pt it de ru ar ur hi bn id vi zh ja
+ko) are translated copies of the two home pages, reached from the flag
+drop-down (`details.lang`) in each top bar. They are **generated — never edit
+them by hand**. After any change to `index.html` or `bemastery/index.html`, or
+to the L()/T() labels in `bemastery/js/config.js` / `app.js`, run from the repo
+root:
+
+```
+node scripts/site-i18n/build.mjs          # every language
+node scripts/site-i18n/leftover.mjs es    # what still looks English on one
+```
+
+Per language, `scripts/site-i18n/` holds `home.<code>.mjs` and
+`bemastery.<code>.mjs` (`[english, translation]` pairs) and `labels.<code>.mjs`
+(the words the page scripts draw; built into `bemastery/js/i18n/<code>.js`,
+which sets `window.BEM_I18N`). The build copies the English page, sets
+`lang` (and `dir="rtl"` for ar/ur), points relative paths one folder up and
+swaps each string. An English sentence that was edited no longer matches: the
+build stops and lists it — translate it in every language and run again. A
+NEW English sentence stays English until it is added, so run `leftover.mjs`
+after adding copy. The build also rewrites, in the English pages, the
+drop-down and the hreflang links between the `<!-- i18n:… -->` markers, from
+`langs.mjs` (names + inline-SVG flags; a flag stands for a language by
+convention only — Arabic shows Saudi Arabia, Portuguese Brazil, English the
+UK). Team and blog are English only. All 15 translations were machine-written:
+a native speaker should read each before it is promoted.
 
 ## Assets
 
 - `img/logo.svg`, `img/icon-192.png` — copies of the app's own.
-- `img/phone-*.webp` — 540×1200 versions of `playstore/store-art-2026-09/phone/`
+- `img/phone-*.webp` — 540×1200 versions of `playstore/store-art-2026-08/phone/`
   (neutral "Alex" profile). Regenerate from those PNGs if the store art changes.
 - The social preview image is the app's `https://app.lomonec.com/og.png`
   (absolute URL, so it works from either domain).
+
+## Cache-busting
+
+Every stylesheet and script link carries `?v=YYYYMMDDx`. `python3 -m http.server`
+sends no cache headers, so browsers reuse old copies; bump the `?v=` in
+`index.html`, `team.html` and `blog/*.html` whenever a CSS or JS file changes.
 
 ## Check locally
 
@@ -76,24 +253,23 @@ Other sessions often hold 80xx ports serving *other* checkouts — confirm with
 
 ## Deploy to lomonec.com
 
-`lomonec.com` serves nothing today (2026-09-21). Two options; the first is
-simpler because the DNS zone is already on Cloudflare.
-
-**A. Cloudflare Pages (recommended)**
+**LIVE since 7 Oct 2026** as the Worker `lomonec-site` (static assets, no
+code) on the custom domains `lomonec.com` and `www.lomonec.com`. Config is
+`wrangler.jsonc` in this folder; `.assetsignore` keeps the README, the config
+and `img/widgets/_home.html` (the composer for the widget home-screen shots)
+off the web. Redeploy after every change:
 ```
-npx wrangler pages project create lomonec-site --production-branch main
-npx wrangler pages deploy site --project-name lomonec-site
+cd site && npx wrangler deploy
 ```
-Then Cloudflare dashboard → Workers & Pages → lomonec-site → Custom domains →
-add `lomonec.com` and `www.lomonec.com` (Cloudflare writes the DNS records).
-Redeploy after every change with the second command.
+**Not Pages:** wrangler 4.148 turns `wrangler pages project create` into a
+Workers deploy of whatever folder it runs in — it began uploading a whole
+repo checkout as a Worker named after the folder. Never run it here.
 
-**B. GitHub Pages, second repo**
-Push this folder to `salomon1010/lomonec-site`, enable Pages on `main`, add a
-`CNAME` file containing `lomonec.com`, and point the apex `A` records at GitHub
-Pages' IPs plus `www` → `salomon1010.github.io`.
+At launch the App Store badge is "Coming soon" (`IOS_LIVE = false` in
+`js/config.js`) and the Welding copy leaves out the 534-video studio, which is
+off in production. Flip `IOS_LIVE` and redeploy the day Apple releases 1.1.0.
 
-Either way, when the site is live:
+Still to do now the site is live:
 - submit `https://lomonec.com/sitemap.xml` in Google Search Console;
 - ping IndexNow for Bing: the key file at the app root only covers
   `app.lomonec.com`, so lomonec.com needs its own key file first.

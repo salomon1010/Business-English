@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Composer for the site's widget home-screen shots (scripts: /tmp/wg-home.mjs).
+     Real widget renders (Xcode previews) placed on a plain home screen.
+     ?s=1|2|3 picks the layout. Not linked from the site. -->
+<html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{width:440px;height:956px;overflow:hidden;font-family:-apple-system,"SF Pro Text",system-ui,sans-serif;color:#fff;
+ background:radial-gradient(120% 70% at 15% 10%,#3b2a8f 0%,transparent 60%),radial-gradient(90% 60% at 95% 55%,#0f6c8c 0%,transparent 60%),radial-gradient(100% 60% at 30% 100%,#5b1f7a 0%,transparent 65%),#0b1030}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:20px 34px 0;font-weight:600;font-size:17px;height:58px}
+.sb i{display:inline-block;width:26px;height:12px;border:1.5px solid #fff;border-radius:4px;position:relative}
+.sb i:after{content:"";position:absolute;inset:1.5px;right:5px;background:#fff;border-radius:2px}
+.isl{position:absolute;left:50%;top:12px;width:124px;height:36px;margin-left:-62px;background:#000;border-radius:20px}
+.grid{padding:26px 26px 0;display:flex;flex-wrap:wrap;gap:24px 24px}
+.w{display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
+.med{width:388px;border-radius:26px}
+.lg{width:388px;border-radius:26px}
+.sm{width:182px;border-radius:26px}
+.lbl{width:100%;text-align:center;font-size:12.5px;font-weight:500;margin-top:-16px;opacity:.92}
+.half{width:182px;display:flex;flex-direction:column;align-items:center}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;width:72px;font-size:12px}
+.app img{width:64px;height:64px;border-radius:15px;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.apps{display:grid;grid-template-columns:72px 72px;gap:16px 26px;width:182px;justify-content:center;padding-top:6px}
+.ghost{width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px)}
+.dots{position:absolute;left:0;right:0;bottom:122px;display:flex;justify-content:center;gap:8px}
+.dots b{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}.dots b.on{background:#fff}
+.dock{position:absolute;left:14px;right:14px;bottom:18px;height:94px;border-radius:34px;background:rgba(255,255,255,.16);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:center;padding:0 18px}
+.dock .ghost,.dock img{width:62px;height:62px;border-radius:15px}
+</style></head><body>
+<div class="isl"></div>
+<div class="sb"><span>9:41</span><span><i></i></span></div>
+<div class="grid" id="g"></div>
+<div class="dots"><b></b><b class="on"></b><b></b></div>
+<div class="dock"><img src="../icon-192.png" alt=""><span class="ghost"></span><span class="ghost"></span><span class="ghost"></span></div>
+<script>
+const s=new URLSearchParams(location.search).get("s")||"1";
+const W=(f,c,l)=>`<img class="w ${c}" src="${f}.webp" alt="">`+(l?`<div class="lbl">${l}</div>`:"");
+const apps=`<div class="apps"><div class="app"><img src="../icon-192.png" alt="">BE Mastery</div><div class="app"><span class="ghost"></span></div><div class="app"><span class="ghost"></span></div><div class="app"><span class="ghost"></span></div></div>`;
+const L={
+ "1":`<div class="half">${W("w-small","sm")}<div class="lbl" style="margin-top:8px">BE Mastery</div></div>${apps}${W("w-large","lg","BE Mastery")}`,
+ "2":W("w-recs-large","lg","Recommended for you")+W("w-medium","med","BE Mastery"),
+ "3":W("w-welding","med","Welding English")+W("w-medium","med","General English")+W("w-locked","med","Recommendations")
+};
+document.getElementById("g").innerHTML=L[s];
+</script></body></html>

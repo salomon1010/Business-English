@@ -140,7 +140,9 @@ console.log("\n# Google Play — purchase verification and account binding");
   const v = await view("ana");
   ok("G1 · a token Google confirms ACTIVE → Premium, source google_play, started / expires / renews from Google", r.status === 200 && v.plan === "premium" && v.source === "google_play" && v.renews === true && v.startedAt === T0 - DAY && v.expiresAt === T0 + 30 * DAY, JSON.stringify(v));
   ok("G2 · the server asked Google with a service-account token and acknowledged the purchase (Play refunds after 3 days otherwise)", G.tokenCalls === 1 && G.acks.includes(tok(1)));
-  ok("G3 · the response names no purchase token, product id or account", !/tok_1|premium_monthly|ana/.test(r.text));
+  /* the uid is matched on a word boundary: a bare /ana/ also matched the fixed
+     capability name "ai_analysis", which is in every view and is not a leak */
+  ok("G3 · the response names no purchase token, product id or account", !/tok_1|premium_monthly|\bana\b/.test(r.text));
   r = await gverify("bea", tok(1));
   ok("G4 · the same purchase token cannot be claimed by another account (409 bound_elsewhere)", r.status === 409 && r.json.error === "bound_elsewhere" && (await view("bea")).plan === "free" && (await view("ana")).plan === "premium");
   r = await gverify("ana", tok(1));

@@ -43,13 +43,17 @@ identity and no App Store Connect access.
    Scheme* → Run → Options → *StoreKit Configuration* = `BEMastery.storekit`.
    Run on a simulator or device, sign in with a test account, open Premium.
    Check:
-   - $19.99 / year first, and $4.99 / month with the 3-day trial;
+   - annual first ("Best value"), then monthly. The figures come from
+     `BEMastery.storekit`, which declares **$19.99 / year** and **$2.99 /
+     month** (owner's tiers, 5 Oct 2026 — `docs/TIERS.md`); a trial badge
+     appears only where the fixture (or the store) carries an introductory
+     offer;
    - buying monthly → Premium · Monthly in App Setup → Subscription;
    - Debug → StoreKit → *Manage Transactions*: refund → Free on return to the
      app.
 5. **App Store Connect:** follow `mobile/ios/appstore/SUBSCRIPTIONS.md`:
    - the Paid Apps agreement, tax and banking;
-   - the group and products with the 3-day free trial;
+   - the group and products, each with the 3-day free trial (both plans);
    - Notifications V2 URLs: Sandbox → staging;
    - a Sandbox tester (Users and Access → Sandbox).
 6. **Staging Worker:** it must carry the latest Apple server code (see "Before
@@ -95,12 +99,13 @@ App Store Server Notifications V2 → POST /v1/billing/app_store                
 ## Native bridge (mobile/ios/ios/App/App)
 | File | What it does |
 |---|---|
-| `BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
-| `BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Used by `SceneDelegate` and `Main.storyboard`. |
-| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1, a 3-day free trial on monthly. |
+| `Plugins/BEStoreKitPlugin.swift` | These plugin methods: `getProducts`, `purchase`, `currentEntitlements`, `restore`, `pendingTransactions`, `finish`, `manageSubscriptions`, plus the `transaction` event. |
+| `Lifecycle/BEBridgeViewController.swift` | `CAPBridgeViewController` plus `registerPluginInstance(BEStoreKitPlugin())`. Hosted by `BridgeView` inside the SwiftUI `BEMasteryApp` (no storyboard, no SceneDelegate). |
+| `BEMastery.storekit` | Local StoreKit configuration for Xcode testing only: one group, both products at level 1 ($19.99 / year, $2.99 / month); the fixture carries a 3-day free introductory offer on BOTH products (owner, 6 Oct 2026). The app shows a trial only when the store reports one. |
 
 What the plugin does:
-- **Products:** only `premium_monthly` and `premium_annual`. For each it
+- **Products:** only `premium_monthly` and `premium_annual`, the same ids
+  on the App Store and Google Play (owner, 6 Oct 2026). For each it
   returns the price, currency, period (ISO) and the trial, but the trial
   **only when `isEligibleForIntroOffer`**.
 - **Purchase:** `product.purchase(options: [.appAccountToken(token)])`. The
@@ -188,8 +193,8 @@ Added in this workstream:
 ## Sandbox / TestFlight test matrix (to run on a device)
 | # | Test | Expected |
 |---|---|---|
-| 1 | Products load | $4.99 / month (3-day trial if eligible), $19.99 / year; Annual first |
-| 2 | Monthly purchase with trial | Premium, state trialing; the card shows Premium · Monthly |
+| 1 | Products load | **$19.99 / year** and **$2.99 / month**; Annual first, "Best value"; a trial badge only if the store configures one and the Apple ID is eligible |
+| 2 | Monthly purchase (with trial, if the store configures one) | Premium (state trialing when a trial applied); the card shows Premium · Monthly |
 | 3 | Annual purchase | Premium; renews in a year (sandbox: accelerated) |
 | 4 | Trial eligibility | a second trial on the same Sandbox Apple ID is not offered |
 | 5 | Restore on a second device | "1 restored", Premium |

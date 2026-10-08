@@ -9,11 +9,23 @@ verification and product ids are unchanged.
 
 | Product | Base plan | Period | Prices (sample) | Grace | Offers |
 |---|---|---|---|---|---|
-| `premium_monthly` | `monthly`, ACTIVE, auto-renewing | P1M | US $4.99 · FR €5.49 · DE €4.99 · CI/SN XOF 3,400 · CM XAF 3,400 · NG ₦7,130 · MA 57.99 MAD | 3 days | `trial3d`, ACTIVE: 3-day free trial, new subscribers only |
-| `premium_annual` | `annual`, ACTIVE, auto-renewing | P1Y | US $19.99 · FR/DE €20.99 · CI/SN XOF 13,600 · CM XAF 13,700 · NG ₦28,500 | 14 days | none |
+| `premium_monthly` | `monthly`, ACTIVE, auto-renewing | P1M | **US $2.99 (owner's tiers, 5 Oct 2026)** · the 2026-09-25 sample (FR €5.49 · DE €4.99 · CI/SN XOF 3,400 · CM XAF 3,400 · NG ₦7,130 · MA 57.99 MAD) belongs to the OLD $4.99 price and is to be re-set by the owner for the new tiers | 3 days | `trial3d`, ACTIVE on 2026-09-25: 3-day free trial, new subscribers only — the app shows it only if Play still reports it |
+| `premium_annual` | `annual`, ACTIVE, auto-renewing | P1Y | **US $19.99 (owner's tiers, 5 Oct 2026)** · regional prices below are the 2026-09-25 sample and are to be re-set by the owner for the new tiers | 14 days | none yet — **add `trial3d` (Free trial, 3 days)**: the owner's 6 Oct 2026 decision is the trial on BOTH plans |
 
 Both are sold in 173 regions. The Play listings have titles only, with no
 description or benefits.
+
+> **Prices set by the owner's tier spec, 5 Oct 2026 (`docs/TIERS.md`):
+> US$19.99 / year and US$2.99 / month**, both offered in the app, annual
+> first. This replaces the 2 Oct 2026 note that put the annual plan at $24.99
+> and offered it alone. The regional figures read on 2026-09-25 — FR/DE
+> €20.99, CI/SN XOF 13,600, CM XAF 13,700, NG ₦28,500 for the annual plan,
+> and the monthly figures in the table — belong to the old tiers and are
+> **to be re-set by the owner for the new tiers**. They cannot be derived
+> here: Play and App Store Connect each generate their own regional tables
+> from the base price, with their own rounding and tax rules. **Re-read both
+> consoles after the change and replace this table with what they actually
+> show.** Do not calculate them by hand.
 
 ## Audit: the app against Play
 
@@ -32,10 +44,12 @@ description or benefits.
   adds no purchase path of its own.
   - Benefits: only what Premium delivers — no ads, everything included,
     cancel in the store.
-  - Plans come from the **store**: Annual first and selected, with the store's
-    price "/ year", the per-month figure and "Save N%" computed from the store's
-    own two prices (same currency only). Monthly shows its price "/ month" and
-    the trial **only when the store reports `freeTrialPeriod`**.
+  - Plans come from the **store**: two plans (owner's tiers, 5 Oct 2026).
+    Annual first and selected, with the store's price "/ year", the per-month
+    figure and "Save N%" computed from the store's own two prices (same
+    currency only). Monthly shows its price "/ month" and the trial **only
+    when the store reports `freeTrialPeriod`**. No price is written in the
+    app.
   - One **Continue** calls the existing `Billing.buy(selected)`. It also has the
     store's renewal terms, the Privacy link (plus the EULA on iOS) and Restore.
   - States:

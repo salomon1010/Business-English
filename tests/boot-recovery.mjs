@@ -11,13 +11,15 @@ const browser = await chromium.launch();
 const seed = () => { localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true })); localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), vocab: Object.fromEntries(Array.from({ length: 12 }, (_, i) => ["word" + i, { ts: Date.now(), due: 0 }])) })); };
 
 /* A: a welding file fails permanently (404) — a General English learner must not notice */
+/* the Practice page now opens on the "Best tool for your step" card, not a "Practice" title */
+const PRACTICE_DRAWN = /Practice|Best tool for your step/i;
 { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); await ctx.addInitScript(seed);
   await ctx.route(u => u.href.includes("tracks/welding/vocabulary.json"), r => r.fulfill({ status: 404, body: "" }));
   const page = await ctx.newPage(); const errs = []; page.on("pageerror", e => errs.push(e.message));
   await page.goto(BASE + "/index.html?a=" + Date.now(), { waitUntil: "load" }); await sleep(2500);
   await page.click('.bnav-item[data-v="practice"]'); await sleep(600);
   const r = await page.evaluate(() => ({ booted: _booted, home: document.getElementById("v-home").innerText.slice(0, 40), practice: document.getElementById("v-practice").innerText.replace(/\s+/g, " ").slice(0, 60), header: (document.querySelector(".brand").innerText || "").replace(/\s+/g, " ").slice(0, 40) }));
-  ok("Welding file 404 → General English boots, Practice draws, header follows", r.booted && /Practice/.test(r.practice) && !/could not be drawn/.test(r.practice) && errs.length === 0, JSON.stringify(r) + errs.join("|"));
+  ok("Welding file 404 → General English boots, Practice draws, header follows", r.booted && PRACTICE_DRAWN.test(r.practice) && !/could not be drawn/.test(r.practice) && errs.length === 0, JSON.stringify(r) + errs.join("|"));
   await ctx.close(); }
 
 /* B: the OPEN track's file fails twice then succeeds — the per-file retry absorbs it */
@@ -27,7 +29,7 @@ const seed = () => { localStorage.setItem("be_flags", JSON.stringify({ practice_
   await page.goto(BASE + "/index.html?b=" + Date.now(), { waitUntil: "load" }); await sleep(4500);
   await page.click('.bnav-item[data-v="practice"]'); await sleep(600);
   const r = await page.evaluate(() => ({ booted: _booted, practice: document.getElementById("v-practice").innerText.replace(/\s+/g, " ").slice(0, 40) }));
-  ok("Own file fails twice, third try succeeds → boots normally (3 fetches, no error card)", n === 3 && r.booted && /Practice/.test(r.practice) && errs.length === 0, JSON.stringify({ n, r }));
+  ok("Own file fails twice, third try succeeds → boots normally (3 fetches, no error card)", n === 3 && r.booted && PRACTICE_DRAWN.test(r.practice) && errs.length === 0, JSON.stringify({ n, r }));
   await ctx.close(); }
 
 /* C: the open track is unreachable at boot (all tries) → a card with Try again; the network comes back; Try again really recovers, on the tab the learner is on */
@@ -42,14 +44,15 @@ const seed = () => { localStorage.setItem("be_flags", JSON.stringify({ practice_
   ok("Tapping Practice while still down → the same lessons card (auto-retried), never 'could not be drawn'", /could not be downloaded/.test(c2.practice) && !c2.crash, JSON.stringify(c2));
   down = false; await page.click('#v-practice button[onclick="bootRetry()"]'); await sleep(2500);
   const c3 = await page.evaluate(() => ({ booted: _booted, v: cur.v, practice: document.getElementById("v-practice").innerText.replace(/\s+/g, " ").slice(0, 40), header: (document.querySelector(".brand").innerText || "").replace(/\s+/g, " ").slice(0, 40), badge: document.querySelector('.bnav-item[data-v="practice"]').innerText.replace(/\s+/g, " ") }));
-  ok("Network back + Try again → boots and lands on Practice, drawn, header updated", c3.booted && /Practice/.test(c3.practice) && errs.length === 0, JSON.stringify(c3) + errs.join("|"));
+  ok("Network back + Try again → boots and lands on Practice, drawn, header updated", c3.booted && PRACTICE_DRAWN.test(c3.practice) && errs.length === 0, JSON.stringify(c3) + errs.join("|"));
   await ctx.close(); }
 
-/* D: the floating button — Road map, Shadow, Phrase Lab only; not Home, not Practice; signed-out is fine on those three */
+/* D: the floating button — Road map only; not Home, not Practice; signed-out is fine on those three */
 { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); await ctx.addInitScript(seed);
   const page = await ctx.newPage(); await page.goto(BASE + "/index.html?d=" + Date.now(), { waitUntil: "load" }); await sleep(2000);
   const fab = await page.evaluate(async () => { const out = {}; for (const v of ["home", "journey", "shadow", "phrases", "practice", "review", "profile"]) { go(v); await new Promise(r => setTimeout(r, 350)); document.querySelectorAll(".cf-ov,.wc-ov,#rmNotice").forEach(e => e.remove()); const el = document.getElementById("ppFab"); out[v] = !!el && el.classList.contains("on"); } return { ...out, signedIn: ppSignedIn(), avail: ppAvailable() }; });
-  ok("FAB on journey/shadow/phrases only (signed out), not on home/practice/review/profile", fab.avail && !fab.signedIn && fab.journey && fab.shadow && fab.phrases && !fab.home && !fab.practice && !fab.review && !fab.profile, JSON.stringify(fab));
+  /* the button lives on the Road map only (owner, 22 Sep 2026 — PP_FAB_VIEWS = {journey}) */
+  ok("FAB on the Road map only (signed out), not on home/shadow/phrases/practice/review/profile", fab.avail && !fab.signedIn && fab.journey && !fab.shadow && !fab.phrases && !fab.home && !fab.practice && !fab.review && !fab.profile, JSON.stringify(fab));
   await ctx.close(); }
 
 /* E: Welding learner — nothing changes: no FAB anywhere, boots with the welding pack */

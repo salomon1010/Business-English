@@ -122,6 +122,10 @@ const seedHit = await A.page.evaluate(ws => ws.filter(w => SV_IPA_SEED[w]).lengt
 ok("Pronunciation ON: an IPA line under every word, each the value the Worker gave for THAT word (seed words from the built-in lexicon), the note says it is an AI-written American-English guide", ipaOn && c.ipaOn === "true" && c.ipaCheck && c.nIpa === c.nWords && (await ipaRight(A.page, c)) === "" && /IPA|API/.test(c.stText) && !/wait|err/.test(c.stCls), JSON.stringify(c) + await ipaRight(A.page, c));
 ok("Only the words the device did not already know were asked for — none from the seed lexicon, all from this paragraph, in batches of at most 25, with the sentence as context", asked.length >= 1 && seedHit === 0 && asked.every(x => x.words.length <= 25 && x.words.length > 0 && x.text.includes(c.want.slice(0, 30))) && asked.flatMap(x => x.words).every(w => c.want.toLowerCase().includes(w.replace(/'/g, "").slice(0, 3))), JSON.stringify(asked));
 ok("Both helpers on at once: English words + IPA + French, still one card that fits the phone", c.trShown && c.nIpa === c.nWords && c.english === c.want && c.fits, JSON.stringify({ trShown: c.trShown, nIpa: c.nIpa, fits: c.fits }));
+if (process.env.SHOTS) await A.page.screenshot({ path: "/tmp/shcard.png" });
+/* icons only (owner, 4 Oct 2026): no visible word on the helper buttons, each ≥44 px tall, the flag + FR tag kept, every button still named for assistive tech */
+const iconOnly = await A.page.evaluate(() => [...document.querySelectorAll("#svSh .sv-sh-tg .sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "", flag: !!b.querySelector(".lang-flag") }; }));
+ok("The Shadow card's helper buttons are icons only: no visible text, 44 px tall, at least 44 px wide, each with an aria-label; the Translate button keeps its flag", iconOnly.length >= 2 && iconOnly.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2) && iconOnly.some(b => b.id === "svShTrBtn" && b.flag), JSON.stringify(iconOnly));
 
 /* ---------- a word tapped ---------- */
 const tap = await A.page.evaluate(async () => {
@@ -192,19 +196,43 @@ ok("After a refresh both switches are still on (the preference is in S), and the
 /* ---------- the v3 Shadow button while recording ---------- */
 const recBtn = await A.page.evaluate(async () => {
   const b = () => document.querySelector("#shv3Bar .shv3-rec");
-  const r = { before: b().classList.contains("on"), lbl0: b().innerText.trim() };
+  /* the round buttons beside Shadow that are actually drawn, and where Shadow sits */
+  const others = () => [...document.querySelectorAll("#shv3Bar .shv3-b")].filter(e => getComputedStyle(e).display !== "none").length;
+  const centred = () => { const br = document.getElementById("shv3Bar").getBoundingClientRect(), rb = b().getBoundingClientRect(); return Math.abs((rb.left + rb.width / 2) - (br.left + br.width / 2)) < 2; };
+  const r = { before: b().classList.contains("on"), lbl0: b().innerText.trim(), others0: others() };
   shv3Shadow();
   const t0 = Date.now(); while (!(rec.mr && rec.mr.state === "recording") && Date.now() - t0 < 8000) await new Promise(x => setTimeout(x, 50));
   await new Promise(x => setTimeout(x, 400));
   r.live = !!(rec.mr && rec.mr.state === "recording"); r.on = b().classList.contains("on"); r.lbl1 = b().innerText.trim(); r.bg = getComputedStyle(b()).backgroundColor;
+  r.others1 = others(); r.centred1 = centred();
+  shv3Sync(); r.others1b = others();   /* a full redraw mid-take must not bring them back */
   await new Promise(x => setTimeout(x, 1400));
   shv3Shadow();
   const t1 = Date.now(); while (rec.mr && rec.mr.state === "recording" && Date.now() - t1 < 8000) await new Promise(x => setTimeout(x, 50));
   await new Promise(x => setTimeout(x, 700));
-  r.off = !b().classList.contains("on"); r.lbl2 = b().innerText.trim(); r.bg2 = getComputedStyle(b()).backgroundColor;
+  r.off = !b().classList.contains("on"); r.lbl2 = b().innerText.trim(); r.bg2 = getComputedStyle(b()).backgroundColor; r.others2 = others();
   return r;
 });
 ok("The Shadow button in the foot bar turns red and says Stop while the recorder is running, and goes back to blue / Shadow the moment it stops", !recBtn.before && recBtn.live && recBtn.on && /Stop/.test(recBtn.lbl1) && recBtn.off && /Shadow/.test(recBtn.lbl2) && recBtn.bg !== recBtn.bg2, JSON.stringify(recBtn));
+ok("While the take runs the four other buttons leave the bar and Shadow sits alone in the centre — through a redraw too — and all four are back the moment it stops", recBtn.others0 >= 4 && recBtn.others1 === 0 && recBtn.others1b === 0 && recBtn.centred1 && recBtn.others2 === recBtn.others0, JSON.stringify(recBtn));
+
+/* ---------- the bar fits every phone (Shadow mode = six items) ---------- */
+const fit = [];
+for (const w of [390, 375, 360, 320]) {
+  await A.page.setViewportSize({ width: w, height: 844 }); await sleep(250);
+  fit.push(await A.page.evaluate(w => {
+    shv3Sync();
+    const bar = document.getElementById("shv3Bar");
+    const items = [...bar.querySelectorAll("button")].map(b => { const r = b.getBoundingClientRect(); return { l: Math.round(r.left), r: Math.round(r.right), w: Math.round(r.width), h: Math.round(r.height), circle: b.classList.contains("shv3-b") }; });
+    const sorted = [...items].sort((a, b) => a.l - b.l);
+    const overlap = sorted.some((it, i) => i && it.l < sorted[i - 1].r);
+    const lbl = bar.querySelector(".shv3-rec span"), cut = !!lbl && getComputedStyle(lbl).display !== "none" && lbl.scrollWidth > lbl.clientWidth + 1;
+    return { w, n: items.length, mode: svMode, inside: items.every(i => i.l >= 0 && i.r <= w), round: items.filter(i => i.circle && Math.abs(i.w - i.h) <= 1).length, overlap, min: Math.min(...items.map(i => i.w)), cut, items };
+  }, w));
+  if (process.env.SHOTS) await A.page.screenshot({ path: `/tmp/shbar-${w}.png`, clip: { x: 0, y: 844 - 130, width: w, height: 130 } });
+}
+await A.page.setViewportSize({ width: 390, height: 844 }); await sleep(250);
+ok("The foot bar fits the phone: at 390, 375, 360 and 320 px all six Shadow-mode buttons are fully on screen, none overlaps another, the five circles stay circles, nothing is narrower than 34 px, and the word Shadow is whole from 360 px up", fit.every(f => f.n === 6 && f.mode === "shadow" && f.inside && !f.overlap && f.round === 5 && f.min >= 34 && (f.w < 360 || !f.cut)), JSON.stringify(fit.map(({ items, ...f }) => f)));
 
 /* ---------- the report fold ---------- */
 const fold = await A.page.evaluate(async () => {
@@ -239,6 +267,9 @@ const wt = await A.page.evaluate(async () => {
   return r;
 });
 ok("WATCH carries the same two switches (same preference, both on) and applies them to the paragraph being spoken only: its translation under it, IPA under each of its words, nothing on the other paragraphs — and they move with the speech", wt.tr === "true" && wt.ipa === "true" && /Traduction \[French\]/.test(wt.trBox || "") && wt.trOnly === 1 && wt.ipaIn === wt.wIn && wt.wIn > 0 && wt.ipaElsewhere === 0 && wt.first === await expIpa(A.page, wt.firstWord) && wt.moved && wt.trMoved && wt.ipaMoved, JSON.stringify(wt));
+if (process.env.SHOTS) await A.page.screenshot({ path: "/tmp/shwatch.png" });
+const wtIcons = await A.page.evaluate(() => [...document.querySelectorAll(".sv-wt-tg .sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "" }; }));
+ok("The Watch row's helper buttons are icons only too: no visible text, 44 px, each named for assistive tech", wtIcons.length >= 2 && wtIcons.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2), JSON.stringify(wtIcons));
 
 /* ---------- homographs: the reading THIS sentence gave, kept apart ---------- */
 const hg = await A.page.evaluate(async () => {
@@ -289,7 +320,7 @@ const e1 = await E.page.evaluate(async () => {
   const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code0: tg.querySelector("small")?.innerText, ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 500));
   const b0 = document.getElementById("svShTr"); r.frLang = b0.getAttribute("lang"); r.frText = b0.querySelector(".sv-sh-tr-x")?.innerText; r.noPick = !document.getElementById("svTrPop"); r.trLang0 = S.profile.trLang;
-  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 250));   /* past the 150 ms fade, which slides the list 8 px */
   const ov = document.getElementById("svTrPop"), rows = ov ? [...ov.querySelectorAll(".sv-tr-opt")] : []; const pr = ov && ov.getBoundingClientRect(), tr = document.getElementById("svShTrBtnLang").getBoundingClientRect();
   r.small = !!pr && pr.width <= 232 && pr.height <= 266 && (Math.abs(pr.top - tr.bottom - 6) < 2 || Math.abs(tr.top - pr.bottom - 6) < 2) && pr.left >= 11 && pr.right <= innerWidth - 11; r.box = pr && [Math.round(pr.width), Math.round(pr.height)]; r.flags = !!rows[0] && !!rows[0].querySelector(".lang-ic");
   r.expanded = document.getElementById("svShTrBtnLang").getAttribute("aria-expanded");
@@ -300,7 +331,7 @@ const e1 = await E.page.evaluate(async () => {
   const b = document.getElementById("svShTr");
   r.closed = !document.getElementById("svTrPop"); r.trLang = S.profile.trLang; r.appLang = S.profile.lang; r.on = document.getElementById("svShTrBtn").getAttribute("aria-pressed");
   r.code2 = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText; r.lang = b.getAttribute("lang"); r.text = b.querySelector(".sv-sh-tr-x")?.innerText;
-  r.ui = document.getElementById("svShTrBtn").innerText.trim();
+  r.ui = document.getElementById("svShTrBtn").textContent.trim();   /* textContent: the word is kept for assistive tech but drawn no more (icons only, 4 Oct 2026) */
   svShTrToggle(); r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });

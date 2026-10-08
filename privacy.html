@@ -21,9 +21,26 @@ ul{padding-left:22px}
 .hl{background:#ecfdf5;border-left:5px solid #059669}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:26px;border-top:1px solid var(--line)}
 a{color:var(--acc)}
+/* Close. Opened from the app with target="_blank", this page gets a window with
+   no browser chrome — in the installed app there is no tab strip and no back
+   gesture, so the reader was stranded on the policy with no way out (owner,
+   30 September 2026). Hidden inside the in-app document sheet, which is an
+   iframe and carries its own close button; see .doc-close in index.html. */
+#docClose{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:50;
+  width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
+  background:rgba(12,18,38,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+  -webkit-tap-highlight-color:transparent}
+#docClose svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+#docClose:hover,#docClose:focus-visible{background:rgba(12,18,38,.62)}
+#docClose:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media print{#docClose{display:none}}
 </style>
 </head>
 <body>
+<button type="button" id="docClose" aria-label="Close" title="Close" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+</button>
 <header>
   <img src="logo.svg" alt="BE Mastery logo">
   <h1>Privacy Policy</h1>
@@ -31,7 +48,7 @@ a{color:var(--acc)}
 </header>
 <main>
   <div class="card hl">
-    <p><b>The short version:</b> your practice data — progress, notes, saved phrases and voice recordings — is stored <b>on your device</b>. We never sell what you do, and we never profile you. BE Mastery sells nothing at present and shows no ads (sections 5b and 7b). Some features do need the internet to work, and those send specific things off your device: your recordings go to a speech service to be transcribed and scored, and text you enter into Executive Polish goes to an AI service to be rewritten. Every one of them is listed in section 4. The camera, when you enable the Posture Coach, never leaves your device at all.</p>
+    <p><b>The short version:</b> your practice data — progress, notes, saved phrases and voice recordings — is stored <b>on your device</b>. We never sell what you do, and we never profile you. Premium subscriptions and ads are both described below, before they are switched on: nothing is sold and no ad has been shown yet, and when ads do arrive they will be non-personalised, free-plan General English only, never during practice, and absent from Welding entirely (sections 5b and 7b). Some features do need the internet to work, and those send specific things off your device: your recordings go to a speech service to be transcribed and scored, and text you enter into Executive Polish goes to an AI service to be rewritten. Every one of them is listed in section 4. The camera, when you enable the Posture Coach, never leaves your device at all.</p>
   </div>
 
   <h2>1. Data we store — on your device</h2>
@@ -80,7 +97,7 @@ a{color:var(--acc)}
     <li><b>Analytics:</b> anonymous page counts only — see section 7</li>
     <li><b>Daily reminders</b> on the website and in the Android app, if you switch them on: your browser's push address and the time of day you chose — see section 8. In the iPhone app reminders stay inside the app</li>
   </ul>
-  <p>None of these requests carry your account, except where section 8 says so for push notifications. Analytics, dictionary look-ups and fonts carry nothing about you at all. The three AI features above are the exception, and only because they cannot work otherwise: they carry whatever you chose to say or type, which in a practice conversation or a résumé summary may include your name and your work history. We do not sell data, and there are no advertising or social-media trackers in the app.</p>
+  <p>None of these requests carry your account, except where section 8 says so for push notifications. Analytics, dictionary look-ups and fonts carry nothing about you at all. The three AI features above are the exception, and only because they cannot work otherwise: they carry whatever you chose to say or type, which in a practice conversation or a résumé summary may include your name and your work history. We do not sell data, and there are no social-media trackers in the app. Advertising is covered on its own in section 7b: it is not switched on, it will be non-personalised when it is, and it is never part of the requests listed above.</p>
 
   <h2>5. Optional cloud sign-in</h2>
   <p>Sign-in is optional and off unless you choose it. If you create an account with an email address and password, we use <b>Google Firebase</b> to authenticate you and to store a copy of your progress so it follows you between devices.</p>
@@ -101,7 +118,13 @@ a{color:var(--acc)}
   <p>What is recorded is the name of the action, a few fixed details about it where they apply (such as the week or day number, or how it ended), and the country our network already sees from your connection. <b>There is no device ID and no account link</b>, so these counts cannot be joined together into a picture of one person — which also means we genuinely cannot tell you how many individual people are behind them. Nothing you type, say, record or save is ever included, and the server refuses any event that is not on that fixed list.</p>
 
   <h2 id="ads">7b. Ads</h2>
-  <p>BE Mastery shows no ads, and no advertising partner receives anything from the app. The app does not use your device's advertising identifier and does not track you across other companies' apps or websites.</p>
+  <p><b>Ads are not switched on.</b> At the time of writing no advertisement has ever been shown in BE Mastery and no advertising partner has received anything from the app. The rest of this section describes what will happen when we do switch them on, so that it is written down before it affects you rather than after.</p>
+  <p><b>Where they will appear.</b> On the free plan, in <b>General English only</b>. <b>Welding shows no ads on any plan.</b> <b>Premium removes ads completely.</b> Ads never appear while you are recording, on a call, or in the middle of an activity.</p>
+  <p><b>What they will never interrupt.</b> An ad is never shown while you are practising. It cannot appear while the microphone is live, while you are recording, while the app is speaking, during a practice-partner call, a simulation, a conversation or an Executive Polish analysis, while the app is waiting for AI feedback, or on top of feedback you have just been given. Ads wait for a natural break &mdash; you finishing something and moving on &mdash; and there is no banner pinned to the screen. There are no rewarded or sponsored ads.</p>
+  <p><b>Non-personalised only.</b> Every ad request this app makes is marked <b>non-personalised</b>. We do <b>not</b> use your device&rsquo;s advertising identifier (IDFA), we do not ask for permission to track you, and we do not build or buy an advertising profile of you. You will not see an &ldquo;Allow this app to track you&rdquo; prompt, because the app does not track you across other companies&rsquo; apps or websites.</p>
+  <p><b>Who serves them, and what they get.</b> Ads will be served by <b>Google AdMob</b> (Google Ireland Limited). To fill an ad slot and to count it once, Google receives technical information from your device &mdash; for example a coarse location derived from your network address, your device type and operating-system version, and the fact that an ad was requested, shown or closed. It does <b>not</b> receive your name, your email address, your recordings, your transcripts, your saved phrases, your progress or anything you have typed. Google&rsquo;s own handling of that data is described in its <a href="https://business.safety.google/privacy/" target="_blank" rel="noopener">privacy terms</a> and its <a href="https://support.google.com/admob/answer/9012903" target="_blank" rel="noopener">partner list</a>.</p>
+  <p><b>Your choice.</b> Where the law requires one &mdash; the UK, the EEA and Switzerland &mdash; you will be shown Google&rsquo;s own consent form before the first ad request, and you can change your answer later. If you refuse, or if the form cannot be shown, <b>no ad is requested at all</b>. You can also remove ads by subscribing to Premium (section 5b).</p>
+  <p><b>What we count ourselves.</b> The anonymous counts in section 7 include whether an ad was eligible, shown, skipped or refused and why &mdash; fixed labels only, with no device ID and no link to your account. These are never recorded for the Welding programme.</p>
 
   <h2>8. Daily reminders</h2>
   <p>Reminders are off unless you turn them on in Settings. <b>In the iPhone app</b> they appear inside the app only &mdash; at the time you chose if the app is open, otherwise the next time you open it &mdash; and nothing is sent to our server for them.</p>
@@ -136,5 +159,32 @@ a{color:var(--acc)}
   <p>If this policy changes, the "Last updated" date above will change. Questions: <a href="mailto:contact@lomonec.com">contact@lomonec.com</a></p>
 </main>
 <footer>© 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="./">Open the app</a> · <a href="manual/">User manual</a> · <a href="mailto:contact@lomonec.com">Support</a></footer>
+<script>
+/* Show the button only where this page is the whole window. Inside the app's
+   document sheet it is an iframe with its own close button, and two would be
+   one too many. */
+(function(){
+  var b=document.getElementById("docClose");
+  if(!b)return;
+  var embedded=false;try{embedded=window.self!==window.top}catch(e){embedded=true}
+  if(embedded)return;                       /* the sheet closes it */
+  b.hidden=false;
+  b.addEventListener("click",function(){
+    /* a window this page's opener script made can simply be closed */
+    try{if(window.opener&&!window.opener.closed){window.close();return}}catch(e){}
+    /* Step back only when we actually came from the app in THIS window — a
+       same-origin referrer and something to step back to. A target="_blank"
+       window is fresh (history.length 1) even though it has a referrer, and
+       stepping back there lands on a blank page, which is the dead end again. */
+    var from=false;
+    try{from=!!document.referrer&&new URL(document.referrer).origin===location.origin}catch(e){}
+    if(from&&history.length>1){try{history.back();return}catch(e){}}
+    /* otherwise open the app itself, so the reader is never left nowhere */
+    location.replace("./");
+  });
+  /* Escape does the same on a desktop browser */
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")b.click()});
+})();
+</script>
 </body>
 </html>

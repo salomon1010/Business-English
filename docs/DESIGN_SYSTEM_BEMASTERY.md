@@ -468,3 +468,154 @@ smaller heading does not need to be bold to read as a heading.
   and no fixed heights on anything that holds text.
 - Arabic and Urdu mirror, and the year grid opens on the current month in
   right-to-left languages too (`calScrollYearRight`).
+
+## 19. Visual identity v2 (`feature/visual-identity-phase2`, 29 Sep 2026)
+
+The brief asked for the whole visual language to be evaluated as one system.
+The owner's TubeShed screenshots were the benchmark for polish and density,
+not a template to copy. §18 already handled size and density. This pass covers
+the brand, Premium, icons, colour roles and the shared components. It is one
+CSS layer at the end of the sheet ("VISUAL IDENTITY v2"), plus four assets.
+Nothing is forked per screen or per track.
+
+### 19.1 Audit: what was wrong
+| Area | Finding |
+|---|---|
+| Logo | The 46px header image was drawn inside a navy square, so only a ~38px tile showed. A glowing ring appeared on Home. (Owner, 30 Sep: the logo artwork itself stays.) |
+| Wordmark | "Mastery" used `--grad`, whose cyan end is the weakest part on dark. |
+| Header | 62px tall with a two-line lockup: heavier than the page content under it. |
+| Premium | (Owner, 30 Sep: the crown badge stays.) The plans sheet used a text glyph "✦" where the badge belonged. |
+| Nav icons | Six icons in one stroke weight, but not one language. Shadow was a target, which reads as "goals". Practice was a cog with a tick, which reads as "settings". Road map was a folded paper map. |
+| Colour | The hues were fine; their jobs were not. Cyan (`--acc2`) was eyebrow, link, figure and "listening" all at once. Gold was the hero label, streak, caution and the logo spark. |
+| Surfaces | Practice › best tool put floating cards inside a card. |
+| Controls | On/off settings were bare checkboxes. Fields had 10px corners, buttons 11–12px, cards 18px: three radii where two would do. |
+| Avatars | The profile initial was a rounded square, the same shape as feature tiles; channels on Shadow were circles. |
+
+### 19.2 Brand — owner decision, 30 Sep 2026: the logo is kept
+A redrawn mark was proposed: a full-bleed tile with no gold spark, plus new
+maskable and Apple icons. The owner chose to keep the released `logo.svg`,
+`icon-192.png`, `icon-512.png` and the About page logo exactly as they are.
+Only the lockup's size changed:
+- **Lockup:** the logo's tile shows at 34px. The file's navy square is trimmed
+  with `clip-path: inset(9% round 7px)`, and the image is scaled 1.22, so the
+  artwork is untouched and the tile is not shrunk to 28px.
+- **Wordmark:** "BE Mastery" is 17px/700. "Mastery" is set in `--grad-text`,
+  so it follows the track. The "Home" caption stays because the lockup is the
+  Home control (1ddb157a). It lights as a pill, and the logo ring is gone.
+- **Header:** 56px on phones (was 62).
+
+### 19.3 Premium — owner decision, 30 Sep 2026: the crown badge is kept
+A sapphire "gem" mark was proposed and declined. The Premium icon is the
+owner's blue crown hexagon (`premium-badge.png?v=3`) everywhere:
+- the header button, at 32px beside the 34px logo, with its turn and shine
+  unchanged;
+- the plans sheet's "Premium" tag, in place of the old ✦ glyph;
+- the "Your record" lock chip (`.chip.prem`), through `premMark()`.
+
+The Profile › Premium row keeps its line icon (`star`). The chip and tag
+colours (`--prem`, `--prem-line`, `--prem-bg`) are the badge's blue in both
+tracks. Billing is untouched: `billing_enabled` stays off, and the header badge
+shows only where `hdrPremSync()` allows.
+
+### 19.4 Icon system
+- **Grid and stroke:** a 24px grid with a 1.8 stroke, round caps and joins,
+  and no fills except a play triangle's outline.
+- **Sizes:** 22px in the bottom bar, 18px in desktop tabs, 20px in a 36px
+  row tile.
+- **Navigation set:** one metaphor per destination.
+
+| Tab | Icon (`ICON` key) | Why |
+|---|---|---|
+| Road map | `route`: two pins and a winding road | The Road map *is* a serpentine road |
+| Shadow | `shadowing`: a play circle and its offset shadow | Watch, then follow |
+| Phrase Lab | `phrase`: the brand's bubble with two lines | Words you will say |
+| Practice | `speak`: a microphone | The tab is where you speak |
+| Progress | `progress`: three rising bars | The same bars as the mark |
+| Profile | `person` | |
+
+- **Selected state:** a 52×30px tinted pill behind the icon
+  (`--nav-on-bg`), the accent colour and a 700 label. The icon never grows.
+- **Feature rows:** Practice › best tool uses the same icons as the tabs they
+  open (`shadowing`, `phrase`).
+
+### 19.5 Colour roles
+The palettes in §1 stay; what changes is that each colour has one job. The
+role tokens are `--text-1/2/3`, `--surface-0/1/2`, `--success`, `--warning`,
+`--danger`, `--rec`, `--nav-on` and `--nav-on-bg`.
+| Colour | Job |
+|---|---|
+| Accent (indigo / amber) | Action, "you are here", selected state, eyebrows |
+| `--live` (cyan / arc blue) | Listening and recording only |
+| `--ai` (violet / amber-white) | AI at work |
+| Gold | A streak, a caution; the logo's spark |
+| Green | Earned, done, recommended |
+| Red → orange (`--rec`) | Recording, the same in both tracks |
+- **Eyebrows:** these move from `--acc2` (cyan) to `--accent-text` (11px/700,
+  `.09em` tracking). The Home hero's gold eyebrow stays by owner decision
+  (27 Sep).
+- **Other uses of `--acc2`:** the 70-odd links and figures that use it keep
+  it for now. They are the next colour pass, not this one.
+
+### 19.6 Type
+- **Family:** Outfit stays. It is geometric, distinctive and already the brand.
+- **Weights:** 700 for headings, 600 for labels. The §18 sizes are unchanged.
+- **Tracking:** `-.01em` on headings.
+- **Numbers:** stats, the calendar title and the timer use tabular figures.
+
+### 19.7 Shape, surfaces, controls
+- **Radius:** 8 / 10 / 12 / 16 / 20px (`--vi-r-*`).
+  - Cards are 16px.
+  - Fields, buttons and grouped lists are 12px.
+  - Row tiles are 10px.
+  - Sheets are 20px.
+  - Chips are pills.
+- **Cards:** a card holds rows, never more floating cards. `.card .card`
+  loses its shadow. Practice › best tool is now one grouped list with dividers;
+  the recommended row has a 3px accent edge, mirrored in right-to-left.
+- **Shape rule:** circles are people (avatars, channels, partners); rounded
+  squares are the brand and features. The profile avatar is now a circle.
+- **Primary button:** a top highlight plus a soft shadow tinted by the theme,
+  no black drop.
+- **Outline button:** a 1px accent border and a 6% accent wash.
+- **Fields:** 12px corners and a 3px accent focus ring. The ring has zero
+  specificity, so composed fields (the Shadow search, Executive Polish) keep
+  their own styling.
+- **Switches:** on/off settings (daily reminder, online alerts, nudges) are
+  44×26px switches with `role="switch"`. Consent boxes stay checkboxes,
+  because you tick a statement; you don't flip it.
+
+### 19.8 The 40 items in the brief
+- **Changed in this pass:**
+  - 1–4: header lockup and sizes (the logo and the Premium badge are the
+    owner's, kept on 30 Sep);
+  - 5–11: nav icons (Home is the mark);
+  - 13–14: chips, including the Premium chip;
+  - 16–18: buttons and cards;
+  - 19: grouped rows;
+  - 20–22: inputs, the search focus ring and toggles;
+  - 23–24: navigation and avatars;
+  - 33: Premium surfaces (the crown badge on the plans sheet tag and chip);
+  - 34–39: type, colour roles, borders, shadows and radius;
+  - 40: motion (press states; the badge keeps its turn).
+- **Covered by tokens, not redrawn:**
+  - 12: the rest of the `ICON` set, already one family (1.8 stroke, round
+    joins);
+  - 15: status indicators;
+  - 25: illustrations;
+  - 26: thumbnails, which already have rounded corners and a tabular duration
+    tag;
+  - 27–28: AI and recording visuals (Phases 3–4);
+  - 29: progress visuals;
+  - 30–32: empty, loading and error states (`DS.state` / `DS.skel`,
+    Phase 2).
+  - These already read the theme tokens, so the new roles reach them.
+- **Left for the owner:**
+  - store art and `og.png`, which still show the 62px header;
+  - the remaining `--acc2` links and figures;
+  - whether the Welding header's "International Welder" chip should shrink
+    to match the new lockup.
+
+### 19.9 Gate
+`tests/visual-identity.mjs` (26 checks): the kept logo and crown badge, the icon set, header and
+nav geometry, grouped list, switches and the field focus ring, in dark and
+light, English and Arabic.

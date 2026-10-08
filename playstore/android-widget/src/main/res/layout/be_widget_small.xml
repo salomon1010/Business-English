@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/be_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/be_widget_bg_dark">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:id="@+id/be_ring_wrap"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="start|top">
+            <ImageView
+                android:id="@+id/be_ring"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/be_streak_n"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal|bottom"
+                android:paddingBottom="9dp"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-black"
+                android:includeFontPadding="false"
+                android:text="0" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/be_mark"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="end|top"
+            android:gravity="center"
+            android:text="BE"
+            android:textColor="#FFFFFF"
+            android:textSize="8sp"
+            android:fontFamily="sans-serif-black"
+            android:includeFontPadding="false"
+            android:background="@drawable/be_widget_mark_ge" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/be_streak_l"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif-medium"
+        android:singleLine="true" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/be_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <ImageView
+        android:id="@+id/be_strip"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginTop="6dp"
+        android:scaleType="fitXY"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/be_kicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif-medium"
+        android:singleLine="true"
+        android:ellipsize="end" />
+</LinearLayout>

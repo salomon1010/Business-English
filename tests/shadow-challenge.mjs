@@ -12,7 +12,11 @@ import { readFileSync, readdirSync } from "node:fs";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let BASE = process.env.BASE, server = null;
-if (!BASE) { server = spawn("python3", ["-m", "http.server", "8766"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(700); BASE = "http://localhost:8766"; }
+/* PORT, so this suite can be moved off a port another session's worktree is
+   already serving (C3 in the 1 Oct shakeout: spawn(..., stdio:"ignore") hides a
+   bind failure and the other checkout answers instead) */
+const PORT = +(process.env.PORT || 8766);
+if (!BASE) { server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(900); BASE = "http://127.0.0.1:" + PORT; }
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 const FLAGS = { shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: true, shadow_challenge_enabled: true };

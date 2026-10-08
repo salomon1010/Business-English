@@ -1,15 +1,15 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v491";
+const CACHE = "be12-v652";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
    analysis were all simply absent, and the guards made that fail silently rather
    than visibly. */
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
-  "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=88", "nudge-engine.js?v=3",
-  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=84", "shadow-sync.js?v=8", "shadow-scenes.js?v=1", "adaptive-learning-engine.js?v=84",
-  "career-center.js?v=80", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=86", "mission-engine.js?v=4",
-  "catalogue/general.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json", "tracks/general/missions.json",
+  "jurisdictions.js?v=79", "professional-standards.js?v=1", "trades.js?v=80", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=88", "nudge-engine.js?v=5",
+  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=84", "shadow-sync.js?v=8", "shadow-scenes.js?v=2", "adaptive-learning-engine.js?v=84",
+  "career-center.js?v=80", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=87", "mission-engine.js?v=4",
+  "catalogue/general.json", "catalogue/welding.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json", "tracks/general/missions.json",
   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json", "tracks/welding/foundations.json"];
 
 /* Reminder text lives in its own cache, NOT in CACHE, because CACHE is wiped on
@@ -206,7 +206,11 @@ self.addEventListener("push", e => {
             await swCount(d, "nudge_sent", { kind: why.nkind, source: "push" });
             return self.registration.showNotification(String(why.title), {
               body: String(why.body), icon: "icon-192.png", badge: "icon-192.png",
-              tag: "be-nudge", renotify: false,
+              tag: "be-nudge", renotify: false, requireInteraction: true,   // stays until the learner deals with it (owner, 5 Oct 2026)
+              /* the clip it is recommending, shown when the notification is
+                 expanded — the picture comes from the Worker, which only ever
+                 allows a thumbnail host (cleanImage) */
+              ...(why.image ? { image: String(why.image) } : {}),
               lang: (d && d.lang) || "en", dir: (d && d.dir) || "auto",
               data: { url: "./?nudge=" + encodeURIComponent(why.rid) + "#" + why.view, view: why.view, nudge, pushId: d && d.pushId },
             });
@@ -218,7 +222,7 @@ self.addEventListener("push", e => {
           return self.registration.showNotification(d.online.title, {
             body: String(d.online.body).replace("{{n}}", String(n)),
             icon: "icon-192.png", badge: "icon-192.png",
-            tag: "be-online", renotify: true,
+            tag: "be-online", renotify: true, requireInteraction: true,
             lang: d.lang || "en", dir: d.dir || "auto",
             data: { url: "./#partner", view: "partner" },   // tap lands on the partner page
           });
@@ -233,6 +237,13 @@ self.addEventListener("push", e => {
           badge: "icon-192.png",
           tag: "be-daily",           // a second push replaces, never stacks
           renotify: false,
+          /* It stays on screen until the learner dismisses or taps it (owner,
+             5 Oct 2026: "the notifications should stay permanent even if the
+             app is closed until the user removes it, mostly the reminder").
+             Without this a desktop notification disappears by itself after a
+             few seconds — the one case where a reminder is least likely to
+             have been seen. Android already keeps it in the shade. */
+          requireInteraction: true,
           lang: (d && d.lang) || "en",
           dir: (d && d.dir) || "auto",   // ar / ur read right-to-left
           data: { url: "./#journey" },   // tap lands on the road map

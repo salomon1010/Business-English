@@ -1,0 +1,284 @@
+/* ── section label ───────────────────────────────────────────────────────── */
+.label{display:inline-flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;
+  letter-spacing:.19em;text-transform:uppercase;color:var(--color-primary-bright);
+  border:1px solid var(--color-border);background:rgba(99,102,241,.09);
+  padding:7px 15px;border-radius:var(--radius-pill);margin-bottom:20px}
+.label .n{color:var(--color-muted-2);font-variant-numeric:tabular-nums}
+.label .dot{width:6px;height:6px;border-radius:50%;background:var(--color-accent);
+  box-shadow:0 0 0 0 rgba(34,211,238,.55);animation:beacon 3.4s var(--ease-soft) infinite}
+@keyframes beacon{
+  0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.5)}
+  55%{box-shadow:0 0 0 7px rgba(34,211,238,0)}
+}
+
+/* ── buttons ─────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:14px 24px;border-radius:var(--radius-pill);font-weight:600;font-size:15.5px;
+  border:1px solid transparent;white-space:nowrap;position:relative;
+  transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),
+             background var(--dur) var(--ease-soft),border-color var(--dur) var(--ease-soft)}
+.btn svg{width:18px;height:18px;flex:none;transition:transform var(--dur) var(--ease-out)}
+.btn-primary{background:var(--grad-cta);color:#fff;box-shadow:0 10px 28px rgba(79,70,229,.36)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(79,70,229,.5)}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-ghost{background:var(--color-surface);color:var(--color-text);border-color:var(--color-border-strong)}
+.btn-ghost:hover{transform:translateY(-2px);background:rgba(255,255,255,.09)}
+.btn-sm{padding:10px 18px;font-size:14.5px}
+/* the single breathing element on the page: the hero's primary CTA */
+.btn-breathe{animation:breathe 5.5s var(--ease-soft) infinite}
+@keyframes breathe{
+  0%,100%{box-shadow:0 10px 28px rgba(79,70,229,.36)}
+  50%{box-shadow:0 14px 40px rgba(79,70,229,.56)}
+}
+
+/* ── glass card ──────────────────────────────────────────────────────────── */
+.glass{background:linear-gradient(162deg,var(--color-surface),var(--color-surface-2));
+  border:1px solid var(--color-border);border-radius:var(--radius);position:relative;overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.26),transparent)}
+.card{padding:26px;transition:transform var(--dur) var(--ease-out),
+  border-color var(--dur) var(--ease-soft),box-shadow var(--dur) var(--ease-out)}
+.card:hover{transform:translateY(-3px);border-color:rgba(129,140,248,.4);box-shadow:var(--shadow-card)}
+.card .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:15px;
+  background:linear-gradient(150deg,rgba(99,102,241,.3),rgba(34,211,238,.14));
+  border:1px solid rgba(129,140,248,.28);color:#c7d2fe}
+.card .ico svg{width:22px;height:22px}
+.card h3{margin-bottom:8px}
+.card p{color:var(--color-muted);font-size:15px}
+
+/* ── navigation ──────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:60;padding:14px 0;transition:padding var(--dur) var(--ease-soft)}
+.nav .bar{display:flex;align-items:center;gap:18px;border:1px solid transparent;
+  border-radius:var(--radius-pill);padding-block:8px;padding-inline:16px 8px;
+  transition:background var(--dur) var(--ease-soft),border-color var(--dur) var(--ease-soft),
+             box-shadow var(--dur) var(--ease-soft),padding var(--dur) var(--ease-soft)}
+.nav.scrolled{padding:8px 0}
+.nav.scrolled .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 10px 34px rgba(0,0,0,.4);padding-block:6px;padding-inline:16px 6px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18.5px;letter-spacing:-.01em;flex:none}
+/* a logo reads left to right on Arabic and Urdu pages too */
+[dir="rtl"] .brand,[dir="rtl"] .pc-in{direction:ltr}
+.brand img{width:29px;height:29px;border-radius:8px}
+.nav-links{display:flex;gap:2px;margin-inline-start:auto}
+.nav-links a{white-space:nowrap;font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 14px;
+  border-radius:var(--radius-pill);position:relative;transition:color var(--dur) var(--ease-soft)}
+.nav-links a::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:1.5px;border-radius:2px;
+  background:var(--grad-text);transform:scaleX(0);transform-origin:left;
+  transition:transform var(--dur) var(--ease-out)}
+.nav-links a:hover{color:var(--color-text)}
+.nav-links a:hover::after,.nav-links a[aria-current="true"]::after,
+.nav-links a[aria-current="page"]::after{transform:scaleX(1)}
+.nav-links a[aria-current="true"],.nav-links a[aria-current="page"]{color:var(--color-text)}
+.nav-actions{display:flex;align-items:center;gap:8px;flex:none}
+.nav-actions .signin{font-size:14.5px;font-weight:500;color:var(--color-muted);padding:9px 12px}
+.nav-actions .signin:hover{color:var(--color-text)}
+/* language switch (see langSwap in the page script): the browser cross-fades
+   between the two language pages, and the arriving page skips its entrance
+   animation, so the words simply change in place */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+.lang-swap .hero h1 .line>span{animation:none;transform:none;opacity:1}
+.lang-swap-in [data-reveal]{transition:none}
+/* language drop-down: a glass pill, a dark card under it */
+.lang{position:relative;flex:none}
+.lang summary{list-style:none;display:flex;align-items:center;gap:6px;height:42px;padding:0 12px;cursor:pointer;
+  border-radius:var(--radius-pill);border:1px solid var(--color-border);background:var(--color-surface);
+  color:var(--color-muted);font-size:13.5px;font-weight:600;letter-spacing:.05em;
+  transition:color var(--dur) var(--ease-soft),border-color var(--dur) var(--ease-soft)}
+.lang summary::-webkit-details-marker{display:none}
+.lang summary:hover,.lang[open] summary{color:var(--color-text);border-color:var(--color-border-strong)}
+.lang .flag{width:20px!important;height:14px!important;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.lang summary .chev{width:12px;height:12px;transition:transform var(--dur) var(--ease-out)}
+.lang[open] summary .chev{transform:rotate(180deg)}
+/* 16 languages: two columns, scrolls if the screen is short */
+.lang-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:70;padding:6px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;width:min(380px,calc(100vw - 28px));
+  max-height:calc(100vh - 110px);overflow-y:auto;overscroll-behavior:contain;
+  border-radius:var(--radius);background:rgba(11,14,28,.97);border:1px solid var(--color-border);
+  box-shadow:var(--shadow-float);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.lang-menu a{display:flex;align-items:center;gap:10px;padding:9px 10px;min-width:0;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--color-muted)}
+.lang-menu a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang-menu a:hover{background:var(--color-surface);color:var(--color-text)}
+.lang-menu a[aria-current="true"]{color:var(--color-text)}
+.lang-menu a[aria-current="true"]::after{content:"";width:5px;height:10px;margin-right:3px;border:solid var(--color-accent);
+  border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-inline-start:auto;flex:none}
+/* a phone has no room for brand + language + Download + menu: the menu and
+   the hero already carry the download, so the bar's button goes */
+@media (max-width:480px){
+  .nav-actions .btn-primary{display:none}
+}
+/* phones: the language list opens across the bar, not from the small button */
+@media (max-width:560px){
+  .lang{position:static}
+  .lang-menu{inset-inline:14px;width:auto;top:calc(100% - 4px);max-height:calc(100vh - 96px)}
+}
+@media (max-width:420px){
+  .lang summary{padding:0 10px;gap:4px}
+  .lang summary .chev{display:none}
+}
+@media (max-width:340px){
+  .nav .bar{gap:10px}
+  .lang summary span{display:none}
+}
+.menu-btn{display:none;width:42px;height:42px;border-radius:var(--radius-pill);
+  border:1px solid var(--color-border);background:var(--color-surface);place-items:center}
+.menu-btn svg{width:20px;height:20px}
+.mobile-menu{display:none}
+@media (max-width:1000px){
+  .nav-links,.nav-actions .signin{display:none}
+  /* the hidden links no longer push the buttons right: do it here */
+  .nav-actions{margin-inline-start:auto}
+  .menu-btn{display:grid}
+  .nav .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .mobile-menu{display:block;position:fixed;inset:74px 14px auto 14px;z-index:59;
+    background:rgba(11,14,28,.97);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    box-shadow:var(--shadow-float);opacity:0;transform:translateY(-10px);pointer-events:none;
+    transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
+  .mobile-menu[data-open="true"]{opacity:1;transform:none;pointer-events:auto}
+  .mobile-menu a{display:block;padding:13px 16px;border-radius:var(--radius-sm);
+    font-size:16px;color:var(--color-muted)}
+  .mobile-menu a:hover,.mobile-menu a:focus-visible,
+  .mobile-menu a[aria-current="page"]{background:var(--color-surface);color:var(--color-text)}
+  .mobile-menu .sep{height:1px;background:var(--color-border);margin:8px 6px}
+  .mobile-menu .btn{width:100%;margin-top:4px}
+}
+
+/* The bar measures itself (fitNav in app.js), because the menu words differ
+   in length per language: when the row does not fit, the links first close
+   up (nav-snug); when even that does not fit, the bar takes its compact form
+   — links in the menu, language + Download kept — exactly as below 1000px. */
+.nav.nav-snug .nav-links a{padding:9px 9px;font-size:14px}
+.nav.nav-snug .nav-links a::after{left:9px;right:9px}
+html.nav-tight .nav-links,html.nav-tight .nav-actions .signin{display:none}
+html.nav-tight .nav-actions{margin-inline-start:auto}
+html.nav-tight .menu-btn{display:grid}
+html.nav-tight .nav .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+html.nav-tight .mobile-menu{display:block;position:fixed;inset:74px 14px auto 14px;z-index:59;
+    background:rgba(11,14,28,.97);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    box-shadow:var(--shadow-float);opacity:0;transform:translateY(-10px);pointer-events:none;
+    transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
+html.nav-tight .mobile-menu[data-open="true"]{opacity:1;transform:none;pointer-events:auto}
+html.nav-tight .mobile-menu a{display:block;padding:13px 16px;border-radius:var(--radius-sm);
+    font-size:16px;color:var(--color-muted)}
+html.nav-tight .mobile-menu a:hover,html.nav-tight .mobile-menu a:focus-visible,html.nav-tight .mobile-menu a[aria-current="page"]{background:var(--color-surface);color:var(--color-text)}
+html.nav-tight .mobile-menu .sep{height:1px;background:var(--color-border);margin:8px 6px}
+html.nav-tight .mobile-menu .btn{width:100%;margin-top:4px}
+
+
+/* ── floating insight cards ──────────────────────────────────────────────── */
+.float{position:absolute;display:flex;align-items:center;gap:11px;padding:11px 15px;
+  background:rgba(13,17,33,.82);border:1px solid var(--color-border-strong);
+  border-radius:14px;box-shadow:var(--shadow-float);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  white-space:nowrap;z-index:3;
+  transform:translate3d(0,0,0);will-change:transform}
+.float .fi{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;
+  background:rgba(99,102,241,.18);border:1px solid rgba(129,140,248,.3);color:#c7d2fe}
+.float .fi svg{width:16px;height:16px}
+.float .fc{display:grid;gap:1px}
+.float .ft{display:block;font-size:11.5px;letter-spacing:.04em;color:var(--color-muted-2);line-height:1.3}
+.float .fv{display:block;font-size:13.5px;font-weight:600;color:var(--color-text);line-height:1.3}
+.float .fv .up{color:var(--color-positive)}
+/* lit briefly by the intelligence pulse, one card at a time */
+.float[data-lit="true"]{border-color:rgba(129,140,248,.6);
+  box-shadow:var(--shadow-float),0 0 0 1px rgba(129,140,248,.25),0 0 34px rgba(99,102,241,.32)}
+
+/* ── social ──────────────────────────────────────────────────────────────── */
+.social{display:flex;gap:10px}
+.social a{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-muted);
+  transition:transform var(--dur) var(--ease-out),color var(--dur) var(--ease-soft),
+             border-color var(--dur) var(--ease-soft),background var(--dur) var(--ease-soft)}
+.social a svg{width:19px;height:19px;transition:transform var(--dur) var(--ease-out)}
+.social a:hover{color:var(--color-text);border-color:rgba(129,140,248,.45);
+  background:rgba(99,102,241,.14);transform:translateY(-3px)}
+.social a:hover svg{transform:scale(1.1)}
+
+/* ── store badges ──────────────────────────────────────────────────────────
+   One component for both stores and both states. A store that is not live
+   renders as .is-soon: same shape, no link, visibly inert. */
+.stores{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.stores.center{justify-content:center}
+.stores.sm{margin-top:20px;gap:10px}
+.store{display:inline-flex;align-items:center;gap:12px;padding:11px 20px 11px 16px;
+  border:1px solid var(--color-border-strong);border-radius:14px;
+  background:linear-gradient(162deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  color:var(--color-text);position:relative;
+  transition:transform var(--dur) var(--ease-out),border-color var(--dur) var(--ease-out),
+             box-shadow var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
+a.store:hover{transform:translateY(-2px);border-color:rgba(129,140,248,.55);
+  background:linear-gradient(162deg,rgba(255,255,255,.1),rgba(255,255,255,.05));
+  box-shadow:0 16px 38px rgba(0,0,0,.42)}
+.store .mkw{width:26px;height:26px;display:grid;place-items:center;flex:none}
+.store .mk{width:24px;height:24px}
+.store .stxt{display:grid;gap:1px;line-height:1.15;text-align:left}
+.store .stxt small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted-2)}
+.store .stxt b{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.store.lg{padding:13px 24px 13px 18px}
+.store.lg .mkw,.store.lg .mk{width:28px;height:28px}
+.store.lg .stxt b{font-size:17.5px}
+.store.sm{padding:9px 16px 9px 13px;border-radius:12px}
+.store.sm .mkw,.store.sm .mk{width:20px;height:20px}
+.store.sm .stxt b{font-size:14px}
+.store.sm .stxt small{font-size:9.5px}
+
+/* not published yet — dimmed, not a link, and it says so */
+.store.is-soon{opacity:.62;border-style:dashed;cursor:default}
+.store.is-soon .stxt small{color:var(--color-muted-2)}
+.store .soon-tag{margin-left:4px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-pill);
+  background:rgba(34,211,238,.13);color:var(--color-accent);border:1px solid rgba(34,211,238,.28)}
+.store.sm .soon-tag{display:none}
+
+/* the small line that introduces the badges */
+.cta-kicker{margin-top:26px;font-size:12px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--color-muted-2)}
+
+/* "this lives in the app" line under a feature preview */
+.mini-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px;
+  font-size:14.5px;color:var(--color-muted)}
+.mini-cta a{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--color-primary-bright)}
+.mini-cta a svg{width:15px;height:15px;transition:transform var(--dur) var(--ease-out)}
+.mini-cta a:hover svg{transform:translateX(3px)}
+
+/* On a phone the store buttons ARE the page's job: full width, one per row,
+   large tap targets. */
+@media (max-width:560px){
+  .stores:not(.sm){display:grid;grid-template-columns:1fr;gap:10px}
+  .stores:not(.sm) .store{width:100%;justify-content:flex-start;padding:14px 18px}
+  .stores:not(.sm) .store .soon-tag{margin-left:auto}
+  .stores.sm{justify-content:flex-start}
+}
+
+/* ── parent chip: the way back to lomonec.com ─────────────────────────────
+   A small pill under the brand, inside a slowly turning light ring; the
+   arrow slides on hover. Injected by buildParent() in app.js. */
+.brand-group{display:flex;flex-direction:column;align-items:flex-start;gap:3px;flex:none}
+@property --pc-spin{syntax:"<angle>";inherits:false;initial-value:0deg}
+.parent-chip{position:relative;display:inline-flex;flex:none;padding:1px;margin-left:36px;border-radius:var(--radius-pill);
+  background:conic-gradient(from var(--pc-spin),rgba(165,180,252,.15),var(--color-accent),var(--color-secondary),rgba(165,180,252,.15) 70%);
+  animation:pcSpin 5s linear infinite;transition:box-shadow var(--dur) var(--ease-soft)}
+.parent-chip .pc-in{display:inline-flex;align-items:center;gap:3px;padding:2px 9px 2px 5px;border-radius:inherit;
+  background:rgba(10,13,26,.88);color:var(--color-muted);font-size:9.5px;line-height:1.3;font-weight:700;letter-spacing:.16em;
+  transition:color var(--dur) var(--ease-soft),background var(--dur) var(--ease-soft)}
+.parent-chip svg{width:11px;height:11px}
+.menu-parent svg{width:14px;height:14px}
+.parent-chip svg,.menu-parent svg{transition:transform var(--dur) var(--ease-out)}
+.pc-word b{color:#a08cff;font-weight:800}
+.parent-chip:hover,.parent-chip:focus-visible{box-shadow:0 0 18px rgba(34,211,238,.35)}
+.parent-chip:hover .pc-in{color:var(--color-text);background:rgba(20,22,48,.92)}
+.parent-chip:hover svg,.menu-parent:hover svg{transform:translateX(-3px)}
+@keyframes pcSpin{to{--pc-spin:360deg}}
+.menu-parent{display:flex!important;align-items:center;gap:8px;font-size:13px!important;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--color-muted);
+  border:1px solid var(--color-border);margin-bottom:6px;
+  background:linear-gradient(100deg,rgba(99,102,241,.14),rgba(34,211,238,.08))}
+.menu-parent .pc-word{letter-spacing:.14em}
+@media (prefers-reduced-motion:reduce){.parent-chip{animation:none}}

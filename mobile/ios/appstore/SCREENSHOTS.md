@@ -1,5 +1,13 @@
 # App Store screenshots — replacement plan for version 1.1.0
 
+> **Uploaded 6 Oct 2026** (App Store Connect, 6.9" set, through the API): the six
+> files in `screenshots/iphone-6.9-2026-10/`, shot with
+> `IOS=1 node scripts/store-art/shoot.js iphone` (the rig now presents the App
+> Store build: Capacitor shell stubbed, every native plugin inert). Order: session,
+> road map, Practice, Phrase Lab, Progress, Progress record. Home V2 was left out —
+> its hero shows a YouTube thumbnail of a real person. Practice Partner shots
+> (PARTNER=1, local Worker) were not taken.
+
 **Status (29 Sep 2026): the nine files in `screenshots/iphone-6.9/` are stale and must
 not be uploaded.** They were taken on 20 Sep 2026: every one shows the old header with
 the 🔥 streak pill (since removed), and none shows Home V2, which is the iPhone app's

@@ -1,5 +1,17 @@
 # Closing the live anonymous-`ytai` exposure — production release plan
 
+> **Integration note (2 October 2026).** This file is kept as the *production
+> record*: the ytai account requirement described here IS live (be-polish
+> `47bdb7d8`, web `be12-v490`, `main fa580172`). The Premium line
+> (`feature/product-boundary-implementation`) wrote its own, unexecuted copy of
+> this plan and a **different, larger** `backend/polish-worker.js` — one that
+> keeps this requirement (`ytaiAccount`, verified before anything else, in both
+> modes) and adds server-side Premium enforcement and a Durable Object rate
+> limiter. The unified staging candidate adopts THAT worker. So the file deployed
+> to production today is no longer the file in the tree: the next be-polish
+> production deploy carries more than this record describes, and needs its own
+> decision. See `docs/ADS-IOS-RELEASE.md` and `docs/release/STAGING_RC.md`.
+
 **Branch:** `release/ytai-security` · **Commit:** see `git log -1` ·
 **Base:** `origin/main` `1589ff0c` (= live production)
 **Status: DEPLOYED AND VERIFIED IN PRODUCTION, 1 October 2026.**

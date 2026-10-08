@@ -25,9 +25,41 @@ The VIEW is all a client ever sees:
 
 ```json
 { "plan": "premium", "paid": true, "state": "active", "ads": false,
-  "capabilities": { "ad_free": true, "ai_allowance": "enhanced", "practice_allowance": "enhanced" },
+  "capabilities": { "ad_free": true, "ai_analysis": true,
+                    "advanced_progress": true, "ai_coach": true, "recommended_content": true,
+                    "ai_allowance": "enhanced", "practice_allowance": "enhanced" },
   "expiresAt": 1790000000000, "source": "promo", "checkedAt": 1789000000000 }
 ```
+
+### Capabilities (the contract)
+
+`CAPABILITIES` in `src/entitlement-core.js` is the list. Three places must agree
+with it and nothing else may invent a name:
+
+| where | what it does |
+|---|---|
+| `src/entitlement-core.js` `CAPABILITIES` | the source of truth |
+| index.html `ENT_CAPS` / `hasEntitlement()` | what the app draws |
+| `backend/polish-worker.js` `ROUTE_CAP` | what the AI Worker will spend on |
+
+`tests/premium-boundary.mjs` check 1 compares the first two and fails on drift.
+
+| capability | grants |
+|---|---|
+| `ad_free` | no advertising |
+| `ai_analysis` | pronunciation / grammar / vocabulary / fluency analysis, the detailed speaking score, every AI report |
+| `advanced_progress` | 30- and 90-day analytics, trends, the long-term record |
+| `ai_coach` | the AI coach session and its per-round feedback |
+| `recommended_content` | opening the personalised recommendations on Home |
+
+`ai_allowance` and `practice_allowance` are older enums kept for the ad and
+reward code; no feature reads them as a gate.
+
+**A capability never gates a track.** Premium is the same on both programmes;
+which features a track has is the app's own `isGeneralEnglish()` and the partner
+Worker's `TRACKS`. Because Premium is *sold* on General English only, the app's
+`entGated()` refuses to apply any gate on Welding — a learner must never lose
+something they cannot buy back.
 
 No provider identifier, product id, customer id or uid is ever in it.
 
@@ -38,7 +70,13 @@ No provider identifier, product id, customer id or uid is ever in it.
   the app and the partner Worker's `TRACKS`; no plan changes that. Add a plan
   by adding an entry.
 - **Products** (`PRODUCTS`): what a store sells → the plan it grants
-  (`premium_monthly`, `premium_annual` and `premium_promo` → `premium`).
+  (`premium_monthly`, `premium_annual` and `premium_promo` → `premium`;
+  the first two are the same ids on the App Store and Google Play).
+  Prices are set in the stores, never here or in the app: **US$2.99 / month
+  and US$19.99 / year** (owner's tier spec, 5 Oct 2026, `docs/TIERS.md`);
+  the app prints whatever the store returns. Note: `premium_promo` is listed
+  here and in `PRODUCTS`, but no store sells it and no billing adapter
+  produces it — a label only, flagged for the owner, not changed.
 - **Statuses**: `active`, `trialing`, `grace` are in force until `expires_at`.
   `expired` and `revoked` are not. A record that has not started yet reads
   `pending` (Free). Anything malformed reads `invalid` (Free).

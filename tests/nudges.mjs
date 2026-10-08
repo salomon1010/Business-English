@@ -54,6 +54,10 @@ console.log("\n# General English: learner state → the best next action → be-
   ok("A3 · the message is the fixed template filled with the learner's week — no free text", /^Week \d+ is ready$/.test(put.body.rec.title) && /minutes today moves you forward/.test(put.body.rec.body), JSON.stringify(put.body.rec));
   ok("A4 · expiry and send time are set (sent within a day, expires ≤ 36 h)", put.body.rec.sendAfter > Date.now() && put.body.rec.expiresAt - Date.now() <= 36 * 3_600_000 + 5000 && put.body.rec.expiresAt > put.body.rec.sendAfter, JSON.stringify(put.body.rec));
   ok("A5 · nudge_generated is counted (kind, reason, curriculum week)", (await beacons(p)).includes("nudge_generated"), JSON.stringify(await beacons(p)));
+  /* the picture (5 Oct 2026): a clip recommendation carries the clip's own
+     thumbnail; a lesson has none; a scene or rubbish id gets nothing */
+  const img = await p.evaluate(() => [nudgeImage({ act: "clip", args: ["UF8uR6Z6KLc"] }), nudgeImage({ act: "clip", args: ["scene.hotel"] }), nudgeImage({ act: "study-due", args: [] }), nudgeImage(null)]);
+  ok("A5b · a clip recommendation sends the clip's YouTube thumbnail; a lesson, a scene or a bad id sends none", put.body.rec.image === "" && img[0] === "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg" && img[1] === "" && img[2] === "" && img[3] === "", JSON.stringify({ rec: put.body.rec.image, img }));
   pushCalls.length = 0; pushMode = "welding";
   await p.evaluate(() => { S.nudge.pending = null; }); const refused = await p.evaluate(() => nudgeSchedule("test"));
   ok("A6 · the server refuses (the account is not General English) → nothing kept on the device", refused === null && (await p.evaluate(() => S.nudge.pending)) === null, JSON.stringify(refused));
@@ -223,8 +227,19 @@ console.log("\n# the service worker");
   s = mk({ ...cacheBody, pushApi: "https://be-push-staging.test" }, good);
   await new Promise(r => s.handlers.notificationclose({ notification: { data: { nudge: { kind: "words", rid: good.rid }, pushId: "phone-test-0001" } }, waitUntil: p => p.then(r) }));
   ok("SW8 · a swipe is reported to that same push Worker", s.fetched.some(f => f.u === "https://be-push-staging.test/nudge/dismiss"), JSON.stringify(s.fetched.map(f => f.u)));
+  /* A recommendation with a picture (5 Oct 2026): the clip's thumbnail rides on
+     /why and becomes the banner's image; a nudge without one is unchanged. */
+  const IMG = "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg";
+  s = mk(cacheBody, { ...good, rid: "challenge-img-1", nkind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", image: IMG }); await s.push();
+  ok("SW9 · a recommendation that names a picture shows it (Duolingo-style rich banner), deep link intact", s.shown[0] && s.shown[0].o.image === IMG && s.shown[0].o.data.url === "./?nudge=challenge-img-1#shadow", JSON.stringify(s.shown[0] && s.shown[0].o));
+  ok("SW9b · a recommendation without one carries no image option at all", !("image" in n.o), JSON.stringify(n.o));
   s = mk(cacheBody, { kind: "reminder" }); await s.push();
   ok("SW6 · the ordinary daily reminder is unchanged", s.shown[0] && s.shown[0].t === "Time to practise" && s.shown[0].o.tag === "be-daily");
+  /* It waits for the learner (owner, 5 Oct 2026: "the notifications should stay
+     permanent even if the app is closed until the user removes it"). Without
+     requireInteraction a desktop notification fades after a few seconds —
+     exactly when a reminder is least likely to have been seen. */
+  ok("SW8 · and it stays on screen until the learner dismisses or taps it", s.shown[0] && s.shown[0].o.requireInteraction === true, JSON.stringify(s.shown[0] && s.shown[0].o));
 }
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;

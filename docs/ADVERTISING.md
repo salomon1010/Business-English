@@ -1,5 +1,13 @@
 # Free-tier advertising (Phase 8)
 
+> **Who sees ads (owner's tier spec, 5 Oct 2026 — `docs/TIERS.md`).** The
+> **free plan on General English only** — anonymous learners and Free
+> accounts alike. **Welding shows no ad on any plan.** **Premium shows none
+> anywhere.** `adsTrackAllows()` returns `isGeneralEnglish()` again; it is
+> the single line that decides which programme carries ads. (An earlier note
+> the same day had put every programme in the ad system; the tier spec
+> reversed it.) privacy.html §7b says the same.
+
 Branch `feature/phase8-ads`, built on Phase 7 (`docs/ENTITLEMENTS.md`).
 **Nothing is live:**
 - `ads_enabled` is off everywhere and the production provider is `none`;
@@ -36,6 +44,7 @@ anywhere.
 |---|---|---|
 | **Interstitial** | natural breaks only: a finished session, Foundations day, Shadow take (report filed), workshop, conversation, or Polish report. Shown over the next browsing page the learner opens. | built, off |
 | **Native / banner** | one labelled, dashed slot at the foot of Home (`home_feed`), Progress (`progress_foot`), the Shadow library (`library`) and the phrase bank (`library`). Never on a session, recorder, conversation, partner or Polish screen. | built, off |
+| **Native, in content** | `library_top` — the Shadow library, between the featured video and the list of videos (owner, 4 Oct 2026). Its own host `#shLibAdHost`, because the feed below it is rebuilt by search, the chips and "show more". Hidden while searching. `settings_foot` — App Setup's foot; the policy declared it from the start and nothing filled it until 4 Oct 2026. Both are the same labelled, dashed card, and both obey the same decide() chain. |
 | **Rewarded** | `AdManager.rewarded(kind, context, {userInitiated:true})`, only from a learner's own tap. The reward is server-verified (§5). **No screen offers one:** no metered Free allowance exists yet for a reward to extend. | built, no entry point |
 | **Sponsored learning content** | the format and its policy exist (`AD_POLICY.sponsored`); `AdManager.sponsored()` returns nothing because no provider supplies it. | designed |
 
@@ -163,7 +172,9 @@ server's view (Phase 7). A Premium learner gets:
     none on learning screens;
   - Premium suppression;
   - Light mode borders;
-  - Welding.
+  - General English only; Welding shows no ad on any plan (owner's tier
+    spec, 5 Oct 2026 — this reverses a note earlier the same day that had
+    included Welding).
 - **Automated tests:**
   - `tests/ads.mjs` 48/48;
   - `backend/entitlements/test/run.mjs` 61/61 (reward single-use and

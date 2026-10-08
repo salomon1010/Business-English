@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's own English. Everything the learner reads on a live widget
+     comes translated from the app; these are the three gallery entries and
+     the invitation a widget shows before its programme has been opened. -->
+<resources>
+    <string name="be_widget_name">Your road map</string>
+    <string name="be_widget_desc">Today\'s step, your streak and your place on the plan — for the programme you have open.</string>
+    <string name="be_widget_name_ge">General English</string>
+    <string name="be_widget_desc_ge">Your General English streak, today\'s step and the 12-week road map.</string>
+    <string name="be_widget_name_pro">Welding English</string>
+    <string name="be_widget_desc_pro">Your Welding English streak, today\'s step and the road map of stages.</string>
+    <string name="be_widget_empty_h">Open BE Mastery</string>
+    <string name="be_widget_empty_b">Your road map and streak will appear here.</string>
+    <string name="be_widget_empty_area_b">Open this programme in BE Mastery once; its road map and streak will appear here.</string>
+    <string name="be_widget_lock_signin">Sign in to use this widget</string>
+    <string name="be_widget_lock_prem">Go Premium to unlock this widget</string>
+    <string name="be_widget_name_recs">Recommendations</string>
+    <string name="be_widget_desc_recs">Everything BE Mastery recommends for you — videos, challenges and practice — one tap from your home screen. Premium.</string>
+    <string name="be_widget_recs_h">Recommended for you</string>
+    <string name="be_widget_recs_none">Practise a little — your recommendations will appear here.</string>
+    <dimen name="be_widget_radius">22dp</dimen>
+</resources>

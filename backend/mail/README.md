@@ -105,3 +105,42 @@ hero image or GIF, one paragraph, one button, a short list, the footer.
 Those are marketing mails, not transactional — they need a consent list and
 an unsubscribe link (Brevo's list feature), which this Worker deliberately
 does not have.
+
+## `POST /apple/revoke` — handing Sign in with Apple back (added 2 Oct 2026)
+
+Apple requires an app that offers **Sign in with Apple** *and* account deletion
+to revoke the authorisation when the account goes; deleting the Firebase user
+does not do it. This route is the server half of that.
+
+```
+POST /apple/revoke          Authorization: Bearer <the learner's Firebase ID token>
+{ "code": "<a FRESH Apple authorisation code>" }
+
+200 {"ok":true,"revoked":true}        revoked with Apple
+200 {"ok":true,"revoked":false,       the account has no apple.com provider:
+     "reason":"not_apple"}            nothing to do, and a retry is safe
+400 {"error":"apple_code"}            the code was refused (used, expired, malformed) — retry with a new one
+401 {"error":"auth"}                  no/bad/expired ID token
+503 {"error":"apple_unavailable"}     not configured, lookup failed, or Apple/Google is down
+```
+
+**There is no Apple private key here, and there must never be one.** Firebase
+does the exchange: `accounts:revokeToken` with `providerId: "apple.com"`,
+`tokenType: "CODE"` and the learner's own ID token. Apple's `.p8`, Services ID,
+key ID and team ID are uploaded **once to the Firebase console**, where the Apple
+provider is configured, and never leave Google. The only new configuration here
+is the var `FB_API_KEY` — the same browser key `index.html` already carries,
+public by design.
+
+Before it answers anything but 503 you need, in the Firebase console → Authentication
+→ Sign-in method → Apple: the Services ID, Apple team ID, key ID and private key.
+Without them Firebase cannot mint the client secret Apple demands.
+
+The app asks the learner to confirm with Apple at the moment of deletion, because
+a code is single-use and lives about five minutes and Firebase keeps none. If this
+route does not answer `ok`, the app **does not delete the account** — see
+`fbAppleRevoke()` in index.html and `docs/auth/SOCIAL_SIGNIN.md`.
+
+`capacitor://localhost` was added to `ALLOWED_ORIGINS` in the same change: without
+it the App Store build cannot reach this route — nor `/reset` or `/welcome`, which
+it also could not reach before.

@@ -69,12 +69,15 @@ const PLUGIN = ([eligible]) => {
   const sk = window.__sk = { calls: [], finished: [], listeners: [], owned: [], unfinished: [], next: "buy", eligible };
   const P = {
     getProducts: async ({ ids }) => { sk.calls.push("getProducts"); return { products: [
+      /* mirrors mobile/ios/ios/App/App/BEMastery.storekit (owner, 6 Oct 2026): the
+         3-day introductory offer is on BOTH plans, and Apple reports it only
+         for an Apple ID that is still eligible (once per subscription group) */
       { id: "premium_monthly", title: "Premium (monthly)", description: "", displayPrice: "$4.99", price: 4.99, currencyCode: "USD", period: "P1M", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) },
-      { id: "premium_annual", title: "Premium (annual)", description: "", displayPrice: "$19.99", price: 19.99, currencyCode: "USD", period: "P1Y" }].filter(p => ids.includes(p.id)) }; },
+      { id: "premium_annual", title: "Annual Premium", description: "", displayPrice: "$24.99", price: 24.99, currencyCode: "USD", period: "P1Y", ...(sk.eligible ? { trial: "P3D", trialEligible: true } : { trialEligible: false }) }].filter(p => ids.includes(p.id)) }; },
     purchase: async ({ id, appAccountToken }) => { sk.calls.push("purchase:" + id);
       if (sk.next === "cancel") return { cancelled: true };
       if (sk.next === "pending") return { pending: true };
-      const t = await window.__appleSign({ product: id, token: sk.tokenOverride || appAccountToken, trial: id === "premium_monthly" && sk.eligible, days: id === "premium_annual" ? 365 : 3 });
+      const t = await window.__appleSign({ product: id, token: sk.tokenOverride || appAccountToken, trial: id === "premium_annual" && sk.eligible, days: id === "premium_annual" ? 365 : 30 });
       sk.owned = [t]; return t; },
     currentEntitlements: async () => { sk.calls.push("currentEntitlements"); return { items: sk.owned }; },
     restore: async () => { sk.calls.push("restore"); return { items: sk.owned }; },
@@ -84,7 +87,11 @@ const PLUGIN = ([eligible]) => {
     addListener: (ev, cb) => { if (ev === "transaction") sk.listeners.push(cb); return { remove() {} }; },
   };
   sk.emit = x => sk.listeners.forEach(cb => cb(x));
-  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: name => name === "BEStoreKit" ? P : {} };
+  /* THE REAL iOS BRIDGE SHAPE: Capacitor.Plugins.<jsName>. registerPlugin is an
+     @capacitor/core API the unbundled shell does not have, so it is deliberately
+     ABSENT here — inventing it is what hid the BEStoreKit bridge defect. */
+  window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true,
+    Plugins: { BEStoreKit: P }, PluginHeaders: [{ name: "BEStoreKit" }] };
 };
 async function open({ uid = null, eligible = true, track = "general-english", pre = null, vp = { width: 390, height: 844 } } = {}) {
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block" });
@@ -112,7 +119,7 @@ async function open({ uid = null, eligible = true, track = "general-english", pr
   return { ctx, p, errs, calls };
 }
 const b = await chromium.launch();
-const sheet = p => p.evaluate(() => { premiumOpen("t"); const o = document.getElementById("premOv"); const r = { text: o.innerText, plans: [...o.querySelectorAll(".prem-plan")].map(x => x.dataset.id), cta: (o.querySelector(".prem-cta") || {}).textContent, eula: !!o.querySelector('a[href*="apple.com/legal/internet-services/itunes/dev/stdeula"]'), privacy: !!o.querySelector('a[href="privacy.html"]') }; return r; });
+const sheet = p => p.evaluate(() => { premiumOpen("t"); const o = document.getElementById("premOv"); const r = { text: o.innerText, plans: [...o.querySelectorAll(".prem-plan")].map(x => x.dataset.id), offer: (e => e ? e.innerText.replace(/\s+/g, " ").trim() : null)(o.querySelector(".prem-offer")), cta: (o.querySelector(".prem-cta") || {}).textContent, eula: !!o.querySelector('a[href*="apple.com/legal/internet-services/itunes/dev/stdeula"]'), privacy: !!o.querySelector('a[href="privacy.html"]') }; return r; });
 const card = async p => { await p.evaluate(async () => { premClose(); go("data"); for (let i = 0; i < 60 && !document.querySelector("details.set-plan"); i++) await new Promise(r => setTimeout(r, 50)); }); await sleep(250);
   return p.evaluate(() => { const c = document.getElementById("subCard"); return c && !c.hidden ? { text: c.innerText, rows: Object.fromEntries([...c.querySelectorAll(".sub-dl > div")].map(d => [d.querySelector("dt").textContent, d.querySelector("dd").textContent])), manage: !!c.querySelector(".sub-manage") } : null; }); };
 
@@ -122,15 +129,28 @@ console.log("\n# the bridge and the store's products");
   const st = await p.evaluate(() => ({ ios: IS_IOS_APP, provider: Billing.provider && Billing.provider.id, native: typeof window.BENativeBilling, keys: Object.keys(window.BENativeBilling || {}).sort().join(","), products: Billing.products.map(x => [x.id, x.price, x.period, x.trial || ""].join("|")) }));
   ok("I1 · inside the App Store shell the StoreKit provider is chosen, through the BEStoreKit plugin", st.ios && st.provider === "app_store" && st.native === "object", JSON.stringify(st));
   ok("I1b · a staging iOS bundle (BE_BUILD) reaches the STAGING entitlement Worker; a hand-set be_ent_api is ignored inside the App Store shell", await p.evaluate(() => entApiBase() === "https://be-entitlements-staging.nore-ngou.workers.dev") && !calls.includes("EVIL"), JSON.stringify(calls.slice(0, 4)));
+  /* REGRESSION, 2 Oct 2026: beNativeBilling() used to demand
+     Capacitor.registerPlugin, which Capacitor's native-bridge.js does not
+     provide in this unbundled shell — StoreKit was dead on a real iPhone while
+     this suite passed, because the stub invented that API. The stub now models
+     the real shape and registerPlugin is absent, so these two pin it. */
+  const shape = await p.evaluate(() => ({ reg: typeof window.Capacitor.registerPlugin,
+    plugins: typeof window.Capacitor.Plugins, sk: typeof (window.Capacitor.Plugins || {}).BEStoreKit,
+    viaHelper: typeof capPlugin("BEStoreKit") }));
+  ok("I1c · the shell exposes Capacitor.Plugins.BEStoreKit and NO registerPlugin — the real shape",
+    shape.reg === "undefined" && shape.plugins === "object" && shape.sk === "object", JSON.stringify(shape));
+  ok("I1d · StoreKit is discovered through the repository's one helper, capPlugin",
+    shape.viaHelper === "object" && st.native === "object", JSON.stringify(shape));
   ok("I2 · the bridge exposes the whole contract", st.keys === "currentEntitlements,finish,getProducts,manageSubscriptions,onTransaction,pendingTransactions,purchase,restore,supports", st.keys);
-  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("premium_monthly|$4.99|P1M|P3D") && st.products.includes("premium_annual|$19.99|P1Y|"), JSON.stringify(st.products));
+  ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("premium_monthly|$4.99|P1M|P3D") && st.products.includes("premium_annual|$24.99|P1Y|P3D"), JSON.stringify(st.products));
   const s = await sheet(p);
-  ok("I4 · the Premium sheet: Annual first and selected, $19.99 / year, Monthly $4.99 with the 3-day trial, Apple's EULA and the privacy policy linked", s.plans[0] === "premium_annual" && /\$19\.99/.test(s.text) && /\$4\.99/.test(s.text) && /3-day free trial/.test(s.text) && s.eula && s.privacy && /App Store/.test(s.text), s.text);
+  /* two plans (tier spec, 5 Oct 2026): annual first, then the monthly Apple sells; both prices are Apple's */
+  ok("I4 · the Premium sheet: both App Store plans, annual first at $24.99 / year with the 3-day trial leading it, monthly at $4.99; Apple's EULA and the privacy policy linked", s.plans.length === 2 && /\$24\.99/.test(s.text) && /\$4\.99/.test(s.text) && /3 days free/i.test(s.text) && /Start 3-day free trial/.test(s.cta) && s.eula && s.privacy && /App Store/.test(s.text), JSON.stringify({ plans: s.plans.length, cta: s.cta, eula: s.eula, privacy: s.privacy }));
   ok("I5 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
   const n = await open({ uid: "ib", eligible: false });
   const s2 = await sheet(n.p);
-  ok("I6 · an Apple ID Apple says is NOT eligible for the introductory offer: no trial is shown anywhere", !/free trial/i.test(s2.text) && await n.p.evaluate(() => { premPick("premium_monthly"); return document.querySelector("#premOv .prem-cta").textContent === "Continue"; }), s2.text);
+  ok("I6 · an Apple ID Apple says is NOT eligible for the introductory offer: no trial claimed anywhere, and the CTA does not promise one", !/free trial|days free/i.test(s2.text) && /Continue with Premium/.test(s2.cta), JSON.stringify({ cta: s2.cta, offer: s2.offer }));
   await n.ctx.close();
 }
 
@@ -141,12 +161,14 @@ console.log("\n# purchase → the server's verdict → finish");
   ok("P1 · the learner closes Apple's sheet: nothing is sent to the server, still Free", !calls.some(x => /verify/.test(x)) && await p.evaluate(() => !entIsPremiumForDisplay() && Billing.state === "ready"));
   await p.evaluate(() => { __sk.next = "pending"; }); await p.evaluate(() => Billing.buy("premium_monthly"));
   ok("P2 · Ask to Buy (pending): 'payment pending', still Free, nothing verified", !calls.some(x => /verify/.test(x)) && await p.evaluate(() => !entIsPremiumForDisplay() && /pending|confirms/i.test(Billing.note)), await p.evaluate(() => Billing.note));
-  await p.evaluate(() => { __sk.next = "buy"; }); await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(600);
+  /* the introductory offer is on the ANNUAL plan now, so this is the purchase
+     that carries the trial and must come back as state "trialing" */
+  await p.evaluate(() => { __sk.next = "buy"; }); await p.evaluate(() => Billing.buy("premium_annual")); await sleep(600);
   const v = await p.evaluate(() => ({ v: entView(), finished: __sk.finished.slice(), owned: __sk.owned[0] && __sk.owned[0].transactionId }));
   ok("P3 · a purchase with the 3-day trial: the server verifies Apple's JWS and the account's appAccountToken → Premium, state trialing, source app_store", v.v.plan === "premium" && v.v.state === "trialing" && v.v.source === "app_store" && calls.includes("GET /v1/purchases/account-token") && calls.includes("POST /v1/purchases/verify"), JSON.stringify(v.v));
   ok("P4 · the transaction is finished only after the server answered", v.finished.includes(v.owned), JSON.stringify(v));
   const c = await card(p);
-  ok("P5 · Subscription card: 'Premium · Monthly', '$4.99 / month', 'Billed by App Store', Manage subscription", c && c.rows["Current plan"] === "Premium · Monthly" && c.rows["Price"] === "$4.99 / month" && c.rows["Billed by"] === "App Store" && c.manage, JSON.stringify(c));
+  ok("P5 · Subscription card: 'Premium · Annual', the store's '$24.99 / year', 'Billed by App Store', Manage subscription", c && c.rows["Current plan"] === "Premium · Annual" && c.rows["Price"] === "$24.99 / year" && c.rows["Billed by"] === "App Store" && c.manage, JSON.stringify(c));
   await p.evaluate(() => document.querySelector("#subCard .sub-manage").click());
   ok("P6 · Manage subscription opens Apple's own sheet (StoreKit showManageSubscriptions)", await p.evaluate(() => __sk.calls.includes("manageSubscriptions")));
   if (SHOTS) await p.locator("#subCard").screenshot({ path: SHOTS + "/ios-subscription-card.png" });
@@ -223,7 +245,7 @@ console.log("\n# account deletion and Welding");
   let asked = null;
   await p.evaluate(() => { FBauth = FBauth || {}; window.askConfirm = async o => { window.__asked = o; return false; }; });
   await p.evaluate(() => fbDeleteAccount()); asked = await p.evaluate(() => window.__asked && window.__asked.body);
-  ok("D1 · deleting the account of a paying learner says the App Store subscription is NOT cancelled and where to cancel it", /does not cancel your BE Mastery Premium subscription\. Cancel it in App Store/.test(asked || ""), asked);
+  ok("D1 · deleting the account of a paying learner says the App Store subscription is NOT cancelled and where to cancel it", /does not cancel your BE Mastery Premium subscription\. Cancel it in the App Store/.test(asked || ""), asked);
   await ctx.close();
   const f = await open({ uid: "ii" });
   await f.p.evaluate(() => { FBauth = FBauth || {}; window.askConfirm = async o => { window.__asked = o; return false; }; });
@@ -232,8 +254,32 @@ console.log("\n# account deletion and Welding");
   await f.ctx.close();
   const w = await open({ uid: "ij", track: "welding" });
   const ws = await sheet(w.p);
-  ok("W1 · Welding in the iOS app: the sheet sells nothing General-English-only (no Shadow/YouTube/Polish lines)", !/Shadow videos|YouTube|Polish/.test(ws.text) && ws.plans.length === 2, ws.text);
+  /* The same StoreKit product and the same sheet on either track — ONE
+     subscription. What the sheet ADVERTISES follows the open track: the AI
+     Coach is reached through Practice Partner, which is General English only,
+     so Welding is sold the saved-video headroom its Premium really raises
+     instead (premBenefitRows in index.html). This asserted /The AI Coach/ on
+     Welding until 30 September 2026, which was the claim being corrected. */
+  ok("W1 · Welding in the iOS app: the SAME Premium is offered — the same two App Store plans, the shared capabilities", /AI verdicts a day/.test(ws.text) && ws.plans.length === 2, JSON.stringify({ plans: ws.plans.length }));
+  ok("W2 · …and it does not promise Welding the AI Coach, which Welding cannot reach", !/AI Coach/.test(ws.text) && /Save up to 100 Shadow videos/.test(ws.text), ws.text.replace(/\s+/g, " ").slice(0, 220));
   await w.ctx.close();
+}
+
+console.log("\n# signed out on the iPhone: the sheet starts billing itself (owner's phone, 6 Oct 2026)");
+{
+  /* no saved session = the sign-in SDK never loads = fbOnAuth never runs =
+     Billing.init() never ran. The sheet used to say "Premium can't be bought on
+     this device" (plugin_ok_no_products) to a learner who only had to sign in. */
+  const { ctx, p, errs } = await open({ uid: null });
+  const before = await p.evaluate(() => ({ ran: !!Billing._ran, provider: Billing.provider && Billing.provider.id }));
+  await p.evaluate(() => premiumOpen("t")); await sleep(700);
+  const s = await p.evaluate(() => { const o = document.getElementById("premOv"); return { provider: Billing.provider && Billing.provider.id, signin: !!o.querySelector(".prem-signin"), unavail: !!o.querySelector(".prem-unavail"), text: o.innerText.replace(/\s+/g, " ") }; });
+  ok("SO1 · signed out, no init yet: opening Premium finds the App Store and asks to sign in — not 'can't be bought on this device'", !before.ran && s.provider === "app_store" && s.signin && !s.unavail && !/can't be bought|plugin_ok_no_products/.test(s.text), JSON.stringify({ before, ...s, text: s.text.slice(-160) }));
+  await p.evaluate(async () => { premClose(); FBUser = { uid: "so1", email: "so1@test", getIdToken: async () => "test-token-so1" }; await entRefresh(); await Billing.init(); });
+  const s2 = await sheet(p);
+  ok("SO2 · after signing in, the same sheet shows both App Store plans", s2.plans.length === 2 && !/can't be bought/.test(s2.text), JSON.stringify({ plans: s2.plans }));
+  ok("SO3 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
 }
 
 await b.close(); srv.kill();

@@ -2,12 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CAPACITOR_DEBUG</key>
+	<key>BEAdsAllowTestUnits</key>
+	<true/>
+	<key>BEAdsInterstitialUnitId</key>
+	<string>ca-app-pub-REPLACE/REPLACE</string>
+	<key>BEAdsNativeUnitId</key>
+	<string>ca-app-pub-REPLACE/REPLACE</string>
+	<key>BEGoogleIosClientID</key>
+	<string>847739483036-qfgi8l393orrmr8fsnhk50auq9ironjt.apps.googleusercontent.com</string>
+	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>BE Mastery</string>
+	<string>BE Mastery</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,47 +28,46 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.lomonec.bemastery.widget</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bemastery</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
+	<key>GADApplicationIdentifier</key>
+	<string>$(BE_ADS_APP_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>BE Mastery uses the camera only for the optional Posture Coach in the Shadowing Studio. Frames are analysed on your phone in real time; no image or video is stored or sent anywhere.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BE Mastery uses the microphone so you can record your spoken English for feedback, send short voice turns to a practice partner and talk in a live practice call. Your recordings are kept on your device; audio you record for feedback, a voice turn you send and your own side of a live call are sent over an encrypted connection to be transcribed and scored.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>BE Mastery uses speech recognition to turn your spoken English into text, so it can check your pronunciation and show which words came through clearly. Recognition is handled by iOS; the app receives only the text.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>BE Mastery uses the camera only for the optional Posture Coach in the Shadowing Studio. Frames are analysed on your phone in real time; no image or video is stored or sent anywhere.</string>
-	<key>UIRequiresFullScreen</key>
-	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
-    <false/>
-    <key>UISceneConfigurations</key>
-    <dict>
-      <key>UIWindowSceneSessionRoleApplication</key>
-      <array>
-        <dict>
-            <key>UISceneConfigurationName</key>
-            <string>Default Configuration</string>
-            <key>UISceneDelegateClassName</key>
-            <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-            <key>UISceneStoryboardFile</key>
-            <string>Main</string>
-        </dict>
-      </array>
-    </dict>
+		<false/>
 	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

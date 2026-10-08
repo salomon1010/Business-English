@@ -53,6 +53,7 @@
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
+  "capacitor://localhost",          // the App Store shell's own origin (iOS notifications, 4 Oct 2026)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
@@ -118,6 +119,11 @@ function validEndpoint(u, env){
   return p.protocol === "https:" && u.length < 1000;
 }
 
+/* A row is reachable if it has somewhere to send to: a web push endpoint or
+   an APNs device token. Every "has this phone a route?" test goes through it,
+   so the iPhone app is never mistaken for an unregistered device. */
+function hasRoute(rec){ return !!(rec && (rec.endpoint || (rec.apns && rec.apns.token))); }
+
 function cleanId(v){
   return typeof v === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(v) ? v : null;
 }
@@ -160,10 +166,138 @@ async function vapidHeader(env, audience){
   return `vapid t=${head}.${body}.${b64url(sig)}, k=${env.VAPID_PUBLIC_KEY}`;
 }
 
+/* ------------------------------------------------------------------- APNs --
+   The App Store shell (4 Oct 2026). WKWebView has neither Notification nor
+   Web Push, so the iPhone app registers an APNs device token instead of a
+   push subscription and this Worker talks to Apple directly.
+
+   The one real difference from web push: a web push is BARE and sw.js reads
+   the wording out of the device's own cache, which is why a language change
+   reaches a notification sent days later. APNs has no service worker to ask,
+   so the ALERT TEXT must travel in the payload — the phone therefore sends
+   its already-translated wording with /subscribe (rec.text), re-sent on every
+   launch, and a nudge carries its own title and body already.
+
+   Auth is a token, not a certificate: ES256 over the .p8 Apple issues once
+   (APNS_KEY_P8 secret, APNS_KEY_ID + APNS_TEAM_ID vars). Apple asks that the
+   JWT be reused and refreshed no more than once every 20 minutes and at least
+   once an hour, so it is cached per isolate for APNS_JWT_TTL.
+
+   Unconfigured = off: /subscribe still takes the token (the phone is
+   registered and will work the moment the key is added) and a send reports
+   "fail:apns_off" rather than throwing. */
+const APNS_HOST = { production: "https://api.push.apple.com", sandbox: "https://api.sandbox.push.apple.com" };
+const APNS_JWT_TTL = 40 * 60_000;   // inside Apple's 60-minute maximum, outside its 20-minute minimum
+const APNS_TOPIC_DEFAULT = "com.lomonec.bemastery";
+
+function apnsReady(env){ return !!(env && env.APNS_KEY_P8 && env.APNS_KEY_ID && env.APNS_TEAM_ID); }
+
+let _apnsKey = null, _apnsJwt = null;
+async function apnsSigningKey(env){
+  if (_apnsKey) return _apnsKey;
+  const der = Uint8Array.from(atob(String(env.APNS_KEY_P8).replace(/-----[^-]+-----|\s+/g, "")), c => c.charCodeAt(0));
+  _apnsKey = await crypto.subtle.importKey("pkcs8", der, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  return _apnsKey;
+}
+async function apnsJwt(env, force){
+  if (!force && _apnsJwt && Date.now() - _apnsJwt.at < APNS_JWT_TTL) return _apnsJwt.jwt;
+  const key = await apnsSigningKey(env);
+  const head = b64url(enc.encode(JSON.stringify({ alg: "ES256", kid: env.APNS_KEY_ID })));
+  const body = b64url(enc.encode(JSON.stringify({ iss: env.APNS_TEAM_ID, iat: Math.floor(Date.now() / 1000) })));
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, enc.encode(head + "." + body));
+  _apnsJwt = { jwt: `${head}.${body}.${b64url(sig)}`, at: Date.now() };
+  return _apnsJwt.jwt;
+}
+
+/* What the phone should SHOW. Web push ignores this (it stays bare); APNs
+   needs every word of it. `what.kind` is the only thing the callers know;
+   the wording comes from the device's own translated strings. */
+function apnsAlert(rec, what){
+  const T = (rec && rec.text) || {}, k = what && what.kind;
+  if (k === "nudge") return what.title && what.body
+    ? { title: what.title, body: what.body, tag: "be-nudge", view: what.view || "journey", urgent: false,
+        image: what.image || "", extra: { rid: what.rid || "", nkind: what.nkind || "" } }
+    : null;
+  if (k === "presence") return T.online && T.online.title
+    ? { title: String(T.online.title).replace(/\{\{n\}\}/g, String(what.n || 1)), body: String(T.online.body || "").replace(/\{\{n\}\}/g, String(what.n || 1)), tag: "be-online", view: "partner", urgent: false, extra: {} }
+    : null;
+  if (k === "live" || k === "trial") {
+    const c = (T.call && T.call[k]) || null;
+    const name = (what.name || "").trim() || (T.someone || "A learner");
+    return c && c.title
+      ? { title: String(c.title).replace(/\{\{name\}\}/g, name), body: String(c.body || "").replace(/\{\{name\}\}/g, name), tag: "be-partner-call", view: "partner", urgent: true, extra: { call: k } }
+      : null;
+  }
+  return T.reminder && T.reminder.title
+    ? { title: T.reminder.title, body: T.reminder.body || "", tag: "be-daily", view: "journey", urgent: false, extra: {} }
+    : null;
+}
+
+/* One notification to one iPhone. Returns the same words sendOne does, so
+   every caller's "sent" / "gone" / "fail:…" handling is unchanged. */
+async function sendApns(env, rec, what){
+  if (!apnsReady(env)) return "fail:apns_off";
+  const a = apnsAlert(rec, what);
+  if (!a) return "fail:no_text";          // the phone never sent its wording: better silent than an empty banner
+  const token = rec.apns.token;
+  /* mutable-content lets the app's notification extension run before the
+     banner is drawn, which is the only way an iOS notification can carry a
+     picture (5 Oct 2026). Without an image it is left off, so a plain
+     notification is delivered exactly as before. */
+  const aps = {
+    alert: { title: a.title, body: a.body },
+    sound: "default",
+    "thread-id": a.tag,
+    "interruption-level": a.urgent ? "time-sensitive" : "active",
+  };
+  if (a.image) aps["mutable-content"] = 1;
+  const body = JSON.stringify({
+    aps,
+    be: Object.assign({ view: a.view, tag: a.tag }, a.image ? { image: a.image } : {}, a.extra),
+  });
+  const hdr = jwt => ({
+    "authorization": "bearer " + jwt,
+    "apns-topic": env.APNS_TOPIC || APNS_TOPIC_DEFAULT,
+    "apns-push-type": "alert",
+    "apns-priority": a.urgent ? "10" : "5",
+    "apns-expiration": String(Math.floor(Date.now() / 1000) + (a.urgent ? WAKE_WHY_TTL : 3600)),
+    "apns-collapse-id": a.tag,
+    "content-type": "application/json",
+  });
+  const post = async (host, jwt) => fetch(`${APNS_HOST[host]}/3/device/${token}`, { method: "POST", headers: hdr(jwt), body });
+
+  const first = rec.apns.env === "sandbox" ? "sandbox" : "production";
+  let res = await post(first, await apnsJwt(env));
+  if (res.status === 200) return "sent";
+  let reason = ""; try { reason = ((await res.json()) || {}).reason || ""; } catch (e) {}
+  /* An expired provider token is Apple asking for a fresh JWT, not a dead device. */
+  if (res.status === 403 && /ExpiredProviderToken/.test(reason)) {
+    res = await post(first, await apnsJwt(env, true));
+    if (res.status === 200) return "sent";
+    try { reason = ((await res.json()) || {}).reason || reason; } catch (e) {}
+  }
+  /* A token minted in the other APNs environment (a TestFlight build whose
+     entitlement says development, say) answers BadDeviceToken. Try the other
+     host once rather than dropping a perfectly good phone. The record is left
+     alone on purpose: one wasted request per send is cheaper than keeping two
+     copies of it (slot:, pres:) in step. */
+  if (res.status === 400 && /BadDeviceToken|BadEnvironmentKeyInToken/.test(reason)) {
+    res = await post(first === "production" ? "sandbox" : "production", await apnsJwt(env));
+    if (res.status === 200) return "sent";
+    try { reason = ((await res.json()) || {}).reason || reason; } catch (e) {}
+  }
+  /* 410 Unregistered = the app was deleted. 400 BadDeviceToken in BOTH
+     environments = nothing can ever be delivered to it. Either way, drop it. */
+  if (res.status === 410 || (res.status === 400 && /BadDeviceToken|DeviceTokenNotForTopic/.test(reason))) return "gone";
+  return "fail:" + res.status + (reason ? ":" + reason : "");
+}
+
 /* A 410/404 from the push service means the browser threw the subscription
    away (app uninstalled, permission revoked). Drop the row rather than retry
-   it every minute forever. */
-async function sendOne(env, rec, audCache, urgent){
+   it every minute forever. The iPhone app has no subscription at all — its
+   row carries an APNs token instead, and goes to Apple. */
+async function sendOne(env, rec, audCache, urgent, what){
+  if (rec && rec.apns && rec.apns.token) return sendApns(env, rec, what || { kind: "reminder" });
   const origin = new URL(rec.endpoint).origin;
   if (!audCache[origin]) audCache[origin] = await vapidHeader(env, origin);
   const res = await fetch(rec.endpoint, {
@@ -281,10 +415,10 @@ async function runPresence(env, now){
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
       const rec = await env.SUBS.get(k.name, "json");
-      if (!rec || !rec.endpoint) continue;
+      if (!hasRoute(rec)) continue;
       if (quietNow(rec.tz || 0, now)) { quiet++; continue; }
       if (await env.SUBS.get(`plast:${rec.id}`)) { recent++; continue; }
-      let out; try { out = await sendOne(env, rec, audCache); } catch (e) { out = "fail:throw"; }
+      let out; try { out = await sendOne(env, rec, audCache, false, { kind: "presence", n: online }); } catch (e) { out = "fail:throw"; }
       if (out === "sent") {
         sent++;
         await env.SUBS.put(`why:${rec.id}`, JSON.stringify({ kind: "presence", n: online, waiting, at: Date.now() }), { expirationTtl: PRES_WHY_TTL });
@@ -330,9 +464,21 @@ function cleanNudge(r, now){
   const sendAfter = Math.max(Number(r.sendAfter) || now, now);
   if (!rid || !title || !body || expiresAt <= now || sendAfter >= expiresAt) return null;
   const args = (Array.isArray(r.args) ? r.args : []).slice(0, 2).map(a => (typeof a === "number" ? a : str(String(a), 16)));
-  return { rid, kind: r.kind, view: r.view, act: NUDGE_ACTS.has(r.act) ? r.act : null, args, title, body,
+  return { rid, kind: r.kind, view: r.view, act: NUDGE_ACTS.has(r.act) ? r.act : null, args, title, body, image: cleanImage(r.image),
     reason: str(r.reason, 24), priority: Math.max(0, Math.min(100, Number(r.priority) || 0)), createdAt: now, sendAfter, expiresAt };
 }
+/* The picture a recommendation may carry (5 Oct 2026). An allow-list of hosts,
+   not "any https URL": this value is handed to a phone to fetch, and on iOS to
+   a notification extension, so it must never be able to point at something we
+   did not put there. The thumbnail of the clip being recommended, or our own
+   site's art — nothing else. */
+const IMG_HOSTS = new Set(["i.ytimg.com", "img.youtube.com", "app.lomonec.com", "staging.lomonec.com"]);
+function cleanImage(v){
+  if (typeof v !== "string" || v.length > 300) return "";
+  let u; try { u = new URL(v); } catch (e) { return ""; }
+  return u.protocol === "https:" && IMG_HOSTS.has(u.hostname) ? u.href : "";
+}
+
 async function programmeOf(req, env){
   if (!env.PARTNER_API) return null;
   const auth = req.headers.get("Authorization") || "";
@@ -353,7 +499,7 @@ async function nudgePut(req, env, origin){
     return json({ error: track ? "track" : "unverified", previous }, 403, origin);
   }
   const sub = await env.SUBS.get(`sub:${id}`, "json");
-  if (!sub || !sub.endpoint) return json({ error: "no phone", previous }, 404, origin);
+  if (!hasRoute(sub)) return json({ error: "no phone", previous }, 404, origin);
   const rec = cleanNudge(b.rec, now);
   if (!rec) return json({ error: "bad nudge", previous }, 400, origin);
   rec.tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : (sub.tz || 0);
@@ -428,11 +574,11 @@ async function runNudges(env, nowMs, onlyId){
       if (why === "expired" || why === "duplicate") { await env.SUBS.delete(k.name); expired++; continue; }
       if (why) { held++; continue; }
       const sub = await env.SUBS.get(`sub:${id}`, "json");
-      if (!sub || !sub.endpoint) { await env.SUBS.delete(k.name); dropped++; continue; }
-      let out; try { out = await sendOne(env, sub, audCache); } catch (e) { out = "fail:throw"; }
+      if (!hasRoute(sub)) { await env.SUBS.delete(k.name); dropped++; continue; }
+      let out; try { out = await sendOne(env, sub, audCache, false, { kind: "nudge", title: rec.title, body: rec.body, rid: rec.rid, nkind: rec.kind, view: rec.view, image: rec.image || "" }); } catch (e) { out = "fail:throw"; }
       if (out === "sent") {
         sent++;
-        await env.SUBS.put(`why:${id}`, JSON.stringify({ kind: "nudge", rid: rec.rid, nkind: rec.kind, view: rec.view, act: rec.act, args: rec.args, title: rec.title, body: rec.body, createdAt: rec.createdAt, expiresAt: rec.expiresAt, at: now }),
+        await env.SUBS.put(`why:${id}`, JSON.stringify({ kind: "nudge", rid: rec.rid, nkind: rec.kind, view: rec.view, act: rec.act, args: rec.args, title: rec.title, body: rec.body, image: rec.image || "", createdAt: rec.createdAt, expiresAt: rec.expiresAt, at: now }),
           { expirationTtl: Math.max(60, Math.ceil((rec.expiresAt - now) / 1000)) });
         await env.SUBS.put(`done:${id}`, new Date(now).toISOString().slice(0, 10), { expirationTtl: 172800 });   // the plain reminder stays quiet today
         log.sent = [...(log.sent || []).filter(t => now - t < 7 * 86400_000), now];
@@ -451,6 +597,33 @@ async function runNudges(env, nowMs, onlyId){
 
 /* ------------------------------------------------------------------ routes -- */
 
+/* An APNs device token is hex and Apple says not to assume its length. The
+   environment decides which of Apple's two hosts it belongs to; the phone
+   reads it from its own provisioning profile, so a TestFlight build and an
+   App Store build tell the truth about themselves. */
+function cleanApns(a){
+  if (!a || typeof a !== "object") return null;
+  const token = typeof a.token === "string" && /^[a-fA-F0-9]{64,200}$/.test(a.token) ? a.token.toLowerCase() : null;
+  if (!token) return null;
+  return { token, env: a.env === "sandbox" ? "sandbox" : "production" };
+}
+/* The wording an APNs alert needs, in the learner's language, exactly as the
+   phone would have shown it. Only these fields, each capped: this is the one
+   place where notification TEXT is stored server-side, so it holds no name,
+   no progress and nothing the learner typed. Re-sent on every launch, which
+   is how a language change reaches a notification sent days later. */
+function cleanText(t){
+  if (!t || typeof t !== "object") return null;
+  const pair = o => (o && typeof o === "object" && str(o.title, 80) ? { title: str(o.title, 80), body: str(o.body, 180) } : null);
+  const out = {};
+  const rem = pair(t.reminder); if (rem) out.reminder = rem;
+  const on = pair(t.online); if (on) out.online = on;
+  const live = pair(t.call && t.call.live), trial = pair(t.call && t.call.trial);
+  if (live || trial) { out.call = {}; if (live) out.call.live = live; if (trial) out.call.trial = trial; }
+  const someone = str(t.someone, 24); if (someone) out.someone = someone;
+  return Object.keys(out).length ? out : null;
+}
+
 async function subscribe(req, env, origin){
   const b = await req.json().catch(() => null);
   if (!b) return json({ error: "bad json" }, 400, origin);
@@ -461,8 +634,11 @@ async function subscribe(req, env, origin){
   const nudges = b.nudges === true;   // learning nudges only (2026-09-26): a phone with no reminder may still want them
   const tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : 0;
   if (!id || (b.slot != null && !slot) || (!slot && !presence && !calls && !nudges)) return json({ error: "bad id or slot" }, 400, origin);
-  if (!b.endpoint || !validEndpoint(b.endpoint, env)) {
-    return json({ error: "bad endpoint" }, 400, origin);
+  /* Two kinds of phone, one row: a browser sends a push endpoint, the App
+     Store shell sends an APNs device token and the words to show. */
+  const apns = cleanApns(b.apns);
+  if (!apns && (!b.endpoint || !validEndpoint(b.endpoint, env))) {
+    return json({ error: b.apns ? "bad apns token" : "bad endpoint" }, 400, origin);
   }
 
   // Moving the reminder time leaves a row in the old minute; clear it first or
@@ -472,7 +648,8 @@ async function subscribe(req, env, origin){
     await env.SUBS.delete(`slot:${prev.slot}:${id}`);
   }
 
-  const rec = { id, slot, endpoint: b.endpoint, presence, calls, nudges, tz };
+  const rec = { id, slot, endpoint: apns ? null : b.endpoint, presence, calls, nudges, tz };
+  if (apns) { rec.apns = apns; rec.text = cleanText(b.text); }
   if (slot) await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
   if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
   else await env.SUBS.delete(`pres:${id}`);
@@ -496,10 +673,10 @@ async function wakeOne(req, env, origin){
   const ref = typeof b.ref === "string" && /^[a-f0-9]{16}$/.test(b.ref) ? b.ref : null;
   if (!id || !kind) return json({ error: "bad request" }, 400, origin);
   const rec = await env.SUBS.get(`sub:${id}`, "json");
-  if (!rec || !rec.endpoint || !rec.calls) return json({ error: "no phone" }, 404, origin);
+  if (!hasRoute(rec) || !rec.calls) return json({ error: "no phone" }, 404, origin);
   const last = Number(await env.SUBS.get(`wlast:${id}`)) || 0;   /* KV expiry cannot go under 60 s, so the gap is checked from the stored time */
   if (Date.now() - last < WAKE_GAP_SEC * 1000) return json({ error: "recent" }, 429, origin);
-  let out; try { out = await sendOne(env, rec, {}, true); } catch (e) { out = "fail:throw"; }
+  let out; try { out = await sendOne(env, rec, {}, true, { kind, name }); } catch (e) { out = "fail:throw"; }
   if (out === "sent") {
     await env.SUBS.put(`why:${id}`, JSON.stringify({ kind, name, ref, at: Date.now() }), { expirationTtl: WAKE_WHY_TTL });
     await env.SUBS.put(`wlast:${id}`, String(Date.now()), { expirationTtl: 60 });
@@ -516,7 +693,7 @@ async function why(req, env, origin){
   const w = await env.SUBS.get(`why:${id}`, "json");
   if (w && w.kind === "nudge") {       /* a learning nudge: served once; void once expired */
     await env.SUBS.delete(`why:${id}`);
-    if (Date.now() < (w.expiresAt || 0)) return json({ kind: "nudge", rid: w.rid, nkind: w.nkind, view: w.view, act: w.act, args: w.args || [], title: w.title, body: w.body, createdAt: w.createdAt, expiresAt: w.expiresAt }, 200, origin);
+    if (Date.now() < (w.expiresAt || 0)) return json({ kind: "nudge", rid: w.rid, nkind: w.nkind, view: w.view, act: w.act, args: w.args || [], title: w.title, body: w.body, image: w.image || "", createdAt: w.createdAt, expiresAt: w.expiresAt }, 200, origin);
     return json({ kind: "reminder" }, 200, origin);
   }
   if (w && WAKE_KINDS.has(w.kind)) {   /* an invitation: served once, so a later presence push cannot re-ring it */
@@ -571,13 +748,13 @@ async function runCron(env, nowMs){
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
       const rec = await env.SUBS.get(k.name, "json");
-      if (!rec || !rec.endpoint) continue;
+      if (!hasRoute(rec)) continue;
 
       const fin = await env.SUBS.get(`done:${rec.id}`);
       if (fin === day) { skipped++; continue; }   // already practised today
 
       let out;
-      try { out = await sendOne(env, rec, audCache); }
+      try { out = await sendOne(env, rec, audCache, false, { kind: "reminder" }); }
       catch (e) { out = "fail:throw"; }
       if (out === "sent") sent++;
       else if (out === "gone") { await forget(env, rec.id, slot); dropped++; }
@@ -637,4 +814,5 @@ export default {
 /* only functions: the Workers runtime treats every named export of the entry
    module as a handler, and a plain constant stops the Worker from starting */
 function marksConfig(){ return { MARK_REFRESH, MARK_GRACE, MARK_PAGE, MIG_KEY }; }
-export { runNudges, nudgeHold, cleanNudge, nudgeLimits, runCron, runPresence, marksConfig };
+export { runNudges, nudgeHold, cleanNudge, cleanImage, nudgeLimits, runCron, runPresence, marksConfig,
+         apnsAlert, apnsJwt, apnsReady, cleanApns, cleanText, hasRoute, sendApns };

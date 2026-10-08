@@ -1,0 +1,21 @@
+/* be-auth: run with  node backend/auth-proxy/test/run.mjs  (no network: fetch is stubbed) */
+import { handle } from "../auth-proxy.js";
+const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + d}`); };
+const seen = [];
+globalThis.fetch = async (u, init) => { seen.push({ u: String(u), init }); if (/handler$/.test(new URL(u).pathname) && init.method === "GET") return new Response("<html>helper</html>", { status: 200, headers: { "content-type": "text/html" } });
+  return new Response("ok", { status: 302, headers: { location: "https://be-mastery.firebaseapp.com/__/auth/handler?x=1" } }); };
+const env = { FIREBASE_HOST: "be-mastery.firebaseapp.com" };
+let r = await handle(new Request("https://auth.lomonec.com/__/auth/handler?apiKey=k&authType=signInViaRedirect"), env);
+ok("1 · GET /__/auth/handler is Firebase's own page, query unchanged", r.status === 200 && (await r.text()).includes("helper") && seen[0].u === "https://be-mastery.firebaseapp.com/__/auth/handler?apiKey=k&authType=signInViaRedirect", seen[0] && seen[0].u);
+r = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body: "code=abc&state=s", headers: { "content-type": "application/x-www-form-urlencoded", host: "auth.lomonec.com", "cf-connecting-ip": "1.2.3.4" } }), env);
+const p = seen[1];
+ok("2 · Apple's form POST is forwarded with its body; our edge headers are not", p.init.method === "POST" && new TextDecoder().decode(p.init.body) === "code=abc&state=s" && !p.init.headers.get("cf-connecting-ip") && !p.init.headers.get("host"), JSON.stringify([...p.init.headers]));
+ok("3 · a redirect to Firebase's host is rewritten to ours", r.headers.get("location") === "https://auth.lomonec.com/__/auth/handler?x=1", r.headers.get("location"));
+const n = seen.length;
+r = await handle(new Request("https://auth.lomonec.com/"), env); const r2 = await handle(new Request("https://auth.lomonec.com/index.html"), env);
+ok("4 · anything outside /__/auth and /__/firebase is 404 and never reaches Firebase", r.status === 404 && r2.status === 404 && seen.length === n);
+r = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "PUT" }), env);
+ok("5 · other methods are refused", r.status === 405 && seen.length === n);
+r = await handle(new Request("https://auth.lomonec.com/__/auth/handler"), { FIREBASE_HOST: "evil.example.com" });
+ok("6 · only a *.firebaseapp.com target is ever used", r.status === 503 && seen.length === n);
+const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);

@@ -7,8 +7,9 @@
    What is real: index.html and the entitlement Worker (backend/entitlements
    handle(), real SQLite) — the only thing that makes an account Premium.
    What is played: Play Billing (Digital Goods API + Payment Request as a TWA
-   exposes them, with the prices Play is configured with: 19.99 / year,
-   4.99 / month, a 3-day trial on Monthly), Firebase identity (DEV_AUTH). */
+   exposes them, with the tier spec's prices — docs/TIERS.md, 5 Oct 2026:
+   US$19.99 / year with a 3-day trial, US$2.99 / month, BOTH offered, annual
+   first), Firebase identity (DEV_AUTH). */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 import { DatabaseSync } from "node:sqlite"; import { readFileSync, readdirSync, mkdirSync } from "node:fs";
 import { handle } from "../backend/entitlements/entitlements-worker.js";
@@ -32,7 +33,10 @@ const grant = (uid, { status = "active", expires = NOW + 30 * DAY, product = "pr
 const PLAY_STUB = ({ trial, products, owned }) => {
   window.__play = { shows: [], lists: 0, noProducts: !products, trial, owned: owned || [] };
   window.getDigitalGoodsService = async m => { if (m !== "https://play.google.com/billing") throw new Error("x"); return {
-    getDetails: async ids => window.__play.noProducts ? [] : [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y" }].filter(d => ids.includes(d.itemId)),
+    /* the tier spec (docs/TIERS.md, 5 Oct 2026) + the owner's 6 Oct 2026 trial
+       decision: US$19.99 a year, US$2.99 a month, the 3-day trial on BOTH plans
+       — both sold, both shown, annual first */
+    getDetails: async ids => window.__play.noProducts ? [] : [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "2.99" }, subscriptionPeriod: "P1M", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y", ...(window.__play.trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
     listPurchases: async () => { window.__play.lists++; return window.__play.owned; } }; };
   window.PaymentRequest = class { constructor(m) { this.sku = m[0].data.sku; } async show() { window.__play.shows.push(this.sku); throw new DOMException("closed", "AbortError"); } };
 };
@@ -67,16 +71,19 @@ const sheet = p => p.evaluate(() => {
   const btns = [...sh.querySelectorAll("button")].filter(vis).map(b => ({ t: b.textContent.trim().slice(0, 30) || b.getAttribute("aria-label"), h: b.getBoundingClientRect().height, clip: b.scrollWidth > b.clientWidth + 1 }));
   const text = sh.innerText.replace(/\s+/g, " ");
   return { from: o.dataset.from, wait: !!o.dataset.xwait, xHidden: !x || x.hidden || !vis(x), xLeft: x ? x.getBoundingClientRect().left : null, xRight: x ? x.getBoundingClientRect().right : null, xAnim: x ? getComputedStyle(x).animationName : "", sheetAnim: getComputedStyle(sh).animationName,
-    text, eyebrow: (sh.querySelector(".prem-eyebrow") || {}).innerText || "", h: (sh.querySelector(".prem-h") || {}).innerText || "", lede: (sh.querySelector(".prem-lede") || {}).innerText || "",
+    text, eyebrow: (sh.querySelector(".prem-eyebrow") || {}).innerText || "", gem: !!sh.querySelector(".prem-eyebrow .prem-tag .prem-gem"), h: (sh.querySelector(".prem-h") || {}).innerText || "", lede: (sh.querySelector(".prem-lede") || {}).innerText || "",
     ben: [...sh.querySelectorAll(".prem-ben li")].map(l => l.innerText.replace(/\s+/g, " ").trim()),
-    plans: [...sh.querySelectorAll(".prem-plan")].map(b => ({ id: b.dataset.id, on: b.getAttribute("aria-checked") === "true", text: b.innerText.replace(/\s+/g, " ").trim(), best: !!b.querySelector(".prem-best"), trialBadge: (b.querySelector(".prem-trialb") || {}).innerText || "" })),
+    /* the two-plan picker (tier spec, 5 Oct 2026) */
+    plans: [...sh.querySelectorAll(".prem-plan")].map(e => ({ id: (/premPick\('([^']+)'/.exec(e.getAttribute("onclick") || "") || [])[1], on: e.classList.contains("on"), checked: e.getAttribute("aria-checked"), name: (e.querySelector(".prem-plan-name") || {}).innerText || "", price: ((e.querySelector(".prem-plan-price") || {}).innerText || "").replace(/\s+/g, " ").trim(), badge: (e.querySelector(".prem-plan-badge") || {}).innerText || "", save: (e.querySelector(".prem-plan-save") || {}).innerText || "", trial: (e.querySelector(".prem-plan-trial") || {}).innerText || "" })),
+    radios: sh.querySelectorAll('[role="radiogroup"],[role="radio"]').length,
+    offer: (o2 => o2 ? { text: o2.innerText.replace(/\s+/g, " ").trim(), trial: (o2.querySelector(".prem-offer-trial") || {}).innerText || "", name: (o2.querySelector(".prem-offer-name") || {}).innerText || "", price: (o2.querySelector(".prem-offer-price") || {}).innerText.replace(/\s+/g, " ").trim() || "" } : null)(sh.querySelector(".prem-offer")),
     ctas: sh.querySelectorAll(".prem-cta").length, cta: cta ? cta.innerText.trim() : null, ctaIn: cta ? (r => r.top >= 0 && r.bottom <= innerHeight + .5)(cta.getBoundingClientRect()) : null, ctaClip: cta ? cta.scrollWidth > cta.clientWidth + 1 : null,
     footIn: foot ? foot.getBoundingClientRect().bottom <= innerHeight + .5 : null, cancel: (sh.querySelector(".prem-cancel") || {}).innerText || "",
     unavail: sh.querySelectorAll(".prem-unavail").length, unavailText: [...sh.querySelectorAll(".prem-unavail")].map(e => e.innerText.replace(/\s+/g, " ")).join(" | "), retry: !!sh.querySelector(".prem-retry"), skel: sh.querySelectorAll(".prem-skel").length,
     closeBtn: [...sh.querySelectorAll("button")].some(b => !b.classList.contains("prem-x") && /^Close$|^Fermer$|^Cerrar$/i.test(b.textContent.trim())),
     legal: sh.querySelector(".prem-legal") ? { links: [...sh.querySelectorAll(".prem-legal a")].map(a => a.getAttribute("href")), restore: !!sh.querySelector(".prem-legal .prem-restore"), text: sh.querySelector(".prem-legal").innerText.replace(/\s+/g, " ") } : null,
     terms: (sh.querySelector(".prem-terms") || {}).innerText || "", more: sh.querySelector(".prem-more") ? { open: sh.querySelector(".prem-more").open, sum: sh.querySelector(".prem-more summary").innerText.trim(), tableVisible: vis(sh.querySelector(".prem-cmp")) } : null,
-    order: { hero: top(".prem-hero"), ben: top(".prem-ben"), plans: top(".prem-plans"), cta: cta ? cta.getBoundingClientRect().top : null },
+    order: { hero: top(".prem-hero"), ben: top(".prem-ben"), plans: top(".prem-plans") ?? top(".prem-offer"), cta: cta ? cta.getBoundingClientRect().top : null },
     overflow: document.documentElement.scrollWidth > innerWidth + 1 || (sc && sc.scrollWidth > sc.clientWidth + 1) || sh.scrollWidth > sh.clientWidth + 1,
     fits: (r => r.left >= -.5 && r.right <= innerWidth + .5 && r.bottom <= innerHeight + .5)(sh.getBoundingClientRect()),
     btns, minBtn: btns.length ? Math.min(...btns.map(b => b.h)) : 99, clipped: btns.filter(b => b.clip).map(b => b.t), dir: getComputedStyle(sh).direction, theme: document.documentElement.getAttribute("data-theme"),
@@ -86,27 +93,32 @@ const openSheet = async (p, from = "test") => { await p.evaluate(f => premiumOpe
 const shot = (p, name) => SHOTS ? p.screenshot({ path: `${SHOTS}/${name}.png` }) : null;
 const BAD = /unlimited|more AI coaching|extra AI|Practice Partner|simulation|\{\{|\bprem\.[a-z_]+|\bacc\.[a-z_]+/i;
 
-console.log("\n# A · Free, General English, a store with the 3-day trial on Monthly");
+console.log("\n# A · Free, General English, a store with the 3-day trial on the annual plan");
 {
   const { ctx, p, errs } = await open({ uid: "a1" });
   let s = await openSheet(p);
-  ok("A1 · hero: 'BE Mastery ✦ PREMIUM' eyebrow, the headline and the supporting line", s && /BE Mastery/i.test(s.eyebrow) && /✦/.test(s.eyebrow) && /PREMIUM/i.test(s.eyebrow) && s.h === "Speak with confidence. Practice without limits." && s.lede === "Unlock more of BE Mastery's speaking, shadowing, and AI practice tools.", JSON.stringify(s && { e: s.eyebrow, h: s.h, l: s.lede }));
-  ok("A2 · benefits: the three enforced limits, nothing else while ads are off, nothing unbuilt promised", s.ben.length === 3 && s.ben[0] === "Save up to 100 Shadow videos" && s.ben[1] === "Bring your own YouTube videos — up to 20" && s.ben[2] === "Keep your last 50 Polish speaking reports" && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
+  ok("A1 · hero: 'BE Mastery [Premium mark] PREMIUM' eyebrow (visual identity v2: the gem replaced the ✦ glyph), the headline and the supporting line — no 'without limits'", s && /BE Mastery/i.test(s.eyebrow) && s.gem && !/✦/.test(s.eyebrow) && /PREMIUM/i.test(s.eyebrow) && s.h === "Speak with confidence. Go further every day." && /^More AI verdicts a day/.test(s.lede) && !/without limits|unlimited/i.test(s.h + s.lede), JSON.stringify(s && { e: s.eyebrow, h: s.h, l: s.lede }));
+  /* the tier spec (5 Oct 2026): the verdicts and the video minutes are DAILY
+     ALLOWANCES with their numbers named, then the two hard-locked capabilities,
+     then the AI Coach on General English. Never "unlimited". */
+  ok("A2 · benefits: 120 AI verdicts a day (fair use), 60 video minutes a day (owner, 6 Oct 2026), advanced progress, 30/90-day analytics, the AI Coach; no ad-free claim while ads are off; nothing 'unlimited'", s.ben.length === 5 && /^120 AI verdicts a day \(fair use\)/.test(s.ben[0]) && /^60 minutes a day/.test(s.ben[1]) && /^Advanced progress/.test(s.ben[2]) && s.ben[3] === "30- and 90-day analytics" && /^The AI Coach/.test(s.ben[4]) && !/No ads/.test(s.text) && !BAD.test(s.text), JSON.stringify(s.ben) + " " + (s.text.match(BAD) || ""));
   const [an, mo] = s.plans;
-  ok("A3 · plans from the store: Annual first, selected, BEST VALUE, $19.99 / year, $1.67 a month, Save 67% — Monthly $4.99 / month with a '3 days free' badge and the trial line; no Weekly", s.plans.length === 2 && an.id === "premium_annual" && an.on && an.best && /\$19\.99/.test(an.text) && /\/ year/.test(an.text) && /\$1\.67 a month, billed once a year/.test(an.text) && /Save 67%/.test(an.text) && mo.id === "premium_monthly" && !mo.on && !mo.best && /\$4\.99/.test(mo.text) && /\/ month/.test(mo.text) && /3 days free/i.test(mo.trialBadge) && /3-day free trial for new subscribers/.test(mo.text) && !/week/i.test(s.text), JSON.stringify(s.plans));
-  ok("A4 · one primary CTA 'Continue with Premium' (Annual has no trial), pinned in a foot inside the viewport, 'Cancel anytime in Google Play' under it", s.ctas === 1 && s.cta === "Continue with Premium" && s.ctaIn && s.footIn && s.cancel === "Cancel anytime in Google Play", JSON.stringify({ ctas: s.ctas, cta: s.cta, ctaIn: s.ctaIn, footIn: s.footIn, cancel: s.cancel }));
-  await p.evaluate(() => premPick("premium_monthly")); s = await sheet(p);
-  ok("A5 · Monthly selected → 'Start 3-day free trial'; back to Annual → 'Continue with Premium'", s.cta === "Start 3-day free trial" && s.plans[1].on && !s.plans[0].on && await p.evaluate(() => { premPick("premium_annual"); return document.querySelector(".prem-cta").innerText.trim() === "Continue with Premium"; }), s.cta);
-  s = await sheet(p);
+  ok("A3 · TWO plans, annual first and chosen: 'Best value', $19.99 / year, 'Save 44%' computed from the store's two prices, the 3-day trial; then Monthly at $2.99 / month — one radio group", s.plans.length === 2 && an.id === "premium_annual" && an.on && an.checked === "true" && /^best value$/i.test(an.badge) && /\$19\.99/.test(an.price) && /\/ year/.test(an.price) && an.save === "Save 44%" && /3 days free/i.test(an.trial) && mo.id === "premium_monthly" && !mo.on && /\$2\.99/.test(mo.price) && /\/ month/.test(mo.price) && !mo.badge && s.radios === 3 && !/week/i.test(s.text), JSON.stringify({ plans: s.plans, radios: s.radios }));
+  ok("A4 · one primary CTA 'Start 3-day free trial', pinned in a foot inside the viewport, with the renewal terms under it: what is charged next, at the store's price, and where to cancel", s.ctas === 1 && s.cta === "Start 3-day free trial" && s.ctaIn && s.footIn && s.cancel === "Then $19.99 / year. Cancel anytime in Google Play.", JSON.stringify({ ctas: s.ctas, cta: s.cta, ctaIn: s.ctaIn, footIn: s.footIn, cancel: s.cancel }));
+  ok("A5 · nothing has to be chosen: annual is selected by default and the CTA buys it", await p.evaluate(() => _premSel === "premium_annual"), await p.evaluate(() => String(_premSel)));
   ok("A6 · legal row is secondary: Privacy policy link, Restore purchases (44 px), the store's renewal terms; no second Close button", s.legal && s.legal.links.includes("privacy.html") && s.legal.restore && /Restore purchases/.test(s.legal.text) && /renews automatically until you cancel it in Google Play/.test(s.terms) && !s.closeBtn && s.minBtn >= 44, JSON.stringify({ legal: s.legal, terms: s.terms, close: s.closeBtn, minBtn: s.minBtn, btns: s.btns }));
   ok("A7 · 'See what's included' is folded by default; open, the compact table fits and shows the real limits + 'everything stays included'", s.more && !s.more.open && s.more.sum === "See what's included" && !s.more.tableVisible && await p.evaluate(() => { const d = document.querySelector(".prem-more"); d.open = true; const t = d.querySelector(".prem-cmp"), sh = document.querySelector(".prem-sheet"); const r = t.getBoundingClientRect(), rs = sh.getBoundingClientRect(); return r.width > 0 && r.left >= rs.left - .5 && r.right <= rs.right + .5 && new RegExp("Up to "+planLimit("savedShadow","free")+"\\b").test(t.innerText) && new RegExp("Up to "+planLimit("savedShadow","premium")+"\\b").test(t.innerText) && new RegExp("Up to "+planLimit("youtubeImports","free")+"\\b").test(t.innerText) && new RegExp("Up to "+planLimit("youtubeImports","premium")+"\\b").test(t.innerText) && new RegExp("Last "+planLimit("polishHistory","premium")+"\\b").test(t.innerText) && /Everything you use today stays included/.test(d.innerText); }), JSON.stringify(s.more));
   await shot(p, "sheet-dark-390-included");
   await p.evaluate(() => { document.querySelector(".prem-more").open = false; });
-  ok("A8 · hierarchy on screen: hero above benefits above plans above the CTA", s.order.hero < s.order.ben && s.order.ben < s.order.plans && s.order.plans < s.order.cta, JSON.stringify(s.order));
+  ok("A8 · hierarchy on screen: hero above benefits above the offer above the CTA", s.order.hero < s.order.ben && s.order.ben < s.order.plans && s.order.plans < s.order.cta, JSON.stringify(s.order));
   ok("A9 · the X is available at once when the sheet is opened by the learner; Escape closes it", !s.xHidden && !s.wait && await p.evaluate(() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); return !document.getElementById("premOv"); }));
   await openSheet(p); await shot(p, "sheet-dark-390");
   ok("A10 · Continue buys the SELECTED plan through the existing Billing.buy (Play asked for premium_annual)", await p.evaluate(async () => { document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 300)); return __play.shows[0] === "premium_annual"; }));
   ok("A11 · Restore purchases goes through the existing Billing.restore", await p.evaluate(async () => { document.querySelector(".prem-restore").click(); await new Promise(r => setTimeout(r, 300)); return __play.lists >= 1; }));
+  await p.evaluate(() => { const b = [...document.querySelectorAll(".prem-plan")].find(e => /premium_monthly/.test(e.getAttribute("onclick"))); b.click(); });
+  await sleep(250); s = await sheet(p);
+  ok("A11b · tapping Monthly selects it: the card lights, the CTA keeps the 3-day trial (owner, 6 Oct 2026: the trial is on both plans) with the monthly renewal line, and Continue buys premium_monthly", s.plans.find(x => x.id === "premium_monthly").on && !s.plans.find(x => x.id === "premium_annual").on && s.cta === "Start 3-day free trial" && s.cancel === "Then $2.99 / month. Cancel anytime in Google Play." && await p.evaluate(async () => { document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 300)); return __play.shows.includes("premium_monthly"); }), JSON.stringify({ plans: s.plans, cta: s.cta, cancel: s.cancel }));
+  await p.evaluate(() => premPick("premium_annual"));
   ok("A12 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -115,8 +127,7 @@ console.log("\n# B · a store that reports no trial");
 {
   const { ctx, p } = await open({ uid: "b1", trial: false });
   let s = await openSheet(p);
-  await p.evaluate(() => premPick("premium_monthly")); const s2 = await sheet(p);
-  ok("B1 · no trial anywhere: no badge, no trial line, the CTA is 'Continue with Premium' for both plans", !/free|trial/i.test(s.text) && s.cta === "Continue with Premium" && s2.cta === "Continue with Premium" && !s2.plans.some(x => x.trialBadge), s.text);
+  ok("B1 · an Apple ID / account the store says is not eligible: no trial claimed anywhere, the CTA is 'Continue with Premium', and the line under it is the plain cancel note", !/days free|free trial/i.test(s.text) && s.cta === "Continue with Premium" && s.plans.length === 2 && s.plans.every(x => !x.trial) && s.cancel === "Cancel anytime in Google Play", JSON.stringify({ cta: s.cta, cancel: s.cancel, plans: s.plans }));
   await ctx.close();
 }
 
@@ -125,10 +136,10 @@ console.log("\n# C · billing unavailable — the store returns no products");
   const { ctx, p, errs } = await open({ uid: "c1", products: false });
   let s = await openSheet(p);
   const n = (s.text.match(/Purchases are not available right now/g) || []).length;
-  ok("C1 · exactly ONE 'Purchases are not available right now', with a short hint and Try again; the benefits stay; no plan, no price, no CTA, no Close button; the X is there", n === 1 && s.unavail === 1 && /Check your connection and Google Play/.test(s.unavailText) && s.retry && s.ben.length === 3 && !s.plans.length && !/\$/.test(s.text) && s.ctas === 0 && !s.closeBtn && !s.xHidden && s.minBtn >= 44, JSON.stringify({ n, s: s.unavailText, retry: s.retry, ben: s.ben.length, plans: s.plans.length, cta: s.ctas, close: s.closeBtn, x: s.xHidden }));
+  ok("C1 · exactly ONE 'Purchases are not available right now', with a short hint and Try again; the benefits stay; no plan, no price, no CTA, no Close button; the X is there", n === 1 && s.unavail === 1 && /Check your connection and Google Play/.test(s.unavailText) && s.retry && s.ben.length === 5 && !s.offer && !s.plans.length && !/\$/.test(s.text) && s.ctas === 0 && !s.closeBtn && !s.xHidden && s.minBtn >= 44, JSON.stringify({ n, s: s.unavailText, retry: s.retry, ben: s.ben.length, plans: s.plans.length, cta: s.ctas, close: s.closeBtn, x: s.xHidden }));
   await shot(p, "sheet-unavailable-dark-390");
   await p.evaluate(async () => { __play.noProducts = false; premRetry(); await new Promise(r => setTimeout(r, 400)); }); s = await sheet(p);
-  ok("C2 · Try again asks the store again: the plans and the CTA appear", s.plans.length === 2 && s.ctas === 1 && s.unavail === 0, JSON.stringify({ plans: s.plans.length, cta: s.ctas }));
+  ok("C2 · Try again asks the store again: the two plans and the CTA appear", s.plans.length === 2 && s.ctas === 1 && s.unavail === 0, JSON.stringify({ plans: s.plans.length, cta: s.ctas }));
   ok("C3 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -137,7 +148,7 @@ console.log("\n# D · no store at all (the open web) · E · signed out");
 {
   const { ctx, p } = await open({ uid: "d1", stub: false });
   const s = await openSheet(p);
-  ok("D1 · no provider: one plain message (get it from Google Play), the benefits still shown, no price, no Close button, the X leaves", s.unavail === 1 && /can't be bought on this device yet/.test(s.unavailText) && (s.text.match(/can't be bought/g) || []).length === 1 && s.ben.length === 3 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
+  ok("D1 · no provider: one plain message (get it from Google Play), the benefits still shown, no price, no Close button, the X leaves", s.unavail === 1 && /can't be bought on this device yet/.test(s.unavailText) && (s.text.match(/can't be bought/g) || []).length === 1 && s.ben.length === 5 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
   await shot(p, "sheet-noprovider-dark-390");
   await ctx.close();
   const o = await open({ uid: null });
@@ -175,7 +186,9 @@ console.log("\n# H · phones: 320 px, dark / light, Arabic RTL, long translation
 for (const [lab, o] of [["dark-320", { theme: "dark", vp: { width: 320, height: 568 } }], ["light-320", { theme: "light", vp: { width: 320, height: 568 } }], ["light-390", { theme: "light" }], ["dark-412", { theme: "dark", vp: { width: 412, height: 915 } }], ["ar-360", { lang: "ar", vp: { width: 360, height: 740 } }], ["fr-320", { lang: "fr", vp: { width: 320, height: 568 } }], ["de-320", { lang: "de", vp: { width: 320, height: 568 } }], ["reduced", { motion: "reduce" }]]) {
   const { ctx, p, errs } = await open({ uid: "h-" + lab, ...o });
   const s = await openSheet(p);
-  await p.evaluate(() => premPick("premium_monthly")); const s2 = await sheet(p);
+  await p.evaluate(() => premPick("premium_monthly")); await sleep(150);
+  const s2 = await sheet(p);   /* the second selection state: Monthly chosen, its CTA must not clip either */
+  await p.evaluate(() => premPick("premium_annual")); await sleep(150);
   await shot(p, "sheet-" + lab);
   /* AA text contrast inside the sheet (gradient text and white-on-gradient controls are token-checked by the design system's own sweep) */
   const con = await p.evaluate(() => { const sh = document.querySelector(".prem-sheet"); const rgb = v => { const m = (v.match(/[\d.]+/g) || []).map(Number); if (/^color\(srgb/.test(v)) { m[0] *= 255; m[1] *= 255; m[2] *= 255; } return m; };   /* color-mix() computes to color(srgb r g b / a) */ const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
@@ -191,7 +204,10 @@ console.log("\n# J · the General English boundary: Welding");
 {
   const { ctx, p } = await open({ track: "welding", uid: "j1", keepLaunch: true }); await sleep(2800);
   const w = await p.evaluate(async () => { const launch = !!document.getElementById("premOv"); go("profile"); await new Promise(r => setTimeout(r, 400)); const prof = !!document.querySelector(".pf-prem"); go("data"); await new Promise(r => setTimeout(r, 600)); return { launch, prof, offered: premOffered(), card: !!document.getElementById("entPlan"), sub: !!document.getElementById("subCard") && !document.getElementById("subCard").hidden, ads: !!premRemoveAdsHTML("x") }; });
-  ok("J1 · Welding, Free: no launch offer, no Premium row in Profile, no Premium card or Subscription card in App Setup, no 'Remove ads' link", !w.launch && !w.prof && !w.offered && !w.card && !w.sub && !w.ads, JSON.stringify(w));
+  /* Owner, 30 September 2026: ONE subscription covers both tracks, so Welding
+     now carries the same offer and the same management surfaces. This asserted
+     the opposite while Premium was General-English-only. */
+  ok("J1 · Welding, Free: the SAME offer and management surfaces as General English — one subscription, one paywall", w.prof && w.offered && w.card && w.sub, JSON.stringify(w));
   await ctx.close();
   grant("j2"); const o = await open({ track: "welding", uid: "j2", owned: [{ itemId: "premium_monthly", purchaseToken: "tok_j2_" + "j".repeat(20) }] });
   const v = await o.p.evaluate(async () => { go("profile"); await new Promise(r => setTimeout(r, 400)); const row = document.querySelector(".pf-prem .pf-row"); go("data"); await new Promise(r => setTimeout(r, 600)); const c = document.getElementById("subCard"); return { row: row && row.textContent.replace(/\s+/g, " "), sub: c ? c.innerText.replace(/\s+/g, " ") : null }; });
@@ -217,7 +233,7 @@ console.log("\n# L · ad-free is promised only while ads are on");
 {
   const { ctx, p } = await open({ uid: "l1", flags: { billing_enabled: true, ads_enabled: true } });
   const s = await openSheet(p);
-  ok("L1 · with ads_enabled the sheet adds 'No ads — ever' as a fourth row; the Profile row no longer claims 'No ads, ever' on its own", s.ben.length === 4 && /No ads — ever/.test(s.ben[3]) && await p.evaluate(async () => { premClose(); go("profile"); await new Promise(r => setTimeout(r, 400)); const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent); }), JSON.stringify(s.ben));
+  ok("L1 · with ads_enabled (General English) the sheet adds 'No ads — ever' as a SIXTH row, after the five benefits; the Profile row no longer claims 'No ads, ever' on its own", s.ben.length === 6 && /No ads — ever/.test(s.ben[5]) && await p.evaluate(async () => { premClose(); go("profile"); await new Promise(r => setTimeout(r, 400)); const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent); }), JSON.stringify(s.ben));
   await ctx.close();
 }
 
@@ -229,6 +245,26 @@ for (const [lab, flags, want] of [["production defaults (ads off, billing off)",
   ok(`L2 · Settings Premium card, ${lab}: 'Ad-free learning' ${want ? "listed" : "absent"}`, r !== null && /Ad-free learning/.test(r) === want, r);
   await ctx.close();
 }
+
+/* "See what's included" (owner, 6 Oct 2026): opening it must not push the sheet up
+   under the status bar, the table animates in, and the sheet glides to it */
+{ const { ctx, p } = await open({ uid: "p1", vp: { width: 390, height: 664 } });   /* a short phone: the fold cannot fit without scrolling */
+  await openSheet(p);
+  const r = await p.evaluate(async () => {
+    const sh = document.querySelector(".prem-sheet"), sc = sh.querySelector(".prem-scroll"), d = sh.querySelector(".prem-more");
+    const top0 = sh.getBoundingClientRect().top, y0 = sc.scrollTop;
+    d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 60));
+    const anim = getComputedStyle(d.querySelector(".prem-more-body")).animationName, rowAnim = getComputedStyle(d.querySelector(".prem-cmp tbody tr")).animationName;
+    await new Promise(r => setTimeout(r, 900));
+    const t = d.querySelector(".prem-cmp").getBoundingClientRect(), s = sc.getBoundingClientRect();
+    return { top0: Math.round(top0), top1: Math.round(sh.getBoundingClientRect().top), scrolled: sc.scrollTop > y0, tableBottomInView: t.bottom <= s.bottom + 1, anim, rowAnim,
+      trial: /10 min to try, once/.test(d.innerText), notADay: !/10 min a day/.test(d.innerText) };
+  });
+  ok("P1 · opening 'See what's included' keeps the sheet below the top edge (12 px gap + the safe area), never under the clock", r.top1 >= 12, JSON.stringify(r));
+  ok("P2 · …the content arrives with an animation (fold + each row)", r.anim === "premFold" && r.rowAnim === "premRow", JSON.stringify(r));
+  ok("P3 · …and the sheet glides down to the opened table instead of leaving it below the fold", r.scrolled && r.tableBottomInView, JSON.stringify(r));
+  ok("P4 · Free's own videos read as a one-off trial ('10 min to try, once'), not '10 min a day'", r.trial && r.notADay, JSON.stringify(r));
+  await ctx.close(); }
 
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;

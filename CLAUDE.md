@@ -29,6 +29,16 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   section (`OPTIONAL=["foundations"]`) — a missing file is `null`, not an error.
 - **`backend/polish-worker.js`** + `backend/README.md` — Cloudflare Worker that
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
+- **`backend/rate-limit.js`** — the `RateLimiter` **Durable Object** every limit
+  in be-polish goes through (added 1 Oct 2026). Before it, each limit was a
+  module-scope `Map`, i.e. per **isolate**: the real ceiling was
+  `limit x isolates` and 24 of 24 requests passed a limit of 20 when it was
+  measured. **A `Map` is not a rate limit** — if you add a route that spends
+  money, hold it with `limit(env, subject, name, perMin, perDay, cors)`. The
+  binding must be in `wrangler.toml` for BOTH environments (an environment does
+  not inherit `durable_objects`); without it the Worker degrades to the old
+  Maps and says `degraded`. Fixed windows, so there is a boundary burst of up to
+  2x — stated in the file, not discovered later.
 
 ## Deploy workflow — READ THIS
 - **Two version strings move together on every deploy:** `sw.js` `be12-vNN`
@@ -201,7 +211,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   through `exQ`/`exQA` scoped to the host's wrap, `exAgainGo` points back at
   the session mic; `go()` clears it. `recToggle` → `sessRecDone` runs it on
   save; **Get my report** (`sessReportLast`) sends the newest take. Test:
-  `tests/session-report.mjs` (16).
+  `tests/session-report.mjs` (16). **The take plays straight back on Stop** (owner, 6 Oct
+  2026): `sessRecDone` calls `exPlayBlob` for the open session's key only.
   The browser speech-recognition transcript ("My transcript" card, Analyze my
   last recording, the word-by-word `fbOut` panel and the `shTrend` strip) was
   **removed from the session page the same day** (owner: the AI report replaces
@@ -270,6 +281,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
   capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
   Store adapters (Play / App Store) answer 501 until Phase 9.
+  **Ads: General English only (the tier spec, 5 Oct 2026, evening — this
+  REVERSED the morning's "every programme" decision).** `adsTrackAllows()` is
+  `isGeneralEnglish()`; Welding shows no ad on any plan; Premium removes ads
+  everywhere. privacy.html §7b, `docs/ADVERTISING.md`, `docs/ADS-IOS-RELEASE.md`
+  and the Welding checks in `tests/ads.mjs` (TW1-TW13), `ios-ads.mjs` (G4, B18,
+  H3), `ad-resume.mjs` (R10/R11/R13), `ad-shadow-pause.mjs` (H21) and
+  `welding-premium.mjs` (22, 24) follow that rule. Two slots were added on 4 Oct:
+  `library_top` (the Shadow library, between the featured video and the list,
+  host `#shLibAdHost`) and `settings_foot` (declared since the first version,
+  never wired).
   **Phase 8 (`feature/phase8-ads`, `docs/ADVERTISING.md`):** `AdManager` is the
   only thing that shows an ad. Completion points call `AdManager.markBreak(ctx)`
   (session / Foundations / Shadow report / workshop / conversation / fresh Polish
@@ -341,7 +362,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
   ads. Home untouched. The card no longer promises "More AI coaching"
   (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
-  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y $19.99.
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y (needs its own `trial3d`
+  offer — **the trial is 3 days on BOTH plans, both stores, owner 6 Oct 2026**; Apple
+  has no 5-day option). **One set of ids on BOTH stores (owner, 6 Oct 2026):**
+  `premium_monthly` / `premium_annual` in App Store Connect too (a brief
+  `BEMastery_*` set was reverted the same day before any product existed in App
+  Store Connect; Play ids must be lowercase, so the Play ids are the only ones both
+  stores can share). `BILLING_PRODUCTS`, `BEStoreKitPlugin.allowed`,
+  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Confirmed annual
+  price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
+  be changed there — the app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
@@ -353,6 +383,37 @@ not JS, and `new Function` chokes on it. Check it separately with
   staging host (`playstore/twa-manifest.staging.json`) = internal vc 9;
   production host must be rebuilt as vc 10 at release. No production
   entitlement Worker/D1 exists yet. Test harnesses apply every file in `migrations/`.
+  **Phase 13 — real iOS ads + production entitlement infrastructure (2 Oct 2026,
+  `docs/ADS-IOS-RELEASE.md`).** The production D1 `be-entitlements`
+  (`ead9ecb9-7f95-45f7-a751-9d09c62febc4`) EXISTS and is migrated 0001-0004, and
+  `[vars]` now carries `APPLE_BUNDLE_ID` / `APPLE_ENVIRONMENTS="Production,Sandbox"`
+  / `APPLE_ROOT_SHA256` / `PLAY_PACKAGE`; the Worker is still NOT deployed (four
+  secrets + the two RTDN values are missing — see the file's header), so `ENT_API`
+  stays empty. Do NOT drop `capacitor://localhost` from `ALLOWED_ORIGINS`: it is
+  the App Store shell's own origin. The annual price in `BEMastery.storekit` is
+  **24.99** (Xcode's local store only; the app always draws the store's own
+  `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
+  via `beNativeAdsInit()`): Google Mobile Ads **12.x** + UMP **3.x**, added as ONE
+  remote SPM package (UMP is a *product of* the ads package — a second package
+  breaks the build), registered in `BEBridgeViewController`. **Interstitial and
+  native advanced only**; rewarded and sponsored stay unimplemented. Five gates
+  before the SDK is touched: `IS_IOS_APP` → `ads_enabled` → `adsTrackAllows()` →
+  **`adsSystemLive()`** (= `entApiBase() && billing_enabled`, the belt-and-braces
+  rule that a real network may only run where the plan that removes ads is live;
+  the mock is exempt) → the plugin's own `configure()`. Consent (UMP) is resolved
+  BEFORE `MobileAds.shared.start`, and a refused or unobtainable answer means no
+  provider at all. **npa=1 on every request, no IDFA, no ATT prompt** — hence no
+  `NSUserTrackingUsageDescription` and no `SKAdNetworkItems`. The three AdMob ids
+  in `Info.plist` are PLACEHOLDERS the plugin regex-refuses in a Release build, so
+  Google's test creatives can never reach a learner. `privacy.html` §7b now
+  describes the ad system before it ships (the old "shows no ads" claims are gone).
+  For staging device QA before AdMob exists, `BEAdsAllowTestUnits` (Info.plist,
+  **true on `staging`** since 2 Oct 2026, false on `main`) permits Google's test units — double-locked by a Sandbox
+  receipt check, so an App Store build refuses them even if it is left on.
+  Tests: `tests/ios-ads.mjs` (75). Builds clean Debug + Release with Xcode 27.
+  Nothing is switched on: `ads_enabled` and `billing_enabled` stay OFF, and the
+  production Worker is NOT deployed (`be-entitlements` is not a Worker on the
+  account — only the empty D1 exists).
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
@@ -369,6 +430,105 @@ not JS, and `new Function` chokes on it. Check it separately with
   row was tested.
   `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
   check every GE-only feature makes — Welding gets exactly the app it has today.
+- **THE TIERS (owner's spec, 5 Oct 2026 — `docs/TIERS.md` is the source of
+  truth; it supersedes every older rule in this section that contradicts it).**
+  Premium is US$2.99/month or US$19.99/year, both plans offered (annual first,
+  saving computed from the store's two prices — `premOffers / premSaving /
+  premPick`), one subscription, the same on both programmes. The AI's VERDICTS
+  (speaking reports, pronunciation scores, AI coach replies — routes/purposes
+  with `ai_analysis` / `ai_coach`) are **METERED, not locked**: Free 3 a day,
+  Premium 120 a day (fair use, never "unlimited"), per UTC day, in be-polish
+  (`VERDICT_CAPS`, `verdictAllowance`, bucket `verdict:<day>`, 429
+  `{error:"allowance",scope:"verdicts"}`, header `X-BE-Allowance`); the
+  learner's own YouTube video is metered in seconds (`ytaisec:<day>`, 1800 /
+  14400 a day, `scope:"video"`, `X-BE-Video-Allowance`). Client: `ENT_METERED`
+  makes `entLocked()` false for those two caps; `aiAllowance / aiAllowOut /
+  aiAllowNote / ytAllowNote`, `aiAllowTap` in the one fetch wrapper,
+  `localStorage.be_ai_allow` / `be_yt_allow` (display only); `premLockHTML`
+  draws the allowance card only when spent; `aiOff()` adds "spent". Being
+  heard (transcribe, tts, polish, repolish, captions, practice chat) stays
+  unmetered; `advanced_progress` and `recommended_content` stay hard locks.
+  **Ads: General English only** — `adsTrackAllows()` is `isGeneralEnglish()`
+  again; Welding shows no ad on any plan (reverses the 5 Oct morning note
+  above). `PLAN_LIMITS_TRACK` is empty: 2/1/1/1 Free and 100/20/50/30 Premium
+  on both programmes. Copy never says "unlimited" (`prem.headline` /
+  `prem.on_h` changed; new `ai.allow_*`, `sh.cap_allow_*`, `prem.cmp_*`).
+  Tests: `backend/test-premium-gate.mjs` (92), `backend/test-rate-limit.mjs`
+  (67), the client suites turned to the metered contract.
+- **Premium / entitlements — READ BEFORE TOUCHING ANY AI PATH.** Premium is
+  **not on sale**: `ENT_API` is empty and `billing_enabled` is false, so
+  `planOn()` is false, `entGated()` is false, and **every learner has every
+  feature exactly as before**. Nothing below changes production until the owner
+  deploys `be-entitlements` and sets both. (Where the bullets below say the
+  AI verdict is "Premium" or "locked", read "metered — see THE TIERS above".)
+  - **One gate.** `hasEntitlement(cap)` is the only Premium question in
+    index.html — there is no second `if premium` rule. `entLocked(cap)` is its
+    negative, `entGated()` says where a gate is in force (billing on **and** an
+    entitlement service **and** General English). `ENT_CAPS` must stay identical
+    to `CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`;
+    `tests/premium-boundary.mjs` check 1 fails if they drift.
+  - **Capabilities (FIVE):** `ad_free`, `ai_analysis`, `advanced_progress`,
+    `ai_coach`, `recommended_content`. There were six: `ai_verbal_feedback` was
+    removed 1 Oct 2026 because it was sold on the paywall and checked at zero
+    call sites, while the TTS route is deliberately free (the natural voice
+    reads *content*). **Every name on that list must gate something** — a
+    capability nothing enforces is a claim, and selling one is a store-
+    disclosure problem. `tests/free-premium-contract.mjs` §6 holds the rule.
+  - **The Free product is a WHOLE loop, and the Shadow Challenge is part of it
+    (owner, 1 Oct 2026).** Free gets speech capture, transcription, Shadow
+    translation and IPA, participation in every Challenge rung, and the
+    coverage / word-accuracy / rhythm / completion feedback — all of it computed
+    on the device from the free transcript. Premium adds the per-word
+    pronunciation score (`fbAssess`, the ONE gate), the retell meaning verdict,
+    the AI speaking reports, 30/90-day analytics, the coach and the personalised
+    rows. **Do not re-add a top-level `aiOff` bail to a Challenge grader** — six
+    of them made the whole ladder Premium in effect while reporting itself as an
+    offline error, which is what "the app feels intermittent" turned out to be.
+    `ShadowSync.challenge` accepts `assess: null` and `drillState(null, …)`
+    returns its `asr` mode: the degradation is in the engine already, so there
+    is never a reason to write a second path.
+  - **An AI route needs an ACCOUNT, free capabilities included** (owner, 1 Oct
+    2026; `premiumGate`'s `cap === null` branch). Anonymous learners get no AI.
+    That is a decision, not a defect — do not "open up" a free route to
+    anonymous callers, and `ytai` especially not: its per-account cap is the
+    only thing standing between a pasted video list and a real bill.
+  - **The AI gate is `aiOff(cap)`**, which is the `!POLISH_API||!navigator.onLine`
+    guard every AI call site already had, plus the plan. A Free learner takes the
+    app's existing OFFLINE path: the activity runs, the recording is kept, the
+    local result is computed on the device. That is deliberate — the Free
+    experience is a tested code path, not a new one. `aiOffNote(cap)` picks the
+    message, because a Free learner is not offline.
+  - **Never gated:** the curriculum, the learner's own words and phrases, human
+    practice (Practice Partner), role-play replies, Executive Polish's rewrite
+    (its *history* is capped by `PLAN_LIMITS`), captions, TTS, and the three
+    phrases `ppLiveHelp` offers during a live call. Free is a complete product.
+  - **Welding is gated by the SAME rule** (owner, 30 Sep 2026, confirmed by the
+    5 Oct tier spec): one subscription, the same capabilities and limits on
+    both programmes. `entGated()` is `planOn()` with no track term. (An older
+    version of this bullet said Welding was never gated; that was reversed.)
+  - **The boundary is the Worker, not the page.** `backend/polish-worker.js`
+    verifies the caller's Firebase token against `be-entitlements` before it
+    spends anything, behind `PREMIUM_ENFORCED` + `ENTITLEMENTS_URL` (both off).
+    Turn them on only AFTER be-entitlements answers, and in the order in
+    `backend/wrangler.toml`. The client signs AI requests in **one** place — the
+    `window.fetch` wrapper beside `POLISH_API`, which touches only that URL.
+  - **`chat` cannot be fully protected**: its system prompt comes from the
+    client, so its `purpose` (`practice` / `coach` / `report`) gates the app's
+    own flows, not a determined caller. A missing purpose reads as `practice`
+    so a cached older index.html keeps working. Closing this means moving the
+    prompts server-side. The fixed-work routes — transcription, `assess`,
+    `analyse`, `mvreport` — are properly protected.
+  - **One offer, never a price in the code.** `premOffer()` returns the annual
+    plan only; `premium_monthly` is still honoured for anyone who bought one but
+    is not shown. Every figure comes from `Billing.products`, i.e. from App
+    Store Connect / Play (Apple 3.1.2). $19.99/year and $2.99/month, each with a
+    3-day trial, are configured in the store, not here — see `mobile/ios/appstore/SUBSCRIPTIONS.md`.
+  - **Locked never means empty**: `premLockHTML(cap, from)` is the one gate card,
+    and a locked chart is drawn dimmed inside `.prem-prev` under the offer.
+  - Tests: `tests/premium-boundary.mjs` (44, in the default chain),
+    `backend/test-premium-gate.mjs` (29, the server boundary), plus
+    `npm run test:premium` and `test:premium-server`.
+
 - **Practice Partner (LIVE in production since 2026-09-20, be12-v379; General
   English only; live calls still off).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
   me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or
@@ -723,6 +883,26 @@ not JS, and `new Function` chokes on it. Check it separately with
   lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
   `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
   `BASE=` a port that serves THIS tree).
+- **Welding Professional English studio (feature/welding-shadow-studio, owner
+  29 Sep 2026; flag `welding_studio_enabled`: staging ON, production OFF).**
+  With it on, a Welding learner gets (1) Shadow = the SAME video Shadow Studio as
+  General English (library, V3 workspace, Watch/Shadow/Challenge/Apply), fed by
+  `catalogue/welding.json` — ten refinery professions in four groups, hand-picked
+  in `catalogue/welding-sources.json`, checked and captioned by
+  `scripts/build_welding_catalogue.mjs` (`--offline` + `RAW_DIR` when YouTube
+  rate-limits the machine; it refuses videos YouTube labels non-English);
+  (2) the workplace lines as Practice tool 4 = view **`lines`**, drawn by
+  `rShadow` into `#v-shadow` (go() maps it; Practice tab lit; `#lines` restores);
+  (3) Home = `rHomeV2` with Welding content. Isolation: `_shCat` is a window
+  getter answering the OPEN area's catalogue only (`SH_CAT_FILE`); "Continue"
+  is `lastClip()`/`lastClipSet()` (GE keeps `S.lastClip`, others
+  `S.lastClipA[area]`); Home reads `homeSignals()` (Welding: `home:true`, no
+  partner, no AI coach); the engine takes `content.topics` (`weldTopics()`) and
+  `levelTopics/levelVariant` instead of forking; inherited GE starters are
+  filtered to the Welding library. Welding Apply = `svApplyLab` (line → Phrase
+  Lab box), never Partner/GE coach. Profession: `weldProf()` (profile
+  `weldProf`, else the trade) + `weldProfSheet()`. Tests:
+  `tests/welding-studio.mjs`. Flag off = Welding exactly as before.
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is
@@ -783,7 +963,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
 - **Apple / StoreKit 2 (release/premium-integration, NOT on main yet).** Native
   plugin `BEStoreKitPlugin.swift` (Capacitor "BEStoreKit", registered by
-  `BEBridgeViewController`, used by SceneDelegate + Main.storyboard) → web
+  `BEBridgeViewController`, hosted by `BridgeView` in the SwiftUI `BEMasteryApp`
+  — since 4 Oct 2026 there is no AppDelegate, SceneDelegate or Main.storyboard;
+  Swift sources live in `App/Lifecycle/` + `App/Plugins/`, with `BEMasteryTests`
+  (Swift Testing) and `BEMasteryUITests` bundles in the App scheme) → web
   `beNativeBilling()` → `BillingProviders.storekit`. Transactions are finished only
   after OUR server answered; `Transaction.updates` + unfinished go to
   `/v1/purchases/restore`. Server: Apple JWS pinned to Apple Root CA - G3
@@ -1007,7 +1190,26 @@ Features
   transcript** before returning it — an item whose `said` is not in the
   transcript is dropped, and an ABSENT `corrections` field (an older Worker)
   renders nothing while an EMPTY one says the English held up. Test:
-  `tests/polish-report.mjs` (20 checks incl. French). i18n: the new `ex.*`
+  `tests/polish-report.mjs` (20 checks incl. French).
+  **Hear it back (owner, 6 Oct 2026, every programme):** a **Read it aloud**
+  button (`exReadBox`, `.ex-read`, between Polish it and the mic) reads the box
+  with `fbSay`; stopping a recording plays the take straight back
+  (`exPlayBlob`, one shared player); each report keeps its transcript (`tx`)
+  AND its voice — `rep.rec=1`, the blob in IndexedDB under
+  `exRecCtx(area)` (`polish` / `welding:polish`) matched by `ts === rep.at`,
+  pruned with the report (`exRecPrune`); the Polish history (`exHistSheet`) now
+  shows on every programme with plans on or off, each row with the transcript
+  and a play button (`exHistPlay`), and `exHistOpen` hands the take back to the
+  report's audio player. The report's **What you said** fold (`.ex-said`) now opens
+  with the take above the transcript (`exTxRecMount` → `#exTxRec`: waveform from
+  `decodePeaks`, fills as it plays, tap to seek, play/pause, time); typed text keeps
+  the transcript alone. Button row (owner, 6 Oct 2026, later the same morning): **Polish it
+  was removed** — a wide **Record** button (`.ex-mic-wide`, key `ex.rec_wide`) · Read it
+  aloud · bin. A recording still produces the full report on its own; typed or pasted
+  text now gets "Another version" only (`exPolish` survives for tests and old callers).
+  The cue (`ex.cue`, `.is-cue`, `exCue` keyframes, still under reduced motion) sits on
+  **Another version** (`#exQuickBtn`): on after a recording is analysed, or when the box
+  holds ≥5 words not yet polished (`exCueReady`); off on its tap, Clear or a new take. Test: `tests/polish-hear.mjs` (19). i18n: the new `ex.*`
   keys are translated in fr / es / pt / ar and carry the English text in the
   other 11 (same as the rest of the Polish keys) — parity is 2,625 keys in
   every file.
@@ -1062,11 +1264,105 @@ Fixes / infra
 - **Firebase cloud sign-in**: **DONE and verified live 2026-08-01** — email/password
   sign-in, Firestore sync and merge (`fbEmailAuth`, `fbMerge`, `fbPush`), console
   setup complete, `app.lomonec.com` authorised, rules published. Confirmed working
-  on a real Android device against the live app. **Google sign-in is
-  deliberately hidden** — `signInWithRedirect` cannot complete while the app is on
-  `app.lomonec.com` and the auth handler is on `be-mastery.firebaseapp.com`
-  (partitioned third-party storage). `fbGoogle()` stays for when hosting can serve
-  `/__/auth/`. Syncs progress JSON, **not audio recordings**.
+  on a real Android device against the live app. **Google + Apple sign-in
+  (2026-10-04):** one sheet, `fbOpenModal(mode)`, behind every entry point
+  (`tests/auth-entry-points.mjs`). In the App Store shell the two buttons go
+  through the native `BEAuth` plugin; on the web through Firebase's **popup**
+  (`fbSocialWeb`, flag `social_signin_web_enabled` — staging ON, production
+  OFF until the providers are enabled in the console, `docs/auth/SOCIAL_SIGNIN.md`
+  §2.4). The REDIRECT flow still cannot return on `app.lomonec.com` (the handler
+  is on `be-mastery.firebaseapp.com`, partitioned storage), so an installed web
+  app with a foreign `authDomain` (Play TWA, home-screen PWA) shows email only.
+  Syncs progress JSON, **not audio recordings**.
+- **iOS notifications (2026-10-04, `staging`).** The App Store shell can notify a
+  CLOSED app: native plugin `BEPushPlugin.swift` (`window.BEPush`) + an app
+  delegate (`BEAppDelegate`, installed with `@UIApplicationDelegateAdaptor` —
+  Apple hands the device token and the tap nowhere else) register an **APNs
+  device token**, which the web layer sends to be-push in the SAME
+  `POST /subscribe` a browser uses (`apns:{token,env}` instead of `endpoint`,
+  plus `text` = the translated wording, templates only, because there is no
+  service worker here to read a cache). `sendOne` branches per row, so a browser
+  keeps its bare web push. Worker: `APNS_TEAM_ID`/`APNS_KEY_ID`/`APNS_TOPIC`
+  vars + `APNS_KEY_P8` secret — **missing any = sending off**, the phone still
+  registers. `410` drops the row; `BadDeviceToken` is retried on Apple's other
+  host (TestFlight is production, a local build sandbox) and only then dropped.
+  The permission prompt is on a SWITCH, never a launch. Flag `ios_push_enabled`.
+  **The push id is now per DEVICE** (`localStorage.be_push_id`, stripped by
+  `fbSyncPayload`): it used to live in `S`, which syncs, so a second device
+  could adopt the first's id — and the iPhone would have replaced the browser's
+  endpoint with its APNs token. Two Apple steps are outstanding and only the
+  owner can do them (App ID capability + the `.p8` auth key):
+  **`docs/IOS_NOTIFICATIONS.md`**, which also holds the 10-row device checklist.
+  Tests: `backend/push/test/apns.mjs` (31), `tests/ios-push.mjs` (26), the Swift
+  bundle (26), `check-release.mjs`.
+  **Rich recommendations (5 Oct 2026, owner: "like Duolingo or Temu, with
+  images").** A nudge that recommends a clip (`act:"clip"`) carries the clip's
+  own YouTube thumbnail: `nudgeImage(r)` (index.html) → `rec.image` on
+  `POST /nudge` → `cleanImage` (an ALLOW-LIST of hosts: `i.ytimg.com`,
+  `img.youtube.com`, our two sites, https only — the value is handed to a
+  phone to fetch, so never "any URL") → stored on `why:` and served by `/why`
+  → sw.js passes it as the notification `image`; on iOS `sendApns` sets
+  `aps.mutable-content=1` + `be.image` and the **Notification Service
+  Extension** `mobile/ios/ios/App/BEPushService/NotificationService.swift`
+  (target `BEPushService`, bundle id `com.lomonec.bemastery.BEPushService`,
+  iOS 15, embedded in App) downloads and attaches it — best-effort, text
+  always delivered. Only an https URL works on both platforms (a canvas drawn
+  on the device is unreachable from the extension), so a lesson or a scene
+  carries no picture and is unchanged. Xcode's automatic signing must
+  provision the extension's App ID; it needs NO push capability of its own.
+  A wrong-template ExtensionKit target (`BENotificationService`) was created
+  and removed the same day — `check-release.mjs` fails if it comes back.
+- **iOS home-screen widget (5 Oct 2026, `staging`, `docs/IOS_WIDGET.md`).**
+  WidgetKit target `BEWidgetExtension` (`mobile/ios/ios/App/BEWidget/`,
+  bundle id `com.lomonec.bemastery.BEWidget`, iOS 15, iPhone; small / medium /
+  large + the three lock-screen shapes on iOS 16+). **The app PUBLISHES, the
+  widget draws**: `widgetSnapshot()` (index.html, beside the push code) builds
+  a ≤6 KB translated JSON from the same functions Home and the Road map use;
+  `widgetSync()` (called from `saveFlush`, debounced 1.2 s, sent only when the
+  signature changed — WidgetKit has a redraw budget; forced on hide and at
+  boot) hands it to the `BEWidget` plugin (`BEWidgetPlugin.swift`), which
+  stores it in App Group `group.com.lomonec.bemastery` (key
+  `be_widget_snapshot`, both entitlement files) and reloads timelines. The
+  widget computes only the time of day (`BEWidgetMood`: done / pending / at
+  risk from 18:00 local / cold; UTC day keys like the app's `streak()`).
+  Taps: `bemastery://open?view=…&w=&d=&act=` (URL type in Info.plist) →
+  `BEMasteryApp.onOpenURL` → `BEWidgetBox.route` (allow-lists) → plugin
+  `open` event / `pendingOpen()` → `widgetOpenRoute()`. `fbWipeDevice` →
+  `widgetClear()`; no profile = nothing published. Flag `ios_widget_enabled`.
+  Nothing personal travels (test 4). Tests: `tests/ios-widget.mjs` (19),
+  Swift `BEWidgetPluginTests`, `check-release.mjs`. Automatic signing
+  registers the App Group itself — no console step.
+- **Android home-screen widget (5 Oct 2026, `staging`, `docs/ANDROID_WIDGET.md`).**
+  The Play app is a TWA, so the page cannot hand its own app anything
+  (android-browser-helper keeps the browser session private — #472). Instead:
+  the app mints a random 32-hex `wid` and appends `?wid=` to EVERY launch URL
+  (`BEWidgetLaunch.decorate`); index.html captures it beside the `?flags=`
+  strip (`localStorage.be_widget_wid`, also `?widget=<act>` → `_wgLaunch`,
+  honoured by `homeDeepLink`) and `widgetSync` publishes the SAME snapshot to
+  **be-widget** (`backend/widget/`, D1, `POST/GET/DELETE /feed`, `shapeSnap`
+  allow-list, 60 writes/h, 30-day rows, no cron) through `widgetFeedSend`
+  (≤1/min, forced at boot/hide); `BEWidgetProvider` pulls it every 30 min +
+  25 s after a launch + 4 s after return (LauncherActivity hooks). Sources in
+  `playstore/android-widget/` (Java RemoteViews + Canvas bitmaps, same three
+  sizes and mood logic as iOS); `apply.mjs` copies/patches them into the
+  Bubblewrap project after every `bubblewrap update` — Bubblewrap overwrites
+  hand edits, so NEVER edit the generated project directly. Staging Worker
+  deployed (`be-widget-staging`, D1 `91355285-…`); production NOT (owner:
+  create D1, deploy, set the `WIDGET_API` fallback, new AAB vc 10). Flag
+  `android_widget_enabled`. Tests: Worker 20, `tests/android-widget.mjs` 13,
+  `apply.test.mjs` 8.
+  **Per-programme widgets (5 Oct 2026, evening — owner: "the same widget for
+  Welding English").** Three gallery entries on both platforms: "Your road
+  map" (follows the open programme), "General English", "Welding English".
+  iOS: kinds `BEWidget` / `BEWidgetGE` / `BEWidgetPro`, `BEWidgetProvider(area:)`,
+  the plugin stores each snapshot as the latest AND under `be_widget_snapshot_<area>`
+  (`BEWidgetPlugin.area(of:)`), `clear` removes all three. Android: receivers
+  `BEWidgetProvider` / `BEWidgetProviderGE` / `BEWidgetProviderPro`, three
+  `be_widget_info*.xml`, store keys per area; be-widget keeps one row per
+  (wid, area) (`0002_areas.sql`, applied on staging) and one GET returns the
+  latest plus `areas.ge/pro`. A programme's progress changes only while it is
+  open, so its widget is exact until it is opened again (labels may lag a
+  language change until then).
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
   reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
   in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.

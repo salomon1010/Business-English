@@ -174,7 +174,13 @@ console.log("\n# native / banner");
   await p.evaluate(() => go("home")); await sleep(900);
   ok("N2 · re-rendering the page keeps the SAME ad — one slot, no second impression", await p.evaluate(() => document.querySelectorAll("#v-home [data-ad-slot]").length === 1) && (await events(p)).filter(x => x.startsWith("ad_displayed:native")).length === imp0);
   await p.evaluate(() => go("review")); await sleep(900);
-  ok("N2b · the native gap spans pages: Progress right after Home's ad gets no second ad", await p.evaluate(() => !document.querySelector("#v-review [data-ad-slot]")));
+  /* The 60 s native gap is counted PER PLACEMENT since 3 Oct 2026 (29409303:
+     "the gap exists to stop the SAME surface repeating an ad at a learner" —
+     the library ad used to block the Shadow one). Progress is its own
+     placement (progress_foot), so right after Home's ad it still carries one
+     ad; what the gap forbids is Home repeating ITS ad within the minute. */
+  const pf = await p.evaluate(() => ({ review: document.querySelectorAll("#v-review [data-ad-slot]").length, home: document.querySelectorAll("#v-home [data-ad-slot]").length, gap: AdEligibility.decide("native", "home_feed").reason }));
+  ok("N2b · the native gap is per placement: Progress right after Home's ad gets its own one ad, while Home itself is held by the 60 s gap (cap:gap)", pf.review === 1 && pf.home === 1 && pf.gap === "cap:gap", JSON.stringify(pf));
   for (const [v, js] of [["session", "go('session',1,'Mon')"], ["phrases", "go('phrases')"], ["roleplay", "go('roleplay')"], ["partner", "go('partner')"]]) { await p.evaluate(js); await sleep(700); }
   ok("N3 · never on a learning screen: session, Phrase Lab (Polish recorder), roleplay, partner carry no ad", await p.evaluate(() => !document.querySelector("#v-session [data-ad-slot],#v-phrases [data-ad-slot],#v-roleplay [data-ad-slot],#v-partner [data-ad-slot],#v-journey [data-ad-slot]")));
   await fresh(); await p.evaluate(() => go("review")); await sleep(900);
@@ -182,6 +188,51 @@ console.log("\n# native / banner");
   ok("N4 · Progress: the slot overlaps no control and adds no horizontal overflow", pr && pr.overlap === 0 && !pr.overflow, JSON.stringify(pr));
   await fresh(); await p.evaluate(() => { go("shadow"); }); await sleep(900);
   ok("N5 · the Shadow LIBRARY (browsing) may carry one", await p.evaluate(() => !!document.querySelector("#v-shadow [data-ad-slot]")));
+  /* the slot the owner asked for: between the featured video and the list */
+  await fresh(); await p.evaluate(() => go("shadow")); await sleep(1500);
+  const lib = await p.evaluate(() => {
+    const host = document.getElementById("shLibAdHost"), s = host && host.querySelector("[data-ad-slot]");
+    if (!s) return { host: !!host, slot: false };
+    const feed = document.getElementById("shLibFeed"), stat = document.getElementById("shLibStatic");
+    const r = s.getBoundingClientRect();
+    const btns = [...document.querySelectorAll("#v-shadow button, .bnav button")].filter(b => b.getBoundingClientRect().width > 0);
+    const hit = b => { const q = b.getBoundingClientRect(); return !(q.right < r.left || q.left > r.right || q.bottom < r.top || q.top > r.bottom); };
+    return { host: true, slot: true, place: s.dataset.placement, label: (s.querySelector(".ad-label") || {}).textContent,
+      filled: /TEST/.test(s.innerText), dashed: getComputedStyle(s).borderTopStyle,
+      afterStatic: !!stat && host.previousElementSibling === stat, beforeFeed: !!feed && host.nextElementSibling === feed,
+      overlap: btns.filter(hit).length, overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      both: document.querySelectorAll("#v-shadow [data-ad-slot]").length };
+  });
+  /* no dashed border here, unlike the foot cards: the strip is edge to edge
+     and a border across the screen would read as a divider (see N5g) */
+  ok("N5b · the Shadow library carries a second labelled slot between the featured video and the list, overlapping no control", lib.slot && lib.place === "library_top" && lib.label === "Advertisement" && lib.filled && lib.dashed === "none" && lib.afterStatic && lib.beforeFeed && lib.overlap === 0 && !lib.overflow, JSON.stringify(lib));
+  ok("N5c · it is a SECOND slot: the foot one is still there, so the page carries both", lib.both === 2, JSON.stringify({ both: lib.both }));
+  /* a SHORT strip, not a block that pushes the list off the screen (owner, 5 Oct 2026) */
+  const sz = await p.evaluate(() => {
+    const top = document.querySelector('[data-ad-slot][data-placement="library_top"]'), foot = document.querySelector('[data-ad-slot][data-placement="library"]');
+    const h = e => e ? Math.round(e.getBoundingClientRect().height) : null;
+    const r = top && top.getBoundingClientRect();
+    const rem = top && top.querySelector(".ad-remove");
+    return { top: h(top), foot: h(foot), vh: innerHeight, reserved: adNativeH("library_top"), reservedFoot: adNativeH("home_feed"),
+      left: r && Math.round(r.left), width: r && Math.round(r.width), vw: innerWidth,
+      label: !!(top && top.querySelector(".ad-label")), removeShown: !!(rem && getComputedStyle(rem).display !== "none"),
+      rows: top ? top.querySelectorAll(".ad-native-body").length : 0 };
+  });
+  ok("N5f · the in-content slot is a short strip: well under a quarter of the screen, and shorter than the foot slot's reservation", sz.top !== null && sz.top < sz.vh / 4 && sz.reserved < sz.reservedFoot, JSON.stringify(sz));
+  /* the shape the owner photographed: one row, the full width of the screen,
+     the label in a corner chip rather than on a line of its own, and no
+     Premium link stealing a second row (it stays on the foot slots) */
+  ok("N5g · and it is the shape asked for: edge to edge, one row about 68 px, a corner label, no second row",
+    sz.left === 0 && sz.width >= sz.vw - 1 && sz.top <= 76 && sz.label === true && sz.removeShown === false, JSON.stringify(sz));
+  /* searching: an ad above somebody's search results is not "between the video and the list" */
+  const searched = await p.evaluate(async () => { _shLibQ = "weld"; shLibMount(); await new Promise(z => setTimeout(z, 900));
+    const h = document.getElementById("shLibAdHost"); return { hidden: !h || h.hidden, slot: !!(h && h.querySelector("[data-ad-slot]")) }; });
+  ok("N5d · while searching the host is hidden and nothing is placed there", searched.hidden && !searched.slot, JSON.stringify(searched));
+  await p.evaluate(() => { _shLibQ = ""; shLibMount(); });
+  /* App Setup's foot slot: declared in AD_POLICY from the start, never wired until now */
+  await fresh(); await p.evaluate(() => go("data")); await sleep(900);
+  const setf = await p.evaluate(() => { const s = document.querySelector("#v-data [data-ad-slot]"); return s ? { place: s.dataset.placement, last: document.getElementById("v-data").lastElementChild === s } : null; });
+  ok("N5e · App Setup carries the settings_foot slot that the policy always declared", !!setf && setf.place === "settings_foot" && setf.last, JSON.stringify(setf));
   await grantPremium("up1"); await signIn(p, "up1");
   ok("N6 · the moment the server says Premium, every slot already on screen is withdrawn", await p.evaluate(() => !document.querySelector("[data-ad-slot]")));
   await ctx.close();
@@ -244,10 +295,94 @@ console.log("\n# track isolation");
   ok("T1 · Welding: the shared ad system adds no General-English feature (no Practice Partner, no Shadow V2)", !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
   await breakThen(p, "practice_complete", "go('home')");
   const o = await overlay(p);
-  ok("T2 · Welding Free learners get the same restrained ad behaviour after a finished workshop", !!o && o.view === "home");
+  /* The tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only
+     and Welding shows none on any plan — adsTrackAllows() is isGeneralEnglish()
+     again. The workshop debrief's markBreak("practice_complete") therefore arms
+     nothing on Welding, and no ad event of any kind is written. */
+  ok("T2 · Welding: a finished workshop produces NO interstitial — Welding shows no ads on any plan, and leaves no ad event", o === null && !(await events(p)).some(x => /^ad_/.test(x)), JSON.stringify({ o: o && o.view, ev: (await events(p)).filter(x => /^ad_/.test(x)) }));
   if (o) await closeAd(p);
   await p.evaluate(() => go("practice")); await sleep(600);
   ok("T3 · Welding's Practice page shows the Welding simulation entry, no partner card", await p.evaluate(() => !document.querySelector("#v-practice .pp-entry")));
+  await ctx.close();
+}
+
+/* ADS ARE GENERAL ENGLISH ONLY (the owner's tier spec, docs/TIERS.md, 5 Oct
+   2026): "Ads (General English only) · Ads on Welding: None". adsTrackAllows()
+   is isGeneralEnglish() again, so a Welding learner — Free OR Premium — is
+   refused at the eligibility layer with reason "track", before the plan is even
+   asked; no break is armed, no slot is placed, no ad event is written, and the
+   "Remove ads with Premium" button has no slot to sit on. General English Free
+   is unchanged, and the plan is still what takes ads away THERE. */
+console.log("\n# Welding shows no ads on any plan; General English Free is unchanged");
+{
+  WENV = workerEnv();
+  const { ctx, p } = await open("welding");
+  await signIn(p, "weldfree");
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); window.__ev = []; });
+  const d = await p.evaluate(() => ({
+    track: AdEligibility.trackAllowsAds(),
+    flag: flag("ads_enabled"),
+    plan: AdEligibility.planAllowsAds(),
+    inter: AdEligibility.decide("interstitial", "session_complete"),
+    nat: AdEligibility.decide("native", "home_feed"),
+    rew: AdEligibility.decide("rewarded", "extra_practice", { userInitiated: true }),
+    spon: AdEligibility.decide("sponsored", "tip_card"),
+  }));
+  ok("TW1 · a free Welding learner: the flag is on and the plan would allow ads, but the PROGRAMME refuses (adsTrackAllows false)", d.flag === true && d.plan === true && d.track === false, JSON.stringify(d));
+  ok("TW2 · Welding: an interstitial is refused for 'track'", d.inter.show === false && d.inter.reason === "track", JSON.stringify(d.inter));
+  ok("TW3 · Welding: a native slot is refused for 'track'", d.nat.show === false && d.nat.reason === "track", JSON.stringify(d.nat));
+  ok("TW4 · Welding: a rewarded ad the learner asked for is refused for 'track'", d.rew.show === false && d.rew.reason === "track", JSON.stringify(d.rew));
+  ok("TW5 · Welding: sponsored is refused for 'track' too — every format, one rule", d.spon.show === false && d.spon.reason === "track", JSON.stringify(d.spon));
+
+  /* markBreak must not even ARM a break: an armed one would be waiting to fire
+     on the next navigation, which is how it would leak across a track switch */
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); AdManager.markBreak("practice_complete"); });
+  const armed = await p.evaluate(() => _adBreak !== null && _adBreak !== undefined);
+  await p.evaluate(() => go("home")); await sleep(1500);
+  const wo = await overlay(p);
+  ok("TW6 · Welding: a completed activity arms NO break, and the next page shows nothing", armed === false && wo === null, JSON.stringify({ armed, view: wo && wo.view }));
+  if (wo) await closeAd(p);
+
+  /* every entry point, called directly */
+  const direct = await p.evaluate(async () => ({
+    inter: await AdManager.interstitial("session_complete"),
+    rew: await AdManager.rewarded("extra_practice", "extra_practice", { userInitiated: true }),
+    slots: (() => { AdManager.placeNative("home"); AdManager.placeNative("review"); AdManager.placeNative("shadow"); AdManager.placeNative("phrasebank");
+                    AdManager.placeNative("data"); AdManager.placeLibrary(); AdManager.placeShadow();
+                    return document.querySelectorAll("[data-ad-slot]").length; })(),
+  }));
+  ok("TW7 · Welding: no native place fills — home, Progress, the library (both slots), App Setup and the Shadow slot all stay empty; the interstitial returns false and the reward is refused for 'track'",
+    direct.inter === false && direct.rew.rewarded === false && direct.rew.reason === "track" && direct.slots === 0, JSON.stringify(direct));
+
+  /* there is no slot, so there is nothing for "Remove ads with Premium" to sit
+     on: on Welding the plan is not sold as a way out of ads it never shows */
+  const esc = await p.evaluate(() => ({ slot: !!document.querySelector("[data-ad-slot]"), remove: !!document.querySelector(".ad-remove"), offered: premOffered() }));
+  ok("TW8 · Welding: no slot and no 'Remove ads with Premium' button anywhere, whether or not Premium is offered here (it is sold on Welding for its other benefits)",
+    esc.slot === false && esc.remove === false, JSON.stringify(esc));
+  const ev = await events(p);
+  ok("TW8b · and NO ad event of any kind is written on Welding — the programme leaves no trace, not even a 'suppressed'", !ev.some(x => /^ad_|^rewarded_ad_/.test(x)), JSON.stringify(ev.filter(x => /^ad_|^rewarded_ad_/.test(x)).slice(0, 4)));
+  await ctx.close();
+}
+{
+  /* GE is untouched: Free still eligible, Premium still suppressed — and the
+     decision follows the OPEN programme within a session */
+  WENV = workerEnv();
+  const { ctx, p } = await open("general-english");
+  await signIn(p, "gefree");
+  const ge = await p.evaluate(() => AdEligibility.decide("interstitial", "session_complete"));
+  ok("TW9 · General English Free is still eligible — the existing behaviour is preserved", ge.show === true && ge.reason === "ok", JSON.stringify(ge));
+
+  const after = await p.evaluate(() => { S.professionalTracks.activeId = "welding"; return AdEligibility.decide("interstitial", "session_complete"); });
+  ok("TW10 · switching GE → Welding inside one session: the decision follows the open programme — refused for 'track'", after.show === false && after.reason === "track", JSON.stringify(after));
+  const back = await p.evaluate(() => { S.professionalTracks.activeId = "general-english"; return AdEligibility.decide("interstitial", "session_complete"); });
+  ok("TW11 · and switching back restores eligibility", back.show === true, JSON.stringify(back));
+
+  await grantPremium("geprem");
+  await signIn(p, "geprem");
+  const prem = await p.evaluate(() => AdEligibility.decide("interstitial", "session_complete"));
+  ok("TW12 · Premium is still suppressed for 'premium' on General English — there, the plan is what takes ads away", prem.show === false && prem.reason === "premium", JSON.stringify(prem));
+  const wprem = await p.evaluate(() => { S.professionalTracks.activeId = "welding"; return AdEligibility.decide("interstitial", "session_complete"); });
+  ok("TW13 · a Premium account on Welding is refused for 'track' as well — the programme rule comes before the plan, so Welding shows no ads on ANY plan", wprem.show === false && wprem.reason === "track", JSON.stringify(wprem));
   await ctx.close();
 }
 
@@ -264,6 +399,75 @@ console.log("\n# mobile, dark first, light borders");
       o.fits && o.big && o.cont && o.xSize >= 44 && !o.overflow && (theme ? /30, 45, 120/.test(o.border) : o.theme === "dark"), JSON.stringify(o));
     await ctx.close();
   }
+}
+
+/* ============================================================================
+   The App Store shell is NOT a developer machine (30 Sep 2026)
+   ----------------------------------------------------------------------------
+   The iOS shell loads from capacitor://localhost, so location.hostname is
+   literally "localhost" there. Every host test written as "localhost means a
+   developer machine" therefore read a shipped iOS build as one. The flags are
+   false in FLAGS_DEFAULT and FLAGS_IOS so nothing shipped reached it, but a
+   flag is a preview switch, not a boundary — these force both flags ON and
+   prove the HOST test refuses anyway. The served page here is on 127.0.0.1,
+   which is exactly the trap: the hostname looks local and IS_IOS_APP is true.
+   ========================================================================== */
+console.log("\n# the App Store shell is not a developer machine");
+{
+  /* an iOS PRODUCTION build: Capacitor present, no BE_BUILD (that is staging only) */
+  async function openIOS(ios, flags) {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    await ctx.addInitScript(([s, f, isIos]) => {
+      localStorage.setItem("be12_v1", s); if (f) localStorage.setItem("be_flags", JSON.stringify(f));
+      if (isIos) window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: () => ({}) };
+    }, [seed("general-english"), flags, ios]);
+    await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights|ent\.test/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+    const p = await ctx.newPage(); await p.goto(BASE + "index.html"); await sleep(1300);
+    const o = await p.evaluate(async () => ({
+      ios: IS_IOS_APP, host: location.hostname, env: !!(window.beEnv && beEnv()),
+      adsFlag: flag("ads_mock_provider"), billFlag: flag("billing_preview_provider"),
+      mockAds: AdProviders.mock.available(), previewBilling: await BillingProviders.preview.available(),
+    }));
+    await ctx.close(); return o;
+  }
+  const BOTH = { ads_enabled: true, ads_mock_provider: true, billing_enabled: true, billing_preview_provider: true };
+  /* the other dev doors, with their override keys planted: a release build must
+     ignore every one of them (§3 of the readiness sprint) */
+  async function openIOSPlanted() {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    await ctx.addInitScript(([s, f]) => {
+      localStorage.setItem("be12_v1", s); localStorage.setItem("be_flags", JSON.stringify(f));
+      localStorage.setItem("be_ent_api", "http://ent.evil");          /* a planted entitlement service */
+      localStorage.setItem("be_partner_dev_user", "attacker");        /* a planted dev identity */
+      window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, registerPlugin: () => ({}) };
+    }, [seed("general-english"), BOTH]);
+    await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights|ent\./.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+    const p = await ctx.newPage(); await p.goto(BASE + "index.html"); await sleep(1300);
+    const o = await p.evaluate(() => ({ ios: IS_IOS_APP, ent: entApiBase(), devUser: ppDevUser(), partner: ppApiBase(), build: !!window.BE_BUILD }));
+    await ctx.close(); return o;
+  }
+
+  const i = await openIOS(true, BOTH);
+  ok("X1 · the iOS shell really does look local: IS_IOS_APP true and hostname localhost/127.0.0.1", i.ios === true && /^(localhost|127\.0\.0\.1)$/.test(i.host), JSON.stringify(i));
+  ok("X2 · …and it is NOT a staging build (beEnv null), so only the host test could have let it through", i.env === false, JSON.stringify(i));
+  ok("X3 · both preview flags are forced ON, so this tests the HOST guard and not the flag", i.adsFlag === true && i.billFlag === true, JSON.stringify(i));
+  ok("X4 · iOS production: mock ads are NOT available", i.mockAds === false, JSON.stringify(i));
+  ok("X5 · iOS production: preview billing is NOT available", i.previewBilling === false, JSON.stringify(i));
+
+  /* local web development must keep working exactly as before */
+  const w = await openIOS(false, BOTH);
+  ok("X6 · local web development is untouched: mock ads still available with the flag on", w.ios === false && w.mockAds === true, JSON.stringify(w));
+  ok("X7 · local web development: preview billing still available with the flag on", w.previewBilling === true, JSON.stringify(w));
+
+  /* and with the flags at their production defaults, neither is available anywhere */
+  const d = await openIOS(false, null);
+  ok("X8 · production defaults on the web: no mock ads, no preview billing", d.adsFlag === false && d.mockAds === false && d.previewBilling === false, JSON.stringify(d));
+
+  /* the remaining dev doors named in the readiness audit */
+  const q = await openIOSPlanted();
+  ok("X9 · iOS production ignores a planted be_ent_api — the entitlement service is not redirectable there", q.ios === true && q.ent !== "http://ent.evil", JSON.stringify(q));
+  ok("X10 · iOS production ignores a planted be_partner_dev_user — no development authentication (the header is never sent)", q.devUser === null, JSON.stringify(q));
+  ok("X11 · …and it is a production bundle: no BE_BUILD, so no staging Workers and no staging-only UI", q.build === false && q.partner === "https://be-partner.nore-ngou.workers.dev", JSON.stringify(q));
 }
 
 await b.close(); srv.kill();

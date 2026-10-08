@@ -5,8 +5,10 @@ android.keystore
 *.idsig
 build*.log
 build.expect
-app/
-build/
+# the generated project's module and build output — anchored, because the
+# widget sources under android-widget/src/.../com/bemastery/app/ are ours
+/app/
+/build/
 .gradle/
 *.jks
 

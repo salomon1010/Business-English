@@ -1,0 +1,39 @@
+# be-widget — the feed behind the Android home-screen widget (docs/ANDROID_WIDGET.md).
+# Production is NOT deployed: the database id below is empty until the owner
+# runs `npx wrangler d1 create be-widget`, pastes the id, applies the
+# migration (`npx wrangler d1 migrations apply be-widget --remote`) and
+# deploys with `npx wrangler deploy --env ""`. Until then the production
+# app has no WIDGET_API and publishes nothing.
+# No cron trigger, on purpose: the account is at the Free plan's limit of 5.
+name = "be-widget"
+main = "widget-worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+EXTRA_ORIGINS = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "be-widget"
+database_id = ""
+migrations_dir = "migrations"
+
+[observability]
+enabled = false
+
+# ---- staging: be-widget-staging, used by staging.lomonec.com and the
+# staging-host Android build (playstore/twa-manifest.staging.json).
+[env.staging]
+name = "be-widget-staging"
+
+[env.staging.vars]
+EXTRA_ORIGINS = "https://staging.lomonec.com"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "be-widget-staging"
+database_id = "91355285-4568-45ed-868c-85303ab5f76f"
+migrations_dir = "migrations"
+
+[env.staging.observability]
+enabled = false

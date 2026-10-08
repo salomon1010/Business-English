@@ -158,7 +158,10 @@
   /* ---------- the player ---------- */
   /* A near-empty WAV, played inside the tap that opened the scene so iOS lets
      the same element play the real file once it has been fetched. */
-  const SILENT = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+  /* a REAL silent clip (50 ms). The old primer had an empty data chunk, which an
+     iPhone may reject as unplayable — and that late error was read as the scene's
+     own sound failing (owner, 6 Oct 2026: "The scene's sound could not load"). */
+  const SILENT = "data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
   class ScenePlayer {
     constructor(elId, opts) {
       opts = opts || {};
@@ -178,7 +181,18 @@
       a.addEventListener("pause", () => { if (this._ready) set(2); });
       a.addEventListener("waiting", () => { if (this._ready) set(3); });
       a.addEventListener("ended", () => { if (this._ready) set(0); });
-      a.addEventListener("error", () => { if (this._ready && !this._gone) { try { if (ev.onError) ev.onError({ data: 5, target: this }); } catch (e) {} } });
+      /* Only an error on the scene's OWN file counts (not the primer's), and the first
+         one is answered by reloading at the same moment — iOS can drop a media element
+         when a recording takes the audio over. The learner is told only if that fails. */
+      a.addEventListener("error", () => {
+        if (!this._ready || this._gone || !this._url || a.src !== this._url && a.src !== this._direct) return;
+        if (!this._retried) { this._retried = true; const at = this._lastT || 0;
+          try { a.src = this._direct || this._url; a.load(); a.addEventListener("loadedmetadata", () => { try { a.currentTime = at; } catch (e) {} this._state = 2; this._draw(); }, { once: true }); } catch (e) {}
+          return; }
+        try { if (ev.onError) ev.onError({ data: 5, target: this }); } catch (e) {}
+      });
+      a.addEventListener("loadedmetadata", () => { if (this._ready) this._retried = false; });
+      a.addEventListener("timeupdate", () => { this._lastT = a.currentTime || 0; });
       this._init().catch(() => { if (!this._gone) { root.dataset.state = "err"; try { if (ev.onError) ev.onError({ data: 5, target: this }); } catch (e) {} } });
     }
     async _init() {
@@ -195,13 +209,22 @@
       this._root.querySelector(".scn-go").onclick = () => this.playVideo();
       /* the file is fetched whole (not streamed by the element) so a cached copy
          is a plain 200 the service worker can answer offline, and seeking works */
-      const r = await fetch(dir(vid) + (scene.audio || "audio.mp3"));
-      if (!r.ok) throw new Error("audio " + r.status);
-      const blob = await r.blob();
-      if (this._gone) return;
-      this._url = URL.createObjectURL(blob);
+      const file = dir(vid) + (scene.audio || "audio.mp3");
       const a = this._a; try { a.pause(); } catch (e) {}
-      await new Promise((res, rej) => { a.onloadedmetadata = res; a.onerror = rej; a.src = this._url; a.load(); });
+      const tryLoad = src => new Promise((res, rej) => { a.onloadedmetadata = res; a.onerror = () => { if (a.src === src) rej(new Error("media " + (a.error && a.error.code))); }; a.src = src; a.load(); setTimeout(() => rej(new Error("media timeout")), 15000); });
+      try {
+        const r = await fetch(file);
+        if (!r.ok) throw new Error("audio " + r.status);
+        const blob = await r.blob();
+        if (this._gone) return;
+        this._url = URL.createObjectURL(blob);
+        await tryLoad(this._url);
+      } catch (e) {
+        /* the in-memory copy failed: let the element read the file itself */
+        if (this._gone) return;
+        this._direct = new URL(file, location.href).href; if (!this._url) this._url = this._direct;
+        await tryLoad(this._direct);
+      }
       a.onloadedmetadata = null; a.onerror = null;
       if (this._gone) return;
       if (this._start) try { a.currentTime = this._start; } catch (e) {}
