@@ -17,7 +17,7 @@ const V = { W: "S0kfnpgY-Gs", SH: "-5q6tNovay8", CF: "mmfo9spNaWA" }; const T = 
 const FLAGS = { billing_enabled: false, home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
 const ENGINE = process.env.BROWSER === "webkit" ? webkit : chromium; console.log(`  engine: ${process.env.BROWSER || "chromium"} · ${BASE}`);
 const b = await ENGINE.launch();
-const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? {} : FLAGS)); localStorage.setItem("be_theme", "dark");
+const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? { home_v2_enabled: false } : FLAGS)); localStorage.setItem("be_theme", "dark");
   const GE = "general-english", day = 86400000, H = 3600000, now = Date.now(), d = n => new Date(now - n * day).toISOString().slice(0, 10);
   const dates = (!o.history ? [] : o.away ? [o.away, o.away + 1, o.away + 2] : [0, 1, 2, 3]).map(d); const dayLog = {}; dates.forEach(x => dayLog[x] = 1);
   const S = { profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: o.area || GE }, fnd: { [GE]: { placed: "full", finished: true, done: {}, day: 1 }, welding: { placed: "full", finished: true, done: {}, day: 1 } }, days: {}, dates, dayLog, dayLogA: { [GE]: dayLog, welding: dayLog }, steps: {}, scores: {}, notes: {}, vocab: {}, convos: [], backupAsked: 1, rmSeen: now, lastSeen: now };
@@ -132,7 +132,7 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   await ctx.close(); }
 /* ---------- flag off: today's Home ---------- */
 { const { ctx, p } = await open({ history: true, flag: false });
-  ok("27 · home_v2_enabled off (production today): no rows, the existing Home unchanged", await p.evaluate(() => document.querySelectorAll(".hx-row,.hx").length === 0 && !!document.querySelector(".today-card")));
+  ok("27 · home_v2_enabled off: no rows, the existing Home unchanged", await p.evaluate(() => document.querySelectorAll(".hx-row,.hx").length === 0 && !!document.querySelector(".today-card")));
   await ctx.close(); }
 /* ---------- desktop ---------- */
 { const { ctx, p } = await open({ history: true }, true);

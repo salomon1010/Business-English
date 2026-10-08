@@ -12615,7 +12615,7 @@ function mvHomeCardHTML(){
 }
 
 /* ================= HOME V2 — the learner's own page (owner, 27 Sep 2026) =================
-   General English only, behind home_v2_enabled (on for staging, off in production).
+   General English only, behind home_v2_enabled (on everywhere since be12-v653).
    Home answers "what should I do next?" from the SAME engine the push nudges use:
    NudgeEngine.rank(nudgeSignals()) — no second algorithm. The placement check and
    Foundations come first because they gate everything else (fndNeedsPlacement /
@@ -22372,7 +22372,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v652";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v653";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24162,7 +24162,7 @@ const FLAGS_DEFAULT={
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
   welding_studio_enabled:false,        // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Staging on, OFF in production until the owner releases it
-  home_v2_enabled:false,               // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; staging on)
+  home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
@@ -24228,8 +24228,8 @@ const FLAGS_STAGING={
 };
 /* The App Store app's own release defaults (owner, 29 Sep 2026). Its web code is
    bundled into the binary, so these ship with that build and change only with a
-   new one. Home V2 is the Home the owner approved and tested on an iPhone; the
-   website and the Android app keep FLAGS_DEFAULT until it is released there.
+   new one. Home V2 is the Home the owner approved and tested on an iPhone;
+   FLAGS_DEFAULT turned it on for the website too in be12-v653 (owner, 8 Oct 2026).
    Only the names listed here differ from FLAGS_DEFAULT. */
 const FLAGS_IOS={home_v2_enabled:true};
 /* The Play app gets the SAME store-app defaults (owner, 6 Oct 2026: "everything

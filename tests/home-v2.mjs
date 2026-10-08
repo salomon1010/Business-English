@@ -19,7 +19,7 @@ async function open(state, opts = {}) {
   await ctx.route(u => /be-events|cloudflareinsights|be-partner|be-push|entitlements|be-polish|youtube\.com/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
   if (opts.noImages) await ctx.route(u => /ytimg|rp-photos/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   await ctx.addInitScript(([s, flags]) => { if (!sessionStorage.getItem("s")) { sessionStorage.setItem("s", 1); localStorage.setItem("be12_v1", s); if (flags) localStorage.setItem("be_flags", flags); } },
-    [JSON.stringify(seed(state)), opts.flagOff ? null : JSON.stringify(Object.assign({ home_v2_enabled: true }, opts.flags || {}))]);
+    [JSON.stringify(seed(state)), JSON.stringify(Object.assign({ home_v2_enabled: !opts.flagOff }, opts.flags || {}))]);   // off is set explicitly: the production default is ON since be12-v653
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "/index.html" + (opts.hash || "")); await sleep(3000);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
@@ -126,7 +126,7 @@ console.log("\n# signed out / signed in, flag, tracks, landing");
   ok("24 · signed out and signed in see the same recommendation (it comes from the learner's state, not the account)", a.kind === b2.kind && a.title === b2.title, JSON.stringify([a.kind, b2.kind])); await ctx.close(); }
 { const { ctx, p } = await open({}, { flagOff: true });
   const f = await p.evaluate(() => ({ hx: !!document.querySelector(".hx"), today: !!document.querySelector(".today-card") }));
-  ok("25 · flag off (production today): the existing Home, unchanged", !f.hx && f.today, JSON.stringify(f)); await ctx.close(); }
+  ok("25 · flag off: the existing Home, unchanged", !f.hx && f.today, JSON.stringify(f)); await ctx.close(); }
 { const { ctx, p, errs } = await open({ professionalTracks: { activeId: "welding", tradeId: "welder" }, vocab: { w: { ts: 1, reps: 1, due: Date.now() - 1000, tk: ["welding"] } } });
   const w = await p.evaluate(() => ({ ws: typeof weldStudioOn === "function" && weldStudioOn(), hx: !!document.querySelector(".hx"), career: !!document.querySelector(".career-dashboard"), recs: homeRecs().length, kinds: homeRecs().map(r => r.kind), partnerCard: !!document.querySelector(".hx-dcard[onclick*=partner]") }));
   /* welding_studio_enabled (staging): Welding gets Home V2 with its own recommendations — never a partner or the AI coach (tests/welding-studio.mjs checks the content) */
