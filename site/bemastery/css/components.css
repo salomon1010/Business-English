@@ -148,6 +148,30 @@
   .mobile-menu .btn{width:100%;margin-top:4px}
 }
 
+/* The bar measures itself (fitNav in app.js), because the menu words differ
+   in length per language: when the row does not fit, the links first close
+   up (nav-snug); when even that does not fit, the bar takes its compact form
+   — links in the menu, language + Download kept — exactly as below 1000px. */
+.nav.nav-snug .nav-links a{padding:9px 9px;font-size:14px}
+.nav.nav-snug .nav-links a::after{left:9px;right:9px}
+html.nav-tight .nav-links,html.nav-tight .nav-actions .signin{display:none}
+html.nav-tight .nav-actions{margin-inline-start:auto}
+html.nav-tight .menu-btn{display:grid}
+html.nav-tight .nav .bar{background:rgba(10,13,26,.72);border-color:var(--color-border);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+html.nav-tight .mobile-menu{display:block;position:fixed;inset:74px 14px auto 14px;z-index:59;
+    background:rgba(11,14,28,.97);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    box-shadow:var(--shadow-float);opacity:0;transform:translateY(-10px);pointer-events:none;
+    transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
+html.nav-tight .mobile-menu[data-open="true"]{opacity:1;transform:none;pointer-events:auto}
+html.nav-tight .mobile-menu a{display:block;padding:13px 16px;border-radius:var(--radius-sm);
+    font-size:16px;color:var(--color-muted)}
+html.nav-tight .mobile-menu a:hover,html.nav-tight .mobile-menu a:focus-visible,html.nav-tight .mobile-menu a[aria-current="page"]{background:var(--color-surface);color:var(--color-text)}
+html.nav-tight .mobile-menu .sep{height:1px;background:var(--color-border);margin:8px 6px}
+html.nav-tight .mobile-menu .btn{width:100%;margin-top:4px}
+
+
 /* ── floating insight cards ──────────────────────────────────────────────── */
 .float{position:absolute;display:flex;align-items:center;gap:11px;padding:11px 15px;
   background:rgba(13,17,33,.82);border:1px solid var(--color-border-strong);

@@ -158,6 +158,42 @@
     }
   }
 
+  /* The top bar must never be wider than its frame. Menu words differ in
+     length per language (French and German run long), so the bar measures
+     its own row: too wide → the links close up (nav-snug); still too wide →
+     the compact bar (html.nav-tight: links in the menu button, language and
+     Download kept), the same layout CSS gives every screen under 1000px. */
+  function fitNav() {
+    var html = document.documentElement, nav = $("#nav"), bar = $("#nav .bar"), links = $("#navLinks");
+    if (!nav || !bar || !links) return;
+    html.classList.remove("nav-tight"); nav.classList.remove("nav-snug");
+    if (getComputedStyle(links).display === "none") return;      // already compact by width
+    function fits() {
+      var cs = getComputedStyle(bar), gap = parseFloat(cs.columnGap) || 0, used = 0, n = 0;
+      [].forEach.call(bar.children, function (c) {
+        if (!c.offsetWidth) return;
+        used += c === links ? links.scrollWidth : c.offsetWidth; n++;
+      });
+      used += gap * (n - 1) + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      return used <= bar.clientWidth + 0.5;
+    }
+    if (fits()) return;
+    nav.classList.add("nav-snug");
+    if (fits()) return;
+    nav.classList.remove("nav-snug");
+    html.classList.add("nav-tight");
+  }
+  function initFitNav() {
+    fitNav();
+    var pending = false;
+    window.addEventListener("resize", function () {
+      if (pending) return; pending = true;
+      requestAnimationFrame(function () { pending = false; fitNav(); });
+    });
+    /* the web font changes every width once it arrives */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+  }
+
   function initMenu() {
     var btn = $("#menuBtn"), menu = $("#mobileMenu");
     if (!btn || !menu) return;
@@ -533,7 +569,7 @@
 
   function init() {
     initLang();
-    buildNav(); initMenu(); initNavState(); initAnchorJump();
+    buildNav(); initFitNav(); initMenu(); initNavState(); initAnchorJump();
     buildStores(); buildStoreNote(); buildSocial(); buildFooter(); applyStats();
     if (window.MotionSystem) window.MotionSystem.init();
     initSpeakingInterface();

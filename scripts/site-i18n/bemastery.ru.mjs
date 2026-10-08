@@ -27,7 +27,7 @@ export default [
   [`>Skip to content<`, `>Перейти к содержимому<`],
   [`aria-label="Main"`, `aria-label="Основное"`],
   [`aria-label="Open menu"`, `aria-label="Открыть меню"`],
-  [`>Download app<`, `>Скачать приложение<`],
+  [`>Download app<`, `>Скачать<`],
 
   // hero
   [`AI + human speaking practice`, `Разговорная практика с ИИ и людьми`],
