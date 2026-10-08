@@ -5,9 +5,9 @@
 	<key>BEAdsAllowTestUnits</key>
 	<true/>
 	<key>BEAdsInterstitialUnitId</key>
-	<string>ca-app-pub-REPLACE/REPLACE</string>
+	<string>ca-app-pub-2222980379604934/2444172761</string>
 	<key>BEAdsNativeUnitId</key>
-	<string>ca-app-pub-REPLACE/REPLACE</string>
+	<string>ca-app-pub-2222980379604934/2737570820</string>
 	<key>BEGoogleIosClientID</key>
 	<string>847739483036-qfgi8l393orrmr8fsnhk50auq9ironjt.apps.googleusercontent.com</string>
 	<key>CAPACITOR_DEBUG</key>
@@ -44,7 +44,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
-	<string>$(BE_ADS_APP_ID)</string>
+	<string>ca-app-pub-2222980379604934~5854778049</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
