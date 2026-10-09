@@ -390,9 +390,9 @@ console.log("\n# Home, recommendations and the widget — the game is part of th
   const H = await open("welding");
   const { p } = H;
   await p.evaluate(() => go("home")); await sleep(900);
-  const h = await p.evaluate(() => { const tile = document.querySelector('.hx-dcard[data-dest="mastery"]'); return { tile: !!tile, img: tile && tile.querySelector("img") && tile.querySelector("img").getAttribute("src"), txt: tile && tile.textContent, hero: (_homeRecs || []).some(r => r.kind === "mastery"), row: (_homeRows || []).some(r => r.id === "games" && r.items.length >= 2), rowCards: document.querySelectorAll('.hx-rcard[data-type="game"]').length }; });
+  const h = await p.evaluate(() => { const tile = document.querySelector('.hx-dcard[data-dest="mastery"]'); return { tile: !!tile, img: tile && tile.querySelector("img") && tile.querySelector("img").getAttribute("src"), txt: tile && tile.textContent, hero: (_homeRecs || []).some(r => r.kind === "mastery"), row: (_homeRows || []).some(r => r.id === "games" && r.items.length >= 2), rowCards: document.querySelectorAll('.hx-rcard[data-type="game"]').length, rowLocked: !!document.querySelector('.hx-row[data-row="games"] .hx-row-prem') }; });
   ok("E1 · Home › Explore has a Welding Mastery tile with the game's logo", h.tile && /welding-mastery-logo\.svg/.test(h.img || "") && /Welding Mastery/.test(h.txt || ""), JSON.stringify(h));
-  ok("E2 · the recommendation engine offers the game: today's shift as a recommendation, and a games row", h.hero && h.row && h.rowCards >= 2, JSON.stringify(h));
+  ok("E2 · the recommendation engine offers the game: today's shift as a recommendation, and a games row", h.hero && h.row && (h.rowCards >= 2 || h.rowLocked), JSON.stringify(h));   /* with Premium on (staging), a Free learner sees the row heading and the offer, not its cards */
   await click(p, '.hx-dcard[data-dest="mastery"]'); await sleep(800);
   ok("E3 · the Explore tile opens the hub", await p.evaluate(() => cur.v === "mastery" && !!document.querySelector(".wm-hub")));
   await p.evaluate(() => go("home")); await sleep(800);
