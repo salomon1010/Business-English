@@ -2356,6 +2356,13 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
 .sv-wt-tg.float{width:max-content;max-width:none}
 .sv-wt-tg.float .sv-tr-grp{flex-direction:row;flex-wrap:nowrap;flex-shrink:0;width:max-content}
 .sv-wt-tg.float .sv-tr-grp>*{flex:none}
+/* smaller while floating (owner, 9 Oct 2026): 30 px rounds instead of 44, so the
+   column sits lighter over the transcript */
+.sv-wt-tg.float{gap:5px;padding:4px;border-radius:19px}
+.sv-wt-tg.float .sv-sh-t{width:30px;min-width:30px;min-height:30px;height:30px}
+.sv-wt-tg.float .sv-sh-t svg{width:14px;height:14px}
+.sv-wt-tg.float .sv-tr-grp .sv-sh-t{width:auto;min-width:30px;padding:0 3px 0 6px}
+.sv-wt-tg.float .sv-tr-lang{min-height:30px;height:30px;min-width:26px;padding:0 5px 0 4px;font-size:10px}
 .sv-sh-tg .sv-sh-t>span:not(.lang-ic){display:none}
 .sv-sh-tg .sv-sh-t{flex:none;width:44px;min-height:44px;padding:0;justify-content:center;gap:0}
 .sv-sh-tg .sv-sh-t svg{width:18px;height:18px}
@@ -22391,7 +22398,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v656";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v657";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
