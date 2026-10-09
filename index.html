@@ -2344,6 +2344,10 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
    says the state (so the icons never swap to a tick). */
 .sv-sh-tg{gap:10px}
 .sv-wt-tg{margin:0 0 10px}
+/* a saved video reads YELLOW (owner, 9 Oct 2026): the bookmark fills, on every
+   theme and programme; a darker yellow edge keeps it visible on the light theme */
+.sv-save-t.on{color:#f5b301;border-color:#f5b301;background:color-mix(in srgb,#fbbf24 16%,transparent)}
+.sv-save-t.on svg{fill:#fbbf24;stroke:#d99a00}
 /* floated by svWtFloatSync once the row is under the pinned video: a column on
    the right edge, just above the foot bar (circle + its padding + safe area) */
 .sv-wt-tg.float{position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right));margin:0;flex-direction:column;align-items:flex-end;
@@ -22402,7 +22406,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v658";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v659";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
