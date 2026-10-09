@@ -1284,6 +1284,8 @@
  "fnd.how": "每一句：点「听」，读下面的翻译，然后边说边录音。三句都录好，这一天就完成了。",
  "fnd.hear": "听",
  "fnd.slow": "慢速",
+ "fnd.mine":"播放我的录音",
+ "fnd.mine_none":"这句话还没有录音。",
  "fnd.record": "录音",
  "fnd.record_again": "再录一次",
  "fnd.you_hear": "你听到",

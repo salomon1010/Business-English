@@ -1284,6 +1284,8 @@
  "fnd.how": "Für jeden Satz: auf Anhören tippen, die Übersetzung darunter lesen, dann beim Nachsprechen Aufnehmen. Alle drei aufgenommen — der Tag ist geschafft.",
  "fnd.hear": "Anhören",
  "fnd.slow": "Langsam",
+ "fnd.mine":"Meine Aufnahme abspielen",
+ "fnd.mine_none":"Noch keine Aufnahme dieses Satzes.",
  "fnd.record": "Aufnehmen",
  "fnd.record_again": "Noch einmal aufnehmen",
  "fnd.you_hear": "Du hörst",

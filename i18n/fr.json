@@ -1284,6 +1284,8 @@
  "fnd.how": "Pour chaque phrase : touchez Écouter, lisez le français en dessous, puis Enregistrez-vous en la disant. Les trois enregistrées, la journée est finie.",
  "fnd.hear": "Écouter",
  "fnd.slow": "Lentement",
+ "fnd.mine":"Écouter mon enregistrement",
+ "fnd.mine_none":"Pas encore d'enregistrement de cette phrase.",
  "fnd.record": "Enregistrer",
  "fnd.record_again": "Réenregistrer",
  "fnd.you_hear": "Vous entendez",

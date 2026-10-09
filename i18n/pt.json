@@ -1284,6 +1284,8 @@
  "fnd.how": "Para cada frase: toque em Ouvir, leia a tradução abaixo e depois Grave-se dizendo-a. Com as três gravadas, o dia está feito.",
  "fnd.hear": "Ouvir",
  "fnd.slow": "Devagar",
+ "fnd.mine":"Ouvir a minha gravação",
+ "fnd.mine_none":"Ainda não há gravação desta frase.",
  "fnd.record": "Gravar",
  "fnd.record_again": "Gravar de novo",
  "fnd.you_hear": "Você ouve",

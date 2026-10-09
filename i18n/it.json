@@ -1284,6 +1284,8 @@
  "fnd.how": "Per ogni frase: tocca Ascolta, leggi la traduzione sotto, poi Registrati mentre la dici. Con tutte e tre registrate, la giornata è fatta.",
  "fnd.hear": "Ascolta",
  "fnd.slow": "Lento",
+ "fnd.mine":"Ascolta la mia registrazione",
+ "fnd.mine_none":"Nessuna registrazione di questa frase per ora.",
  "fnd.record": "Registra",
  "fnd.record_again": "Registra di nuovo",
  "fnd.you_hear": "Senti",

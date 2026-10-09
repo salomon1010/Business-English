@@ -1284,6 +1284,8 @@
  "fnd.how": "Với mỗi câu: bấm Nghe, đọc bản dịch bên dưới, rồi Ghi âm khi bạn nói câu đó. Ghi đủ ba câu là xong ngày.",
  "fnd.hear": "Nghe",
  "fnd.slow": "Chậm",
+ "fnd.mine":"Phát bản ghi của tôi",
+ "fnd.mine_none":"Chưa có bản ghi nào cho câu này.",
  "fnd.record": "Ghi âm",
  "fnd.record_again": "Ghi lại",
  "fnd.you_hear": "Bạn nghe",

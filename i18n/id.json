@@ -1284,6 +1284,8 @@
  "fnd.how": "Untuk setiap kalimat: ketuk Dengar, baca terjemahan di bawahnya, lalu Rekam saat Anda mengucapkannya. Tiga kalimat terekam, hari selesai.",
  "fnd.hear": "Dengar",
  "fnd.slow": "Pelan",
+ "fnd.mine":"Putar rekaman saya",
+ "fnd.mine_none":"Belum ada rekaman untuk kalimat ini.",
  "fnd.record": "Rekam",
  "fnd.record_again": "Rekam lagi",
  "fnd.you_hear": "Anda mendengar",

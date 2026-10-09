@@ -2344,6 +2344,12 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
    says the state (so the icons never swap to a tick). */
 .sv-sh-tg{gap:10px}
 .sv-wt-tg{margin:0 0 10px}
+/* floated by svWtFloatSync once the row is under the pinned video: a column on
+   the right edge, just above the foot bar (circle + its padding + safe area) */
+.sv-wt-tg.float{position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right));margin:0;flex-direction:column;align-items:flex-end;
+  bottom:calc(clamp(36px,10.5vw,48px) + 34px + env(safe-area-inset-bottom));padding:6px;border-radius:28px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);box-shadow:0 4px 16px rgba(0,0,0,.18);animation:fade .15s}
+.sv-wt-tg.float .sv-sh-t{background:var(--card2)}
 .sv-sh-tg .sv-sh-t>span:not(.lang-ic){display:none}
 .sv-sh-tg .sv-sh-t{flex:none;width:44px;min-height:44px;padding:0;justify-content:center;gap:0}
 .sv-sh-tg .sv-sh-t svg{width:18px;height:18px}
@@ -8908,6 +8914,8 @@ const I18N_EN={
  "fnd.how":"For each sentence: tap Hear, read the French underneath, then Record yourself saying it. All three recorded finishes the day.",
  "fnd.hear":"Hear",
  "fnd.slow":"Slow",
+ "fnd.mine":"Play my recording",
+ "fnd.mine_none":"No recording of this sentence yet.",
  "fnd.record":"Record",
  "fnd.record_again":"Record again",
  "fnd.you_hear":"You hear",
@@ -14890,7 +14898,7 @@ function shv3Observe(){
   }
   if(_shv3RO)[w.querySelector(".sh-work-body"),w.querySelector(".sh-stick"),document.getElementById("shv3Bar")].forEach(e=>{if(e)_shv3RO.observe(e)});
   const body=w.querySelector(".sh-work-body");
-  if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>shv3ScrollDraw(true),{passive:true})}
+  if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>{shv3ScrollDraw(true);svWtFloatSync()},{passive:true})}
   shv3Measure();
 }
 /* the app-wide scroll thumb (see .app-scroll): one listener, in the capture
@@ -22377,7 +22385,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v654";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v655";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -26428,6 +26436,7 @@ function svRender(){
     ${svMode==="shadow"&&timed?`<div class="sv-ctl"><button class="btn-primary sv-shadow-this" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button></div>`:""}
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
+  svWtFloatSync();
   const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first
   svNowDraw(keep,true,-1);
   if(svMode==="watch"){svWtCur=-1;const p=svParaOf(keep);svWatchDraw(p?svParas(a).indexOf(p):0)}
@@ -26807,11 +26816,24 @@ let svWtCur=-1;
 function svWtTogglesHTML(){
   if(!svOn())return "";
   const ipaOn=svShIpaOn();
-  return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
+  return `<div class="sv-wt-slot"><div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
     ${svTrBtnHTML("svWtTrBtn")}
     <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic("waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
     ${shVidSaveBtnHTML()}
-  </div>`;
+  </div></div>`;
+}
+/* Once the row has scrolled up under the pinned video, it floats as a column
+   on the right, above the foot bar, so translate / language / IPA / save stay
+   in reach while the talk scrolls (owner, 9 Oct 2026). The same buttons move —
+   no copy — so every sync-by-id keeps working; the slot keeps the row's height
+   so the list does not jump when it lifts out. */
+function svWtFloatSync(){
+  const w=document.getElementById("shWork"),row=w&&w.querySelector(".sv-wt-tg");if(!row)return;
+  const slot=row.parentElement,st=w.querySelector(".sh-stick");
+  const on=!!(w.dataset.v3&&w.dataset.svmode==="watch"&&st&&slot.offsetParent&&slot.getBoundingClientRect().bottom<st.getBoundingClientRect().bottom+4);
+  if(on===row.classList.contains("float"))return;
+  if(on)slot.style.minHeight=slot.offsetHeight+"px";else slot.style.minHeight="";
+  row.classList.toggle("float",on);
 }
 /* Save this video to Your videos, from the Watch page (owner, 27 Sep 2026):
    a library video as a saved video, a YouTube link as a YouTube video — each
@@ -31512,12 +31534,20 @@ window.fndRecord=(day,i)=>{
     const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
     if(dayDone)setTimeout(rmCelebrate,500);
   },blob=>{
+    /* the learner hears their own take the moment they stop (owner, 9 Oct
+       2026); the play button beside Slow replays it any time after */
+    exPlayBlob(blob);
     fbAssess(blob,en).then(r=>{
       if(!r||!r.words||!r.words.length)return;
       _fndScores[day+"-"+i]=r;
       fndDrawScore(i,r);
     }).catch(()=>{});
   });
+};
+/* the newest take of this sentence, from the recordings store (newest first) */
+window.fndPlayMine=async(day,i)=>{
+  const r=(await getRecs(fndRecCtx(day,i)))[0];
+  if(r&&r.blob)exPlayBlob(r.blob);else toast(t("fnd.mine_none"));
 };
 function fndDrawScore(i,r){
   const box=document.getElementById("fndRes"+i);if(!box)return;
