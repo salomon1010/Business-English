@@ -2350,6 +2350,12 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
   bottom:calc(clamp(36px,10.5vw,48px) + 34px + env(safe-area-inset-bottom));padding:6px;border-radius:28px;
   background:color-mix(in srgb,var(--bg) 82%,transparent);box-shadow:0 4px 16px rgba(0,0,0,.18);animation:fade .15s}
 .sv-wt-tg.float .sv-sh-t{background:var(--card2)}
+/* width from the buttons, never from the row's old place in the page (a fixed box
+   with only `right` set shrinks to the room left of it, which stacked the flag
+   over FR on the owner's phone); the flag + language pill always stays one row */
+.sv-wt-tg.float{width:max-content;max-width:none}
+.sv-wt-tg.float .sv-tr-grp{flex-direction:row;flex-wrap:nowrap;flex-shrink:0;width:max-content}
+.sv-wt-tg.float .sv-tr-grp>*{flex:none}
 .sv-sh-tg .sv-sh-t>span:not(.lang-ic){display:none}
 .sv-sh-tg .sv-sh-t{flex:none;width:44px;min-height:44px;padding:0;justify-content:center;gap:0}
 .sv-sh-tg .sv-sh-t svg{width:18px;height:18px}
@@ -22385,7 +22391,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v655";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v656";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
