@@ -174,8 +174,9 @@ console.log("\n# iOS boundary, tracks, layout");
   SUBS.set("tok_ivo_" + "i".repeat(20), gsub());
   ({ ctx, p } = await open({ uid: "ivo", track: "welding" }));
   await p.evaluate(() => { __play.next = { token: "tok_ivo_" + "i".repeat(20), cancel: false }; }); await p.evaluate(() => Billing.buy("premium_monthly"));
-  const w = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null }));
-  ok("B17 · Welding: Premium applies to the account; no General-English feature appears (Practice Partner, Shadow V2)", w.prem && !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
+  /* Shadow V2 on Welding comes from the Welding studio (production ON since be12-v654), never from Premium */
+  const w = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null, studio: typeof weldStudioOn === "function" ? weldStudioOn() : null }));
+  ok("B17 · Welding: Premium applies to the account; no General-English feature appears (no Practice Partner; Shadow V2 only through the Welding studio)", w.prem && !w.ge && !w.pp && w.sv === w.studio, JSON.stringify(w));
   await ctx.close();
   for (const [theme, vp] of [["dark", { width: 375, height: 667 }], ["light", { width: 390, height: 844 }]]) {
     ({ ctx, p } = await open({ uid: "jo" + theme, vp }));

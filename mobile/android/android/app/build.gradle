@@ -46,6 +46,8 @@ dependencies {
     // AdMob + Google's consent tool (UMP), as on iOS (BEAdsPlugin)
     implementation "com.google.android.gms:play-services-ads:24.6.0"
     implementation "com.google.android.ump:user-messaging-platform:3.2.0"
+    // Play Billing Library 8 (required for app updates from 31 Aug 2026), as the TWA used through androidbrowserhelper
+    implementation "com.android.billingclient:billing:8.0.0"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

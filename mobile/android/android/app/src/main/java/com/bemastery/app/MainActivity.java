@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         // the app's own plugins, registered before the bridge starts (as BEBridgeViewController does on iOS)
         registerPlugin(BEAdsPlugin.class);
+        registerPlugin(BEPlayBillingPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

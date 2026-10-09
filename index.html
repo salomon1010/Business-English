@@ -25417,14 +25417,22 @@ function beNativeBilling(){
    Same ids as BEStoreKitPlugin.allowed and the server's PRODUCTS. */
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
+/* The Android shell's Play Billing (BEPlayBillingPlugin.java, 9 Oct 2026). It answers
+   in the Digital Goods shapes below, so the evidence sent to our server is the same
+   {provider:"google_play",productId,purchaseToken}; the SERVER acknowledges. */
+function bePlayNative(){try{if(!IS_ANDROID_APP)return null}catch(e){return null}const P=capPlugin("BEPlayBilling");return P&&typeof P.purchase==="function"?P:null}
 const BillingProviders={
   play:{
-    id:"google_play",_svc:null,
+    id:"google_play",_svc:null,_native:null,
     async available(){
-      if(IS_IOS_APP||typeof window.getDigitalGoodsService!=="function"||typeof window.PaymentRequest!=="function")return false;
+      if(IS_IOS_APP)return false;
+      const N=bePlayNative();
+      if(N){try{const r=await N.available();if(r&&r.ok){this._native=N;return true}}catch(e){}return false}
+      if(typeof window.getDigitalGoodsService!=="function"||typeof window.PaymentRequest!=="function")return false;
       try{this._svc=this._svc||await window.getDigitalGoodsService(PLAY_BILLING_METHOD);return !!this._svc}catch(e){return false}   /* rejects outside a Play-billed TWA */
     },
     async products(){
+      if(this._native){const r=await this._native.products({ids:BILLING_PRODUCTS.slice()});return (r&&Array.isArray(r.products))?r.products:[]}
       const d=await this._svc.getDetails(BILLING_PRODUCTS.slice());
       /* the store's own facts, for display: period / trial are ISO 8601 durations
          (Digital Goods API ItemDetails); absent fields stay absent, never guessed */
@@ -25432,6 +25440,13 @@ const BillingProviders={
         amount:Number(x.price&&x.price.value),currency:x.price&&x.price.currency,period:x.subscriptionPeriod||"",trial:x.freeTrialPeriod||""}));
     },
     async purchase(id){
+      if(this._native){
+        let r;try{r=await this._native.purchase({id})}catch(e){return {error:String(e&&e.message||e)}}
+        if(!r||r.cancelled)return {cancelled:true};
+        if(!r.purchaseToken)return r.owned?{error:"already_owned"}:{error:r.error||"billing_failed"};
+        /* nothing to complete on the device: our server verifies and acknowledges */
+        return {evidence:{provider:"google_play",productId:r.productId||id,purchaseToken:r.purchaseToken},finish:()=>{}};
+      }
       /* the amount is Play's to decide; Payment Request requires a placeholder total */
       const req=new PaymentRequest([{supportedMethods:PLAY_BILLING_METHOD,data:{sku:id}}],{total:{label:"Total",amount:{currency:"USD",value:"0"}}});
       let resp;try{resp=await req.show()}catch(e){return {cancelled:true}}
@@ -25439,10 +25454,12 @@ const BillingProviders={
          reached — the payment may well have gone through, so never say "fail" */
       return {evidence:{provider:"google_play",productId:id,purchaseToken:resp.details&&resp.details.purchaseToken},finish:ok=>{try{resp.complete(ok==="unknown"?"unknown":ok?"success":"fail")}catch(e){}}};
     },
-    async restore(){const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
-    /* what this device owns, with no prompt — Play's listPurchases is silent */
+    async restore(){
+      if(this._native){const r=await this._native.owned();return ((r&&r.items)||[]).filter(p=>BILLING_PRODUCTS.includes(p.productId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.productId}))}
+      const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
+    /* what this device owns, with no prompt — Play's listPurchases / queryPurchases are silent */
     async owned(){return this.restore()},
-    manage(product){window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
+    manage(product){if(this._native){try{this._native.manage({product:product||""})}catch(e){}return}window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
   },
   storekit:{
     id:"app_store",
@@ -31464,6 +31481,7 @@ function rFoundations(el,dayArg){
       <div class="fnd-acts">
         <button class="btn btn-g" onclick="fbSay(${jarg(en)},.92)">${ic("sound")} ${t("fnd.hear")}</button>
         <button class="btn btn-g" onclick="fbSay(${jarg(en)},.7)">${ic("sound")} ${t("fnd.slow")}</button>
+        ${recDone[i]?`<button class="btn btn-g fnd-mine" onclick="fndPlayMine(${day},${i})" aria-label="${esc(t("fnd.mine"))}" title="${esc(t("fnd.mine"))}">${ic("play")}</button>`:""}
         <button class="btn ${recDone[i]?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})">${ic("mic")} ${t(recDone[i]?"fnd.record_again":"fnd.record")}</button>
       </div>
       <div class="fnd-result" id="fndRes${i}">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
