@@ -385,6 +385,36 @@ console.log("\n# history — saved with the progress, grouped and folded");
   ok("HI10 · after a reload the history is still there", await p.evaluate(n => WMUI._state().hist.length === n, sync.local));
 }
 
+console.log("\n# Home, recommendations and the widget — the game is part of the app, not hidden in Practice");
+{
+  const H = await open("welding");
+  const { p } = H;
+  await p.evaluate(() => go("home")); await sleep(900);
+  const h = await p.evaluate(() => { const tile = document.querySelector('.hx-dcard[data-dest="mastery"]'); return { tile: !!tile, img: tile && tile.querySelector("img") && tile.querySelector("img").getAttribute("src"), txt: tile && tile.textContent, hero: (_homeRecs || []).some(r => r.kind === "mastery"), row: (_homeRows || []).some(r => r.id === "games" && r.items.length >= 2), rowCards: document.querySelectorAll('.hx-rcard[data-type="game"]').length }; });
+  ok("E1 · Home › Explore has a Welding Mastery tile with the game's logo", h.tile && /welding-mastery-logo\.svg/.test(h.img || "") && /Welding Mastery/.test(h.txt || ""), JSON.stringify(h));
+  ok("E2 · the recommendation engine offers the game: today's shift as a recommendation, and a games row", h.hero && h.row && h.rowCards >= 2, JSON.stringify(h));
+  await click(p, '.hx-dcard[data-dest="mastery"]'); await sleep(800);
+  ok("E3 · the Explore tile opens the hub", await p.evaluate(() => cur.v === "mastery" && !!document.querySelector(".wm-hub")));
+  await p.evaluate(() => go("home")); await sleep(800);
+  await p.evaluate(() => nudgeGo({ view: "mastery", act: "listen" })); await sleep(1500);
+  ok("E4 · a game recommendation (nudgeGo mastery/listen) opens that exact game", await p.evaluate(() => cur.v === "mastery" && WMUI._game() && WMUI._game().mode === "listen"));
+  await p.evaluate(() => WMUI._act("gclose"));
+  await p.evaluate(() => nudgeGo({ view: "mastery", act: "shift" })); await sleep(1500);
+  ok("E5 · the shift recommendation starts today's shift", await p.evaluate(() => WMUI._game() && WMUI._game().mode === "cards"));
+  await p.evaluate(() => WMUI._act("gclose"));
+  const snap = await p.evaluate(() => widgetSnapshot());
+  ok("E6 · the widget snapshot carries the game block on Welding (mastered, level, XP, streak, shift)", snap.wm && snap.wm.total === 250 && typeof snap.wm.lvl === "number" && snap.wm.shift && snap.wm.labels.title === "Welding Mastery", JSON.stringify(snap.wm));
+  ok("E7 · the game block is small (< 1 KB)", JSON.stringify(snap.wm).length < 1024, JSON.stringify(snap.wm).length);
+  ok("E8 · a widget tap on the game (view mastery) opens the hub", await p.evaluate(() => { go("home"); return widgetOpenRoute({ view: "mastery" }) && cur.v === "mastery"; }));
+  ok("E9 · no page errors", H.errs.length === 0, H.errs.join(" | "));
+  await H.ctx.close();
+  const G = await open("general-english");
+  await G.p.evaluate(() => go("home")); await sleep(900);
+  const g = await G.p.evaluate(() => ({ tile: !!document.querySelector('.hx-dcard[data-dest="mastery"]'), hero: (_homeRecs || []).some(r => r.kind === "mastery"), row: (_homeRows || []).some(r => r.id === "games"), wm: widgetSnapshot().wm }));
+  ok("E10 · General English: no tile, no game recommendation, no games row, no widget block", !g.tile && !g.hero && !g.row && g.wm === undefined, JSON.stringify(g));
+  await G.ctx.close();
+}
+
 console.log("\n# isolation — General English sees and stores none of it");
 {
   const G = await open("general-english");

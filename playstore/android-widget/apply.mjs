@@ -61,6 +61,11 @@ const RECS = `
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 `;
 
+/* the Welding Mastery game widget (owner, 9 Oct 2026): its own receiver and guard */
+const MASTERY = `
+        <!-- BE Mastery Welding Mastery widget -->`
+  + receiver("BEWidgetMasteryProvider", "be_widget_name_mastery", "be_widget_info_mastery");
+
 const HOOKS = `
     /* BE Mastery home-screen widget (playstore/android-widget): the page
        publishes its snapshot shortly after a launch and when it is left, so
@@ -83,6 +88,7 @@ export function patchManifest(xml) {
   if (!/android\.permission\.INTERNET/.test(out)) out = out.replace(/(<manifest\b[^>]*>)/, `$1\n\n    <uses-permission android:name="android.permission.INTERNET" />\n`);
   if (!/\.widget\.BEWidgetProvider"/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECEIVER}    </application>`);
   if (!/BEWidgetRecsProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECS}    </application>`);
+  if (!/BEWidgetMasteryProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${MASTERY}    </application>`);
   return out;
 }
 

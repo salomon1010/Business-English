@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=88"></script>
-<script src="nudge-engine.js?v=5"></script>
+<script src="nudge-engine.js?v=6"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=84"></script>
 <script src="shadow-sync.js?v=8"></script>
@@ -80,9 +80,9 @@
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
 <!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
-<link rel="stylesheet" href="welding-mastery.css?v=1">
+<link rel="stylesheet" href="welding-mastery.css?v=2">
 <script src="welding-mastery-engine.js?v=1"></script>
-<script src="welding-mastery.js?v=1"></script>
+<script src="welding-mastery.js?v=2"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -12757,9 +12757,11 @@ function homeV2On(){try{return flag("home_v2_enabled")&&(isGeneralEnglish()||wel
 function homeSignals(){
   const sig=nudgeSignals();
   if(!isGeneralEnglish()){sig.home=true;sig.partner={};sig.aiCoach=false}
+  /* Welding Mastery: the game is part of what Home recommends (Welding only, flag welding_mastery_enabled) */
+  try{if(window.WMUI&&WMUI.on())sig.wm=WMUI.signals()}catch(e){}
   return sig;
 }
-const HOME_KIND_ICON={lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
+const HOME_KIND_ICON={mastery:"trophy",lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
 function homeReasonKey(r){const x=String(r&&r.reason||"");return x.startsWith("inactive_")?"inactive":x.startsWith("words_due")?"words_due":x.startsWith("trouble_words")?"trouble_words":x.startsWith("partner_waiting")?"partner_waiting":x.startsWith("streak_at_risk")?"streak_at_risk":x.startsWith("no_partner")?"no_partner":x}
 /* every recommendation for this learner now, best first — the push engine's own ranking */
 function homeRecs(){
@@ -12784,6 +12786,9 @@ function homeCard(r){
       sub:wk.theme&&wk.theme!==day.focus?wk.theme:"",meta:meta.k?dayTypeLabel(d):"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
       cta:t(k==="comeback"?"home.cta_restart":first&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r,w,d};
   }
+  if(k==="mastery"&&window.WMUI){const x=WMUI.heroText(r);
+    return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,sub:why===("home.why_"+homeReasonKey(r))?"":why,meta:x.meta,metaIc:"trophy",desc:x.body,why:"",minutes:r.minutes,
+      cta:x.cta,go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic:"welding vocabulary game",rec:r,prem:false};}
   const x=nudgeText(r);
   const verb={words:"home.cta_review",challenge:"home.cta_challenge",shadow:"home.cta_shadow",partner_now:"home.cta_partner",partner_streak:"home.cta_partner",ai_coach:"home.cta_coach"}[k]||"home.cta_continue";
   const topic={words:"words vocabulary",challenge:(r.vars&&r.vars.title||"")+" pronunciation shadow",shadow:"pronunciation shadow",partner_now:"conversation partner",partner_streak:"conversation partner",ai_coach:"conversation coach"}[k]||"";
@@ -12867,9 +12872,9 @@ const HOME_PREM_KINDS=Object.freeze(["shadow","challenge"]);
 const HOME_PREM_ITEMS=Object.freeze(["video","challenge"]);
 function homeRecLocked(kind){return HOME_PREM_KINDS.indexOf(String(kind))>=0&&entLocked("recommended_content")}
 function homeItemLocked(it){return !!it&&(HOME_PREM_ITEMS.indexOf(String(it.type))>=0||!!it.external)&&entLocked("recommended_content")}
-const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
+const HOME_ROW_ICON={game:"trophy",challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
 /* the row's own mark: what kind of evidence it rests on */
-const HOME_ROWKIND_ICON={watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
+const HOME_ROWKIND_ICON={games:"trophy",watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
 /* every card that has no video shows the page it opens (owner, 27 Sep 2026: "where there is no
    picture, a screenshot of that feature"). home-shots/*.jpg are 16:9 clips of the app's own pages
    from the demo learner "Alex" (tests/home-shots.mjs): a lesson day, the word list, trouble words,
@@ -12878,6 +12883,7 @@ const HOME_SHOT={session:"session",words:"vocab",trouble:"trouble",phrases:"phra
   lesson:"session",comeback:"session",done:"session",placement:"session",foundations:"session",shadow:"trouble",partner_now:"partner",partner_streak:"partner",ai_coach:"ai",challenge:"trouble",roleplay:"ai"};
 function homeShot(k){return HOME_SHOT[k]?`home-shots/${HOME_SHOT[k]}.jpg`:""}
 function homeItemLine(it){
+  if(it.type==="game"&&window.WMUI)return WMUI.itemLine(it);
   switch(it.type){
     case "challenge":return t("home.it_challenge");
     case "video":return t(it.saved?"home.it_saved_clip":"home.it_video");
@@ -12892,6 +12898,7 @@ function homeItemLine(it){
   return "";
 }
 function homeItemTitle(it){
+  if(it.type==="game"&&window.WMUI)return WMUI.itemTitle(it);
   if(it.title)return NudgeEngine.clipTitle?NudgeEngine.clipTitle(it.title):it.title;
   if(it.type==="words")return t(it.saved?"home.it_words_saved_t":"home.it_words_t");
   if(it.type==="phrases")return t("home.it_phrases_wt",{w:it.w});
@@ -12907,7 +12914,7 @@ function homeRowKey(r){
 function homeRowCardHTML(r,it,i){
   /* a clip shows its thumbnail, a role-play its character's portrait, anything else the page it opens */
   const rp=it.type==="roleplay"?(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})():null;
-  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:homeShot(it.type);
+  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:it.type==="game"&&window.WMUI?WMUI.LOGO_URL:homeShot(it.type);
   const img=src?`<img src="${src}" alt="" loading="lazy" decoding="async"${it.vid||rp?"":' class="hx-shot"'} onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
   const lock=homeItemLocked(it);
@@ -12940,7 +12947,7 @@ function homeRowsHTML(rows){
   return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
     <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
       ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
-      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx"><h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p></div></div>
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx">${r.id==="games"&&window.WMUI?(()=>{const g=WMUI.rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div></div>
       ${lk?homeRowsPremHTML():`<div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>`}
     </div>`}).join("")}</section>`;
 }
@@ -13170,6 +13177,7 @@ function homeRecDest(c){
     if(L&&["shadow","phrases","practice","partner","review"].includes(L.v)){const lines=sessDest(L.v)==="lines";
       return {dest:lines?"lines":L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:lines?t("tools.lines_sub"):t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})}}
     return {dest:"journey",go:c.go,line:c.title,ctx:c.kicker||""}}
+  if(k==="mastery")return {dest:"mastery",go:c.go,line:c.desc,ctx:c.title};
   const m={words:"practice",challenge:"shadow",shadow:"shadow",partner_now:"partner",partner_streak:"partner",ai_coach:"partner"}[k];
   return m?{dest:m,go:c.go,line:c.sub||c.desc,ctx:c.title}:null;
 }
@@ -13193,6 +13201,8 @@ function homeDestHTML(top,cards,vis){
     convo:weldStudioOn()?{ic:"chat",t:t("home.d_sim_t"),s:t("home.d_sim"),go:"go('simulation')",img:wp("convo"),art:1}:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
     lines:weldStudioOn()?{ic:"doc",t:t("tools.lines"),s:t("tools.lines_sub"),go:"go('lines')",img:"home-shots/trouble.jpg",art:0}:null,
     grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:wp?wp("grammar"):"home-photos/grammar.jpg?v=3",art:1},
+    /* Welding Mastery: its own place in Explore, with the game's logo (Welding only) */
+    mastery:window.WMUI&&WMUI.on()?WMUI.exploreTile():null,
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:wp?wp("progress"):"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
@@ -13203,7 +13213,7 @@ function homeDestHTML(top,cards,vis){
   /* every Explore card is the same size (owner, 28 Sep 2026): the primary recommendation's
      place leads the grid with its deep link and its words — no big card, no tag line. */
   const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
-  const order=["shadow","partner","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
+  const order=["shadow","partner","mastery","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
   const rank=id=>id===primId?2:taken[id]?1:0;
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}"${r?` aria-label="${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}: ${esc(d.t)}"`:""} onclick="${r?r.go:d.go}">
@@ -18158,6 +18168,8 @@ function widgetSnapshot(){
     v:1,at:Date.now(),lang,dir:["ar","ur"].includes(lang)?"rtl":"ltr",
     gate:widgetGate(),
     recs:widgetRecs(),
+    /* the Welding Mastery widget's block — Welding only, absent everywhere else */
+    wm:safe(()=>pro&&window.WMUI&&WMUI.on()?WMUI.widgetData():undefined,undefined),
     theme:document.documentElement.getAttribute("data-theme")==="light"?"light":"dark",
     area:pro?"pro":"ge",
     programme:key(pro?"area.name_pro":"area.name_gen",null,pro?"Welding English":"General English"),
@@ -18233,9 +18245,9 @@ function widgetFeedBoot(){
 /* A tap on the widget: the plugin has already reduced the URL to a known
    view and, at most, a week, a day and an action. The same destinations the
    nudges reach, so a widget tap behaves like a notification tap. */
-const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases"];
+const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases","mastery"];
 /* the kinds of place a recommendation can open (nudgeGo's own views) */
-const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay"];
+const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay","mastery"];
 function widgetOpenRoute(d){
   if(!d||typeof d!=="object")return false;
   /* a locked widget: the sign-in sheet, or the Premium offer where it exists */
@@ -18252,6 +18264,7 @@ function widgetOpenRoute(d){
     if(v==="foundations"){if(d.w)go("foundations",Number(d.w));else go("foundations");return true}
     if(v==="practice"){go("practice");if(d.act==="words")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(v==="journey"){_rmReturn=true;go("journey");return true}
+    if(v==="mastery"){if(window.WMUI&&WMUI.on()){if(d.act==="shift")WMUI.play("shift");else go("mastery")}else go("practice");return true}
     go(v);return true;
   }catch(e){return false}
 }
@@ -18633,6 +18646,8 @@ function nudgeGo(r){
       return true}
     if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
     if(r.view==="phrases"){go("phrases");return true}
+    /* Welding Mastery: the hub on that game, or on today's shift */
+    if(r.view==="mastery"){return !!(window.WMUI&&WMUI.play(String(r.act||"")))}
     /* a week's expressions: the phrase bank on that exact week */
     if(r.view==="phrasebank"){go("phrasebank",Number(r.args&&r.args[0])||currentPos().w);return true}
     /* a role-play scenario: that exact conversation */

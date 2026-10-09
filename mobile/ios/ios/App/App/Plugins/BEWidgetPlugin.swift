@@ -118,14 +118,15 @@ final class BEWidgetBox {
     weak var plugin: CAPPlugin?
     private var pending: [String: Any]?
 
-    static let views: Set<String> = ["session", "journey", "practice", "shadow", "review", "home", "foundations", "lines", "phrases"]
+    static let views: Set<String> = ["session", "journey", "practice", "shadow", "review", "home", "foundations", "lines", "phrases", "mastery"]
     static let days: Set<String> = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     /// `signin` / `premium`: a tap on a locked widget (owner, 6 Oct 2026).
-    static let acts: Set<String> = ["words", "today", "roadmap", "signin", "premium"]
+    static let acts: Set<String> = ["words", "today", "roadmap", "signin", "premium", "shift"]
     /// A recommendation's destination: the places a Home card can open, and the
     /// actions those places take (index.html `nudgeGo`).
-    static let recViews: Set<String> = ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay"]
-    static let recActs: Set<String> = ["clip", "trouble", "study-due", "ai"]
+    static let recViews: Set<String> = ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "mastery"]
+    /// "mastery": today's shift or one of the Welding Mastery games.
+    static let recActs: Set<String> = ["clip", "trouble", "study-due", "ai", "shift", "cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop"]
 
     /// True when the URL was ours (and has been routed); false hands it on.
     @discardableResult

@@ -18,5 +18,8 @@
     <string name="be_widget_desc_recs">Everything BE Mastery recommends for you — videos, challenges and practice — one tap from your home screen. Premium.</string>
     <string name="be_widget_recs_h">Recommended for you</string>
     <string name="be_widget_recs_none">Practise a little — your recommendations will appear here.</string>
+    <string name="be_widget_name_mastery">Welding Mastery</string>
+    <string name="be_widget_desc_mastery">Words mastered, your level, XP and today\'s shift in the welding vocabulary game.</string>
+    <string name="be_widget_wm_empty">Open Welding Mastery in BE Mastery to start.</string>
     <dimen name="be_widget_radius">22dp</dimen>
 </resources>

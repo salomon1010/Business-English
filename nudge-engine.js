@@ -18,7 +18,7 @@
      and how long a swipe-away silences it — mirrored by be-push, which is the
      authority (the device may be offline or wiped) */
   const KIND_COOLDOWN = 48 * H, DISMISS_COOLDOWN = 7 * DAY;
-  const KINDS = ["lesson", "comeback", "words", "challenge", "shadow", "partner_now", "partner_streak", "ai_coach"];
+  const KINDS = ["lesson", "comeback", "words", "challenge", "shadow", "partner_now", "partner_streak", "ai_coach", "mastery"];
 
   function rec(o) {
     return Object.assign({ confidence: 0.8, minutes: 5, expiresInMs: DAY, delayMs: null, args: [], act: null, curriculum: null }, o);
@@ -66,6 +66,16 @@
       out.push(rec({ kind: "ai_coach", reason: "no_partner_" + (p.daysSincePartner == null ? "never" : Math.min(p.daysSincePartner, 30) + "d"), skill: "communication", activity: "ai_coach", view: "partner", act: "ai",
         priority: 45, confidence: 0.7, minutes: 5, vars: {} }));
     }
+    /* Welding Mastery (Welding Home only — s.wm exists only where the game does):
+       today's shift while it is open, else words due in the game */
+    const wm = s.wm;
+    if (wm && wm.shift && !wm.shift.done) {
+      out.push(rec({ kind: "mastery", reason: "wm_shift_" + String(wm.shift.kind || "start5").slice(0, 12), skill: "vocabulary", activity: "welding_mastery", view: "mastery", act: "shift",
+        priority: 58, confidence: 0.9, minutes: 5, vars: { kind: wm.shift.kind || "start5", prog: wm.shift.prog || 0, target: wm.shift.target || 5 } }));
+    } else if (wm && (wm.due || 0) >= 5) {
+      out.push(rec({ kind: "mastery", reason: "wm_due_" + Math.min(wm.due, 99), skill: "vocabulary", activity: "welding_mastery", view: "mastery", act: "cards",
+        priority: 50 + Math.min(wm.due, 10), confidence: 0.85, minutes: 5, vars: { n: wm.due } }));
+    }
     return out;
   }
   /* rank: priority × confidence, + 15 when it trains the weakest competency,
@@ -101,6 +111,7 @@
       case "partner_now": return !(s.partner && s.partner.available && s.partner.waiting >= 1);
       case "partner_streak": return !!(s.partner && s.partner.practisedThisWeek);
       case "ai_coach": return !!(s.partner && s.partner.daysSincePartner === 0);
+      case "mastery": return !s.wm || (r.act === "shift" ? !s.wm.shift || !!s.wm.shift.done : (s.wm.due || 0) < 5);
       default: return true;
     }
   }
@@ -176,7 +187,7 @@
      feature. The rows are ranked by the strength of the signal (need,
      unfinished work, recency, difficulty) — the same learner state the hero
      and the push nudges read, no second engine. */
-  const ROW_IDS = ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner", "inactive"];
+  const ROW_IDS = ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner", "inactive", "games"];
   const MAX_ROWS = 8, MAX_ITEMS = 3;
   /* a clip title as a row heading quotes it: no leading emoji, cut at a word, at most ~56 characters */
   function clipTitle(t) {
@@ -308,7 +319,19 @@
     }
     /* the empty state: with fewer than two evidence rows, a curriculum row "Recommended for your
        level" — the shadow starters and short human-captioned clips — never a "because you" */
-    const evidence = out.filter(r => r.id !== "learning").length;
+    /* 9 · WELDING MASTERY — the game is part of what Home recommends (owner, 9 Oct 2026):
+       today's shift, the game the learner's own results point to, then one they have not
+       tried. Built only from s.wm (the game's record); never a word of free text. */
+    const wm = s.wm;
+    if (wm && wm.mode) {
+      const modes = [], add = m => { if (m && !modes.includes(m) && modes.length < MAX_ITEMS) modes.push(m); };
+      if (wm.shift && !wm.shift.done) add("shift");
+      add(wm.mode); (wm.untried || []).forEach(add); ["quiz", "visual", "workshop"].forEach(add);
+      const items = modes.map(m => item({ type: "game", view: "mastery", act: m, title: "", cid: "wm-" + m, mode: m }));
+      push({ id: "games", variant: wm.why || "keep", reason: "wm_" + (wm.why || "keep"), score: wm.shift && !wm.shift.done ? 47 : 36,
+        vars: { strong: wm.strong || "", weak: wm.weak || "", n: wm.due || 0 }, items });
+    }
+    const evidence = out.filter(r => r.id !== "learning" && r.id !== "games").length;
     if (evidence < 2) {
       const items = [];
       /* levelProf (Welding): the row names one profession, so only that profession's clips go in it */

@@ -77,6 +77,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
         AppWidgetManager mgr = AppWidgetManager.getInstance(c);
         for (Class<?> p : PROVIDERS) drawAll(c, mgr, ids(c, p), areaOf(p));
         BEWidgetRecsProvider.drawEverything(c);   // the Recommendations widget reads the same snapshot
+        BEWidgetMasteryProvider.drawEverything(c); // the Welding Mastery widget reads the Welding one
     }
 
     static void drawAll(Context c, AppWidgetManager mgr, int[] ids, String area) {
@@ -97,7 +98,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
 
     static boolean anyPlaced(Context c) {
         for (Class<?> p : PROVIDERS) if (ids(c, p).length > 0) return true;
-        return BEWidgetRecsProvider.ids(c).length > 0;
+        return BEWidgetRecsProvider.ids(c).length > 0 || BEWidgetMasteryProvider.ids(c).length > 0;
     }
 
     /** Redraw every placed widget now, fetching first. Safe when none is placed. */

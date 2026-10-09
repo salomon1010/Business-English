@@ -36,8 +36,9 @@ const str = (v, n) => (typeof v === "string" ? v.replace(/[\u0000-\u001f]/g, "")
 const int = (v, lo, hi) => (Number.isFinite(+v) ? Math.max(lo, Math.min(hi, Math.round(+v))) : undefined);
 const obj = (v, f) => (v && typeof v === "object" && !Array.isArray(v) ? f(v) : undefined);
 const clean = o => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));
-const REC_VIEWS = new Set(["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay"]);
-const REC_ACTS = new Set(["clip", "trouble", "study-due", "ai"]);
+const REC_VIEWS = new Set(["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "mastery"]);
+/* "mastery" (Welding Mastery): today's shift or one of its eight games */
+const REC_ACTS = new Set(["clip", "trouble", "study-due", "ai", "shift", "cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop"]);
 const REC_IMG = /^(https:\/\/(i\.ytimg\.com|img\.youtube\.com)\/vi\/[A-Za-z0-9_-]{11}\/[a-z]+\.jpg|(home-shots|rp-photos)\/[A-Za-z0-9_-]{1,60}\.jpg)$/;
 export function shapeSnap(s) {
   if (!s || typeof s !== "object" || Array.isArray(s) || s.v !== 1) return null;
@@ -71,6 +72,13 @@ export function shapeSnap(s) {
       go: obj(r.go, g => clean({ view: REC_VIEWS.has(g.view) ? g.view : undefined, act: REC_ACTS.has(g.act) ? g.act : undefined,
         a: Array.isArray(g.a) ? g.a.slice(0, 3).filter(x => typeof x === "string" && /^[A-Za-z0-9_.:-]{1,40}$/.test(x)) : undefined, ch: g.ch === true ? true : undefined })),
     }) : null).filter(Boolean) : undefined,
+    /* the Welding Mastery widget's block (9 Oct 2026): numbers, one shift title, a few labels — nothing else */
+    wm: s.area === "pro" ? obj(s.wm, w => clean({
+      m: int(w.m, 0, 9999), total: int(w.total, 0, 9999), lvl: int(w.lvl, 1, 999), xp: int(w.xp, 0, 9_999_999), need: int(w.need, 0, 9_999_999),
+      pct: int(w.pct, 0, 100), streak: int(w.streak, 0, 9999), next: str(w.next, 40),
+      shift: obj(w.shift, x => clean({ t: str(x.t, 80), p: int(x.p, 0, 99), n: int(x.n, 0, 99), done: x.done === true })),
+      labels: obj(w.labels, L => Object.fromEntries(Object.entries(L).slice(0, 12).filter(([k, v]) => /^[a-z]{1,16}$/.test(k) && typeof v === "string").map(([k, v]) => [k, str(v, 60)]))),
+    })) : undefined,
     labels: obj(s.labels, L => Object.fromEntries(Object.entries(L).slice(0, 24).filter(([k, v]) => /^[a-z]{1,16}$/.test(k) && typeof v === "string").map(([k, v]) => [k, str(v, 80)]))),
   });
   const json = JSON.stringify(out);

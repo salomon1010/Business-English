@@ -115,6 +115,10 @@
       h_err_stage: "{{n}} words · {{o}} still to fix", h_times: "wrong {{n}}×", h_last: "last {{d}}", h_instead: "you chose instead: {{p}}",
       h_open: "To fix", h_fixed: "Right since", h_mastered: "Mastered since", h_practise_err: "Practise these errors ({{n}})",
       h_stage: "Your history in this stage", h_stage_n: "{{a}} answers · {{ok}} correct", h_stage_0: "Nothing played in this stage yet.", h_link: "See your full history",
+      r_kicker: "Welding Mastery", r_shift_t: "Today's Shift: {{m}}", r_shift_b: "{{p}} of {{n}} done · about five minutes in the game hub.", r_due_t: "{{n}} words are due in Welding Mastery", r_due_b: "A short Cards round brings them back right on time.", r_cta: "Play now",
+      row_h: "Welding Mastery — your games", row_s_first: "Start with five words, about three minutes.", row_s_gap: "Your {{strong}} is strong; {{weak}} needs practice.", row_s_due: "{{n}} words are due for review.", row_s_difficult: "Some words need another look.", row_s_try: "A game you have not tried yet is waiting.", row_s_keep: "Keep your trade words fresh.",
+      it_shift: "Today's Shift", it_game: "Game", explore_s: "250 trade words, eight games", explore_shift: "Today's Shift: {{p}}/{{n}}", explore_done: "Shift done · {{m}}/250 mastered",
+      w_title: "Welding Mastery", w_mastered: "words mastered", w_level: "Level {{n}}", w_xp: "XP", w_streak: "day streak", w_shift: "Today's Shift", w_done: "Shift complete", w_open: "Play", w_empty: "Open Welding Mastery in BE Mastery to start.",
       k_en2fr: "English → French", k_fr2en: "French → English", k_def: "Definition", k_use: "Purpose", k_ctx: "Situation", k_img: "Picture", k_card: "Card", k_listen: "Listening", k_listen_t: "Listening (typed)", k_spell: "Spelling", k_cw: "Crossword", k_ws: "Workshop", k_reply: "Reply", k_match: "Match"
     },
     fr: {
@@ -193,6 +197,10 @@
       h_err_stage: "{{n}} mots · {{o}} à corriger", h_times: "faux {{n}}×", h_last: "dernière fois {{d}}", h_instead: "tu as choisi : {{p}}",
       h_open: "À corriger", h_fixed: "Juste depuis", h_mastered: "Maîtrisé depuis", h_practise_err: "Pratiquer ces erreurs ({{n}})",
       h_stage: "Ton historique dans cette étape", h_stage_n: "{{a}} réponses · {{ok}} justes", h_stage_0: "Rien joué dans cette étape pour l'instant.", h_link: "Voir tout ton historique",
+      r_kicker: "Welding Mastery", r_shift_t: "Poste du jour : {{m}}", r_shift_b: "{{p}} sur {{n}} faits · environ cinq minutes dans le hub de jeu.", r_due_t: "{{n}} mots à réviser dans Welding Mastery", r_due_b: "Une petite série de Cartes les fait revenir au bon moment.", r_cta: "Jouer",
+      row_h: "Welding Mastery — tes jeux", row_s_first: "Commence par cinq mots, environ trois minutes.", row_s_gap: "Ta {{strong}} est solide ; ton {{weak}} demande de la pratique.", row_s_due: "{{n}} mots sont à réviser.", row_s_difficult: "Certains mots méritent un autre regard.", row_s_try: "Un jeu que tu n'as pas encore essayé t'attend.", row_s_keep: "Garde tes mots du métier frais.",
+      it_shift: "Poste du jour", it_game: "Jeu", explore_s: "250 mots du métier, huit jeux", explore_shift: "Poste du jour : {{p}}/{{n}}", explore_done: "Poste fait · {{m}}/250 maîtrisés",
+      w_title: "Welding Mastery", w_mastered: "mots maîtrisés", w_level: "Niveau {{n}}", w_xp: "XP", w_streak: "jours de série", w_shift: "Poste du jour", w_done: "Poste terminé", w_open: "Jouer", w_empty: "Ouvre Welding Mastery dans BE Mastery pour commencer.",
       k_en2fr: "Anglais → français", k_fr2en: "Français → anglais", k_def: "Définition", k_use: "Usage", k_ctx: "Situation", k_img: "Image", k_card: "Carte", k_listen: "Écoute", k_listen_t: "Écoute (écrit)", k_spell: "Orthographe", k_cw: "Mots croisés", k_ws: "Atelier", k_reply: "Réponse", k_match: "Association"
     }
   };
@@ -1138,7 +1146,55 @@
     if (e.key === "Escape") { if (document.getElementById("wmSheet")) return sheetClose(); const ov = document.getElementById("wmGame"); if (ov && ov.classList.contains("show")) gameClose(); }
   });
 
+  /* ------------------------------------------------------------ Home, recommendations, widget
+     Everything here is read from the learner's own record without the corpus
+     (Home is often the first page drawn), so nothing waits on a download. */
+  const LOGO_URL = "welding-mastery-logo.svg";
+  function todayShift(s) { const m = s.mis; return m && m.day === E.dayOf(Date.now()) ? m : null; }
+  function signals() {
+    const s = st(); if (!s) return null;
+    const now = Date.now(), m = todayShift(s);
+    const perf = E.performance(s, [], now), rec = E.recommend(perf);
+    const untried = E.MODES.filter(k => !(s.modes[k] && s.modes[k].runs) && k !== rec.mode && k !== "crossword");
+    return { shift: m ? { kind: m.kind, prog: m.prog, target: m.target, done: !!m.done } : { kind: "start5", prog: 0, target: 5, done: false, fresh: true },
+      mode: rec.mode, why: rec.kind, strong: rec.strong ? w("skill_" + rec.strong).toLowerCase() : "", weak: rec.weak ? w("skill_" + rec.weak).toLowerCase() : "",
+      due: E.dueCount(s, now), mastered: masteredCount(s), untried: untried.slice(0, 2) };
+  }
+  /* a shift that has not been chosen today yet is the starter until the hub opens */
+  function shiftName(kind) { return w("m_" + (kind || "start5")); }
+  function heroText(r) {
+    const v = r.vars || {};
+    if (r.act === "shift") return { title: w("r_shift_t", { m: shiftName(v.kind) }), body: w("r_shift_b", { p: v.prog || 0, n: v.target || 5 }), cta: w("r_cta"), meta: w("r_kicker") };
+    return { title: w("r_due_t", { n: v.n || 0 }), body: w("r_due_b"), cta: w("r_cta"), meta: w("r_kicker") };
+  }
+  function rowHead(r) { const v = r.vars || {}; return { h: w("row_h"), s: w("row_s_" + (r.variant || "keep"), v) }; }
+  function itemTitle(it) { return it.act === "shift" ? shiftName((todayShift(st() || {}) || {}).kind) : w("g_" + it.act); }
+  function itemLine(it) { return it.act === "shift" ? w("it_shift") : w("g_" + it.act + "_d"); }
+  function exploreTile() {
+    const s = st(); if (!s) return null;
+    const m = todayShift(s);
+    return { ic: "trophy", t: w("title"), s: m ? (m.done ? w("explore_done", { m: masteredCount(s) }) : w("explore_shift", { p: m.prog, n: m.target })) : w("explore_s"), go: "go('mastery')", img: LOGO_URL, art: 0 };
+  }
+  /* a recommendation, a widget tap or a Home card asked for a game: open the hub on it */
+  function play(act) {
+    if (!on()) return false;
+    try { go("mastery", act === "shift" ? "home" : "games"); } catch (e) { return false; }
+    const run = () => { if (act === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (E.MODES.includes(act)) start(act); };
+    loadCorpus().then(() => setTimeout(run, 120)).catch(() => {});
+    return true;
+  }
+  /* the widget's own block (≤ ~600 bytes): words mastered, level, XP, streak, today's shift */
+  function widgetData() {
+    const s = st(); if (!s) return null;
+    const now = Date.now(), lv = E.level(E.xpTotal(s)), sk = E.streak(s, now), m = todayShift(s), sig = signals();
+    return { m: masteredCount(s), total: TOTAL, lvl: lv.level, xp: lv.xp, need: lv.need, pct: lv.pct, streak: sk.current,
+      shift: m ? { t: shiftName(m.kind), p: m.prog, n: m.target, done: !!m.done } : { t: shiftName("start5"), p: 0, n: 5, done: false },
+      next: sig ? w("g_" + sig.mode) : "",
+      labels: { title: w("w_title"), mastered: w("w_mastered"), level: w("w_level", { n: lv.level }), xp: w("w_xp"), streak: w("w_streak"), shift: w("w_shift"), done: w("w_done"), open: w("w_open"), empty: w("w_empty") } };
+  }
+
   window.WMUI = {
+    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, LOGO_URL,
     on, render, portalInto, perfCardHTML, quickH: () => w("quick_h"), quickSub: () => w("quick_sub"),
     /* test hooks: the corpus, the learner's record and a way to start a game */
     _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act

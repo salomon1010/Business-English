@@ -111,7 +111,7 @@ console.log("\n# Home rows — content relationships and the 'Because you…' ru
       partner: { kind: "roleplay", ts: NOW - D, sid: "standup", title: "Daily stand-up", persona: "Priya", cat: "work", topic: "Project updates" },
       seen: ["v14_toy_story", "v04_pron_strs", "v12_disagree_"] } };
   const r1 = E.rows(S1, C);
-  ok("R8 · an active learner with every kind of evidence sees all eight row types, 2–3 cards each", r1.length === 7 && E.ROW_IDS.filter(id => id !== "inactive").every(id => r1.some(r => r.id === id)) && r1.every(r => r.items.length >= 2 && r.items.length <= 3), JSON.stringify(r1.map(r => [r.id, r.variant, r.items.length])));
+  ok("R8 · an active learner with every kind of evidence sees all eight row types, 2–3 cards each", r1.length === 7 && E.ROW_IDS.filter(id => id !== "inactive" && id !== "games").every(id => r1.some(r => r.id === id)) && r1.every(r => r.items.length >= 2 && r.items.length <= 3), JSON.stringify(r1.map(r => [r.id, r.variant, r.items.length])));
   const r1b = E.rows({ ...S1, daysAway: 4, practicedToday: false }, C);
   ok("R8b · … and after four days away the eighth ('haven't practised') joins — and leads: the strongest signal first", r1b.length === 8 && r1b[0].id === "inactive" && r1b[0].vars.n === 4 && r1b.every((r, i) => i === 0 || r1b[i - 1].score >= r.score), JSON.stringify(r1b.map(r => [r.id, r.score])));
   ok("R9 · every card is a specific piece of content with its exact deep link (clip → that clip, session → that day, scenario → that scenario, expressions → that week)", r1b.every(r => r.items.every(exact)), JSON.stringify(r1b.flatMap(r => r.items.filter(x => !exact(x)))));
@@ -149,4 +149,15 @@ console.log("\n# Home rows — content relationships and the 'Because you…' ru
   ok("R26 · no library index yet (offline first paint): rows that need clips wait, the rest still come", !nolib.some(r => r.id === "watched") && nolib.some(r => r.id === "learning") && nolib.some(r => r.id === "saved"), JSON.stringify(nolib.map(r => r.id)));
   ok("R27 · deterministic: same state → same rows, same order, same cards", JSON.stringify(E.rows(S1, C)) === JSON.stringify(E.rows(S1, C)));
 }
+console.log("\n# Welding Mastery in the engine (Welding Home only: s.wm)");
+{
+  const W = { home: true, now: NOW, pos: null, partner: {}, wm: { shift: { kind: "tools5", prog: 1, target: 5, done: false }, mode: "listen", why: "gap", strong: "visual", weak: "listening", untried: ["workshop"], due: 0 } };
+  const r = E.rank(W, {});
+  ok("WM1 · an open shift is a 'mastery' recommendation that opens the shift", r.some(x => x.kind === "mastery" && x.view === "mastery" && x.act === "shift"), JSON.stringify(r));
+  const rows = E.rows(W, {}), g = rows.find(x => x.id === "games");
+  ok("WM2 · the games row: today's shift, the game the results point to, an untried one", g && g.items.map(i => i.act).join() === "shift,listen,workshop" && g.variant === "gap", JSON.stringify(rows));
+  ok("WM3 · a finished shift is satisfied; with words due the recommendation becomes a Cards round", E.satisfied({ kind: "mastery", act: "shift" }, { wm: { shift: { done: true } } }) && E.rank({ ...W, wm: { ...W.wm, shift: { done: true }, due: 7 } }, {}).some(x => x.kind === "mastery" && x.act === "cards"));
+  ok("WM4 · without s.wm (General English, or the flag off) nothing about the game appears", !E.rank({ ...W, wm: undefined }, {}).some(x => x.kind === "mastery") && !E.rows({ ...W, wm: undefined }, {}).some(x => x.id === "games"));
+}
+
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);
