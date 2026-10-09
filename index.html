@@ -6941,13 +6941,18 @@ const AREA_GEN="general-english";
    Apple's guideline 2.3.10 — no references to other platforms — so the
    Google Play link and button are dropped there. Everything else is identical. */
 const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
+/* The Play app as a native Capacitor shell (mobile/android, 8 Oct 2026 — replaces the
+   TWA; docs/ANDROID_NATIVE_SHELL_PLAN.md). It IS the Play app (isPlayApp), but it is
+   not Apple: the Play links stay. IS_NATIVE_APP = either store shell. */
+const IS_ANDROID_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="android");
+const IS_NATIVE_APP=IS_IOS_APP||IS_ANDROID_APP;
 if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
 /* In the shell a same-origin target=_blank link (privacy.html, delete-account.html)
    has no tab to open in: WKWebView would either navigate the whole app away or
    drop the tap. Show those pages in the in-app document sheet instead, which has
    its own close button. External links keep their default: Capacitor hands them
    to Safari. */
-if(IS_IOS_APP)document.addEventListener("click",e=>{
+if(IS_NATIVE_APP)document.addEventListener("click",e=>{   /* the Android WebView has no tabs either */
   const a=e.target&&e.target.closest?e.target.closest('a[target="_blank"]'):null;if(!a)return;
   const h=a.getAttribute("href")||"";
   if(!/^[a-z0-9_.\/-]+\.html(#[\w-]*)?$/i.test(h))return;
@@ -24240,6 +24245,7 @@ const FLAGS_IOS={home_v2_enabled:true};
    marks this session as the Play app; a plain browser never has them. */
 function isPlayApp(){
   try{
+    if(IS_ANDROID_APP)return true;   /* the native Android shell is the Play app by construction */
     if(sessionStorage.getItem("be_twa")==="1")return true;
     const android=/Android/.test(navigator.userAgent||"");
     const ref=/^android-app:\/\/com\.bemastery\.app/.test(document.referrer||"");
