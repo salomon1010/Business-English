@@ -22503,7 +22503,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v664";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v665";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -35335,6 +35335,32 @@ function fbAuthSettled(ms){
    "this device is just behind its own account" from "this is somebody else's
    data left on the device", and those two cases need opposite handling. */
 const FB_OWNER_KEY="be12_owner";
+/* A Google / Apple REDIRECT sign-in (the installed web app: Play TWA, home-screen
+   app) leaves the page and comes back to a fresh load. Firebase is loaded at boot
+   only for a device that has signed in before (FB_OWNER_KEY), so a FIRST sign-in
+   came back to a page that never asked getRedirectResult() and looked signed out
+   (9 Oct 2026). The mark says "a redirect is under way" for ten minutes; the boot
+   then loads Firebase, and fbInit clears it once the result is read. */
+const FB_REDIRECT_KEY="be_auth_redirect";
+function fbRedirectMark(kind){try{localStorage.setItem(FB_REDIRECT_KEY,JSON.stringify({kind:kind==="apple"?"apple":"google",at:Date.now()}))}catch(e){}}
+function fbRedirectPending(){try{const m=JSON.parse(localStorage.getItem(FB_REDIRECT_KEY)||"null");return !!(m&&Date.now()-m.at<600000)}catch(e){return false}}
+function fbRedirectKind(){try{return (JSON.parse(localStorage.getItem(FB_REDIRECT_KEY)||"null")||{}).kind||""}catch(e){return ""}}
+function fbRedirectClear(){try{localStorage.removeItem(FB_REDIRECT_KEY)}catch(e){}}
+/* finishes a redirect sign-in once the reloaded page has Firebase (fbInit) */
+function fbRedirectDone(p){
+  const kind=fbRedirectKind(),was=fbRedirectPending();
+  return Promise.resolve(p).then(r=>{fbRedirectClear();if(r&&r.user){try{fbCloseModal()}catch(e){}try{if(r.additionalUserInfo&&r.additionalUserInfo.isNewUser)fbWelcome();fbSocialName(fbWebName(r))}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}})
+    .catch(async e=>{fbRedirectClear();
+      /* the same route as the popup (fbSocial): an e-mail that already has a
+         password account is asked to log in, and the provider is linked after */
+      if(e&&e.code==="auth/account-exists-with-different-credential"){
+        try{const cred=e.credential||null,em=fbNormEmail(e.email);await fbOpenModal("in");if(cred&&em)_fbPend={cred,kind:kind||"google",email:em};const el=document.getElementById("authEmail");if(el&&em)el.value=em;fbSetErr(em?t("auth.err_account_exists",{email:em}):t("auth.err_account_exists_short"))}catch(_){}
+        return;
+      }
+      if(!was)return;            /* nothing of ours was under way: say nothing */
+      try{toast(fbErr(e,kind))}catch(_){}
+    });
+}
 const FB_TRUST_KEY="be12_trust_account";   // "always use my account on this device" — set by the sign-in conflict dialog
 const FB_NUDGE_KEY="be12_syncNudge";
 const FB_SDK="https://www.gstatic.com/firebasejs/10.12.5/";
@@ -35349,7 +35375,7 @@ function fbInit(){
     FBauth.onAuthStateChanged(fbOnAuth);
     /* complete a Google / Apple redirect sign-in when the app reloads after it
        (an installed app with a same-origin handler — see fbSocialWeb) */
-    FBauth.getRedirectResult().then(r=>{if(r&&r.user){try{fbCloseModal()}catch(e){}try{if(r.additionalUserInfo&&r.additionalUserInfo.isNewUser)fbWelcome();fbSocialName(fbWebName(r))}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}}).catch(e=>{try{toast(fbErr(e))}catch(_){}});
+    fbRedirectDone(FBauth.getRedirectResult());
     return true;
   }catch(e){console.warn("Firebase unavailable:",e&&e.message);return false}
 }
@@ -35370,7 +35396,7 @@ function fbLoad(){
 /* A device that has signed in holds the account's copy, so its session and
    first-sync must be restored at boot exactly as before. A device that never
    has needs nothing from Firebase until someone opens the sign-in sheet. */
-try{if(localStorage.getItem(FB_OWNER_KEY))fbLoad();}catch(e){}
+try{if(localStorage.getItem(FB_OWNER_KEY)||fbRedirectPending())fbLoad();}catch(e){}
 /* "Can this device offer cloud sync at all?" — answered from the inline config,
    NOT from FBauth. Since fbLoad() is lazy, FBauth is null for everyone who has
    not signed in, which is precisely the audience the sign-in card and the sync
@@ -36029,6 +36055,11 @@ function fbAuthProxyHost(){try{const e=window.beEnv&&beEnv();return (e&&e.authPr
 function socialWebOn(){
   try{
     if(IS_IOS_APP)return false;
+    /* The Android Capacitor shell (https://localhost, 9 Oct 2026) has no sign-in
+       plugin yet: a WebView has no popup opener and localhost is not an
+       authorised Firebase domain, so both buttons could only fail there. E-mail
+       and password stand alone until a native Android flow exists. */
+    try{if(IS_ANDROID_APP)return false}catch(e){}
     if(!flag("social_signin_web_enabled"))return false;
     if(!fbConfigured())return false;
     if(fbIsStandalone()&&!fbAuthSameOrigin())return false;
@@ -36059,14 +36090,14 @@ function fbWebName(res){
 async function fbSocialWeb(kind){
   const provider=fbWebProvider(kind);
   if(fbIsStandalone()){                    /* reachable only with a same-origin handler (socialWebOn) */
-    await FBauth.signInWithRedirect(provider);return null;
+    fbRedirectMark(kind);await FBauth.signInWithRedirect(provider);return null;
   }
   try{return await FBauth.signInWithPopup(provider)}
   catch(e){
     const c=(e&&e.code)||"";
     if(/popup-closed-by-user|cancelled-popup-request/.test(c))throw {code:"cancelled"};
     if(/popup-blocked|operation-not-supported-in-this-environment|web-storage-unsupported/.test(c)){
-      if(fbAuthSameOrigin()){await FBauth.signInWithRedirect(provider);return null}
+      if(fbAuthSameOrigin()){fbRedirectMark(kind);await FBauth.signInWithRedirect(provider);return null}
       throw {code:"auth/popup-blocked"};
     }
     throw e;
