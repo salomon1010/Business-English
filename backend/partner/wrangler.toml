@@ -122,4 +122,7 @@ binding = "AUDIO"
 bucket_name = "be-partner-staging-audio"
 
 [env.staging.triggers]
-crons = ["17 3 * * *"]
+# NO trigger on staging (owner, 9 Oct 2026): its slot went to staging push reminders
+# (Workers Free = 5 cron triggers per account). Staging pairs and audio are not
+# expired/cleaned automatically; production keeps "17 3 * * *".
+crons = []

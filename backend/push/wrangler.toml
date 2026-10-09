@@ -71,7 +71,10 @@ APNS_TOPIC = "com.lomonec.bemastery"
 name = "be-push-staging"
 
 [env.staging.triggers]
-crons = ["* * * * *", "*/10 * * * *"]
+# ONE trigger on staging (owner, 9 Oct 2026): the account is on Workers Free (5 cron
+# triggers in total: be-push 2, be-partner 1, royal-touch-notify 1). Reminders only;
+# staging online alerts + learning nudges ("*/10") have no slot until the plan changes.
+crons = ["* * * * *"]
 
 [[env.staging.kv_namespaces]]
 binding = "SUBS"
