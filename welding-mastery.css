@@ -336,3 +336,7 @@ html.wm-still .wm-game *, html.wm-still .wm-cel, html.wm-still .wm-sheet, html.w
 .wm-hi em { font-style: normal; font-size: 11px; color: var(--wm-mut); white-space: nowrap; } .wm-hi em.open { color: #fca5a5; } .wm-hi em.fixed { color: var(--wm-blue2); } .wm-hi em.mastered { color: var(--wm-green); }
 .wm-hi-w { background: none; border: 0; padding: 0; color: var(--wm-txt); font: inherit; text-align: left; cursor: pointer; } .wm-hi-w span { color: var(--wm-gold2); }
 .wm-stage-hist { margin: 12px 0 0; background: var(--wm-bg2); } .wm-stage-hist .btn { margin: 4px 0 8px; }
+
+/* Quick Practice on Welding has three boosters (General English has four): the
+   row fills the whole line instead of leaving the fourth column empty. */
+:root[data-track="welding"] .prac-ex { grid-template-columns: repeat(3, minmax(0, 1fr)); }
