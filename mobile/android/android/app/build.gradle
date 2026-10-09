@@ -23,10 +23,24 @@ android {
     buildFeatures {
         buildConfig true
     }
+    // The Play UPLOAD key (alias bemastery, SHA-256 3D:E6:6D…; Play App Signing re-signs for
+    // learners). Nothing secret is in the repo: scripts/release.sh passes the keystore path and
+    // passwords as environment variables; without them a release build is simply unsigned.
+    signingConfigs {
+        upload {
+            if (System.getenv("BE_KEYSTORE")) {
+                storeFile file(System.getenv("BE_KEYSTORE"))
+                storePassword System.getenv("BE_KEYSTORE_PASS")
+                keyAlias System.getenv("BE_KEY_ALIAS") ?: "bemastery"
+                keyPassword System.getenv("BE_KEY_PASS") ?: System.getenv("BE_KEYSTORE_PASS")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("BE_KEYSTORE")) signingConfig signingConfigs.upload
         }
     }
 }
