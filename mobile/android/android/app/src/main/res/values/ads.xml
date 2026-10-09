@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lomonec's AdMob ids for the Android app (AdMob account pub-2222980379604934,
+     created 8 Oct 2026; docs/ADVERTISING.md §9b). Public by design — they ship inside
+     the app. A debug or staging build never requests these units: BEAdsPlugin swaps in
+     Google's test units (BuildConfig.BE_TEST_ADS / DEBUG). -->
+<resources>
+    <string name="be_ads_app_id" translatable="false">ca-app-pub-2222980379604934~8875603763</string>
+    <string name="be_ads_interstitial_unit" translatable="false">ca-app-pub-2222980379604934/7191910447</string>
+    <string name="be_ads_native_unit" translatable="false">ca-app-pub-2222980379604934/1935625045</string>
+</resources>

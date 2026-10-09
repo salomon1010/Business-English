@@ -24,6 +24,12 @@
 
         </activity>
 
+        <!-- AdMob reads its app id from here (res/values/ads.xml). Real in every build, as
+             Google recommends; only the ad UNITS are swapped for test units in debug/staging. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/be_ads_app_id" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

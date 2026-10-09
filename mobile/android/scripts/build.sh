@@ -9,9 +9,11 @@ here="$(cd "$(dirname "$0")/.." && pwd)"
 export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/.bubblewrap/android_sdk}"
 cd "$here"
-if [ "${1:-}" = "--staging" ]; then npm run --silent sync:staging; else npm run --silent sync; fi
+staging=false
+if [ "${1:-}" = "--staging" ]; then staging=true; npm run --silent sync:staging; else npm run --silent sync; fi
 echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 cd android
-./gradlew --quiet assembleDebug
+# -PbeStaging=true → BuildConfig.BE_TEST_ADS: Google's test ad units only (a debug build is test-only anyway)
+./gradlew --quiet -PbeStaging=$staging assembleDebug
 apk="app/build/outputs/apk/debug/app-debug.apk"
 ls -l "$apk" | awk '{printf "APK %s  %.1f MB\n", $9, $5/1048576}'

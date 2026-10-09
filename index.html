@@ -25042,8 +25042,10 @@ function adsSystemLive(){try{return !!entApiBase()&&flag("billing_enabled")}catc
 let _adsBridge=false,_adsBridgeBusy=false;
 function beNativeAdsInit(){
   if(_adsBridge||_adsBridgeBusy)return;
-  let ios=false;try{ios=IS_IOS_APP}catch(e){}
-  if(!ios)return;
+  /* both store shells carry a BEAds plugin with the same contract (iOS: BEAdsPlugin.swift;
+     Android: BEAdsPlugin.java, 9 Oct 2026). The TWA has none, so it stays out. */
+  let native=false;try{native=IS_NATIVE_APP}catch(e){}
+  if(!native)return;
   try{if(!flag("ads_enabled")||!adsTrackAllows()||!adsSystemLive())return}catch(e){return}
   /* capPlugin reads Capacitor.Plugins first: `Capacitor.registerPlugin` is an
      @capacitor/core API and this unbundled shell does not have it (see the note
