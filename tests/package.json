@@ -7,6 +7,7 @@
     "test:auth-entry": "node auth-entry-points.mjs",
     "test:welding-mastery": "node welding-mastery-engine.test.mjs && node welding-mastery.mjs",
     "test:fnd": "node foundations-check.mjs",
+    "test:auth-redirect": "node auth-redirect.mjs",
     "test:ios-widget": "node ios-widget.mjs",
     "test:android-widget": "node android-widget.mjs && node ../backend/widget/test/run.mjs && node ../playstore/android-widget/test/apply.test.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
