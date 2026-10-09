@@ -2724,6 +2724,31 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .fnd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .fnd-acts .btn{min-height:44px}.fnd-rec{flex:1 1 140px;justify-content:center}
 .fnd-result{margin-top:10px;min-height:4px}
+/* the four buttons on one line (owner, 9 Oct 2026): compact padding, the record
+   button takes what is left */
+.fnd-acts{flex-wrap:nowrap;gap:6px}.fnd-acts .btn{padding:0 10px;font-size:14px;white-space:nowrap;flex:0 1 auto;min-width:44px;gap:6px}
+/* Hear and Slow are icons (Slow has the gauge) with their names in the
+   aria-label and title, so the row fits in every language on a narrow phone
+   and Record keeps its words */
+.fnd-acts .fnd-hear{width:44px;padding:0;justify-content:center;flex:none}.fnd-acts .fnd-bl{display:none}
+.fnd-acts .btn.fnd-mine{width:44px;padding:0;justify-content:center;flex:none}
+.fnd-acts .btn.fnd-rec{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;justify-content:center}
+.fnd-item.locked{opacity:.6}.fnd-item.locked .fnd-rec{cursor:not-allowed}
+.fnd-lock{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:13px;color:var(--mut2)}.fnd-lock svg{width:14px;height:14px}
+.fnd-na{margin:6px 0 0;font-size:12.5px;color:var(--mut2)}
+.fnd-check{margin-top:4px;padding:12px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2)}
+.fnd-check.pass{border-color:color-mix(in srgb,var(--green) 55%,var(--line2))}
+.fnd-check.fail{border-color:color-mix(in srgb,var(--red) 45%,var(--line2))}
+.fnd-said{font-size:18px;font-weight:700;line-height:1.6}
+.fnd-w.ok{color:var(--green)}
+.fnd-w.bad{color:var(--red);text-decoration:underline wavy var(--red);text-underline-offset:4px;text-decoration-thickness:1.5px}
+.fnd-verdict{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--txt)}
+.fnd-verdict .fnd-overall{margin:0}
+.fnd-fix{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.fnd-fix-top{display:flex;align-items:center;gap:10px}.fnd-fix-top .fnd-w{font-size:17px;font-weight:800}
+.fnd-fix-say{margin-top:4px;font-size:14px;color:var(--mut)}.fnd-fix-say code{font-family:inherit;color:var(--txt)}.fnd-fix-say b{color:var(--txt);letter-spacing:.3px}
+.fnd-fix-tip{margin-top:3px;font-size:13.5px;line-height:1.45;color:var(--mut)}
+.fnd-again{margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.fnd-again svg{width:18px;height:18px;flex:none}
 .fnd-tick{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
 .fnd-tick svg{width:16px;height:16px}
 .fnd-overall{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;margin-top:6px}
@@ -8935,6 +8960,17 @@ const I18N_EN={
  "fnd.slow":"Slow",
  "fnd.mine":"Play my recording",
  "fnd.mine_none":"No recording of this sentence yet.",
+ "fnd.how_pass":"When your pronunciation can be checked, each sentence needs {{n}}% before the next one opens.",
+ "fnd.locked":"Say the sentence above clearly first ({{n}}%) to open this one.",
+ "fnd.checking":"Checking your pronunciation…",
+ "fnd.check_na":"Your pronunciation could not be checked this time, so your recording counts.",
+ "fnd.pass":"Clear. On to the next sentence.",
+ "fnd.fail":"Not yet — you need {{n}}% to move on. The words in red were not clear. Listen, then say the sentence again.",
+ "fnd.say_like":"Say it like:",
+ "fnd.tip_wait":"Finding a tip…",
+ "fnd.tip_generic":"Listen to the word slowly, say it alone three times, then say the whole sentence.",
+ "fnd.hear_word":"Hear “{{w}}” slowly",
+ "fnd.say_again":"Say it again",
  "fnd.record":"Record",
  "fnd.record_again":"Record again",
  "fnd.you_hear":"You hear",
@@ -22404,7 +22440,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v660";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v661";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -31496,8 +31532,7 @@ function rFoundations(el,dayArg){
   /* The gloss follows the app language. English UI still gets a gloss —
      French, because that is who asked for this — and any language the pack
      does not carry falls back the same way. */
-  const ui=(S.profile&&S.profile.lang)||"en";
-  const gl=(ui!=="en"&&pack.days[0]&&pack.days[0][ui])?ui:"fr";
+  const gl=fndGl(pack);
   const gloss=it=>it[gl]||it.fr||"";
   const qgloss=it=>it["q"+gl]||it.qfr||"";
   const theme=d[gl]||d.fr||"";
@@ -31507,11 +31542,15 @@ function rFoundations(el,dayArg){
   <h1 class="big">${esc(d.theme)}</h1>
   <p class="sub fnd-theme-fr">${esc(theme)}</p>
   <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>(i+1<=fndDayOf()?`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`:`<span class="locked"></span>`)).join("")}</div>
-  ${subInfo(t("fnd.how"))}
+  ${subInfo(t("fnd.how")+" "+t("fnd.how_pass",{n:FND_PASS}))}
   ${d.items.map((it,i)=>{
     const en=fndFill(it.en,"en"),fr=fndFill(gloss(it),gl);
     const q=it.q?fndFill(it.q,"en"):"",qfr=it.q?fndFill(qgloss(it),gl):"";
-    return `<section class="card fnd-item ${recDone[i]?"done":""}" id="fndItem${i}">
+    /* one sentence at a time (owner, 9 Oct 2026): the next opens only once
+       this one is said clearly enough (FND_PASS) — or, when the check cannot
+       run, once it is recorded */
+    const locked=i>0&&!recDone[i-1];
+    return `<section class="card fnd-item ${recDone[i]?"done":""} ${locked?"locked":""}" id="fndItem${i}">
       ${q?`<div class="fnd-q"><span class="fnd-lbl">${t("fnd.you_hear")}</span>
         <div class="fnd-q-row"><b>${esc(q)}</b>
           <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(q)},.9)" aria-label="${esc(t("fnd.hear"))}">${ic("sound")}</button></div>
@@ -31520,12 +31559,13 @@ function rFoundations(el,dayArg){
       <div class="fnd-en">${esc(en)}</div>
       <div class="fnd-fr">${esc(fr)}</div>
       <div class="fnd-acts">
-        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.92)">${ic("sound")} ${t("fnd.hear")}</button>
-        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.7)">${ic("sound")} ${t("fnd.slow")}</button>
-        ${recDone[i]?`<button class="btn btn-g fnd-mine" onclick="fndPlayMine(${day},${i})" aria-label="${esc(t("fnd.mine"))}" title="${esc(t("fnd.mine"))}">${ic("play")}</button>`:""}
-        <button class="btn ${recDone[i]?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})">${ic("mic")} ${t(recDone[i]?"fnd.record_again":"fnd.record")}</button>
+        <button class="btn btn-g fnd-hear" onclick="fbSay(${jarg(en)},.92)" aria-label="${esc(t("fnd.hear"))}" title="${esc(t("fnd.hear"))}">${ic("sound")}<span class="fnd-bl">${t("fnd.hear")}</span></button>
+        <button class="btn btn-g fnd-hear" onclick="fbSay(${jarg(en)},.7)" aria-label="${esc(t("fnd.slow"))}" title="${esc(t("fnd.slow"))}">${ic("gauge")}<span class="fnd-bl">${t("fnd.slow")}</span></button>
+        ${fndHasTake(day,i)?`<button class="btn btn-g fnd-mine" onclick="fndPlayMine(${day},${i})" aria-label="${esc(t("fnd.mine"))}" title="${esc(t("fnd.mine"))}">${ic("play")}</button>`:""}
+        <button class="btn ${recDone[i]||locked?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})" ${locked?"disabled":""}>${ic("mic")} ${t(fndHasTake(day,i)?"fnd.record_again":"fnd.record")}</button>
       </div>
-      <div class="fnd-result" id="fndRes${i}">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
+      ${locked?`<p class="fnd-lock">${ic("lock")} ${t("fnd.locked",{n:FND_PASS})}</p>`:""}
+      <div class="fnd-result" id="fndRes${i}" aria-live="polite">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
     </section>`}).join("")}
   <div class="card fnd-foot ${allRec?"ready":""}">
     ${allRec
@@ -31537,43 +31577,122 @@ function rFoundations(el,dayArg){
   </div>`;
   manIconizeInline(el);
   /* redraw any scores from this session so a re-render does not lose them */
-  Object.keys(_fndScores).forEach(k=>{const [dd,ii]=k.split("-");if(Number(dd)===day)fndDrawScore(Number(ii),_fndScores[k])});
+  Object.keys(_fndScores).forEach(k=>{const [dd,ii]=k.split("-");if(Number(dd)===day)fndDrawScore(day,Number(ii))});
 }
+/* The check (owner, 9 Oct 2026). A take is played back, then graded word by
+   word by fbAssess. The sentence passes at FND_PASS % and the next one opens;
+   below it, the words that were not clear are underlined in red, each with how
+   to say it (IPA + an easy respelling) and one tip in the learner's language,
+   and the learner says the sentence again. When the check cannot run (offline,
+   no account, the Worker down) the recording counts, as it always did — an
+   offline-first app must never lock a learner out of Stage 0.
+   Honest about the grader: in "whisper" mode the Worker only knows whether it
+   HEARD each word, so the copy says "not clear", never names a wrong sound. */
+const FND_PASS=80;
+let _fndBusy={},_fndTook={};
+let _fndTips={};try{_fndTips=JSON.parse(localStorage.getItem("be_fnd_tips")||"{}")||{}}catch(e){_fndTips={}}
+function fndGl(pack){
+  pack=pack||fndPack();
+  const ui=(S.profile&&S.profile.lang)||"en";
+  return (ui!=="en"&&pack&&pack.days[0]&&pack.days[0][ui])?ui:"fr";
+}
+function fndHasTake(day,i){const k=day+"-"+i,f=fndState(),r=f.done["d"+day+"r"]||{};return !!(r[i]||_fndTook[k]||_fndScores[k])}
+function fndPct(r){return Number.isFinite(r.overall)?Math.round(r.overall):Math.round(r.words.filter(w=>w&&w.score>=FND_PASS).length/r.words.length*100)}
+function fndNorm(w){return String(w||"").toLowerCase().replace(/[’]/g,"'").replace(/[^a-z0-9']/g,"")}
+function fndSentence(day,i){const pack=fndPack(),it=pack&&pack.days[day-1]&&pack.days[day-1].items[i];return it?fndFill(it.en,"en"):""}
 window.fndRecord=(day,i)=>{
   const pack=fndPack();if(!pack)return;
-  const it=pack.days[day-1].items[i],en=fndFill(it.en,"en");
+  const f=fndState(),k="d"+day+"r";
+  if(i>0&&!(f.done[k]||{})[i-1]){toast(t("fnd.locked",{n:FND_PASS}));return}
+  const en=fndSentence(day,i);
   const btn=document.getElementById("fndRec"+i);
-  phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,()=>{
-    const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
-    /* a day is done when all three are recorded — the recording is the evidence,
-       the score (if the grader is reachable) is the feedback */
-    const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
-    if(dayDone){f.done["d"+day]=true;markPracticed();try{AdManager.markBreak("lesson_complete")}catch(e){}}
-    save();
-    const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
-    if(dayDone)setTimeout(rmCelebrate,500);
-  },blob=>{
+  phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,null,blob=>{
     /* the learner hears their own take the moment they stop (owner, 9 Oct
        2026); the play button beside Slow replays it any time after */
     exPlayBlob(blob);
-    fbAssess(blob,en).then(r=>{
-      if(!r||!r.words||!r.words.length)return;
-      _fndScores[day+"-"+i]=r;
-      fndDrawScore(i,r);
-    }).catch(()=>{});
+    const key=day+"-"+i;_fndTook[key]=1;_fndBusy[key]=1;delete _fndScores[key];
+    fndRedraw(day);
+    fbAssess(blob,en).then(r=>r,()=>null).then(r=>{
+      delete _fndBusy[key];
+      if(r&&r.words&&r.words.length){
+        _fndScores[key]=r;
+        if(fndPct(r)>=FND_PASS)fndPass(day,i);
+        else{fndRedraw(day);fndTipsLoad(day,i)}
+      }else{_fndScores[key]={na:true};fndPass(day,i)}
+    });
   });
 };
+function fndRedraw(day){const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day)}
+/* a sentence is through: mark it, finish the day when it was the last, and
+   bring the next sentence into view */
+function fndPass(day,i){
+  const pack=fndPack(),f=fndState(),k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
+  const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
+  if(dayDone){f.done["d"+day]=true;markPracticed();try{AdManager.markBreak("lesson_complete")}catch(e){}}
+  save();fndRedraw(day);
+  if(dayDone)setTimeout(rmCelebrate,500);
+  else setTimeout(()=>{const n=document.getElementById("fndItem"+(i+1));if(n)n.scrollIntoView({behavior:"smooth",block:"center"})},700);
+}
 /* the newest take of this sentence, from the recordings store (newest first) */
 window.fndPlayMine=async(day,i)=>{
   const r=(await getRecs(fndRecCtx(day,i)))[0];
   if(r&&r.blob)exPlayBlob(r.blob);else toast(t("fnd.mine_none"));
 };
-function fndDrawScore(i,r){
+/* the words to work on: the grader's words under the pass line, matched back
+   to the sentence as written (the Whisper path lower-cases and strips them) */
+function fndWords(day,i){
+  const r=_fndScores[day+"-"+i];if(!r||!r.words)return [];
+  const shown=fndSentence(day,i).split(/\s+/).filter(Boolean);
+  const same=shown.length===r.words.length;
+  return r.words.map((w,j)=>({text:same?shown[j]:w.word,word:fndNorm(w.word),score:+w.score||0,note:r.mode==="ai"?String(w.note||""):"",bad:(+w.score||0)<FND_PASS}));
+}
+function fndTipKey(w,lang){return lang+":"+w}
+const FND_TIP_SYSTEM=lang=>`You are a patient English pronunciation coach for a complete beginner whose first language is ${lang}. The user gives an English sentence and the words from it that the learner did not say clearly. For EACH word give: its General American IPA (use ˈ for stress, no slashes), an easy respelling with the stressed syllable in CAPITALS (like un-der-STAND), and ONE short tip in ${lang} (at most 16 words) on how to say it — the mouth position or the sound a ${lang} speaker usually gets wrong. Respond with ONLY minified JSON: {"reply":"word=ipa=respelling=tip|word=ipa=respelling=tip"} with every word exactly as given, in order, nothing else.`;
+async function fndTipsLoad(day,i){
+  const lang=fndGl(),L=LANGS.find(x=>x.code===lang),name=L?L.en:"French";
+  const bad=[...new Set(fndWords(day,i).filter(w=>w.bad&&w.word).map(w=>w.word))].filter(w=>!_fndTips[fndTipKey(w,lang)]).slice(0,5);
+  if(!bad.length||!POLISH_API||!navigator.onLine)return;
+  try{
+    const r=await svAiChat(FND_TIP_SYSTEM(name),`Sentence: "${fndSentence(day,i).slice(0,300)}"\nWords: ${bad.join(", ")}`,"practice");
+    if(!r.ok)return;
+    const j=await r.json();
+    String((j&&j.reply)||"").split("|").forEach(row=>{
+      const [w,ipa,say,...tip]=row.split("=").map(s=>String(s||"").trim());
+      const n=fndNorm(w);if(!n||!bad.includes(n)||!ipa||/[A-Z0-9]/.test(ipa))return;
+      _fndTips[fndTipKey(n,lang)]={ipa:ipa.replace(/[\/\[\]]/g,"").slice(0,40),say:(say||"").slice(0,40),tip:tip.join("=").slice(0,160)};
+    });
+    const ks=Object.keys(_fndTips);while(ks.length>400)delete _fndTips[ks.shift()];
+    try{localStorage.setItem("be_fnd_tips",JSON.stringify(_fndTips))}catch(e){}
+  }catch(e){return}
+  if(cur.v==="foundations")fndDrawScore(day,i);
+}
+function fndDrawScore(day,i){
   const box=document.getElementById("fndRes"+i);if(!box)return;
-  const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
-  const overall=Number.isFinite(r.overall)?Math.round(r.overall):Math.round(r.words.filter(w=>w&&w.score>=80).length/r.words.length*100);
-  box.innerHTML=`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
-    <div class="fnd-overall" style="color:${col(overall)}">${overall}%</div>`;
+  const key=day+"-"+i;
+  if(_fndBusy[key]){box.innerHTML=DS.aiInline(t("fnd.checking"));return}
+  const r=_fndScores[key];if(!r)return;
+  if(r.na){box.innerHTML=`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span><p class="fnd-na">${t("fnd.check_na")}</p>`;manIconizeInline(box);return}
+  const pct=fndPct(r),pass=pct>=FND_PASS,words=fndWords(day,i),lang=fndGl();
+  const col=pass?"var(--green)":pct>=55?"var(--gold)":"var(--red)";
+  const bad=words.filter(w=>w.bad);
+  const seen=new Set();
+  const rows=bad.filter(w=>w.word&&!seen.has(w.word)&&seen.add(w.word)).map(w=>{
+    const tip=_fndTips[fndTipKey(w.word,lang)];
+    const ipa=(tip&&tip.ipa)||SV_IPA_SEED[w.word]||"";
+    const how=tip?esc(tip.tip):w.note?esc(w.note):(POLISH_API&&navigator.onLine?DS.aiInline(t("fnd.tip_wait")):esc(t("fnd.tip_generic")));
+    return `<div class="fnd-fix">
+      <div class="fnd-fix-top"><span class="fnd-w bad">${esc(w.text.replace(/[^A-Za-z0-9'’-]/g,""))}</span>
+        <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w.word)},.6)" aria-label="${esc(t("fnd.hear_word",{w:w.word}))}">${ic("sound")}</button></div>
+      ${ipa||(tip&&tip.say)?`<div class="fnd-fix-say">${t("fnd.say_like")} ${ipa?`<code>/${esc(ipa)}/</code>`:""}${tip&&tip.say?` <b>${esc(tip.say)}</b>`:""}</div>`:""}
+      <div class="fnd-fix-tip">${how}</div>
+    </div>`}).join("");
+  box.innerHTML=`<div class="fnd-check ${pass?"pass":"fail"}">
+    <div class="fnd-said">${words.map(w=>{const m=String(w.text).match(/^([^A-Za-z0-9'’]*)(.*?)([^A-Za-z0-9'’]*)$/)||["","",w.text,""];return `${esc(m[1])}<span class="fnd-w ${w.bad?"bad":"ok"}">${esc(m[2])}</span>${esc(m[3])}`}).join(" ")}</div>
+    <div class="fnd-verdict"><span class="fnd-overall" style="color:${col}">${r.mode==="ai"?"":"~"}${pct}%</span>
+      <span>${pass?t("fnd.pass"):t("fnd.fail",{n:FND_PASS})}</span></div>
+    ${pass?"":`${rows}<button class="btn-primary fnd-again" onclick="fndRecord(${day},${i})">${ic("mic")} ${t("fnd.say_again")}</button>`}
+  </div>`;
+  manIconizeInline(box);
 }
 window.fndNextDay=(day)=>{
   const f=fndState();
