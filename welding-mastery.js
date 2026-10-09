@@ -388,7 +388,7 @@
       <div class="wm-stats" role="list">
         <span class="wm-stat" role="listitem">${wi("medal")}<b>${h(w("level", { n: lv.level }))}</b></span>
         <span class="wm-stat xp" role="listitem">${wi("xp")}<b>${h(w("xp", { n: lv.xp }))}</b></span>
-        <span class="wm-stat fl" role="listitem">${wi("flame")}<b>${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}</b></span>
+        <span class="wm-stat fl" role="listitem" title="${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}" aria-label="${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}">${wi("flame")}<b aria-hidden="true">${sk.current}</b></span>
         <span class="wm-stat ok" role="listitem">${wi("check")}<b>${m}/${TOTAL}</b></span>
       </div>
       <nav class="wm-tabs" role="tablist" aria-label="Welding Mastery">

@@ -70,8 +70,8 @@
 .wm-hero { display: flex; gap: 14px; align-items: center; margin: 6px 0 12px; }
 .wm-hero h1 { margin: 0; font-size: 24px; letter-spacing: .06em; color: #fff; font-weight: 800; }
 .wm-hero p { margin: 2px 0 0; color: var(--wm-mut); font-size: 13.5px; }
-.wm-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.wm-stat { display: inline-flex; gap: 6px; align-items: center; padding: 7px 11px; border-radius: 12px; background: var(--wm-card); border: 1px solid var(--wm-line); font-size: 13px; }
+.wm-stats { display: flex; gap: 6px; flex-wrap: nowrap; margin-bottom: 12px; min-width: 0; }   /* one line, always */
+.wm-stat { display: inline-flex; gap: 5px; align-items: center; flex: 0 1 auto; min-width: 0; white-space: nowrap; padding: 7px 10px; border-radius: 12px; background: var(--wm-card); border: 1px solid var(--wm-line); font-size: 13px; }
 .wm-stat .wm-ic { width: 17px; height: 17px; color: var(--wm-purple); }
 .wm-stat.xp .wm-ic { color: var(--wm-gold); } .wm-stat.fl .wm-ic { color: #fb923c; } .wm-stat.ok .wm-ic { color: var(--wm-green); }
 .wm-tabs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(56px, 1fr); overflow-x: auto; scrollbar-width: none; gap: 4px; padding: 4px; border-radius: 14px; background: var(--wm-bg2); border: 1px solid var(--wm-line); margin-bottom: 14px; position: sticky; top: 52px; z-index: 4; }
@@ -351,3 +351,6 @@ html.wm-still .wm-game *, html.wm-still .wm-cel, html.wm-still .wm-sheet, html.w
 .wm-photo-credit .wm-ic { width: 14px; height: 14px; } .wm-photo-credit a { color: var(--wm-mut); }
 .wm-m .wm-photo { max-width: 120px; } .wm-m .wm-photo img { border-radius: 10px; }
 .wm-q-p .wm-photo { max-width: 360px; }
+
+.wm-stat b { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 360px) { .wm-stat { padding: 6px 7px; font-size: 12px; } .wm-stat .wm-ic { width: 15px; height: 15px; } }

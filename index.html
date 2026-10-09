@@ -80,9 +80,9 @@
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
 <!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
-<link rel="stylesheet" href="welding-mastery.css?v=3">
+<link rel="stylesheet" href="welding-mastery.css?v=4">
 <script src="welding-mastery-engine.js?v=1"></script>
-<script src="welding-mastery.js?v=3"></script>
+<script src="welding-mastery.js?v=4"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -22518,7 +22518,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v667";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v668";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
