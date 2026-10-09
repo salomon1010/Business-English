@@ -27,7 +27,7 @@ compatibility_date = "2026-07-31"
 
 [vars]
 FIREBASE_PROJECT_ID = "be-mastery"
-ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io,capacitor://localhost"   # capacitor://localhost = the App Store build
+ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io,capacitor://localhost,https://localhost"   # capacitor://localhost = the App Store build; https://localhost = the Android shell
 PARTNER_ENABLED = "1"          # production kill switch: opened 2026-09-20 on the owner's release decision
 LIVE_ENABLED = "1"             # live human practice (Level 3): opened 2026-09-24 on the owner's request; TURN secrets are set in production
 # TURN for live practice is optional: `wrangler secret put TURN_KEY_ID` and
@@ -102,7 +102,7 @@ bucket_name = "be-partner-audio"
 name = "be-partner-staging"
 [env.staging.vars]
 FIREBASE_PROJECT_ID = "be-mastery-test"   # the validation project, as deployed since 27 Sep 2026 (d4aece8c); was a deploy-time --var only
-ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000,capacitor://localhost"
+ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000,capacitor://localhost,https://localhost"
 PARTNER_ENABLED = "1"
 LIVE_ENABLED = "1"
 SAFETY_LIMITS = "{\"report\":20,\"block\":50}"   # staging only: a day of device testing on one account

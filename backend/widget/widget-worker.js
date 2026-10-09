@@ -27,7 +27,7 @@ const WID_RE = /^[a-f0-9]{32}$/;
 const MAX_BYTES = 16_384;
 const WRITES_PER_HOUR = 60;
 const KEEP_MS = 30 * 86_400_000;
-const ORIGINS = ["https://app.lomonec.com", "https://staging.lomonec.com", "capacitor://localhost"];
+const ORIGINS = ["https://app.lomonec.com", "https://staging.lomonec.com", "capacitor://localhost", "https://localhost"];   // https://localhost = the Android shell (mobile/android)
 
 /* ---- the snapshot, reduced to what the widget draws (mirrors
    BEWidgetSnapshot in mobile/ios/ios/App/BEWidget/BEWidgetModel.swift) */
