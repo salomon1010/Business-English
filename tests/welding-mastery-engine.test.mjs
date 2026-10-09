@@ -272,6 +272,16 @@ console.log("\n# history — every round, every answer, kept and merged");
   ok("H10 · the cloud copy keeps the history (only the open round is dropped)", E.trimForSync(m, T0).hist.length === 2);
 }
 
+console.log("\n# photographs — real, licensed, credited");
+{
+  const cr = JSON.parse(fs.readFileSync(ROOT + "tracks/welding/photos/credits.json", "utf8"));
+  const ok1 = Object.entries(cr);
+  ok("PH1 · at least 30 real photographs, each a corpus term with its file on disk", ok1.length >= 30 && ok1.every(([id, c]) => ids.includes(id) && fs.existsSync(ROOT + "tracks/welding/photos/" + c.file)), ok1.length);
+  ok("PH2 · every licence is reusable (CC0 / public domain / CC BY / CC BY-SA) — never NC, ND or unknown", ok1.every(([, c]) => /^(CC0|Public domain|CC BY(-SA)? [0-9.]+( [a-z]{2})?)$/.test(c.license) && !/NC|ND/.test(c.license)), ok1.map(([k, c]) => k + ":" + c.license).filter(x => !/CC0|Public domain|CC BY/.test(x)));
+  ok("PH3 · every photo names its author and links its Commons page", ok1.every(([, c]) => c.author && c.author !== "Unknown" && /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/.test(c.source)));
+  ok("PH4 · photos are small enough for a phone (each ≤ 160 KB)", ok1.every(([, c]) => fs.statSync(ROOT + "tracks/welding/photos/" + c.file).size <= 160 * 1024));
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

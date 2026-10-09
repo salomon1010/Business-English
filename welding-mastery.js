@@ -24,8 +24,8 @@
   "use strict";
   const E = window.WMEngine;
   const AREA = "welding", TOTAL = 250;
-  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1";
-  let C = null, ART = null, _load = null, _err = false;
+  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=1", PHOTO_DIR = "tracks/welding/photos/";
+  let C = null, ART = null, PHOTOS = {}, _load = null, _err = false;
   let _tab = "home", _coll = { q: "", cat: "all", seg: "all" }, _edit = null, _G = null;
 
   /* ------------------------------------------------------------ the gate */
@@ -99,7 +99,7 @@
       ok: "Correct", no: "Not quite", the_answer: "The answer: {{w}}", combo: "{{n}} in a row",
       q_en2fr: "What is the French for this word?", q_fr2en: "What is the English for this word?", q_def: "Which word matches this definition?", q_use: "Which item or word is this about?", q_ctx: "Which word fits this situation?", q_img: "What is this?",
       tr_show: "Voir en français", tr_hide: "Hide French",
-      v_alt: "Line drawing of an item used in welding. Which is it?", v_alt_after: "Line drawing of: {{w}}",
+      v_alt: "A picture of an item used in welding. Which is it?", v_alt_after: "Picture of: {{w}}", ph_by: "Photo:",
       l_prompt: "Listen and find the word.", l_type: "Listen and type the word.", l_synth: "Synthetic voice (text-to-speech).", l_hint: "Hint", l_hint_txt: "French: {{fr}} · starts with “{{c}}”", l_no_audio: "Audio is not available on this device, so this round cannot run. Try Cards or Word Builder instead.", l_type_ph: "Type what you heard",
       b_prompt: "Build the English word.", b_hint: "Show a letter", b_clear: "Clear", b_type_ph: "Or type it", b_try: "Not yet — try again.",
       m_prompt: "Tap a word, then its partner.", m_en_fr: "English ↔ French", m_img: "Picture ↔ name", m_def: "Word ↔ definition", m_use: "Tool ↔ purpose", m_ctx: "Word ↔ situation", m_wrong: "Not a pair.",
@@ -181,7 +181,7 @@
       ok: "Bonne réponse", no: "Pas tout à fait", the_answer: "La réponse : {{w}}", combo: "{{n}} d'affilée",
       q_en2fr: "Comment dit-on ce mot en français ?", q_fr2en: "Comment dit-on ce mot en anglais ?", q_def: "Quel mot correspond à cette définition ?", q_use: "De quoi parle-t-on ?", q_ctx: "Quel mot convient à cette situation ?", q_img: "Qu'est-ce que c'est ?",
       tr_show: "Voir en français", tr_hide: "Masquer le français",
-      v_alt: "Dessin d'un élément utilisé en soudage. Lequel ?", v_alt_after: "Dessin : {{w}}",
+      v_alt: "Image d'un élément utilisé en soudage. Lequel ?", v_alt_after: "Image : {{w}}", ph_by: "Photo :",
       l_prompt: "Écoute et trouve le mot.", l_type: "Écoute et écris le mot.", l_synth: "Voix de synthèse.", l_hint: "Indice", l_hint_txt: "Français : {{fr}} · commence par « {{c}} »", l_no_audio: "L'audio n'est pas disponible sur cet appareil, cette série ne peut pas tourner. Essaie les Cartes ou Écris le mot.", l_type_ph: "Écris ce que tu entends",
       b_prompt: "Construis le mot anglais.", b_hint: "Montrer une lettre", b_clear: "Effacer", b_type_ph: "Ou tape-le", b_try: "Pas encore — réessaie.",
       m_prompt: "Touche un mot, puis son partenaire.", m_en_fr: "Anglais ↔ français", m_img: "Image ↔ nom", m_def: "Mot ↔ définition", m_use: "Outil ↔ usage", m_ctx: "Mot ↔ situation", m_wrong: "Ce n'est pas une paire.",
@@ -283,7 +283,15 @@
       <g stroke="#ffd36b" stroke-width="1.6" stroke-linecap="round"><path d="M49 13v4M47 15h4M53 20l2-1M45 9.5l-1-2"/></g>
     </svg>`;
   }
-  function artSVG(t, label) {
+  /* the picture of a term: its photograph when there is one (with the credit the licence asks
+     for), else the original drawing. `credit` false inside buttons (no link inside a button). */
+  function photoCredit(ph, link) {
+    const txt = `${w("ph_by")} ${ph.author} · ${ph.license}`;
+    return link && /^https:\/\/commons\.wikimedia\.org\//.test(ph.source || "") ? `<a href="${h(ph.source)}" target="_blank" rel="noopener">${h(txt)}</a>` : h(txt);
+  }
+  function artSVG(t, label, opts) {
+    const o = opts || {};
+    if (t && t.photo) return `<figure class="wm-photo"><img src="${h(PHOTO_DIR + t.photo.file)}" alt="${h(label)}" loading="lazy" decoding="async">${o.credit === false ? "" : `<figcaption>${photoCredit(t.photo, o.link)}</figcaption>`}</figure>`;
     if (!t || !t.img || !ART || !ART[t.img]) return "";
     return `<svg class="wm-art" viewBox="0 0 120 120" role="img" aria-label="${h(label)}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ART[t.img]}</svg>`;
   }
@@ -294,8 +302,14 @@
     if (C) return Promise.resolve(C);
     if (_load) return _load;
     _err = false;
-    _load = Promise.all([fetch(CORPUS_URL).then(r => { if (!r.ok) throw new Error("corpus " + r.status); return r.json(); }), fetch(ART_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}))])
-      .then(([c, a]) => { if (!c || !Array.isArray(c.terms) || !c.terms.length) throw new Error("corpus shape"); C = c; ART = a || {}; return C; })
+    _load = Promise.all([fetch(CORPUS_URL).then(r => { if (!r.ok) throw new Error("corpus " + r.status); return r.json(); }), fetch(ART_URL).then(r => r.ok ? r.json() : {}).catch(() => ({})), fetch(PHOTO_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}))])
+      .then(([c, a, ph]) => {
+        if (!c || !Array.isArray(c.terms) || !c.terms.length) throw new Error("corpus shape");
+        C = c; ART = a || {}; PHOTOS = ph || {};
+        /* a real photograph (Wikimedia Commons, credited) wins over the drawing; a term with a photo is a picture term */
+        C.terms.forEach(t => { if (PHOTOS[t.id]) { t.photo = PHOTOS[t.id]; if (!t.img) t.img = t.id; } });
+        return C;
+      })
       .catch(e => { _err = true; _load = null; throw e; });
     return _load;
   }
@@ -687,12 +701,13 @@
   }
   function fullCardHTML(t, withActions, noHead) {
     const s = st(), r = s.t[t.id], fav = E.isFav(s, t.id), hard = r && r.hard;
-    const art = artSVG(t, w("v_alt_after", { w: t.en }));
+    const art = artSVG(t, w("v_alt_after", { w: t.en }), { credit: false });
     let saved = false; try { saved = vocHas(t.en.toLowerCase()); } catch (e) {}
     const sec = (ic, k, o) => o && (o.en || o.fr) ? `<div class="wm-f"><b>${wi(ic)} ${h(w(k))}</b>${o.en ? `<p lang="en">${h(o.en)}</p>` : ""}${o.fr ? `<p lang="fr" class="fr">${h(o.fr)}</p>` : ""}</div>` : "";
     return `<div class="wm-full">
       ${noHead ? "" : `<div class="wm-full-h">${art || catArt(t.cat)}<div><b lang="en">${h(t.en)}</b><span lang="fr">${h(t.fr)}</span><small>${h(catName(t.cat))}${t.lvl ? " · " + h(t.lvl) : ""}</small></div></div>`}
-      ${art && !noHead ? `<p class="wm-mut small">${wi("camera")} ${h(w("f_drawing"))}</p>` : ""}
+      ${art && !noHead && !t.photo ? `<p class="wm-mut small">${wi("camera")} ${h(w("f_drawing"))}</p>` : ""}
+      ${t.photo ? `<p class="wm-photo-credit">${wi("camera")} ${photoCredit(t.photo, true)}</p>` : ""}
       <div class="wm-row"><button class="btn btn-g btn-sm" data-wm="say" data-a="${h(t.en)}">${wi("sound")} ${h(w("hear"))}</button>${t.ex && t.ex.en ? `<button class="btn btn-g btn-sm" data-wm="say" data-a="${h(t.ex.en)}">${wi("chat")} ${h(w("hear_ex"))}</button>` : ""}</div>
       ${(t.syn || []).length || (t.frSyn || []).length ? `<p class="wm-mut small">${h(w("f_syn"))}: ${h((t.syn || []).concat(t.frSyn || []).join(" · "))}</p>` : ""}
       ${sec("book", "f_def", t.def)}${sec("tool", "f_use", t.use)}${sec("factory", "f_ctx", t.ctx)}${sec("chat", "f_ex", t.ex)}
@@ -709,7 +724,8 @@
   const SIZE = { cards: 10, quiz: 8, crossword: 10, visual: 8, listen: 6, builder: 6, match: 10, workshop: 4 };
   function poolFor(mode) {
     const all = mode === "cards" || mode === "builder" || mode === "listen" ? allTerms() : official();
-    if (mode === "visual") return all.filter(t => t.img);
+    /* picture games use real photographs only (owner, 9 Oct 2026); drawings remain on the cards */
+    if (mode === "visual") { const ph = all.filter(t => t.photo); return ph.length >= 8 ? ph : all.filter(t => t.img); }
     if (mode === "builder") return all.filter(t => E.builderOk(t) && (t.fr || (t.def && t.def.en)));
     if (mode === "crossword") return all.filter(E.crosswordOk);
     return all;
@@ -884,11 +900,12 @@
   function visualHTML() {
     const G = _G, t = byId(G.ids[G.i]); if (!t) { setTimeout(nextItem, 0); return ""; }
     const lbl = x => name1(x);
-    const opts = G.st.opts || (G.st.opts = E.shuffle([t.id].concat(E.distractors(official(), t.id, 3, G.seed + G.i, { needImg: true, label: lbl })), G.seed + G.i * 3));
+    const picPool = official().filter(x => (t.photo ? x.photo : x.img));
+    const opts = G.st.opts || (G.st.opts = E.shuffle([t.id].concat(E.distractors(picPool, t.id, 3, G.seed + G.i, { needImg: true, label: lbl })), G.seed + G.i * 3));
     const ans = G.st.ans;
     return `<p class="wm-q-h">${h(w("q_img"))}</p>
       <div class="wm-q-p wm-visual">${artSVG(t, ans ? w("v_alt_after", { w: t.en }) : w("v_alt"))}</div>
-      <p class="wm-mut small center">${h(w("f_drawing"))}</p>
+      ${t.photo ? "" : `<p class="wm-mut small center">${h(w("f_drawing"))}</p>`}
       <div class="wm-opts" role="group">${opts.map(id => { const o = byId(id), cls = ans ? (id === t.id ? "correct" : id === ans ? "wrong" : "") : ""; return `<button class="wm-opt ${cls}" data-wm="vpick" data-a="${h(id)}" ${ans ? "disabled" : ""}>${h(lbl(o))}</button>`; }).join("")}</div>
       ${ans ? feedbackHTML(t, ans === t.id, `<p lang="en"><b>${h(w("f_use"))}:</b> ${h(t.use.en)}</p><p lang="en"><b>${h(w("f_ctx"))}:</b> ${h(t.ctx.en)}</p>`) : ""}`;
   }
@@ -970,7 +987,7 @@
     if (slice.length < 2) return finish();
     let kind = MATCH_KINDS[(G.seed + round) % MATCH_KINDS.length];
     let items = slice.map(byId).filter(Boolean);
-    if (kind === "img") { const imgs = E.pick(st(), official().filter(t => t.img).map(t => t.id), 5, Date.now()); items = imgs.map(byId); }
+    if (kind === "img") { const ph = official().filter(t => t.photo), pool = ph.length >= 8 ? ph : official().filter(t => t.img); items = E.pick(st(), pool.map(t => t.id), 5, Date.now()).map(byId); }
     const right = x => kind === "en_fr" ? x.fr : kind === "def" ? blank(x.def.en, x) : kind === "use" ? blank(x.use.en, x) : kind === "ctx" ? blank(x.ctx.en, x) : "";
     G.st = { round, kind, items, rightOrder: E.shuffle(items.map(x => x.id), G.seed + round * 11), sel: null, done: {}, miss: {}, right };
     G.ids = G.ids.slice(0, round * 5).concat(items.map(x => x.id), G.ids.slice(round * 5 + 5));
@@ -978,7 +995,7 @@
   }
   function matchDraw() {
     const G = _G, M = G.st;
-    const rlabel = id => { const x = byId(id); return M.kind === "img" ? artSVG(x, w("v_alt")) : `<span>${h(M.right(x))}</span>`; };
+    const rlabel = id => { const x = byId(id); return M.kind === "img" ? artSVG(x, w("v_alt"), { credit: false }) : `<span>${h(M.right(x))}</span>`; };
     gameOpen("match", `<p class="wm-q-h">${h(w("m_" + M.kind))}</p><p class="wm-mut small">${h(w("m_prompt"))}</p>
       <div class="wm-match ${M.kind === "img" ? "img" : ""}">
         <div class="wm-mcol">${M.items.map(x => `<button class="wm-m ${M.sel === x.id ? "sel" : ""} ${M.done[x.id] ? (M.miss[x.id] ? "late" : "ok") : ""}" data-wm="mleft" data-a="${h(x.id)}" ${M.done[x.id] ? "disabled" : ""} aria-pressed="${M.sel === x.id}">${h(x.en)}</button>`).join("")}</div>

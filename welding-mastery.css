@@ -340,3 +340,14 @@ html.wm-still .wm-game *, html.wm-still .wm-cel, html.wm-still .wm-sheet, html.w
 /* Quick Practice on Welding has three boosters (General English has four): the
    row fills the whole line instead of leaving the fourth column empty. */
 :root[data-track="welding"] .prac-ex { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* real photographs (Wikimedia Commons, credited under each one) */
+.wm-photo { margin: 0 auto; max-width: 340px; }
+.wm-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #0b1224; }
+.wm-photo figcaption { margin-top: 5px; font-size: 10.5px; line-height: 1.3; color: var(--wm-mut); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wm-card-front .wm-photo { width: 100%; max-width: 280px; }
+.wm-full-h .wm-photo { width: 104px; flex: none; margin: 0; }
+.wm-photo-credit { font-size: 11px; color: var(--wm-mut); display: flex; gap: 5px; align-items: center; margin: 4px 0; }
+.wm-photo-credit .wm-ic { width: 14px; height: 14px; } .wm-photo-credit a { color: var(--wm-mut); }
+.wm-m .wm-photo { max-width: 120px; } .wm-m .wm-photo img { border-radius: 10px; }
+.wm-q-p .wm-photo { max-width: 360px; }

@@ -158,13 +158,13 @@ console.log("\n# Game 4 · Visual recognition");
 {
   const { p } = W;
   await p.evaluate(() => WMUI._start("visual")); await sleep(250);
-  const v = await p.evaluate(() => { const G = WMUI._game(), art = document.querySelector(".wm-visual svg.wm-art"); return { art: !!art, alt: art && art.getAttribute("aria-label"), ans: G.ids[G.i], opts: [...document.querySelectorAll(".wm-opt")].map(b2 => b2.dataset.a), allImg: G.ids.every(id => WMUI._corpus().terms.find(t => t.id === id).img) }; });
-  ok("G4a · a drawing, four named options, every item has a drawing", v.art && v.opts.length === 4 && v.allImg, JSON.stringify(v));
+  const v = await p.evaluate(() => { const G = WMUI._game(), art = document.querySelector(".wm-visual .wm-photo img, .wm-visual svg.wm-art"); return { art: !!art, photo: !!document.querySelector(".wm-visual .wm-photo img"), credit: (document.querySelector(".wm-visual figcaption") || {}).textContent || "", alt: art && (art.getAttribute("alt") || art.getAttribute("aria-label")), ans: G.ids[G.i], opts: [...document.querySelectorAll(".wm-opt")].map(b2 => b2.dataset.a), allImg: G.ids.every(id => WMUI._corpus().terms.find(t => t.id === id).photo) }; });
+  ok("G4a · a real photograph with its credit, four named options, every item in the round is a photo", v.art && v.photo && /Photo: .+ · /.test(v.credit) && v.opts.length === 4 && v.allImg, JSON.stringify(v));
   ok("G4b · the drawing's alt text does not give the answer", !/grinder|clamp|helmet|electrode/i.test(v.alt) && /Which is it/.test(v.alt), v.alt);
   ok("G4c · look-alike drawings are never offered together", await p.evaluate(o => o.opts.every(a => o.opts.every(c => a === c || !WMEngine.lookalike(a, c))), v));
   await click(p, `.wm-opt[data-a="${v.ans}"]`);
-  const after = await p.evaluate(() => ({ alt: document.querySelector(".wm-visual svg.wm-art").getAttribute("aria-label"), fb: (document.querySelector(".wm-fb") || {}).textContent || "" }));
-  ok("G4d · after the answer: name, definition, purpose and context", /Line drawing of:/.test(after.alt) && /What it is for/.test(after.fb) && /On the job/.test(after.fb), JSON.stringify(after).slice(0, 300));
+  const after = await p.evaluate(() => ({ alt: document.querySelector(".wm-visual .wm-photo img, .wm-visual svg.wm-art").getAttribute("alt") || "", fb: (document.querySelector(".wm-fb") || {}).textContent || "" }));
+  ok("G4d · after the answer: name, definition, purpose and context", /Picture of:/.test(after.alt) && /What it is for/.test(after.fb) && /On the job/.test(after.fb), JSON.stringify(after).slice(0, 300));
   await click(p, '[data-wm="gclose"]');
 }
 
