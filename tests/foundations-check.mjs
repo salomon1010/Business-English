@@ -2,8 +2,8 @@
    compared word by word with the sentence; the learner sees what they said, the
    words to fix, practises a word until it is heard, and the next sentence opens
    only when the whole sentence reaches 80 %. Nothing passes when the check cannot
-   run. The 15-day evaluation counts only what really happened. Welding keeps its
-   production behaviour (the recording finishes the item).
+   run. The 15-day evaluation counts only what really happened. Welding gets the
+   same check with its own evidence (owner, 9 Oct 2026).
    Run: cd tests && node foundations-check.mjs      (BASE=… for another tree)
    WebKit, iPhone 13. The microphone is the only stub: the Polish Worker is
    answered at the network level, so the app's own fbTranscribe / fbAssess run. */
@@ -129,20 +129,29 @@ console.log("\n# General English — the check is required");
   await ctx.close();
 }
 
-console.log("\n# Welding — production behaviour, unchanged");
+console.log("\n# Welding — the same check (owner, 9 Oct 2026), its own evidence");
 {
   const { ctx, p, errs } = await learner("welding");
   W.calls = { tx: 0, assess: 0, chat: 0 };
   const lock = await p.evaluate(() => ({ l1: document.getElementById("fndItem1").classList.contains("locked"), d1: document.getElementById("fndRec1").disabled }));
-  ok("24 · Welding: no sentence lock", !lock.l1 && !lock.d1, JSON.stringify(lock));
-  await p.evaluate(() => fndRecord(2, 0)); await sleep(1500);
-  const s = await state(p);
-  ok("25 · Welding: the recording finishes the item, score shown as feedback, no transcript report", s.done && s.tick && !s.report && W.calls.tx === 0, JSON.stringify({ s, calls: W.calls }));
-  const ev = await p.evaluate(() => fndState().ev || null);
-  ok("26 · Welding: no evaluation record and no readiness report", !ev && !(await p.evaluate(() => !!document.getElementById("fndReport"))), JSON.stringify(ev));
-  const ge = await p.evaluate(() => JSON.stringify((S.fnd["general-english"] || {}).ev || null));
-  ok("27 · track isolation: Welding's state holds nothing of General English's evaluation", ge === "null", ge);
-  ok("28 · Welding: no JavaScript errors", !errs.filter(e => !/access control|cloudflareinsights/.test(e)).length, errs.join(" | "));
+  ok("24 · Welding: the next sentence is locked until this one passes", lock.l1 && lock.d1, JSON.stringify(lock));
+  W.tx = ["Where do you go?"]; await p.evaluate(() => fndRecord(2, 0)); await sleep(1500);
+  let s = await state(p);
+  ok("25 · Welding: 'Where do you go?' → transcript shown, 0 %, blocked, four words to fix with tips", s.said && s.said.includes("Where do you go?") && s.pct === "0%" && !s.done && s.nextLocked && s.fix.length === 4 && /Accentuez/.test(s.fixText), JSON.stringify(s));
+  W.tx = ["Understand."]; await p.evaluate(() => fndDrill(2, 0, "understand")); await sleep(1100);
+  s = await state(p);
+  ok("26 · Welding: word practice works and does not pass the sentence", /heard clearly|entendu clairement/.test(s.fixText) && !s.done && s.nextLocked, JSON.stringify(s));
+  W.tx503 = true; await p.evaluate(() => fndRecord(2, 0)); await sleep(1200);
+  s = await state(p);
+  ok("27 · Welding: a failed check never passes", !s.done && s.err.length > 10, JSON.stringify(s));
+  W.tx503 = false; W.tx = ["Sorry, I don't understand."]; await p.evaluate(() => fndRecheck(2, 0)); await sleep(1500);
+  s = await state(p);
+  ok("28 · Welding: the whole sentence clear → mastered, next opens, evaluation recorded", s.done && s.pct === "100%" && s.nextLocked === false && s.ev && s.ev.first === 0 && s.ev.best === 100 && s.ev.tries === 2, JSON.stringify(s));
+  const rep = await p.evaluate(() => { const el = document.getElementById("fndReport"); return { d: fndReportData(), tag: el && el.tagName }; });
+  ok("29 · Welding: its own readiness report (1 of 45, day 1 listed as recorded before the check)", rep.tag === "DETAILS" && rep.d.mastered === 1 && rep.d.recOnly === 3, JSON.stringify(rep));
+  const iso = await p.evaluate(() => ({ ge: JSON.stringify((S.fnd["general-english"] || {}).ev || null), we: Object.keys((S.fnd.welding || {}).ev || {}) }));
+  ok("30 · track isolation: Welding's evidence is under welding only; nothing of it under General English", iso.ge === "null" && iso.we.join() === "d2-0", JSON.stringify(iso));
+  ok("31 · Welding: no JavaScript errors", !errs.filter(e => !/access control|cloudflareinsights/.test(e)).length, errs.join(" | "));
   await ctx.close();
 }
 
