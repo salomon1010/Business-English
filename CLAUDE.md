@@ -825,6 +825,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   `say` — licence). Id `scene.<slug>`; gate `scnOn()`; `vidThumb()` for any clip
   picture. Details: `marketing/product/practice-partner/SHADOW_STUDIO_V2.md` §
   Animated scenes. Tests `tests/shadow-scenes.mjs` (64).
+- **Welding Mastery (9 Oct 2026, `feature/welding-mastery`, Welding ONLY, flag
+  `welding_mastery_enabled`: staging ON, production OFF) — `docs/WELDING_MASTERY.md`.** The game
+  hub `go("mastery", tab)` (`#v-mastery`): 250 terms in `tracks/welding/mastery.json` (the 38 old
+  words kept, the 24 curriculum definitions word for word), 52 original drawings in
+  `mastery-art.json`, eight games, Journey, Collection (favourites, custom words, the old saved
+  list moved here), Rewards, History (every round and answer, folded), Performance; a Game
+  Performance card on Progress. Rules in the pure `welding-mastery-engine.js` (mastery = 3
+  different days + one active recall, never XP; XP idempotent by event id), screens in
+  `welding-mastery.js` (its own en/fr `TX`). State `S.wm.welding`, merged by `WMEngine.merge` in
+  `fbMerge`, trimmed in `fbSyncPayload`. Gate `WMUI.on()` everywhere. Tests:
+  `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the

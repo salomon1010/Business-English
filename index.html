@@ -79,6 +79,10 @@
 <script src="answer-evaluator.js?v=84"></script>
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
+<!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
+<link rel="stylesheet" href="welding-mastery.css?v=1">
+<script src="welding-mastery-engine.js?v=1"></script>
+<script src="welding-mastery.js?v=1"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -6586,6 +6590,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   <div id="v-phrasebank" class="view"></div>
   <div id="v-shadow" class="view"></div>
   <div id="v-practice" class="view"></div>
+  <div id="v-mastery" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
@@ -11149,7 +11154,7 @@ function go(v,arg1,arg2){
   const _pgPrev=(typeof cur!=="undefined"&&cur)?cur:null;
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
+  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"||v==="mastery"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -11182,7 +11187,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist,mastery:(e,a,b)=>window.WMUI?WMUI.render(e,a,b):go("practice")})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -20738,8 +20743,9 @@ function rPractice(el){
   </div>
   ${_libGroup==="vocabulary"?`
   <div class="prac-kb">
-    <h3 class="prac-kb-h">${t("prac.kb_h")}</h3>
-    <p class="prac-sec-sub">${t("prac.kb_sub")}</p>
+    ${/* Welding Mastery: on the Welding programme the three boosters are the "Quick Practice" row; General English keeps its wording */""}
+    <h3 class="prac-kb-h">${window.WMUI&&WMUI.on()?esc(WMUI.quickH()):t("prac.kb_h")}</h3>
+    <p class="prac-sec-sub">${window.WMUI&&WMUI.on()?esc(WMUI.quickSub()):t("prac.kb_sub")}</p>
     <div class="prac-ex">
       <button class="prac-ex-card ${_kbReady.fc?"ready":""}" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
       <button class="prac-ex-card ${_kbReady.qz?"ready":""}" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
@@ -21931,6 +21937,10 @@ window.simOpenMissionDebrief=id=>{
 function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;try{AdManager.markBreak("practice_complete")}catch(e){}if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
+  /* Welding Mastery replaces the long professional list, the saved-word tabs,
+     the empty state and the add field with ONE portal card; all of them now
+     live inside the hub (Collection). General English is unchanged. */
+  if(window.WMUI&&WMUI.on()){WMUI.portalInto(el);manIconizeInline(el);return}
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
   const curriculumWords=trackVocabularyWords(),vocabulary=trackVocabulary();
   el.innerHTML=`
@@ -22440,7 +22450,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v661";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v663";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24229,6 +24239,7 @@ const FLAGS_DEFAULT={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
+  welding_mastery_enabled:false,       // Welding Mastery game hub (Welding programme only, 9 Oct 2026): staging ON, production OFF until the owner releases it
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
@@ -24261,6 +24272,7 @@ const FLAGS_STAGING={
   learning_nudges_enabled:true,
   home_v2_enabled:true,
   welding_studio_enabled:true,
+  welding_mastery_enabled:true,        // Welding Mastery game hub — staging only
   /* Google + Apple sign-in. flag() returns !!FLAGS_STAGING[name] on a staging
      bundle and never falls through to FLAGS_DEFAULT, so a key that lives only
      there is silently OFF here — which is why the buttons vanished on the
@@ -32008,6 +32020,7 @@ function rReview(el,wArg){
   ${pgEssentialsHTML()}
   <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
   ${pfCertHTML()}
+  ${window.WMUI&&WMUI.on()?WMUI.perfCardHTML():""}
   <div class="pf-group-h pg-record-h">${t("pf.record_h")}</div>
   ${pfRecordCoreHTML(pgRecordLocked())}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
@@ -34739,7 +34752,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist"];
+  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist","mastery"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);
@@ -35256,6 +35269,9 @@ function fbMerge(local,cloud){
        gram   — grammar drill stats; keep the best score and the higher run count.
        convos — AI conversations; union on timestamp, same 200 cap as roleplay. */
   m.dayLog=fbMax(local.dayLog,cloud.dayLog);
+  /* Welding Mastery: per word the copy with more answers, XP per day the larger copy
+     (never the sum), achievements their earliest date — WMEngine.merge */
+  if(local.wm||cloud.wm)m.wm=window.WMEngine?WMEngine.merge(local.wm||{},cloud.wm||{}):Object.assign({},cloud.wm,local.wm);
   /* certificate date: per area, the earlier finish wins, so it never moves */
   {const L=local.certAt||{},C=cloud.certAt||{},o={};new Set(Object.keys(L).concat(Object.keys(C))).forEach(a=>{o[a]=(L[a]&&C[a])?(L[a]<C[a]?L[a]:C[a]):(L[a]||C[a])});m.certAt=o;}
   /* The per-area stores split one level deeper than everything above: the outer
@@ -35583,6 +35599,8 @@ function fbSyncPayload(s){
      a second device that adopted it would take over the first one's reminder
      (see pushId). It lives in localStorage; this strip stops the old copies. */
   delete out.pushId;
+  /* Welding Mastery: the open round stays on the device; day records older than 120 days stay too */
+  if(out.wm&&window.WMEngine){const o={};Object.entries(out.wm).forEach(([a,v])=>{o[a]=WMEngine.trimForSync(v,Date.now())});out.wm=o}
   /* the Challenge history travels (the line, the verdict, what to fix); the
      learner's own spoken words stay on the device, as everywhere else */
   if(out.chHistA){const o={};Object.entries(out.chHistA).forEach(([a,list])=>{o[a]=(list||[]).map(e=>{const y=Object.assign({},e);delete y.heard;return y})});out.chHistA=o}
