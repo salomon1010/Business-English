@@ -106,8 +106,6 @@ export default [
    `<h3>翻译与音标</h3><p>逐词查看每句跟读内容的译文和音标。</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>实时练习通话</h3><p>与真实伙伴进行计时的多轮对话，并为你这一方生成私密报告。</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>会开口的教练</h3><p>你的口语报告由教练朗读给你听，附带纠错和更好的表达。</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> 问题所在</span>`],
@@ -314,7 +312,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>两个项目</b><span>焊接英语与通用英语并排显示</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> 适合谁</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> 适合谁</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2>为了那个<span class="grad">轮到你开口</span>的时刻。</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>在会议上</b><p>你听得懂每一句话，可轮到自己发言时却愣住了。提前把要汇报的内容排练一遍。</p>`],
@@ -326,7 +324,7 @@ export default [
    `<b>技术工种</b><p>焊工有专属项目：车间用语、安全、质量检查，以及面试。</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> 两个项目</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> 两个项目</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>两条路径，一个目标：<span class="grad">自信沟通</span>。</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `选择与你真实身处的场景相匹配的那一个。两者是各自独立的项目，进度也各自分开——随时可以切换。`],
@@ -351,7 +349,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `如果需要，可以先从十五天的母语基础课程开始。`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> 焊接英语</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> 焊接英语</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>车间、<span class="grad">工地与面试</span>要用到的英语。</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `这是专为技术工种打造的独立项目。你练习的是主管、检查员和面试官真正会说的话——以及他们期待听到的回答。`],
@@ -409,7 +407,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>你自己的进度</b><span>与通用英语分开保存</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> 价格</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> 价格</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2>免费<span class="grad">开始</span>。</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `十二周项目、Shadow Studio、AI 教练、Practice Partner，以及你的进度，目前全部免费，无需绑定银行卡。`],
@@ -462,7 +460,7 @@ export default [
    `<p>不是。它只证明你完成了整个项目，上面会印有你的名字，并非水平测试。</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>你的口语练习，<span class="grad">随身相伴</span>。</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `地铁上、停车场里、会议开始前，二十五分钟足矣。应用负责录音、打分、记住一切——打开它时，或许还有伙伴正在等你。`],
@@ -471,4 +469,46 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>离线</b><span>没有信号也能练习</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 种语言</b><span>用你的母语来指引</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>在真正重要的时刻，有底气开口。</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> 在游戏中学习</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>玩五分钟，<span class="grad">收获真正的英语</span>。</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `每个课程都有自己的游戏中心，由它自己的课程内容构建。八个简短的游戏把你所学的内容变成可以大声说出口的回答。`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery，面向通用英语：</b>来自你的 12 周计划和日常生活的 385 个单词、短语和句子，分布在八个游戏中 — Word Quest、Quick Quiz、Sentence Builder、Listen &amp; Win、Speak Up、Phrase Match、Word Puzzle 和 Real-Life Missions。`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery，面向焊接英语：</b>250 个行业词汇，配有工具的真实照片，还有填字游戏、听力回合和车间挑战。`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>每日任务、每周目标和技能徽章。</b>一个词只有在三个不同的日子都答对后才算掌握 — 仅靠 XP 永远不够。`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up 会听你说：</b>说一句话，看看哪些词被识别出来。发音评分由 AI 给出，并会注明。`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `登录即可开始游戏。免费：每个课程每天五轮挑战 — 答错从不消耗回合 — 外加无限复习和每日任务。Premium：无限回合、进阶情境以及 30 天和 90 天趋势。`],
+  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
+   `<h3 class="shots-h" data-reveal>游戏中心内部</h3>`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>每日任务和你的每周目标</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>八个游戏</b><span>每个练习一种不同的技能</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>看看哪些词被识别出来</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>250 个行业词汇，真实照片</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `English Mastery 中心：等级、XP、连续天数和能量、今日英语任务和每周目标`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `English Mastery 的游戏：Word Quest、Quick Quiz、Sentence Builder 和 Listen &amp; Win，每个都标明所练习的技能`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `录音后的 Speak Up：识别出 88% 的单词，缺少的词以红色标出`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Welding Mastery 的游戏：卡片、测验、填字游戏、图像识别、听力和拼词`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>在游戏中学习</h3><p>English Mastery 和 Welding Mastery：各有八个游戏、每日任务和技能徽章。</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery：用你计划中的单词和短语玩八个游戏</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery：用 250 个行业词汇玩八个游戏，配有真实照片</span>`],
 ];

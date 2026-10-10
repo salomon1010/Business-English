@@ -107,8 +107,6 @@ export default [
    `<h3>번역과 발음기호</h3><p>섀도잉 문장을 한 단어씩 내 언어와 발음기호로 확인하세요.</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>실시간 연습 통화</h3><p>진짜 파트너와 함께하는 정해진 시간의 라운드, 그리고 내 쪽 대화에 대한 비공개 리포트.</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>말해주는 코치</h3><p>내 말하기 리포트를 코치가 직접 읽어주며, 교정 사항과 더 나은 표현을 알려줍니다.</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> 문제</span>`],
@@ -315,7 +313,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>두 프로그램 모두</b><span>용접 영어와 일반 영어를 나란히</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> 이런 분들을 위한 서비스</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> 이런 분들을 위한 서비스</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2><span class="grad">당신이 말할 차례</span>인 바로 그 순간을 위해.</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>회의에서</b><p>모든 말을 다 따라가다가, 내 차례가 되면 얼어붙습니다. 보고하기 전에 미리 연습하세요.</p>`],
@@ -327,7 +325,7 @@ export default [
    `<b>숙련 기술직</b><p>용접공을 위한 전용 프로그램: 작업장, 안전, 품질 검사, 그리고 면접.</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> 두 가지 프로그램</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> 두 가지 프로그램</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>두 가지 길. 하나의 목표: <span class="grad">자신 있는 소통</span>.</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `당신이 실제로 들어가는 자리에 맞는 프로그램을 선택하세요. 두 프로그램은 서로 독립적이며 진행 상황도 별도로 관리됩니다 — 언제든 전환할 수 있습니다.`],
@@ -352,7 +350,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `필요하다면, 모국어로 진행되는 15일간의 기초 과정부터 시작할 수 있습니다.`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> 용접 영어</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> 용접 영어</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>작업장, <span class="grad">현장, 그리고 면접</span>을 위한 영어.</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `숙련 기술직을 위한 전용 프로그램입니다. 반장, 검사관, 면접관이 실제로 하는 말과, 그들이 기대하는 답변을 연습합니다.`],
@@ -410,7 +408,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>나만의 진행 상황</b><span>일반 영어와 별도로 관리</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> 요금</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> 요금</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2><span class="grad">무료로</span> 시작하세요.</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `12주 프로그램, Shadow Studio, AI 코치, Practice Partner, 그리고 진행 상황 관리까지 지금은 모두 무료입니다. 카드 등록도 필요 없습니다.`],
@@ -463,7 +461,7 @@ export default [
    `<p>아니요. 당신의 이름이 적힌, 프로그램 완료를 보여주는 증서일 뿐, 레벨 테스트는 아닙니다.</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>말하기 연습이 <span class="grad">당신과 함께 움직입니다</span>.</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `지하철에서, 주차장에서, 회의 전에 25분. 앱이 녹음하고, 채점하고, 기억합니다 — 그리고 앱을 열면 파트너가 기다리고 있을 수도 있습니다.`],
@@ -472,4 +470,46 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>오프라인</b><span>신호가 없어도 연습 가능</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15개 언어</b><span>내 언어로 받는 안내</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>정말 중요한 순간에 말할 수 있는 자신감을 키우세요.</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> 게임으로 배우기</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>5분의 게임, <span class="grad">끝에는 진짜 영어</span>.</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `각 프로그램에는 자체 수업으로 만든 고유한 게임 허브가 있습니다. 여덟 가지 짧은 게임이 배우는 내용을 소리 내어 말할 수 있는 답으로 바꿔 줍니다.`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery, 일반 영어:</b> 12주 계획과 일상생활에서 가져온 385개의 단어·표현·문장을 여덟 가지 게임으로 — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle, Real-Life Missions.`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery, 용접 영어:</b> 공구의 실제 사진이 있는 직무 단어 250개, 십자말풀이, 듣기 라운드, 작업장 도전 과제.`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>오늘의 미션, 주간 목표, 기술 배지.</b> 단어는 서로 다른 세 날에 정답을 맞힌 뒤에야 익힌 것으로 인정됩니다 — XP만으로는 절대 익힐 수 없습니다.`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up이 여러분의 말을 듣습니다:</b> 문장을 말하고 어떤 단어가 전달됐는지 확인하세요. 발음 점수는 AI가 매기며, 그 사실을 밝힙니다.`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `플레이하려면 로그인하세요. 무료: 프로그램마다 하루 5번의 도전 라운드 — 틀린 답은 절대 라운드를 소모하지 않습니다 — 그리고 무제한 복습과 오늘의 미션. Premium: 무제한 라운드, 고급 상황, 30일·90일 추세.`],
+  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
+   `<h3 class="shots-h" data-reveal>게임 허브 안에서</h3>`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>오늘의 미션과 주간 목표</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>여덟 가지 게임</b><span>각각 다른 기술을 연습합니다</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>어떤 단어가 전달됐는지 확인</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>직무 단어 250개, 실제 사진</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `English Mastery 허브: 레벨, XP, 연속 기록과 에너지, 오늘의 영어 미션과 주간 목표`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `English Mastery 게임: Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, 각 게임이 연습하는 기술 표시`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `녹음 후 Speak Up: 단어의 88% 인식, 빠진 단어는 빨간색으로 표시`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Welding Mastery 게임: 카드, 퀴즈, 십자말풀이, 시각 인식, 듣기, 단어 만들기`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>게임으로 배우기</h3><p>English Mastery와 Welding Mastery: 각각 여덟 가지 게임, 오늘의 미션, 기술 배지.</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery: 계획 속 단어와 표현으로 하는 여덟 가지 게임</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery: 직무 단어 250개로 하는 여덟 가지 게임, 실제 사진 포함</span>`],
 ];

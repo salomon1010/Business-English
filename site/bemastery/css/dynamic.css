@@ -142,3 +142,6 @@
 .inside-weld{margin-top:18px}
 .inside-weld .in-card{border-color:rgba(245,184,61,.28)}
 .inside-weld .in-card:hover{border-color:rgba(245,184,61,.6)}
+
+/* Play to learn (10 Oct 2026): the four game-hub shots sit in a row on desktop; the copy below is one readable column */
+.games-copy{max-width:760px;margin:6px auto 0}

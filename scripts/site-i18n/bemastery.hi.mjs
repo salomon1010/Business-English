@@ -107,8 +107,6 @@ export default [
    `<h3>अनुवाद और IPA</h3><p>शैडो की हर लाइन अपनी भाषा में और फ़ोनेटिक्स में, शब्द दर शब्द देखें।</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>लाइव प्रैक्टिस कॉल</h3><p>किसी असली पार्टनर के साथ तय समय के राउंड, और कॉल में आपके हिस्से की निजी रिपोर्ट।</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>बोलने वाला कोच</h3><p>आपकी स्पीकिंग रिपोर्ट, कोच द्वारा आपको पढ़ी गई, सुधार और बेहतर शब्दों के साथ।</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> समस्या</span>`],
@@ -315,7 +313,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>दोनों प्रोग्राम</b><span>वेल्डिंग और सामान्य अंग्रेज़ी साथ-साथ</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> यह किनके लिए है</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> यह किनके लिए है</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2>उस पल के लिए जब <span class="grad">बोलने की बारी आपकी होती है</span>।</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>मीटिंग में</b><p>आप हर बात समझते हैं, फिर जब बारी आती है तो रुक जाते हैं। अपना अपडेट देने से पहले उसका अभ्यास करें।</p>`],
@@ -327,7 +325,7 @@ export default [
    `<b>कुशल ट्रेड</b><p>वेल्डरों के लिए अपना अलग प्रोग्राम है: वर्कशॉप, सुरक्षा, क्वालिटी चेक, और इंटरव्यू।</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> दो प्रोग्राम</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> दो प्रोग्राम</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>दो रास्ते। एक लक्ष्य: <span class="grad">आत्मविश्वास से संवाद</span>।</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `वह चुनें जो उस जगह से मेल खाता है जहाँ आप सचमुच जाते हैं। ये अलग-अलग प्रोग्राम हैं, अपनी-अपनी प्रगति के साथ — जब चाहें बदल लें।`],
@@ -352,7 +350,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `अगर ज़रूरत हो तो आपकी अपनी भाषा में बुनियाद के पंद्रह दिनों से शुरू होता है।`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> वेल्डिंग की अंग्रेज़ी</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> वेल्डिंग की अंग्रेज़ी</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>वर्कशॉप, <span class="grad">साइट और इंटरव्यू</span> की अंग्रेज़ी।</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `कुशल ट्रेड के लिए अपना अलग प्रोग्राम। आप उन वाक्यों का अभ्यास करते हैं जो एक सुपरवाइज़र, एक इंस्पेक्टर, और एक इंटरव्यूअर सचमुच बोलते हैं — और उन जवाबों का जो वे आपसे चाहते हैं।`],
@@ -410,7 +408,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>आपकी अपनी प्रगति</b><span>सामान्य अंग्रेज़ी से अलग रखी गई</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> कीमत</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> कीमत</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2><span class="grad">शुरू करने के लिए</span> मुफ़्त।</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `बारह हफ़्ते का प्रोग्राम, Shadow Studio, AI कोच, Practice Partner, और आपकी प्रगति — सब आज मुफ़्त हैं। किसी कार्ड की ज़रूरत नहीं।`],
@@ -463,7 +461,7 @@ export default [
    `<p>नहीं। यह दिखाता है कि आपने प्रोग्राम पूरा किया, आपके नाम के साथ। यह स्तर की परीक्षा नहीं है।</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>आपकी स्पीकिंग प्रैक्टिस <span class="grad">आपके साथ चलती है</span>।</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `ट्रेन में, पार्किंग में, मीटिंग से पहले — पच्चीस मिनट। ऐप रिकॉर्ड करता है, स्कोर देता है, और याद रखता है — और जब आप इसे खोलते हैं तो एक पार्टनर इंतज़ार में हो सकता है।`],
@@ -472,4 +470,46 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>ऑफ़लाइन</b><span>बिना सिग्नल के भी अभ्यास करें</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 भाषाएँ</b><span>आपकी अपनी भाषा में मार्गदर्शन</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>ज़रूरत के वक़्त बोलने का आत्मविश्वास बनाएँ।</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> खेलकर सीखें</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>पाँच मिनट का खेल, <span class="grad">आख़िर में असली अंग्रेज़ी</span>।</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `हर प्रोग्राम का अपना गेम हब है, जो उसके अपने पाठों से बना है। आठ छोटे गेम आप जो सीख रहे हैं उसे ऐसे जवाबों में बदलते हैं जिन्हें आप ज़ोर से बोल सकें।`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery, जनरल इंग्लिश के लिए:</b> आपकी 12 हफ़्ते की योजना और रोज़मर्रा की ज़िंदगी से 385 शब्द, वाक्यांश और वाक्य, आठ गेम में — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle और Real-Life Missions।`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery, वेल्डिंग इंग्लिश के लिए:</b> औज़ारों की असली तस्वीरों के साथ पेशे के 250 शब्द, एक क्रॉसवर्ड, सुनने के राउंड और वर्कशॉप चुनौतियाँ।`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>रोज़ का मिशन, हफ़्ते का लक्ष्य और कौशल बैज।</b> कोई शब्द तभी पक्का माना जाता है जब तीन अलग-अलग दिनों में सही जवाब मिलें — सिर्फ़ XP से कभी नहीं।`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up आपको सुनता है:</b> एक वाक्य बोलें और देखें कौन से शब्द पहुँचे। उच्चारण स्कोर AI देता है, और यह बताया जाता है।`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `खेलने के लिए साइन इन करें। मुफ़्त: हर प्रोग्राम में रोज़ पाँच चैलेंज राउंड — ग़लत जवाब से कभी राउंड नहीं घटता — साथ में असीमित दोहराव और रोज़ का मिशन। Premium: असीमित राउंड, उन्नत स्थितियाँ और 30 और 90 दिन के रुझान।`],
+  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
+   `<h3 class="shots-h" data-reveal>गेम हब के अंदर</h3>`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>रोज़ का मिशन और आपका हफ़्ते का लक्ष्य</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>आठ गेम</b><span>हर एक अलग कौशल का अभ्यास कराता है</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>देखें कौन से शब्द पहुँचे</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>पेशे के 250 शब्द, असली तस्वीरें</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `English Mastery हब: लेवल, XP, स्ट्रीक और एनर्जी, आज का अंग्रेज़ी मिशन और हफ़्ते का लक्ष्य`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `English Mastery के गेम: Word Quest, Quick Quiz, Sentence Builder और Listen &amp; Win, हर एक के साथ उसका कौशल`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `रिकॉर्डिंग के बाद Speak Up: 88% शब्द सुने गए, छूटा हुआ शब्द लाल रंग में`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Welding Mastery के गेम: कार्ड, क्विज़, क्रॉसवर्ड, दृश्य पहचान, सुनना और शब्द बनाएँ`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>खेलकर सीखें</h3><p>English Mastery और Welding Mastery: हर एक में आठ गेम, रोज़ का मिशन और कौशल बैज।</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery: आपकी योजना के शब्दों और वाक्यांशों पर आठ गेम</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery: पेशे के 250 शब्दों पर आठ गेम, असली तस्वीरों के साथ</span>`],
 ];

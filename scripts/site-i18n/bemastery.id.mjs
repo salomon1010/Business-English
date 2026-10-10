@@ -106,8 +106,6 @@ export default [
    `<h3>Terjemahan dan IPA</h3><p>Lihat setiap kalimat Shadow dalam bahasa Anda dan dalam fonetik, kata demi kata.</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>Panggilan latihan langsung</h3><p>Babak berwaktu dengan partner sungguhan, dan laporan pribadi untuk bagian Anda dalam panggilan.</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>Pelatih yang bersuara</h3><p>Laporan bicara Anda, dibacakan oleh pelatih, lengkap dengan koreksi dan kata-kata yang lebih tepat.</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> Masalahnya</span>`],
@@ -314,7 +312,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>Kedua program</b><span>Pengelasan dan Bahasa Inggris umum berdampingan</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> Untuk siapa</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> Untuk siapa</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2>Untuk saat <span class="grad">tiba giliran Anda untuk berbicara</span>.</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>Dalam rapat</b><p>Anda mengikuti setiap kata, lalu membeku saat tiba giliran Anda. Latih pembaruan Anda sebelum menyampaikannya.</p>`],
@@ -326,7 +324,7 @@ export default [
    `<b>Bidang kerja terampil</b><p>Tukang las mendapat programnya sendiri: bengkel, keselamatan, pemeriksaan kualitas, dan wawancara.</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> Dua program</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> Dua program</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>Dua jalur. Satu tujuan: <span class="grad">komunikasi yang percaya diri</span>.</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `Pilih yang sesuai dengan dunia tempat Anda sebenarnya berada. Keduanya adalah program terpisah dengan kemajuan terpisah — beralih kapan saja Anda mau.`],
@@ -351,7 +349,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `Dimulai dengan lima belas hari Dasar dalam bahasa Anda sendiri, jika Anda membutuhkannya.`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> Bahasa Inggris pengelasan</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> Bahasa Inggris pengelasan</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>Bahasa Inggris untuk bengkel, <span class="grad">lokasi kerja, dan wawancara</span>.</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `Program tersendiri untuk bidang kerja terampil. Anda melatih kalimat yang sungguh-sungguh diucapkan oleh supervisor, inspektur, dan pewawancara — serta jawaban yang mereka harapkan.`],
@@ -409,7 +407,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>Kemajuan Anda sendiri</b><span>Terpisah dari Bahasa Inggris umum</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> Harga</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> Harga</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2>Gratis <span class="grad">untuk mulai</span>.</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `Program dua belas minggu, Shadow Studio, pelatih AI, Practice Partner, dan kemajuan Anda gratis hari ini. Tidak perlu kartu.`],
@@ -462,7 +460,7 @@ export default [
    `<p>Tidak. Sertifikat ini menunjukkan Anda menyelesaikan program, dengan nama Anda tercantum. Ini bukan tes level.</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>Latihan bicara Anda <span class="grad">ikut ke mana saja Anda pergi</span>.</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `Dua puluh lima menit di kereta, di tempat parkir, sebelum rapat. Aplikasi ini merekam, menilai, dan mengingat — dan seorang partner bisa saja sudah menunggu saat Anda membukanya.`],
@@ -471,4 +469,46 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>Tanpa koneksi</b><span>Berlatih tanpa sinyal</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 bahasa</b><span>Panduan dalam bahasa Anda sendiri</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>Bangun rasa percaya diri untuk berbicara saat itu penting.</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> Belajar sambil bermain</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>Lima menit bermain, <span class="grad">bahasa Inggris nyata di akhirnya</span>.</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `Setiap program punya ruang permainannya sendiri, dibangun dari pelajarannya sendiri. Delapan permainan singkat mengubah apa yang Anda pelajari menjadi jawaban yang bisa Anda ucapkan dengan lantang.`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery, untuk bahasa Inggris umum:</b> 385 kata, ungkapan, dan kalimat dari rencana 12 minggu Anda dan dari kehidupan sehari-hari, dalam delapan permainan — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle, dan Real-Life Missions.`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery, untuk bahasa Inggris pengelasan:</b> 250 kata profesi dengan foto asli peralatan, teka-teki silang, putaran mendengarkan, dan tantangan bengkel.`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>Misi harian, target mingguan, dan lencana keterampilan.</b> Sebuah kata baru dianggap dikuasai setelah jawaban benar di tiga hari berbeda — XP saja tidak pernah cukup.`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up mendengarkan Anda:</b> ucapkan sebuah kalimat dan lihat kata mana yang tertangkap. Skor pelafalan dibuat oleh AI, dan itu disebutkan.`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `Masuk untuk bermain. Gratis: lima putaran tantangan per hari di setiap program — jawaban salah tidak pernah menghabiskan putaran — ditambah pengulangan tanpa batas dan misi harian. Premium: putaran tanpa batas, situasi lanjutan, dan tren 30 dan 90 hari.`],
+  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
+   `<h3 class="shots-h" data-reveal>Di dalam ruang permainan</h3>`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>Misi harian dan target mingguan Anda</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>Delapan permainan</b><span>Masing-masing melatih keterampilan berbeda</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>Lihat kata mana yang tertangkap</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>250 kata profesi, foto asli</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `Ruang English Mastery: level, XP, rentetan dan energi, misi bahasa Inggris hari ini dan target mingguan`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `Permainan English Mastery: Word Quest, Quick Quiz, Sentence Builder, dan Listen &amp; Win, masing-masing dengan keterampilan yang dilatih`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `Speak Up setelah rekaman: 88% kata terdengar, kata yang hilang ditandai merah`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Permainan Welding Mastery: Kartu, Kuis, Teka-teki silang, Pengenalan visual, Mendengarkan, dan Susun kata`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>Belajar sambil bermain</h3><p>English Mastery dan Welding Mastery: masing-masing delapan permainan, misi harian, dan lencana keterampilan.</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery: delapan permainan dengan kata dan ungkapan dari rencana Anda</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery: delapan permainan dengan 250 kata profesi, dengan foto asli</span>`],
 ];

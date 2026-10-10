@@ -106,8 +106,6 @@ export default [
    `<h3>Dịch và phiên âm IPA</h3><p>Xem từng câu Shadow bằng ngôn ngữ của bạn và theo phiên âm, từng từ một.</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>Gọi luyện tập trực tiếp</h3><p>Các lượt có tính giờ với một đối tác thật, và một báo cáo riêng tư về phần của bạn trong cuộc gọi.</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>Một huấn luyện viên biết nói</h3><p>Báo cáo nói của bạn, được huấn luyện viên đọc cho bạn nghe, kèm sửa lỗi và những từ ngữ tốt hơn.</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> Vấn đề</span>`],
@@ -314,7 +312,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>Cả hai chương trình</b><span>Hàn và Tiếng Anh tổng quát cạnh nhau</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> Dành cho ai</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> Dành cho ai</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2>Cho khoảnh khắc <span class="grad">đến lượt bạn nói</span>.</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>Trong các buổi họp</b><p>Bạn theo sát từng lời, rồi đứng hình khi đến lượt mình. Hãy tập trước phần báo cáo trước khi trình bày.</p>`],
@@ -326,7 +324,7 @@ export default [
    `<b>Ngành nghề kỹ thuật</b><p>Thợ hàn có chương trình riêng của mình: xưởng làm việc, an toàn, kiểm tra chất lượng và buổi phỏng vấn.</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> Hai chương trình</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> Hai chương trình</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>Hai con đường. Một mục tiêu: <span class="grad">giao tiếp tự tin</span>.</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `Chọn chương trình phù hợp với môi trường bạn thực sự bước vào. Đây là hai chương trình riêng biệt với tiến độ riêng biệt — chuyển đổi bất cứ khi nào bạn muốn.`],
@@ -351,7 +349,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `Bắt đầu với mười lăm ngày Nền tảng bằng ngôn ngữ của bạn nếu bạn cần.`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> Tiếng Anh hàn</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> Tiếng Anh hàn</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>Tiếng Anh cho xưởng làm việc, <span class="grad">công trường và buổi phỏng vấn</span>.</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `Một chương trình riêng cho các ngành nghề kỹ thuật. Bạn luyện tập những câu mà một quản đốc, một thanh tra và một người phỏng vấn thực sự nói — và những câu trả lời họ mong đợi.`],
@@ -409,7 +407,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>Tiến độ riêng của bạn</b><span>Được giữ tách biệt với Tiếng Anh tổng quát</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> Giá</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> Giá</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2>Miễn phí <span class="grad">để bắt đầu</span>.</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `Chương trình mười hai tuần, Shadow Studio, huấn luyện viên AI, Practice Partner và tiến độ của bạn đều miễn phí ngay hôm nay. Không cần thẻ thanh toán.`],
@@ -462,7 +460,7 @@ export default [
    `<p>Không. Nó cho thấy bạn đã hoàn thành chương trình, với tên của bạn trên đó. Đây không phải là bài kiểm tra trình độ.</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>Việc luyện nói của bạn <span class="grad">luôn đi cùng bạn</span>.</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `Hai mươi lăm phút trên tàu, ở bãi đậu xe, trước buổi họp. Ứng dụng ghi âm, chấm điểm và ghi nhớ — và một đối tác có thể đang chờ sẵn khi bạn mở nó lên.`],
@@ -471,4 +469,46 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>Không cần mạng</b><span>Luyện tập mà không cần sóng</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 ngôn ngữ</b><span>Hướng dẫn bằng ngôn ngữ của bạn</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>Xây dựng sự tự tin để nói khi điều đó quan trọng.</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> Học qua trò chơi</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>Năm phút chơi, <span class="grad">cuối cùng là tiếng Anh thật</span>.</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `Mỗi chương trình có khu trò chơi riêng, xây dựng từ chính các bài học của nó. Tám trò chơi ngắn biến những gì bạn học thành câu trả lời bạn có thể nói thành tiếng.`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery, cho tiếng Anh tổng quát:</b> 385 từ, cụm từ và câu từ kế hoạch 12 tuần của bạn và từ đời sống hằng ngày, trong tám trò chơi — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle và Real-Life Missions.`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery, cho tiếng Anh ngành hàn:</b> 250 từ chuyên ngành kèm ảnh thật của dụng cụ, ô chữ, các vòng nghe và thử thách xưởng.`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>Nhiệm vụ hằng ngày, mục tiêu tuần và huy hiệu kỹ năng.</b> Một từ chỉ được tính là thành thạo sau khi trả lời đúng vào ba ngày khác nhau — chỉ XP thì không bao giờ đủ.`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up lắng nghe bạn:</b> nói một câu và xem những từ nào được nhận ra. Điểm phát âm do AI chấm, và điều đó được ghi rõ.`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `Đăng nhập để chơi. Miễn phí: năm vòng thử thách mỗi ngày trong mỗi chương trình — trả lời sai không bao giờ mất vòng — cùng ôn tập không giới hạn và nhiệm vụ hằng ngày. Premium: vòng không giới hạn, tình huống nâng cao và xu hướng 30 và 90 ngày.`],
+  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
+   `<h3 class="shots-h" data-reveal>Bên trong khu trò chơi</h3>`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>Nhiệm vụ hằng ngày và mục tiêu tuần của bạn</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>Tám trò chơi</b><span>Mỗi trò luyện một kỹ năng khác nhau</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>Xem những từ nào được nhận ra</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>250 từ chuyên ngành, ảnh thật</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `Khu English Mastery: cấp độ, XP, chuỗi ngày và năng lượng, nhiệm vụ tiếng Anh hôm nay và mục tiêu tuần`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `Các trò chơi English Mastery: Word Quest, Quick Quiz, Sentence Builder và Listen &amp; Win, mỗi trò kèm kỹ năng nó luyện`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `Speak Up sau một lần thu: nghe được 88% số từ, từ còn thiếu được đánh dấu đỏ`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Các trò chơi Welding Mastery: Thẻ, Câu đố, Ô chữ, Nhận diện hình ảnh, Nghe và Ghép từ`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>Học qua trò chơi</h3><p>English Mastery và Welding Mastery: mỗi bên tám trò chơi, nhiệm vụ hằng ngày và huy hiệu kỹ năng.</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery: tám trò chơi với từ và cụm từ trong kế hoạch của bạn</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery: tám trò chơi với 250 từ chuyên ngành, kèm ảnh thật</span>`],
 ];
