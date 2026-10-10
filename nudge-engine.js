@@ -70,10 +70,10 @@
        today's shift while it is open, else words due in the game */
     const wm = s.wm;
     if (wm && wm.shift && !wm.shift.done) {
-      out.push(rec({ kind: "mastery", reason: "wm_shift_" + String(wm.shift.kind || "start5").slice(0, 12), skill: "vocabulary", activity: "welding_mastery", view: "mastery", act: "shift",
+      out.push(rec({ kind: "mastery", reason: "wm_shift_" + String(wm.shift.kind || "start5").slice(0, 12), skill: "vocabulary", activity: wm.activity || "welding_mastery", view: wm.view || "mastery", act: "shift",
         priority: 58, confidence: 0.9, minutes: 5, vars: { kind: wm.shift.kind || "start5", prog: wm.shift.prog || 0, target: wm.shift.target || 5 } }));
     } else if (wm && (wm.due || 0) >= 5) {
-      out.push(rec({ kind: "mastery", reason: "wm_due_" + Math.min(wm.due, 99), skill: "vocabulary", activity: "welding_mastery", view: "mastery", act: "cards",
+      out.push(rec({ kind: "mastery", reason: "wm_due_" + Math.min(wm.due, 99), skill: "vocabulary", activity: wm.activity || "welding_mastery", view: wm.view || "mastery", act: "cards",
         priority: 50 + Math.min(wm.due, 10), confidence: 0.85, minutes: 5, vars: { n: wm.due } }));
     }
     return out;
@@ -326,8 +326,9 @@
     if (wm && wm.mode) {
       const modes = [], add = m => { if (m && !modes.includes(m) && modes.length < MAX_ITEMS) modes.push(m); };
       if (wm.shift && !wm.shift.done) add("shift");
-      add(wm.mode); (wm.untried || []).forEach(add); ["quiz", "visual", "workshop"].forEach(add);
-      const items = modes.map(m => item({ type: "game", view: "mastery", act: m, title: "", cid: "wm-" + m, mode: m }));
+      add(wm.mode); (wm.untried || []).forEach(add); (wm.extra || ["quiz", "visual", "workshop"]).forEach(add);
+      /* the hub says where it lives: Welding Mastery ("mastery") or English Mastery ("english", General English) */
+      const items = modes.map(m => item({ type: "game", view: wm.view || "mastery", act: m, title: "", cid: "wm-" + m, mode: m }));
       push({ id: "games", variant: wm.why || "keep", reason: "wm_" + (wm.why || "keep"), score: wm.shift && !wm.shift.done ? 47 : 36,
         vars: { strong: wm.strong || "", weak: wm.weak || "", n: wm.due || 0 }, items });
     }

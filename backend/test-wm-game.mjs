@@ -35,7 +35,8 @@ const W = (await import(new URL("./polish-worker.js", import.meta.url))).default
 const { _wmReset, WM_FREE_ENERGY, WM_XP_DAY_CAP, WM_XP_MODE_DAY_CAP, roundXp } = await import(new URL("./wm-game.js", import.meta.url));
 
 const PACK = { v: 1, scenarios: [{ id: "wa-01" }] };
-const KV = { get: async (k, t) => (k === "advanced-v1" ? (t === "json" ? PACK : JSON.stringify(PACK)) : null) };
+const GE_PACK = { v: 1, scenarios: [{ id: "ga-01" }] };
+const KV = { get: async (k, t) => { const v = k === "advanced-v1" ? PACK : k === "ge-advanced-v1" ? GE_PACK : null; return v && (t === "json" ? v : JSON.stringify(v)); } };
 const ENV = { OPENAI_KEY: "k", PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test", PARTNER_API: "https://partner.test", WM_PACK: KV };
 let ipN = 0;
 async function wm(op, extra, { uid = null, env = ENV } = {}) {
@@ -161,6 +162,60 @@ console.log("\n# the Premium pack — advanced scenarios from KV, Premium accoun
   ok("K4 · an advanced round can only be started by Premium", (await wm("start", { sid: sid(), mode: "advanced" }, { uid: f })).status === 402 && (await wm("start", { sid: sid(), mode: "advanced" }, { uid: p })).status === 200);
   const geP = acct("pack-ge", "premium", "general-english");
   ok("K5 · a Premium General English account still gets 403 track (Premium does not open Welding content to another programme)", (await wm("pack", {}, { uid: geP })).status === 403);
+}
+
+console.log("\n# English Mastery (General English) — same rules, its own programme");
+{
+  NOW += 3 * 3600_000; _wmReset();
+  const G = { prog: "general-english" };
+  const tick = () => { NOW += 2500; };
+  const g = acct("ge-free-1", "free", "general-english");
+  const s0 = await wm("status", G, { uid: g }); tick();
+  ok("G1 · a General English account opens English Mastery: Free, 0 of 5, XP 0", s0.status === 200 && s0.j.plan === "free" && s0.j.energy.used === 0 && s0.j.xp.total === 0, JSON.stringify(s0));
+  const w1 = acct("w-ge-1", "free", "welding");
+  const x = await wm("status", G, { uid: w1 }); tick();
+  ok("G2 · a Welding account asking for English Mastery → 403 track (the account decides, not the request)", x.status === 403 && x.j.error === "track" && x.j.track === "welding", JSON.stringify(x));
+  ok("G3 · an unknown programme → 400", (await wm("status", { prog: "pottery" }, { uid: g })).status === 400); tick();
+  ok("G4 · English Mastery's games only: Speak Up is a game here, Visual recognition is not; Speak Up is not a Welding game",
+    (await wm("start", { ...G, sid: sid(), mode: "visual" }, { uid: g })).status === 400 && (tick(), (await wm("start", { sid: sid(), mode: "speak" }, { uid: w1 })).status === 400)); tick();
+  const id = sid();
+  const r1 = await wm("start", { ...G, sid: id, mode: "speak" }, { uid: g }); tick();
+  ok("G5 · a Speak Up round charges one unit and returns a ticket", r1.status === 200 && r1.j.charged === true && r1.j.energy.used === 1 && typeof r1.j.ticket === "string", JSON.stringify(r1.j));
+  ok("G6 · the same round again is a duplicate: no second unit", (await wm("start", { ...G, sid: id, mode: "speak" }, { uid: g })).j.duplicate === true); tick();
+  const f = await wm("finish", { ...G, sid: id, mode: "speak", ticket: r1.j.ticket, n: 50, ok: 50 }, { uid: g }); tick();
+  ok("G7 · finishing pays from English Mastery's own bound (Speak Up: 6 answers → 6×2 + 10 = 22)", f.status === 200 && f.j.awarded === 22 && f.j.xp.total === 22, JSON.stringify(f.j));
+  ok("G8 · a second finish pays nothing", (await wm("finish", { ...G, sid: id, mode: "speak", ticket: r1.j.ticket, n: 6, ok: 6 }, { uid: g })).j.awarded === 0); tick();
+  ok("G9 · Word Quest (review) and the daily mission cost nothing",
+    (await wm("start", { ...G, sid: sid(), mode: "cards" }, { uid: g })).j.charged === false && (tick(), (await wm("start", { ...G, sid: sid(), mode: "daily" }, { uid: g })).j.charged === false)); tick();
+  for (let i = 0; i < 4; i++) { await wm("start", { ...G, sid: sid(), mode: "quiz" }, { uid: g }); tick(); }
+  const over = await wm("start", { ...G, sid: sid(), mode: "puzzle" }, { uid: g }); tick();
+  ok("G10 · the sixth challenge round of the day → 429 energy", over.status === 429 && over.j.error === "energy", JSON.stringify(over));
+  /* the same account switches programme: its Welding energy and XP are untouched by English Mastery */
+  ACCOUNTS[g].track = "welding"; NOW += 11 * 60_000;
+  const ws = await wm("status", {}, { uid: g }); tick();
+  ok("G11 · separate energy and XP per programme: after 5 English rounds, Welding shows 0 of 5 and 0 XP", ws.status === 200 && ws.j.energy.used === 0 && ws.j.xp.total === 0, JSON.stringify(ws.j));
+  ok("G12 · and English Mastery now refuses this account (its programme is Welding)", (await wm("status", G, { uid: g })).status === 403); tick();
+  /* a ticket from one programme cannot finish a round in the other */
+  ACCOUNTS[g].track = "general-english"; NOW += 11 * 60_000;
+  const id2 = sid();
+  const q = await wm("start", { ...G, sid: id2, mode: "cards" }, { uid: g }); tick();
+  ACCOUNTS[g].track = "welding"; NOW += 11 * 60_000;
+  const cross = await wm("finish", { sid: id2, mode: "cards", ticket: q.j.ticket, n: 10, ok: 10 }, { uid: g }); tick();
+  ok("G13 · an English Mastery ticket cannot finish a Welding round (the programme is signed into the ticket)", cross.status === 403 && cross.j.error === "ticket", JSON.stringify(cross));
+  const gd = acct("ge-free-2", "free", "general-english");
+  const d = await wm("start", { ...G, sid: sid(), mode: "daily" }, { uid: gd }); tick();
+  const df = await wm("finish", { ...G, sid: d.j.sid, mode: "daily", ticket: d.j.ticket, n: 8, ok: 6 }, { uid: gd }); tick();
+  const d2 = await wm("start", { ...G, sid: sid(), mode: "daily" }, { uid: gd }); tick();
+  const df2 = await wm("finish", { ...G, sid: d2.j.sid, mode: "daily", ticket: d2.j.ticket, n: 8, ok: 8 }, { uid: gd }); tick();
+  ok("G14 · the daily mission pays its +30 once a day (6×2 + 10 + 30 = 52), a second daily the same day no bonus", df.j.awarded === 52 && df.j.dailyBonus === 30 && df2.j.dailyBonus === 0, JSON.stringify([df.j, df2.j]));
+  ok("G15 · a Free account cannot download English Mastery's Premium pack (402) nor start an advanced round", (await wm("pack", G, { uid: gd })).status === 402 && (tick(), (await wm("start", { ...G, sid: sid(), mode: "advanced" }, { uid: gd })).status === 402)); tick();
+  const gp = acct("ge-prem-1", "premium", "general-english");
+  const pk = await wm("pack", G, { uid: gp }); tick();
+  ok("G16 · a Premium General English account gets ITS pack (ge-advanced-v1), never Welding's", pk.status === 200 && pk.j.scenarios[0].id === "ga-01", JSON.stringify(pk.j));
+  let used = 0; for (let i = 0; i < 7; i++) { const r = await wm("start", { ...G, sid: sid(), mode: "match" }, { uid: gp }); tick(); if (r.status !== 200) used = -1; }
+  ok("G17 · Premium: no energy cap (7 challenge rounds, all allowed, limit null)", used === 0 && (await wm("status", G, { uid: gp })).j.energy.limit === null); tick();
+  const wp = acct("w-prem-1", "premium", "welding");
+  ok("G18 · a Premium Welding account still gets 403 for English Mastery's pack", (await wm("pack", G, { uid: wp })).status === 403);
 }
 
 console.log("\n# isolation from the rest of be-polish");

@@ -22,17 +22,24 @@
                 word.
    ============================================================================ */
 (function (global) {
+/* build(P): the same rules for another programme. build() with no argument IS the
+   Welding Mastery engine, unchanged; English Mastery (General English, 10 Oct 2026)
+   is build(EM) below — its own games, skills, achievements and daily goals. */
+function build(P) {
+  P = P || {};
   const MIN = 60_000, H = 60 * MIN, DAY = 24 * H;
   const VERSION = 1;
 
   /* ---- games and the skill each one measures ---- */
-  const MODES = ["cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop"];
+  const MODES = P.modes || ["cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop"];
   /* recognition = choosing among options; recall = producing it yourself;
      listening = from the ear; context = using it in a situation; spelling. */
-  const SKILLS = ["recognition", "recall", "listening", "context", "spelling", "visual"];
-  const MODE_SKILL = { cards: "recall", quiz: "recognition", crossword: "spelling", visual: "visual", listen: "listening", builder: "spelling", match: "recognition", workshop: "context" };
+  const SKILLS = P.skills || ["recognition", "recall", "listening", "context", "spelling", "visual"];
+  const MODE_SKILL = P.modeSkill || { cards: "recall", quiz: "recognition", crossword: "spelling", visual: "visual", listen: "listening", builder: "spelling", match: "recognition", workshop: "context" };
   /* a correct answer in these skills is ACTIVE recall (counts toward mastery) */
-  const ACTIVE = new Set(["recall", "spelling", "listening_typed"]);
+  const ACTIVE = P.active || new Set(["recall", "spelling", "listening_typed"]);
+  /* a sub-skill counted under its skill in the day aggregates (typed listening is listening) */
+  const ALIAS = P.alias || { listening_typed: "listening" };
 
   /* ---- spaced repetition (SM-2, simplified) ---- */
   const Q = { again: 0, hard: 1, good: 2, easy: 3 };
@@ -140,7 +147,7 @@
     const D = st.days[day] || (st.days[day] = { n: 0, ok: 0, md: {} });
     D.n++; if (ok) D.ok++;
     const mk = D.md[mode] || (D.md[mode] = [0, 0]); mk[1]++; if (ok) mk[0]++;
-    const sk2 = skill === "listening_typed" ? "listening" : skill;
+    const sk2 = ALIAS[skill] || skill;
     D.sk = D.sk || {}; const s3 = D.sk[sk2] || (D.sk[sk2] = [0, 0]); s3[1]++; if (ok) s3[0]++;
 
     let xp = 0, mastered = false;
@@ -196,7 +203,7 @@
   function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 
   /* drawings that look alike are never offered against each other */
-  const LOOKALIKE = [["wm-electrode", "wm-tungsten-electrode", "wm-scriber", "wm-filler-rod"], ["wm-regulator", "wm-flowmeter"], ["wm-cutting-disc", "wm-flap-disc"]];
+  const LOOKALIKE = P.lookalike || [["wm-electrode", "wm-tungsten-electrode", "wm-scriber", "wm-filler-rod"], ["wm-regulator", "wm-flowmeter"], ["wm-cutting-disc", "wm-flap-disc"]];
   function lookalike(a, b) { return LOOKALIKE.some(g => g.includes(a) && g.includes(b)); }
   /* three distractors: same category first (the confusable ones are the useful
      ones), never a look-alike for picture questions, never a duplicate label */
@@ -299,7 +306,7 @@
   }
 
   /* ---- achievements: data, not code paths ---- */
-  const ACH = [
+  const ACH = P.ach || [
     { id: "first_practice", ic: "spark", test: x => x.answers >= 1 },
     { id: "first_mastered", ic: "medal", test: x => x.mastered >= 1 },
     { id: "mastered_10", ic: "medal", test: x => x.mastered >= 10 },
@@ -319,7 +326,7 @@
     const answers = Object.values(st.days).reduce((a, d) => a + (d.n || 0), 0);
     const runs = {}; for (const [m, v] of Object.entries(st.modes)) runs[m] = v.runs || 0;
     const stagesDone = Object.keys(cats).filter(c => (byCat[c] || 0) >= cats[c]).length;
-    return { mastered, byCat, cats, answers, runs, stagesDone };
+    return { mastered, byCat, cats, answers, runs, stagesDone, total: terms.length };
   }
   /* grants what is newly true; never revokes (an achievement is a moment that happened) */
   function checkAchievements(st, terms, now) {
@@ -343,7 +350,7 @@
 
   /* ---- Today's Shift: one small, real mission a day (3–7 minutes) ----
      chosen from what the learner actually has; a new learner gets the starter */
-  const MISSIONS = {
+  const MISSIONS = P.missions || {
     start5:   { mode: "cards",   target: 5, ic: "cards" },      // learn five new words
     hard5:    { mode: "cards",   target: 5, ic: "target" },     // review five difficult words
     due5:     { mode: "cards",   target: 5, ic: "clock" },      // review five words that are due
@@ -352,7 +359,8 @@
     recall3:  { mode: "builder", target: 3, ic: "keyboard" },   // spell three words without a hint
     workshop1:{ mode: "workshop",target: 1, ic: "workshop" }    // complete one workshop challenge
   };
-  function chooseMission(st, terms, now) {
+  function chooseMission(st, terms, now) { return P.chooseMission ? P.chooseMission(st, terms, now, { dayOf, DAY, difficultIds, dueCount, MISSIONS }) : chooseMissionW(st, terms, now); }
+  function chooseMissionW(st, terms, now) {
     const day = dayOf(now), y = dayOf(now - DAY);
     const yesterday = st.mis && st.mis.day === y ? st.mis.kind : null;
     const seen = Object.values(st.t).filter(r => r.n).length;
@@ -380,6 +388,13 @@
      when this event completed the mission */
   function missionStep(st, ev, now) {
     const m = st.mis; if (!m || m.day !== dayOf(now) || m.done) return 0;
+    const inc = P.missionInc ? P.missionInc(m, ev) : incW(m, ev);
+    if (!inc) return 0;
+    m.prog = Math.min(m.target, m.prog + inc);
+    if (m.prog >= m.target) { m.done = now; return award(st, `m:${m.day}`, XP.mission, now); }
+    return 0;
+  }
+  function incW(m, ev) {
     let inc = 0;
     if (ev.type === "answer" && ev.ok) {
       if (m.kind === "start5" && ev.mode === "cards" && ev.wasNew) inc = 1;
@@ -389,10 +404,7 @@
       if (m.kind === "recall3" && ev.mode === "builder" && !ev.hint) inc = 1;
     }
     if (ev.type === "session" && (m.kind === "listen1" && ev.mode === "listen" || m.kind === "workshop1" && ev.mode === "workshop") && ev.n >= 1) inc = 1;
-    if (!inc) return 0;
-    m.prog = Math.min(m.target, m.prog + inc);
-    if (m.prog >= m.target) { m.done = now; return award(st, `m:${m.day}`, XP.mission, now); }
-    return 0;
+    return inc;
   }
 
   /* ---- Game Performance (Progress page) ----
@@ -432,7 +444,7 @@
     };
   }
   /* one plain next step, from the numbers above; no claim without a sample */
-  const SKILL_MODE = { recognition: "quiz", recall: "cards", listening: "listen", context: "workshop", spelling: "builder", visual: "visual" };
+  const SKILL_MODE = P.skillMode || { recognition: "quiz", recall: "cards", listening: "listen", context: "workshop", spelling: "builder", visual: "visual" };
   function recommend(perf) {
     if (perf.empty) return { kind: "first", mode: "cards" };
     const rated = perf.skills.filter(s => s.pct != null).sort((a, b) => b.pct - a.pct);
@@ -570,13 +582,83 @@
     return { id: w.id, en: w.en, fr: w.fr || "", syn: [], frSyn: [], cat: "mine", lvl: "", def: { en: w.def || "", fr: "" }, use: { en: "", fr: "" }, ctx: { en: "", fr: "" }, ex: { en: w.ex || "", fr: "" }, mine: true };
   }
 
-  const api = {
-    VERSION, MODES, SKILLS, MODE_SKILL, Q, XP, MASTERY_DAYS, SESSION_MIN_ANSWERS, SESSIONS_PAID_PER_DAY, ACH, MISSIONS, MIN_SAMPLE, LOOKALIKE,
+  return {
+    VERSION, MODES, SKILLS, MODE_SKILL, SKILL_MODE, Q, XP, MASTERY_DAYS, SESSION_MIN_ANSWERS, SESSIONS_PAID_PER_DAY, ACH, MISSIONS, MIN_SAMPLE, LOOKALIKE,
     dayOf, fresh, normalize, term, grade, award, xpTotal, pruneEvents, level, levelFloor, isMastered, masteryCheck, setHard, setFav, isFav,
     difficulty, priority, pick, dueCount, difficultIds, rng, shuffle, hash, distractors, lookalike, normAns, checkTyped, tiles, builderOk, crosswordOk, gridValid,
     finishSession, streak, facts, checkAchievements, journey, chooseMission, ensureMission, missionStep, performance, recommend,
     merge, mergeArea, trimForSync, logRound, histRound, histByDay, errorsByStage, HIST_FULL, HIST_MAX, addMine, delMine, mineList, mineAsTerm, cleanText
   };
+}
+
+  /* ---- English Mastery (General English): its eight games and what each one measures ----
+     Word Quest (cards) · Quick Quiz · Sentence Builder · Listen & Win · Speak Up ·
+     Phrase Match · Word Puzzle · Real-Life Missions. Building a sentence and saying
+     it aloud are ACTIVE: producing the English yourself, like spelling it. Choosing
+     the right grammar among options is recognition-style practice of grammar. */
+  const EM = {
+    modes: ["cards", "quiz", "sentence", "listen", "speak", "match", "puzzle", "missions"],
+    skills: ["recognition", "recall", "grammar", "listening", "speaking", "spelling", "context"],
+    modeSkill: { cards: "recall", quiz: "recognition", sentence: "grammar", listen: "listening", speak: "speaking", match: "recognition", puzzle: "spelling", missions: "context" },
+    skillMode: { recognition: "quiz", recall: "cards", grammar: "sentence", listening: "listen", speaking: "speak", spelling: "puzzle", context: "missions" },
+    active: new Set(["recall", "spelling", "listening_typed", "speaking", "grammar_built"]),
+    alias: { listening_typed: "listening", grammar_built: "grammar" },
+    lookalike: [],
+    ach: [
+      { id: "first_practice", ic: "spark", test: x => x.answers >= 1 },
+      { id: "first_mastered", ic: "medal", test: x => x.mastered >= 1 },
+      { id: "mastered_10", ic: "medal", test: x => x.mastered >= 10 },
+      { id: "first_speak", ic: "mic", test: x => (x.runs.speak || 0) >= 1 },
+      { id: "first_mission", ic: "chat", test: x => (x.runs.missions || 0) >= 1 },
+      { id: "first_stage", ic: "flag", test: x => x.stagesDone >= 1 },
+      { id: "idioms_all", ic: "spark", test: x => (x.cats.idioms || 0) > 0 && (x.byCat.idioms || 0) >= x.cats.idioms },
+      { id: "mastered_50", ic: "trophy", test: x => x.mastered >= 50 },
+      { id: "mastered_100", ic: "trophy", test: x => x.mastered >= 100 },
+      { id: "mastered_all", ic: "crown", test: x => x.total > 0 && x.mastered >= x.total }
+    ],
+    missions: {
+      start5:    { mode: "cards",    target: 5, ic: "cards" },       // learn five new words
+      hard5:     { mode: "cards",    target: 5, ic: "target" },      // review five difficult ones
+      due5:      { mode: "cards",    target: 5, ic: "clock" },       // review five that are due
+      listen1:   { mode: "listen",   target: 1, ic: "headphones" },  // one Listen & Win round
+      speak3:    { mode: "speak",    target: 3, ic: "mic" },         // say three phrases clearly
+      sentence3: { mode: "sentence", target: 3, ic: "builder" },     // build three sentences without a hint
+      missions1: { mode: "missions", target: 1, ic: "chat" }         // one Real-Life Mission round
+    },
+    chooseMission(st, terms, now, H) {
+      const day = H.dayOf(now), y = H.dayOf(now - H.DAY);
+      const yesterday = st.mis && st.mis.day === y ? st.mis.kind : null;
+      const seen = Object.values(st.t).filter(r => r.n).length;
+      const runs = k => (st.modes[k] && st.modes[k].runs) || 0;
+      const order = [];
+      if (seen < 5) order.push("start5");
+      if (H.difficultIds(st).length >= 5) order.push("hard5");
+      if (H.dueCount(st, now) >= 5) order.push("due5");
+      if (seen >= 5 && !runs("listen")) order.push("listen1");
+      if (seen >= 5) order.push("speak3");
+      if (seen >= 10) order.push("sentence3");
+      if (seen >= 10 && !runs("missions")) order.push("missions1");
+      order.push("start5");
+      const kind = order.find(k => k !== yesterday) || order[0];
+      return { day, kind, mode: H.MISSIONS[kind].mode, target: H.MISSIONS[kind].target, prog: 0, done: 0, ids: kind === "hard5" ? H.difficultIds(st, 5) : [] };
+    },
+    missionInc(m, ev) {
+      if (ev.type === "answer" && ev.ok) {
+        if (m.kind === "start5" && ev.mode === "cards" && ev.wasNew) return 1;
+        if (m.kind === "due5" && ev.mode === "cards" && ev.wasDue) return 1;
+        if (m.kind === "hard5" && ev.mode === "cards" && (m.ids || []).includes(ev.id)) return 1;
+        if (m.kind === "speak3" && ev.mode === "speak") return 1;
+        if (m.kind === "sentence3" && ev.mode === "sentence" && !ev.hint) return 1;
+      }
+      if (ev.type === "session" && ev.n >= 1 && (m.kind === "listen1" && ev.mode === "listen" || m.kind === "missions1" && ev.mode === "missions")) return 1;
+      return 0;
+    }
+  };
+
+  const api = build();
+  api.make = build;
+  api.EM = EM;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.WMEngine = api;
+  global.EMEngine = build(EM);
 })(typeof window !== "undefined" ? window : globalThis);

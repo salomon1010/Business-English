@@ -842,6 +842,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
   be-entitlements, so the route answers 503 there. Tests:
   `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
+- **English Mastery (10 Oct 2026, `feature/english-mastery`, General English ONLY, flag
+  `english_mastery_enabled`: staging ON, production OFF) — `docs/ENGLISH_MASTERY.md`.** The
+  Welding Mastery hub rebuilt for General English: `go("english", tab)` (`#v-english`), portal
+  above the Knowledge Boosters, Home Explore tile + recommendations (`wmHub()` picks WMUI or
+  EMUI), Progress card. 385 items BUILT from the curriculum + 150 everyday words
+  (`scripts/english-mastery/build.mjs` → `tracks/general/mastery.json`); eight games (Word Quest,
+  Quick Quiz, Sentence Builder, Listen & Win, Speak Up, Phrase Match, Word Puzzle, Real-Life
+  Missions). `english-mastery.js` is ASSEMBLED by `scripts/english-mastery/assemble.py` from
+  Welding's shared middle + the `ui-*.js` parts — never edit it by hand. Engine:
+  `WMEngine.make(EM)` = `EMEngine` (`WMEngine` itself unchanged). Server: `backend/wm-game.js`
+  `prog: "general-english"` (account must be GE; own `em…` buckets, own 5 energy, own KV pack
+  `ge-advanced-v1`, kept out of this public repo). Tests: `tests/english-mastery.mjs` (57).
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the

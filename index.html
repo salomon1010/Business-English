@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=88"></script>
-<script src="nudge-engine.js?v=6"></script>
+<script src="nudge-engine.js?v=7"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=84"></script>
 <script src="shadow-sync.js?v=8"></script>
@@ -81,8 +81,11 @@
 <script src="shadow-lines.js?v=87"></script>
 <!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
 <link rel="stylesheet" href="welding-mastery.css?v=5">
-<script src="welding-mastery-engine.js?v=2"></script>
+<script src="welding-mastery-engine.js?v=3"></script>
 <script src="welding-mastery.js?v=5"></script>
+<!-- English Mastery (General English only, flag english_mastery_enabled, 10 Oct 2026): the same engine built for General English (EMEngine), its own screens, gated on EMUI.on() -->
+<link rel="stylesheet" href="english-mastery.css?v=1">
+<script src="english-mastery.js?v=1"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -6616,6 +6619,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   <div id="v-shadow" class="view"></div>
   <div id="v-practice" class="view"></div>
   <div id="v-mastery" class="view"></div>
+  <div id="v-english" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
@@ -11207,7 +11211,7 @@ function go(v,arg1,arg2){
   const _pgPrev=(typeof cur!=="undefined"&&cur)?cur:null;
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"||v==="mastery"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
+  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"||v==="mastery"||v==="english"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -11240,7 +11244,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist,mastery:(e,a,b)=>window.WMUI?WMUI.render(e,a,b):go("practice")})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist,mastery:(e,a,b)=>window.WMUI?WMUI.render(e,a,b):go("practice"),english:(e,a,b)=>window.EMUI?EMUI.render(e,a,b):go("practice")})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -12754,11 +12758,14 @@ function homeV2On(){try{return flag("home_v2_enabled")&&(isGeneralEnglish()||wel
    Welding adds `home` (the engine's Home rows and ranking run for it) and has NO partner and NO
    AI coach — those are General English features and must never be offered on Welding. The push
    nudges never read this: they keep nudgeSignals() and stay General English only. */
+function wmHub(){try{if(window.WMUI&&WMUI.on())return WMUI;if(window.EMUI&&EMUI.on())return EMUI}catch(e){}return null}
 function homeSignals(){
   const sig=nudgeSignals();
   if(!isGeneralEnglish()){sig.home=true;sig.partner={};sig.aiCoach=false}
   /* Welding Mastery: the game is part of what Home recommends (Welding only, flag welding_mastery_enabled) */
   try{if(window.WMUI&&WMUI.on())sig.wm=WMUI.signals()}catch(e){}
+  /* English Mastery: the same, on General English (flag english_mastery_enabled) */
+  try{if(!sig.wm&&window.EMUI&&EMUI.on())sig.wm=EMUI.signals()}catch(e){}
   return sig;
 }
 const HOME_KIND_ICON={mastery:"trophy",lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
@@ -12786,9 +12793,9 @@ function homeCard(r){
       sub:wk.theme&&wk.theme!==day.focus?wk.theme:"",meta:meta.k?dayTypeLabel(d):"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
       cta:t(k==="comeback"?"home.cta_restart":first&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r,w,d};
   }
-  if(k==="mastery"&&window.WMUI){const x=WMUI.heroText(r);
+  if(k==="mastery"&&wmHub()){const x=wmHub().heroText(r);
     return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,sub:why===("home.why_"+homeReasonKey(r))?"":why,meta:x.meta,metaIc:"trophy",desc:x.body,why:"",minutes:r.minutes,
-      cta:x.cta,go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic:"welding vocabulary game",rec:r,prem:false};}
+      cta:x.cta,go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic:wmHub()===window.EMUI?"english vocabulary game":"welding vocabulary game",rec:r,prem:false};}
   const x=nudgeText(r);
   const verb={words:"home.cta_review",challenge:"home.cta_challenge",shadow:"home.cta_shadow",partner_now:"home.cta_partner",partner_streak:"home.cta_partner",ai_coach:"home.cta_coach"}[k]||"home.cta_continue";
   const topic={words:"words vocabulary",challenge:(r.vars&&r.vars.title||"")+" pronunciation shadow",shadow:"pronunciation shadow",partner_now:"conversation partner",partner_streak:"conversation partner",ai_coach:"conversation coach"}[k]||"";
@@ -12883,7 +12890,7 @@ const HOME_SHOT={session:"session",words:"vocab",trouble:"trouble",phrases:"phra
   lesson:"session",comeback:"session",done:"session",placement:"session",foundations:"session",shadow:"trouble",partner_now:"partner",partner_streak:"partner",ai_coach:"ai",challenge:"trouble",roleplay:"ai"};
 function homeShot(k){return HOME_SHOT[k]?`home-shots/${HOME_SHOT[k]}.jpg`:""}
 function homeItemLine(it){
-  if(it.type==="game"&&window.WMUI)return WMUI.itemLine(it);
+  if(it.type==="game"&&wmHub())return wmHub().itemLine(it);
   switch(it.type){
     case "challenge":return t("home.it_challenge");
     case "video":return t(it.saved?"home.it_saved_clip":"home.it_video");
@@ -12898,7 +12905,7 @@ function homeItemLine(it){
   return "";
 }
 function homeItemTitle(it){
-  if(it.type==="game"&&window.WMUI)return WMUI.itemTitle(it);
+  if(it.type==="game"&&wmHub())return wmHub().itemTitle(it);
   if(it.title)return NudgeEngine.clipTitle?NudgeEngine.clipTitle(it.title):it.title;
   if(it.type==="words")return t(it.saved?"home.it_words_saved_t":"home.it_words_t");
   if(it.type==="phrases")return t("home.it_phrases_wt",{w:it.w});
@@ -12914,7 +12921,7 @@ function homeRowKey(r){
 function homeRowCardHTML(r,it,i){
   /* a clip shows its thumbnail, a role-play its character's portrait, anything else the page it opens */
   const rp=it.type==="roleplay"?(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})():null;
-  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:it.type==="game"&&window.WMUI?WMUI.LOGO_URL:homeShot(it.type);
+  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:it.type==="game"&&wmHub()?wmHub().LOGO_URL:homeShot(it.type);
   const img=src?`<img src="${src}" alt="" loading="lazy" decoding="async"${it.vid||rp?"":' class="hx-shot"'} onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
   const lock=homeItemLocked(it);
@@ -12947,7 +12954,7 @@ function homeRowsHTML(rows){
   return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
     <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
       ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
-      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx">${r.id==="games"&&window.WMUI?(()=>{const g=WMUI.rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div></div>
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx">${r.id==="games"&&wmHub()?(()=>{const g=wmHub().rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div></div>
       ${lk?homeRowsPremHTML():`<div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>`}
     </div>`}).join("")}</section>`;
 }
@@ -13178,6 +13185,7 @@ function homeRecDest(c){
       return {dest:lines?"lines":L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:lines?t("tools.lines_sub"):t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})}}
     return {dest:"journey",go:c.go,line:c.title,ctx:c.kicker||""}}
   if(k==="mastery")return {dest:"mastery",go:c.go,line:c.desc,ctx:c.title};
+  if(k==="english")return {dest:"english",go:c.go,line:c.desc,ctx:c.title};
   const m={words:"practice",challenge:"shadow",shadow:"shadow",partner_now:"partner",partner_streak:"partner",ai_coach:"partner"}[k];
   return m?{dest:m,go:c.go,line:c.sub||c.desc,ctx:c.title}:null;
 }
@@ -13203,6 +13211,7 @@ function homeDestHTML(top,cards,vis){
     grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:wp?wp("grammar"):"home-photos/grammar.jpg?v=3",art:1},
     /* Welding Mastery: its own place in Explore, with the game's logo (Welding only) */
     mastery:window.WMUI&&WMUI.on()?WMUI.exploreTile():null,
+    english:window.EMUI&&EMUI.on()?EMUI.exploreTile():null,
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:wp?wp("progress"):"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
@@ -13213,7 +13222,7 @@ function homeDestHTML(top,cards,vis){
   /* every Explore card is the same size (owner, 28 Sep 2026): the primary recommendation's
      place leads the grid with its deep link and its words — no big card, no tag line. */
   const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
-  const order=["shadow","partner","mastery","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
+  const order=["shadow","partner","mastery","english","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
   const rank=id=>id===primId?2:taken[id]?1:0;
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}"${r?` aria-label="${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}: ${esc(d.t)}"`:""} onclick="${r?r.go:d.go}">
@@ -18245,9 +18254,9 @@ function widgetFeedBoot(){
 /* A tap on the widget: the plugin has already reduced the URL to a known
    view and, at most, a week, a day and an action. The same destinations the
    nudges reach, so a widget tap behaves like a notification tap. */
-const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases","mastery"];
+const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases","mastery","english"];
 /* the kinds of place a recommendation can open (nudgeGo's own views) */
-const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay","mastery"];
+const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay","mastery","english"];
 function widgetOpenRoute(d){
   if(!d||typeof d!=="object")return false;
   /* a locked widget: the sign-in sheet, or the Premium offer where it exists */
@@ -18265,6 +18274,7 @@ function widgetOpenRoute(d){
     if(v==="practice"){go("practice");if(d.act==="words")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(v==="journey"){_rmReturn=true;go("journey");return true}
     if(v==="mastery"){if(window.WMUI&&WMUI.on()){if(d.act==="shift")WMUI.play("shift");else go("mastery")}else go("practice");return true}
+    if(v==="english"){if(window.EMUI&&EMUI.on()){if(d.act==="shift")EMUI.play("shift");else go("english")}else go("practice");return true}
     go(v);return true;
   }catch(e){return false}
 }
@@ -18648,6 +18658,7 @@ function nudgeGo(r){
     if(r.view==="phrases"){go("phrases");return true}
     /* Welding Mastery: the hub on that game, or on today's shift */
     if(r.view==="mastery"){return !!(window.WMUI&&WMUI.play(String(r.act||"")))}
+    if(r.view==="english"){return !!(window.EMUI&&EMUI.play(String(r.act||"")))}
     /* a week's expressions: the phrase bank on that exact week */
     if(r.view==="phrasebank"){go("phrasebank",Number(r.args&&r.args[0])||currentPos().w);return true}
     /* a role-play scenario: that exact conversation */
@@ -20810,6 +20821,7 @@ function rPractice(el){
     ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
   </div>
   ${_libGroup==="vocabulary"?`
+  ${window.EMUI&&EMUI.on()?`<div class="em-portal-host">${EMUI.portalHTML()}</div>`:""}
   <div class="prac-kb">
     ${/* Welding Mastery: on the Welding programme the three boosters are the "Quick Practice" row; General English keeps its wording */""}
     <h3 class="prac-kb-h">${window.WMUI&&WMUI.on()?esc(WMUI.quickH()):t("prac.kb_h")}</h3>
@@ -22518,7 +22530,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v669";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v670";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24308,6 +24320,7 @@ const FLAGS_DEFAULT={
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
   welding_mastery_enabled:false,       // Welding Mastery game hub (Welding programme only, 9 Oct 2026): staging ON, production OFF until the owner releases it
+  english_mastery_enabled:false,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
@@ -24341,6 +24354,7 @@ const FLAGS_STAGING={
   home_v2_enabled:true,
   welding_studio_enabled:true,
   welding_mastery_enabled:true,        // Welding Mastery game hub — staging only
+  english_mastery_enabled:true,        // English Mastery game hub — staging only
   /* Google + Apple sign-in. flag() returns !!FLAGS_STAGING[name] on a staging
      bundle and never falls through to FLAGS_DEFAULT, so a key that lives only
      there is silently OFF here — which is why the buttons vanished on the
@@ -32199,6 +32213,7 @@ function rReview(el,wArg){
   <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
   ${pfCertHTML()}
   ${window.WMUI&&WMUI.on()?WMUI.perfCardHTML():""}
+  ${window.EMUI&&EMUI.on()?EMUI.perfCardHTML():""}
   <div class="pf-group-h pg-record-h">${t("pf.record_h")}</div>
   ${pfRecordCoreHTML(pgRecordLocked())}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
@@ -34930,7 +34945,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist","mastery"];
+  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist","mastery","english"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);
