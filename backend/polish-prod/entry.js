@@ -16,7 +16,7 @@
 import base, { corsHeaders } from "./deployed.js";
 import { wmHandle } from "./wm-game.js";
 import { consume } from "./rate-limit.js";
-import { ROUTES, newCtx, withCtx, routeOf, declaredTrack, measure, billable, anonGate, anonPolicy, settle } from "./ai-guard.js";
+import { ROUTES, newCtx, withCtx, routeOf, declaredTrack, measure, billable, anonGate, inflightGate, anonPolicy, settle } from "./ai-guard.js";
 import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
 export { RateLimiter } from "./rate-limit.js";
 
@@ -54,20 +54,25 @@ async function guarded(req, env, ctx) {
   const rc = newCtx(req), e = withCtx(env, rc);
   rc.ip = req.headers.get("CF-Connecting-IP") || "0";
   const ctype = req.headers.get("content-type") || "";
+  let raw = "";
   if (ctype.startsWith("audio/")) {
     rc.route = "transcribe";
     rc.m = measure("transcribe", null, +(req.headers.get("content-length") || 0));
   } else {
     let body = null;
-    try { body = JSON.parse(await req.clone().text()); } catch (err) {}
+    try { raw = await req.clone().text(); body = JSON.parse(raw); } catch (err) {}
     if (!body || typeof body !== "object") return base.fetch(req, env, ctx);     // malformed: the old code's 400
     rc.route = routeOf(ctype, body); rc.m = measure(rc.route, body, 0); rc.track = declaredTrack(body);
   }
-  const refused = await anonGate(req, e, cors, { verify: verifyIdToken }, json);
+  /* a refused request never reaches the old code, so it can never reach a provider */
+  const refused = await anonGate(req, e, cors, { verify: verifyIdToken }, json)
+               || (raw ? await inflightGate(req, e, cors, raw, json) : null);   // AI_DEDUPE=1 only
   const res = refused || await base.fetch(req, env, ctx);
   if (!refused && billable(rc.route)) {
     const meta = ROUTES[rc.route] || {};
-    rc.calls.push({ provider: meta.provider, model: meta.model, status: res.status, billed: res.status < 400, ms: Date.now() - rc.t0 });
+    /* the old code's 5xx is opaque: a provider error (not billed) or a failure
+       after the provider answered (billed) — costed as possibly billed */
+    rc.calls.push({ provider: meta.provider, model: meta.model, status: res.status, billed: res.status < 400, maybeBilled: res.status >= 500, ms: Date.now() - rc.t0 });
   }
   const done = settle(e, res.status).catch(() => {});
   if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(done); else await done;

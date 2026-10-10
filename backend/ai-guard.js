@@ -154,6 +154,11 @@ export function preCostUsd(route, m) {
 export function postCost(route, calls, m) {
   let usd = 0, method = "provider-usage";
   for (const c of calls) {
+    /* the provider may have charged even though we never got an answer: a
+       timeout or a dropped connection after the request was sent (OpenAI keeps
+       generating), or production's opaque 5xx. Costed at the request estimate
+       and labelled, so a failure is never recorded as free. */
+    if (!c.billed && c.maybeBilled) { usd += preCostUsd(route, m); method = "possibly-billed-estimate"; continue; }
     if (!c.billed) continue;
     const p = PRICES[c.model] || {};
     if (p.perVideoSec) { usd += (m.videoSec || 0) * p.perVideoSec; method = "video-seconds-estimate"; }
@@ -206,6 +211,7 @@ export async function pfetch(env, meta, url, init = {}) {
     clearTimeout(timer);
     call.ms = Date.now() - t0;
     call.status = ac.signal.aborted ? "timeout" : "network";
+    call.maybeBilled = true;      // the request may have reached the provider: see postCost
     if (ac.signal.aborted) throw new Error("provider timeout");
     throw e;
   }
@@ -346,7 +352,8 @@ export async function ledger(env, status) {
   const meta = ROUTES[rc.route] || {};
   const m = rc.m || {};
   const billedCalls = rc.calls.filter(c => c.billed);
-  const cost = billedCalls.length ? postCost(rc.route, billedCalls, m) : { usd: 0, method: rc.calls.length ? "not-billed" : "no-provider-call" };
+  const charged = rc.calls.filter(c => c.billed || c.maybeBilled);
+  const cost = charged.length ? postCost(rc.route, charged, m) : { usd: 0, method: rc.calls.length ? "not-billed" : "no-provider-call" };
   const sum = k => rc.calls.reduce((t, c) => t + (Number(c[k]) || 0), 0);
   let id = "";
   if (env.LEDGER_SALT) { try { id = await hmac(String(env.LEDGER_SALT), rc.uid ? "u:" + rc.uid : "ip:" + rc.ip); } catch (e) {} }

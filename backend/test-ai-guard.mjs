@@ -272,6 +272,58 @@ console.log("\n# K. the production package (polish-prod/entry.js, as build.sh as
   ok("K5 · the game route is untouched (still demands an account: 401)", wm.status === 401, wm.status);
 }
 
+console.log("\n# L. a refused request never reaches a paid provider");
+{
+  const providerCalls = async fn => { const n0 = P.calls; const r = await fn(); return { r, n: P.calls - n0 }; };
+  const e = env({ ANON_AI_POLICY: "enforce", ANON_AI_VERDICT_PER_DAY: "1" });
+  await call(W, e, analyse("the one allowed visitor verdict today"), { ip: "8.8.1.1" });
+  const a = await providerCalls(() => call(W, e, analyse("a refused visitor verdict request now"), { ip: "8.8.1.1" }));
+  ok("L1 · anonymous allowance refusal (429): zero provider calls", a.r.status === 429 && a.n === 0, [a.r.status, a.n]);
+  const e2 = env(ENF), tok = await mint("uid-free-L");
+  for (let i = 0; i < 3; i++) await call(W, e2, analyse("spending the three free verdicts " + i), { token: tok, ip: "8.8.2." + i });
+  const b = await providerCalls(() => call(W, e2, analyse("the fourth verdict is over the limit"), { token: tok, ip: "8.8.2.9" }));
+  ok("L2 · Free verdict limit (429): zero provider calls", b.r.status === 429 && b.n === 0, [b.r.status, b.n]);
+  const c = await providerCalls(() => call(W, e2, analyse("no account with enforcement on here"), { ip: "8.8.3.1" }));
+  ok("L3 · no account with enforcement on (401): zero provider calls", c.r.status === 401 && c.n === 0, [c.r.status, c.n]);
+  const tokL2 = await mint("uid-free-L2");
+  const d = await providerCalls(() => call(W, e2, { analyse: { transcript: "too short" } }, { token: tokL2, ip: "8.8.4.1" }));
+  ok("L4 · validation refusal (400): zero provider calls", d.r.status === 400 && d.n === 0, [d.r.status, d.n]);
+  const e3 = env({ ...ENF, AI_DEDUPE: "1" }), t3 = await mint("uid-free-L3"); P.delay = 100;
+  const before = P.calls;
+  const both = await Promise.all([call(W, e3, analyse("one identical request sent twice now"), { token: t3 }), call(W, e3, analyse("one identical request sent twice now"), { token: t3 })]); P.delay = 0;
+  ok("L5 · duplicate in flight (409): only ONE provider call for the pair", both.some(x => x.status === 409) && P.calls - before === 1, [both.map(x => x.status), P.calls - before]);
+}
+
+console.log("\n# M. a failure after the provider may have charged is still costed");
+{
+  const L = ledger(), e = env({ ...ENF, AI_TIMEOUT_MS: "120", AI_LEDGER: L }), tok = await mint("uid-free-M");
+  P.mode = "hang"; await call(W, e, analyse("a request whose provider call times out"), { token: tok }); P.mode = "ok";
+  const r = L.rows[0], C = G.LEDGER_COLUMNS;
+  ok("M1 · a timed-out call is recorded with an estimated cost, labelled possibly billed", r && r.doubles[C.doubles.indexOf("est_usd_micro")] > 0 && r.blobs[C.blobs.indexOf("cost_method")] === "possibly-billed-estimate", JSON.stringify(r && r.blobs));
+  const L2 = ledger(), e2 = env({ ...ENF, AI_LEDGER: L2 });
+  P.mode = "fail"; await call(W, e2, analyse("the provider answers five hundred here"), { token: await mint("uid-free-M2") }); P.mode = "ok";
+  ok("M2 · a provider that refused (HTTP 500, not billed by the provider) is recorded at $0", L2.rows[0] && L2.rows[0].doubles[C.doubles.indexOf("est_usd_micro")] === 0 && L2.rows[0].blobs[C.blobs.indexOf("outcome")] === "provider_error", JSON.stringify(L2.rows[0]));
+}
+
+console.log("\n# N. the production wrapper: report mode, 5xx costing, duplicates");
+{
+  const dir = mkdtempSync(join(tmpdir(), "polish-prod-test2-"));
+  for (const f of ["polish-prod/entry.js", "polish-prod/deployed.js", "wm-game.js", "rate-limit.js", "ai-guard.js"]) cpSync(new URL("./" + f, import.meta.url), join(dir, f.split("/").pop()));
+  mkdirSync(join(dir, "entitlements/src"), { recursive: true }); cpSync(new URL("./entitlements/src/firebase-auth.js", import.meta.url), join(dir, "entitlements/src/firebase-auth.js"));
+  const PW = (await import(join(dir, "entry.js"))).default;
+  const pe = (x = {}) => ({ OPENAI_KEY: "k", FIREBASE_PROJECT_ID: PROJECT, ENTITLEMENTS_URL: "https://ent.test", RATE_LIMITER: makeNamespace(), ...x });
+  const L = ledger(), e = pe({ ANON_AI_POLICY: "report", ANON_AI_VERDICT_PER_DAY: "1", AI_LEDGER: L });
+  const r = [await call(PW, e, analyse("report mode production visitor first"), { ip: "6.1.1.1" }), await call(PW, e, analyse("report mode production visitor second"), { ip: "6.1.1.1" })];
+  ok("N1 · report mode in production: the visitor is still answered past the allowance", r.every(x => x.status === 200), r.map(x => x.status));
+  ok("N2 · …and the row says it would have been refused (the evidence the enforce decision needs)", L.rows[1] && L.rows[1].blobs[5] === "anon_would_refuse_ip" && L.rows[1].blobs[2] === "visitor", JSON.stringify(L.rows.map(x => x.blobs.slice(0, 6))));
+  const L2 = ledger(), e2 = pe({ AI_LEDGER: L2 });
+  P.mode = "fail"; const f = await call(PW, e2, analyse("production old code returns a five hundred"), { ip: "6.2.1.1" }); P.mode = "ok";
+  ok("N3 · an opaque 5xx from the old code is costed as possibly billed, not as free", f.status >= 500 && L2.rows[0] && L2.rows[0].blobs[7] === "possibly-billed-estimate" && L2.rows[0].doubles[7] > 0, JSON.stringify(L2.rows[0] && L2.rows[0].blobs));
+  const e3 = pe({ ANON_AI_POLICY: "report", AI_DEDUPE: "1" }); P.delay = 100; const n0 = P.calls;
+  const both = await Promise.all([call(PW, e3, analyse("duplicate production request sent twice"), { ip: "6.3.1.1" }), call(PW, e3, analyse("duplicate production request sent twice"), { ip: "6.3.1.1" })]); P.delay = 0;
+  ok("N4 · production duplicate guard (AI_DEDUPE=1): one answered, one 409, one provider call", both.map(x => x.status).sort().join() === "200,409" && P.calls - n0 === 1, [both.map(x => x.status), P.calls - n0]);
+}
+
 globalThis.fetch = realFetch;
 const failed = res.filter(x => !x).length;
 console.log(`\n${res.length - failed}/${res.length} passed`);
