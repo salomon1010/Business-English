@@ -78,8 +78,12 @@ today, the store apps, staging) it is the root as before.
 4. Check: `/` is the portal, `/bemastery/` the app, `/privacy.html`,
    `/delete-account.html`, `/yt-embed.html` and `/.well-known/assetlinks.json`
    answer 200; `BASE=https://app.lomonec.com/bemastery npm test` (smoke).
-5. When ready to gate web visitors: `web_visitor_gate_enabled: true` in
-   `FLAGS_DEFAULT` (+ the cache bump), as a separate release.
+5. **Done in be12-v686 (PR #10, 10 Oct 2026):** `web_visitor_gate_enabled: true` in
+   `FLAGS_DEFAULT` and `FLAGS_STAGING`. Verified live: a new plain-browser visitor sees the landing;
+   the Play app (forwarded with `?wid=`, and the portal now marks a forwarded Play tab in
+   `sessionStorage.be_twa`), an installed app and an existing learner go straight into the app.
+   Local/LAN test hosts never show it without an explicit `be_flags` entry (`webGateFlag`); the
+   smoke suite opts out explicitly so it keeps testing the app behind it.
 
 **Rollback:** Settings → Pages → Source → "Deploy from a branch" → `main` / root.
 The previous site returns as it was; learners' data is untouched (same origin).

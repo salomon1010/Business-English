@@ -888,13 +888,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   and `portal/root-sw.js` as `/sw.js` (retires the old root worker). The portal's head
   forwards legacy launches (TWA `/`, standalone, `?wid/widget/nudge/flags`, `#view`, an
   existing `be12_v1` learner) to `/bemastery/` with query + hash; `?portal=1` stays.
-  `.github/workflows/pages-portal.yml` is DORMANT until the owner sets Pages source → Actions
-  and `PORTAL_PAGES=on`. `APP_URL` follows `/bemastery/` on app.lomonec.com only. **Web
-  visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, OFF everywhere): plain
+  `.github/workflows/pages-portal.yml` publishes every push to `main` (Pages source = Actions,
+  `PORTAL_PAGES=on`). `APP_URL` follows `/bemastery/` on app.lomonec.com only. **Web
+  visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, ON in production since
+  be12-v686; `webGateFlag()` keeps it off on local/LAN test hosts unless `be_flags` names it,
+  and smoke opts out explicitly): plain
   browser tab + no account + no local profile only — never the iOS/Play apps, an installed
   PWA or an existing anonymous learner (owner); `webGateLift` after sign-in, back after
   sign-out/deletion. Keys `land.*` (fr translated). Test: `tests/portal.mjs` (33).
-- **AI cost control (10 Oct 2026, `staging`, NOT deployed) — `docs/AI-COST-CONTROL.md`.**
+- **AI cost control (10 Oct 2026; staging be-polish full controls; PRODUCTION be-polish = wrapper with `ANON_AI_POLICY=enforce`, version 8051b272, ledger `be_ai_ledger`) — `docs/AI-COST-CONTROL.md`.**
   `backend/ai-guard.js`, shared by `polish-worker.js` and `polish-prod/entry.js`: anonymous
   policy `ANON_AI_POLICY` off (default) / report / enforce (verified-token check, per-IP
   daily allowance per class + a global anonymous pool in estimated USD; 429
