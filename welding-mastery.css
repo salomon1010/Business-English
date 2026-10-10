@@ -372,7 +372,8 @@ html.wm-still .wm-game *, html.wm-still .wm-cel, html.wm-still .wm-sheet, html.w
 .wm-daily-lock { position: absolute; right: 12px; bottom: 8px; font-size: 11px; display: inline-flex; gap: 4px; align-items: center; opacity: .9; } .wm-daily-lock .wm-ic { width: 13px; height: 13px; }
 .wm-twin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 12px; }
 @media (max-width: 420px) { .wm-twin { grid-template-columns: 1fr; } }
-.wm-week { margin: 0; } .wm-twin .wm-week { margin: 0; }
+/* on its own (Rewards) the weekly goal keeps the cards' rhythm; inside Home's twin row the grid gap spaces it */
+.wm-week { margin: 12px 0 0; } .wm-twin .wm-week { margin: 0; }
 .wm-week-h { display: flex; gap: 10px; align-items: center; } .wm-week-h > .wm-ic { color: #fb923c; width: 24px; height: 24px; }
 .wm-week-h span { flex: 1; } .wm-week-h small { display: block; font-size: 11px; color: var(--wm-mut); text-transform: uppercase; letter-spacing: .06em; } .wm-week-h b { font-size: 14px; }
 .wm-week-dots { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 10px; }
