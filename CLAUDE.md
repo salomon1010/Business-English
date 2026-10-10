@@ -834,7 +834,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   Performance card on Progress. Rules in the pure `welding-mastery-engine.js` (mastery = 3
   different days + one active recall, never XP; XP idempotent by event id), screens in
   `welding-mastery.js` (its own en/fr `TX`). State `S.wm.welding`, merged by `WMEngine.merge` in
-  `fbMerge`, trimmed in `fbSyncPayload`. Gate `WMUI.on()` everywhere. Tests:
+  `fbMerge`, trimmed in `fbSyncPayload`. Gate `WMUI.on()` everywhere. **Server (be12-v669):** energy (Free 5
+  challenge rounds a day, Premium none; a wrong answer / failure / repeat costs nothing) and XP are
+  decided by `backend/wm-game.js` (be-polish `{wm:{op}}`, sign-in + Welding account via
+  `/programme`, RateLimiter DO buckets, HMAC round tickets); Premium adds 30/90-day trends
+  (`advanced_progress`), the Advanced workshop (KV `WM_PACK`, content kept out of this public
+  repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
+  be-entitlements, so the route answers 503 there. Tests:
   `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`

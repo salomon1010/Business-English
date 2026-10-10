@@ -51,7 +51,10 @@
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
 
   function fresh() {
-    return { v: VERSION, t: {}, fav: {}, mine: {}, xpDay: {}, ev: {}, days: {}, modes: {}, ach: {}, mis: null, set: { sound: false, motion: "auto", first: "en" }, resume: null, ws: {}, hist: [] };
+    return { v: VERSION, t: {}, fav: {}, mine: {}, xpDay: {}, ev: {}, days: {}, modes: {}, ach: {}, mis: null, set: { sound: false, motion: "auto", first: "en" }, resume: null, ws: {}, hist: [],
+      /* the server's side (wm-game.js): sx = its last answer (display copy), sxd = XP it confirmed per day,
+         pend = finishes it has not confirmed yet (resent; it pays a round once), bdg = skill badges celebrated */
+      sx: null, sxd: {}, pend: [], bdg: {} };
   }
   /* repair whatever the device holds (older shape, a half-written object) */
   function normalize(st) {
@@ -204,7 +207,7 @@
     const pool = terms.filter(t => t.id !== target && (!o.needImg || t.img) && !(o.needImg && lookalike(t.id, target)) && label(t) !== label(T));
     const same = shuffle(pool.filter(t => t.cat === T.cat), seed), other = shuffle(pool.filter(t => t.cat !== T.cat), seed + 1);
     const out = [], seen = new Set([label(T)]);
-    for (const t of same.concat(other)) { if (out.length >= n) break; if (seen.has(label(t))) continue; seen.add(label(t)); out.push(t.id); }
+    for (const t of same.concat(other)) { if (out.length >= n) break; if (seen.has(label(t))) continue; if (o.needImg && out.some(id => lookalike(id, t.id))) continue; seen.add(label(t)); out.push(t.id); }   /* picture options: no two look-alikes side by side either */
     return out;
   }
 
@@ -464,6 +467,12 @@
     m.mis = !L.mis ? C.mis : !C.mis ? L.mis : (L.mis.day > C.mis.day ? L.mis : C.mis.day > L.mis.day ? C.mis : ((L.mis.done || L.mis.prog >= (C.mis.prog || 0)) ? L.mis : C.mis));
     m.set = L.set; m.resume = (L.resume && (!C.resume || L.resume.ts >= C.resume.ts)) ? L.resume : C.resume;
     m.ws = maxMap(L.ws, C.ws);
+    /* the server's figures: the newer answer; confirmed XP per day the larger copy; pending finishes
+       united by round id (the server pays each once); a badge tier never goes down */
+    m.sx = !L.sx ? C.sx : !C.sx ? L.sx : ((L.sx.at || 0) >= (C.sx.at || 0) ? L.sx : C.sx);
+    m.sxd = maxMap(L.sxd, C.sxd);
+    { const by = {}; [].concat(C.pend || [], L.pend || []).forEach(p => { if (p && p.sid) by[p.sid] = p; }); m.pend = Object.values(by).slice(-30); }
+    m.bdg = maxMap(L.bdg, C.bdg);
     /* history: union by round id; when both devices hold a round, the one with more answers wins */
     { const by = {}; for (const r of [].concat(C.hist || [], L.hist || [])) { if (!r || !r.id) continue; const c = by[r.id]; if (!c || (r.it ? r.it.length : 0) > (c.it ? c.it.length : 0) || (!c.it && r.it)) by[r.id] = r; }
       m.hist = Object.values(by).sort((a, b) => a.ts - b.ts); capHist(m); }

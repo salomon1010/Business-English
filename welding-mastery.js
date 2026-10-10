@@ -24,8 +24,8 @@
   "use strict";
   const E = window.WMEngine;
   const AREA = "welding", TOTAL = 250;
-  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=1", PHOTO_DIR = "tracks/welding/photos/";
-  let C = null, ART = null, PHOTOS = {}, _load = null, _err = false;
+  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=1", PHOTO_DIR = "tracks/welding/photos/", ART3D_URL = "tracks/welding/mastery-art3d.json?v=1";
+  let C = null, ART = null, PHOTOS = {}, ART3D = {}, _load = null, _err = false;
   let _tab = "home", _coll = { q: "", cat: "all", seg: "all" }, _edit = null, _G = null;
 
   /* ------------------------------------------------------------ the gate */
@@ -115,6 +115,24 @@
       h_err_stage: "{{n}} words · {{o}} still to fix", h_times: "wrong {{n}}×", h_last: "last {{d}}", h_instead: "you chose instead: {{p}}",
       h_open: "To fix", h_fixed: "Right since", h_mastered: "Mastered since", h_practise_err: "Practise these errors ({{n}})",
       h_stage: "Your history in this stage", h_stage_n: "{{a}} answers · {{ok}} correct", h_stage_0: "Nothing played in this stage yet.", h_link: "See your full history",
+au_h: "Sign in to play", au_b: "Your XP, energy, streak and badges are saved on your account, so they follow you to any phone. Browsing the 250 words stays open without an account.", au_btn: "Sign in or create an account", au_short: "Sign in to play and save your XP.",
+      en_out_h: "Today's energy is used up", en_out_b: "Your 5 challenge rounds are done for today. Energy refills in {{h}} h {{m}} min (midnight UTC).", en_out_s: "Cards review, the daily challenge and every word stay open.",
+      en_keep1: "Cards review keeps working — it never costs energy.", en_keep2: "All 250 words, definitions, pictures and examples stay open.", en_keep3: "Wrong answers never cost energy: a round costs one unit when it starts, that is all.",
+      en_cards: "Review with Cards", en_prem: "Unlimited rounds with Premium", en_check: "Checking today's energy…", en_open: "Opening the round…",
+      en_unl: "Premium: unlimited rounds", en_left: "{{n}} of {{g}} energy left today", en_note_p: "Premium: every game, as often as you like.", en_note_f: "Free: {{n}} of 5 challenge rounds left today. Cards and the daily challenge are free.", en_cost: "Costs 1 energy", en_free: "Free",
+      trk_h: "Your account is on another programme", trk_b: "Welding Mastery is part of Welding Professional English. Your saved account is on a different programme — switch to Welding in the app, let it sync, then try again.",
+      off_h: "No connection", off_b: "Challenges need a connection so your energy and XP are counted correctly — nothing was charged. Cards review works offline.",
+      pr_h: "Welding Mastery Premium", pr_b: "The same subscription as the rest of BE Mastery. Free keeps every word and all eight games.", pr_1: "Unlimited challenge rounds every day", pr_2: "20 advanced workshop scenarios (inspection, codes, NCRs, permits)", pr_3: "30- and 90-day trends for every skill", pr_4: "More AI coaching: 120 replies a day instead of 3", pr_btn: "See Premium", pr_soon: "Premium is not on sale yet.",
+      dc_h: "Daily challenge", dc_t: "Today's welding-English challenge", dc_sub: "8 words from every stage · free · +30 XP bonus", dc_done_h: "Daily challenge complete!", dc_next: "A new challenge in {{h}} h {{m}} min", dc_play: "Daily challenge", dc_bonus: "+{{n}} daily bonus",
+      wk_h: "Weekly goal", wk_b: "{{n}} of {{g}} practice days", wk_done: "Goal reached",
+      ng_h: "Your next goal", ng_daily: "Finish today's daily challenge (+30 XP)", ng_week: "Practise on {{n}} more day(s) this week to reach your weekly goal", ng_badge: "{{n}} more {{skill}} answers at {{acc}}% for the {{tier}} badge",
+      bd_h: "Skill badges", bd_sub: "Earned from real answers: enough of them, and accurate enough.", bd_t0: "Not yet", bd_t1: "Bronze", bd_t2: "Silver", bd_t3: "Gold", bd_next: "{{n}} more answers at {{acc}}% for {{tier}}", bd_max: "Top badge earned", bd_new: "{{tier}} badge: {{skill}}", bd_new_h: "New skill badge",
+      end_offline: "Played offline — review only, no XP.", end_saving: "Saving your XP…", end_pending: "XP will be saved as soon as you are back online.", end_xp_dup: "Already counted — no extra XP.",
+      g_daily: "Daily challenge", g_daily_d: "Eight words from every stage", g_advanced: "Advanced workshop", g_advanced_d: "Inspection, codes, NCRs and permits — with the AI coach",
+      adv_fail_h: "Advanced workshop unavailable", adv_fail_b: "The advanced scenarios could not be loaded. Try again in a moment.",
+      co_task: "Answer the {{who}} in your own words, using “{{term}}”.", co_h: "Your turn — AI coach", co_v_good: "Well said", co_v_almost: "Nearly there", co_v_retry: "Try it another way", co_ai: "Feedback by AI — check anything safety-critical with your supervisor.",
+      co_ph: "Write what you would say…", co_busy: "The coach is reading…", co_btn: "Ask the AI coach", co_off: "The AI coach needs a connection and today's AI allowance.", co_meter: "Uses one AI coaching reply (Free 3 a day, Premium 120).", co_short: "Write a full sentence or two first.", co_spent: "Today's AI coaching is used up. It comes back at midnight UTC — Premium gives 120 a day.", co_fail: "The coach could not answer just now. Try again.",
+      tr_h: "Trends", tr_days: "{{n}} days", tr_act: "Answers per day ({{n}} days)", tr_acc: "Accuracy by week", tr_few: "Trends appear after two weeks with at least 10 answers.", tr_sk: "Skills by week", tr_few_s: "Not enough yet", tr_empty: "Play a few rounds and your trends will appear here.", tr_lock: "Trends are part of Premium.",
       r_kicker: "Welding Mastery", r_shift_t: "Today's Shift: {{m}}", r_shift_b: "{{p}} of {{n}} done · about five minutes in the game hub.", r_due_t: "{{n}} words are due in Welding Mastery", r_due_b: "A short Cards round brings them back right on time.", r_cta: "Play now",
       row_h: "Welding Mastery — your games", row_s_first: "Start with five words, about three minutes.", row_s_gap: "Your {{strong}} is strong; {{weak}} needs practice.", row_s_due: "{{n}} words are due for review.", row_s_difficult: "Some words need another look.", row_s_try: "A game you have not tried yet is waiting.", row_s_keep: "Keep your trade words fresh.",
       it_shift: "Today's Shift", it_game: "Game", explore_s: "250 trade words, eight games", explore_shift: "Today's Shift: {{p}}/{{n}}", explore_done: "Shift done · {{m}}/250 mastered",
@@ -197,6 +215,24 @@
       h_err_stage: "{{n}} mots · {{o}} à corriger", h_times: "faux {{n}}×", h_last: "dernière fois {{d}}", h_instead: "tu as choisi : {{p}}",
       h_open: "À corriger", h_fixed: "Juste depuis", h_mastered: "Maîtrisé depuis", h_practise_err: "Pratiquer ces erreurs ({{n}})",
       h_stage: "Ton historique dans cette étape", h_stage_n: "{{a}} réponses · {{ok}} justes", h_stage_0: "Rien joué dans cette étape pour l'instant.", h_link: "Voir tout ton historique",
+au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes badges sont enregistrés sur ton compte et te suivent sur n'importe quel téléphone. Les 250 mots restent consultables sans compte.", au_btn: "Se connecter ou créer un compte", au_short: "Connecte-toi pour jouer et enregistrer tes XP.",
+      en_out_h: "L'énergie du jour est épuisée", en_out_b: "Tes 5 séries de défis sont faites pour aujourd'hui. L'énergie revient dans {{h}} h {{m}} min (minuit UTC).", en_out_s: "La révision par Cartes, le défi du jour et tous les mots restent ouverts.",
+      en_keep1: "La révision par Cartes continue — elle ne coûte jamais d'énergie.", en_keep2: "Les 250 mots, définitions, images et exemples restent ouverts.", en_keep3: "Une mauvaise réponse ne coûte jamais d'énergie : une série coûte une unité au départ, c'est tout.",
+      en_cards: "Réviser avec les Cartes", en_prem: "Séries illimitées avec Premium", en_check: "Vérification de l'énergie du jour…", en_open: "Ouverture de la série…",
+      en_unl: "Premium : séries illimitées", en_left: "{{n}} énergie(s) sur {{g}} aujourd'hui", en_note_p: "Premium : tous les jeux, autant que tu veux.", en_note_f: "Gratuit : {{n}} séries de défis sur 5 aujourd'hui. Les Cartes et le défi du jour sont gratuits.", en_cost: "Coûte 1 énergie", en_free: "Gratuit",
+      trk_h: "Ton compte est sur un autre programme", trk_b: "Welding Mastery fait partie de Welding Professional English. Ton compte enregistré est sur un autre programme — passe sur Soudage dans l'appli, laisse-la se synchroniser, puis réessaie.",
+      off_h: "Pas de connexion", off_b: "Les défis ont besoin d'une connexion pour compter correctement ton énergie et tes XP — rien n'a été débité. La révision par Cartes marche hors ligne.",
+      pr_h: "Welding Mastery Premium", pr_b: "Le même abonnement que le reste de BE Mastery. Le gratuit garde tous les mots et les huit jeux.", pr_1: "Séries de défis illimitées chaque jour", pr_2: "20 scénarios d'atelier avancés (contrôle, codes, non-conformités, permis)", pr_3: "Tendances sur 30 et 90 jours pour chaque compétence", pr_4: "Plus de coaching IA : 120 réponses par jour au lieu de 3", pr_btn: "Voir Premium", pr_soon: "Premium n'est pas encore en vente.",
+      dc_h: "Défi du jour", dc_t: "Le défi d'anglais du soudage du jour", dc_sub: "8 mots de toutes les étapes · gratuit · bonus +30 XP", dc_done_h: "Défi du jour réussi !", dc_next: "Nouveau défi dans {{h}} h {{m}} min", dc_play: "Défi du jour", dc_bonus: "+{{n}} bonus du jour",
+      wk_h: "Objectif de la semaine", wk_b: "{{n}} jours de pratique sur {{g}}", wk_done: "Objectif atteint",
+      ng_h: "Ton prochain objectif", ng_daily: "Termine le défi du jour (+30 XP)", ng_week: "Pratique encore {{n}} jour(s) cette semaine pour atteindre ton objectif", ng_badge: "Encore {{n}} réponses en {{skill}} à {{acc}} % pour le badge {{tier}}",
+      bd_h: "Badges de compétence", bd_sub: "Gagnés avec de vraies réponses : assez nombreuses et assez justes.", bd_t0: "Pas encore", bd_t1: "Bronze", bd_t2: "Argent", bd_t3: "Or", bd_next: "Encore {{n}} réponses à {{acc}} % pour {{tier}}", bd_max: "Meilleur badge obtenu", bd_new: "Badge {{tier}} : {{skill}}", bd_new_h: "Nouveau badge",
+      end_offline: "Joué hors ligne — révision seulement, sans XP.", end_saving: "Enregistrement de tes XP…", end_pending: "Les XP seront enregistrés dès que tu seras reconnecté.", end_xp_dup: "Déjà compté — pas d'XP en plus.",
+      g_daily: "Défi du jour", g_daily_d: "Huit mots de toutes les étapes", g_advanced: "Atelier avancé", g_advanced_d: "Contrôle, codes, non-conformités et permis — avec le coach IA",
+      adv_fail_h: "Atelier avancé indisponible", adv_fail_b: "Les scénarios avancés n'ont pas pu être chargés. Réessaie dans un instant.",
+      co_task: "Réponds au {{who}} avec tes propres mots, en utilisant « {{term}} ».", co_h: "À toi — coach IA", co_v_good: "Bien dit", co_v_almost: "Presque", co_v_retry: "Essaie autrement", co_ai: "Retour généré par IA — vérifie tout point de sécurité avec ton chef.",
+      co_ph: "Écris ce que tu dirais…", co_busy: "Le coach lit ta réponse…", co_btn: "Demander au coach IA", co_off: "Le coach IA a besoin d'une connexion et du quota IA du jour.", co_meter: "Utilise une réponse du coach IA (gratuit 3 par jour, Premium 120).", co_short: "Écris d'abord une ou deux phrases complètes.", co_spent: "Le coaching IA du jour est épuisé. Il revient à minuit UTC — Premium en donne 120 par jour.", co_fail: "Le coach n'a pas pu répondre. Réessaie.",
+      tr_h: "Tendances", tr_days: "{{n}} jours", tr_act: "Réponses par jour ({{n}} jours)", tr_acc: "Réussite par semaine", tr_few: "Les tendances apparaissent après deux semaines d'au moins 10 réponses.", tr_sk: "Compétences par semaine", tr_few_s: "Pas encore assez", tr_empty: "Joue quelques séries et tes tendances apparaîtront ici.", tr_lock: "Les tendances font partie de Premium.",
       r_kicker: "Welding Mastery", r_shift_t: "Poste du jour : {{m}}", r_shift_b: "{{p}} sur {{n}} faits · environ cinq minutes dans le hub de jeu.", r_due_t: "{{n}} mots à réviser dans Welding Mastery", r_due_b: "Une petite série de Cartes les fait revenir au bon moment.", r_cta: "Jouer",
       row_h: "Welding Mastery — tes jeux", row_s_first: "Commence par cinq mots, environ trois minutes.", row_s_gap: "Ta {{strong}} est solide ; ton {{weak}} demande de la pratique.", row_s_due: "{{n}} mots sont à réviser.", row_s_difficult: "Certains mots méritent un autre regard.", row_s_try: "Un jeu que tu n'as pas encore essayé t'attend.", row_s_keep: "Garde tes mots du métier frais.",
       it_shift: "Poste du jour", it_game: "Jeu", explore_s: "250 mots du métier, huit jeux", explore_shift: "Poste du jour : {{p}}/{{n}}", explore_done: "Poste fait · {{m}}/250 maîtrisés",
@@ -268,7 +304,7 @@
     renew: '<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/><path d="M12 8v4l2.5 1.5"/>',
     heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3c0 5.4-7.5 10-7.5 10Z"/>'
   };
-  const MODE_IC = { cards: "cards", quiz: "quiz", crossword: "crossword", visual: "eye", listen: "headphones", builder: "builder", match: "link", workshop: "workshop" };
+  const MODE_IC = { cards: "cards", quiz: "quiz", crossword: "crossword", visual: "eye", listen: "headphones", builder: "builder", match: "link", workshop: "workshop", daily: "star", advanced: "crown" };
   const CAT_IC = { tools: "tool", ppe: "shield", materials: "cards", process: "spark", joints: "link", defects: "target", inspection: "eye", docs: "book", actions: "workshop", comms: "chat", mine: "myword" };
   function wi(name, cls) { return `<svg class="wm-ic ${cls || ""}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${WI[name] || WI.spark}</svg>`; }
   /* the portal mark: a welder's helmet over an open book, a spark at the arc */
@@ -295,6 +331,8 @@
     if (!t || !t.img || !ART || !ART[t.img]) return "";
     return `<svg class="wm-art" viewBox="0 0 120 120" role="img" aria-label="${h(label)}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ART[t.img]}</svg>`;
   }
+  /* a game's 3D illustration, decorative (the card's own text names the game) */
+  function art3d(key, fallbackIcon) { return ART3D[key] ? `<span class="wm-art3d" aria-hidden="true">${ART3D[key]}</span>` : wi(fallbackIcon); }
   function catArt(cat) { return `<span class="wm-catart" aria-hidden="true">${wi(CAT_IC[cat] || "spark")}</span>`; }
 
   /* ------------------------------------------------------------ data */
@@ -302,8 +340,10 @@
     if (C) return Promise.resolve(C);
     if (_load) return _load;
     _err = false;
-    _load = Promise.all([fetch(CORPUS_URL).then(r => { if (!r.ok) throw new Error("corpus " + r.status); return r.json(); }), fetch(ART_URL).then(r => r.ok ? r.json() : {}).catch(() => ({})), fetch(PHOTO_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}))])
-      .then(([c, a, ph]) => {
+    _load = Promise.all([fetch(CORPUS_URL).then(r => { if (!r.ok) throw new Error("corpus " + r.status); return r.json(); }), fetch(ART_URL).then(r => r.ok ? r.json() : {}).catch(() => ({})), fetch(PHOTO_URL).then(r => r.ok ? r.json() : {}).catch(() => ({})), fetch(ART3D_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}))])
+      .then(([c, a, ph, a3]) => {
+        /* the 3D game artwork: our own SVG, but checked once more before it is placed in the page */
+        ART3D = {}; Object.entries(a3 || {}).forEach(([k, v]) => { if (typeof v === "string" && /^<svg[\s>]/.test(v) && !/<(script|foreignObject|image|style)\b|\son[a-z]+\s*=|href\s*=/i.test(v)) ART3D[k] = v; });
         if (!c || !Array.isArray(c.terms) || !c.terms.length) throw new Error("corpus shape");
         C = c; ART = a || {}; PHOTOS = ph || {};
         /* a real photograph (Wikimedia Commons, credited) wins over the drawing; a term with a photo is a picture term */
@@ -377,7 +417,8 @@
     }
     const s = st(), now = Date.now();
     E.ensureMission(s, official(), now);
-    const lv = E.level(E.xpTotal(s)), sk = E.streak(s, now), m = masteredCount(s);
+    const lv = E.level(xpShown()), sk = E.streak(s, now), m = masteredCount(s);
+    if (signedIn() && (!_srv || Date.now() - _srv.at > 60_000)) setTimeout(srvRefresh, 0);
     el.innerHTML = `<div class="wm-hub">
       <div class="wm-top"><button class="back" data-wm="nav" data-a="practice">${h(w("back"))}</button>
         <button class="wm-iconbtn" data-wm="settings" aria-label="${h(w("set_h"))}">${wi("gear")}</button></div>
@@ -390,6 +431,7 @@
         <span class="wm-stat xp" role="listitem">${wi("xp")}<b>${h(w("xp", { n: lv.xp }))}</b></span>
         <span class="wm-stat fl" role="listitem" title="${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}" aria-label="${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}">${wi("flame")}<b aria-hidden="true">${sk.current}</b></span>
         <span class="wm-stat ok" role="listitem">${wi("check")}<b>${m}/${TOTAL}</b></span>
+        ${energyChipHTML()}
       </div>
       <nav class="wm-tabs" role="tablist" aria-label="Welding Mastery">
         ${[["home", "home"], ["games", "games"], ["journey", "map"], ["coll", "coll"], ["rewards", "trophy"], ["hist", "clock"], ["perf", "chart"]].map(([k, icn]) => `<button role="tab" aria-selected="${_tab === k}" class="wm-tab ${_tab === k ? "on" : ""}" data-wm="tab" data-a="${k}">${wi(icn)}${k === "perf" ? `<span class="wm-tl-s" aria-hidden="true">${h(w("t_perf_s"))}</span>` : ""}<span class="wm-tl">${h(w("t_" + k))}</span></button>`).join("")}
@@ -423,11 +465,17 @@
     return r;
   }
   function homeHTML() {
-    const s = st(), now = Date.now(), m = masteredCount(s), lv = E.level(E.xpTotal(s)), sk = E.streak(s, now);
+    const s = st(), now = Date.now(), m = masteredCount(s), lv = E.level(xpShown()), sk = E.streak(s, now);
+    const ng = nextGoal(), en = energyLeft();
     const perf = E.performance(s, official(), now), rec = E.recommend(perf), res = resumeValid(s);
     const recent = Object.entries(s.t).filter(([id, r]) => r.n && byId(id)).sort((a, b) => b[1].last - a[1].last).slice(0, 6).map(([id]) => byId(id));
     const pct = Math.round(100 * m / TOTAL);
     return `
+      ${signedIn() ? "" : `<div class="card wm-signin">${wi("lock")}<div><b>${h(w("au_h"))}</b><p>${h(w("au_b"))}</p><button class="btn btn-p btn-sm" data-wm="signin">${h(w("au_btn"))}</button></div></div>`}
+      ${dailyCardHTML()}
+      <div class="wm-twin">${weekCardHTML()}
+        <button class="card wm-ngoal" data-wm="${ng.act}" data-a="${h(ng.a || "")}">${wi("target")}<span><small>${h(w("ng_h"))}</small><b>${h(ng.text)}</b></span><span class="wm-go">→</span></button></div>
+      ${signedIn() && en === 0 ? `<button class="card wm-enout" data-wm="energy">${wi("bolt")}<span><b>${h(w("en_out_h"))}</b><small>${h(w("en_out_s"))}</small></span><span class="wm-go">→</span></button>` : ""}
       ${perf.empty ? `<div class="card wm-first">${wi("party")}<div><b>${h(w("first_h"))}</b><p>${h(w("first_b"))}</p></div></div>` : ""}
       <div class="card wm-overview">
         <div class="wm-ring" role="img" aria-label="${h(w("mastered_of", { n: m, total: TOTAL }))}" style="--p:${pct}"><b>${m}</b><small>/ ${TOTAL}</small></div>
@@ -458,11 +506,20 @@
   }
   function gamesHTML() {
     const s = st();
-    return `<div class="wm-games">${E.MODES.map(md => { const M = s.modes[md]; return `<button class="wm-game-card" data-wm="play" data-a="${md}">
-      <span class="wm-gc-ic">${wi(MODE_IC[md])}</span><b>${h(w("g_" + md))}</b><small>${h(w("g_" + md + "_d"))}</small>
+    const prem = isPremium();
+    return `${dailyCardHTML()}
+      ${signedIn() ? `<p class="wm-mut small wm-en-note">${wi("bolt")} ${h(prem ? w("en_note_p") : w("en_note_f", { n: energyLeft() == null ? "–" : energyLeft() }))}</p>` : ""}
+      <div class="wm-games">${E.MODES.map(md => { const M = s.modes[md]; const cost = WM_CHARGED.has(md); return `<button class="wm-game-card" data-wm="play" data-a="${md}">
+      <span class="wm-gc-cost ${cost ? (prem ? "unl" : "") : "free"}" aria-label="${h(cost ? (prem ? w("en_unl") : w("en_cost")) : w("en_free"))}">${cost ? (prem ? "∞" : `${wi("bolt")}1`) : h(w("en_free"))}</span>
+      <span class="wm-gc-ic ${ART3D[md] ? "a3" : ""}">${art3d(md, MODE_IC[md])}</span><b>${h(w("g_" + md))}</b><small>${h(w("g_" + md + "_d"))}</small>
       <span class="wm-gc-skill">${h(w("skill_" + E.MODE_SKILL[md]))}</span>
       ${M && M.runs ? `<span class="wm-gc-best">${h(w("best", { n: M.best }))} · ${h(w("runs", { n: M.runs }))}</span>` : ""}
-    </button>`; }).join("")}</div>`;
+    </button>`; }).join("")}
+      <button class="wm-game-card wm-adv" data-wm="advanced">
+        <span class="wm-gc-cost prem">${wi("crown")} Premium</span>
+        <span class="wm-gc-ic ${ART3D.advanced ? "a3" : ""}">${art3d("advanced", "workshop")}</span><b>${h(w("g_advanced"))}</b><small>${h(w("g_advanced_d"))}</small>
+        <span class="wm-gc-skill">${h(w("skill_context"))} · AI</span>
+      </button></div>`;
   }
   function journeyHTML() {
     const s = st(), J = E.journey(s, official(), C.categories), errs = E.errorsByStage(s, official());
@@ -552,7 +609,7 @@
   function itemHTML(x) {
     const ok = !!x.o;
     if (x.k === "reply") {
-      const sc = C.workshop.find(z => z.id === x.s), o = sc && sc.reply.options[+x.p];
+      const sc = scen(x.s), o = sc && sc.reply.options[+x.p];
       return `<li class="wm-hi ${ok ? "ok" : "no"}">${wi(ok ? "check" : "cross")}<div><b>${h(w("h_reply"))}</b>${o ? `<small lang="en">“${h(o.en)}”</small>` : ""}${!ok && sc ? `<small>${h(w("h_ans", { a: (sc.reply.options.find(z => z.ok) || {}).en || "" }))}</small>` : ""}</div><em>${h(w("k_reply"))}</em></li>`;
     }
     const t = byId(x.t), name = t ? t.en : x.t;
@@ -561,7 +618,7 @@
     else if (x.p === "revealed") said = w("h_revealed");
     else if (x.p) said = byId(x.p) ? w("h_chose", { p: label(x.p) }) : w("h_typed", { p: x.p });
     const kind = x.k ? (x.k.startsWith("match") ? w("k_match") : w("k_" + x.k.replace("-", "_"))) : "";
-    const sc = x.s && C.workshop.find(z => z.id === x.s);
+    const sc = x.s && scen(x.s);
     return `<li class="wm-hi ${ok ? "ok" : "no"}">${wi(ok ? "check" : "cross")}<div>
       ${sc ? `<small lang="en">“${h(sc.say.en)}”</small>` : ""}
       <button class="wm-hi-w" data-wm="word" data-a="${h(x.t)}"><b>${h(name)}</b>${t && t.fr ? ` <span lang="fr">${h(t.fr)}</span>` : ""}</button>
@@ -603,13 +660,21 @@
 
   /* ---- Rewards ---- */
   function rewardsHTML() {
-    const s = st(), lv = E.level(E.xpTotal(s)), sk = E.streak(s, Date.now());
+    const s = st(), lv = E.level(xpShown()), sk = E.streak(s, Date.now());
+    const bd = badges();
     const stages = E.journey(s, official(), C.categories).filter(j => j.done);
     return `<div class="card wm-lvcard">${wi("medal", "big")}<div><small>${h(w("r_level_h"))}</small><b>${h(w("level", { n: lv.level }))} · ${h(w("xp", { n: lv.xp }))}</b>
         <div class="wm-meter gold" role="progressbar" aria-valuemin="${lv.floor}" aria-valuemax="${lv.next}" aria-valuenow="${lv.xp}" aria-label="${h(w("level", { n: lv.level }))}"><span style="width:${lv.pct}%"></span></div>
         <small>${h(w("xp_next", { n: lv.need, l: lv.level + 1 }))}</small></div></div>
       <p class="wm-mut">${h(w("r_thresh"))}</p>
       <div class="card wm-lvcard">${wi("flame", "big fl")}<div><b>${h(sk.current ? w("streak_d", { n: sk.current }) : w("streak_0"))}</b><small>Best: ${sk.best}</small></div></div>
+      ${weekCardHTML()}
+      <h2 class="wm-h2">${h(w("bd_h"))}</h2>
+      <p class="wm-mut small">${h(w("bd_sub"))}</p>
+      <div class="wm-badges">${bd.map(b => { const nx = BADGE_TIERS[b.tier]; return `<div class="wm-badge t${b.tier}">
+        <span class="wm-badge-m">${wi(MODE_IC[SKILL_MODE[b.skill]] || "medal")}</span><b>${h(w("skill_" + b.skill))}</b>
+        <em>${h(b.tier ? w("bd_t" + b.tier) : w("bd_t0"))}</em>
+        <small>${nx ? h(w("bd_next", { n: Math.max(0, nx.n - b.n), acc: nx.acc, tier: w("bd_t" + (b.tier + 1)) })) : h(w("bd_max"))}</small></div>`; }).join("")}</div>
       <h2 class="wm-h2">${h(w("r_ach_h"))}</h2>
       <div class="wm-achs">${E.ACH.map(a => { const got = s.ach[a.id]; return `<div class="wm-ach ${got ? "got" : ""}">
         <span class="wm-ach-ic">${wi(got ? a.ic : "lock")}</span><b>${h(w("ach_" + a.id))}</b><small>${h(w("ach_" + a.id + "_d"))}</small>
@@ -620,6 +685,9 @@
   /* ---- Game Performance: the hub tab and the Progress page share it ---- */
   function perfInner(inHub) {
     const s = st(), now = Date.now(), p = E.performance(s, official(), now), rec = E.recommend(p);
+    /* XP here is what the SERVER confirmed: the total it holds, and the awards it answered day by day */
+    p.xp = xpShown();
+    p.xpSeries = p.xpSeries.map(x => ({ d: x.d, n: x.n, xp: (s.sxd && s.sxd[x.d]) || 0 }));
     const maxXp = Math.max(1, ...p.xpSeries.map(x => x.xp));
     const bar = (pct, cls) => `<span class="wm-meter ${cls || ""}"><span style="width:${pct}%"></span></span>`;
     if (p.empty) return `<div class="wm-perf"><p class="wm-mut">${h(w("p_empty"))}</p><button class="btn btn-p" data-wm="${inHub ? "play" : "open"}" data-a="cards">${wi("cards")} ${h(inHub ? w("g_cards") : w("p_open"))}</button></div>`;
@@ -633,6 +701,7 @@
       ${p.xpSeries.some(x => x.xp) ? `<h3 class="wm-h3">${h(w("p_xp14"))}</h3>
       <div class="wm-xpbars" role="list" aria-label="${h(w("p_xp14"))}">${p.xpSeries.map(x => `<span role="listitem" class="wm-xpb" title="${h(x.d)}: ${x.xp} XP" aria-label="${h(x.d)}: ${x.xp} XP"><i style="height:${x.xp ? Math.max(6, Math.round(100 * x.xp / maxXp)) : 0}%"></i></span>`).join("")}</div>
       <div class="wm-xpaxis"><span>${h(p.xpSeries[0].d.slice(5))}</span><span>${h(p.xpSeries[13].d.slice(5))}</span></div>` : ""}
+      ${trendsHTML(inHub)}
       <h3 class="wm-h3">${h(w("p_skills"))}</h3>
       <ul class="wm-bars">${p.skills.map(k => `<li><span>${h(w("skill_" + k.id))}</span>${k.pct == null ? `<em>${h(w("p_skill_na", { n: k.n }))}</em>` : `${bar(k.pct)}<b>${k.pct}%</b>`}</li>`).join("")}</ul>
       <h3 class="wm-h3">${h(w("p_modes"))}</h3>
@@ -646,6 +715,48 @@
       ${inHub ? `<button class="wm-link" data-wm="nav" data-a="review">${wi("chart")} ${h(w("p_go_progress"))} →</button>` : ""}
     </div>`;
   }
+  /* ---- 30 / 90-day trends and skill charts: Premium (advanced_progress, the existing capability) ----
+     Drawn from the learner's own day records (st.days). The data is the
+     learner's own and already on the device, so this is a display gate — the
+     same rule the rest of the Progress page uses for advanced_progress. */
+  let _trendSpan = 30;
+  function trendsLocked() { try { return entGated() && !hasEntitlement("advanced_progress"); } catch (e) { return false; } }
+  function trendData(span) {
+    const s = st(), today = Date.parse(E.dayOf(Date.now()) + "T00:00:00Z"), days = [];
+    for (let i = span - 1; i >= 0; i--) { const d = new Date(today - i * 86_400_000).toISOString().slice(0, 10); const D = s.days[d] || {}; days.push({ d, n: D.n || 0, ok: D.ok || 0, sk: D.sk || {} }); }
+    const weeks = []; for (let i = 0; i < days.length; i += 7) { const wk = days.slice(i, i + 7), sk = {}; let n = 0, ok = 0;
+      wk.forEach(x => { n += x.n; ok += x.ok; Object.entries(x.sk).forEach(([k, v]) => { const a = sk[k] || (sk[k] = [0, 0]); a[0] += v[0]; a[1] += v[1]; }); });
+      weeks.push({ d: wk[0].d, n, ok, acc: n >= 10 ? Math.round(100 * ok / n) : null, sk }); }
+    return { days, weeks };
+  }
+  function lineSVG(points, cls, label) {
+    const W = 300, H = 90, P = 8, pts = points.map((v, i) => v == null ? null : [P + i * (W - 2 * P) / Math.max(1, points.length - 1), H - P - (v / 100) * (H - 2 * P)]);
+    const path = pts.reduce((a, p, i) => p ? a + (a && pts[i - 1] ? " L" : " M") + p[0].toFixed(1) + " " + p[1].toFixed(1) : a, "");
+    return `<svg class="wm-line ${cls || ""}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${h(label)}" preserveAspectRatio="none">
+      <line x1="${P}" x2="${W - P}" y1="${H - P - .5 * (H - 2 * P)}" y2="${H - P - .5 * (H - 2 * P)}" class="g"/><line x1="${P}" x2="${W - P}" y1="${H - P}" y2="${H - P}" class="g"/>
+      ${path ? `<path d="${path.trim()}"/>` : ""}${pts.filter(Boolean).map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.2"/>`).join("")}</svg>`;
+  }
+  function trendsInner(span) {
+    const T = trendData(span), maxN = Math.max(1, ...T.days.map(x => x.n)), any = T.days.some(x => x.n);
+    const acc = T.weeks.map(x => x.acc), nAcc = acc.filter(v => v != null).length;
+    const sk = E.SKILLS.map(k => { const pts = T.weeks.map(x => { const v = x.sk[k]; return v && v[1] >= 5 ? Math.round(100 * v[0] / v[1]) : null; }); const vals = pts.filter(v => v != null); return { k, pts, last: vals.length ? vals[vals.length - 1] : null, first: vals.length ? vals[0] : null, n: vals.length }; });
+    if (!any) return `<p class="wm-mut">${h(w("tr_empty"))}</p>`;
+    return `<h4 class="wm-h3">${h(w("tr_act", { n: span }))}</h4>
+      <div class="wm-actbars s${span}" role="list" aria-label="${h(w("tr_act", { n: span }))}">${T.days.map(x => `<span role="listitem" title="${h(x.d)}: ${x.n}" aria-label="${h(x.d)}: ${x.n}"><i style="height:${x.n ? Math.max(6, Math.round(100 * x.n / maxN)) : 0}%"></i></span>`).join("")}</div>
+      <div class="wm-xpaxis"><span>${h(T.days[0].d.slice(5))}</span><span>${h(T.days[T.days.length - 1].d.slice(5))}</span></div>
+      <h4 class="wm-h3">${h(w("tr_acc"))}</h4>
+      ${nAcc >= 2 ? lineSVG(acc, "acc", w("tr_acc")) + `<div class="wm-xpaxis"><span>${h(T.weeks[0].d.slice(5))}</span><span>100% · 50%</span><span>${h(T.weeks[T.weeks.length - 1].d.slice(5))}</span></div>` : `<p class="wm-mut small">${h(w("tr_few"))}</p>`}
+      <h4 class="wm-h3">${h(w("tr_sk"))}</h4>
+      <div class="wm-skgrid">${sk.map(x => `<div class="wm-skc"><b>${h(w("skill_" + x.k))}</b>${x.n >= 2 ? lineSVG(x.pts, "sk", w("skill_" + x.k)) : `<span class="wm-skna">${h(w("tr_few_s"))}</span>`}
+        <small>${x.last == null ? "—" : x.last + "%"}${x.n >= 2 && x.first != null ? ` · ${x.last - x.first >= 0 ? "+" : ""}${x.last - x.first}` : ""}</small></div>`).join("")}</div>`;
+  }
+  function trendsHTML(inHub) {
+    const locked = trendsLocked();
+    const seg = `<div class="wm-segs sm" role="tablist">${[30, 90].map(n => `<button role="tab" aria-selected="${_trendSpan === n}" class="wm-seg ${_trendSpan === n ? "on" : ""}" data-wm="trend" data-a="${n}" ${locked ? "disabled" : ""}>${h(w("tr_days", { n }))}</button>`).join("")}</div>`;
+    let lock = ""; if (locked) { try { lock = premLockHTML("advanced_progress", "wm_trends", { kept: false }); } catch (e) {} }
+    return `<div class="wm-trends ${locked ? "locked" : ""}" id="wmTrends"><div class="wm-trends-h"><h3 class="wm-h3">${wi("chart")} ${h(w("tr_h"))} ${locked ? `<span class="wm-chip prem">${wi("crown")} Premium</span>` : ""}</h3>${seg}</div>
+      ${locked ? `<div class="wm-trends-prev" aria-hidden="true">${trendsInner(30)}</div>${lock || `<p class="wm-mut">${h(w("tr_lock"))}</p>`}` : trendsInner(_trendSpan)}</div>`;
+  }
   /* on the Progress page: a mount that fills itself once the corpus is here */
   function perfCardHTML() {
     if (!on()) return "";
@@ -657,7 +768,7 @@
   /* ---- the Vocabulary-page portal (replaces the old professional list) ---- */
   function portalInto(el) {
     const s = st(); if (!s) return;
-    const m = masteredCount(s), xp = E.xpTotal(s), sk = E.streak(s, Date.now()), today = E.dayOf(Date.now());
+    const m = masteredCount(s), xp = xpShown(), sk = E.streak(s, Date.now()), today = E.dayOf(Date.now());
     const mis = s.mis && s.mis.day === today ? s.mis : null;
     el.innerHTML = `<button class="wm-portal" data-wm="nav" data-a="mastery" aria-label="${h(w("enter"))}">
       <span class="wm-portal-glow" aria-hidden="true"></span>
@@ -720,6 +831,128 @@
     </div>`;
   }
 
+  /* ------------------------------------------------------------ the daily habit
+     One daily challenge (the same eight words for every Welding learner that
+     UTC day, all ten stages mixed), a weekly goal of practice days, skill badges
+     earned from real answers, and one visible next goal. */
+  const WEEK_GOAL = 5;
+  const BADGE_TIERS = [{ n: 20, acc: 60 }, { n: 60, acc: 75 }, { n: 150, acc: 85 }];   // bronze · silver · gold
+  function dailyIds() {
+    const day = E.dayOf(Date.now()), seed = E.hash("wm-daily:" + day), out = [];
+    const cats = C.categories.map(c => c.id), byCat = {};
+    official().forEach(t => (byCat[t.cat] = byCat[t.cat] || []).push(t.id));
+    E.shuffle(cats, seed).slice(0, 8).forEach((c, i) => { const ids = byCat[c] || []; out.push(ids[(seed >>> (i % 16)) % ids.length]); });
+    return out;
+  }
+  function weekDays() {
+    const s = st(), now = new Date(), dow = (now.getUTCDay() + 6) % 7, out = [];
+    for (let i = 0; i < 7; i++) { const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - dow + i)).toISOString().slice(0, 10); out.push({ d, on: !!(s.days[d] && s.days[d].n > 0), today: i === dow, future: i > dow }); }
+    return out;
+  }
+  function skillTotals() {
+    const s = st(), t = {}; E.SKILLS.forEach(k => t[k] = [0, 0]);
+    Object.values(s.days || {}).forEach(D => Object.entries(D.sk || {}).forEach(([k, v]) => { if (t[k]) { t[k][0] += v[0]; t[k][1] += v[1]; } }));
+    return t;
+  }
+  function badgeOf(v) { const acc = v[1] ? 100 * v[0] / v[1] : 0; let tier = 0; BADGE_TIERS.forEach((b, i) => { if (v[1] >= b.n && acc >= b.acc) tier = i + 1; }); return { tier, n: v[1], acc: Math.round(acc) }; }
+  function badges() { const t = skillTotals(); return E.SKILLS.map(k => Object.assign({ skill: k }, badgeOf(t[k]))); }
+  /* newly earned badges since the last check (kept so a badge is celebrated once) */
+  function badgeCheck() {
+    const s = st(); s.bdg = s.bdg || {}; const got = [];
+    badges().forEach(b => { if (b.tier > (s.bdg[b.skill] || 0)) { s.bdg[b.skill] = b.tier; got.push(b); } });
+    if (got.length) persist();
+    return got;
+  }
+  function nextGoal() {
+    if (!dailyDone()) return { text: w("ng_daily"), act: "daily" };
+    const wk = weekDays(), done = wk.filter(x => x.on).length;
+    if (done < WEEK_GOAL) return { text: w("ng_week", { n: WEEK_GOAL - done }), act: "play", a: "quiz" };
+    const close = badges().filter(b => b.tier < 3).map(b => { const nx = BADGE_TIERS[b.tier]; return { b, need: Math.max(0, nx.n - b.n), acc: nx.acc }; }).sort((x, y) => x.need - y.need)[0];
+    if (close) return { text: w("ng_badge", { n: Math.max(1, close.need), skill: w("skill_" + close.b.skill), tier: w("bd_t" + (close.b.tier + 1)), acc: close.acc }), act: "play", a: SKILL_MODE[close.b.skill] || "quiz" };
+    const lv = E.level(xpShown());
+    return { text: w("xp_next", { n: lv.need, l: lv.level + 1 }), act: "play", a: "quiz" };
+  }
+  const SKILL_MODE = { recognition: "quiz", recall: "cards", listening: "listen", context: "workshop", spelling: "builder", visual: "visual" };
+  function dailyCardHTML() {
+    const done = dailyDone(), signed = signedIn();
+    const ms = Math.max(0, Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + 1) - Date.now());
+    return `<button class="wm-daily ${done ? "done" : ""}" data-wm="${done ? "tab" : "daily"}" data-a="${done ? "rewards" : ""}">
+      <span class="wm-daily-burst" aria-hidden="true"></span>
+      <span class="wm-daily-ic ${ART3D.daily && !done ? "a3" : ""}">${done ? wi("check") : art3d("daily", "star")}</span>
+      <span class="wm-daily-t"><small>${h(w("dc_h"))} · ${h(fmtDate(Date.now()))}</small>
+        <b>${h(done ? w("dc_done_h") : w("dc_t"))}</b>
+        <em>${h(done ? w("dc_next", { h: Math.floor(ms / 3600_000), m: Math.round((ms % 3600_000) / 60_000) }) : w("dc_sub"))}</em></span>
+      <span class="wm-daily-xp">${done ? wi("check") : `+${30}<i>XP</i>`}</span>
+      ${signed ? "" : `<span class="wm-daily-lock">${wi("lock")} ${h(w("au_short"))}</span>`}
+    </button>`;
+  }
+  function weekCardHTML() {
+    const wk = weekDays(), done = wk.filter(x => x.on).length, L = lang() === "fr" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"];
+    return `<div class="card wm-week"><div class="wm-week-h">${wi("flame")}<span><small>${h(w("wk_h"))}</small><b>${h(w("wk_b", { n: done, g: WEEK_GOAL }))}</b></span>${done >= WEEK_GOAL ? `<span class="wm-chip ok">${wi("check")} ${h(w("wk_done"))}</span>` : ""}</div>
+      <div class="wm-week-dots" role="list">${wk.map((x, i) => `<span role="listitem" class="wm-dotd ${x.on ? "on" : ""} ${x.today ? "today" : ""} ${x.future ? "fut" : ""}" aria-label="${h(x.d)}${x.on ? " ✓" : ""}"><i>${x.on ? wi("check") : ""}</i><small>${L[i]}</small></span>`).join("")}</div></div>`;
+  }
+  function energyChipHTML() {
+    const e = energyLeft();
+    if (!signedIn()) return "";
+    if (e === Infinity) return `<span class="wm-stat en prem" role="listitem" aria-label="${h(w("en_unl"))}" title="${h(w("en_unl"))}">${wi("bolt")}<b aria-hidden="true">∞</b></span>`;
+    if (e == null) return `<span class="wm-stat en" role="listitem">${wi("bolt")}<b>–</b></span>`;
+    return `<span class="wm-stat en ${e ? "" : "out"}" role="listitem" aria-label="${h(w("en_left", { n: e, g: 5 }))}" title="${h(w("en_left", { n: e, g: 5 }))}">${wi("bolt")}<b aria-hidden="true">${e}</b></span>`;
+  }
+
+  /* ------------------------------------------------------------ the server (be-polish, wm-game.js)
+     Energy, the round ticket and XP are decided there, for a verified Welding
+     account. The app keeps a display copy of the last answer (S.wm.welding.sx),
+     never a figure of its own: XP is what the server says it is. */
+  const WM_CHARGED = new Set(["quiz", "crossword", "visual", "listen", "builder", "match", "workshop", "advanced"]);
+  let _srv = null, _pack = null;
+  function signedIn() { try { return typeof FBUser !== "undefined" && !!FBUser; } catch (e) { return false; } }
+  async function srv(op, extra) {
+    const r = await fetch(POLISH_API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ wm: Object.assign({ op }, extra || {}) }) });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    return { status: r.status, j };
+  }
+  function srvApply(j) {
+    if (!j || !j.energy || !j.xp) return;
+    _srv = { plan: j.plan, energy: j.energy, daily: j.daily, day: j.day, at: Date.now() };
+    const s = st(); if (!s) return;
+    s.sx = { total: j.xp.total || 0, today: j.xp.today || 0, day: j.day, daily: !!(j.daily && j.daily.done), plan: j.plan, at: Date.now() };
+  }
+  function xpShown() { const s = st(); return s && s.sx ? s.sx.total || 0 : 0; }
+  function dailyDone() { const s = st(); return !!(s && s.sx && s.sx.day === E.dayOf(Date.now()) && s.sx.daily); }
+  function isPremium() { return !!(_srv && _srv.plan === "premium") || !!(st() && st().sx && st().sx.plan === "premium"); }
+  function energyLeft() { if (!_srv || !_srv.energy || _srv.day !== E.dayOf(Date.now())) return null; return _srv.energy.limit == null ? Infinity : Math.max(0, _srv.energy.limit - _srv.energy.used); }
+  async function srvRefresh() {
+    if (!on() || !signedIn()) return;
+    try { const r = await srv("status"); if (r.status === 200) { srvApply(r.j); persist(); await flushPending(); redraw(); } } catch (e) {}
+  }
+  /* a finish the server never confirmed (offline, a dropped connection) is
+     kept and sent again; the server pays a round once, so a resend is safe */
+  async function flushPending() {
+    const s = st(); if (!s || !Array.isArray(s.pend) || !s.pend.length) return;
+    const left = [];
+    for (const p of s.pend.slice(0, 20)) {
+      try { const r = await srv("finish", p); if (r.status === 200) { srvApply(r.j); logAward(r.j.awarded, r.j.day); } else if (r.status >= 500 || r.status === 429) left.push(p); }
+      catch (e) { left.push(p); }
+    }
+    s.pend = left; persist();
+  }
+  function logAward(xp, day) { const s = st(); if (!s || !(xp > 0)) return; s.sxd = s.sxd || {}; const d = day || E.dayOf(Date.now()); s.sxd[d] = (s.sxd[d] || 0) + xp; const ks = Object.keys(s.sxd).sort(); while (ks.length > 120) delete s.sxd[ks.shift()]; }
+  function rid(mode) { return (String(mode).replace(/[^a-z]/g, "") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8)).slice(0, 48); }
+  function authSheet() {
+    sheet(`<h2>${wi("lock")} ${h(w("au_h"))}</h2><p class="wm-mut">${h(w("au_b"))}</p>
+      <button class="btn btn-p wm-wide" data-wm="signin">${h(w("au_btn"))}</button>`);
+  }
+  function energySheet(j) {
+    const ms = Math.max(0, ((j && j.resetAt) || 0) - Date.now()), hh = Math.floor(ms / 3600_000), mm = Math.round((ms % 3600_000) / 60_000);
+    let offer = false; try { offer = premOffered(); } catch (e) {}
+    sheet(`<div class="wm-en-sheet"><span class="wm-en-big">${wi("bolt")}</span><h2>${h(w("en_out_h"))}</h2>
+      <p>${h(w("en_out_b", { h: hh, m: mm }))}</p>
+      <ul class="wm-list"><li>${wi("check")} ${h(w("en_keep1"))}</li><li>${wi("check")} ${h(w("en_keep2"))}</li><li>${wi("check")} ${h(w("en_keep3"))}</li></ul>
+      <div class="wm-row"><button class="btn btn-g" data-wm="play" data-a="cards">${wi("cards")} ${h(w("en_cards"))}</button>${dailyDone() ? "" : `<button class="btn btn-g" data-wm="daily">${wi("star")} ${h(w("dc_play"))}</button>`}</div>
+      ${offer ? `<button class="btn btn-p wm-wide wm-prem-btn" data-wm="premium" data-a="wm_energy">${wi("crown")} ${h(w("en_prem"))}</button>` : ""}</div>`);
+  }
+  function msgSheet(icon, head, body) { sheet(`<h2>${wi(icon)} ${h(head)}</h2><p class="wm-mut">${h(body)}</p><button class="btn btn-p wm-wide" data-wm="sheetclose">${h(w("close"))}</button>`); }
+
   /* ------------------------------------------------------------ games */
   const SIZE = { cards: 10, quiz: 8, crossword: 10, visual: 8, listen: 6, builder: 6, match: 10, workshop: 4 };
   function poolFor(mode) {
@@ -733,6 +966,7 @@
   function chooseIds(mode, opts) {
     const s = st(), now = Date.now(), o = opts || {};
     if (mode === "workshop") {
+      if (o.advanced) return (_pack && _pack.scenarios || []).slice().sort((a, b) => (s.ws[a.id] || 0) - (s.ws[b.id] || 0) || (a.id < b.id ? -1 : 1)).slice(0, 5).map(x => x.id);
       const ws = C.workshop.filter(x => !o.cat || x.cat === o.cat);
       const weak = cat => E.journey(s, official(), C.categories).find(j => j.id === cat).pct;
       return ws.slice().sort((a, b) => (s.ws[a.id] || 0) - (s.ws[b.id] || 0) || weak(a.cat) - weak(b.cat) || (a.id < b.id ? -1 : 1)).slice(0, o.n || SIZE.workshop).map(x => x.id);
@@ -749,14 +983,43 @@
     if (!on() || !C) return;
     const o = opts || {};
     if (mode === "listen" && !canSpeak()) { gameOpen(mode, `<div class="wm-g-msg">${wi("headphones", "big")}<p>${h(w("l_no_audio"))}</p><button class="btn btn-p" data-wm="gclose">${h(w("close"))}</button></div>`); return; }
-    const ids = o.resume ? o.resume.ids : chooseIds(mode, o);
+    const ids = o.resume ? o.resume.ids : o.daily ? dailyIds() : chooseIds(mode, o);
     if (!ids.length || (mode === "match" && ids.length < 4) || (mode === "quiz" && official().length < 4)) { gameOpen(mode, `<div class="wm-g-msg"><p>${h(w("none_words"))}</p><button class="btn btn-p" data-wm="gclose">${h(w("close"))}</button></div>`); return; }
-    const sid = o.resume ? o.resume.sid : mode + "-" + Date.now().toString(36);
-    const prevLog = o.resume ? E.histRound(st(), sid) : null;
-    _G = { log: prevLog && prevLog.it ? prevLog.it.map(x => ({ ok: x.o, t: x.t, s: x.s, k: x.k, p: x.p, q: x.q, h: x.h })) : [], t0: prevLog ? prevLog.ts : Date.now(), mode, ids, i: o.resume ? o.resume.i : 0, sid, n: o.resume ? o.resume.n || 0 : 0, ok: o.resume ? o.resume.ok || 0 : 0, xp: 0, mastered: [], combo: 0, seed: E.hash(sid), opts: o, step: 0, st: {} };
-    if (mode === "crossword") return cwBuild();
-    if (mode === "match") return matchRound();
-    draw();
+    /* every round needs a signed-in account: XP is awarded and saved by the server */
+    if (!signedIn()) return authSheet();
+    const sid = o.resume ? o.resume.sid : rid(mode);
+    const smode = o.daily || (o.resume && o.resume.daily) ? "daily" : o.advanced || (o.resume && o.resume.adv) ? "advanced" : mode;
+    const begin = (ticket, offline) => {
+      const prevLog = o.resume ? E.histRound(st(), sid) : null;
+      _G = { log: prevLog && prevLog.it ? prevLog.it.map(x => ({ ok: x.o, t: x.t, s: x.s, k: x.k, p: x.p, q: x.q, h: x.h })) : [], t0: prevLog ? prevLog.ts : Date.now(), mode, ids, i: o.resume ? o.resume.i : 0, sid, n: o.resume ? o.resume.n || 0 : 0, ok: o.resume ? o.resume.ok || 0 : 0, xp: 0, mastered: [], combo: 0, seed: E.hash(sid), opts: o, step: 0, st: {},
+        smode, ticket, offline: !!offline, daily: smode === "daily", adv: smode === "advanced" };
+      if (mode === "crossword") return cwBuild();
+      if (mode === "match") return matchRound();
+      draw();
+    };
+    _G = null;
+    gameOpen(mode, `<div class="wm-g-msg" role="status">${wi("bolt", "big")}<p>${h(w(WM_CHARGED.has(smode) && !isPremium() ? "en_check" : "en_open"))}</p></div>`);
+    srv("start", { sid, mode: smode }).then(r => {
+      if (r.status === 200 && r.j && r.j.ticket) { srvApply(r.j); persist(); return begin(r.j.ticket, false); }
+      gameClose();
+      if (r.status === 429 && r.j && r.j.error === "energy") { if (_srv && _srv.energy) _srv.energy.used = _srv.energy.limit; return energySheet(r.j); }
+      if (r.status === 401) return authSheet();
+      if (r.status === 402) return premiumAsk("wm_advanced");
+      if (r.status === 403 && r.j && r.j.error === "track") return msgSheet("map", w("trk_h"), w("trk_b"));
+      return offlineStart();
+    }).catch(() => { gameClose(); offlineStart(); });
+    /* the server cannot be reached: nothing is charged. Review (Cards) still runs,
+       without XP; a challenge waits for a connection rather than run unaccounted. */
+    function offlineStart() {
+      if (WM_CHARGED.has(smode) || smode === "daily") return msgSheet("bolt", w("off_h"), w("off_b"));
+      begin(null, true);
+    }
+  }
+  function premiumAsk(from) {
+    let offer = false; try { offer = premOffered(); } catch (e) {}
+    sheet(`<div class="wm-en-sheet"><span class="wm-en-big prem">${wi("crown")}</span><h2>${h(w("pr_h"))}</h2><p>${h(w("pr_b"))}</p>
+      <ul class="wm-list"><li>${wi("bolt")} ${h(w("pr_1"))}</li><li>${wi("workshop")} ${h(w("pr_2"))}</li><li>${wi("chart")} ${h(w("pr_3"))}</li><li>${wi("chat")} ${h(w("pr_4"))}</li></ul>
+      ${offer ? `<button class="btn btn-p wm-wide wm-prem-btn" data-wm="premium" data-a="${h(from)}">${wi("crown")} ${h(w("pr_btn"))}</button>` : `<p class="wm-mut small">${h(w("pr_soon"))}</p>`}</div>`);
   }
   function startMission() {
     const s = st(), m = s.mis; if (!m || m.done) return;
@@ -772,9 +1035,10 @@
     let ov = document.getElementById("wmGame");
     if (!ov) { ov = document.createElement("div"); ov.id = "wmGame"; ov.className = "wm-game"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); document.body.appendChild(ov); }
     const G = _G, prog = G && G.ids ? `${Math.min(G.i + 1, G.ids.length)}/${G.ids.length}` : "";
-    ov.setAttribute("aria-label", w("g_" + mode));
+    const title = G && G.daily ? w("g_daily") : G && G.adv ? w("g_advanced") : w("g_" + mode);
+    ov.setAttribute("aria-label", title);
     ov.innerHTML = `<div class="wm-g-in"><div class="wm-g-top"><button class="wm-iconbtn" data-wm="gclose" aria-label="${h(w("close"))}">${wi("close")}</button>
-      <span class="wm-g-title">${wi(MODE_IC[mode])} ${h(w("g_" + mode))}</span>
+      <span class="wm-g-title">${wi(G && G.daily ? "star" : G && G.adv ? "crown" : MODE_IC[mode])} ${h(title)}</span>
       <span class="wm-g-prog">${G && G.combo >= 3 ? `<i class="wm-combo">${wi("flame")} ${h(w("combo", { n: G.combo }))}</i>` : ""}${h(prog)}</span></div>
       ${G && G.ids && mode !== "crossword" ? `<div class="wm-meter thin"><span style="width:${Math.round(100 * G.i / G.ids.length)}%"></span></div>` : ""}
       <div class="wm-g-body" id="wmGBody">${inner}</div></div>`;
@@ -786,7 +1050,7 @@
   function logRound(part) {
     const G = _G; if (!G || !G.log.length) return;
     const cats = G.log.map(x => { const t = x.t && byId(x.t); return t ? t.cat : null; });
-    E.logRound(st(), { id: G.sid, mode: G.mode, ts: G.t0, n: G.n, ok: G.ok, xp: G.xp, items: G.log, cats, part }, Date.now());
+    E.logRound(st(), { id: G.sid, mode: G.daily ? "daily" : G.adv ? "advanced" : G.mode, ts: G.t0, n: G.n, ok: G.ok, xp: G.xp, items: G.log, cats, part }, Date.now());
     persist();
   }
   function gameClose() {
@@ -797,7 +1061,7 @@
   }
   function saveResume() {
     const G = _G; if (!G || G.mode === "crossword" || G.mode === "match") return;
-    st().resume = { mode: G.mode, ids: G.ids, i: G.i, sid: G.sid, n: G.n, ok: G.ok, ts: Date.now() };
+    st().resume = { mode: G.mode, ids: G.ids, i: G.i, sid: G.sid, n: G.n, ok: G.ok, ts: Date.now(), daily: G.daily ? 1 : 0, adv: G.adv ? 1 : 0 };
   }
   /* every graded answer goes through here: engine → mission → celebration → save */
   function answer(id, q, skill, extra) {
@@ -829,20 +1093,38 @@
     const a = E.checkAchievements(s, official(), now); G.xp += a.xp;
     G.done = true; logRound(false);
     const names = G.mastered.map(id => (byId(id) || { en: id }).en);
-    gameOpen(G.mode, `<div class="wm-end">
-      <span class="wm-end-ic">${wi(G.ok >= G.n * 0.8 && G.n ? "trophy" : "check", "big")}</span>
-      <h2>${h(w("end_h"))}</h2>
+    const newBadges = badgeCheck();
+    gameOpen(G.mode, `<div class="wm-end ${G.daily ? "daily" : ""}">
+      <span class="wm-end-ic">${wi(G.daily ? "star" : G.ok >= G.n * 0.8 && G.n ? "trophy" : "check", "big")}</span>
+      <h2>${h(w(G.daily ? "dc_done_h" : "end_h"))}</h2>
       <p class="wm-end-score">${h(w("end_score", { ok: G.ok, n: G.n }))}</p>
-      <p class="wm-end-xp">${G.xp ? `${wi("xp")} ${h(w("end_xp", { n: G.xp }))}` : h(w("end_xp0"))}</p>
-      ${G.missionDone ? `<p class="wm-chip ok">${wi("check")} ${h(w("end_shift", { n: E.XP.mission }))}</p>` : ""}
+      <p class="wm-end-xp" id="wmEndXp" role="status">${G.offline ? h(w("end_offline")) : `${wi("xp")} ${h(w("end_saving"))}`}</p>
+      ${G.missionDone ? `<p class="wm-chip ok">${wi("check")} ${h(w("shift_done"))}</p>` : ""}
+      ${newBadges.map(b => `<p class="wm-chip badge t${b.tier}">${wi("medal")} ${h(w("bd_new", { skill: w("skill_" + b.skill), tier: w("bd_t" + b.tier) }))}</p>`).join("")}
+      <div class="card wm-next">${wi("target")}<div><small>${h(w("ng_h"))}</small><b>${h(nextGoal().text)}</b></div></div>
       ${names.length ? `<p class="wm-end-m">${wi("medal")} ${h(w("end_mastered", { w: names.join(", ") }))}</p>` : ""}
       <div class="wm-row center"><button class="btn btn-g" data-wm="again">${h(w("end_again"))}</button><button class="btn btn-p" data-wm="gclose">${h(w("end_hub"))}</button></div>
       ${G.mode === "workshop" ? `<button class="wm-link" data-wm="nav" data-a="simulation">${wi("workshop")} ${h(w("w_link"))} →</button>` : ""}
     </div>`);
     if (a.got.length) achCelebrate(a.got);
-    if (G.ok === G.n && G.n >= 5 && !a.got.length) celebrate("round", w("end_h"), w("end_score", { ok: G.ok, n: G.n }));
+    newBadges.forEach((b, i) => setTimeout(() => celebrate("ach", w("bd_new_h"), w("bd_new", { skill: w("skill_" + b.skill), tier: w("bd_t" + b.tier) })), 900 * (i + 1)));
+    if (G.ok === G.n && G.n >= 5 && !a.got.length && !newBadges.length) celebrate("round", w("end_h"), w("end_score", { ok: G.ok, n: G.n }));
     G.done = true;
+    if (G.ticket && !G.offline) {
+      const fin = { sid: G.sid, mode: G.smode, ticket: G.ticket, n: G.n, ok: G.ok };
+      const out = (txt) => { const el = document.getElementById("wmEndXp"); if (el) el.innerHTML = txt; };
+      srv("finish", fin).then(r => {
+        if (r.status === 200 && r.j) {
+          srvApply(r.j); logAward(r.j.awarded, r.j.day); persist();
+          const xp = r.j.awarded || 0;
+          out(xp ? `${wi("xp")} ${h(w("end_xp", { n: xp }))}${r.j.dailyBonus ? ` <span class="wm-chip ok">${h(w("dc_bonus", { n: r.j.dailyBonus }))}</span>` : ""}` : h(w(r.j.duplicate ? "end_xp_dup" : "end_xp0")));
+          if (r.j.dailyBonus) celebrate("stage", w("dc_done_h"), w("dc_bonus", { n: r.j.dailyBonus }));
+        } else if (r.status >= 500 || r.status === 429) { pendPush(fin); out(h(w("end_pending"))); }
+        else out(h(w("end_xp0")));
+      }).catch(() => { pendPush(fin); out(h(w("end_pending"))); });
+    }
   }
+  function pendPush(fin) { const s = st(); s.pend = (s.pend || []).filter(p => p.sid !== fin.sid).concat(fin).slice(-30); persist(); }
   function draw() {
     const G = _G; if (!G) return;
     const fn = { cards: cardsHTML, quiz: quizHTML, visual: visualHTML, listen: listenHTML, builder: builderHTML, workshop: workshopHTML }[G.mode];
@@ -1016,7 +1298,7 @@
 
   /* -- Game 8: Workshop challenge -- */
   function workshopHTML() {
-    const G = _G, sc = C.workshop.find(x => x.id === G.ids[G.i]); if (!sc) { setTimeout(nextItem, 0); return ""; }
+    const G = _G, sc = scen(G.ids[G.i]); if (!sc) { setTimeout(nextItem, 0); return ""; }
     const S2 = G.st, t = byId(sc.answer);
     const opts = S2.opts || (S2.opts = E.shuffle(sc.options, G.seed + G.i));
     const ropts = S2.ropts || (S2.ropts = E.shuffle(sc.reply.options.map((o, k) => k), G.seed + G.i * 13));
@@ -1028,8 +1310,55 @@
       ${S2.a1 ? `<div class="wm-fb ${S2.a1 === sc.answer ? "ok" : "no"}" role="status">${wi(S2.a1 === sc.answer ? "check" : "cross")}<div><b>${h(S2.a1 === sc.answer ? w("ok") : w("no"))}</b>${S2.a1 === sc.answer ? "" : `<span>${h(w("the_answer", { w: t.en + " · " + t.fr }))}</span>`}<p lang="en">${h(sc.why.en)}</p><p lang="fr" class="fr">${h(sc.why.fr)}</p></div></div>
         <p class="wm-q-h">${h(w("w_reply"))}</p><p class="wm-mut small">${h(sc.reply.q.en)}</p>
         <div class="wm-opts col" role="group">${ropts.map(k => { const o = sc.reply.options[k], cls = S2.a2 != null ? (o.ok ? "correct" : k === S2.a2 ? "wrong" : "") : ""; return `<button class="wm-opt long ${cls}" data-wm="ws2" data-a="${k}" ${S2.a2 != null ? "disabled" : ""}>${h(o.en)}</button>`; }).join("")}</div>` : ""}
-      ${S2.a2 != null ? `<div class="wm-fb ${sc.reply.options[S2.a2].ok ? "ok" : "no"}" role="status">${wi(sc.reply.options[S2.a2].ok ? "check" : "cross")}<div><b>${h(sc.reply.options[S2.a2].ok ? w("ok") : w("no"))}</b><p lang="en">${h(sc.reply.why.en)}</p><p lang="fr" class="fr">${h(sc.reply.why.fr)}</p></div></div><button class="btn btn-p wm-wide" data-wm="next" autofocus>${h(w("next"))} →</button>` : ""}
+      ${S2.a2 != null ? `<div class="wm-fb ${sc.reply.options[S2.a2].ok ? "ok" : "no"}" role="status">${wi(sc.reply.options[S2.a2].ok ? "check" : "cross")}<div><b>${h(sc.reply.options[S2.a2].ok ? w("ok") : w("no"))}</b><p lang="en">${h(sc.reply.why.en)}</p><p lang="fr" class="fr">${h(sc.reply.why.fr)}</p></div></div>${coachHTML(sc, t)}<button class="btn btn-p wm-wide" data-wm="next">${h(w("next"))} →</button>` : ""}
     </div>`;
+  }
+  function scen(id) { return (C.workshop || []).find(x => x.id === id) || (_pack && (_pack.scenarios || []).find(x => x.id === id)) || null; }
+  /* ---- the AI coach inside the Workshop challenge ----
+     The learner answers in their OWN words; the coach judges it against the
+     situation. The existing chat route, purpose "coach": a verdict, so it is
+     metered by the server (Free 3 a day, Premium 120), needs a signed-in account,
+     and is refused per account when the day's allowance is spent. */
+  function coachTask(sc, t) { return sc.task ? L2(sc.task) : w("co_task", { who: L2(sc.who).toLowerCase(), term: t ? t.en : "" }); }
+  function coachHTML(sc, t) {
+    const C2 = _G.st.coach || {};
+    let off = false; try { off = typeof aiOff === "function" && aiOff("ai_coach"); } catch (e) {}
+    if (!signedIn()) off = true;
+    return `<div class="card wm-coach" id="wmCoach"><div class="wm-coach-h">${wi("chat")}<span><small>${h(w("co_h"))} · AI</small><b>${h(coachTask(sc, t))}</b></span></div>
+      ${C2.res ? `<div class="wm-coach-out v-${h(C2.res.verdict || "almost")}"><b>${h(w("co_v_" + (C2.res.verdict || "almost")))}</b>
+          ${C2.res.well ? `<p>${wi("check")} ${h(C2.res.well)}</p>` : ""}${C2.res.fix ? `<p>${wi("target")} ${h(C2.res.fix)}</p>` : ""}
+          ${C2.res.better ? `<p class="wm-coach-better" lang="en">“${h(C2.res.better)}”</p>` : ""}${C2.res.fr ? `<p class="fr" lang="fr">${h(C2.res.fr)}</p>` : ""}
+          <p class="wm-mut small">${h(w("co_ai"))}</p></div>`
+        : `<textarea id="wmCoachIn" rows="3" maxlength="400" placeholder="${h(w("co_ph"))}" aria-label="${h(w("co_ph"))}" ${C2.busy ? "disabled" : ""}>${h(C2.txt || "")}</textarea>
+          ${C2.err ? `<p class="wm-err" role="alert">${h(C2.err)}</p>` : ""}
+          <button class="btn btn-g wm-wide" data-wm="coach" ${C2.busy || off ? "disabled" : ""}>${wi("chat")} ${h(C2.busy ? w("co_busy") : w("co_btn"))}</button>
+          ${off ? `<p class="wm-mut small">${h(signedIn() ? w("co_off") : w("au_short"))}</p>` : `<p class="wm-mut small">${h(w("co_meter"))}</p>`}`}
+    </div>`;
+  }
+  async function coachAsk() {
+    const G = _G; if (!G) return;
+    const sc = scen(G.ids[G.i]), t = sc && byId(sc.answer), box = document.getElementById("wmCoachIn");
+    const txt = (box && box.value || "").replace(/\s+/g, " ").trim().slice(0, 400);
+    G.st.coach = G.st.coach || {}; G.st.coach.txt = txt;
+    if (txt.split(" ").length < 4) { G.st.coach.err = w("co_short"); return draw(); }
+    G.st.coach.busy = true; G.st.coach.err = ""; draw();
+    const system = `You are a welding supervisor and professional-English coach in BE Mastery (Welding Professional English). A francophone welder is practising workplace English.
+Situation (from ${sc.who.en}): ${sc.say.en}
+The key term is "${t ? t.en : ""}" (${t ? t.def.en : ""}). Task: ${coachTask(sc, t)}${sc.model ? "\nA model answer: " + sc.model.en : ""}
+Judge ONLY the learner's own answer: is it technically right and safe, does it use the key term correctly, is it clear and professional for the shop floor? Be specific, short and kind.
+Reply as JSON: {"reply": "VERDICT: good|almost|retry\nWELL: <one short line on what worked>\nFIX: <one short line, the single most useful correction>\nBETTER: <the learner's own answer rewritten professionally, max 2 sentences, keep their facts>\nFR: <one-line tip in French>"}`;
+    try {
+      const r = await fetch(POLISH_API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat: { purpose: "coach", system, messages: [{ role: "user", content: txt }] } }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 429) { G.st.coach.busy = false; G.st.coach.err = w("co_spent"); return draw(); }
+      if (r.status === 401) { G.st.coach.busy = false; G.st.coach.err = w("au_short"); return draw(); }
+      if (!r.ok || j.error) throw new Error("ai");
+      const o = {}; String(j.reply || "").split(/\n+/).forEach(l => { const m = /^\s*(VERDICT|WELL|FIX|BETTER|FR)\s*:\s*(.+)$/i.exec(l); if (m) o[m[1].toLowerCase()] = m[2].trim(); });
+      if (!o.better && !o.fix) throw new Error("shape");
+      G.st.coach.res = { verdict: /^(good|almost|retry)$/i.test(o.verdict || "") ? o.verdict.toLowerCase() : "almost", well: o.well, fix: o.fix, better: o.better, fr: o.fr };
+      G.log.push({ s: sc.id, ok: G.st.coach.res.verdict === "good", k: "coach", p: G.st.coach.res.verdict });
+    } catch (e) { G.st.coach.err = w("co_fail"); }
+    G.st.coach.busy = false; persist(); if (_G === G) draw();
   }
 
   /* -- Game 3: Crossword (the app's own generator, cwGen; checked before it is shown) -- */
@@ -1096,6 +1425,21 @@
       case "practerr": return start("cards", { ids: String(arg).split(",").filter(Boolean), keepOrder: true, n: 20 });
       case "resume": { const r = resumeValid(s); if (r) start(r.mode, { resume: r }); return; }
       case "play": return start(arg);
+      case "daily": return start("quiz", { daily: true });
+      case "signin": sheetClose(); try { fbOpenModal("in"); } catch (e) {} return;
+      case "premium": sheetClose(); try { premiumOpen(arg || "wm"); } catch (e) {} return;
+      case "energy": return energySheet({ resetAt: _srv && _srv.energy ? _srv.energy.resetAt : 0 });
+      case "trend": _trendSpan = +arg === 90 ? 90 : 30; { const el = document.getElementById("wmTrends"); if (el) el.outerHTML = trendsHTML(true); } return;
+      case "coach": return coachAsk();
+      case "advanced": {
+        if (!signedIn()) return authSheet();
+        /* the plan comes from the server: ask first when this session has not heard it yet */
+        if (!_srv) { srvRefresh().then(() => act("advanced")); return; }
+        if (!isPremium()) return premiumAsk("wm_advanced");
+        if (_pack) return start("workshop", { advanced: true });
+        srv("pack").then(r => { if (r.status === 200 && r.j && Array.isArray(r.j.scenarios)) { _pack = r.j; start("workshop", { advanced: true }); } else if (r.status === 402) premiumAsk("wm_advanced"); else msgSheet("workshop", w("adv_fail_h"), w("adv_fail_b")); }).catch(() => msgSheet("bolt", w("off_h"), w("off_b")));
+        return;
+      }
       case "stage": return start("cards", { cat: arg });
       case "stagetest": return start("quiz", { cat: arg, n: 10 });
       case "practise": return start("cards", { ids: collList().slice(0, 20).map(t => t.id), keepOrder: true, n: 20 });
@@ -1132,8 +1476,8 @@
       case "bhint": { const S2 = G.st; S2.hint++; builderApplyHint(); return draw(); }
       case "mleft": return matchPick("l", arg);
       case "mright": return matchPick("r", arg);
-      case "ws1": { if (G.st.a1) return; G.st.a1 = arg; const sc = C.workshop.find(x => x.id === G.ids[G.i]); answer(sc.answer, arg === sc.answer ? 2 : 0, "context", { k: "ws", s: sc.id, p: arg === sc.answer ? "" : arg }); return draw(); }
-      case "ws2": { if (G.st.a2 != null) return; G.st.a2 = +arg; const sc = C.workshop.find(x => x.id === G.ids[G.i]); const rok = !!sc.reply.options[+arg].ok; if (rok) tone("ok"); else tone("no"); G.log.push({ s: sc.id, ok: rok, k: "reply", p: String(+arg) }); saveResume(); persist(); return draw(); }
+      case "ws1": { if (G.st.a1) return; G.st.a1 = arg; const sc = scen(G.ids[G.i]); answer(sc.answer, arg === sc.answer ? 2 : 0, "context", { k: "ws", s: sc.id, p: arg === sc.answer ? "" : arg }); return draw(); }
+      case "ws2": { if (G.st.a2 != null) return; G.st.a2 = +arg; const sc = scen(G.ids[G.i]); const rok = !!sc.reply.options[+arg].ok; if (rok) tone("ok"); else tone("no"); G.log.push({ s: sc.id, ok: rok, k: "reply", p: String(+arg) }); saveResume(); persist(); return draw(); }
       case "cwcheck": return cwCheck();
       case "cwreveal": return cwReveal();
       case "cwfinish": return finish();
@@ -1203,7 +1547,7 @@
   /* the widget's own block (≤ ~600 bytes): words mastered, level, XP, streak, today's shift */
   function widgetData() {
     const s = st(); if (!s) return null;
-    const now = Date.now(), lv = E.level(E.xpTotal(s)), sk = E.streak(s, now), m = todayShift(s), sig = signals();
+    const now = Date.now(), lv = E.level(xpShown()), sk = E.streak(s, now), m = todayShift(s), sig = signals();
     return { m: masteredCount(s), total: TOTAL, lvl: lv.level, xp: lv.xp, need: lv.need, pct: lv.pct, streak: sk.current,
       shift: m ? { t: shiftName(m.kind), p: m.prog, n: m.target, done: !!m.done } : { t: shiftName("start5"), p: 0, n: 5, done: false },
       next: sig ? w("g_" + sig.mode) : "",
@@ -1214,6 +1558,6 @@
     signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, LOGO_URL,
     on, render, portalInto, perfCardHTML, quickH: () => w("quick_h"), quickSub: () => w("quick_sub"),
     /* test hooks: the corpus, the learner's record and a way to start a game */
-    _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act
+    _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act, _refresh: srvRefresh
   };
 })();

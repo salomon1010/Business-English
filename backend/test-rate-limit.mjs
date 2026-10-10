@@ -570,6 +570,20 @@ console.log("\n# J1. ytai requires an ACCOUNT even with PREMIUM_ENFORCED off");
   globalThis.fetch = realFetch;
 }
 
+console.log("\n# peek — read a bucket on the Durable Object without spending it (Welding Mastery energy)");
+{
+  const { peek } = await import(new URL("./rate-limit.js", import.meta.url));
+  const ns = makeNamespace(), env = { RATE_LIMITER: ns };
+  const b = [{ name: "wmen:2026-10-10", limit: 5, windowMs: 86_400_000 }];
+  await consume(env, "acct:u:peek", b); await consume(env, "acct:u:peek", b);
+  const p1 = await peek(env, "acct:u:peek", ["wmen:2026-10-10", "wmxp"]);
+  const p2 = await peek(env, "acct:u:peek", ["wmen:2026-10-10"]);
+  ok("PK1 · peek on the real object reports the count (2) and 0 for a bucket never used", p1.ok && p1.counts["wmen:2026-10-10"] === 2 && p1.counts.wmxp === 0, JSON.stringify(p1));
+  ok("PK2 · peeking twice spends nothing (still 2)", p2.counts["wmen:2026-10-10"] === 2);
+  const bad = await ns.get(ns.idFromName("acct:u:peek")).fetch("https://rate-limit.invalid/peek", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ peek: [] }) });
+  ok("PK3 · an empty or malformed peek is refused (400)", bad.status === 400);
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

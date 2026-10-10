@@ -73,15 +73,51 @@ day aggregates older than 120 days). **History:** every round, finished or left 
 each answer (what was asked, what was chosen or typed, right or wrong, hint). The newest 200
 rounds keep their answers; up to 1000 keep their summary line.
 
+## Server: energy, XP, the daily challenge, the Premium pack (be12-v669)
+
+The game is **server-authoritative** for what can be counted or spent. Route: the be-polish
+Worker, body `{wm:{op,…}}`, handled by `backend/wm-game.js` (tests: `backend/test-wm-game.mjs`,
+43; live staging check outside the repo, `~/Developer/be-wm-live/live.mjs`, 11, two throwaway
+accounts deleted afterwards).
+
+- **Who may play:** a signed-in account (`capabilities()` — be-entitlements verifies the Firebase
+  token; no `ENTITLEMENTS_URL` → 503 `wm_unavailable`, never "allowed") whose programme is Welding
+  (partner Worker `GET /programme`, read from the account's own Firestore record; anything else →
+  403 `track`). A client-sent track is never trusted.
+- **Energy:** Free = `WM_FREE_ENERGY` (5) challenge rounds per UTC day, Premium = no cap. One unit
+  per round, charged at `start` and nowhere else: a wrong answer, a network failure or a repeated
+  request (same `sid`) costs nothing. Cards (review) and the daily challenge are free. Spent →
+  429 `{error:"energy"}`; browsing, the Collection, History and Cards stay open.
+- **XP:** `finish` pays `2 × correct + 10` per round (+30 once for the daily), against an HMAC
+  ticket from `start` (`WM_SECRET`, else derived from `OPENAI_KEY`; 2 days), capped at
+  `WM_XP_DAY_CAP` 600 a day and `WM_XP_MODE_DAY_CAP` 120 per mode. A second `finish` pays 0. The
+  hub shows the server's total (`st().sx`); `sxd` keeps the per-day awards for the chart.
+  Unsent finishes wait in `st().pend` and are flushed on the next status.
+- **Atomic:** every count is a bucket in the existing `RateLimiter` Durable Object (`consume` is
+  all-or-nothing; the new `peek` reads without writing). Buckets: `wmen:<day>`, `wmxpd:<day>`,
+  `wmxpm:<day>:<mode>`, `wmxp`, `wmdaily:<day>`, `wms:<sid>`, `wmf:<sid>`.
+- **Offline:** challenges and the daily need the server; Cards play offline and earn no XP.
+- **Premium (no new product, price or SKU):** the plan comes from be-entitlements. Premium =
+  unlimited energy, the 30/90-day trends on Game Performance (`advanced_progress`, the app's one
+  gate — a dimmed preview + `premLockHTML` when locked), the **Advanced workshop** (scenarios in
+  Workers KV `WM_PACK`, key `advanced-v1`, served by `op:"pack"` to Premium only — the content file
+  is kept OUTSIDE the repo because the repository and `backend/` are public), and the **AI coach**
+  on workshop answers (the existing `chat` route, `purpose:"coach"`, metered by the existing
+  verdict allowance — 429 says so).
+- **Daily layer (device-side display over server facts):** one daily challenge (8 words from 8
+  categories, seeded by the UTC day), the weekly goal (5 practice days, Monday-based), skill badges
+  (Bronze/Silver/Gold by answers and accuracy, `BADGE_TIERS`, stored in `st().bdg`), and a "next
+  goal" line. Mastery and badges are computed on the device from the learner's own answers.
+- **Art:** `tracks/welding/mastery-art3d.json` — ten 3D-style illustrations for the game cards,
+  sanitised when loaded; the line icon is the fallback.
+
 ## What it does NOT have (deliberately, or not yet)
 
-- **No Worker, no server-side check.** There is no game API to protect: the corpus is a static
-  curriculum file like every `tracks/<id>/*.json`, and the learner's record is in their own S /
-  Firestore document under the existing rules. XP is decided on the device; a learner who edits
-  their own localStorage can give themselves XP — it buys nothing (no leaderboard, no reward).
-  If XP ever becomes competitive or spendable, it must move server-side first.
-- **No energy / lives limit.** The icon set draws the energy icons, nothing uses them: the owner's
-  rule is that Free is a complete product, and a limit would be a product decision.
+- **Mastery, badges and the weekly goal are device-side.** Only energy and XP are counted on the
+  server. The trends lock is a display gate over the learner's own local data.
+- **Production cannot use it yet:** be-entitlements has no production Worker, so production
+  be-polish answers 503 `wm_unavailable`, and the flag is OFF there. The live Premium path has not
+  been tested end to end (a staging promo grant needs the owner-held `ADMIN_TOKEN`).
 - **No analytics events.** be-events has none on its allow-list; a dropped call would be a lie.
 - **Listening uses synthetic speech** (`fbSay`: the natural Worker voice, else the browser's). The
   round says so, and refuses to run where no voice exists.
