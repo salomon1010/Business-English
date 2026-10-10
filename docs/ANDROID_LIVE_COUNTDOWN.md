@@ -65,3 +65,17 @@ one by a few minutes.
 - `backend/widget/test/run.mjs`: LV1–LV3.
 - `tests/live-activity.mjs`: L11.
 - On the emulator: `bash playstore/android-widget/dev-live.sh <debug apk> out.png ge|pro|safe`.
+
+## The Play build (10 Oct 2026)
+
+- The staging-host bundle is **vc 10 / 1.1.0** (`playstore/twa-manifest.staging.json`), built by
+  `playstore/android-widget/dev-release.sh` and signed with the upload key (`3D:E6:6D…`). Its file
+  is `~/Documents/GitHub/Business-English/playstore/BE-Mastery-1.1.0-vc10-INTERNAL-TEST-staging-host.aab`.
+- **minSdk 24.** Play refused minSdk 23 ("Play automatic protection requires a minimum SDK
+  version of 24"). This drops Android 6 from updates; the countdown needs Android 7 anyway. The
+  production manifest still says 23 and will need the same change before its upload.
+- The production rebuild moves to **vc 11** (`playstore/twa-manifest.json`).
+- **Upload:** `~/Developer/play-tools/internal.mjs` uploads the bundle, but `edits:commit` answers 403
+  until the service account `be-mastery-google-play@…` has Play Console's "Release apps to testing
+  tracks" permission. Until then, upload the file by hand in Play Console → Testing → Internal
+  testing → Create new release.
