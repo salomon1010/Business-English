@@ -24,6 +24,16 @@ repo (it had run 29 Sep code): FCM, APNs (still off — `APNS_KEY_ID` is empty a
 made-up FCM token refused by Google and dropped, cron runs without exceptions. Rollback:
 `npx wrangler rollback 2b335aa2-1d8d-4bb0-a8ee-9c7b4465f6f8 --name be-push` (the old code
 with the FCM secret).
+**Google sign-in (phase 7, 10 Oct 2026, vc 14 on internal testing):** `BEAuthPlugin.java`
+(Credential Manager, the iOS `BEAuth` contract; Apple answers `apple:false`). The four
+signing fingerprints (Play signing SHA-1 `cd:32:bf…`, upload SHA-1 `75:a1:fa…`, both
+SHA-256s) are on the Firebase Android app in **be-mastery** — Google allows one Android
+OAuth client per package + certificate across ALL projects, so be-mastery-test cannot hold
+them. The server client id is be-mastery's web client (`be_google_web_client_id`). A
+STAGING build therefore needs be-mastery-test → Authentication → Google → "Safelist client
+IDs from external projects" = that client id (console only; no API found). Apple on
+Android: not built (decision D2).
+
 **Still to build:** native Google sign-in (7), the widget port (7), device tests and
 the staged release (8).
 
