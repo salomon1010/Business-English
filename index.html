@@ -4144,6 +4144,40 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
   #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:8px 4px}
   #v-practice .prac-subtabs .prac-subtab b{margin-left:3px;font-size:10.5px}
 }
+/* Compact vocabulary page (owner, 10 Oct 2026: "more compact, it's too large").
+   Four boosters (General English) become a 2x2 of short tiles — icon left, one
+   line each; Welding's three keep their single row. Slimmer tabs, a smaller
+   empty state, and a one-line "words collected" summary. */
+#v-practice .prac-kb{margin:0 0 12px}
+#v-practice .prac-kb-sum{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;padding:2px 0;border-radius:10px}
+#v-practice .prac-kb-sum::-webkit-details-marker{display:none}
+#v-practice .prac-kb-sum > span:first-child{flex:1;min-width:0}
+#v-practice .prac-kb-sum:focus-visible{outline:2px solid var(--acc2);outline-offset:3px}
+#v-practice .prac-kb-chev{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);transition:transform .2s}
+#v-practice .prac-kb-chev svg{width:16px;height:16px}
+#v-practice .prac-kb[open] .prac-kb-chev{transform:rotate(180deg)}
+#v-practice .prac-kb:not([open]) .prac-kb-sum .prac-sec-sub{margin-bottom:0}
+#v-practice .prac-kb-h{margin:0 0 2px}
+#v-practice .prac-kb .prac-sec-sub{margin:0 0 10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)){grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;text-align:left;padding:10px 12px;min-height:58px;border-radius:14px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card .pex-ic{grid-row:1 / span 2;width:34px;height:34px;margin:0;border-radius:10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card .pex-ic svg{width:18px;height:18px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card b{font-size:12.5px;line-height:1.2;align-self:end;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card small{font-size:11px;line-height:1.25;align-self:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-practice .prac-subtabs{margin-bottom:10px}
+#v-practice .prac-subtabs .prac-subtab{min-height:36px;padding:6px 8px;border-radius:99px}
+#v-practice #vlBox .empty-st{padding:16px 14px;gap:6px}
+#v-practice #vlBox .empty-st .empty-ic svg{width:22px;height:22px}
+#v-practice #vlBox .empty-st b{font-size:15px}
+#v-practice #vlBox .empty-st p{font-size:13px;line-height:1.45;max-width:36ch;margin:0 auto}
+#v-practice .prac-stats{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;text-align:left;padding:14px 16px}
+#v-practice .prac-stats .prac-total{font-size:30px;grid-row:1}
+#v-practice .prac-stats .prac-total-l{grid-row:1;margin:0;font-size:13px;font-weight:600;color:var(--txt)}
+#v-practice .prac-stats .prac-bar{grid-column:1 / -1;margin:10px 0 8px;height:6px}
+#v-practice .prac-stats .prac-legend{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;gap:4px 14px;max-width:none;margin:0;font-size:12px}
+#v-practice .prac-stats .prac-legend .pdot{margin-right:6px;width:8px;height:8px}
+#v-practice .prac-stats .prac-add{grid-column:1 / -1;margin-top:12px}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -20827,17 +20861,18 @@ function rPractice(el){
   </div>
   ${_libGroup==="vocabulary"?`
   ${window.EMUI&&EMUI.on()?`<div class="em-portal-host">${EMUI.portalHTML()}</div>`:""}
-  <div class="prac-kb">
-    ${/* Welding Mastery: on the Welding programme the three boosters are the "Quick Practice" row; General English keeps its wording */""}
-    <h3 class="prac-kb-h">${window.WMUI&&WMUI.on()?esc(WMUI.quickH()):t("prac.kb_h")}</h3>
-    <p class="prac-sec-sub">${window.WMUI&&WMUI.on()?esc(WMUI.quickSub()):t("prac.kb_sub")}</p>
+  <details class="prac-kb" ${kbFoldOpen()?"open":""} ontoggle="kbFold(this.open)">
+    ${/* Welding Mastery: on the Welding programme the three boosters are the "Quick Practice" row; General English keeps its wording.
+         Foldable (owner, 10 Oct 2026): the choice is remembered on this device. */""}
+    <summary class="prac-kb-sum"><span><h3 class="prac-kb-h">${window.WMUI&&WMUI.on()?esc(WMUI.quickH()):t("prac.kb_h")}</h3>
+    <p class="prac-sec-sub">${window.WMUI&&WMUI.on()?esc(WMUI.quickSub()):t("prac.kb_sub")}</p></span><span class="prac-kb-chev" aria-hidden="true">${ic("chevron")}</span></summary>
     <div class="prac-ex">
       <button class="prac-ex-card ${_kbReady.fc?"ready":""}" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
       <button class="prac-ex-card ${_kbReady.qz?"ready":""}" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
       <button class="prac-ex-card ${_kbReady.cw?"ready":""}" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
       ${isGeneralEnglish()?`<button class="prac-ex-card ${_kbReady.cv?"ready":""}" onclick="cvStart()"><span class="pex-ic">${ic("chat")}</span><b>${t("pp.cv_title")}</b><small>${t("pp.cv_sub")}</small></button>`:""}
     </div>
-  </div>`:""}
+  </details>`:""}
   <div id="libBody"></div>
 `;
   const body=el.querySelector("#libBody");
@@ -22021,6 +22056,9 @@ window.simOpenMissionDebrief=id=>{
 };
 function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;try{AdManager.markBreak("practice_complete")}catch(e){}if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
+/* the Knowledge Boosters fold: open until the learner closes it, then remembered (this device only) */
+function kbFoldOpen(){try{return localStorage.getItem("be_kb_fold")!=="0"}catch(e){return true}}
+function kbFold(open){try{localStorage.setItem("be_kb_fold",open?"1":"0")}catch(e){}}
 function rLibVocab(el){
   /* Welding Mastery replaces the long professional list, the saved-word tabs,
      the empty state and the add field with ONE portal card; all of them now
@@ -22535,7 +22573,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v673";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v674";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
