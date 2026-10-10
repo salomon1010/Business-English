@@ -213,3 +213,92 @@ counted as billed there.
 3. Whether a provider-billed failure should be refunded to the learner (current choice: yes).
 4. Verifying the price table against the invoices.
 5. Patching production's `deployed.js` for the Gemini key leak (a production deploy).
+
+## 10. Rollout status (10 Oct 2026, afternoon)
+
+| Stage | Status | Evidence |
+|---|---|---|
+| Local implementation | **done** | commits `0a9fc456` and `bec7f39c` on local `staging`; NOT pushed |
+| Local tests | **pass** | `backend/test-ai-guard.mjs` 62/62 (incl. L1–L5: a refused request makes zero provider calls; M1–M2: possibly-billed failures are costed; N1–N4: production wrapper report mode, 5xx costing, duplicate guard). All other server suites and the client suites pass. |
+| Staging deploy | **done** | `be-polish-staging` version `43245010-10a4-42dc-89f1-ceaf275df6c4`, deployed from `bec7f39c`'s tree. `LEDGER_SALT` set as a staging secret. Previous version `956df561-8b2c-487c-a812-749564cd5973`. |
+| Staging validation | **done, 7/7** | `node backend/validate-ai-cost-staging.mjs` against the deployed Worker with a throwaway `be-mastery-test` account (deleted): no account → 401; Shadow helper anonymous → 200; Free allowance 1/3 → a 400 refunded (next reads 2/3) → duplicate pair 200 + 409 → 4th verdict 429 `scope:verdicts limit:3`. |
+| Staging ledger | **verified** | 8 rows in `be_ai_ledger_staging` for the 8 requests, outcomes ok / invalid+refunded / duplicate_in_flight / limited / refused, 16-hex caller HMAC, no content. Real `analyse` usage: 1,707 input / 832–1,031 output tokens ≈ **$0.002–0.0023** (the pre-call estimate, with output at its cap, is $0.0074 — deliberately high). |
+| Anonymous policy on a deployed Worker | **not validated** | Staging has `PREMIUM_ENFORCED=1`, so the policy never runs there. It is covered by local tests only (D1–D9, E1–E2, K1–K5, N1–N4). |
+| Production | **nothing deployed** | `be-polish` production is still `fc218aad-47c1-4e68-a428-5977e13060dd` (10 Oct game-route deploy). |
+
+**Staging rollback:** `cd backend && npx wrangler rollback 956df561-8b2c-487c-a812-749564cd5973 --env staging`.
+
+### The mobile limitation, restated
+
+The server **cannot tell a web visitor from an anonymous learner in the iOS app,
+the Play app or an installed PWA.** The Play app, the PWA and a browser tab all
+send `Origin: https://app.lomonec.com`. The iOS app sends `capacitor://localhost`,
+which any script can also send. No client header can be trusted. So
+`ANON_AI_POLICY=enforce` would hold anonymous **app** learners too.
+
+That is why the report-only week must answer one question before any
+enforcement: how many visitor rows per day come from legitimate learners? The
+signals are steady low volumes across many caller HMACs, spread over the routes
+a session uses. Abuse looks like high volume from few HMACs, or a single route
+(typically `chat` or `transcribe`).
+
+The web landing itself has no AI: a web visitor signs in before any activity
+(`web_visitor_gate_enabled`, client-side, separate from this).
+
+### Proposed production release (needs the owner's explicit approval — NOT done)
+
+**P1 — wrapper in report-only mode** (no learner-visible change):
+
+```diff
+# backend/polish-prod/wrangler.toml
+ [vars]
+ FIREBASE_PROJECT_ID = "be-mastery"
+ ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
+ PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
++ANON_AI_POLICY = "report"
++
++[[analytics_engine_datasets]]
++binding = "AI_LEDGER"
++dataset = "be_ai_ledger"
+```
+
+Then:
+```
+openssl rand -hex 24 | npx wrangler secret put LEDGER_SALT      # in backend/polish-prod, value never printed
+bash backend/polish-prod/build.sh --deploy
+```
+
+What P1 changes:
+- Every non-game request is classified.
+- Visitor requests consume the per-IP and pool counters but are never refused.
+- One ledger row per billable request.
+- Provider calls, the old code's answers, the game route and signed-in learners are untouched.
+
+**Cost of P1:**
+- For a visitor request, up to two Durable Object round trips (per-IP + global pool), and a Firebase token verification when a Bearer header is present.
+- All visitor requests pass through ONE global-pool object, which processes them one at a time. That is fine at this app's volume, but it is the first thing to watch if latency rises.
+
+**Rollback:** `npx wrangler rollback fc218aad-47c1-4e68-a428-5977e13060dd` (from `backend/polish-prod`), or set `ANON_AI_POLICY = "off"`.
+
+**P2 — after about a week of report data:**
+1. Choose the allowances and the pool size from the evidence (the `ANON_AI_*` variables).
+2. Optionally set `AI_DEDUPE = "1"`.
+3. Then `ANON_AI_POLICY = "enforce"`.
+
+This is a separate approval.
+
+**Not part of this rollout:**
+- `PREMIUM_ENFORCED` or any blanket account rule;
+- changes to the Free (3) or Premium (120) verdict quotas or the video budgets;
+- mobile builds.
+
+### Security finding outside this change
+
+Production `be-polish` has a Worker **secret whose NAME is a credential-shaped
+string** (it begins `AQ.Ab8…`, the shape of a Google API key or token). Secret
+*names* are shown in plain text in the dashboard and the API. If the string is a
+live key:
+1. treat it as exposed and rotate it with whoever issued it;
+2. delete that secret (`npx wrangler secret delete '<name>'` in `backend/polish-prod`).
+
+Deleting it is a production change — owner approval.
