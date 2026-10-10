@@ -10,12 +10,16 @@ progress to sign in (`keepNudge`, flag `play_keep_progress_enabled`,
 `tests/keep-progress.mjs`) — it reaches learners with the next merge to `main`,
 so ship it well before the switch.
 
-**Owner steps still open before notifications work on Android:** register the
-Android app `com.bemastery.app` in the Firebase projects (`be-mastery`, and
-`be-mastery-test` for staging), put `google-services.json` in
-`mobile/android/android/app/` (not committed; without it the build has no push
-and says so), create a service-account key with the FCM role and set it as the
-`FCM_SA_JSON` secret on be-push, then deploy be-push (mind the cron limit).
+**Notifications set-up (done 10 Oct 2026):** Android app `com.bemastery.app` registered in
+`be-mastery` (1:847739483036:android:e341d8aa18ae00d44ece59) and `be-mastery-test`
+(1:724002405539:android:c0740eda3b9de789fd5316); their `google-services.json` files live in
+`~/.config/be-mastery/firebase/` and `scripts/build.sh` / `release.sh` copy the matching one
+in (never committed). FCM API enabled; service account `fcm-sender@<project>` with
+`roles/firebasecloudmessaging.admin` only, one key each, stored only as `FCM_SA_JSON` on
+`be-push-staging` and `be-push`. be-push-staging DEPLOYED (b4601bbc) and proven against
+Google (a made-up token was refused and its row dropped — no auth error). **Production
+be-push is NOT deployed:** it runs 29 Sep code without APNs, nudge pictures or the Android
+origin, so a full deploy is an owner decision (it also keeps two crons — mind the limit).
 **Still to build:** native Google sign-in (7), the widget port (7), device tests and
 the staged release (8).
 
