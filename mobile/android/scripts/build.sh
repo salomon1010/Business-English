@@ -10,6 +10,7 @@ export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/.bubblewrap/android_sdk}"
 cd "$here"
 staging=false
+rm -rf www   # a fresh bundle every time: a staging leftover (be-build.js) must never reach a production build
 if [ "${1:-}" = "--staging" ]; then staging=true; npm run --silent sync:staging; else npm run --silent sync; fi
 # Firebase config for notifications (FCM), kept outside the repo: production → be-mastery,
 # --staging → be-mastery-test. Missing file = a build without push (BEPush.available() is false).
