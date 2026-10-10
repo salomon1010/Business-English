@@ -2175,6 +2175,7 @@
  "rem.push_body": "25 minutes today keeps the streak alive.",
  "rem.note_ios_push": "A nudge at your chosen time, even when the app is closed. Turn it off any time.",
  "rem.blocked_ios": "Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Notifications → BE Mastery.",
+ "rem.blocked_android": "Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Apps → BE Mastery → Notifications.",
  "rem.online_sub_ios": "iPhone 应用暂不支持“学习者在线”通知。打开练习搭档即可查看谁在线。",
  "nudge.lesson_t": "Week {{w}} is ready",
  "nudge.lesson_b": "🎤 {{topic}} — {{min}} minutes today moves you forward.",
@@ -3495,5 +3496,9 @@
  "land.prem_b": "More AI feedback each day, 30- and 90-day progress reports and personalised recommendations. Premium is bought in the BE Mastery app from Google Play; sign in here with the same account and it applies here too.",
  "land.play": "Get the app on Google Play",
  "land.more": "About BE Mastery",
- "land.privacy": "Privacy"
+ "land.privacy": "Privacy",
+ "keep.title": "Keep your progress",
+ "keep.body": "Your {{n}} completed sessions are saved on this phone only. Sign in (it's free) and your progress is kept in your account — through app updates, a new phone or a reinstall.",
+ "keep.ok": "Sign in to keep it",
+ "keep.later": "Not now"
 }

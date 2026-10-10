@@ -1,6 +1,25 @@
 # Android native shell — plan (8 Oct 2026)
 
-**Status: PLAN ONLY. Nothing below is built.** Owner decision 8 Oct 2026: replace
+**Status (10 Oct 2026): phases 1–6 BUILT on `staging`, NOT released.** The Play
+listing still serves the TWA. Built: the shell (1), the web layer's platform check
+(2), the Workers' allow-lists, deployed (3), AdMob (4), Play Billing (5), signed
+release bundles, and notifications (6 — `BEPushPlugin.java` + `BEMessagingService.java`,
+be-push's FCM sender, `tests/android-push.mjs`, `backend/push/test/fcm.mjs`). The
+§6 data risk has its step too: today's Play app asks a signed-out learner with
+progress to sign in (`keepNudge`, flag `play_keep_progress_enabled`,
+`tests/keep-progress.mjs`) — it reaches learners with the next merge to `main`,
+so ship it well before the switch.
+
+**Owner steps still open before notifications work on Android:** register the
+Android app `com.bemastery.app` in the Firebase projects (`be-mastery`, and
+`be-mastery-test` for staging), put `google-services.json` in
+`mobile/android/android/app/` (not committed; without it the build has no push
+and says so), create a service-account key with the FCM role and set it as the
+`FCM_SA_JSON` secret on be-push, then deploy be-push (mind the cron limit).
+**Still to build:** native Google sign-in (7), the widget port (7), device tests and
+the staged release (8).
+
+Original plan (8 Oct 2026) follows. Owner decision 8 Oct 2026: replace
 the Play app's Trusted Web Activity (TWA) with a native Capacitor Android shell,
 like the iOS app, so Android can show AdMob ads (option A; option B — web ads in
 the page — was rejected as the less reliable route). This reverses ADR-9.1 in

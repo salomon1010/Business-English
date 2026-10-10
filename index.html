@@ -8662,6 +8662,7 @@ const I18N_EN={
  "rem.push_body":"25 minutes today keeps the streak alive.",
  "rem.note_ios_push":"A nudge at your chosen time, even when the app is closed. Turn it off any time.",
  "rem.blocked_ios":"Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Notifications → BE Mastery.",
+ "rem.blocked_android":"Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Apps → BE Mastery → Notifications.",
  "rem.online_sub_ios":"Notifications about learners online are not available in the iPhone app yet. Open Practice Partner to see who is online.",
  "nudge.lesson_t":"Week {{w}} is ready",
  "nudge.lesson_b":"🎤 {{topic}} — {{min}} minutes today moves you forward.",
@@ -10369,6 +10370,10 @@ const I18N_EN={
  "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
  "cf.backup_ok":"Back it up",
  "cf.backup_later":"Not now",
+ "keep.title":"Keep your progress",
+ "keep.body":"Your {{n}} completed sessions are saved on this phone only. Sign in (it's free) and your progress is kept in your account — through app updates, a new phone or a reinstall.",
+ "keep.ok":"Sign in to keep it",
+ "keep.later":"Not now",
  "cal.label":"Block the time",
  "cal.note":"A calendar entry survives a silent phone and shows colleagues you\u2019re busy. Six days a week, 25 minutes.",
  "cal.add_google":"Google Calendar",
@@ -11356,7 +11361,7 @@ function go(v,arg1,arg2){
   try{navBadges()}catch(e){}
   jumpTop();
   try{AdManager.afterNav(v)}catch(e){}   /* a pending natural break, and this page's native slot (Phase 8) */
-  if(v==="home")setTimeout(()=>whenIdle(backupNudge),1200);   // only on the dashboard, never mid-task, never under a thumb
+  if(v==="home")setTimeout(()=>whenIdle(()=>{if(!keepNudge())backupNudge()}),1200);   // only on the dashboard, never mid-task, never under a thumb
 }
 
 /* Put App Setup on the Profile page eyebrow. That row is sticky, so unlike the
@@ -16770,6 +16775,35 @@ function srText(results){
    data, "clear browsing data" wipes it, uninstalling takes it along). So once
    someone has built up real progress with no account and no export, ask once.
    Shown a single time; declining is remembered. */
+/* KEEP YOUR PROGRESS (10 Oct 2026, docs/ANDROID_NATIVE_SHELL_PLAN.md §6). The Play app
+   is about to become a native app that carries the web app inside it. Today's Play app
+   (a Trusted Web Activity) keeps a signed-out learner's progress in Chrome's storage for
+   app.lomonec.com; the new app starts with an empty store, so only an ACCOUNT carries
+   progress across the update (fbFirstSync merges the device copy into it). So the Play
+   app asks a signed-out learner with any progress to sign in — true advice today, vital
+   at the switch. Every 3 days at most, 4 times in all; returns true when it asked, so the
+   backup nudge does not stack on top of it. */
+const KEEP_EVERY_MS=3*86_400_000,KEEP_MAX=4;
+function keepNudge(){
+  try{
+    if(!flag("play_keep_progress_enabled"))return false;
+    if(!S.profile||(typeof FBUser!=="undefined"&&FBUser))return false;   // FBUser is a top-level let, not on window
+    if(IS_NATIVE_APP||!isPlayApp())return false;          // only today's Play app (the TWA)
+    const done=Object.keys(S.days||{}).length;
+    if(done<1)return false;                               // nothing to lose yet
+    const k=S.keepAsk||{n:0,at:0};
+    if(k.n>=KEEP_MAX||Date.now()-k.at<KEEP_EVERY_MS)return false;
+    S.keepAsk={n:k.n+1,at:Date.now()};save();
+    askConfirm({
+      icon:"user",danger:false,
+      title:t("keep.title"),
+      body:t("keep.body",{n:done}),
+      confirmLabel:t("keep.ok"),
+      cancelLabel:t("keep.later")
+    }).then(yes=>{if(yes)fbOpenModal("up")});
+    return true;
+  }catch(e){return false}
+}
 function backupNudge(){
   try{
     if(!S.profile||S.backupAsked)return;
@@ -17923,7 +17957,7 @@ window.remToggle=on=>{
 function remNoteHTML(){
   /* The App Store shell has no notification route at all (no APNs, and WKWebView
      has neither Notification nor Web Push): the reminder is the in-app one only. */
-  if(iosPushOn())return esc(t(_pushPerm==="denied"?"rem.blocked_ios":"rem.note_ios_push"));
+  if(iosPushOn())return esc(t(_pushPerm==="denied"?(IS_ANDROID_APP?"rem.blocked_android":"rem.blocked_ios"):"rem.note_ios_push"));
   if(IS_IOS_APP)return esc(t("rem.note_ios"));
   if(iosIs()&&!iosStandalone())return `${esc(t("rem.ios_install"))} <button type="button" class="linklike" onclick="iosAsk(true)">${esc(t("ios.row"))} →</button>`;
   return esc(t("rem.note"));
@@ -18064,15 +18098,19 @@ function beNativePush(){
   /* only a plugin that was FOUND is remembered: a null is never cached, so a
      lookup during the first moments of a cold launch cannot latch this off */
   if(_bePushPlug)return _bePushPlug;
-  if(!IS_IOS_APP)return null;
+  if(!IS_NATIVE_APP)return null;
   const p=capPlugin("BEPush");
   if(p&&typeof p.register==="function"){_bePushPlug=p;return p}
   return null;
 }
-function iosPushOn(){try{return !!(IS_IOS_APP&&flag("ios_push_enabled")&&beNativePush())}catch(e){return false}}
+/* the name predates the Android shell: true in EITHER store shell whose BEPush
+   plugin can register (APNs on iPhone, FCM on Android, 10 Oct 2026). An Android
+   build without google-services.json answers "unavailable" once and is then off,
+   so it never offers a switch that cannot deliver. */
+function iosPushOn(){try{return !!((IS_IOS_APP&&flag("ios_push_enabled")||IS_ANDROID_APP&&flag("android_push_enabled"))&&_pushPerm!=="unavailable"&&beNativePush())}catch(e){return false}}
 /* "may this device raise a notification?" — one question, two platforms */
 function pushPermGranted(){
-  if(IS_IOS_APP)return iosPushOn()&&_pushPerm==="granted";
+  if(IS_NATIVE_APP)return iosPushOn()&&_pushPerm==="granted";
   try{return !!(window.Notification&&Notification.permission==="granted")}catch(e){return false}
 }
 /* The wording an APNs alert needs, in the learner's language — the same
@@ -18106,7 +18144,7 @@ async function pushSyncNative(ask,wants){
   if(_pushPerm!=="granted"&&!ask)return false;
   let r=null;
   try{r=await P.register()}
-  catch(e){if((e&&e.code)==="denied")_pushPerm="denied";return false}
+  catch(e){const c=e&&e.code;if(c==="denied"||c==="unavailable")_pushPerm=c;return false}
   if(!r||!r.token)return false;
   _pushPerm="granted";
   const c=remCfg();
@@ -18114,7 +18152,7 @@ async function pushSyncNative(ask,wants){
     await fetch(PUSH_API+"/subscribe",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,
-        apns:{token:r.token,env:r.env||"production"},
+        ...(IS_ANDROID_APP?{fcm:{token:r.token}}:{apns:{token:r.token,env:r.env||"production"}}),
         presence:wants.pres,calls:wants.calls,nudges:wants.nudge,
         tz:-new Date().getTimezoneOffset(),text:pushTextPayload()}),
     });
@@ -18437,7 +18475,7 @@ function pushId(){
   /* an id this device registered with before that key existed: keep it, so an
      existing subscription is not orphaned. Never in the App Store shell —
      it had no push route, so any id in S there arrived from the cloud. */
-  let id=(!IS_IOS_APP&&good(S.pushId))?S.pushId:null;
+  let id=(!IS_NATIVE_APP&&good(S.pushId))?S.pushId:null;
   if(!id){const a=new Uint8Array(16);crypto.getRandomValues(a);id=[...a].map(x=>x.toString(16).padStart(2,"0")).join("")}
   try{localStorage.setItem(PUSH_ID_KEY,id)}catch(e){}
   S.pushId=id;save();
@@ -18505,8 +18543,8 @@ async function pushSync(ask){
      the reminder off was unsubscribed and never got one (found 2026-09-26) */
   const wantNudge=(()=>{try{return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser}catch(e){return false}})();
   if(!c.on&&!wantPres&&!wantCalls&&!wantNudge)return pushOff();
-  /* the App Store shell: an APNs token instead of a push subscription */
-  if(IS_IOS_APP)return iosPushOn()?pushSyncNative(ask===true,{pres:wantPres,calls:wantCalls,nudge:wantNudge}):undefined;
+  /* the store shells: an APNs (iPhone) or FCM (Android) token instead of a push subscription */
+  if(IS_NATIVE_APP)return iosPushOn()?pushSyncNative(ask===true,{pres:wantPres,calls:wantCalls,nudge:wantNudge}):undefined;
   if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
   if(!window.Notification||Notification.permission!=="granted")return;
   try{
@@ -18531,7 +18569,7 @@ async function pushOff(){
   /* the shell has no subscription object to inspect: this device registered
      only if it ever minted an id, and that is the one thing worth checking
      before firing a request at every launch */
-  if(IS_IOS_APP){
+  if(IS_NATIVE_APP){
     try{let v=null;try{v=localStorage.getItem(PUSH_ID_KEY)}catch(e){}
       if(v)await fetch(PUSH_API+"/unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:v})});
     }catch(e){}
@@ -24465,6 +24503,7 @@ const FLAGS_DEFAULT={
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
+  android_push_enabled:true,           // Android shell notifications through its BEPush plugin (FCM). Does nothing without google-services.json in the build AND FCM_SA_JSON on be-push — a kill switch, like ios_push_enabled.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
   ios_live_activity_enabled:true,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF  [production ON, owner 10 Oct 2026]
   android_live_countdown_enabled:true,// the same countdown on Android: an ongoing notification the Play app posts from the widget feed (docs/ANDROID_LIVE_COUNTDOWN.md): staging ON, production OFF  [production ON, owner 10 Oct 2026]
@@ -24473,6 +24512,7 @@ const FLAGS_DEFAULT={
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
   auth_proxy_enabled:true,             // Firebase's helper on auth.lomonec.com (be-auth, deployed d8b9896a 7 Oct 2026): what lets the installed Play app finish a Google / Apple sign-in
   billing_preview_provider:false,      // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
+  play_keep_progress_enabled:true,     // the Play app (TWA) asks a signed-out learner with progress to sign in before the switch to the native shell (keepNudge)
   web_visitor_gate_enabled:true        // the web visitor landing (owner, 10 Oct 2026; docs/ACCESS-MATRIX.md): a plain browser tab with no account and no learner on the device signs up or in before learning. ON since be12-v686 (owner: "update everything, deploy"); never on a local/LAN test host without an explicit be_flags entry (webGateFlag); never in the store apps, an installed app or for an existing learner (webPlainTab)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
@@ -24502,6 +24542,7 @@ const FLAGS_STAGING={
      staging build while every automated check passed. */
   social_signin_enabled:true,
   ios_push_enabled:true,
+  android_push_enabled:true,
   ios_live_activity_enabled:true,      // the game streak countdown — staging only
   android_live_countdown_enabled:true, // the Android streak countdown — staging only
   ios_widget_enabled:true,
@@ -24530,6 +24571,7 @@ const FLAGS_STAGING={
      FLAGS_DEFAULT and is untouched. */
   billing_enabled:true,
   billing_preview_provider:true,
+  play_keep_progress_enabled:true,
   web_visitor_gate_enabled:true        // the web visitor landing, as in production (staging needs a be-mastery-test account)
 };
 /* The App Store app's own release defaults (owner, 29 Sep 2026). Its web code is

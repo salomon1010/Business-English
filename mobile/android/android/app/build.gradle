@@ -62,6 +62,10 @@ dependencies {
     implementation "com.google.android.ump:user-messaging-platform:3.2.0"
     // Play Billing Library 8 (required for app updates from 31 Aug 2026), as the TWA used through androidbrowserhelper
     implementation "com.android.billingclient:billing:8.0.0"
+    // notifications: FCM data messages from be-push (BEMessagingService). Without google-services.json
+    // Firebase stays uninitialised and BEPush.available() answers false.
+    implementation platform("com.google.firebase:firebase-bom:34.0.0")
+    implementation "com.google.firebase:firebase-messaging"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

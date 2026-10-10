@@ -8,3 +8,6 @@ android/local.properties
 android/capacitor-cordova-android-plugins/build/
 *.keystore
 *.jks
+
+# Firebase app config, added by the owner from the console (docs/ANDROID_NATIVE_SHELL_PLAN.md)
+android/app/google-services.json

@@ -4,4 +4,9 @@
     <string name="title_activity_main">BE Mastery</string>
     <string name="package_name">com.bemastery.app</string>
     <string name="custom_url_scheme">com.bemastery.app</string>
+    <!-- notification channels (Settings → Apps → BE Mastery → Notifications) -->
+    <string name="be_ch_daily">Daily practice</string>
+    <string name="be_ch_daily_desc">Your reminder and suggestions for what to practise next</string>
+    <string name="be_ch_calls">Practice invitations</string>
+    <string name="be_ch_calls_desc">A partner who wants to practise with you now</string>
 </resources>

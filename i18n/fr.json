@@ -2175,6 +2175,7 @@
  "rem.push_body": "25 minutes aujourd'hui, et votre série continue.",
  "rem.note_ios_push": "Un rappel à l'heure que vous choisissez, même quand l'application est fermée. Vous pouvez le désactiver à tout moment.",
  "rem.blocked_ios": "Les notifications sont désactivées pour BE Mastery : les rappels apparaîtront donc dans l'application. Vous pouvez les activer dans Réglages → Notifications → BE Mastery.",
+ "rem.blocked_android": "Les notifications sont désactivées pour BE Mastery : les rappels apparaîtront donc dans l'application. Vous pouvez les activer dans Paramètres → Applications → BE Mastery → Notifications.",
  "rem.online_sub_ios": "Les notifications sur les apprenants en ligne ne sont pas encore disponibles dans l’application iPhone. Ouvrez Practice Partner pour voir qui est en ligne.",
  "nudge.lesson_t": "La semaine {{w}} vous attend",
  "nudge.lesson_b": "🎤 {{topic}} — {{min}} minutes aujourd'hui pour avancer.",
@@ -3495,5 +3496,9 @@
  "land.prem_b": "Plus de retours IA chaque jour, des bilans de progression sur 30 et 90 jours et des recommandations personnalisées. Premium s'achète dans l'application BE Mastery sur Google Play ; connectez-vous ici avec le même compte et il s'applique aussi ici.",
  "land.play": "Télécharger l'application sur Google Play",
  "land.more": "À propos de BE Mastery",
- "land.privacy": "Confidentialité"
+ "land.privacy": "Confidentialité",
+ "keep.title": "Gardez votre progression",
+ "keep.body": "Vos {{n}} séances terminées sont enregistrées sur ce téléphone uniquement. Connectez-vous (c'est gratuit) et votre progression est gardée dans votre compte — lors des mises à jour de l'application, sur un nouveau téléphone ou après une réinstallation.",
+ "keep.ok": "Me connecter pour la garder",
+ "keep.later": "Plus tard"
 }

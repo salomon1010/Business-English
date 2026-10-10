@@ -67,6 +67,11 @@ const iphone = (id, extra = {}) => call("/subscribe", { id, slot: "1900", apns: 
 const b64urlToBuf = s => Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/"), "base64");
 const reset = () => { apple = []; appleReply = () => ({ status: 200, body: "" }); };
 
+/* nudges are checked against the REAL clock (/nudge refuses a record that has
+   already expired), so the cron runs "now" and the learner's time zone is chosen
+   to put them at midday — outside quiet hours whatever time the suite runs */
+const NOON_TZ = () => { const d = new Date(); return 720 - (d.getUTCHours() * 60 + d.getUTCMinutes()); };
+
 console.log("\n# an iPhone registers a device token instead of a push subscription");
 {
   let r = await iphone("iphone-aaaaaaa1");
@@ -126,11 +131,11 @@ console.log("\n# invitations, online alerts and nudges — the same rules, an Ap
   await runPresence(env, new Date(Date.UTC(2026, 9, 5, 12, 0)));
   ok("C3 · an online alert fills in the count and points at Practice Partner", apple.length === 1 && apple[0].body.aps.alert.body === "3 learners are ready to practise." && apple[0].body.be.view === "partner", JSON.stringify(apple[0] && apple[0].body));
   reset(); online = 0;
-  await call("/nudge", { id: "iphone-aaaaaaa1", tz: (12 - 12) * 60, rec: { rid: "lesson-x1", kind: "lesson", view: "session", args: [3, "Wed"], title: "Week 3 is ready", body: "25 minutes moves you forward.", sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
-  await runNudges(env, Date.UTC(2026, 9, 5, 12, 0));
+  await call("/nudge", { id: "iphone-aaaaaaa1", tz: NOON_TZ(), rec: { rid: "lesson-x1", kind: "lesson", view: "session", args: [3, "Wed"], title: "Week 3 is ready", body: "25 minutes moves you forward.", sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
+  await runNudges(env, Date.now() + 1000);
   const n = apple[0];
   ok("C4 · a learning nudge carries its own title and body, its rid and the view it opens", apple.length === 1 && n.body.aps.alert.title === "Week 3 is ready" && n.body.be.rid === "lesson-x1" && n.body.be.view === "session" && n.headers["apns-collapse-id"] === "be-nudge", JSON.stringify(n && n.body));
-  ok("C5 · sending it marks the phone done, so the plain reminder stays quiet today", (await SUBS.get("done:iphone-aaaaaaa1")) === new Date(Date.UTC(2026, 9, 5, 12, 0)).toISOString().slice(0, 10));
+  ok("C5 · sending it marks the phone done, so the plain reminder stays quiet today", (await SUBS.get("done:iphone-aaaaaaa1")) === new Date(Date.now() + 1000).toISOString().slice(0, 10));
   ok("C6 · a plain nudge is delivered exactly as before: no mutable-content, no image field", n.body.aps["mutable-content"] === undefined && !("image" in n.body.be), JSON.stringify(n.body));
   await SUBS.delete("done:iphone-aaaaaaa1");
 
@@ -139,8 +144,8 @@ console.log("\n# invitations, online alerts and nudges — the same rules, an Ap
      notification extension (BEPushService) fetches it. */
   reset(); await SUBS.delete("nudge:iphone-aaaaaaa1"); await SUBS.delete("nlog:iphone-aaaaaaa1");   // a fresh log: the 20 h gap is nudge.mjs's subject, not this one's
   const IMG = "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg";
-  await call("/nudge", { id: "iphone-aaaaaaa1", tz: 0, rec: { rid: "challenge-x2", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes with Steve Jobs.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
-  await runNudges(env, Date.UTC(2026, 9, 5, 12, 0));
+  await call("/nudge", { id: "iphone-aaaaaaa1", tz: NOON_TZ(), rec: { rid: "challenge-x2", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes with Steve Jobs.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
+  await runNudges(env, Date.now() + 1000);
   const m = apple[0];
   ok("C7 · a recommendation with a thumbnail asks for mutable-content and hands the extension the picture's address", apple.length === 1 && m.body.aps["mutable-content"] === 1 && m.body.be.image === IMG && m.body.aps.alert.title === "Shadow this clip", JSON.stringify(m && m.body));
   ok("C8 · the picture may come only from YouTube's thumbnail hosts or our own site, over https — anything else is dropped, not sent",
@@ -153,8 +158,8 @@ console.log("\n# invitations, online alerts and nudges — the same rules, an Ap
      through /why, which sw.js reads once — so the web banner gets it too. */
   reset();
   await call("/subscribe", { id: "browser-img00001", slot: "0700", endpoint: "https://push.test/browser-img00001", tz: 0, nudges: true });
-  await call("/nudge", { id: "browser-img00001", tz: 0, rec: { rid: "challenge-x3", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
-  await runNudges(env, Date.UTC(2026, 9, 5, 12, 0));
+  await call("/nudge", { id: "browser-img00001", tz: NOON_TZ(), rec: { rid: "challenge-x3", kind: "challenge", view: "shadow", act: "clip", args: ["UF8uR6Z6KLc"], title: "Shadow this clip", body: "Two minutes.", image: IMG, sendAfter: Date.now() - 1000, expiresAt: Date.now() + 20 * H } }, "tok-ge");
+  await runNudges(env, Date.now() + 1000);
   const why = await call("/why?id=browser-img00001", null, null, "GET");
   ok("C9 · a browser's push stays bare, and /why serves the picture with the rest of the recommendation", apple.some(x => x.web) && why.status === 200 && why.json.kind === "nudge" && why.json.image === IMG && why.json.rid === "challenge-x3", JSON.stringify({ apple, why }));
   /* leave the later sections the rows they expect: the iPhone alone in slot 1900 */

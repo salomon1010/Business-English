@@ -30,6 +30,22 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/be_ads_app_id" />
 
+        <!-- notifications (BEPushPlugin + BEMessagingService): be-push sends data messages,
+             the app draws them; the defaults below cover anything FCM ever draws itself -->
+        <service
+            android:name=".BEMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_be" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="be_daily" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -50,6 +66,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Posture Coach (the same reason NSCameraUsageDescription gives on iOS) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Android 13+: the reminder / invitation prompt, asked from the Settings switch, never at launch -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 </manifest>
