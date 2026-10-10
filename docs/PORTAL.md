@@ -1,10 +1,15 @@
 # LOMON EC portal at app.lomonec.com/ and BE Mastery at /bemastery/
 
-Status (10 Oct 2026): **built and tested locally on `staging`. Not live.**
-Production still serves BE Mastery from the root of `main` through GitHub Pages
-("Deploy from a branch", `build_type: legacy`, verified with
-`gh api repos/salomon1010/Business-English/pages`). Nothing changes on the live
-site until the owner does the switch in §4.
+Status: **LIVE since 10 Oct 2026 (~16:07 UTC), owner-approved.** PR #9 (merge
+`a2b257bf`) put be12-v685 on `main`. Pages source switched to GitHub Actions
+(`build_type: workflow`, custom domain and HTTPS kept), repository variable
+`PORTAL_PAGES=on`, first workflow run `38066218055` built and deployed. Verified
+live: portal at `/`, app at `/bemastery/` (v685), root `/sw.js` = the retiring
+worker, legal pages / `yt-embed.html` / `.well-known` / IndexNow key / og.png at
+the root, forwarding stubs, smoke 33/33 at `/bemastery/`, and the forwarder for
+the Play app (`?wid=`), an installed app, a returning learner and a `#view` link.
+**From now on every push to `main` publishes through the workflow; read the live
+version from `/bemastery/sw.js` (the root `sw.js` no longer carries it).**
 
 ## 1. Decisions (owner, 10 Oct 2026)
 
@@ -62,7 +67,7 @@ carry over untouched.
 `app.lomonec.com/bemastery/` it is that address; everywhere else (the root
 today, the store apps, staging) it is the root as before.
 
-## 4. Switching production (owner only — not done)
+## 4. Switching production (done 10 Oct 2026 — kept as the record and for a re-run)
 
 1. Merge `staging` to `main` through the usual PR (the workflow is dormant:
    a push skips it unless `PORTAL_PAGES` is `on`).

@@ -61,6 +61,11 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   4. Poll live until it flips, in a **background** Bash job (GitHub Pages usually
      30–60s, occasionally 10 min): loop `curl -s "https://app.lomonec.com/sw.js?x=$RANDOM"`
      and grep for the new `be12-vNN`. A stuck build is nudged with an empty commit.
+     **Since 10 Oct 2026 the site is the portal build:** a push to `main` runs
+     `.github/workflows/pages-portal.yml` (Pages source = GitHub Actions), the app
+     lives at `/bemastery/`, and the version must be polled at
+     `https://app.lomonec.com/bemastery/sw.js` — the root `sw.js` is the retiring
+     worker and never carries `be12-vNN`. Watch the run with `gh run watch`.
 - End commit messages with:
   `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 
@@ -875,7 +880,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `WMEngine.make(EM)` = `EMEngine` (`WMEngine` itself unchanged). Server: `backend/wm-game.js`
   `prog: "general-english"` (account must be GE; own `em…` buckets, own 5 energy, own KV pack
   `ge-advanced-v1`, kept out of this public repo). Tests: `tests/english-mastery.mjs` (57).
-- **LOMON EC portal + /bemastery/ (10 Oct 2026, `staging`, NOT live) — `docs/PORTAL.md`,
+- **LOMON EC portal + /bemastery/ (LIVE since 10 Oct 2026, PR #9, Pages = GitHub Actions, `PORTAL_PAGES=on`) — `docs/PORTAL.md`,
   `docs/ACCESS-MATRIX.md`.** `scripts/portal/build-site.mjs` assembles `_site/`: `portal/` at `/`,
   the app at `/bemastery/` (the store bundles' file list; the repo layout does NOT move),
   real root copies of `privacy.html` / `delete-account.html` (store-registered) /
