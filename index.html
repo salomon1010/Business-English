@@ -6580,7 +6580,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
     <h1 style="font-size:28px;line-height:1.2">Business English Mastery — speak like you belong in the room</h1>
     <p style="color:#9fb0cc;line-height:1.6;margin-top:14px">A 12-week system for confident professional spoken English. 25 minutes a day: shadowing real speakers, instant speaking feedback, 152 business phrases and visible progress. Free, no account, works offline.</p>
     <p style="color:#9fb0cc;line-height:1.6;margin-top:14px"><b>BE Mastery needs JavaScript.</b> Turn it on and reload, or read more below.</p>
-    <p style="margin-top:18px"><a href="flyer.html" style="color:#22d3ee">About BE Mastery</a> ·
+    <p style="margin-top:18px"><a href="https://lomonec.com/bemastery/" style="color:#22d3ee">About BE Mastery</a> ·
        <a href="manual/en.html" style="color:#22d3ee">User guide</a> ·
        <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" style="color:#22d3ee">Google Play</a></p>
   </div>
@@ -6652,7 +6652,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   </nav>
   <div class="footer-note" style="margin-top:6px" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
   <div class="footer-note" style="margin-top:0">
-    <a href="flyer.html" data-i18n="footer.about_link">About BE Mastery</a> ·
+    <a href="https://lomonec.com/bemastery/" target="_blank" rel="noopener" data-site="bemastery" data-i18n="footer.about_link">About BE Mastery</a> ·
     <!-- href kept so crawlers and no-JS visitors still reach the guide (this is
          one of the few crawlable links out of the app shell). With JS, the
          delegated footer handler opens it in the in-app document viewer. -->
@@ -11527,6 +11527,9 @@ window.docToggleTheme=function(){
   try{fr.contentDocument.documentElement.setAttribute("data-theme",next)}catch(e){}   // and the flyer inside (same-origin, instant)
   const b=document.querySelector(".doc-theme");if(b)b.innerHTML=ic(next==="light"?"moon":"sun");
 };
+/* lomonec.com/bemastery in the learner's language: the site carries the app's 16 languages (site/bemastery/<code>/) */
+const BE_SITE="https://lomonec.com/bemastery/",BE_SITE_LANGS=["fr","es","pt","it","de","ru","ar","ur","hi","bn","id","vi","zh","ja","ko"];
+function beSiteUrl(){const c=String((S.profile&&S.profile.lang)||"en");return BE_SITE+(BE_SITE_LANGS.includes(c)?c+"/":"")}
 /* About the app — the flyer, which is theme-aware, so it gets the theme toggle. */
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
@@ -11556,6 +11559,8 @@ addEventListener("click",e=>{
   if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
   const href=a.getAttribute("href")||"";
   if(/^(mailto:|tel:)/i.test(href))return;
+  /* About BE Mastery is the public website (owner, 10 Oct 2026), in the learner's language when the site has it */
+  if(a.dataset.site){e.preventDefault();try{window.open(beSiteUrl(),"_blank","noopener")}catch(_){location.href=beSiteUrl()}return}
   let u;try{u=new URL(a.href,location.href)}catch(_){return}
   if(u.origin!==location.origin)return;
   e.preventDefault();
@@ -22530,7 +22535,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v672";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v673";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.

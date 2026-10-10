@@ -488,8 +488,6 @@ export default [
    `<b>Speak Up يسمعك:</b> قل جملة وشاهد أي الكلمات وصلت. تقييم النطق يقوم به الذكاء الاصطناعي، ويُذكر ذلك.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `سجّل الدخول للعب. مجانًا: خمس جولات تحدٍّ يوميًا في كل برنامج — الإجابة الخاطئة لا تكلّف جولة أبدًا — بالإضافة إلى مراجعة غير محدودة والمهمة اليومية. Premium: جولات غير محدودة ومواقف متقدمة واتجاهات 30 و90 يومًا.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>داخل مساحات الألعاب</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>مهمة يومية وهدفك الأسبوعي</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -512,4 +510,18 @@ export default [
    `<span>English Mastery: ثماني ألعاب على كلمات خطتك وعباراتها</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: ثماني ألعاب على 250 كلمة من المهنة، مع صور حقيقية</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · الإنجليزية العامة</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · إنجليزية اللحام</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>التعرّف البصري</b><span>سمِّ الأداة من صورة حقيقية</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `مساحة Welding Mastery: المستوى ونقاط XP والسلسلة والطاقة، تحدّي إنجليزية اللحام لليوم والهدف الأسبوعي`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `التعرّف البصري: صورة حقيقية لطفاية حريق، مع ذكر صاحبها، وأربعة أسماء للاختيار`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> ثماني ألعاب على 250 كلمة من المهنة، مع صور حقيقية للأدوات، وتحدٍّ يومي، وشارات مهارة.`],
 ];

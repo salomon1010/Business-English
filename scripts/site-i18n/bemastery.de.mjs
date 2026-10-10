@@ -489,8 +489,6 @@ export default [
    `<b>Speak Up hört Ihnen zu:</b> Sprechen Sie einen Satz und sehen Sie, welche Wörter angekommen sind. Die Aussprachebewertung stammt von einer KI, und das steht dabei.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `Melden Sie sich an, um zu spielen. Kostenlos: fünf Aufgabenrunden pro Tag in jedem Programm — eine falsche Antwort kostet nie eine Runde — dazu unbegrenzte Wiederholung und die Tagesmission. Premium: unbegrenzte Runden, fortgeschrittene Situationen und Trends über 30 und 90 Tage.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>In den Spielbereichen</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>Eine Tagesmission und Ihr Wochenziel</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -513,4 +511,18 @@ export default [
    `<span>English Mastery: acht Spiele mit den Wörtern und Wendungen Ihres Plans</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: acht Spiele mit 250 Fachwörtern und echten Fotos</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · Allgemeines Englisch</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · Schweiß-Englisch</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>Bilderkennung</b><span>Das Werkzeug auf einem echten Foto benennen</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Der Bereich Welding Mastery: Stufe, XP, Serie und Energie, die Schweiß-Englisch-Aufgabe des Tages und das Wochenziel`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `Bilderkennung: das echte Foto eines Feuerlöschers, sein Bildnachweis und vier Namen zur Auswahl`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> acht Spiele mit 250 Fachwörtern, echten Fotos der Werkzeuge, einer Tagesaufgabe und Fähigkeitsabzeichen.`],
 ];

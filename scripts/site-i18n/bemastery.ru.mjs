@@ -489,8 +489,6 @@ export default [
    `<b>Speak Up вас слышит:</b> скажите фразу и посмотрите, какие слова распознаны. Оценку произношения ставит ИИ, и об этом сказано.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `Войдите, чтобы играть. Бесплатно: пять раундов заданий в день в каждой программе — неверный ответ никогда не стоит раунда — плюс неограниченное повторение и задание дня. Premium: неограниченные раунды, сложные ситуации и тренды за 30 и 90 дней.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>Внутри игровых пространств</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>Задание дня и цель недели</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -513,4 +511,18 @@ export default [
    `<span>English Mastery: восемь игр на слова и выражения вашего плана</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: восемь игр на 250 профессиональных слов, с настоящими фото</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · Общий английский</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · Английский для сварки</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>Визуальное узнавание</b><span>Назовите инструмент по настоящей фотографии</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Пространство Welding Mastery: уровень, XP, серия и энергия, задание дня по английскому для сварки и цель недели`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `Визуальное узнавание: настоящая фотография огнетушителя, указание автора и четыре названия на выбор`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> восемь игр на 250 профессиональных слов, с настоящими фото инструментов, заданием дня и значками навыков.`],
 ];

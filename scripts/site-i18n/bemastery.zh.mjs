@@ -487,8 +487,6 @@ export default [
    `<b>Speak Up 会听你说：</b>说一句话，看看哪些词被识别出来。发音评分由 AI 给出，并会注明。`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `登录即可开始游戏。免费：每个课程每天五轮挑战 — 答错从不消耗回合 — 外加无限复习和每日任务。Premium：无限回合、进阶情境以及 30 天和 90 天趋势。`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>游戏中心内部</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>每日任务和你的每周目标</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -511,4 +509,18 @@ export default [
    `<span>English Mastery：用你计划中的单词和短语玩八个游戏</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery：用 250 个行业词汇玩八个游戏，配有真实照片</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · 通用英语</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · 焊接英语</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>图像识别</b><span>根据真实照片说出工具名称</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Welding Mastery 中心：等级、XP、连续天数和能量、今日焊接英语挑战和每周目标`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `图像识别：一张灭火器的真实照片、照片署名，以及四个可选名称`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery：</b>用 250 个行业词汇玩八个游戏，配有工具的真实照片、每日挑战和技能徽章。`],
 ];

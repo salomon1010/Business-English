@@ -1,9 +1,9 @@
-/* lomonec.com/bemastery — the four "Play to learn" screenshots (10 Oct 2026).
+/* lomonec.com/bemastery — the six "Play to learn" screenshots (10 Oct 2026).
  *
  *   python3 -m http.server 8765        (from the repo root)
  *   node scripts/store-art/shoot-games.mjs
  *
- * Output: site/bemastery/img/games/{em-home,em-games,em-speak,wm-games}.webp,
+ * Output: site/bemastery/img/games/{em-home,em-games,em-speak,wm-home,wm-games,wm-visual}.webp,
  * 660x1434 like the site's other phone shots (330x717 CSS px at 2x), via cwebp.
  *
  * The screens are the app's own, drawn from index.html with the flags on. The
@@ -47,7 +47,7 @@ async function practise(p, ui, eng) {
     save(); U._refresh && await U._refresh();
   }, [ui, eng]);
 }
-async function shot(p, name) { await p.evaluate(() => document.querySelectorAll(".wm-cel").forEach(e => e.remove())); const png = path.join(OUT, name + ".png"); await p.screenshot({ path: png }); execFileSync("cwebp", ["-quiet", "-q", "82", png, "-o", path.join(OUT, name + ".webp")]); fs.unlinkSync(png); console.log("  " + name + ".webp"); }
+async function shot(p, name) { await p.evaluate(() => { document.querySelectorAll(".wm-cel").forEach(e => e.remove()); if (document.activeElement) document.activeElement.blur(); }); const png = path.join(OUT, name + ".png"); await p.screenshot({ path: png }); execFileSync("cwebp", ["-quiet", "-q", "82", png, "-o", path.join(OUT, name + ".webp")]); fs.unlinkSync(png); console.log("  " + name + ".webp"); }
 
 { /* English Mastery */
   const { ctx, p } = await page("general-english");
@@ -70,6 +70,11 @@ async function shot(p, name) { await p.evaluate(() => document.querySelectorAll(
   await p.evaluate(() => go("mastery", "games")); await sleep(900); await p.evaluate(() => WMUI._act("tab", "games")); await sleep(600);
   await p.evaluate(() => { const g = document.querySelector("#v-mastery .wm-games"); if (g) window.scrollTo(0, g.getBoundingClientRect().top + window.scrollY - 190); }); await sleep(400);
   await shot(p, "wm-games");
+  await p.evaluate(() => { WMUI._act("tab", "home"); window.scrollTo(0, 0); }); await sleep(500);
+  await shot(p, "wm-home");
+  /* Visual recognition: a real photograph (Wikimedia Commons, credited in the app) and four names */
+  await p.evaluate(() => WMUI._start("visual", { n: 6 })); await sleep(1400);
+  await shot(p, "wm-visual");
   await ctx.close();
 }
 await b.close();

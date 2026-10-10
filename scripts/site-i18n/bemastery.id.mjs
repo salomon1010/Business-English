@@ -487,8 +487,6 @@ export default [
    `<b>Speak Up mendengarkan Anda:</b> ucapkan sebuah kalimat dan lihat kata mana yang tertangkap. Skor pelafalan dibuat oleh AI, dan itu disebutkan.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `Masuk untuk bermain. Gratis: lima putaran tantangan per hari di setiap program — jawaban salah tidak pernah menghabiskan putaran — ditambah pengulangan tanpa batas dan misi harian. Premium: putaran tanpa batas, situasi lanjutan, dan tren 30 dan 90 hari.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>Di dalam ruang permainan</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>Misi harian dan target mingguan Anda</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -511,4 +509,18 @@ export default [
    `<span>English Mastery: delapan permainan dengan kata dan ungkapan dari rencana Anda</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: delapan permainan dengan 250 kata profesi, dengan foto asli</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · Bahasa Inggris umum</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · Bahasa Inggris pengelasan</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>Pengenalan visual</b><span>Sebutkan alatnya dari foto asli</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Ruang Welding Mastery: level, XP, rentetan dan energi, tantangan bahasa Inggris pengelasan hari ini dan target mingguan`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `Pengenalan visual: foto asli alat pemadam api, kreditnya, dan empat nama untuk dipilih`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> delapan permainan dengan 250 kata profesi, foto asli peralatan, tantangan harian, dan lencana keterampilan.`],
 ];

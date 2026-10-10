@@ -487,8 +487,6 @@ export default [
    `<b>Speak Up lắng nghe bạn:</b> nói một câu và xem những từ nào được nhận ra. Điểm phát âm do AI chấm, và điều đó được ghi rõ.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `Đăng nhập để chơi. Miễn phí: năm vòng thử thách mỗi ngày trong mỗi chương trình — trả lời sai không bao giờ mất vòng — cùng ôn tập không giới hạn và nhiệm vụ hằng ngày. Premium: vòng không giới hạn, tình huống nâng cao và xu hướng 30 và 90 ngày.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>Bên trong khu trò chơi</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>Nhiệm vụ hằng ngày và mục tiêu tuần của bạn</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -511,4 +509,18 @@ export default [
    `<span>English Mastery: tám trò chơi với từ và cụm từ trong kế hoạch của bạn</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: tám trò chơi với 250 từ chuyên ngành, kèm ảnh thật</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · Tiếng Anh tổng quát</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · Tiếng Anh hàn</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>Nhận diện hình ảnh</b><span>Gọi tên dụng cụ từ ảnh thật</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Khu Welding Mastery: cấp độ, XP, chuỗi ngày và năng lượng, thử thách tiếng Anh ngành hàn hôm nay và mục tiêu tuần`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `Nhận diện hình ảnh: ảnh thật của một bình chữa cháy, ghi công tác giả, và bốn tên để chọn`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> tám trò chơi với 250 từ chuyên ngành, ảnh thật của dụng cụ, thử thách hằng ngày và huy hiệu kỹ năng.`],
 ];

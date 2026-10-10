@@ -493,8 +493,6 @@ export default [
    `<b>Speak Up آپ کو سنتا ہے:</b> ایک جملہ بولیں اور دیکھیں کون سے الفاظ پہنچے۔ تلفظ کا اسکور AI دیتا ہے، اور یہ بتایا جاتا ہے۔`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `کھیلنے کے لیے سائن اِن کریں۔ مفت: ہر پروگرام میں روزانہ پانچ چیلنج راؤنڈ — غلط جواب کبھی راؤنڈ نہیں لیتا — ساتھ میں لامحدود دہرائی اور روزانہ مشن۔ Premium: لامحدود راؤنڈ، اعلیٰ سطح کی صورتِ حال اور 30 اور 90 دن کے رجحانات۔`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>گیمز کی جگہوں کے اندر</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>روزانہ مشن اور آپ کا ہفتہ وار ہدف</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -517,4 +515,18 @@ export default [
    `<span>English Mastery: آپ کے منصوبے کے الفاظ اور فقروں پر آٹھ گیمز</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: پیشے کے 250 الفاظ پر آٹھ گیمز، اصلی تصاویر کے ساتھ</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · عام انگریزی</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · ویلڈنگ کی انگریزی</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>بصری پہچان</b><span>اصلی تصویر سے اوزار کا نام بتائیں</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Welding Mastery کی جگہ: لیول، XP، سلسلہ اور توانائی، آج کا ویلڈنگ انگریزی چیلنج اور ہفتہ وار ہدف`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `بصری پہچان: آگ بجھانے والے آلے کی اصلی تصویر، اس کا کریڈٹ، اور چننے کے لیے چار نام`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> پیشے کے 250 الفاظ پر آٹھ گیمز، اوزاروں کی اصلی تصاویر، روزانہ چیلنج اور مہارت کے بیج۔`],
 ];

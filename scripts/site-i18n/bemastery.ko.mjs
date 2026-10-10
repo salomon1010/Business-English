@@ -488,8 +488,6 @@ export default [
    `<b>Speak Up이 여러분의 말을 듣습니다:</b> 문장을 말하고 어떤 단어가 전달됐는지 확인하세요. 발음 점수는 AI가 매기며, 그 사실을 밝힙니다.`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `플레이하려면 로그인하세요. 무료: 프로그램마다 하루 5번의 도전 라운드 — 틀린 답은 절대 라운드를 소모하지 않습니다 — 그리고 무제한 복습과 오늘의 미션. Premium: 무제한 라운드, 고급 상황, 30일·90일 추세.`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>게임 허브 안에서</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>오늘의 미션과 주간 목표</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -512,4 +510,18 @@ export default [
    `<span>English Mastery: 계획 속 단어와 표현으로 하는 여덟 가지 게임</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery: 직무 단어 250개로 하는 여덟 가지 게임, 실제 사진 포함</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · 일반 영어</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · 용접 영어</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>시각 인식</b><span>실제 사진을 보고 공구 이름 맞히기</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Welding Mastery 허브: 레벨, XP, 연속 기록과 에너지, 오늘의 용접 영어 도전과 주간 목표`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `시각 인식: 소화기의 실제 사진과 사진 출처, 고를 수 있는 네 가지 이름`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> 직무 단어 250개로 하는 여덟 가지 게임, 공구의 실제 사진, 오늘의 도전, 기술 배지.`],
 ];

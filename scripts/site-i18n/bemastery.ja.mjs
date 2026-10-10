@@ -487,8 +487,6 @@ export default [
    `<b>Speak Upはあなたの声を聞きます：</b>文を声に出して、どの単語が伝わったかを確認できます。発音スコアはAIによるもので、そのことが明記されます。`],
   [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
    `プレイするにはサインインしてください。無料：各プログラムで1日5回のチャレンジ — 間違えても回数は減りません — に加えて、無制限の復習とデイリーミッション。Premium：回数無制限、上級のシチュエーション、30日・90日のトレンド。`],
-  [`<h3 class="shots-h" data-reveal>Inside the game hubs</h3>`,
-   `<h3 class="shots-h" data-reveal>ゲームハブの中</h3>`],
   [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
    `<b>English Mastery</b><span>デイリーミッションと週間目標</span>`],
   [`<b>Eight games</b><span>Each one practises a different skill</span>`,
@@ -511,4 +509,18 @@ export default [
    `<span>English Mastery：プランの単語とフレーズで遊ぶ8つのゲーム</span>`],
   [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
    `<span>Welding Mastery：専門用語250語で遊ぶ8つのゲーム、実物写真つき</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · 一般英語</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · 溶接の英語</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>画像認識</b><span>実物の写真から工具の名前を答える</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Welding Masteryのハブ：レベル、XP、連続記録とエネルギー、今日の溶接英語チャレンジと週間目標`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `画像認識：消火器の実物写真とそのクレジット、4つの選択肢`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery：</b>専門用語250語の8つのゲーム。工具の実物写真、デイリーチャレンジ、スキルバッジつき。`],
 ];
