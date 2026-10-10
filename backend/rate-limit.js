@@ -71,6 +71,33 @@ export class RateLimiter {
       for (const n of body.peek) { const cur = have.get("b:" + n); counts[n] = cur && cur.resetAt > now ? (cur.count || 0) : 0; }
       return j({ ok: true, counts });
     }
+    /* RELEASE (10 Oct 2026, AI cost control — backend/ai-guard.js): give back
+       what a call consumed when the learner got nothing for it (a request
+       refused by validation after the allowance was charged, a provider
+       failure). Only a LIVE window is touched and a count never goes below
+       zero, so releasing twice, or after the window turned over, is harmless.
+       Same mutex as consume: a release and a consume can never interleave. */
+    if (body && Array.isArray(body.release)) {
+      if (!body.release.length || body.release.length > 8) return j({ error: "bad_request" }, 400);
+      for (const b of body.release) {
+        if (!b || typeof b.name !== "string" || !b.name || b.name.length > 64) return j({ error: "bad_request" }, 400);
+        if (b.cost !== undefined && (!Number.isFinite(b.cost) || b.cost < 1 || b.cost > 10_000_000)) return j({ error: "bad_request" }, 400);
+      }
+      const now = Number.isFinite(body.now) ? body.now : Date.now();
+      return await this.state.blockConcurrencyWhile(async () => {
+        const keys = body.release.map(b => "b:" + b.name);
+        const have = await this.state.storage.get(keys);
+        const put = {}, counts = {};
+        for (const b of body.release) {
+          const k = "b:" + b.name, cur = have.get(k);
+          if (!cur || !Number.isFinite(cur.resetAt) || cur.resetAt <= now) { counts[b.name] = 0; continue; }
+          const next = Math.max(0, (cur.count || 0) - (Number.isFinite(b.cost) ? b.cost : 1));
+          put[k] = { count: next, resetAt: cur.resetAt }; counts[b.name] = next;
+        }
+        if (Object.keys(put).length) await this.state.storage.put(put);
+        return j({ ok: true, counts });
+      });
+    }
     const buckets = Array.isArray(body && body.buckets) ? body.buckets : null;
     if (!buckets || !buckets.length || buckets.length > 8) return j({ error: "bad_request" }, 400);
     for (const b of buckets) {
@@ -181,6 +208,19 @@ export async function consume(env, subject, buckets) {
   }
 }
 
+/* release(env, subject, [{ name, cost? }]) -> { ok, degraded? }: give back what a
+   consume took (see the object's RELEASE). Never throws; an outage leaves the
+   unit spent, which is the conservative direction for a cost ceiling. */
+export async function release(env, subject, buckets) {
+  const ns = env && env.RATE_LIMITER;
+  if (!ns) return memRelease(subject, buckets);
+  try {
+    const stub = ns.get(ns.idFromName(subject));
+    const r = await stub.fetch("https://rate-limit.invalid/release", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ release: buckets }) });
+    return { ok: r.ok };
+  } catch (e) { return { ok: false, degraded: true }; }
+}
+
 /* peek(env, subject, names) -> { ok, counts, degraded? }: where buckets stand, nothing written */
 export async function peek(env, subject, names) {
   const ns = env && env.RATE_LIMITER;
@@ -213,6 +253,14 @@ export function memConsume(subject, buckets, now = Date.now()) {
   for (const [k, v] of recs) { m.set(k, v); counts[k] = v.count; }
   if (mem.size > 5000) mem.clear();      // crude memory guard, as before
   return { ok: true, degraded: true, counts };
+}
+export function memRelease(subject, buckets, now = Date.now()) {
+  const m = mem.get(subject);
+  for (const b of buckets) {
+    const cur = m && m.get(b.name);
+    if (cur && cur.resetAt > now) cur.count = Math.max(0, cur.count - (Number.isFinite(b.cost) ? b.cost : 1));
+  }
+  return { ok: true, degraded: true };
 }
 export function memPeek(subject, names, now = Date.now()) {
   const m = mem.get(subject), counts = {};

@@ -24755,7 +24755,10 @@ function aiAllowTap(res){
   try{
     const h=res.headers.get("x-be-allowance");if(h)allowWrite(AI_ALLOW_KEY,JSON.parse(h));
     const v=res.headers.get("x-be-video-allowance");if(v)allowWrite(YT_ALLOW_KEY,JSON.parse(v));
-    if(res.status===429)res.clone().json().then(j=>{if(j&&j.error==="allowance")allowWrite(j.scope==="video"?YT_ALLOW_KEY:AI_ALLOW_KEY,{used:j.limit,limit:j.limit,resetAt:j.resetAt,plan:j.plan,trial:j.trial===true})}).catch(()=>{});
+    /* scope "anon" (backend/ai-guard.js, only under ANON_AI_POLICY=enforce): the visitor's
+       allowance for today is spent — not a Free account's. Remembered until its reset so
+       aiNoAccount() routes every AI call site to the sign-in note it already shows. */
+    if(res.status===429)res.clone().json().then(j=>{if(!j||j.error!=="allowance")return;if(j.scope==="anon"){try{sessionStorage.setItem("be_ai_anon_out",String(+j.resetAt||Date.now()+3600000))}catch(e){}return}allowWrite(j.scope==="video"?YT_ALLOW_KEY:AI_ALLOW_KEY,{used:j.limit,limit:j.limit,resetAt:j.resetAt,plan:j.plan,trial:j.trial===true})}).catch(()=>{});
   }catch(e){}
   return res;
 }
@@ -24787,7 +24790,10 @@ window.aiAllowance=aiAllowance;window.aiAllowOut=aiAllowOut;window.aiAllowNote=a
    takes the path the app already takes offline — a tested path — and aiOffNote
    says which of the three reasons it is. planOn() keeps this inert in production
    today, where Premium is not on sale and nothing is enforced. */
-function aiNoAccount(){try{return planOn()&&!entUid()&&!fbAuthPending()}catch(e){return false}}
+/* …or the server said the anonymous allowance is spent (aiAllowTap, scope "anon") — until
+   its reset, and never once the learner is signed in */
+function aiAnonOut(){try{if(entUid())return false;const u=+sessionStorage.getItem("be_ai_anon_out")||0;return u>Date.now()}catch(e){return false}}
+function aiNoAccount(){try{return (planOn()&&!entUid()&&!fbAuthPending())||aiAnonOut()}catch(e){return false}}
 /* J1: `ytai` — AI transcription of a pasted video — is the one route the Worker
    requires an account for whatever PREMIUM_ENFORCED says, because it is the one
    that spends real money per call. So this question carries NO planOn() term,

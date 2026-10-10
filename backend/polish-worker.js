@@ -191,6 +191,10 @@ import { wmHandle } from "./wm-game.js";
    Needed because of J1 below: `ytai` must demand an account even where
    PREMIUM_ENFORCED is off and there is no entitlement service to ask. */
 import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
+/* AI cost control (10 Oct 2026): the anonymous policy, refunds on error, one
+   identical metered request in flight, provider timeouts + usage, and the
+   ledger. See ai-guard.js and docs/AI-COST-CONTROL.md. */
+import { newCtx, withCtx, routeOf, declaredTrack, measure, pfetch, anonGate, inflightGate, settle, noteCharge } from "./ai-guard.js";
 /* a DO class must be exported from the Worker's entry module for the binding
    in wrangler.toml to resolve to it */
 export { RateLimiter };
@@ -417,6 +421,11 @@ async function verdictAllowance(a, env, cors) {
   const name = "verdict:" + utcDay(now), resetAt = utcMidnightAfter(now);
   const r = await consume(env, "acct:" + id, [{ name, limit: limitN, windowMs: 86_400_000 }]);
   if (!r.ok) return allowanceRefused(cors, "verdicts", limitN, resetAt, plan, now);
+  /* spent before validation and the provider: given back if the request ends
+     in an error (ai-guard settle), so a 400, a 413 or a provider failure costs
+     the learner nothing */
+  noteCharge(env, "acct:" + id, name, 1, "verdict");
+  if (env.__rc) env.__rc.state = plan;
   const used = Math.min(limitN, Number((r.counts && r.counts[name]) || 0) || 0);
   allowanceHeader(cors, "X-BE-Allowance", { used, limit: limitN, resetAt, plan });
   return null;
@@ -618,6 +627,8 @@ const ACCT_PER_MIN = 30, ACCT_PER_DAY = 600;
 async function perAccount(a, env, cors) {
   const id = a.uid ? "u:" + a.uid : (a.key ? "t:" + a.key : null);
   if (!id) return null;
+  /* who the ledger row is about (ai-guard): the plan be-entitlements answered */
+  if (env.__rc) { if (!env.__rc.state) env.__rc.state = a.premium ? "premium" : "free"; if (a.uid) env.__rc.uid = a.uid; }
   return await limit(env, "acct:" + id, "acct", ACCT_PER_MIN, ACCT_PER_DAY, cors);
 }
 
@@ -642,7 +653,7 @@ function ttsInstructions(style) {
 }
 
 async function callTTS(env, text, voice, style) {
-  return fetch("https://api.openai.com/v1/audio/speech", {
+  return pfetch(env, { provider: "openai", model: TTS_MODEL, timeoutMs: 30_000 }, "https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
     body: JSON.stringify({
@@ -672,7 +683,7 @@ async function callTranscribe(env, bytes, mime, keepFillers) {
     : mime.includes("mpeg") || mime.includes("mp3") ? "mp3"
     : "webm";
   form.append("file", new File([bytes], "clip." + ext, { type: mime || "audio/webm" }));
-  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+  const r = await pfetch(env, { provider: "openai", model: STT_MODEL, timeoutMs: 90_000 }, "https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
     headers: { authorization: `Bearer ${env.OPENAI_KEY}` },  // fetch sets the multipart boundary itself
     body: form,
@@ -710,7 +721,7 @@ async function callAssess(env, target, audioB64, fmt) {
   });
   let j = null;
   for (const model of ASSESS_MODELS) {                 // use whichever audio model the account has
-    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    const r = await pfetch(env, { provider: "openai", model, timeoutMs: 60_000 }, "https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
       body: payload(model),
@@ -780,7 +791,7 @@ async function callAI(env, sentence, avoid) {
     "with exactly 3 items.";
   const user = `Sentence: "${sentence}"\nAvoid (do not repeat): ${avoid.length ? avoid.join(" | ") : "none"}`;
 
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: "gpt-4o-mini", timeoutMs: 30_000 }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
     body: JSON.stringify({
@@ -835,7 +846,7 @@ async function geminiCaptions(env, vid, win) {
      stray newline or space silently breaks a URL parameter (that is a 401 with
      no explanation), and Google documents the header as the supported form */
   const key = String(env.GEMINI_KEY || "").trim();
-  const r = await fetch(
+  const r = await pfetch(env, { provider: "google", model: GEMINI_MODEL, timeoutMs: 300_000 },
     "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent",
     { method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
@@ -855,13 +866,17 @@ async function geminiCaptions(env, vid, win) {
     let detail = ""; try { detail = JSON.stringify(await r.json()).slice(0, 200) } catch {}
     /* 401/403 is our key, not the learner's video. The fingerprint is the first
        8 hex of SHA-256 — enough to tell whether the secret is the key you meant
-       to store, and useless to anyone who sees it. */
-    let fp = "";
-    try {
-      const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
-      fp = [...new Uint8Array(h)].slice(0, 4).map(b => b.toString(16).padStart(2, "0")).join("");
-    } catch {}
-    return { error: "gemini_" + r.status, detail, keyLen: key.length, keyFp: fp };
+       to store. It goes to the Worker's own log (wrangler tail), no longer to
+       the caller (10 Oct 2026, AI cost audit): anything about the key, however
+       little, has no business in a response any client can read. */
+    if (r.status === 401 || r.status === 403) {
+      try {
+        const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
+        const fp = [...new Uint8Array(h)].slice(0, 4).map(b => b.toString(16).padStart(2, "0")).join("");
+        console.log(JSON.stringify({ gemini_key_rejected: r.status, keyLen: key.length, keyFp: fp }));
+      } catch {}
+    }
+    return { error: "gemini_" + r.status, detail };
   }
   const j = await r.json();
   const txt = j?.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -1077,7 +1092,7 @@ async function callAnalyse(env, transcript, metrics, lang, ctx) {
     (lang === "en" ? "Everything else is in English too. " :
       "EVERY OTHER FIELD (what the learner READS to understand — level_note, structure, structure_note, answer_directly, evidence, credibility, remember_title, remember_body, next_recording, quick_win_title, quick_win_goal, concept_title, concept_body, every corrections[].why and corrections[].kind, every sentences[].pattern_use, every words[].meaning, every collocations[].why, every idioms[].meaning and idioms[].when, and every versions[].style) MUST be written in " + language + ". Not English. A learner who reads " + language + " is reading these to understand the English ones. ");
   const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics) + (ctx ? "\n\nContext:\n" + JSON.stringify(ctx) : "");
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: AN_MODEL, timeoutMs: 90_000 }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
@@ -1174,7 +1189,7 @@ async function callRepolish(env, transcript, avoid, lang, n, ctx) {
     (lang === "en" ? "So is everything else. " :
       "version.style, and every meaning and when, are what the learner READS to understand, so they MUST be written in " + language + " — not English.");
   const user = "Transcript:\n" + transcript + "\n\nAlready shown, do not repeat:\n" + (avoid.join("\n---\n") || "(nothing yet)");
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: AN_MODEL, timeoutMs: 60_000 }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
@@ -1197,7 +1212,7 @@ async function callRepolish(env, transcript, avoid, lang, n, ctx) {
 }
 
 async function callChat(env, system, messages) {
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: CHAT_MODEL, timeoutMs: 45_000 }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
@@ -1271,7 +1286,7 @@ export function shapeMvReport(raw) {
 }
 
 async function callMvReport(env, system, said) {
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: CHAT_MODEL, timeoutMs: 60_000 }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
@@ -1340,7 +1355,7 @@ export function replyWalker(emit) {
    Anything that goes wrong mid-stream ends with {"error":…}; the client then
    falls back to what it already has. */
 async function streamChat(env, system, messages, cors) {
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+  const r = await pfetch(env, { provider: "openai", model: CHAT_MODEL, timeoutMs: 30_000, stream: true }, "https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
@@ -1377,8 +1392,25 @@ async function streamChat(env, system, messages, cors) {
   return new Response(readable, { status: 200, headers: { "content-type": "application/x-ndjson", "cache-control": "no-store", ...cors } });
 }
 
+/* The request wrapper (10 Oct 2026, AI cost control). Every request gets its
+   own context (ai-guard newCtx) on a per-request copy of env, so the provider
+   calls, the quota it spent and the anonymous policy can be settled AFTER the
+   response is known: quota back on an error, the in-flight lock freed, one
+   ledger row written. Nothing here changes what a route answers. */
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    const rc = newCtx(request), e = withCtx(env, rc);
+    let res;
+    try { res = await handle(request, e); }
+    catch (err) { res = json({ error: "internal" }, 500, corsHeaders(request.headers.get("Origin") || "")); }
+    const done = settle(e, res.status).catch(() => {});
+    if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(done); else await done;
+    return res;
+  },
+};
+
+async function handle(request, env) {
+  {
     const origin = request.headers.get("Origin") || "";
     const cors = corsHeaders(origin);
 
@@ -1387,13 +1419,21 @@ export default {
     if (!cors["Access-Control-Allow-Origin"]) return new Response("Forbidden", { status: 403 });
 
     const ip = request.headers.get("CF-Connecting-IP") || "0";
+    const rc = env.__rc || null;
+    if (rc) rc.ip = ip;
+    /* the anonymous policy (ai-guard) runs only where an account is NOT already
+       demanded: with PREMIUM_ENFORCED on, premiumGate refuses visitors itself */
+    const anon = () => premiumOn(env) ? null : anonGate(request, env, cors, { verify: verifyIdToken }, json);
 
     // ---- Transcribe path: raw audio in → per-word timings out ----
     const ctype = request.headers.get("content-type") || "";
     if (ctype.startsWith("audio/")) {
       { const l = await limit(env, "ip:" + ip, "stt", STT_PER_MIN, STT_PER_DAY, cors); if (l) return l; }
+      if (rc) { rc.route = "transcribe"; rc.m = measure("transcribe", null, +(request.headers.get("content-length") || 0)); }
+      { const g = await anon(); if (g) return g; }
       { const g = await premiumGate(request, env, "transcribe", cors); if (g) return g; }
       const bytes = await request.arrayBuffer();
+      if (rc) rc.m = measure("transcribe", null, bytes.byteLength);
       if (!bytes.byteLength) return json({ error: "empty" }, 400, cors);
       if (bytes.byteLength > MAX_STT_BYTES) return json({ error: "too_large" }, 413, cors);
       try {
@@ -1405,7 +1445,13 @@ export default {
       }
     }
 
-    let body; try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400, cors); }
+    let raw = "", body;
+    try { raw = await request.text(); body = JSON.parse(raw); } catch { return json({ error: "bad_request" }, 400, cors); }
+    if (!body || typeof body !== "object") return json({ error: "bad_request" }, 400, cors);
+    if (rc) { rc.route = routeOf(ctype, body); rc.m = measure(rc.route, body, 0); rc.track = declaredTrack(body); }
+    { const g = await anon(); if (g) return g; }
+    /* one identical metered request in flight per caller (AI_DEDUPE=1) */
+    { const d = await inflightGate(request, env, cors, raw, json); if (d) return d; }
 
     // ---- Welding Mastery: energy, XP and the Premium pack, all decided here (wm-game.js) ----
     if (body.wm && typeof body.wm === "object") {
@@ -1494,6 +1540,7 @@ export default {
          enforcement-on mode, which is what put the verification FIRST. */
       const vid = body.ytai.trim(), win = ytaiWindow(body);
       if (win === false) return json({ error: "bad_window" }, 400, cors);
+      if (rc) { rc.m = { ...(rc.m || {}), videoSec: ytaiCostSec(win) }; if (acct.tier === "anon") rc.state = "visitor"; else if (!rc.state) rc.state = acct.tier || "free"; }
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
       /* a kept answer is free: served before the brake, which counts only calls that cost */
       try { const hit = cache && await cache.match(key); if (hit) return json({ ...(await hit.json()), cached: true }, 200, cors); } catch {}
@@ -1518,6 +1565,7 @@ export default {
       if (tier === "anon") {
         const l = await limit2(env, "global:ytai-anon", "anonpool", ytaiAnonPoolSec(env), 86_400_000, ytaiCostSec(win), cors);
         if (l) return l;
+        noteCharge(env, "global:ytai-anon", "anonpool:day", ytaiCostSec(win));   // a Gemini failure gives the seconds back
       }
       /* AND against the ACCOUNT, not only the IP. This is the one free route
          with a real per-call cost (~$0.08 for 15 minutes of video), and a
@@ -1558,6 +1606,7 @@ export default {
             if (trial) return json({ error: "allowance", scope: "video", limit: budget, plan: "free", trial: true }, 429, { ...cors, "Access-Control-Expose-Headers": "X-BE-Allowance, X-BE-Video-Allowance, Retry-After" });
             return allowanceRefused(cors, "video", budget, resetAt, prem ? "premium" : "free", now);
           }
+          noteCharge(env, a, name, cost);   // the trial / day budget comes back if Gemini fails
           const used = Math.min(budget, Number((r.counts && r.counts[name]) || 0) || 0);
           allowanceHeader(cors, "X-BE-Video-Allowance", trial ? { used, limit: budget, plan: "free", trial: true }
                                                               : { used, limit: budget, resetAt, plan: prem ? "premium" : "free" });
@@ -1659,8 +1708,8 @@ export default {
     } catch (e) {
       return json({ error: "ai_unavailable", detail: String(e.message || e) }, 502, cors);
     }
-  },
-};
+  }
+}
 
 function json(obj, status, cors) {
   return new Response(JSON.stringify(obj), {
