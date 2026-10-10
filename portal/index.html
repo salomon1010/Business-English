@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lomonec apps</title>
+<meta name="description" content="The apps made by Lomonec. Open BE Mastery, the English speaking practice app: 25 minutes a day, General English and Welding Professional English.">
+<link rel="canonical" href="https://app.lomonec.com/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#2a1a5e">
+<script>
+/* LEGACY LAUNCHES (docs/PORTAL.md). Until this portal took the root,
+   app.lomonec.com/ WAS BE Mastery. Whatever still opens the root as the app —
+   the Play app (a Trusted Web Activity whose start URL is "/"), an installed
+   home-screen app, a notification or widget link (?wid= ?widget= ?nudge=
+   ?flags=, or a #view), a learner whose progress already lives on this origin —
+   is sent on to /bemastery/ with its query and hash. The destination path is
+   fixed, so nothing in the address can send anyone off this site.
+   ?portal=1 always shows the portal. */
+(function(){
+  try{
+    var q=location.search||"",h=location.hash||"";
+    if(/[?&]portal=1(&|$)/.test(q))return;
+    var go=false;
+    if(/^android-app:\/\//.test(document.referrer||""))go=true;
+    try{if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)go=true}catch(e){}
+    if(/[?&](wid|widget|nudge|flags)=/.test(q))go=true;
+    if(/^#\/?[a-z]/i.test(h))go=true;
+    try{var s=JSON.parse(localStorage.getItem("be12_v1")||"null");if(s&&s.profile)go=true}catch(e){}
+    if(go)location.replace("/bemastery/"+q+h);
+  }catch(e){}
+})();
+</script>
+<style>
+/* Colours are the company site's (site/assets/lomonec.css): navy, indigo, lavender */
+:root{--navy:#2a1a5e;--indigo:#4530df;--lav:#a08cff;--bg:#fff;--card:#fff;--tint:#f4f2fd;--line:#e2ddf6;--text:#1f2033;--muted:#5d6077;
+  --hero:linear-gradient(120deg,#2a1a5e 0%,#33228a 55%,#4530df 100%)}
+@media (prefers-color-scheme:dark){:root{--bg:#120c2c;--card:#1b1440;--tint:#1b1440;--line:#33296b;--text:#ece9fb;--muted:#b3acd6;--indigo:#a08cff}}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+a{color:var(--indigo)}
+:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 max(22px,env(safe-area-inset-left))}
+.skip{position:absolute;left:-999px;top:8px;background:#fff;padding:8px 14px;border-radius:8px;z-index:10}
+.skip:focus{left:8px}
+header{background:var(--hero);color:#fff;padding:max(22px,env(safe-area-inset-top)) 0 56px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:inline-flex;flex-wrap:wrap;width:max-content;font-weight:900;font-size:24px;letter-spacing:.02em;color:#fff;text-decoration:none;line-height:1}
+.logo span:not(.logo-bar){color:var(--lav)}
+.logo-bar{flex-basis:100%;max-width:2.3em;height:4px;background:var(--lav);margin-bottom:4px}
+.bar a.site{color:#fff;font-size:15px;opacity:.9;min-height:44px;display:inline-flex;align-items:center}
+h1{font-size:clamp(30px,6vw,46px);line-height:1.15;margin:44px 0 12px;letter-spacing:-.5px}
+.lead{font-size:clamp(17px,2.4vw,19px);max-width:620px;margin:0;opacity:.92}
+main{padding:40px 0 56px}
+h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.app{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(42,26,94,.08)}
+.app-top{display:flex;gap:14px;align-items:center}
+.app-top img{width:60px;height:60px;border-radius:16px;flex:0 0 auto}
+.app h3{margin:0;font-size:21px;line-height:1.2}
+.tag{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.app p.desc{margin:0;font-size:15.5px}
+.app ul{margin:0;padding-left:20px;font-size:15px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:12px;font-weight:700;font-size:15.5px;text-decoration:none}
+.btn-p{background:var(--indigo);color:#fff}
+@media (prefers-color-scheme:dark){.btn-p{color:#120c2c}}
+.btn-s{border:1px solid var(--line);color:var(--text)}
+.note{margin:28px 0 0;font-size:15px;color:var(--muted);max-width:640px}
+footer{border-top:1px solid var(--line);padding:22px 0 max(22px,env(safe-area-inset-bottom));font-size:14px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+footer a{min-height:44px;display:inline-flex;align-items:center}
+</style>
+</head>
+<body>
+<a class="skip" href="#apps">Skip to the apps</a>
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <a class="logo" href="./" aria-label="Lomonec"><span class="logo-bar" aria-hidden="true"></span>LOMON<span>EC</span></a>
+      <a class="site" href="https://lomonec.com/">lomonec.com</a>
+    </div>
+    <h1>Lomonec apps</h1>
+    <p class="lead">Apps made by Lomonec. Choose one to open it. Each app has its own account and its own plans.</p>
+  </div>
+</header>
+<main id="apps">
+  <div class="wrap">
+    <h2>Available now</h2>
+    <!-- One card per app. Add a card only for an app that is live at its own
+         path (e.g. /otherapp/) — see docs/PORTAL.md, "Adding an app". -->
+    <div class="apps">
+      <article class="app" aria-labelledby="app-be">
+        <div class="app-top">
+          <img src="/bemastery/logo.svg" alt="" width="60" height="60">
+          <div><h3 id="app-be">BE Mastery</h3><p class="tag">English speaking practice</p></div>
+        </div>
+        <p class="desc">25 focused minutes a day to speak professional English with confidence: a 12-week plan, shadowing and feedback on what you said.</p>
+        <ul>
+          <li>General English — meetings, presentations, calls and interviews</li>
+          <li>Welding Professional English — the workshop, the site and the trade</li>
+        </ul>
+        <div class="actions">
+          <a class="btn btn-p" href="/bemastery/">Open BE Mastery</a>
+          <a class="btn btn-s" href="https://play.google.com/store/apps/details?id=com.bemastery.app" rel="noopener">Google Play</a>
+        </div>
+      </article>
+    </div>
+    <p class="note">Signed in to BE Mastery in the Android app? Sign in on the web with the same account and your synced progress is there.</p>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© Lomonec LLC</span>
+    <span><a href="https://lomonec.com/">Company site</a> · <a href="/privacy.html">BE Mastery privacy</a> · <a href="mailto:contact@lomonec.com">contact@lomonec.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

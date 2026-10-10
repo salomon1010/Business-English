@@ -67,3 +67,6 @@ backend/push/.dev.vars
 
 backend/mail/.dev.vars
 scripts/welding-photos/out/
+
+# the assembled portal site (scripts/portal/build-site.mjs) — a build artefact
+_site/
