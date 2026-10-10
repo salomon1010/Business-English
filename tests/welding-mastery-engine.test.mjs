@@ -277,8 +277,10 @@ console.log("\n# photographs — real, licensed, credited");
   const cr = JSON.parse(fs.readFileSync(ROOT + "tracks/welding/photos/credits.json", "utf8"));
   const ok1 = Object.entries(cr);
   ok("PH1 · at least 30 real photographs, each a corpus term with its file on disk", ok1.length >= 30 && ok1.every(([id, c]) => ids.includes(id) && fs.existsSync(ROOT + "tracks/welding/photos/" + c.file)), ok1.length);
-  ok("PH2 · every licence is reusable (CC0 / public domain / CC BY / CC BY-SA) — never NC, ND or unknown", ok1.every(([, c]) => /^(CC0|Public domain|CC BY(-SA)? [0-9.]+( [a-z]{2})?)$/.test(c.license) && !/NC|ND/.test(c.license)), ok1.map(([k, c]) => k + ":" + c.license).filter(x => !/CC0|Public domain|CC BY/.test(x)));
-  ok("PH3 · every photo names its author and links its Commons page", ok1.every(([, c]) => c.author && c.author !== "Unknown" && /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/.test(c.source)));
+  const ill = ok1.filter(([, c]) => c.kind === "illustration"), ph = ok1.filter(([, c]) => c.kind !== "illustration");
+  ok("PH5 · our own illustrations (10 Oct 2026) are Lomonec LLC's, say so, and never pose as a photograph", ill.length >= 13 && ill.every(([, c]) => c.author === "Lomonec LLC" && c.license === "Illustration" && !c.source));
+  ok("PH2 · every licence is reusable (CC0 / public domain / CC BY / CC BY-SA) — never NC, ND or unknown", ph.every(([, c]) => /^(CC0|Public domain|CC BY(-SA)? [0-9.]+( [a-z]{2})?)$/.test(c.license) && !/NC|ND/.test(c.license)), ph.map(([k, c]) => k + ":" + c.license).filter(x => !/CC0|Public domain|CC BY/.test(x)));
+  ok("PH3 · every photo names its author and links its Commons page", ph.every(([, c]) => c.author && c.author !== "Unknown" && /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/.test(c.source)));
   ok("PH4 · photos are small enough for a phone (each ≤ 160 KB)", ok1.every(([, c]) => fs.statSync(ROOT + "tracks/welding/photos/" + c.file).size <= 160 * 1024));
 }
 

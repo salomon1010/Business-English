@@ -24,7 +24,7 @@
   "use strict";
   const E = window.WMEngine;
   const AREA = "welding", TOTAL = 250;
-  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=2", PHOTO_DIR = "tracks/welding/photos/", ART3D_URL = "tracks/welding/mastery-art3d.json?v=1";
+  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=3", PHOTO_DIR = "tracks/welding/photos/", ART3D_URL = "tracks/welding/mastery-art3d.json?v=1";
   let C = null, ART = null, PHOTOS = {}, ART3D = {}, _load = null, _err = false;
   let _tab = "home", _coll = { q: "", cat: "all", seg: "all" }, _edit = null, _G = null;
 
@@ -99,7 +99,7 @@
       ok: "Correct", no: "Not quite", the_answer: "The answer: {{w}}", combo: "{{n}} in a row",
       q_en2fr: "What is the French for this word?", q_fr2en: "What is the English for this word?", q_def: "Which word matches this definition?", q_use: "Which item or word is this about?", q_ctx: "Which word fits this situation?", q_img: "What is this?",
       tr_show: "Voir en français", tr_hide: "Hide French",
-      v_alt: "A picture of an item used in welding. Which is it?", v_alt_after: "Picture of: {{w}}", ph_by: "Photo:",
+      v_alt: "A picture of an item used in welding. Which is it?", v_alt_after: "Picture of: {{w}}", ph_by: "Photo:", ph_ill: "Illustration:",
       l_prompt: "Listen and find the word.", l_type: "Listen and type the word.", l_synth: "Synthetic voice (text-to-speech).", l_hint: "Hint", l_hint_txt: "French: {{fr}} · starts with “{{c}}”", l_no_audio: "Audio is not available on this device, so this round cannot run. Try Cards or Word Builder instead.", l_type_ph: "Type what you heard",
       b_prompt: "Build the English word.", b_hint: "Show a letter", b_clear: "Clear", b_type_ph: "Or type it", b_try: "Not yet — try again.",
       m_prompt: "Tap a word, then its partner.", m_en_fr: "English ↔ French", m_img: "Picture ↔ name", m_def: "Word ↔ definition", m_use: "Tool ↔ purpose", m_ctx: "Word ↔ situation", m_wrong: "Not a pair.",
@@ -200,7 +200,7 @@ au_h: "Sign in to play", au_b: "Your XP, energy, streak and badges are saved on 
       ok: "Bonne réponse", no: "Pas tout à fait", the_answer: "La réponse : {{w}}", combo: "{{n}} d'affilée",
       q_en2fr: "Comment dit-on ce mot en français ?", q_fr2en: "Comment dit-on ce mot en anglais ?", q_def: "Quel mot correspond à cette définition ?", q_use: "De quoi parle-t-on ?", q_ctx: "Quel mot convient à cette situation ?", q_img: "Qu'est-ce que c'est ?",
       tr_show: "Voir en français", tr_hide: "Masquer le français",
-      v_alt: "Image d'un élément utilisé en soudage. Lequel ?", v_alt_after: "Image : {{w}}", ph_by: "Photo :",
+      v_alt: "Image d'un élément utilisé en soudage. Lequel ?", v_alt_after: "Image : {{w}}", ph_by: "Photo :", ph_ill: "Illustration :",
       l_prompt: "Écoute et trouve le mot.", l_type: "Écoute et écris le mot.", l_synth: "Voix de synthèse.", l_hint: "Indice", l_hint_txt: "Français : {{fr}} · commence par « {{c}} »", l_no_audio: "L'audio n'est pas disponible sur cet appareil, cette série ne peut pas tourner. Essaie les Cartes ou Écris le mot.", l_type_ph: "Écris ce que tu entends",
       b_prompt: "Construis le mot anglais.", b_hint: "Montrer une lettre", b_clear: "Effacer", b_type_ph: "Ou tape-le", b_try: "Pas encore — réessaie.",
       m_prompt: "Touche un mot, puis son partenaire.", m_en_fr: "Anglais ↔ français", m_img: "Image ↔ nom", m_def: "Mot ↔ définition", m_use: "Outil ↔ usage", m_ctx: "Mot ↔ situation", m_wrong: "Ce n'est pas une paire.",
@@ -324,6 +324,8 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
   /* the picture of a term: its photograph when there is one (with the credit the licence asks
      for), else the original drawing. `credit` false inside buttons (no link inside a button). */
   function photoCredit(ph, link) {
+    /* our own picture-style illustrations (10 Oct 2026) for the terms Commons has no clear photo of: said so, never passed off as a photograph */
+    if (ph.kind === "illustration") return h(`${w("ph_ill")} ${ph.author}`);
     const txt = `${w("ph_by")} ${ph.author} · ${ph.license}`;
     return link && /^https:\/\/commons\.wikimedia\.org\//.test(ph.source || "") ? `<a href="${h(ph.source)}" target="_blank" rel="noopener">${h(txt)}</a>` : h(txt);
   }
