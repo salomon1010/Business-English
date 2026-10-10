@@ -387,7 +387,7 @@
       <h3 class="sc-skill">${h(skillLbl(o))}</h3>
       <h4 class="sc-h4">${h(w("why_h"))}</h4>
       <ul class="sc-ev">${(o.evidence || []).map(e => `<li>${h(evText(e))}</li>`).join("")}</ul>
-      ${a.lesson && !a.sufficient ? `<p class="sc-mut">${h(w("lesson_alt", { w: a.lesson.w, d: a.lesson.d }))} <button class="sc-link" data-sc="lesson">${h(w("lesson_go"))} →</button></p>` : ""}
+      ${a.lesson && !a.sufficient ? `<p class="sc-mut">${h(w("lesson_alt", { w: a.lesson.w, d: lessonDay(a.lesson.d) }))} <button class="sc-link" data-sc="lesson">${h(w("lesson_go"))} →</button></p>` : ""}
     </section>
     ${p ? planCard(p, true) : ""}
     <div class="sc-actions">
@@ -433,6 +433,8 @@
   /* ---- the schedule editor: new plan, move sessions, restart ---- */
   const WD = [1, 2, 3, 4, 5, 6, 0];
   function wdName(d) { try { return new Intl.DateTimeFormat(lang() === "fr" ? "fr-FR" : "en-GB", { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 4 + d))); } catch (e) { return String(d); } }
+  /* the curriculum names its days "Mon"…"Sat": shown in the learner's language */
+  function lessonDay(d) { const i = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(d); return i < 0 ? d : wdName(i); }
   function editHTML() {
     const d = V.draft; if (!d) return "";
     const errs = draftErrors(d), K = E.KINDS[d.kind], locked = s => s.done;
