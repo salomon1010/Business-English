@@ -455,3 +455,16 @@ html.wm-still .wm-game-card:hover .wm-gc-ic.a3 { transform: none; }
 
 /* breathing room (10 Oct 2026): a caption line between cards (Rewards) never touches them */
 .wm-body > p.wm-mut { margin: 10px 2px 12px; }
+
+/* compact portal (owner, 10 Oct 2026: "too big"): a small logo beside the title on every width,
+   no motto line, today's goal on ONE line, a shorter button — both hubs' portals */
+.wm-portal { padding: 14px 16px; gap: 14px; align-items: flex-start; flex-direction: row; margin: 4px 0 12px; }
+.wm-logo-p { width: 56px; height: 56px; }
+.wm-portal-t { gap: 3px; }
+.wm-portal-title { font-size: 17px; }
+.wm-portal-sub { font-size: 12.5px; line-height: 1.35; }
+.wm-portal-motto { display: none; }
+.wm-portal-prog { margin-top: 4px; }
+.wm-portal-shift { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.wm-portal-shift .wm-ic { vertical-align: -3px; margin-right: 4px; }
+.wm-portal-cta { margin-top: 6px; min-height: 40px; padding: 8px 14px; font-size: 14px; align-self: flex-start; }
