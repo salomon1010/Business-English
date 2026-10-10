@@ -18213,6 +18213,16 @@ function widgetRecs(){
   _wgRecs={at:Date.now(),v:out};
   return out;
 }
+/* Android's half of the streak countdown (owner, 10 Oct 2026). The iPhone starts a Live
+   Activity itself (liveSync); the Play app cannot be called from the page, so the hub's
+   liveInfo rides in the widget snapshot and the app's BEStreakCountdown posts the
+   notification from it, at the right hour, even if the app is not opened that day. */
+function widgetLiveBlock(){
+  if(!flag("android_live_countdown_enabled"))return undefined;
+  const h=wmHub(),i=h&&h.liveInfo?h.liveInfo():null;
+  if(!i)return undefined;
+  return {prog:i.prog,title:String(i.title||""),line:String(i.line||""),doneLine:String(i.doneLine||""),streak:+i.streak||0,deadline:+i.deadline||0,done:!!i.done};
+}
 function widgetSnapshot(){
   const safe=(f,d)=>{try{const v=f();return v==null?d:v}catch(e){return d}};
   const str=(f,d)=>{const v=safe(f,d);return typeof v==="string"&&v.trim()?v.trim():d};
@@ -18239,6 +18249,9 @@ function widgetSnapshot(){
     recs:widgetRecs(),
     /* the Welding Mastery widget's block — Welding only, absent everywhere else */
     wm:safe(()=>pro&&window.WMUI&&WMUI.on()?WMUI.widgetData():undefined,undefined),
+    /* the game streak countdown (Android: the Play app posts it from this feed) — only
+       while a game hub is open for this learner; its own words, already translated */
+    live:safe(()=>widgetLiveBlock(),undefined),
     theme:document.documentElement.getAttribute("data-theme")==="light"?"light":"dark",
     area:pro?"pro":"ge",
     programme:key(pro?"area.name_pro":"area.name_gen",null,pro?"Welding English":"General English"),
@@ -18309,6 +18322,8 @@ function widgetFeedBoot(){
   if(window._wgLaunch==="words")setTimeout(()=>{try{go("practice");pracStudyDue()}catch(e){}},400);
   /* Android: a recommendation, or a locked widget's sign-in / Premium tap */
   if(window._wgLaunch==="rec"&&window._wgRec)setTimeout(()=>{try{widgetOpenRoute({rec:window._wgRec})}catch(e){}},500);
+  /* Android: a tap on the streak countdown → today's daily in the hub it came from */
+  if(window._wgLaunch==="daily")setTimeout(()=>{try{widgetOpenRoute({view:/^#?mastery/.test(location.hash)?"mastery":"english",act:"daily"})}catch(e){}},600);
   if(window._wgLaunch==="signin"||window._wgLaunch==="premium")setTimeout(()=>{try{widgetOpenRoute({act:window._wgLaunch})}catch(e){}},500);
 }
 /* A tap on the widget: the plugin has already reduced the URL to a known
@@ -22594,7 +22609,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v678";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v679";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24394,6 +24409,7 @@ const FLAGS_DEFAULT={
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
   ios_live_activity_enabled:false,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF
+  android_live_countdown_enabled:false,// the same countdown on Android: an ongoing notification the Play app posts from the widget feed (docs/ANDROID_LIVE_COUNTDOWN.md): staging ON, production OFF
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
@@ -24427,6 +24443,7 @@ const FLAGS_STAGING={
   social_signin_enabled:true,
   ios_push_enabled:true,
   ios_live_activity_enabled:true,      // the game streak countdown — staging only
+  android_live_countdown_enabled:true, // the Android streak countdown — staging only
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console

@@ -56,8 +56,6 @@ no card.
   French, and nothing outside the iOS app.
 - Swift `BEWidgetPluginTests`: the two new links.
 
-## Android (follow-up, not built)
+## Android
 
-The Play app wraps the website, so the countdown needs native code in the app shell: an ongoing
-notification with a counting-down chronometer, started from the widget feed. It is added through
-`playstore/android-widget/apply.mjs` like the widget, and needs a new AAB upload.
+Built the same day as an ongoing notification posted by the Play app: see `docs/ANDROID_LIVE_COUNTDOWN.md`.

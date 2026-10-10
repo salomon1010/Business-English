@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the streak countdown's console: deep space, a cool hairline on top -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="315" android:startColor="#FF070A1A" android:endColor="#FF0E1336" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+    <item android:bottom="0dp" android:left="18dp" android:right="18dp" android:gravity="top" android:height="1dp">
+        <shape android:shape="rectangle">
+            <gradient android:angle="0" android:startColor="#0022D3EE" android:centerColor="#CC22D3EE" android:endColor="#0022D3EE" />
+        </shape>
+    </item>
+</layer-list>

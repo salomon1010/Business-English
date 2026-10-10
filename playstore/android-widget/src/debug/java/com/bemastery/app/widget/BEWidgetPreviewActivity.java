@@ -20,6 +20,21 @@ public class BEWidgetPreviewActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /* the streak countdown: --es live ge|pro|safe posts a sample notification (70 min left) */
+        String live = getIntent().getStringExtra("live");
+        if (live != null) {
+            BEStreakCountdown.Live l = new BEStreakCountdown.Live();
+            boolean wld = "pro".equals(live);
+            l.prog = wld ? "welding" : "general-english";
+            l.title = wld ? "Welding Mastery" : "English Mastery";
+            l.streak = wld ? 12 : 4;
+            l.line = "Last chance! Keep your " + l.streak + "‑day streak.";
+            l.doneLine = "Done — your streak is safe.";
+            l.deadline = System.currentTimeMillis() + 70 * 60_000L;
+            BEStreakCountdown.post(this, l, System.currentTimeMillis(), "safe".equals(live));
+            finish();
+            return;
+        }
         String mood = getIntent().getStringExtra("mood");
         boolean light = getIntent().getBooleanExtra("light", false);
         boolean pro = getIntent().getBooleanExtra("pro", false);

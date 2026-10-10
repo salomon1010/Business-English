@@ -66,7 +66,7 @@ const MASTERY = `
         <!-- BE Mastery Welding Mastery widget -->`
   + receiver("BEWidgetMasteryProvider", "be_widget_name_mastery", "be_widget_info_mastery");
 
-const HOOKS = `
+const OLD_HOOKS = `
     /* BE Mastery home-screen widget (playstore/android-widget): the page
        publishes its snapshot shortly after a launch and when it is left, so
        the widget is asked to fetch a little after each. */
@@ -83,17 +83,68 @@ const HOOKS = `
     }
 `;
 
+/* the hooks since 10 Oct 2026: the widget refresh as before, plus the streak
+   countdown (BEStreakCountdown) — after a launch, on coming back, and a few seconds
+   after the learner leaves (the page publishes on hide) */
+const HOOKS = `
+    /* BE Mastery home-screen widget + streak countdown (playstore/android-widget):
+       the page publishes its snapshot shortly after a launch and when it is left,
+       so both are asked to fetch a little after each. */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        com.bemastery.app.widget.BEWidgetProvider.scheduleRefresh(this, 25000L);
+        com.bemastery.app.widget.BEStreakCountdown.schedule(this, 26000L);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        com.bemastery.app.widget.BEWidgetProvider.scheduleRefresh(this, 4000L);
+        com.bemastery.app.widget.BEStreakCountdown.schedule(this, 5000L);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        com.bemastery.app.widget.BEStreakCountdown.schedule(this, 8000L);
+    }
+`;
+
+/* the game streak countdown (10 Oct 2026): its receiver — its own alarms and a restart */
+const LIVE = `
+        <!-- BE Mastery streak countdown (BEStreakCountdown, docs/ANDROID_LIVE_COUNTDOWN.md) -->
+        <receiver
+            android:name=".widget.BEStreakReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bemastery.app.live.TICK" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+`;
+
 export function patchManifest(xml) {
   let out = xml;
   if (!/android\.permission\.INTERNET/.test(out)) out = out.replace(/(<manifest\b[^>]*>)/, `$1\n\n    <uses-permission android:name="android.permission.INTERNET" />\n`);
   if (!/\.widget\.BEWidgetProvider"/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECEIVER}    </application>`);
   if (!/BEWidgetRecsProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${RECS}    </application>`);
   if (!/BEWidgetMasteryProvider/.test(out)) out = out.replace(/\s*<\/application>/, `\n${MASTERY}    </application>`);
+  if (!/android\.permission\.RECEIVE_BOOT_COMPLETED/.test(out)) out = out.replace(/(<uses-permission android:name="android\.permission\.INTERNET" \/>)/, `$1\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`);
+  if (!/BEStreakReceiver/.test(out)) out = out.replace(/\s*<\/application>/, `\n${LIVE}    </application>`);
   return out;
 }
 
 export function patchLauncher(java) {
-  if (/BEWidgetLaunch\.decorate/.test(java)) return java;
+  if (/BEStreakCountdown/.test(java)) return java;
+  /* a project patched before the countdown existed: swap its hooks for the new ones */
+  if (/BEWidgetLaunch\.decorate/.test(java)) {
+    if (!java.includes(OLD_HOOKS)) throw new Error("LauncherActivity carries widget hooks this script did not write — refusing to patch");
+    return java.replace(OLD_HOOKS, HOOKS);
+  }
   let out = java.replace(/return uri;(\s*\n\s*})/, "return com.bemastery.app.widget.BEWidgetLaunch.decorate(this, uri);$1");
   if (!/BEWidgetLaunch\.decorate/.test(out)) throw new Error("LauncherActivity.getLaunchingUrl() does not look like Bubblewrap's — refusing to patch");
   out = out.replace(/\n}\s*$/, `\n${HOOKS}}\n`);

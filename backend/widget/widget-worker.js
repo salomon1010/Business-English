@@ -79,6 +79,13 @@ export function shapeSnap(s) {
       shift: obj(w.shift, x => clean({ t: str(x.t, 80), p: int(x.p, 0, 99), n: int(x.n, 0, 99), done: x.done === true })),
       labels: obj(w.labels, L => Object.fromEntries(Object.entries(L).slice(0, 12).filter(([k, v]) => /^[a-z]{1,16}$/.test(k) && typeof v === "string").map(([k, v]) => [k, str(v, 60)]))),
     })) : undefined,
+    /* the game streak countdown (10 Oct 2026, the Play app's BEStreakCountdown): which
+       hub, its own translated words, the streak, the end of the game day, done or not */
+    live: obj(s.live, x => {
+      const prog = x.prog === "welding" || x.prog === "general-english" ? x.prog : undefined;
+      return prog ? clean({ prog, title: str(x.title, 60), line: str(x.line, 120), doneLine: str(x.doneLine, 80),
+        streak: int(x.streak, 0, 9999), deadline: int(x.deadline, 0, 4e12), done: x.done === true }) : undefined;
+    }),
     labels: obj(s.labels, L => Object.fromEntries(Object.entries(L).slice(0, 24).filter(([k, v]) => /^[a-z]{1,16}$/.test(k) && typeof v === "string").map(([k, v]) => [k, str(v, 80)]))),
   });
   const json = JSON.stringify(out);

@@ -99,6 +99,14 @@ console.log("\n# limits, deletion, origins");
   ok("WM3 · a General English snapshot never carries the block", shapeSnap({ ...SNAP, area: "ge", wm }).wm === undefined);
 }
 
+{
+  const live = { prog: "general-english", title: "English Mastery", line: "Last chance! Keep your 4-day streak.", doneLine: "Done — your streak is safe.", streak: 4, deadline: 1792540800000, done: false, uid: "u1" };
+  const s = shapeSnap({ ...SNAP, live });
+  ok("LV1 · the streak countdown block passes: hub, words, streak, deadline — nothing extra", s.live && s.live.prog === "general-english" && s.live.streak === 4 && s.live.deadline === 1792540800000 && s.live.done === false && !s.live.uid, JSON.stringify(s.live));
+  ok("LV2 · an unknown hub drops the block", shapeSnap({ ...SNAP, live: { ...live, prog: "other" } }).live === undefined);
+  ok("LV3 · Welding keeps its own hub", shapeSnap({ ...SNAP, area: "pro", live: { ...live, prog: "welding" } }).live.prog === "welding");
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

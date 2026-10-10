@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The streak countdown's own English: only the notification channel's name in
+     Settings. Everything the learner reads on the card comes translated from the app. -->
+<resources>
+    <string name="be_streak_channel">Streak countdown</string>
+    <string name="be_streak_channel_desc">The last three hours to keep your game streak: a countdown to the end of the day.</string>
+</resources>

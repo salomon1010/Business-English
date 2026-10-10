@@ -41,6 +41,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
                 if (BEWidgetFeed.refresh(app)) drawEverything(app);
             } catch (Exception ignored) {
             } finally {
+                BEStreakCountdown.sync(app);   // the streak countdown reads the same snapshots
                 result.finish();
             }
         }).start();

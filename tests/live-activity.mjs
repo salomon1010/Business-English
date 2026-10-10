@@ -10,7 +10,7 @@ const b = await chromium.launch();
 async function open(tr, lang = "en", stub = true) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   await ctx.addInitScript(([tr, lang]) => { localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "A", lang, ts: 1 }, professionalTracks: { activeId: tr }, fnd: { [tr]: { placed: "full", finished: true } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, backupAsked: 1 })); localStorage.setItem("be_lang", lang);
-    localStorage.setItem("be_flags", JSON.stringify({ english_mastery_enabled: true, welding_mastery_enabled: true, ios_live_activity_enabled: true })); }, [tr, lang]);
+    localStorage.setItem("be_flags", JSON.stringify({ english_mastery_enabled: true, welding_mastery_enabled: true, ios_live_activity_enabled: true, android_live_countdown_enabled: true })); }, [tr, lang]);
   const view = { day: new Date().toISOString().slice(0, 10), plan: "free", energy: { used: 0, limit: 5 }, xp: { total: 0, today: 0 }, daily: { done: false } };
   await ctx.route(u => /be-polish/.test(u.href), r => { let body = {}; try { body = JSON.parse(r.request().postData() || "{}"); } catch (e) {} const w = body.wm || {};
     const done = w.op === "finish" && w.mode === "daily"; const v = { ...view, daily: { done } };
@@ -63,6 +63,10 @@ for (const [tr, view, ui, name] of [["general-english", "english", "EMUI", "Engl
   await ctx.close();
   const o = await open("general-english", "en", false);
   ok("L10 · outside the iOS app nothing is ever asked of the shell (no plugin, liveOn false, liveSync a no-op)", await o.p.evaluate(() => { try { liveSync(); return IS_IOS_APP === false && beLive() === null && liveOn() === false; } catch (e) { return String(e); } }));
+  /* Android (10 Oct 2026): the same facts ride in the widget snapshot for the Play app */
+  await o.p.evaluate(() => go("english", "home")); await sleep(1200);
+  const a = await o.p.evaluate(() => { const on = widgetSnapshot().live; const f = JSON.parse(localStorage.getItem("be_flags")); f.android_live_countdown_enabled = false; localStorage.setItem("be_flags", JSON.stringify(f)); _flagCache = null; let off; try { off = widgetSnapshot().live; } catch (e) { off = String(e); } return { on, off }; });
+  ok("L11 · Android: the widget snapshot carries the countdown block (hub, words, streak, deadline, done)", a.on && a.on.prog === "general-english" && /Last chance/.test(a.on.line) && a.on.deadline > Date.now() && a.on.done === false, JSON.stringify(a));
   await o.ctx.close();
 }
 await b.close(); srv.kill();
