@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // above the Play TWA's last versionCode (10, twa-manifest.json): Play only installs a higher one
-        versionCode 13
+        versionCode 14
         versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // BE_TEST_ADS: a staging build (./gradlew -PbeStaging=true …, scripts/build.sh --staging)
@@ -66,6 +66,10 @@ dependencies {
     // Firebase stays uninitialised and BEPush.available() answers false.
     implementation platform("com.google.firebase:firebase-bom:34.0.0")
     implementation "com.google.firebase:firebase-messaging"
+    // Google sign-in (BEAuthPlugin): Credential Manager + Google's ID-token option
+    implementation "androidx.credentials:credentials:1.5.0"
+    implementation "androidx.credentials:credentials-play-services-auth:1.5.0"
+    implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

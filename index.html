@@ -36485,14 +36485,14 @@ function beNativeAuth(){
   /* only a plugin that was FOUND is remembered: a null is never cached, so
      nothing here can latch the buttons off for the rest of the session */
   if(_beAuthPlug)return _beAuthPlug;
-  if(!IS_IOS_APP)return null;
+  if(!IS_NATIVE_APP)return null;          /* the App Store shell and, since 10 Oct 2026, the Android shell (BEAuthPlugin.java) */
   const p=capPlugin("BEAuth");
   if(p&&typeof p.available==="function"){_beAuthPlug=p;return p}
   return null;
 }
 function socialAuthOn(){
   try{if(!flag("social_signin_enabled"))return false}catch(e){}
-  try{return !!(IS_IOS_APP&&fbConfigured()&&beNativeAuth())}catch(e){return false}
+  try{return !!(IS_NATIVE_APP&&fbConfigured()&&beNativeAuth())}catch(e){return false}
 }
 /* What the BUILD can offer, asked of the plugin rather than assumed: Apple
    always, Google only when the iOS client id is in Info.plist. A build with no
@@ -36504,7 +36504,7 @@ async function socialAuthCaps(){
      during the first moments of a cold launch can get one rejection, and
      caching that used to hide both buttons for the rest of the session with
      nothing on screen to say why. Asking again next time costs one call. */
-  if(!IS_IOS_APP&&socialWebOn())return {apple:true,google:true};   /* the web: both, through Firebase's popup (fbSocialWeb); a provider the console has not switched on answers with its own "switched off" line on tap */
+  if(!IS_NATIVE_APP&&socialWebOn())return {apple:true,google:true};   /* the web: both, through Firebase's popup (fbSocialWeb); a provider the console has not switched on answers with its own "switched off" line on tap */
   if(!socialAuthOn())return {apple:false,google:false};
   try{
     const r=await beNativeAuth().available();

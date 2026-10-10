@@ -12,6 +12,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(BEAdsPlugin.class);
         registerPlugin(BEPlayBillingPlugin.class);
         registerPlugin(BEPushPlugin.class);
+        registerPlugin(BEAuthPlugin.class);
         super.onCreate(savedInstanceState);
         BEPushPlugin.deliverTap(getIntent());   // launched from a notification
     }

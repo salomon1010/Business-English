@@ -9,4 +9,7 @@
     <string name="be_ch_daily_desc">Your reminder and suggestions for what to practise next</string>
     <string name="be_ch_calls">Practice invitations</string>
     <string name="be_ch_calls_desc">A partner who wants to practise with you now</string>
+    <!-- Google sign-in (BEAuthPlugin): the WEB client of the production Firebase project be-mastery,
+         where the Android OAuth clients (package + signing SHA-1s) are registered. Public by design. -->
+    <string name="be_google_web_client_id" translatable="false">847739483036-eevefchuercar6ka3b1arm8satehbebm.apps.googleusercontent.com</string>
 </resources>
