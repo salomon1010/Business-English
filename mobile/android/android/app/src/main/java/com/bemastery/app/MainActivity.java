@@ -15,11 +15,13 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(BEAuthPlugin.class);
         super.onCreate(savedInstanceState);
         BEPushPlugin.deliverTap(getIntent());   // launched from a notification
+        BEAuthPlugin.deliverApple(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         BEPushPlugin.deliverTap(intent);         // a notification tapped while the app was running
+        BEAuthPlugin.deliverApple(intent);       // back from Sign in with Apple (bemastery://apple)
     }
 }

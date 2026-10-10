@@ -23,9 +23,9 @@ async function open(plugin) {
     const a = (window.Capacitor = window.Capacitor || {}); a.getPlatform = () => "android"; a.isNativePlatform = () => true; a.Plugins = a.Plugins || {};
     window.__auth = { calls: [] };
     if (withPlugin) a.Plugins.BEAuth = {
-      available: async () => { __auth.calls.push("available"); return { apple: false, google: true }; },
+      available: async () => { __auth.calls.push("available"); return { apple: true, google: true }; },
       googleSignIn: async () => { __auth.calls.push("google"); const e = new Error("cancelled"); e.code = "cancelled"; throw e; },
-      appleSignIn: async () => { __auth.calls.push("apple"); throw Object.assign(new Error("x"), { code: "unconfigured" }); },
+      appleSignIn: async () => { __auth.calls.push("apple"); throw Object.assign(new Error("x"), { code: "cancelled" }); },
     };
   }, plugin);
   await ctx.route(u => /be-push|be-partner|be-polish|be-events|be-entitlements|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
@@ -40,7 +40,10 @@ console.log("\n# Google sign-in in the Android shell (BEAuthPlugin.java)");
   await sleep(600);
   const g = await p.evaluate(() => ({ google: !!document.querySelector(".auth-soc.google"), apple: !!document.querySelector(".auth-soc.apple"), calls: __auth.calls.slice() }));
   ok("1 · the sheet asks the plugin and shows the Google button", g.google && g.calls.includes("available"), JSON.stringify(g));
-  ok("2 · Apple, which the Android plugin does not offer, shows no button", !g.apple, JSON.stringify(g));
+  ok("2 · and the Apple button (Apple's page in a browser tab, BEAuthPlugin.appleSignIn)", g.apple, JSON.stringify(g));
+  await p.evaluate(() => document.querySelector(".auth-soc.apple").click()); await sleep(400);
+  ok("2b · tapping Apple asks the plugin, and a cancelled Apple sheet says nothing", (await p.evaluate(() => __auth.calls.includes("apple") && !((document.getElementById("authErr") || {}).textContent || "").trim())));
+  await p.evaluate(() => document.querySelectorAll(".auth-soc").forEach(b => b.disabled = false));
   await p.evaluate(() => document.querySelector(".auth-soc.google").click()); await sleep(400);
   const c = await p.evaluate(() => ({ calls: __auth.calls.slice(), err: (document.getElementById("authErr") || {}).textContent || "" }));
   ok("3 · tapping it asks the plugin for a Google token; closing Google's sheet says nothing", c.calls.includes("google") && !c.err.trim(), JSON.stringify(c));

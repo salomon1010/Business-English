@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // above the Play TWA's last versionCode (10, twa-manifest.json): Play only installs a higher one
-        versionCode 15
+        versionCode 16
         versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // BE_TEST_ADS: a staging build (./gradlew -PbeStaging=true …, scripts/build.sh --staging)
@@ -70,6 +70,8 @@ dependencies {
     implementation "androidx.credentials:credentials:1.5.0"
     implementation "androidx.credentials:credentials-play-services-auth:1.5.0"
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
+    // Sign in with Apple opens Apple's page in a Custom Tab
+    implementation "androidx.browser:browser:1.8.0"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

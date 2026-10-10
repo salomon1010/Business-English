@@ -23,6 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- back from Sign in with Apple: the proxy at auth.lomonec.com hands Apple's answer here -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bemastery" android:host="apple" />
+            </intent-filter>
+
         </activity>
 
         <!-- AdMob reads its app id from here (res/values/ads.xml). Real in every build, as
