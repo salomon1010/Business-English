@@ -136,6 +136,7 @@ au_h: "Sign in to play", au_b: "Your XP, energy, streak and badges are saved on 
       r_kicker: "Welding Mastery", r_shift_t: "Today's Shift: {{m}}", r_shift_b: "{{p}} of {{n}} done · about five minutes in the game hub.", r_due_t: "{{n}} words are due in Welding Mastery", r_due_b: "A short Cards round brings them back right on time.", r_cta: "Play now",
       row_h: "Welding Mastery — your games", row_s_first: "Start with five words, about three minutes.", row_s_gap: "Your {{strong}} is strong; {{weak}} needs practice.", row_s_due: "{{n}} words are due for review.", row_s_difficult: "Some words need another look.", row_s_try: "A game you have not tried yet is waiting.", row_s_keep: "Keep your trade words fresh.",
       it_shift: "Today's Shift", it_game: "Game", explore_s: "250 trade words, eight games", explore_shift: "Today's Shift: {{p}}/{{n}}", explore_done: "Shift done · {{m}}/250 mastered",
+      la_line: "Last chance for today's challenge!", la_line_sk: "Last chance! Keep your {{n}}\u2011day streak.", la_done: "Done — your streak is safe.",
       w_title: "Welding Mastery", w_mastered: "words mastered", w_level: "Level {{n}}", w_xp: "XP", w_streak: "day streak", w_shift: "Today's Shift", w_done: "Shift complete", w_open: "Play", w_empty: "Open Welding Mastery in BE Mastery to start.",
       k_en2fr: "English → French", k_fr2en: "French → English", k_def: "Definition", k_use: "Purpose", k_ctx: "Situation", k_img: "Picture", k_card: "Card", k_listen: "Listening", k_listen_t: "Listening (typed)", k_spell: "Spelling", k_cw: "Crossword", k_ws: "Workshop", k_reply: "Reply", k_match: "Match"
     },
@@ -236,6 +237,7 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
       r_kicker: "Welding Mastery", r_shift_t: "Poste du jour : {{m}}", r_shift_b: "{{p}} sur {{n}} faits · environ cinq minutes dans le hub de jeu.", r_due_t: "{{n}} mots à réviser dans Welding Mastery", r_due_b: "Une petite série de Cartes les fait revenir au bon moment.", r_cta: "Jouer",
       row_h: "Welding Mastery — tes jeux", row_s_first: "Commence par cinq mots, environ trois minutes.", row_s_gap: "Ta {{strong}} est solide ; ton {{weak}} demande de la pratique.", row_s_due: "{{n}} mots sont à réviser.", row_s_difficult: "Certains mots méritent un autre regard.", row_s_try: "Un jeu que tu n'as pas encore essayé t'attend.", row_s_keep: "Garde tes mots du métier frais.",
       it_shift: "Poste du jour", it_game: "Jeu", explore_s: "250 mots du métier, huit jeux", explore_shift: "Poste du jour : {{p}}/{{n}}", explore_done: "Poste fait · {{m}}/250 maîtrisés",
+      la_line: "Dernière chance pour le défi du jour !", la_line_sk: "Dernière chance ! Garde ta série de {{n}}\u00a0jours.", la_done: "Fait — ta série est sauvée.",
       w_title: "Welding Mastery", w_mastered: "mots maîtrisés", w_level: "Niveau {{n}}", w_xp: "XP", w_streak: "jours de série", w_shift: "Poste du jour", w_done: "Poste terminé", w_open: "Jouer", w_empty: "Ouvre Welding Mastery dans BE Mastery pour commencer.",
       k_en2fr: "Anglais → français", k_fr2en: "Français → anglais", k_def: "Définition", k_use: "Usage", k_ctx: "Situation", k_img: "Image", k_card: "Carte", k_listen: "Écoute", k_listen_t: "Écoute (écrit)", k_spell: "Orthographe", k_cw: "Mots croisés", k_ws: "Atelier", k_reply: "Réponse", k_match: "Association"
     }
@@ -1152,6 +1154,8 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
           const xp = r.j.awarded || 0;
           out(xp ? `${wi("xp")} ${h(w("end_xp", { n: xp }))}${r.j.dailyBonus ? ` <span class="wm-chip ok">${h(w("dc_bonus", { n: r.j.dailyBonus }))}</span>` : ""}` : h(w(r.j.duplicate ? "end_xp_dup" : "end_xp0")));
           if (r.j.dailyBonus) celebrate("stage", w("dc_done_h"), w("dc_bonus", { n: r.j.dailyBonus }));
+          /* the daily is done: the lock-screen countdown ends with "streak safe" */
+          if (r.j.daily && r.j.daily.done) try { if (typeof liveDone === "function") liveDone(); } catch (e) {}
         } else if (r.status >= 500 || r.status === 429) { pendPush(fin); out(h(w("end_pending"))); }
         else out(h(w("end_xp0")));
       }).catch(() => { pendPush(fin); out(h(w("end_pending"))); });
@@ -1573,9 +1577,15 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\nWELL: <one short line on w
   function play(act) {
     if (!on()) return false;
     try { go("mastery", act === "shift" ? "home" : "games"); } catch (e) { return false; }
-    const run = () => { if (act === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (E.MODES.includes(act)) start(act); };
+    const run = () => { if (act === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (act === "daily") start("quiz", { daily: true }); else if (E.MODES.includes(act)) start(act); };
     loadCorpus().then(() => setTimeout(run, 120)).catch(() => {});
     return true;
+  }
+  /* the game streak countdown (iOS Live Activity, index.html liveSync): what it says, and until when */
+  function liveInfo() {
+    const s = st(); if (!s || !signedIn()) return null;
+    const now = Date.now(), deadline = Date.parse(E.dayOf(now) + "T00:00:00Z") + 86_400_000, sk = E.streak(s, now).current;
+    return { prog: AREA, title: w("title"), done: dailyDone(), deadline, streak: sk, line: sk ? w("la_line_sk", { n: sk }) : w("la_line"), doneLine: w("la_done") };
   }
   /* the widget's own block (≤ ~600 bytes): words mastered, level, XP, streak, today's shift */
   function widgetData() {
@@ -1588,7 +1598,7 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\nWELL: <one short line on w
   }
 
   window.WMUI = {
-    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, LOGO_URL,
+    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, liveInfo, LOGO_URL,
     on, render, portalInto, perfCardHTML, quickH: () => w("quick_h"), quickSub: () => w("quick_sub"),
     /* test hooks: the corpus, the learner's record and a way to start a game */
     _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act, _refresh: srvRefresh

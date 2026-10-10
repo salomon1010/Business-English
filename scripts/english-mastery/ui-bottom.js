@@ -495,9 +495,15 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
   function play(actName) {
     if (!on()) return false;
     try { go("english", actName === "shift" ? "home" : "games"); } catch (e) { return false; }
-    const run = () => { if (actName === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (E.MODES.includes(actName)) start(actName); };
+    const run = () => { if (actName === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (actName === "daily") start("quiz", { daily: true }); else if (E.MODES.includes(actName)) start(actName); };
     loadCorpus().then(() => setTimeout(run, 120)).catch(() => {});
     return true;
+  }
+  /* the game streak countdown (iOS Live Activity, index.html liveSync): what it says, and until when */
+  function liveInfo() {
+    const s = st(); if (!s || !signedIn()) return null;
+    const now = Date.now(), deadline = Date.parse(E.dayOf(now) + "T00:00:00Z") + 86_400_000, sk = E.streak(s, now).current;
+    return { prog: AREA, title: w("title"), done: dailyDone(), deadline, streak: sk, line: sk ? w("la_line_sk", { n: sk }) : w("la_line"), doneLine: w("la_done") };
   }
   function widgetData() {
     const s = st(); if (!s) return null;
@@ -509,7 +515,7 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
   }
 
   window.EMUI = {
-    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, LOGO_URL,
+    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, liveInfo, LOGO_URL,
     on, render, portalHTML, perfCardHTML, title: () => w("title"),
     /* test hooks */
     _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act, _refresh: srvRefresh, _coverage: coverage, _pool: poolFor, _choose: chooseIds

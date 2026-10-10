@@ -3,6 +3,7 @@ import Capacitor
 import WidgetKit
 import UIKit
 import CryptoKit
+import ActivityKit
 
 /// BE Mastery — the bridge behind `window.BEWidget` (index.html): how the web
 /// app feeds the home-screen widget, and how a tap on the widget reaches the
@@ -29,6 +30,8 @@ public class BEWidgetPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "update", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clear", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "pendingOpen", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "liveStart", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "liveEnd", returnType: CAPPluginReturnPromise),
     ]
 
     /* These three must match BEWidgetShared in the widget extension; the
@@ -65,6 +68,45 @@ public class BEWidgetPlugin: CAPPlugin, CAPBridgedPlugin {
         /* the Recommendations widget's pictures: fetched here, in the app, because a
            widget cannot reach the network while it draws; redraw once they are in */
         BEWidgetThumbCache.refresh(for: clean)
+    }
+
+    /// The game streak countdown (Live Activity, BEStreakActivity.swift in the
+    /// widget extension). The web layer decides WHEN (the last three hours of the
+    /// game day, today's daily not done, the app being left) and WHAT it says;
+    /// this starts one — replacing any earlier one, so there is never two — or
+    /// ends them. iOS 16.2+ and Live Activities allowed; anything else answers
+    /// `started: false` and the app carries on.
+    @objc func liveStart(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else { call.resolve(["started": false, "why": "ios"]); return }
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { call.resolve(["started": false, "why": "disabled"]); return }
+        let ms = call.getDouble("deadline") ?? 0
+        let deadline = Date(timeIntervalSince1970: ms / 1000)
+        guard deadline > Date(), deadline.timeIntervalSinceNow < 12 * 3600 else { call.reject("deadline out of range", "bad_deadline"); return }
+        let clip = { (v: String?, n: Int) -> String in String((v ?? "").prefix(n)) }
+        let prog = call.getString("prog") == "welding" ? "welding" : "general-english"
+        let attrs = BEStreakActivityAttributes(title: clip(call.getString("title"), 40), prog: prog, doneLine: clip(call.getString("doneLine"), 80))
+        let state = BEStreakActivityAttributes.ContentState(line: clip(call.getString("line"), 90), streak: max(0, min(9999, call.getInt("streak") ?? 0)), deadline: deadline, done: false)
+        Task {
+            for a in Activity<BEStreakActivityAttributes>.activities { await a.end(nil, dismissalPolicy: .immediate) }
+            do {
+                _ = try Activity.request(attributes: attrs, content: ActivityContent(state: state, staleDate: deadline), pushType: nil)
+                call.resolve(["started": true])
+            } catch { call.resolve(["started": false, "why": "request"]) }
+        }
+    }
+    /// The daily is done (or the learner signed out): end every countdown. With
+    /// `done`, the card says so for a few seconds before it leaves.
+    @objc func liveEnd(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else { call.resolve(["ended": 0]); return }
+        let done = call.getBool("done") ?? false
+        Task {
+            let list = Activity<BEStreakActivityAttributes>.activities
+            for a in list {
+                var st = a.content.state; st.done = done
+                await a.end(ActivityContent(state: st, staleDate: nil), dismissalPolicy: done ? .after(Date().addingTimeInterval(8)) : .immediate)
+            }
+            call.resolve(["ended": list.count])
+        }
     }
 
     /// Sign-out, account deletion: every widget must forget this learner.
@@ -118,10 +160,11 @@ final class BEWidgetBox {
     weak var plugin: CAPPlugin?
     private var pending: [String: Any]?
 
-    static let views: Set<String> = ["session", "journey", "practice", "shadow", "review", "home", "foundations", "lines", "phrases", "mastery"]
+    static let views: Set<String> = ["session", "journey", "practice", "shadow", "review", "home", "foundations", "lines", "phrases", "mastery", "english"]
     static let days: Set<String> = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     /// `signin` / `premium`: a tap on a locked widget (owner, 6 Oct 2026).
-    static let acts: Set<String> = ["words", "today", "roadmap", "signin", "premium", "shift"]
+    /// `daily`: the game streak countdown (Live Activity) opens today's daily.
+    static let acts: Set<String> = ["words", "today", "roadmap", "signin", "premium", "shift", "daily"]
     /// A recommendation's destination: the places a Home card can open, and the
     /// actions those places take (index.html `nudgeGo`).
     static let recViews: Set<String> = ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "mastery"]
@@ -262,4 +305,18 @@ enum BEWidgetThumbCache {
         }
         return out.jpegData(compressionQuality: 0.72)
     }
+}
+
+/// The game streak countdown's attributes — the SAME name and Codable shape as in
+/// the widget extension (BEWidget/BEStreakActivity.swift); ActivityKit matches the two.
+struct BEStreakActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var line: String
+        var streak: Int
+        var deadline: Date
+        var done: Bool
+    }
+    var title: String
+    var prog: String
+    var doneLine: String
 }

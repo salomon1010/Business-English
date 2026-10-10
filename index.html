@@ -82,10 +82,10 @@
 <!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
 <link rel="stylesheet" href="welding-mastery.css?v=9">
 <script src="welding-mastery-engine.js?v=3"></script>
-<script src="welding-mastery.js?v=7"></script>
+<script src="welding-mastery.js?v=8"></script>
 <!-- English Mastery (General English only, flag english_mastery_enabled, 10 Oct 2026): the same engine built for General English (EMEngine), its own screens, gated on EMUI.on() -->
 <link rel="stylesheet" href="english-mastery.css?v=2">
-<script src="english-mastery.js?v=3"></script>
+<script src="english-mastery.js?v=4"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -18123,6 +18123,27 @@ function beNativeWidget(){
   return null;
 }
 function widgetOn(){try{return !!(IS_IOS_APP&&flag("ios_widget_enabled")&&beNativeWidget())}catch(e){return false}}
+/* THE GAME STREAK COUNTDOWN (iOS Live Activity, owner 10 Oct 2026, both game hubs).
+   Leaving the app in the LAST THREE HOURS of the game day (UTC midnight, the day the
+   hubs and the server count) with today's daily not done starts a lock-screen card
+   that counts down to the deadline (BEWidget/BEStreakActivity.swift draws it; the
+   system runs the clock). Finishing the daily ends it ("streak safe"); so does
+   sign-out. The hub says what and until when (WMUI / EMUI liveInfo); nothing here
+   is sent anywhere. Flag ios_live_activity_enabled. */
+const LIVE_WINDOW_MS=3*3600e3;
+function beLive(){const p=beNativeWidget();return p&&typeof p.liveStart==="function"?p:null}
+function liveOn(){try{return !!(IS_IOS_APP&&flag("ios_live_activity_enabled")&&beLive())}catch(e){return false}}
+function liveSync(){
+  if(!liveOn())return;
+  let i=null;try{const hub=wmHub();i=hub&&hub.liveInfo?hub.liveInfo():null}catch(e){}
+  if(!i)return;
+  if(i.done){liveDone();return}
+  const left=i.deadline-Date.now();
+  if(left>60e3&&left<=LIVE_WINDOW_MS)beLive().liveStart({prog:i.prog,title:i.title,line:i.line,doneLine:i.doneLine,streak:i.streak,deadline:i.deadline}).catch(()=>{});
+}
+function liveDone(){try{if(liveOn())beLive().liveEnd({done:true}).catch(()=>{})}catch(e){}}
+function liveClear(){try{const p=beLive();if(p)p.liveEnd({done:false}).catch(()=>{})}catch(e){}}
+document.addEventListener("visibilitychange",()=>{try{if(document.visibilityState==="hidden")liveSync();else{const h=wmHub(),i=h&&h.liveInfo&&h.liveInfo();if(i&&i.done)liveDone()}}catch(e){}});
 /* Android: the Play app is a Trusted Web Activity, so the page cannot hand
    anything to it directly. It publishes the same snapshot to be-widget under
    the id the app put on the launch URL (?wid=), and the widget pulls it. */
@@ -18275,7 +18296,7 @@ function widgetSync(force){
   if(force)run();else _wgH=setTimeout(run,1200);
 }
 /* sign-out / account deletion: the widget forgets this learner too */
-function widgetClear(){
+function widgetClear(){try{liveClear()}catch(e){}
   _wgLast="";if(_wgH){clearTimeout(_wgH);_wgH=null}
   try{const P=beNativeWidget();if(P)Promise.resolve(P.clear()).catch(()=>{})}catch(e){}
   try{const wid=widgetFeedWid();if(wid&&WIDGET_API)fetch(WIDGET_API+"/feed?wid="+wid,{method:"DELETE",keepalive:true}).catch(()=>{})}catch(e){}
@@ -18312,8 +18333,8 @@ function widgetOpenRoute(d){
     if(v==="foundations"){if(d.w)go("foundations",Number(d.w));else go("foundations");return true}
     if(v==="practice"){go("practice");if(d.act==="words")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(v==="journey"){_rmReturn=true;go("journey");return true}
-    if(v==="mastery"){if(window.WMUI&&WMUI.on()){if(d.act==="shift")WMUI.play("shift");else go("mastery")}else go("practice");return true}
-    if(v==="english"){if(window.EMUI&&EMUI.on()){if(d.act==="shift")EMUI.play("shift");else go("english")}else go("practice");return true}
+    if(v==="mastery"){if(window.WMUI&&WMUI.on()){if(d.act==="shift"||d.act==="daily")WMUI.play(d.act);else go("mastery")}else go("practice");return true}
+    if(v==="english"){if(window.EMUI&&EMUI.on()){if(d.act==="shift"||d.act==="daily")EMUI.play(d.act);else go("english")}else go("practice");return true}
     go(v);return true;
   }catch(e){return false}
 }
@@ -22573,7 +22594,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v677";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v678";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24372,6 +24393,7 @@ const FLAGS_DEFAULT={
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
+  ios_live_activity_enabled:false,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
@@ -24404,6 +24426,7 @@ const FLAGS_STAGING={
      staging build while every automated check passed. */
   social_signin_enabled:true,
   ios_push_enabled:true,
+  ios_live_activity_enabled:true,      // the game streak countdown — staging only
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console

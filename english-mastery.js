@@ -145,6 +145,7 @@
       r_kicker: "English Mastery", r_shift_t: "Today's goal: {{m}}", r_shift_b: "{{p}} of {{n}} done · about five minutes in the game hub.", r_due_t: "{{n}} are due in English Mastery", r_due_b: "A short Word Quest round brings them back right on time.", r_cta: "Play now",
       row_h: "English Mastery — your games", row_s_first: "Start with five cards, about three minutes.", row_s_gap: "Your {{strong}} is strong; {{weak}} needs practice.", row_s_due: "{{n}} are due for review.", row_s_difficult: "Some need another look.", row_s_try: "A game you have not tried yet is waiting.", row_s_keep: "Keep your English fresh.",
       it_shift: "Today's goal", explore_s: "{{total}} words and phrases, eight games", explore_shift: "Today's goal: {{p}}/{{n}}", explore_done: "Goal done · {{m}} mastered",
+      la_line: "Last chance for today's mission!", la_line_sk: "Last chance! Keep your {{n}}\u2011day streak.", la_done: "Done — your streak is safe.",
       w_title: "English Mastery", w_mastered: "mastered", w_level: "Level {{n}}", w_xp: "XP", w_streak: "day streak", w_shift: "Today's goal", w_done: "Goal complete", w_open: "Play", w_empty: "Open English Mastery in BE Mastery to start.",
       k_def: "Meaning", k_ex: "Example", k_use: "When to use", k_gram: "Grammar", k_sent: "Sentence", k_card: "Card", k_listen: "Listening", k_listen_t: "Listening (typed)", k_listen_s: "Listening (sentence)", k_spell: "Spelling", k_speak: "Speaking", k_mis: "Mission", k_reply: "Reply", k_match: "Match", k_coach: "AI coach"
     },
@@ -246,6 +247,7 @@
       r_kicker: "English Mastery", r_shift_t: "Objectif du jour : {{m}}", r_shift_b: "{{p}} sur {{n}} faits · environ cinq minutes dans le hub de jeu.", r_due_t: "{{n}} à réviser dans English Mastery", r_due_b: "Une petite série Word Quest les fait revenir au bon moment.", r_cta: "Jouer",
       row_h: "English Mastery — tes jeux", row_s_first: "Commence par cinq cartes, environ trois minutes.", row_s_gap: "Ta {{strong}} est solide ; ton {{weak}} demande de la pratique.", row_s_due: "{{n}} sont à réviser.", row_s_difficult: "Certains méritent un autre regard.", row_s_try: "Un jeu que tu n'as pas encore essayé t'attend.", row_s_keep: "Garde ton anglais frais.",
       it_shift: "Objectif du jour", explore_s: "{{total}} mots et expressions, huit jeux", explore_shift: "Objectif du jour : {{p}}/{{n}}", explore_done: "Objectif fait · {{m}} maîtrisés",
+      la_line: "Dernière chance pour la mission du jour !", la_line_sk: "Dernière chance ! Garde ta série de {{n}}\u00a0jours.", la_done: "Fait — ta série est sauvée.",
       w_title: "English Mastery", w_mastered: "maîtrisés", w_level: "Niveau {{n}}", w_xp: "XP", w_streak: "jours de série", w_shift: "Objectif du jour", w_done: "Objectif atteint", w_open: "Jouer", w_empty: "Ouvre English Mastery dans BE Mastery pour commencer.",
       k_def: "Sens", k_ex: "Exemple", k_use: "Quand l'utiliser", k_gram: "Grammaire", k_sent: "Phrase", k_card: "Carte", k_listen: "Écoute", k_listen_t: "Écoute (écrit)", k_listen_s: "Écoute (phrase)", k_spell: "Orthographe", k_speak: "Oral", k_mis: "Mission", k_reply: "Réponse", k_match: "Association", k_coach: "Coach IA"
     }
@@ -1231,6 +1233,8 @@
           const xp = r.j.awarded || 0;
           out(xp ? `${wi("xp")} ${h(w("end_xp", { n: xp }))}${r.j.dailyBonus ? ` <span class="wm-chip ok">${h(w("dc_bonus", { n: r.j.dailyBonus }))}</span>` : ""}` : h(w(r.j.duplicate ? "end_xp_dup" : "end_xp0")));
           if (r.j.dailyBonus) celebrate("stage", w("dc_done_h"), w("dc_bonus", { n: r.j.dailyBonus }));
+          /* the daily is done: the lock-screen countdown ends with "streak safe" */
+          if (r.j.daily && r.j.daily.done) try { if (typeof liveDone === "function") liveDone(); } catch (e) {}
         } else if (r.status >= 500 || r.status === 429) { pendPush(fin); out(h(w("end_pending"))); }
         else out(h(w("end_xp0")));
       }).catch(() => { pendPush(fin); out(h(w("end_pending"))); });
@@ -1734,9 +1738,15 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
   function play(actName) {
     if (!on()) return false;
     try { go("english", actName === "shift" ? "home" : "games"); } catch (e) { return false; }
-    const run = () => { if (actName === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (E.MODES.includes(actName)) start(actName); };
+    const run = () => { if (actName === "shift") { E.ensureMission(st(), official(), Date.now()); persist(); startMission(); } else if (actName === "daily") start("quiz", { daily: true }); else if (E.MODES.includes(actName)) start(actName); };
     loadCorpus().then(() => setTimeout(run, 120)).catch(() => {});
     return true;
+  }
+  /* the game streak countdown (iOS Live Activity, index.html liveSync): what it says, and until when */
+  function liveInfo() {
+    const s = st(); if (!s || !signedIn()) return null;
+    const now = Date.now(), deadline = Date.parse(E.dayOf(now) + "T00:00:00Z") + 86_400_000, sk = E.streak(s, now).current;
+    return { prog: AREA, title: w("title"), done: dailyDone(), deadline, streak: sk, line: sk ? w("la_line_sk", { n: sk }) : w("la_line"), doneLine: w("la_done") };
   }
   function widgetData() {
     const s = st(); if (!s) return null;
@@ -1748,7 +1758,7 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
   }
 
   window.EMUI = {
-    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, LOGO_URL,
+    signals, heroText, rowHead, itemTitle, itemLine, exploreTile, play, widgetData, liveInfo, LOGO_URL,
     on, render, portalHTML, perfCardHTML, title: () => w("title"),
     /* test hooks */
     _state: st, _corpus: () => C, _load: loadCorpus, _start: start, _game: () => _G, _act: act, _refresh: srvRefresh, _coverage: coverage, _pool: poolFor, _choose: chooseIds
