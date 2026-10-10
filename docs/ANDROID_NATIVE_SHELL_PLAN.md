@@ -17,9 +17,13 @@ so ship it well before the switch.
 in (never committed). FCM API enabled; service account `fcm-sender@<project>` with
 `roles/firebasecloudmessaging.admin` only, one key each, stored only as `FCM_SA_JSON` on
 `be-push-staging` and `be-push`. be-push-staging DEPLOYED (b4601bbc) and proven against
-Google (a made-up token was refused and its row dropped — no auth error). **Production
-be-push is NOT deployed:** it runs 29 Sep code without APNs, nudge pictures or the Android
-origin, so a full deploy is an owner decision (it also keeps two crons — mind the limit).
+Google (a made-up token was refused and its row dropped — no auth error). **Production be-push DEPLOYED in full (owner, 10 Oct 2026): version 0fc0eb02**, from the
+repo (it had run 29 Sep code): FCM, APNs (still off — `APNS_KEY_ID` is empty and there is no
+`APNS_KEY_P8`), nudge pictures, the `https://localhost` origin, KV marks. Crons unchanged
+(`* * * * *`, `*/10 * * * *`). Verified: `/key`, CORS for the web / Android / iOS origins, a
+made-up FCM token refused by Google and dropped, cron runs without exceptions. Rollback:
+`npx wrangler rollback 2b335aa2-1d8d-4bb0-a8ee-9c7b4465f6f8 --name be-push` (the old code
+with the FCM secret).
 **Still to build:** native Google sign-in (7), the widget port (7), device tests and
 the staged release (8).
 
