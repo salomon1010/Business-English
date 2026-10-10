@@ -22666,7 +22666,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v685";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v686";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24473,7 +24473,7 @@ const FLAGS_DEFAULT={
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
   auth_proxy_enabled:true,             // Firebase's helper on auth.lomonec.com (be-auth, deployed d8b9896a 7 Oct 2026): what lets the installed Play app finish a Google / Apple sign-in
   billing_preview_provider:false,      // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
-  web_visitor_gate_enabled:false       // the web visitor landing (owner, 10 Oct 2026; docs/ACCESS-MATRIX.md): a plain browser tab with no account and no learner on the device signs up or in before learning. OFF everywhere until app.lomonec.com/bemastery/ goes live (docs/PORTAL.md); preview with ?flags=web_visitor_gate_enabled
+  web_visitor_gate_enabled:true        // the web visitor landing (owner, 10 Oct 2026; docs/ACCESS-MATRIX.md): a plain browser tab with no account and no learner on the device signs up or in before learning. ON since be12-v686 (owner: "update everything, deploy"); never on a local/LAN test host without an explicit be_flags entry (webGateFlag); never in the store apps, an installed app or for an existing learner (webPlainTab)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -24529,7 +24529,8 @@ const FLAGS_STAGING={
      Progress preview, the Premium recommendations. Production keeps
      FLAGS_DEFAULT and is untouched. */
   billing_enabled:true,
-  billing_preview_provider:true
+  billing_preview_provider:true,
+  web_visitor_gate_enabled:true        // the web visitor landing, as in production (staging needs a be-mastery-test account)
 };
 /* The App Store app's own release defaults (owner, 29 Sep 2026). Its web code is
    bundled into the binary, so these ship with that build and change only with a
@@ -35510,9 +35511,19 @@ function webPlainTab(){
   try{if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone)return false}catch(e){}
   return true;
 }
+/* ON in production since be12-v686 (owner, 10 Oct 2026). A local or LAN test host never
+   shows it unless be_flags names it explicitly: every test suite opens the app as a new
+   visitor in a plain browser, and the landing is a front door for the public site, not
+   for development. */
+function webGateFlag(){
+  let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
+  if(o&&typeof o==="object"&&"web_visitor_gate_enabled" in o)return !!o.web_visitor_gate_enabled;
+  try{if(location.protocol==="file:"||/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|\[::1\])/.test(location.hostname))return false}catch(e){}
+  return !!flag("web_visitor_gate_enabled");
+}
 function webGateOn(){
   let u=null;try{u=FBUser}catch(e){}   /* FBUser is declared further down this script: read it safely at boot */
-  return !!flag("web_visitor_gate_enabled")&&!S.profile&&!u&&webPlainTab();
+  return webGateFlag()&&!S.profile&&!u&&webPlainTab();
 }
 function webGateRender(){
   let el=document.getElementById("webGate");
