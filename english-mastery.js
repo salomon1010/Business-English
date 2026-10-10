@@ -581,6 +581,11 @@
   }
   function collAfter() {
     const box = document.getElementById("emCollList"); if (box) box.innerHTML = collListHTML();
+    /* the filter rows scroll sideways: a redraw starts them at 0, so bring the chosen chip back into the middle */
+    document.querySelectorAll(".wm-hub .wm-cats, .wm-hub .wm-segs").forEach(bar => {
+      const on = bar.querySelector(".on"); if (!on || bar.scrollWidth <= bar.clientWidth) return;
+      try { bar.scrollLeft += (on.getBoundingClientRect().left - bar.getBoundingClientRect().left) - (bar.clientWidth - on.offsetWidth) / 2; } catch (e) {}
+    });
     const q = document.getElementById("emQ");
     if (q && !q._wm) { q._wm = 1; q.addEventListener("input", () => { _coll.q = q.value; const b = document.getElementById("emCollList"); if (b) b.innerHTML = collListHTML(); }); }
     const sb = document.getElementById("vlBox");
