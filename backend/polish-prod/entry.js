@@ -51,22 +51,29 @@ async function perAccount(a, env, cors) {
 async function guarded(req, env, ctx) {
   const cors = corsHeaders(req.headers.get("Origin") || "");
   if (!cors["Access-Control-Allow-Origin"]) return base.fetch(req, env, ctx);      // the old code answers 403 itself
-  const rc = newCtx(req), e = withCtx(env, rc);
-  rc.ip = req.headers.get("CF-Connecting-IP") || "0";
-  const ctype = req.headers.get("content-type") || "";
-  let raw = "";
-  if (ctype.startsWith("audio/")) {
-    rc.route = "transcribe";
-    rc.m = measure("transcribe", null, +(req.headers.get("content-length") || 0));
-  } else {
-    let body = null;
-    try { raw = await req.clone().text(); body = JSON.parse(raw); } catch (err) {}
-    if (!body || typeof body !== "object") return base.fetch(req, env, ctx);     // malformed: the old code's 400
-    rc.route = routeOf(ctype, body); rc.m = measure(rc.route, body, 0); rc.track = declaredTrack(body);
-  }
-  /* a refused request never reaches the old code, so it can never reach a provider */
-  const refused = await anonGate(req, e, cors, { verify: verifyIdToken }, json)
-               || (raw ? await inflightGate(req, e, cors, raw, json) : null);   // AI_DEDUPE=1 only
+  /* SAFETY NET: if classifying or counting faults (an odd body, a limiter error),
+     the request goes straight to the old code, unmeasured — report mode must never
+     be the reason a learner's request fails. Only this part is guarded: the old code
+     is called exactly once either way. */
+  let rc, e, refused;
+  try {
+    rc = newCtx(req); e = withCtx(env, rc);
+    rc.ip = req.headers.get("CF-Connecting-IP") || "0";
+    const ctype = req.headers.get("content-type") || "";
+    let raw = "";
+    if (ctype.startsWith("audio/")) {
+      rc.route = "transcribe";
+      rc.m = measure("transcribe", null, +(req.headers.get("content-length") || 0));
+    } else {
+      let body = null;
+      try { raw = await req.clone().text(); body = JSON.parse(raw); } catch (err) {}
+      if (!body || typeof body !== "object") return base.fetch(req, env, ctx);     // malformed: the old code's 400
+      rc.route = routeOf(ctype, body); rc.m = measure(rc.route, body, 0); rc.track = declaredTrack(body);
+    }
+    /* a refused request never reaches the old code, so it can never reach a provider */
+    refused = await anonGate(req, e, cors, { verify: verifyIdToken }, json)
+                 || (raw ? await inflightGate(req, e, cors, raw, json) : null);   // AI_DEDUPE=1 only
+  } catch (err) { return base.fetch(req, env, ctx); }
   const res = refused || await base.fetch(req, env, ctx);
   if (!refused && billable(rc.route)) {
     const meta = ROUTES[rc.route] || {};
