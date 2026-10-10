@@ -225,9 +225,11 @@ console.log("\n# the daily mission, Real-Life Missions extras, Premium");
   ok("P3 · Premium: the advanced situations load from the server pack and play", adv && adv.mode === "missions" && adv.id === "ga-01" && G1.srv.calls.includes("pack:"), JSON.stringify({ adv, calls: G1.srv.calls.slice(-4) }));
   await p.evaluate(() => EMUI._act("gclose")); await sleep(200);
   await p.evaluate(() => EMUI._act("tab", "perf")); await sleep(300);
-  ok("P4 · Premium: Game Performance shows the 30/90-day trends, unlocked", await p.evaluate(() => !!document.querySelector("#emTrends") && !document.querySelector("#emTrends.locked")));
-  await p.evaluate(() => EMUI._act("trend", "90")); await sleep(200);
-  ok("P5 · 90 days redraws 90 bars", await p.evaluate(() => document.querySelectorAll(".wm-actbars.s90 span").length === 90));
+  /* the lock is the app's one Premium gate (advanced_progress); on a host with plans off it is open */
+  const tl = await p.evaluate(() => ({ el: !!document.querySelector("#emTrends"), locked: !!document.querySelector("#emTrends.locked"), gated: entGated(), has: hasEntitlement("advanced_progress"), offer: !!document.querySelector("#emTrends [class*='prem']") }));
+  ok("P4 · Game Performance's 30/90-day trends lock exactly when the plan gate says so (dimmed preview + offer when locked)", tl.el && tl.locked === (tl.gated && !tl.has) && (!tl.locked || tl.offer), JSON.stringify(tl));
+  if (!tl.locked) { await p.evaluate(() => EMUI._act("trend", "90")); await sleep(200); }
+  ok("P5 · unlocked: 90 days redraws 90 bars (locked: the 30-day preview is drawn under the offer)", tl.locked ? await p.evaluate(() => document.querySelectorAll("#emTrends .wm-actbars.s30 span").length === 30) : await p.evaluate(() => document.querySelectorAll(".wm-actbars.s90 span").length === 90));
   await p.evaluate(() => EMUI._act("tab", "hist")); await sleep(300);
   ok("R1 · History lists the rounds played today, folded by day", await p.evaluate(() => document.querySelectorAll("#v-english .wm-hd").length >= 1 && document.querySelectorAll("#v-english .wm-hr").length >= 8));
   await p.evaluate(() => EMUI._act("tab", "rewards")); await sleep(300);
