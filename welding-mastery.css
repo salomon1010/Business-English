@@ -452,3 +452,6 @@ html.wm-still .wm-game *, html.wm-still .wm-cel, html.wm-still .wm-sheet, html.w
 .wm-game-card:hover .wm-gc-ic.a3 { transform: translateY(-2px) scale(1.04); transition: transform .2s; }
 .wm-daily-ic.a3 { width: 58px; height: 58px; background: none; box-shadow: none; }
 html.wm-still .wm-game-card:hover .wm-gc-ic.a3 { transform: none; }
+
+/* breathing room (10 Oct 2026): a caption line between cards (Rewards) never touches them */
+.wm-body > p.wm-mut { margin: 10px 2px 12px; }

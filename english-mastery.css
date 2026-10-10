@@ -58,3 +58,6 @@ html.wm-still .em-mic.on { animation: none; }
 /* Real-Life Missions and long sentence cards */
 .em-mis blockquote { font-size: 17px; }
 .wm-card-w.long { font-size: 20px; line-height: 1.35; }
+
+/* the learning-loop card follows Today's goal on Home: the same 12 px as the other cards */
+.em-loop { margin-top: 12px; }
