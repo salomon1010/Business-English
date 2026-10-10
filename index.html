@@ -80,12 +80,12 @@
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
 <!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
-<link rel="stylesheet" href="welding-mastery.css?v=8">
+<link rel="stylesheet" href="welding-mastery.css?v=9">
 <script src="welding-mastery-engine.js?v=3"></script>
-<script src="welding-mastery.js?v=6"></script>
+<script src="welding-mastery.js?v=7"></script>
 <!-- English Mastery (General English only, flag english_mastery_enabled, 10 Oct 2026): the same engine built for General English (EMEngine), its own screens, gated on EMUI.on() -->
 <link rel="stylesheet" href="english-mastery.css?v=2">
-<script src="english-mastery.js?v=2"></script>
+<script src="english-mastery.js?v=3"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -22573,7 +22573,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v676";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v677";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24976,11 +24976,15 @@ const AD_POLICY=Object.freeze({
        buys NO exemption: decide() asks the same questions in the same order,
        and the 8-minute gap, the hourly and visit caps and the launch grace all
        apply to it exactly as they do to a finished session. */
-    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities","app_resume"]),
+    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities","app_resume","game_complete"]),
     /* MODERATE (Phase 8): at most one per natural break, never two within 8
        minutes, 3 an hour, 4 a visit, none in the first 2 minutes. The close
        control appears after skipAfterMs whatever the provider does. Tune here. */
     minGapMs:8*60e3, windowMs:60*60e3, maxPerWindow:3, maxPerSession:4, launchGraceMs:2*60e3, skipAfterMs:5000,
+    /* GAME HUBS (owner, 10 Oct 2026, "maximum within AdMob policy"): after a FINISHED
+       round of Welding Mastery or English Mastery the full-screen cap is looser —
+       4 minutes apart, 6 an hour, 8 a visit. Only this context; every other break keeps the caps above. */
+    byContext:Object.freeze({game_complete:Object.freeze({minGapMs:4*60e3, maxPerWindow:6, maxPerSession:8})}),
   }),
   native:Object.freeze({           /* in browsing / content areas only */
     /* shadow_pause (owner, 3 Oct 2026): the one slot inside the Shadow
@@ -24991,7 +24995,9 @@ const AD_POLICY=Object.freeze({
        It is a second slot on that page, above the foot one (`library`), and
        each placement keeps its own 60 s gap while sharing the hourly and
        per-visit volume caps below. */
-    contexts:Object.freeze(["home_feed","library","library_top","progress_foot","settings_foot","shadow_video"]),
+    /* game_hub = the foot of every game-hub tab, game_hub_mid = mid-page on the long tabs,
+       game_end = a round's end screen, AFTER the round (owner, 10 Oct 2026) */
+    contexts:Object.freeze(["home_feed","library","library_top","progress_foot","settings_foot","shadow_video","game_hub","game_hub_mid","game_end"]),
     minGapMs:60e3, windowMs:60*60e3, maxPerWindow:12, maxPerSession:20, launchGraceMs:0,
   }),
   rewarded:Object.freeze({         /* only ever at the learner's own request */
@@ -25029,11 +25035,17 @@ const _adHolds=new Set();let _adSession={};
    on the free plan in General English; Welding shows no ad on any plan;
    Premium removes them everywhere. Kept as a function because this is the
    ONE line that decides which programme is in the ad system. */
-function adsTrackAllows(){try{return isGeneralEnglish()}catch(e){return false}}
+/* THE GAME HUBS, ON BOTH PROGRAMMES (owner, 10 Oct 2026, reversing the line above
+   for these placements only): Welding Mastery shows ads too — free plan only,
+   Premium removes them. The exception is by PLACEMENT: a call that names one of the
+   game-hub contexts on Welding is allowed while Welding Mastery is open; every
+   other Welding page, and every call without a context, stays ad-free. */
+const GAME_AD_CONTEXTS=new Set(["game_hub","game_hub_mid","game_end","game_complete"]);
+function adsTrackAllows(ctx){try{if(isGeneralEnglish())return true;return !!ctx&&GAME_AD_CONTEXTS.has(ctx)&&!!(window.WMUI&&WMUI.on())}catch(e){return false}}
 const AdEligibility={
   policy:AD_POLICY,
   planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
-  trackAllowsAds(){return adsTrackAllows()},
+  trackAllowsAds(ctx){return adsTrackAllows(ctx)},
   /* a flow can hold ads off explicitly for its duration (Phase 8 hook) */
   protect(key){_adHolds.add(String(key))},
   release(key){_adHolds.delete(String(key))},
@@ -25078,6 +25090,8 @@ const AdEligibility={
        the app speaking, a partner call, an open dialog. So the ad is never
        there while the learner is actually speaking. */
     try{if(document.body.classList.contains("sh-work-open")&&ctx!=="shadow_video")return "view:shadow"}catch(e){}
+    /* a game round is open: learning, except the end screen's own slot once the round is over */
+    try{if(document.querySelector("#wmGame.show,#emGame.show")&&!(ctx==="game_end"&&document.querySelector("#wmGame.show .wm-end,#emGame.show .wm-end")))return "game"}catch(e){}
     try{if(typeof cur!=="undefined"&&cur&&cur.v!=="shadow"&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
     return null;
   },
@@ -25097,7 +25111,7 @@ const AdEligibility={
      maxPerSession (20/visit) are still counted across ALL native placements, so
      this cannot become more ads overall, only ads in the right places. */
   capReason(format,now,ctx){
-    const p=AD_POLICY[format],log=this._log().filter(x=>x.f===format);
+    const p=Object.assign({},AD_POLICY[format],(AD_POLICY[format].byContext||{})[ctx]||{}),log=this._log().filter(x=>x.f===format);
     if(now-AD_BOOT<p.launchGraceMs)return "cap:launch";
     const gapLog=(format==="native"&&ctx)?log.filter(x=>x.c===ctx):log;
     const last=gapLog.length?Math.max(...gapLog.map(x=>x.t)):0;
@@ -25109,7 +25123,7 @@ const AdEligibility={
   decide(format,context,opts={}){
     const now=opts.now??Date.now();
     if(!flag("ads_enabled"))return {show:false,reason:"flag_off"};
-    if(!this.trackAllowsAds())return {show:false,reason:"track"};   // Welding: never, for any format
+    if(!this.trackAllowsAds(context))return {show:false,reason:"track"};   // Welding: only the game-hub placements
     const p=AD_POLICY[format];if(!p)return {show:false,reason:"format"};
     if(!this.planAllowsAds())return {show:false,reason:"premium"};
     if(!p.contexts.includes(context))return {show:false,reason:"context"};
@@ -25246,7 +25260,7 @@ function beNativeAdsInit(){
      Android: BEAdsPlugin.java, 9 Oct 2026). The TWA has none, so it stays out. */
   let native=false;try{native=IS_NATIVE_APP}catch(e){}
   if(!native)return;
-  try{if(!flag("ads_enabled")||!adsTrackAllows()||!adsSystemLive())return}catch(e){return}
+  try{if(!flag("ads_enabled")||!(adsTrackAllows()||adsTrackAllows("game_hub"))||!adsSystemLive())return}catch(e){return}
   /* capPlugin reads Capacitor.Plugins first: `Capacitor.registerPlugin` is an
      @capacitor/core API and this unbundled shell does not have it (see the note
      beside capPlugin). Asking for it was why the bridge never built on a real
@@ -25274,7 +25288,7 @@ function beNativeAdsInit(){
       let last="";
       const iv=setInterval(()=>{
         const el=slotBody(place);
-        if(!el||!adsTrackAllows()||!AdEligibility.planAllowsAds()){unwatch(place);return}
+        if(!el||!adsTrackAllows(place)||!AdEligibility.planAllowsAds()){unwatch(place);return}
         const b=r4(el),k=b.x+","+b.y+","+b.w+","+b.h;
         if(k!==last){last=k;try{P.moveNative(Object.assign({placement:place},b))}catch(e){}}
       },250);
@@ -25349,7 +25363,7 @@ const adTrack=(name,props)=>{try{track(name,Object.assign({provider:adProvider()
 const AdManager={
   /* a learning activity FINISHED (its result is on screen). The ad waits for
      the learner to move on, so it never sits over the feedback itself. */
-  markBreak(context){if(!adsTrackAllows())return;if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
+  markBreak(context){if(!adsTrackAllows(context))return;if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
   /* called at the end of every go(): offer the pending break over the page the
      learner chose; fill any native slot this page carries */
   afterNav(v){
@@ -25364,7 +25378,7 @@ const AdManager={
      app; resolves at once (false) whenever an ad is not appropriate. */
   async interstitial(context){
     if(_adShowing)return false;
-    if(!adsTrackAllows())return false;          // before any event, so a programme behind the line leaves no trace
+    if(!adsTrackAllows(context))return false;          // before any event, so a programme behind the line leaves no trace
     const d=AdEligibility.decide("interstitial",context);
     adTrack("ad_eligibility_checked",{format:"interstitial",context,result:d.show?"eligible":"refused"});
     if(!d.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
@@ -25404,7 +25418,7 @@ const AdManager={
       setTimeout(reveal,AD_POLICY.interstitial.skipAfterMs);
       Promise.resolve(p.show("interstitial",{context,host:ov.querySelector("#adCreative")})).then(r=>{
         if(!r||!r.shown){reveal();close();return}
-        AdEligibility.record("interstitial");adTrack("ad_displayed",{format:"interstitial",context});
+        AdEligibility.record("interstitial",Date.now(),context);adTrack("ad_displayed",{format:"interstitial",context});
       }).catch(()=>{reveal();close()});
     });
   },
@@ -25447,7 +25461,7 @@ const AdManager={
   },
   /* one native slot, one host. `how` is append, or before `ref`. */
   _fillSlot(place,host,how,ref){
-    if(!adsTrackAllows())return;                // before any event
+    if(!adsTrackAllows(place))return;                // before any event (Welding: only the game-hub placements)
     if(!host||host.querySelector('[data-ad-slot][data-placement="'+place+'"]'))return;
     const put=el=>{if(how==="before"&&ref&&ref.parentNode===host)host.insertBefore(el,ref);else host.appendChild(el)};
     /* the page re-rendered under an ad it already showed: put the SAME ad back
@@ -25978,7 +25992,7 @@ function premHeadHTML(str){const m=/^(.*?[.!?。؟])\s+(\S[\s\S]*)$/.exec(String
    removal of an ad nobody sees would not be true. */
 function premBenHTML(){
   const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
-  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}   /* the five capabilities are granted on both tracks; the ad-free row only where ads exist (General English) */
+  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")&&(adsTrackAllows()||adsTrackAllows("game_hub"))}catch(e){}   /* the five capabilities are granted on both tracks; the ad-free row only where ads exist (General English) */
   const rows=[];
   if(ge)premBenefitRows().forEach(r=>rows.push(li(r[0],r[1],r[2])));
   if(ads)rows.push(li("prem.b_noads","ban"));
@@ -26064,7 +26078,7 @@ function premCmpHTML(){
   if(!planOn())return "";                               /* only where the limits are in force — now both tracks */
   const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
   const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
-  let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}
+  let ads=false;try{ads=!!flag("ads_enabled")&&(adsTrackAllows()||adsTrackAllows("game_hub"))}catch(e){}
   /* the tier spec (5 Oct 2026): the daily allowances lead, then storage, then ads where they exist */
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
     <tbody>${row("prem.cmp_ai",esc(t("prem.cmp_perday",{n:VERDICTS_FREE})),esc(t("prem.cmp_fair",{n:VERDICTS_PREMIUM})))}${row("prem.cmp_ytmin",esc(t("prem.cmp_trial",{n:YT_MIN_FREE})),esc(t("prem.cmp_min",{n:YT_MIN_PREMIUM})))}${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}${ads?row("prem.cmp_ads",esc(t("prem.cmp_yes")),esc(t("prem.cmp_none"))):""}</tbody></table>`;

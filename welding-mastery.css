@@ -468,3 +468,11 @@ html.wm-still .wm-game-card:hover .wm-gc-ic.a3 { transform: none; }
 .wm-portal-shift { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .wm-portal-shift .wm-ic { vertical-align: -3px; margin-right: 4px; }
 .wm-portal-cta { margin-top: 6px; min-height: 40px; padding: 8px 14px; font-size: 14px; align-self: flex-start; }
+
+/* ad slots in the game hubs (10 Oct 2026): the AdManager draws a labelled card into these; empty = no space */
+.wm-ad-host:empty { display: none; }
+.wm-ad-foot { margin-top: 16px; }
+.wm-ad-mid { margin: 12px 0; list-style: none; }
+.wm-games > .wm-ad-mid { grid-column: 1 / -1; margin: 0; }
+.wm-road > li.wm-ad-mid { padding: 0; }
+.wm-ad-end { margin-top: 22px; }

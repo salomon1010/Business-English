@@ -448,7 +448,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   draws the allowance card only when spent; `aiOff()` adds "spent". Being
   heard (transcribe, tts, polish, repolish, captions, practice chat) stays
   unmetered; `advanced_progress` and `recommended_content` stay hard locks.
-  **Ads: General English only** — `adsTrackAllows()` is `isGeneralEnglish()`
+  **Ads: General English only** (EXCEPT the game hubs, 10 Oct 2026: `adsTrackAllows(ctx)` also allows
+  the `GAME_AD_CONTEXTS` on Welding while Welding Mastery is open — see docs/ADVERTISING.md) — `adsTrackAllows()` is `isGeneralEnglish()`
   again; Welding shows no ad on any plan (reverses the 5 Oct morning note
   above). `PLAN_LIMITS_TRACK` is empty: 2/1/1/1 Free and 100/20/50/30 Premium
   on both programmes. Copy never says "unlimited" (`prem.headline` /

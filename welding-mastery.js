@@ -437,10 +437,33 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
         ${[["home", "home"], ["games", "games"], ["journey", "map"], ["coll", "coll"], ["rewards", "trophy"], ["hist", "clock"], ["perf", "chart"]].map(([k, icn]) => `<button role="tab" aria-selected="${_tab === k}" class="wm-tab ${_tab === k ? "on" : ""}" data-wm="tab" data-a="${k}">${wi(icn)}${k === "perf" ? `<span class="wm-tl-s" aria-hidden="true">${h(w("t_perf_s"))}</span>` : ""}<span class="wm-tl">${h(w("t_" + k))}</span></button>`).join("")}
       </nav>
       <section class="wm-body" id="wmBody" role="tabpanel">${tabHTML(_tab)}</section>
+      <div class="wm-ad-host wm-ad-foot"></div>
     </div>`;
     if (_tab === "coll") collAfter();
+    adsPlace(el);
     /* the tab bar scrolls on a phone: keep the open tab in view */
     try { const bar = el.querySelector(".wm-tabs"), on2 = bar && bar.querySelector(".wm-tab.on"); if (on2 && (on2.offsetLeft + on2.offsetWidth > bar.scrollLeft + bar.clientWidth || on2.offsetLeft < bar.scrollLeft)) bar.scrollLeft = on2.offsetLeft - 8; } catch (e) {}
+  }
+  /* ADS IN THE GAME HUB (owner, 10 Oct 2026; both programmes, free plan only — Premium removes them):
+     one labelled native slot at the foot of every tab, and one mid-page on the long tabs. WHETHER an ad
+     shows is the app's AdManager / AdEligibility (flag, programme, plan, caps, a round in play) — this
+     file only offers the places. Mid-page goes between items of the tab's own list or grid, never
+     inside a question. */
+  const AD_MID = { games: ".wm-games", journey: "ol.wm-road", coll: "ul.wm-words", hist: ".wm-body", rewards: ".wm-body", perf: ".wm-perf" };
+  function adsPlace(el) {
+    if (typeof AdManager === "undefined" || !el) return;
+    try {
+      const box = AD_MID[_tab] && el.querySelector(AD_MID[_tab]);
+      if (box && !box.querySelector(".wm-ad-mid")) {
+        const kids = [...box.children].filter(k => !k.classList.contains("wm-ad-host"));
+        if (kids.length >= 6) {
+          const mid = document.createElement(/^(UL|OL)$/.test(box.tagName) ? "li" : "div");
+          mid.className = "wm-ad-host wm-ad-mid";
+          box.insertBefore(mid, kids[_tab === "games" ? 4 : Math.floor(kids.length / 2)]);
+        }
+      }
+    } catch (e) {}
+    setTimeout(() => { try { const f = el.querySelector(".wm-ad-foot"), m = el.querySelector(".wm-ad-mid"); if (f) AdManager._fillSlot("game_hub", f, "append"); if (m) AdManager._fillSlot("game_hub_mid", m, "append"); } catch (e) {} }, 300);
   }
   function redraw() { const el = document.getElementById("v-mastery"); if (el && typeof cur !== "undefined" && cur && cur.v === "mastery") render(el); }
   function tabHTML(k) {
@@ -1063,6 +1086,8 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
     const ov = document.getElementById("wmGame"); if (ov) { ov.classList.remove("show"); ov.innerHTML = ""; }
     document.body.style.overflow = ""; try { speechSynthesis.cancel(); } catch (e) {}
     _G = null; redraw();
+    /* back in the hub: the full-screen break a FINISHED round armed (AdManager decides if it shows) */
+    try { if (typeof AdManager !== "undefined" && typeof cur !== "undefined" && cur) AdManager.afterNav(cur.v); } catch (e) {}
   }
   function saveResume() {
     const G = _G; if (!G || G.mode === "crossword" || G.mode === "match") return;
@@ -1109,9 +1134,12 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
       <div class="card wm-next">${wi("target")}<div><small>${h(w("ng_h"))}</small><b>${h(nextGoal().text)}</b></div></div>
       ${names.length ? `<p class="wm-end-m">${wi("medal")} ${h(w("end_mastered", { w: names.join(", ") }))}</p>` : ""}
       <div class="wm-row center"><button class="btn btn-g" data-wm="again">${h(w("end_again"))}</button><button class="btn btn-p" data-wm="gclose">${h(w("end_hub"))}</button></div>
+      <div class="wm-ad-host wm-ad-end"></div>
       ${G.mode === "workshop" ? `<button class="wm-link" data-wm="nav" data-a="simulation">${wi("workshop")} ${h(w("w_link"))} →</button>` : ""}
     </div>`);
     if (a.got.length) achCelebrate(a.got);
+    /* the round is over: a banner under the actions (never beside them), and a full-screen break for when the learner leaves */
+    try { if (typeof AdManager !== "undefined") { AdManager.markBreak("game_complete"); setTimeout(() => { const ov = document.getElementById("wmGame"), e = ov && ov.querySelector(".wm-ad-end"); if (e) AdManager._fillSlot("game_end", e, "append"); }, 400); } } catch (e) {}
     newBadges.forEach((b, i) => setTimeout(() => celebrate("ach", w("bd_new_h"), w("bd_new", { skill: w("skill_" + b.skill), tier: w("bd_t" + b.tier) })), 900 * (i + 1)));
     if (G.ok === G.n && G.n >= 5 && !a.got.length && !newBadges.length) celebrate("round", w("end_h"), w("end_score", { ok: G.ok, n: G.n }));
     G.done = true;

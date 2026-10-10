@@ -287,8 +287,11 @@ console.log("\n# the activation guard: a real network only where the plan system
   const ev = await p.evaluate(() => window.__ev.filter(([n]) => /^ad_|^rewarded_ad_/.test(n)).map(([n]) => n));
   /* the tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only and
      Welding shows none on any plan — so the SDK is never even built there */
-  ok("G4 · WELDING never reaches the ad SDK: the programme refuses (adsTrackAllows false), no bridge is built, the provider stays 'none', no call and no ad event",
-    s.track === false && s.built === "undefined" && s.provider === "none" && s.calls.length === 0 && ev.length === 0, JSON.stringify({ s, ev }));
+  /* 10 Oct 2026 (owner): Welding Mastery's game hub shows ads too, so with that hub ON the
+     bridge may be built for it — but nothing outside the hub ever loads or shows an ad */
+  const hubOn = await p.evaluate(() => !!(window.WMUI && WMUI.on()));
+  ok("G4 · WELDING outside its game hub never shows an ad: the programme refuses (adsTrackAllows false); the SDK is built only when Welding Mastery is on, and no ad is loaded, shown or counted",
+    s.track === false && !s.calls.some(c => /^(load|show)/.test(String(c))) && !ev.some(n => /displayed|loaded|requested/.test(n)) && (hubOn || (s.built === "undefined" && s.provider === "none" && s.calls.length === 0 && ev.length === 0)), JSON.stringify({ s, ev, hubOn }));
   await ctx.close();
 }
 {
