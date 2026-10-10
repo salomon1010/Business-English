@@ -11,6 +11,10 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/.bubblewrap/android_sdk}"
 cd "$here"
 staging=false
 if [ "${1:-}" = "--staging" ]; then staging=true; npm run --silent sync:staging; else npm run --silent sync; fi
+# Firebase config for notifications (FCM), kept outside the repo: production → be-mastery,
+# --staging → be-mastery-test. Missing file = a build without push (BEPush.available() is false).
+fb="$HOME/.config/be-mastery/firebase/google-services.$([ "$staging" = true ] && echo staging || echo production).json"
+if [ -f "$fb" ]; then cp "$fb" android/app/google-services.json; else rm -f android/app/google-services.json; echo "note: $fb not found — building without notifications"; fi
 echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 cd android
 # -PbeStaging=true → BuildConfig.BE_TEST_ADS: Google's test ad units only (a debug build is test-only anyway)
