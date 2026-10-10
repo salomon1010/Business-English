@@ -158,6 +158,10 @@ const EVENTS = new Set([
   // expired | invalidated), source (push | app), gap (retention bucket), week, day.
   "nudge_generated", "nudge_sent", "nudge_opened", "nudge_accepted", "nudge_started", "nudge_completed",
   "nudge_dismissed", "nudge_expired", "nudge_practice", "nudge_partner", "nudge_retained",
+  // Smart Coach (10 Oct 2026, both programmes): engagement and learning outcomes kept apart —
+  // coach_session_completed / coach_completed are VERIFIED results, coach_session_opened is not
+  "coach_recommended", "coach_viewed", "coach_accepted", "coach_declined", "coach_rescheduled", "coach_restarted",
+  "coach_paused", "coach_resumed", "coach_cancelled", "coach_session_opened", "coach_session_completed", "coach_completed", "coach_notif_denied",
   // Home "Because you…" rows (2026-09-27, General English only — the rows do
   // not exist on any other area and the app never sends rec_* there). A row
   // shown (+kind = the row: challenge_done | shadowed | opened | trouble |
@@ -232,7 +236,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // Premium: the store product id (premium_monthly | premium_annual, both stores). Appended last.
   "product",
   // Home recommendations: the content id, the row variant, the row's rank. Appended last.
-  "cid", "variant", "rank"]);
+  "cid", "variant", "rank",
+  // Smart Coach: the plan's focus (vocabulary | pronunciation | grammar | topic | listening | diagnostic). Appended last.
+  "skill"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 640;   // 512 until 27 Sep 2026: three Home-recommendation keys (cid, variant, rank) pushed the every-key test body just past it; a real event is ~230 B
@@ -286,7 +292,9 @@ const LAYOUTS = [
   // recommendation_* → blob3 kind, 4 variant, 5 reason, 6 cid, 7 to, 8 n, 9 rank, 10 track, 11 week, 12 day. New prefix: no history to re-read.
   [/^recommendation_/, ["kind", "variant", "reason", "cid", "to", "n", "rank", "track", "week", "day"]],
   // cert_* → blob3 track. No cert_* row existed before this map.
-  [/^cert_/, ["track"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
+  [/^cert_/, ["track"]],
+  // coach_* → blob3 track, 4 kind (quick|sprint|mastery), 5 skill, 6 result, 7 state, 8 n, 9 source. New prefix: no history to re-read.
+  [/^coach_/, ["track", "kind", "skill", "result", "state", "n", "source"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];
 /* Premium events: every prop must be one of these values or it is written
    blank. The purchase funnel sits next to a purchase token in the client, so

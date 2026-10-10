@@ -414,6 +414,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   Nothing is switched on: `ads_enabled` and `billing_enabled` stay OFF, and the
   production Worker is NOT deployed (`be-entitlements` is not a Worker on the
   account — only the empty D1 exists).
+- **RELEASED TO PRODUCTION 10 Oct 2026 (be12-v683, owner):** `english_mastery_enabled`,
+  `welding_mastery_enabled`, `shadow_scenes_enabled`, `learning_nudges_enabled`,
+  `ios_live_activity_enabled`, `android_live_countdown_enabled` are ON in FLAGS_DEFAULT —
+  wherever a bullet below says one of them is "production OFF", that is now history. The
+  games' server side in production is "games only, everyone Free":
+  - **be-entitlements production is DEPLOYED** with no store secrets (every account Free;
+    the store routes answer 501).
+  - **Production be-polish = its own 1 Oct code + only the game route**
+    (`backend/polish-prod/`, README there; rollback version id in it). Never `wrangler deploy`
+    `backend/` to production: that releases the metering, the YouTube trial and the tiers.
+  - `ENT_API` stays empty and ads / billing / Smart Coach stay OFF.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
@@ -843,6 +854,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
   be-entitlements, so the route answers 503 there. Tests:
   `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
+- **Smart Coach (10 Oct 2026, both programmes, flag `smart_coach_enabled`: staging ON,
+  production OFF) — `docs/SMART_COACH.md`.** Card at the top of the Daily reminder sheet →
+  `SmartCoach.open()`. Pure `smart-coach-engine.js` (shared with the Worker), screens
+  `smart-coach.js` (own en/fr strings), server `backend/coach/` = `be-coach-staging` (Durable
+  Object `CoachStore`; game rounds verified against be-polish-staging's RateLimiter). Focus,
+  length and activities are locked server-side; approval before anything is scheduled; one
+  open plan per programme; completion only from a saved record. iOS reminders:
+  `BEPush.coachSchedule`. Tests: `smart-coach-engine.test.mjs`, `backend/coach/test/run.mjs`,
+  `smart-coach.mjs`, Swift `BEPushCoachTests`.
 - **English Mastery (10 Oct 2026, `feature/english-mastery`, General English ONLY, flag
   `english_mastery_enabled`: staging ON, production OFF) — `docs/ENGLISH_MASTERY.md`.** The
   Welding Mastery hub rebuilt for General English: `go("english", tab)` (`#v-english`), portal

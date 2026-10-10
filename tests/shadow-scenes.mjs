@@ -270,15 +270,16 @@ const C = await learner("C", { track: "general-english", flags: null });
 if (STAGING_HOST) {
   const p = C.page; await toShadow(p);
   const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, row: !!document.querySelector(".scn-lrow") }));
-  ok("staging host: scenes on with no override, while the production default stays OFF", c.on && c.row && c.def === false, JSON.stringify(c));
+  ok("staging host: scenes on with no override (production default ON too since 10 Oct 2026)", c.on && c.row && c.def === true, JSON.stringify(c));
 } else {
   const p = C.page;
   await toShadow(p);
   const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, stg: FLAGS_STAGING.shadow_scenes_enabled, row: !!document.querySelector(".scn-lrow") }));
-  ok("production default is OFF, staging default is ON", c.def === false && c.stg === true, JSON.stringify(c));
-  ok("with production defaults a General English learner sees no scene", !c.on && !c.row, JSON.stringify(c));
+  /* released to production by the owner, 10 Oct 2026 */
+  ok("production default is ON (released 10 Oct 2026), staging default is ON", c.def === true && c.stg === true, JSON.stringify(c));
+  ok("with production defaults a General English learner sees the scenes in the library", c.on && c.row, JSON.stringify(c));
   await p.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0 }); }, SCENE); await sleep(400);
-  ok("…and cannot open one by id", await p.evaluate(() => !document.querySelector(".scn-live")));
+  ok("…and can open one by id", await p.evaluate(() => !!document.querySelector(".scn-live")));
 }
 
 /* ================= D — reduced motion ================= */

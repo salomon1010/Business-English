@@ -297,7 +297,7 @@ if (!process.env.BASE) {
   const ch = await page.evaluate(() => { const cs = [...document.querySelectorAll("#shLib .shl-chip")]; const b = cs.find(x => !x.classList.contains("mine") && !x.classList.contains("on")); b.click(); return document.querySelectorAll("#shLib .shl-chip.on").length === 1 && b.classList.contains("on") && document.querySelectorAll("#shLibFeed .shl-row").length >= 1; });
   ok("A category chip lights alone and fills the feed", ch);
   await page.evaluate(() => document.querySelector("#shLibFeed .shl-row").click()); await wait(1200);
-  ok("Tapping a row opens the workspace on that video", await page.evaluate(() => getComputedStyle(document.getElementById("shWork")).display !== "none" && !!shClip.vid && (document.getElementById("shUrl") || {}).value.includes(shClip.vid)));
+  ok("Tapping a row opens the workspace on that video", await page.evaluate(() => getComputedStyle(document.getElementById("shWork")).display !== "none" && !!shClip.vid && ((typeof scnIs === "function" && scnIs(shClip.vid)) || (document.getElementById("shUrl") || {}).value.includes(shClip.vid))));   /* a row may be an animated scene since 10 Oct 2026: no YouTube address for it */
   /* The library is the production default since be12-v431, so CLEARING the
      override no longer turns it off. Force it off instead: the classic picker
      is still a live path (Welding, and any rollback) and must keep working. */
