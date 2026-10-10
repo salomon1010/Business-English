@@ -26829,7 +26829,13 @@ function svRender(){
 function svPlace(first){
   const box=svBox(),seg=document.getElementById("shSeg"),hint=document.getElementById("shMarkHint");if(!box||!seg||!hint||box.parentNode!==seg.parentNode)return;
   if(first){if(box.nextElementSibling!==seg)seg.parentNode.insertBefore(box,seg)}
-  else if(hint.nextElementSibling!==box)hint.parentNode.insertBefore(box,hint.nextElementSibling);
+  else{
+    /* video -> ad -> the paragraph card (owner, 10 Oct 2026, from a phone: the ad
+       sat UNDER the card). The ad's permanent host follows the hint, so the card
+       goes after the host, never between the hint and it. */
+    const ad=document.getElementById("shAdHost"),after=ad&&ad.parentNode===box.parentNode?ad:hint;
+    if(after.nextElementSibling!==box)after.parentNode.insertBefore(box,after.nextElementSibling);
+  }
 }
 /* the full list, folded or open; remembered on this device */
 let svTxOpen=false;try{svTxOpen=localStorage.getItem("be_sv_txopen")==="1"}catch(e){}

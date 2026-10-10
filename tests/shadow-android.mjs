@@ -89,6 +89,25 @@ console.log("\n# Challenge holds the player to its paragraph");
   await ctx.close();
 }
 
+console.log("\n# Shadow page order: video -> ad -> the paragraph card");
+{
+  const { p, ctx, errs } = await open(false);
+  await p.evaluate(() => go("shadow")); await sleep(900);
+  const r = await p.evaluate(() => {
+    const ad = document.getElementById("shAdHost"), box = svBox(), hint = document.getElementById("shMarkHint");
+    if (!ad || !box || !hint) return { missing: [!!ad, !!box, !!hint] };
+    svPlace(false);
+    const shadowOrder = !!(ad.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING) && !!(hint.compareDocumentPosition(ad) & Node.DOCUMENT_POSITION_FOLLOWING);
+    svPlace(true);
+    const watchOk = box.nextElementSibling === document.getElementById("shSeg");
+    return { shadowOrder, watchOk };
+  });
+  ok("11 · in Shadow the ad's host comes BEFORE the paragraph card (it used to sit under it)", r.shadowOrder, JSON.stringify(r));
+  ok("12 · Watch keeps its own place (the list above the clip tools)", r.watchOk, JSON.stringify(r));
+  ok("13 · no JavaScript errors", errs.length === 0, errs.join(" | "));
+  await ctx.close();
+}
+
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
