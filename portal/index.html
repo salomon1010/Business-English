@@ -22,7 +22,10 @@
     var q=location.search||"",h=location.hash||"";
     if(/[?&]portal=1(&|$)/.test(q))return;
     var go=false;
-    if(/^android-app:\/\//.test(document.referrer||""))go=true;
+    /* the Play app: after the forward the app sees this portal as its referrer, not
+       android-app://, so the mark is handed over in the tab's sessionStorage, which the
+       app's isPlayApp() reads first (an older Play build sends no ?wid=) */
+    if(/^android-app:\/\//.test(document.referrer||"")){go=true;try{sessionStorage.setItem("be_twa","1")}catch(e){}}
     try{if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)go=true}catch(e){}
     if(/[?&](wid|widget|nudge|flags)=/.test(q))go=true;
     if(/^#\/?[a-z]/i.test(h))go=true;

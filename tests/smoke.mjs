@@ -24,6 +24,9 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36" });
 const page = await ctx.newPage();
 const errors = []; page.on("pageerror", e => errors.push(String(e.message) + " @ " + String(e.stack || "").split("\n").slice(1, 3).join(" | ")));
+/* the web visitor landing (ON in production since be12-v686) would stand in front of a new
+   visitor on a real host; the smoke suite tests the app behind it, so it opts out explicitly */
+await ctx.addInitScript(() => { try { if (!sessionStorage.getItem("smoke_flags")) { sessionStorage.setItem("smoke_flags", "1"); const o = JSON.parse(localStorage.getItem("be_flags") || "{}"); o.web_visitor_gate_enabled = false; localStorage.setItem("be_flags", JSON.stringify(o)); } } catch (e) {} });
 await page.goto(BASE + "/index.html?smoke=" + Date.now(), { waitUntil: "load" });
 const wait = ms => page.waitForTimeout(ms);
 

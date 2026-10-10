@@ -210,10 +210,20 @@ try {
     await ctx.close();
   }
   {
-    /* production default: the flag is off, so /bemastery/ behaves exactly like today's root */
+    /* production default is ON (be12-v686), but a local test host never shows the landing
+       without an explicit be_flags entry, so every other suite still meets onboarding */
     const { ctx, page } = await fresh(MOBILE);
     await page.goto(BASE + "/bemastery/", { waitUntil: "load" }); await sleep(1000);
-    ok("Flag off (production default): a new visitor gets onboarding exactly as today", await page.evaluate(() => !document.getElementById("webGate") && !!document.getElementById("obWrap") && flag("web_visitor_gate_enabled") === false));
+    ok("Landing ON by default in production, but never on a local test host without an explicit override", await page.evaluate(() => FLAGS_DEFAULT.web_visitor_gate_enabled === true && webGateFlag() === false && !document.getElementById("webGate") && !!document.getElementById("obWrap")));
+    await ctx.close();
+  }
+  {
+    /* the Play app forwarded from the portal (referrer android-app://) is marked for the app */
+    const { ctx, page } = await fresh(MOBILE, GATE_ON);
+    await page.goto(BASE + "/?portal=1", { waitUntil: "load" });
+    await page.evaluate(() => { sessionStorage.setItem("be_twa", "1"); });
+    await page.goto(BASE + "/bemastery/", { waitUntil: "load" }); await sleep(1000);
+    ok("A tab the portal marked as the Play app (be_twa) gets onboarding, never the landing", await page.evaluate(() => !document.getElementById("webGate") && !!document.getElementById("obWrap")));
     await ctx.close();
   }
 } finally {
