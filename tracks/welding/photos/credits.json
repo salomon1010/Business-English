@@ -342,5 +342,109 @@
     "author": "Classicalpunk",
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-porosity": {
+    "file": "wm-porosity.jpg",
+    "title": "Illustration of a porosity",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-spatter": {
+    "file": "wm-spatter.jpg",
+    "title": "Illustration of a spatter",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-undercut": {
+    "file": "wm-undercut.jpg",
+    "title": "Illustration of a undercut",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-overlap": {
+    "file": "wm-overlap.jpg",
+    "title": "Illustration of a overlap",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-burn-through": {
+    "file": "wm-burn-through.jpg",
+    "title": "Illustration of a burn through",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-excess-reinforcement": {
+    "file": "wm-excess-reinforcement.jpg",
+    "title": "Illustration of a excess reinforcement",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-root-gap": {
+    "file": "wm-root-gap.jpg",
+    "title": "Illustration of a root gap",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-t-joint": {
+    "file": "wm-t-joint.jpg",
+    "title": "Illustration of a t joint",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-corner-joint": {
+    "file": "wm-corner-joint.jpg",
+    "title": "Illustration of a corner joint",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-chipping-hammer": {
+    "file": "wm-chipping-hammer.jpg",
+    "title": "Illustration of a chipping hammer",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-scriber": {
+    "file": "wm-scriber.jpg",
+    "title": "Illustration of a scriber",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-contact-tip": {
+    "file": "wm-contact-tip.jpg",
+    "title": "Illustration of a contact tip",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
+  },
+  "wm-welding-screen": {
+    "file": "wm-welding-screen.jpg",
+    "title": "Illustration of a welding screen",
+    "source": "",
+    "author": "Lomonec LLC",
+    "license": "Illustration",
+    "kind": "illustration"
   }
 }
