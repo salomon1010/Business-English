@@ -1,266 +1,346 @@
 {
- "wm-grinder": {
-  "file": "wm-grinder.jpg",
-  "title": "File:AngleGrinder.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:AngleGrinder.jpg",
-  "author": "Pittigrilli (Wikimedia Commons uploader)",
-  "license": "CC BY-SA 2.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
- },
- "wm-regulator": {
-  "file": "wm-regulator.jpg",
-  "title": "File:Gas regulator GMAW MIG MAG.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Gas_regulator_GMAW_MIG_MAG.jpg",
-  "author": "Mimzy",
-  "license": "CC0",
-  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
- },
- "wm-welding-machine": {
-  "file": "wm-welding-machine.jpg",
-  "title": "File:CO2 welding machine.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:CO2_welding_machine.jpg",
-  "author": "Sunnybansodeva",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-electrode-holder": {
-  "file": "wm-electrode-holder.jpg",
-  "title": "File:Arc welding electrodes and electrode holder.triddle, handle.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Arc_welding_electrodes_and_electrode_holder.triddle,_handle.jpg",
-  "author": "Wikipedia:en:User:Triddle (original), Curkuma Putz (cut)",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-gas-cylinder": {
-  "file": "wm-gas-cylinder.jpg",
-  "title": "File:DSCF0726 Stacked oxygen cylinders stand along a covered parking ramp leading to parked cars and a bright exit in the distance.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:DSCF0726_Stacked_oxygen_cylinders_stand_along_a_covered_parking_ramp_leading_to_parked_cars_and_a_bright_exit_in_the_distance.jpg",
-  "author": "PattayaPatrol",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-wire-brush": {
-  "file": "wm-wire-brush.jpg",
-  "title": "File:Drahtbürste aus Spremberg1.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Drahtb%C3%BCrste_aus_Spremberg1.jpg",
-  "author": "Muldentaler2",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-clamp": {
-  "file": "wm-clamp.jpg",
-  "title": "File:Charade 20 answer.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Charade_20_answer.jpg",
-  "author": "Andy / Andrew Fogg",
-  "license": "CC BY 2.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
- },
- "wm-vice": {
-  "file": "wm-vice.jpg",
-  "title": "File:An engineer's vise. img 01.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:An_engineer%27s_vise._img_01.jpg",
-  "author": "Dmitry Makeev",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-tape-measure": {
-  "file": "wm-tape-measure.jpg",
-  "title": "File:B&Q Tape Measure.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:B%26Q_Tape_Measure.jpg",
-  "author": "多多123",
-  "license": "CC BY 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
- },
- "wm-try-square": {
-  "file": "wm-try-square.jpg",
-  "title": "File:Carpenter-tools Beveled-edge-chisel-two-angle-gauges-and-carpenters-pencil-01.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Carpenter-tools_Beveled-edge-chisel-two-angle-gauges-and-carpenters-pencil-01.jpg",
-  "author": "CEphoto, Uwe Aranas",
-  "license": "CC BY-SA 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
- },
- "wm-flap-disc": {
-  "file": "wm-flap-disc.jpg",
-  "title": "File:Faecherschleifscheibe.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Faecherschleifscheibe.jpg",
-  "author": "Verrukta",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-cutting-disc": {
-  "file": "wm-cutting-disc.jpg",
-  "title": "File:Winkelschleifer Trennscheibe Metall.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Winkelschleifer_Trennscheibe_Metall.jpg",
-  "author": "Ralf Pfeifer",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-plasma-cutter": {
-  "file": "wm-plasma-cutter.jpg",
-  "title": "File:Corte por plasma.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Corte_por_plasma.jpg",
-  "author": "Diego Baron Carral",
-  "license": "CC0",
-  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
- },
- "wm-welding-helmet": {
-  "file": "wm-welding-helmet.jpg",
-  "title": "File:Man in the Iron Welding Mask.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Man_in_the_Iron_Welding_Mask.jpg",
-  "author": "Jeffrey Holton",
-  "license": "CC BY 2.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
- },
- "wm-safety-glasses": {
-  "file": "wm-safety-glasses.jpg",
-  "title": "File:2023 Okulary ochronne (1).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:2023_Okulary_ochronne_(1).jpg",
-  "author": "Jacek Halicki",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-welding-gloves": {
-  "file": "wm-welding-gloves.jpg",
-  "title": "File:Equip per soldar.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Equip_per_soldar.jpg",
-  "author": "Josep Vinyes Gilabert",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-safety-boots": {
-  "file": "wm-safety-boots.jpg",
-  "title": "File:DeWalt Newark steel toe work boots.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:DeWalt_Newark_steel_toe_work_boots.jpg",
-  "author": "Best For My Feet",
-  "license": "CC BY 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
- },
- "wm-flowmeter": {
-  "file": "wm-flowmeter.jpg",
-  "title": "File:Techfluid-CG34-2500.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Techfluid-CG34-2500.jpg",
-  "author": "© 2010 K. Krallis (SV1XV)",
-  "license": "CC BY-SA 3.0 gr",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/gr/deed.en"
- },
- "wm-respirator": {
-  "file": "wm-respirator.jpg",
-  "title": "File:Elipse-half-mask-4.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Elipse-half-mask-4.jpg",
-  "author": "AlexChirkin",
-  "license": "CC0",
-  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
- },
- "wm-fire-extinguisher": {
-  "file": "wm-fire-extinguisher.jpg",
-  "title": "File:Fire Extinguisher at Naka-konoike Public Housing 7th Building.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Fire_Extinguisher_at_Naka-konoike_Public_Housing_7th_Building.jpg",
-  "author": "Mr.ちゅらさん",
-  "license": "CC BY 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
- },
- "wm-gas-detector": {
-  "file": "wm-gas-detector.jpg",
-  "title": "File:Detector for Gas.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Detector_for_Gas.jpg",
-  "author": "Sansumaria at English Wikipedia",
-  "license": "CC BY-SA 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
- },
- "wm-electrode": {
-  "file": "wm-electrode.jpg",
-  "title": "File:0277Welders with welding machines and equipment at work in Bustos Bulacan 23.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:0277Welders_with_welding_machines_and_equipment_at_work_in_Bustos_Bulacan_23.jpg",
-  "author": "Judgefloro",
-  "license": "CC0",
-  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
- },
- "wm-pipe": {
-  "file": "wm-pipe.jpg",
-  "title": "File:304 STAINLESS STEEL PIPE.png",
-  "source": "https://commons.wikimedia.org/wiki/File:304_STAINLESS_STEEL_PIPE.png",
-  "author": "Libowei111",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
- },
- "wm-welding-torch": {
-  "file": "wm-welding-torch.jpg",
-  "title": "File:TIG gorilnik.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:TIG_gorilnik.jpg",
-  "author": "Mak04 at Slovenian Wikipedia",
-  "license": "Public domain",
-  "licenseUrl": ""
- },
- "wm-gas-nozzle": {
-  "file": "wm-gas-nozzle.jpg",
-  "title": "File:TIG torch-accs.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:TIG_torch-accs.jpg",
-  "author": "TTLightningRod",
-  "license": "Public domain",
-  "licenseUrl": ""
- },
- "wm-filler-wire": {
-  "file": "wm-filler-wire.jpg",
-  "title": "File:FCAW Wire Feeder.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:FCAW_Wire_Feeder.jpg",
-  "author": "Mgschuler",
-  "license": "CC BY 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
- },
- "wm-lap-joint": {
-  "file": "wm-lap-joint.jpg",
-  "title": "File:Stainless lap joint.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Stainless_lap_joint.jpg",
-  "author": "Joel Washing",
-  "license": "CC BY 2.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
- },
- "wm-butt-joint": {
-  "file": "wm-butt-joint.jpg",
-  "title": "File:V-butt-weld.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:V-butt-weld.jpg",
-  "author": "Alu.cz",
-  "license": "Public domain",
-  "licenseUrl": ""
- },
- "wm-fillet-weld": {
-  "file": "wm-fillet-weld.jpg",
-  "title": "File:Spoina.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:Spoina.JPG",
-  "author": "AvantaR",
-  "license": "CC BY-SA 3.0",
-  "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
- },
- "wm-weld-bead": {
-  "file": "wm-weld-bead.jpg",
-  "title": "File:Roostevabaterase keevisõmblus.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Roostevabaterase_keevis%C3%B5mblus.jpg",
-  "author": "Tanel Eensoo",
-  "license": "CC BY-SA 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
- },
- "wm-root-pass": {
-  "file": "wm-root-pass.jpg",
-  "title": "File:Pipe root weld with HAZ.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Pipe_root_weld_with_HAZ.jpg",
-  "author": "Ytrottier",
-  "license": "CC BY 2.5",
-  "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
- },
- "wm-tig-welding": {
-  "file": "wm-tig-welding.jpg",
-  "title": "File:TIG Weld Flange.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:TIG_Weld_Flange.jpg",
-  "author": "MikeManzoni",
-  "license": "CC BY-SA 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
- },
- "wm-defect": {
-  "file": "wm-defect.jpg",
-  "title": "File:Welding-poor-quality-001.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Welding-poor-quality-001.jpg",
-  "author": "Alu.cz",
-  "license": "CC BY 3.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
- }
+  "wm-grinder": {
+    "file": "wm-grinder.jpg",
+    "title": "File:AngleGrinder.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:AngleGrinder.jpg",
+    "author": "Pittigrilli (Wikimedia Commons uploader)",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  "wm-regulator": {
+    "file": "wm-regulator.jpg",
+    "title": "File:Gas regulator GMAW MIG MAG.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Gas_regulator_GMAW_MIG_MAG.jpg",
+    "author": "Mimzy",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  "wm-welding-machine": {
+    "file": "wm-welding-machine.jpg",
+    "title": "File:CO2 welding machine.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:CO2_welding_machine.jpg",
+    "author": "Sunnybansodeva",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-electrode-holder": {
+    "file": "wm-electrode-holder.jpg",
+    "title": "File:Arc welding electrodes and electrode holder.triddle, handle.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Arc_welding_electrodes_and_electrode_holder.triddle,_handle.jpg",
+    "author": "Wikipedia:en:User:Triddle (original), Curkuma Putz (cut)",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-gas-cylinder": {
+    "file": "wm-gas-cylinder.jpg",
+    "title": "File:DSCF0726 Stacked oxygen cylinders stand along a covered parking ramp leading to parked cars and a bright exit in the distance.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:DSCF0726_Stacked_oxygen_cylinders_stand_along_a_covered_parking_ramp_leading_to_parked_cars_and_a_bright_exit_in_the_distance.jpg",
+    "author": "PattayaPatrol",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-wire-brush": {
+    "file": "wm-wire-brush.jpg",
+    "title": "File:Drahtbürste aus Spremberg1.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Drahtb%C3%BCrste_aus_Spremberg1.jpg",
+    "author": "Muldentaler2",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-clamp": {
+    "file": "wm-clamp.jpg",
+    "title": "File:Charade 20 answer.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Charade_20_answer.jpg",
+    "author": "Andy / Andrew Fogg",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  "wm-vice": {
+    "file": "wm-vice.jpg",
+    "title": "File:An engineer's vise. img 01.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:An_engineer%27s_vise._img_01.jpg",
+    "author": "Dmitry Makeev",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-tape-measure": {
+    "file": "wm-tape-measure.jpg",
+    "title": "File:B&Q Tape Measure.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:B%26Q_Tape_Measure.jpg",
+    "author": "多多123",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+  },
+  "wm-try-square": {
+    "file": "wm-try-square.jpg",
+    "title": "File:Carpenter-tools Beveled-edge-chisel-two-angle-gauges-and-carpenters-pencil-01.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Carpenter-tools_Beveled-edge-chisel-two-angle-gauges-and-carpenters-pencil-01.jpg",
+    "author": "CEphoto, Uwe Aranas",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-flap-disc": {
+    "file": "wm-flap-disc.jpg",
+    "title": "File:Faecherschleifscheibe.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Faecherschleifscheibe.jpg",
+    "author": "Verrukta",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-cutting-disc": {
+    "file": "wm-cutting-disc.jpg",
+    "title": "File:Winkelschleifer Trennscheibe Metall.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Winkelschleifer_Trennscheibe_Metall.jpg",
+    "author": "Ralf Pfeifer",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-plasma-cutter": {
+    "file": "wm-plasma-cutter.jpg",
+    "title": "File:Corte por plasma.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Corte_por_plasma.jpg",
+    "author": "Diego Baron Carral",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  "wm-welding-helmet": {
+    "file": "wm-welding-helmet.jpg",
+    "title": "File:Man in the Iron Welding Mask.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Man_in_the_Iron_Welding_Mask.jpg",
+    "author": "Jeffrey Holton",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  "wm-safety-glasses": {
+    "file": "wm-safety-glasses.jpg",
+    "title": "File:2023 Okulary ochronne (1).jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:2023_Okulary_ochronne_(1).jpg",
+    "author": "Jacek Halicki",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-welding-gloves": {
+    "file": "wm-welding-gloves.jpg",
+    "title": "File:Equip per soldar.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Equip_per_soldar.jpg",
+    "author": "Josep Vinyes Gilabert",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-safety-boots": {
+    "file": "wm-safety-boots.jpg",
+    "title": "File:DeWalt Newark steel toe work boots.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:DeWalt_Newark_steel_toe_work_boots.jpg",
+    "author": "Best For My Feet",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  "wm-flowmeter": {
+    "file": "wm-flowmeter.jpg",
+    "title": "File:Techfluid-CG34-2500.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Techfluid-CG34-2500.jpg",
+    "author": "© 2010 K. Krallis (SV1XV)",
+    "license": "CC BY-SA 3.0 gr",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/gr/deed.en"
+  },
+  "wm-respirator": {
+    "file": "wm-respirator.jpg",
+    "title": "File:Elipse-half-mask-4.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Elipse-half-mask-4.jpg",
+    "author": "AlexChirkin",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  "wm-fire-extinguisher": {
+    "file": "wm-fire-extinguisher.jpg",
+    "title": "File:Fire Extinguisher at Naka-konoike Public Housing 7th Building.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Fire_Extinguisher_at_Naka-konoike_Public_Housing_7th_Building.jpg",
+    "author": "Mr.ちゅらさん",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+  },
+  "wm-gas-detector": {
+    "file": "wm-gas-detector.jpg",
+    "title": "File:Detector for Gas.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Detector_for_Gas.jpg",
+    "author": "Sansumaria at English Wikipedia",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-electrode": {
+    "file": "wm-electrode.jpg",
+    "title": "File:0277Welders with welding machines and equipment at work in Bustos Bulacan 23.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:0277Welders_with_welding_machines_and_equipment_at_work_in_Bustos_Bulacan_23.jpg",
+    "author": "Judgefloro",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  "wm-pipe": {
+    "file": "wm-pipe.jpg",
+    "title": "File:304 STAINLESS STEEL PIPE.png",
+    "source": "https://commons.wikimedia.org/wiki/File:304_STAINLESS_STEEL_PIPE.png",
+    "author": "Libowei111",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-welding-torch": {
+    "file": "wm-welding-torch.jpg",
+    "title": "File:TIG gorilnik.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:TIG_gorilnik.jpg",
+    "author": "Mak04 at Slovenian Wikipedia",
+    "license": "Public domain",
+    "licenseUrl": ""
+  },
+  "wm-gas-nozzle": {
+    "file": "wm-gas-nozzle.jpg",
+    "title": "File:TIG torch-accs.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:TIG_torch-accs.jpg",
+    "author": "TTLightningRod",
+    "license": "Public domain",
+    "licenseUrl": ""
+  },
+  "wm-filler-wire": {
+    "file": "wm-filler-wire.jpg",
+    "title": "File:FCAW Wire Feeder.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:FCAW_Wire_Feeder.jpg",
+    "author": "Mgschuler",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  "wm-lap-joint": {
+    "file": "wm-lap-joint.jpg",
+    "title": "File:Stainless lap joint.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Stainless_lap_joint.jpg",
+    "author": "Joel Washing",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  "wm-butt-joint": {
+    "file": "wm-butt-joint.jpg",
+    "title": "File:V-butt-weld.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:V-butt-weld.jpg",
+    "author": "Alu.cz",
+    "license": "Public domain",
+    "licenseUrl": ""
+  },
+  "wm-fillet-weld": {
+    "file": "wm-fillet-weld.jpg",
+    "title": "File:Spoina.JPG",
+    "source": "https://commons.wikimedia.org/wiki/File:Spoina.JPG",
+    "author": "AvantaR",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  "wm-weld-bead": {
+    "file": "wm-weld-bead.jpg",
+    "title": "File:Roostevabaterase keevisõmblus.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Roostevabaterase_keevis%C3%B5mblus.jpg",
+    "author": "Tanel Eensoo",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-root-pass": {
+    "file": "wm-root-pass.jpg",
+    "title": "File:Pipe root weld with HAZ.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Pipe_root_weld_with_HAZ.jpg",
+    "author": "Ytrottier",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+  },
+  "wm-tig-welding": {
+    "file": "wm-tig-welding.jpg",
+    "title": "File:TIG Weld Flange.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:TIG_Weld_Flange.jpg",
+    "author": "MikeManzoni",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-defect": {
+    "file": "wm-defect.jpg",
+    "title": "File:Welding-poor-quality-001.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Welding-poor-quality-001.jpg",
+    "author": "Alu.cz",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  "wm-earth-clamp": {
+    "file": "wm-earth-clamp.jpg",
+    "title": "File:Wig-merkle-ein.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Wig-merkle-ein.jpg",
+    "author": "Nutzdatenbegleiter",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-fillet-weld-gauge": {
+    "file": "wm-fillet-weld-gauge.jpg",
+    "title": "File:Svetsmatt.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Svetsmatt.jpg",
+    "author": "Anders Lagerås",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-file": {
+    "file": "wm-file.jpg",
+    "title": "File:Flat File.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flat_File.jpg",
+    "author": "Luke Milburn",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  "wm-leather-apron": {
+    "file": "wm-leather-apron.jpg",
+    "title": "File:\"Les Darcy at the blacksmith shop door\", East Maitland, ca. 1910 - Victor Studios (3583440997).jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%22Les_Darcy_at_the_blacksmith_shop_door%22,_East_Maitland,_ca._1910_-_Victor_Studios_(3583440997).jpg",
+    "author": "Victor Studios",
+    "license": "Public domain",
+    "licenseUrl": ""
+  },
+  "wm-ear-defenders": {
+    "file": "wm-ear-defenders.jpg",
+    "title": "File:Peltor earmuffs.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Peltor_earmuffs.jpg",
+    "author": "JiriMatejicek",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-tungsten-electrode": {
+    "file": "wm-tungsten-electrode.jpg",
+    "title": "File:WZ-8 D 5 -175 мм - пачка 5 шт.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:WZ-8_D_5_-175_%D0%BC%D0%BC_-_%D0%BF%D0%B0%D1%87%D0%BA%D0%B0_5_%D1%88%D1%82.jpg",
+    "author": "Ruslan468",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  "wm-plate": {
+    "file": "wm-plate.jpg",
+    "title": "File:Rusty steel plate.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Rusty_steel_plate.jpg",
+    "author": "Fumikas Sagisavas",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  "wm-crack": {
+    "file": "wm-crack.jpg",
+    "title": "File:Stress-Corrosion-Cracking-caused-by-weld-stress-01.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Stress-Corrosion-Cracking-caused-by-weld-stress-01.jpg",
+    "author": "CEphoto, Uwe Aranas",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  "wm-bevel": {
+    "file": "wm-bevel.jpg",
+    "title": "File:V-butt-weld.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:V-butt-weld.jpg",
+    "author": "Alu.cz",
+    "license": "Public domain",
+    "licenseUrl": ""
+  },
+  "wm-incomplete-penetration": {
+    "file": "wm-incomplete-penetration.jpg",
+    "title": "File:Manque pénétration face.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Manque_p%C3%A9n%C3%A9tration_face.jpg",
+    "author": "Classicalpunk",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  }
 }

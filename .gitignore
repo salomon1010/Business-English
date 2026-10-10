@@ -66,3 +66,4 @@ tests/node_modules
 backend/push/.dev.vars
 
 backend/mail/.dev.vars
+scripts/welding-photos/out/

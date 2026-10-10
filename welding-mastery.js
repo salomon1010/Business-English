@@ -24,7 +24,7 @@
   "use strict";
   const E = window.WMEngine;
   const AREA = "welding", TOTAL = 250;
-  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=1", PHOTO_DIR = "tracks/welding/photos/", ART3D_URL = "tracks/welding/mastery-art3d.json?v=1";
+  const CORPUS_URL = "tracks/welding/mastery.json?v=1", ART_URL = "tracks/welding/mastery-art.json?v=1", PHOTO_URL = "tracks/welding/photos/credits.json?v=2", PHOTO_DIR = "tracks/welding/photos/", ART3D_URL = "tracks/welding/mastery-art3d.json?v=1";
   let C = null, ART = null, PHOTOS = {}, ART3D = {}, _load = null, _err = false;
   let _tab = "home", _coll = { q: "", cat: "all", seg: "all" }, _edit = null, _G = null;
 
