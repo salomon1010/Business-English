@@ -19065,7 +19065,10 @@ let shFB={rec:null,on:false,txt:"",t0:0};
 let fbCtx={vid:null,recCtx:null}; /* which recording context the current feedback belongs to */
 function fbRecStart(cfg){
   /* start parallel transcription while the MediaRecorder runs; cfg={vid,targetId,heardId,recCtx} */
-  if(!SR)return;
+  /* No live engine (Android's in-app WebView has none that delivers — found on a
+     real phone, 10 Oct 2026): keep the take's context anyway, and shFBDone
+     transcribes the SAVED take with Whisper, as every other recorder does. */
+  if(!SR||IS_ANDROID_APP){shFB=Object.assign({rec:null,on:true,txt:"",t0:Date.now()},cfg);return}
   try{
     shFB=Object.assign({rec:new SR(),on:true,txt:"",t0:Date.now()},cfg);
     const r=shFB.rec;
@@ -19111,8 +19114,25 @@ function shHeardUI(heard){
   const box=document.getElementById("shHeardBox");
   if(box)box.innerHTML=heard?"“"+esc(heard)+"”":`<span class="sess-heard-empty">${t("sh.transcript_empty")}</span>`;
 }
+/* The saved take of THIS recording (recToggle files it after the stop), sent to
+   Whisper — the fallback whenever live recognition heard nothing. */
+async function shFBWhisper(ctx,t0){
+  try{
+    await recFiled;
+    const r=(await getRecs(ctx))[0];
+    if(!r||!r.blob||r.blob.size<1200||r.ts<t0-2000)return "";
+    toast(t("rp.transcribing"));
+    return (await fbTranscribe(r.blob))||"";
+  }catch(e){return ""}
+}
 async function shFBDone(){
-  const heard=shFB.txt.trim();
+  let heard=shFB.txt.trim();
+  if(!heard&&shFB.recCtx){
+    const keep=shFB;
+    heard=(await shFBWhisper(keep.recCtx,keep.t0)).trim();
+    shFB=keep;
+    if(!heard&&typeof keep.onDone!=="function"){const why=fbTxWhyText();toast(why||t("sh.no_words_toast"));return}
+  }
   /* One seam, so a V2 mission can use the app's recorder + transcriber without
      a second copy of either. The mission owns what happens next: it grades the
      turn against its own rubric instead of the shadow feedback panel, and it
@@ -29084,6 +29104,21 @@ function svTick(){
   if(!ready&&Date.now()-shSeek.at>=1200)return;          /* no player and no recent seek: nothing to sync to */
   let tS=0;try{tS=ready?shCurT():shSeek.t}catch(e){return}
   if(svChStopAt!=null&&tS*1000>=svChStopAt){svChStopAt=null;try{ytPlayer.pauseVideo();svAutoPaused=true}catch(e){}const f=svChOnStop;svChOnStop=null;if(f)try{f()}catch(e){}}
+  /* CHALLENGE holds the player to its paragraph (owner, 10 Oct 2026: "even if the
+     user wants to listen, it will be listening only that clip"). The ladder's own
+     plays already stop at the end; this also covers the player's OWN play button
+     and a drag of its bar: before the paragraph → jump to its start; past its end →
+     pause and rewind, ready to play again. The paragraph is pinned on the first
+     tick, so it can no longer drift to follow the video. */
+  if(svMode==="challenge"&&!svRepeat){
+    const g=svChSegObj();
+    if(g&&g.endMs>g.startMs){
+      if(svChPara<0)svChPara=g.from;
+      const ms=tS*1000;
+      if(ms>g.endMs+250){try{ytPlayer.pauseVideo();svAutoPaused=true;shSeekTo(g.startMs/1000)}catch(e){}return}
+      if(ms<g.startMs-1500){try{shSeekTo(g.startMs/1000)}catch(e){}return}
+    }
+  }
   if(svRepeat&&tS>=svRepeat.end){shSeekTo(svRepeat.start);return}
   if(!svRepeat&&shLooping&&shClip.end>shClip.start&&tS>=shClip.end){shSeekTo(shClip.start);return}   // the clip loop on the frame it ends, not on the next 250 ms poll
   const loc=ShadowSync.locate(a,tS*1000);
