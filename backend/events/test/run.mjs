@@ -96,8 +96,8 @@ console.log("\n1 · TRANSPORT");
 /* ── 2 · the 20-blob limit and the legacy columns ──────────────────────── */
 console.log("\n2 · ROW LAYOUT — the Analytics Engine limit, and the columns that existed before 19 Sept 2026");
 ok(`the Worker states the limit workerd enforces: ${AE_MAX} blobs per data point`, AE_MAX === 20);
-ok("PROP_KEYS is still the allow-list of readable keys — 39 keys (product for Premium, then cid, variant, rank for Home), first 26 identical and in order to origin/main",
-  KEYS.length === 39 && KEYS[35] === "product" && KEYS.slice(36).join() === "cid,variant,rank" && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
+ok("PROP_KEYS is still the allow-list of readable keys — 40 keys (product for Premium, then cid, variant, rank for Home, then skill for Smart Coach), first 26 identical and in order to origin/main",
+  KEYS.length === 40 && KEYS[35] === "product" && KEYS.slice(36).join() === "cid,variant,rank,skill" && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
 ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exactly the columns that ever existed",
   LEGACY.join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now" && LEGACY.length === 18);
 { const all = {}; for (const k of KEYS) all[k] = "x";
@@ -212,7 +212,7 @@ console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
 ok("the allow-list carries fifteen v2_* names (eleven missions + four speaking-report)", V2.length === 15, V2.join());
 ok("the six V2 prop keys are allow-listed (contiguous, before the ad keys)", KEYS.slice(26, 32).join() === "competency,mission,move,attempt,ai,from");
-ok("the three ad prop keys (Phase 8), then product (Phase 12A), then the Home recommendation keys, are appended last", KEYS.slice(-7).join() === "format,context,provider,product,cid,variant,rank");
+ok("the three ad prop keys (Phase 8), then product (Phase 12A), then the Home recommendation keys, then skill (Smart Coach), are appended last", KEYS.slice(-8).join() === "format,context,provider,product,cid,variant,rank,skill");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));
 

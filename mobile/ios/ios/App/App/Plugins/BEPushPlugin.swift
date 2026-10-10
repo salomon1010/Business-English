@@ -39,6 +39,8 @@ public class BEPushPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "register", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "pendingTap", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clear", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "coachSchedule", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "coachPending", returnType: CAPPluginReturnPromise),
     ]
 
     /// How long a registration may wait for Apple. A phone with no network gets
@@ -118,6 +120,93 @@ public class BEPushPlugin: CAPPlugin, CAPBridgedPlugin {
             else { UIApplication.shared.applicationIconBadgeNumber = 0 }
             call.resolve()
         }
+    }
+
+    // MARK: - Smart Coach session reminders (local notifications, 10 Oct 2026)
+
+    /// Replace EVERY pending Smart Coach reminder with `items` — never add to
+    /// them, so a retry, a reschedule or a second sync cannot duplicate one.
+    /// Each item is a wall-clock date and time; the trigger is a calendar
+    /// trigger in the device's current calendar, so a clock change (DST) keeps
+    /// the session at the time the learner chose. `ask: true` (sent only when
+    /// the learner approves a plan) may show the system prompt once; otherwise
+    /// permission is never requested. An empty list clears them (pause, cancel,
+    /// plan finished). Delivery is the system's decision: nothing here promises it.
+    @objc func coachSchedule(_ call: CAPPluginCall) {
+        let raw = call.getArray("items", JSObject.self) ?? []
+        let requests = raw.compactMap { BEPushPlugin.coachRequest($0 as [String: Any]) }
+        let ask = call.getBool("ask") ?? false
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            let schedule: (String) -> Void = { permission in
+                center.getPendingNotificationRequests { pending in
+                    let old = pending.map(\.identifier).filter { $0.hasPrefix(BEPushPlugin.coachPrefix) }
+                    center.removePendingNotificationRequests(withIdentifiers: old)
+                    guard permission == "granted" else { call.resolve(["scheduled": 0, "permission": permission]); return }
+                    let group = DispatchGroup()
+                    var added = 0
+                    let lock = NSLock()
+                    for r in requests {
+                        group.enter()
+                        center.add(r) { error in
+                            if error == nil { lock.lock(); added += 1; lock.unlock() }
+                            group.leave()
+                        }
+                    }
+                    group.notify(queue: .main) { call.resolve(["scheduled": added, "permission": "granted"]) }
+                }
+            }
+            switch settings.authorizationStatus {
+            case .authorized, .provisional, .ephemeral: schedule("granted")
+            case .denied: schedule("denied")
+            default:
+                guard ask else { schedule("default"); return }
+                center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in schedule(granted ? "granted" : "denied") }
+            }
+        }
+    }
+
+    /// The Smart Coach reminders still pending, and those already presented —
+    /// "presented" is the most the system can tell; it is not "seen".
+    @objc func coachPending(_ call: CAPPluginCall) {
+        let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { pending in
+            center.getDeliveredNotifications { delivered in
+                call.resolve([
+                    "pending": pending.map(\.identifier).filter { $0.hasPrefix(BEPushPlugin.coachPrefix) },
+                    "delivered": delivered.map(\.request.identifier).filter { $0.hasPrefix(BEPushPlugin.coachPrefix) },
+                ])
+            }
+        }
+    }
+
+    static let coachPrefix = "be-coach-"
+
+    /// One reminder from the web layer's item, or nil when anything is off:
+    /// the id must carry the Smart Coach prefix, the date must be real, the
+    /// text short. The tap payload is `be.coach` (routed by `shape`) and
+    /// `be.view = "coach"`; the text is the session's number only — no score,
+    /// no skill, nothing about the learner's performance on the lock screen.
+    static func coachRequest(_ item: [String: Any]) -> UNNotificationRequest? {
+        guard let id = item["id"] as? String, id.hasPrefix(coachPrefix), id.count <= 80,
+              let title = item["title"] as? String, let body = item["body"] as? String,
+              !title.isEmpty, !body.isEmpty, title.count <= 60, body.count <= 160 else { return nil }
+        let num: (String) -> Int? = { k in (item[k] as? NSNumber)?.intValue ?? (item[k] as? Int) }
+        guard let y = num("year"), let mo = num("month"), let d = num("day"), let h = num("hour"), let mi = num("minute"),
+              (2024...2100).contains(y), (1...12).contains(mo), (1...31).contains(d), (0...23).contains(h), (0...59).contains(mi) else { return nil }
+        var parts = DateComponents()
+        parts.calendar = Calendar.current
+        parts.year = y; parts.month = mo; parts.day = d; parts.hour = h; parts.minute = mi
+        guard parts.isValidDate else { return nil }
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.threadIdentifier = "be-coach"
+        let coach = (item["coach"] as? String).map { String($0.prefix(64)) } ?? ""
+        content.userInfo = ["be": ["view": "coach", "tag": "be-coach", "coach": coach]]
+        let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(year: y, month: mo, day: d, hour: h, minute: mi), repeats: false)
+        return UNNotificationRequest(identifier: id, content: content, trigger: trigger)
     }
 
     /// Which of Apple's two push hosts this install's tokens belong to, read from
@@ -243,10 +332,10 @@ final class BEPushBox {
 
     /// Only the fields the web layer routes on, and only as strings, so nothing
     /// the server did not put in `be` can reach `nudgeArrive` or `go()`.
-    private static func shape(_ info: [AnyHashable: Any]) -> [String: Any] {
+    static func shape(_ info: [AnyHashable: Any]) -> [String: Any] {
         let be = info["be"] as? [AnyHashable: Any] ?? [:]
         var out: [String: Any] = [:]
-        for key in ["view", "tag", "rid", "nkind", "call"] {
+        for key in ["view", "tag", "rid", "nkind", "call", "coach"] {
             if let v = be[key] as? String, !v.isEmpty { out[key] = String(v.prefix(64)) }
         }
         return out

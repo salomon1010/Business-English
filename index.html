@@ -86,6 +86,10 @@
 <!-- English Mastery (General English only, flag english_mastery_enabled, 10 Oct 2026): the same engine built for General English (EMEngine), its own screens, gated on EMUI.on() -->
 <link rel="stylesheet" href="english-mastery.css?v=2">
 <script src="english-mastery.js?v=4"></script>
+<!-- Smart Coach (Smart Practice Planner, both programmes, flag smart_coach_enabled, 10 Oct 2026): engine shared with the be-coach Worker, screens in the Daily reminder sheet -->
+<link rel="stylesheet" href="smart-coach.css?v=1">
+<script src="smart-coach-engine.js?v=1"></script>
+<script src="smart-coach.js?v=1"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -148,7 +152,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",widget:"https://be-widget-staging.nore-ngou.workers.dev",authProxy:"auth-staging.lomonec.com",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",polish:"https://be-polish-staging.nore-ngou.workers.dev",coach:"https://be-coach-staging.nore-ngou.workers.dev",widget:"https://be-widget-staging.nore-ngou.workers.dev",authProxy:"auth-staging.lomonec.com",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -7105,8 +7109,8 @@ function areaDayLog(){return areaBucket("dayLogA")}
      clips  — a clip saved for shop-floor listening is not general-English work;
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
-const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA",svPref:"svPrefA"};   // svPref: the Shadow card's Translate / Pronunciation switches ({tr,ipa}), General English only in practice — Welding never renders the card
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA",watched:"watchedA"};   // watched: clips that actually PLAYED in the studio ({vid,title,ts,secs}, newest first, SH_WATCH_MAX) — the only evidence "Because you watched…" may quote   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ shOwnCap()
+const AREA_MAPS={coach:"coachA",phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA",svPref:"svPrefA"};   // svPref: the Shadow card's Translate / Pronunciation switches ({tr,ipa}), General English only in practice — Welding never renders the card
+const AREA_LISTS={vocRuns:"vocRunsA",clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA",watched:"watchedA"};   // watched: clips that actually PLAYED in the studio ({vid,title,ts,secs}, newest first, SH_WATCH_MAX) — the only evidence "Because you watched…" may quote   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ shOwnCap()
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f,area){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area||areaId();return box[a]||(box[a]=[])}   /* area: name one explicitly when the write must land where the work STARTED (a Polish minute analysed after the learner switched programme) */
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -11134,6 +11138,7 @@ function markPracticed(){
   const _al=areaDayLog();_al[today]=(_al[today]||0)+1;
   try{homeRecPracticed()}catch(e){}
   try{nudgePracticed();setTimeout(()=>{try{nudgeInvalidate()}catch(e){}},0)}catch(e){}
+  try{SmartCoach.check()}catch(e){}   /* a Smart Coach session is proved by the saved record this practice produced, not by this tick */
   if(S.dayLog[today]===1){
     // once per day, not per action. Week alongside streak so retention can be
     // read against how far into the programme someone actually is.
@@ -18073,6 +18078,7 @@ async function pushSyncNative(ask,wants){
 function pushTapRoute(d){
   if(!d||typeof d!=="object")return false;
   try{if(d.rid&&typeof nudgeArrive==="function"&&nudgeArrive({rid:d.rid},"push"))return true}catch(e){}
+  try{if(d.coach&&window.SmartCoach&&SmartCoach.arrive(d.coach))return true}catch(e){}   /* a Smart Coach session reminder (local notification) */
   const v=d.view||"journey";
   if(v==="partner"){
     try{if(typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync()})}catch(e){}
@@ -19360,7 +19366,7 @@ function gxEnd(){
      to trend, and history cannot be reconstructed after the fact. Additive —
      older saves simply start with an empty list. */
   g.hist=perfPush(g.hist||[],{t:Date.now(),p:pct},30);
-  g.last=Date.now();save();
+  g.last=Date.now();save();try{SmartCoach.check()}catch(e){}
   const cat=_gx.cat;
   pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic(pct>=80?"trophy":"target")}</div>
     <h2>${t(pct>=80?"gx.end_great":"gx.end_ok")}</h2>
@@ -22268,7 +22274,10 @@ function fcBackHTML(w,d){
 }
 window.fcFlip=()=>{const c=document.getElementById("fcCard");if(c)c.classList.toggle("flipped");};
 window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(correct)_fc.know++;_fc.i++;fcRender();};
-function fcEnd(){try{homeRecWordsDone()}catch(e){}pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
+function fcEnd(){try{homeRecWordsDone()}catch(e){}
+  /* the run itself is the record a Smart Coach session is proved by (vocRuns, per area) */
+  try{perfPush(aList("vocRuns"),{t:Date.now(),n:_fc.words.length,ok:_fc.know},30);save();SmartCoach.check()}catch(e){}
+  pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Quizzes (multiple choice) ---- */
 let _qz=null;
 window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("prac.quiz_need4"));_qz={words:words.sort(()=>Math.random()-.5),all:Object.keys(areaVocab()),i:0,score:0,correct:""};qzRender();};
@@ -22294,7 +22303,7 @@ function qzEnd(){
   /* the run score used to be shown once and discarded — store it so the trend
      has something to plot next time */
   const pct=Math.round(100*_qz.score/Math.max(1,_qz.words.length));
-  perfPush(aList("quizHist"),{t:Date.now(),p:pct},30);save();
+  perfPush(aList("quizHist"),{t:Date.now(),p:pct},30);save();try{SmartCoach.check()}catch(e){}
   pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.qz_summary",{score:_qz.score,total:_qz.words.length})}</p>${perfPanel(perfSeries("vocabquiz"))}<div class="pv-actions"><button class="btn btn-g" onclick="qzStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Crosswords (greedy generator) ---- */
 let _cw=null;
@@ -22609,7 +22618,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v681";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v682";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24402,6 +24411,7 @@ const FLAGS_DEFAULT={
   english_mastery_enabled:false,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
+  smart_coach_enabled:false,           // Smart Coach — the Smart Practice Planner in the Daily reminder sheet (both programmes, 10 Oct 2026): staging ON, production OFF (be-coach exists on staging only)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
@@ -24432,6 +24442,7 @@ const FLAGS_STAGING={
   shadow_library_enabled:true,
   shadow_scenes_enabled:true,
   learning_nudges_enabled:true,
+  smart_coach_enabled:true,            // Smart Coach — staging only
   home_v2_enabled:true,
   welding_studio_enabled:true,
   welding_mastery_enabled:true,        // Welding Mastery game hub — staging only
@@ -32948,6 +32959,7 @@ async function rData(el,embedded){
       <label class="set-lbl" for="acSlot">${t("acc.slot_label")}</label>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
       <h3 class="set-h" id="setRem">${t("rem.label")}</h3>
+      ${window.SmartCoach&&SmartCoach.on()?SmartCoach.cardHTML():""}
       <div class="rem-box">
         <label class="rem-row">
           <input type="checkbox" role="switch" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
@@ -35541,7 +35553,7 @@ function fbOnAuth(u){
     if(!Billing.provider)setTimeout(()=>{try{if(!Billing.provider)Billing.init()}catch(e){}},2500);
   })}catch(e){}
   try{beNativeAdsInit()}catch(e){}
-  if(u){fbHideNudge();fbFirstSync(u)}
+  if(u){fbHideNudge();fbFirstSync(u);setTimeout(()=>{try{SmartCoach.boot()}catch(e){}},3500)}
   if(cur&&cur.v==="data")go("data");
   /* Profile's Backup & sync row shows the account: redraw it on a real change
      (not on the SDK's first "no user" callback, which changes nothing). */

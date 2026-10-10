@@ -843,6 +843,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
   be-entitlements, so the route answers 503 there. Tests:
   `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
+- **Smart Coach (10 Oct 2026, both programmes, flag `smart_coach_enabled`: staging ON,
+  production OFF) — `docs/SMART_COACH.md`.** Card at the top of the Daily reminder sheet →
+  `SmartCoach.open()`. Pure `smart-coach-engine.js` (shared with the Worker), screens
+  `smart-coach.js` (own en/fr strings), server `backend/coach/` = `be-coach-staging` (Durable
+  Object `CoachStore`; game rounds verified against be-polish-staging's RateLimiter). Focus,
+  length and activities are locked server-side; approval before anything is scheduled; one
+  open plan per programme; completion only from a saved record. iOS reminders:
+  `BEPush.coachSchedule`. Tests: `smart-coach-engine.test.mjs`, `backend/coach/test/run.mjs`,
+  `smart-coach.mjs`, Swift `BEPushCoachTests`.
 - **English Mastery (10 Oct 2026, `feature/english-mastery`, General English ONLY, flag
   `english_mastery_enabled`: staging ON, production OFF) — `docs/ENGLISH_MASTERY.md`.** The
   Welding Mastery hub rebuilt for General English: `go("english", tab)` (`#v-english`), portal
