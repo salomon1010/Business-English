@@ -3,9 +3,10 @@
 Written 10 Oct 2026 on `staging`, from the code (not from earlier reports).
 Code: `backend/ai-guard.js`, `backend/rate-limit.js`, `backend/polish-worker.js`,
 `backend/polish-prod/entry.js`. Tests: `backend/test-ai-guard.mjs` (51),
-`tests/ai-anon-client.mjs` (7). **Deployment state (10 Oct 2026): staging runs
-the full controls; production runs the wrapper in REPORT-ONLY mode (P1, §11).**
-Nothing anywhere refuses an anonymous request yet.
+`tests/ai-anon-client.mjs` (7). **Deployment state (10 Oct 2026, evening): staging
+runs the full controls; production runs the wrapper with `ANON_AI_POLICY=enforce`
+(P1 report-only §11, then P2 enforce §12, version 8051b272).** Anonymous callers past
+their daily allowance are refused with 429 `scope:"anon"`.
 
 ## 1. Baseline inventory of billable AI calls
 
