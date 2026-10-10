@@ -7,13 +7,18 @@ staging, OFF in production. Android is a planned follow-up (see the end).
 
 ## What the learner sees
 
-A lock-screen card, plus the Dynamic Island on phones that have one:
-- the flame with the hub's streak, and the hub's name;
-- a large countdown to the end of the game day, run by the system;
+A lock-screen card, plus the Dynamic Island on phones that have one. The look is our own
+(owner, 10 Oct 2026: "different from the competition, more futuristic"): a dark console with a
+faint grid, no mascot.
+- a ring that drains over the last three hours, drawn by the system, with the programme's
+  symbol inside — cyan with a waveform for English Mastery, amber with a bolt for Welding Mastery;
+- a header such as "ENGLISH MASTERY // 🔥 4" in monospaced capitals;
+- a large glowing digital countdown to the end of the game day, run by the system;
 - "Last chance! Keep your 4-day streak.", in English or French.
 
-When the daily is finished, the card turns green, says "Done — your streak is safe." and leaves
-after a few seconds. Tapping the card opens today's daily (`bemastery://open?view=english|mastery&act=daily`).
+The Dynamic Island shows the small ring and the clock (compact), and the ring, clock and line
+(expanded). When the daily is finished, the card turns green (full ring, shield with a tick),
+says "Done — your streak is safe." and leaves after a few seconds. Tapping the card opens today's daily (`bemastery://open?view=english|mastery&act=daily`).
 
 ## When
 
