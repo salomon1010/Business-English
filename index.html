@@ -3984,6 +3984,21 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
    player keeps its ratio but stops at 44% of the viewport, centred — the
    transcript is the point of the studio, so it must be visible with it. */
 @media(min-width:900px){.sh-work .yt-shell{max-width:min(100%,calc(44vh * 16 / 9));margin:0 auto}}
+/* LAPTOP + TABLET: ONE COLUMN, THE VIDEO'S WIDTH (owner, 10 Oct 2026). The video is capped
+   by height above, but the column under it stayed up to 1000px wide, so the transcript,
+   the cards and the Challenge panel ran past the video's right edge (and the v3 rule
+   `.yt-shell{margin:0}` left-aligned the video inside the wider column). The column now
+   takes the video's own width, so everything below lines up with its edges, as on a
+   phone. The floating Translate / Pronunciation / Save column sits on that column's
+   right edge, not the window's. */
+@media(min-width:900px){
+  .sh-work .sh-work-body{max-width:min(1000px,calc(44vh * 16 / 9))}
+  .sh-work .yt-shell{max-width:100%;margin:0}
+  .sv-wt-tg.float{right:max(10px,calc((100vw - min(1000px,calc(44vh * 16 / 9))) / 2 + 10px))}
+}
+/* the library's Continue-watching bar + add-link button: the library column's width
+   (main: 880px with 20px padding), not the whole window */
+@media(min-width:700px){#shLibDock{max-width:880px;margin:0 auto;padding:0 20px}}
 .sh-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
 .sh-ctl>span[style*="flex:1"]{display:none}
 .sh-pill{display:flex;gap:2px;background:#000;border-radius:16px;padding:6px}
@@ -22651,7 +22666,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v684";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v685";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
