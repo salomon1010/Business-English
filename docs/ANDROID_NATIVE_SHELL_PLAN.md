@@ -32,7 +32,13 @@ OAuth client per package + certificate across ALL projects, so be-mastery-test c
 them. The server client id is be-mastery's web client (`be_google_web_client_id`). A
 STAGING build therefore needs be-mastery-test → Authentication → Google → "Safelist client
 IDs from external projects" = that client id (console only; no API found). Apple on
-Android: not built (decision D2).
+Android: BUILT the same day (vc 16, production build): Apple's page in a Custom Tab
+(Services ID `com.lomonec.bemastery.signin`, redirect_uri `https://auth.lomonec.com/__/auth/handler`);
+be-auth hands an answer whose state starts with `bea.` back through `bemastery://apple`
+(303, never the code) instead of forwarding it; the app returns idToken + raw nonce.
+be-auth production 2c3f16e6 (rollback `wrangler rollback d8b9896a-2e00-4e20-8464-bc90b8892716`).
+Production builds only: a staging build would need the test project's Services ID and
+auth-staging.lomonec.com.
 
 **Still to build:** native Google sign-in (7), the widget port (7), device tests and
 the staged release (8).
