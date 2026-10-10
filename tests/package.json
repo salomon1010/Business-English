@@ -5,6 +5,9 @@
   "scripts": {
     "test": "node smoke.mjs && node auth-entry-points.mjs && node ios-push.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node help-centre.mjs && node shadow-first-tap.mjs && node welding-shadow-rec.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-raise-problem.mjs && node mission-clarify-confirm.mjs && node mission-explain-tech.mjs && node mission-recommend-decide.mjs && node mission-disagree-pushback.mjs && node mission-sprint-coordinate.mjs && node mission-exec-summary.mjs && node mission-sell-experience.mjs && node mission-win-support.mjs && node mission-final-integration.mjs && node mission-integration.mjs && node mission-speaking-report.mjs && node report-ux.mjs && node language-polish.mjs && node report-integrity.mjs && node session-report.mjs && node welding-ai-report.mjs && node workshop-voice.mjs && node welding-interview-report.mjs && node mission-coach-report.mjs && node mission-mobile-ux.mjs && node partner.mjs && node live-rounds.mjs && node live-ring.mjs && node hidden-switch.mjs && node premium-boundary.mjs && node free-premium-contract.mjs",
     "test:auth-entry": "node auth-entry-points.mjs",
+    "test:welding-mastery": "node welding-mastery-engine.test.mjs && node welding-mastery.mjs",
+    "test:fnd": "node foundations-check.mjs",
+    "test:auth-redirect": "node auth-redirect.mjs",
     "test:ios-widget": "node ios-widget.mjs",
     "test:android-widget": "node android-widget.mjs && node ../backend/widget/test/run.mjs && node ../playstore/android-widget/test/apply.test.mjs",
     "test:shadow": "node shadow-sync.test.mjs",

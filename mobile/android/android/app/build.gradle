@@ -1,0 +1,80 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "com.bemastery.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.bemastery.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // above the Play TWA's last versionCode (10, twa-manifest.json): Play only installs a higher one
+        versionCode 11
+        versionName "1.2.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // BE_TEST_ADS: a staging build (./gradlew -PbeStaging=true …, scripts/build.sh --staging)
+        // requests Google's TEST ad units only, like a debug build. A production release is false.
+        buildConfigField "boolean", "BE_TEST_ADS", (project.findProperty("beStaging") == "true") ? "true" : "false"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    // The Play UPLOAD key (alias bemastery, SHA-256 3D:E6:6D…; Play App Signing re-signs for
+    // learners). Nothing secret is in the repo: scripts/release.sh passes the keystore path and
+    // passwords as environment variables; without them a release build is simply unsigned.
+    signingConfigs {
+        upload {
+            if (System.getenv("BE_KEYSTORE")) {
+                storeFile file(System.getenv("BE_KEYSTORE"))
+                storePassword System.getenv("BE_KEYSTORE_PASS")
+                keyAlias System.getenv("BE_KEY_ALIAS") ?: "bemastery"
+                keyPassword System.getenv("BE_KEY_PASS") ?: System.getenv("BE_KEYSTORE_PASS")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("BE_KEYSTORE")) signingConfig signingConfigs.upload
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    // AdMob + Google's consent tool (UMP), as on iOS (BEAdsPlugin)
+    implementation "com.google.android.gms:play-services-ads:24.6.0"
+    implementation "com.google.android.ump:user-messaging-platform:3.2.0"
+    // Play Billing Library 8 (required for app updates from 31 Aug 2026), as the TWA used through androidbrowserhelper
+    implementation "com.android.billingclient:billing:8.0.0"
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

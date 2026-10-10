@@ -108,8 +108,6 @@ export default [
    `<h3>Перевод и транскрипция</h3><p>Каждая фраза из Шэдоуинга — на вашем языке и в фонетической транскрипции, слово за словом.</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>Звонки для практики в реальном времени</h3><p>Раунды по таймеру с реальным партнёром и личный отчёт о вашей части звонка.</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>Коуч, который говорит</h3><p>Ваш отчёт о речи, озвученный коучем, с исправлениями и более точными словами.</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> Проблема</span>`],
@@ -316,7 +314,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>Обе программы</b><span>Сварка и Общий английский рядом</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> Для кого это</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> Для кого это</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2>Для момента, <span class="grad">когда слово переходит к вам</span>.</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>На встречах</b><p>Вы следите за каждым словом, а потом теряетесь, когда очередь доходит до вас. Прорепетируйте свой доклад заранее.</p>`],
@@ -328,7 +326,7 @@ export default [
    `<b>Рабочие профессии</b><p>У сварщиков — своя программа: цех, безопасность, контроль качества и собеседование.</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> Две программы</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> Две программы</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>Два пути. Одна цель: <span class="grad">уверенное общение</span>.</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `Выберите ту, что соответствует среде, в которой вы на самом деле работаете. Это две отдельные программы с отдельным прогрессом — переключайтесь, когда захотите.`],
@@ -353,7 +351,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `При необходимости начинается с пятнадцати дней Основ на вашем родном языке.`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> Английский для сварки</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> Английский для сварки</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>Английский для цеха, <span class="grad">площадки и собеседования</span>.</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `Отдельная программа для рабочих профессий. Вы практикуете фразы, которые на самом деле говорят начальник, инспектор и интервьюер, — и ответы, которые они ждут от вас.`],
@@ -411,7 +409,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>Ваш собственный прогресс</b><span>Отдельно от Общего английского</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> Тарифы</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> Тарифы</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2>Бесплатно, <span class="grad">чтобы начать</span>.</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `Программа на двенадцать недель, Студия шэдоуинга, ИИ-коуч, Партнёр по практике и ваш прогресс сегодня бесплатны. Банковская карта не нужна.`],
@@ -464,7 +462,7 @@ export default [
    `<p>Нет. Он подтверждает, что вы завершили программу, с вашим именем на нём. Это не тест на уровень.</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>Ваша разговорная практика <span class="grad">всегда с вами</span>.</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `Двадцать пять минут в поезде, на парковке, перед встречей. Приложение записывает, оценивает и помнит — а партнёр может уже ждать вас, когда вы его откроете.`],
@@ -473,4 +471,58 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>Офлайн</b><span>Практикуйтесь без связи</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15 языков</b><span>Инструкции на вашем родном</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>Обретите уверенность говорить именно тогда, когда это важно.</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> Учитесь играя</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>Пять минут игры — <span class="grad">и в итоге настоящий английский</span>.</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `У каждой программы своё игровое пространство, построенное на её уроках. Восемь коротких игр превращают то, что вы учите, в ответы, которые можно сказать вслух.`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery, для общего английского:</b> 385 слов, выражений и фраз из вашего 12-недельного плана и из повседневной жизни, в восьми играх — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle и Real-Life Missions.`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery, для английского сварщика:</b> 250 профессиональных слов с настоящими фотографиями инструментов, кроссворд, раунды на слух и задания из мастерской.`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>Задание дня, цель недели и значки навыков.</b> Слово считается освоенным только после верных ответов в три разных дня — одних XP для этого никогда не достаточно.`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Up вас слышит:</b> скажите фразу и посмотрите, какие слова распознаны. Оценку произношения ставит ИИ, и об этом сказано.`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `Войдите, чтобы играть. Бесплатно: пять раундов заданий в день в каждой программе — неверный ответ никогда не стоит раунда — плюс неограниченное повторение и задание дня. Premium: неограниченные раунды, сложные ситуации и тренды за 30 и 90 дней.`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>Задание дня и цель недели</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>Восемь игр</b><span>Каждая тренирует свой навык</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>Видно, какие слова распознаны</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>250 профессиональных слов, настоящие фото</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `Пространство English Mastery: уровень, XP, серия и энергия, задание дня по английскому и цель недели`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `Игры English Mastery: Word Quest, Quick Quiz, Sentence Builder и Listen &amp; Win, у каждой — навык, который она тренирует`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `Speak Up после записи: распознано 88% слов, пропущенное слово отмечено красным`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Игры Welding Mastery: Карточки, Викторина, Кроссворд, Визуальное узнавание, Аудирование и Собери слово`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>Учитесь играя</h3><p>English Mastery и Welding Mastery: по восемь игр, задание дня и значки навыков.</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery: восемь игр на слова и выражения вашего плана</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery: восемь игр на 250 профессиональных слов, с настоящими фото</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · Общий английский</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · Английский для сварки</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>Визуальное узнавание</b><span>Назовите инструмент по настоящей фотографии</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Пространство Welding Mastery: уровень, XP, серия и энергия, задание дня по английскому для сварки и цель недели`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `Визуальное узнавание: настоящая фотография огнетушителя, указание автора и четыре названия на выбор`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery:</b> восемь игр на 250 профессиональных слов, с настоящими фото инструментов, заданием дня и значками навыков.`],
 ];

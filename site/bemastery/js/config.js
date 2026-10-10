@@ -74,7 +74,7 @@ window.BEM = (function () {
        into a link back to that section. page:"…" = its own page, and marks
        itself current there (matched against <body data-page>). */
     nav: [
-      { label: L("New"),      href: "#new"     },
+      /* { label: L("New"),      href: "#new"     },   hidden for now with the What's new section (10 Oct 2026) */
       { label: L("Method"),        href: "#method"  },
       { label: L("Features"),    href: "#inside"  },
       { label: "Shadowing",            href: "#shadow"  },

@@ -128,7 +128,8 @@ console.log("\n# who never gets one");
      programme before the SDK is asked, and leaves no ad event at all */
   ok("R10 · WELDING Free → NO resume ad: nothing displayed, the SDK never asked to show, and no ad event written (the programme refuses before any event)",
     !(await sawResume(p)) && !(await calls(p)).some(x => /^(load|show):/.test(x)) && (await ev(p)).length === 0 && await p.evaluate(() => adsTrackAllows() === false && AdEligibility.decide("interstitial", "app_resume").reason === "track"), JSON.stringify({ ev: await ev(p), calls: await calls(p) }));
-  ok("R11 · and the bridge is NOT built on Welding — the SDK is never configured where no ad may run", await p.evaluate(() => _adsBridge !== true && !window.BENativeAds), await p.evaluate(() => String(_adsBridge)));
+  /* 10 Oct 2026: Welding Mastery's hub may show ads, so the bridge exists while that hub is on; otherwise never */
+  ok("R11 · the bridge is built on Welding ONLY while Welding Mastery (whose hub may show ads) is on", await p.evaluate(() => (window.WMUI && WMUI.on()) || (_adsBridge !== true && !window.BENativeAds)), await p.evaluate(() => String(_adsBridge) + " hub:" + !!(window.WMUI && WMUI.on())));
   ok("R12 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }

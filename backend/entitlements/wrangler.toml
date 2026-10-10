@@ -19,7 +19,7 @@ compatibility_date = "2026-09-01"
 FIREBASE_PROJECT_ID = "be-mastery"
 # capacitor://localhost is the App Store shell's own origin: without it the
 # iOS app cannot reach this Worker at all, so Premium would be web-only.
-ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost"
+ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost,https://localhost"   # https://localhost = the Android shell
 # Apple (StoreKit 2 JWS). Production AND Sandbox: Sandbox is what App Review
 # itself buys with, so a Production-only list fails review.
 APPLE_BUNDLE_ID = "com.lomonec.bemastery"
@@ -82,7 +82,7 @@ workers_dev = true
 # staging Worker verifying be-mastery rejected every staging token. RTDN_SA_EMAIL
 # below is unrelated (Google Play's Pub/Sub sender) and stays.
 FIREBASE_PROJECT_ID = "be-mastery-test"
-ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost"   # capacitor://localhost = a staging TestFlight build
+ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost,https://localhost"   # capacitor://localhost = a staging TestFlight build; https://localhost = a staging Android build
 PLAY_PACKAGE = "com.bemastery.app"
 # RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
 # THIS Worker, reached through the custom domain above; the push endpoint must be

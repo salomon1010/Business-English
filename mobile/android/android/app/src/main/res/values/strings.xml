@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BE Mastery</string>
+    <string name="title_activity_main">BE Mastery</string>
+    <string name="package_name">com.bemastery.app</string>
+    <string name="custom_url_scheme">com.bemastery.app</string>
+</resources>

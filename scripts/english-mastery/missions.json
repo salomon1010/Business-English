@@ -1,0 +1,207 @@
+{
+  "_note": "Real-Life Missions for English Mastery (written by Lomonec LLC, 10 Oct 2026). The 24 work missions reuse the situation of each competency mission in tracks/general/missions.json word for word (comp + mission id); the three replies and the explanation are written here. options[0] is the natural reply (the game shuffles them). why = why the natural reply works and what is wrong with the other two.",
+  "work": [
+    { "mission": "explain-work-guided", "options": [
+      "I work as an operations analyst in logistics. I look after the weekly delivery reports, and right now I'm rebuilding how we track late shipments.",
+      "I do lots of things, it's complicated, a bit of everything really.",
+      "My job title is Operations Analyst Level 2, reporting line B, cost centre 4410." ],
+      "why": "The natural answer gives the role, what you own and what you are doing now, in plain words. The second says nothing; the third is internal detail a new colleague cannot use." },
+    { "mission": "explain-work-transfer", "options": [
+      "Of course. I'm the project coordinator on your account. I make sure the work is delivered on time, and I'll be your main contact for updates.",
+      "I'm just the person who books the meetings, nothing important.",
+      "I've been here four years and before that I worked in retail, and before that I was a student." ],
+      "why": "With a client, say your role and why it matters to THEM. The second undersells you; the third tells a life story instead of your role on their project." },
+    { "mission": "clear-update-guided", "options": [
+      "The project is going well overall. We're delayed by a supplier issue, which may affect Friday's delivery. We'll have an update from them tomorrow.",
+      "Yes, so, there's been a lot going on, meetings and emails, and some things are done and some aren't.",
+      "Everything is perfect, no problems at all." ],
+      "why": "A clear update gives the status, the problem, the impact and the next step. The second has no information; the third hides a real risk." },
+    { "mission": "clear-update-transfer", "options": [
+      "We've been held up by about two days. That has a knock-on effect on testing, so Friday is at risk. I'll chase the supplier and come back to you by four.",
+      "It's the supplier's fault, not ours.",
+      "I don't know, we'll see what happens." ],
+      "why": "Name the delay, the knock-on effect and what you will do. Blaming someone or shrugging leaves your manager with nothing to act on." },
+    { "mission": "raise-problem-guided", "options": [
+      "We've run into an issue with the test data — the import file has errors. It will set us back a day. I'd like your sign-off on a quick workaround.",
+      "Nothing, I'm fine.",
+      "Everything is broken and I don't know what to do!" ],
+      "why": "Say the problem, the impact and what you need. Hiding it or panicking makes the problem bigger later." },
+    { "mission": "raise-problem-transfer", "options": [
+      "Yes, I'd like to flag an issue I found. The order forms are sending the wrong date. It isn't urgent yet, but it will be by Friday.",
+      "No, nothing from me.",
+      "Someone has made a big mistake with the order forms." ],
+      "why": "Flag it early, calmly, without blaming anyone. Staying quiet or pointing fingers in front of the team both cause trouble." },
+    { "mission": "clarify-confirm-guided", "options": [
+      "Yes, I can take it. Just to make sure I understand — when you say soon, do you mean this Friday? And are the metrics the same as the March version?",
+      "OK, no problem.",
+      "That's not clear at all." ],
+      "why": "Accept, then check the two vague words: \"soon\" and \"the usual\". Saying only OK risks the wrong dashboard; the third answer sounds rude." },
+    { "mission": "clarify-confirm-transfer", "options": [
+      "Sorry, the line isn't great — not sure I follow. Do you mean the contract update or the invoice? And which review — Thursday's?",
+      "Sure, I'll sort it out.",
+      "What client thing? I have no idea what you're talking about." ],
+      "why": "Name what you didn't catch and ask a precise either/or question. Agreeing blindly or answering sharply both go wrong." },
+    { "mission": "explain-tech-guided", "options": [
+      "In simple terms, we checked that the numbers in our reports are correct before anyone uses them. What this means for you is fewer surprises in the monthly figures.",
+      "We implemented validation rules on the ETL pipeline with schema enforcement and anomaly thresholds.",
+      "It's technical, you wouldn't understand." ],
+      "why": "Explain it in plain words, then say what it means for HER. Jargon loses the listener; the third answer is disrespectful." },
+    { "mission": "explain-tech-transfer", "options": [
+      "In other words, the integration connects their system to ours, so orders arrive automatically. They don't need to send spreadsheets any more.",
+      "It's an API with webhooks and OAuth tokens.",
+      "Tell them it's complicated and to ask IT." ],
+      "why": "She will repeat your words, so give her a sentence a client understands: what it does and the benefit. The other two can't be passed on." },
+    { "mission": "recommend-decide-guided", "options": [
+      "What I'd recommend is that we use the second supplier for the first batch. The tradeoff is a slightly higher cost, but we keep the launch date.",
+      "We could do many things. What do you think?",
+      "We should just wait and see." ],
+      "why": "She asked for a recommendation: give one option and the tradeoff. Passing the question back or waiting is not a recommendation." },
+    { "mission": "recommend-decide-transfer", "options": [
+      "My recommendation is to hold it. We send the corrected report by midday and tell the client now. The lowest-risk option is a short delay, not wrong numbers.",
+      "Send it — they probably won't notice.",
+      "It's up to you, I don't mind." ],
+      "why": "Recommend, justify, and give the next step. Sending wrong numbers on purpose damages trust; \"I don't mind\" helps nobody." },
+    { "mission": "disagree-pushback-guided", "options": [
+      "I see the reasoning, and the demo matters. I have one concern: the payment tests aren't finished. I'd suggest we demo on the test site — that way we still show it on Monday.",
+      "No, that's impossible.",
+      "OK, Friday is fine." ],
+      "why": "Acknowledge, state one concern with the fact behind it, and offer a way that keeps the shared goal. A flat no closes the talk; agreeing hides the risk." },
+    { "mission": "disagree-pushback-transfer", "options": [
+      "That's a fair point about speed. My hesitation is that the pilot showed problems in week one. I'd suggest we move one zone first, then the rest a week later.",
+      "The director is wrong.",
+      "Whatever she wants is fine by me." ],
+      "why": "Give the evidence from the pilot and propose an alternative. Saying the director is wrong is unhelpful; agreeing ignores what you know." },
+    { "mission": "sprint-coordinate-guided", "options": [
+      "Checkout is blocked on the payment step. We're waiting on the provider's test account. That puts the sprint goal at risk, so I need help to chase it today.",
+      "Still working on it.",
+      "Fine, all good." ],
+      "why": "Say what is blocked, by what, the impact and the help you need. \"Still working on it\" for five days hides the blocker." },
+    { "mission": "sprint-coordinate-transfer", "options": [
+      "We're on track for the landing page. The sign-up form depends on the new email tool, which is late. If it isn't ready by Wednesday, we launch with a simple form.",
+      "Yes, definitely, no problem at all.",
+      "Probably not, sorry." ],
+      "why": "Give the honest status, the dependency and a fallback. A blind yes or a vague no gives the lead nothing to report." },
+    { "mission": "exec-summary-guided", "options": [
+      "The headline is: two regions are live and on budget. The main risk is staffing in the third. The next decision we need is your approval for overtime.",
+      "Well, it started six months ago with a kick-off meeting, and then we did the planning phase...",
+      "Everything is going fine, nothing to report." ],
+      "why": "Executives need the headline, the risk and the decision — in that order, in sixty seconds. A chronological story or \"fine\" wastes the moment." },
+    { "mission": "exec-summary-transfer", "options": [
+      "Three things to know: we've saved 1.2 million so far, we're on track for the target, and we need your decision on payment terms by next week.",
+      "It's all in the pack, page 47.",
+      "Let me start from the beginning of the programme." ],
+      "why": "Lead with the numbers and the decision you need. Sending the CFO to the pack or starting from the beginning loses the three minutes." },
+    { "mission": "sell-experience-guided", "options": [
+      "I led the effort to move our returns process online. The challenge was a three-month deadline. The result was a measurable improvement: returns now take two days, not ten.",
+      "I've done lots of projects, they all went well.",
+      "We did a project, the team did most of the work, I just helped." ],
+      "why": "Use a clear story: situation, your action, the result with a number. Vague claims or hiding your role won't get the offer." },
+    { "mission": "sell-experience-transfer", "options": [
+      "This year I took ownership of our delivery tracking. We cut late deliveries by a third, and I learned a lot about working with suppliers.",
+      "Nothing special, just the usual.",
+      "Here, let me show you forty photos of my project on my phone." ],
+      "why": "In two minutes, one proud result with a number is memorable. Underselling or overloading both lose the chance." },
+    { "mission": "win-support-guided", "options": [
+      "The reason I'm recommending this now is that bad catalogue data slows every sale. If we fix it first, the pricing feature works properly when it launches. Here's what I need from you: three months.",
+      "Data is important, everyone knows that.",
+      "If you don't give me the engineers, the project will fail and it'll be your fault." ],
+      "why": "Link your request to HIS goal — revenue — and make a clear ask. Generic statements or threats don't persuade a director." },
+    { "mission": "win-support-transfer", "options": [
+      "One good reason: last year unplanned breakdowns stopped the line for six days. Two planned days now cost less. This pays for itself within the quarter.",
+      "Because maintenance is a good idea.",
+      "Please, I really need this." ],
+      "why": "Speak his language: lost output. Compare the cost of a planned stop with the cost of breakdowns. Opinion or pleading won't move him." },
+    { "mission": "final-integration-guided", "options": [
+      "At a high level, we're on track for December. On the saving: cutting the pilot completely would put the date at risk. What I'd recommend is a shorter pilot — that saves about half and keeps December.",
+      "I don't agree with finance at all.",
+      "OK, cut the pilot." ],
+      "why": "Give the status, react to the proposal with its impact, and offer a recommendation that serves both goals. A flat no or a flat yes misses the chance." },
+    { "mission": "final-integration-transfer", "options": [
+      "I'd push back slightly on skipping the parallel run. The lab doesn't have real call volumes. If we run it on two queues first, we can still go live on all queues next week.",
+      "No issues, let's go.",
+      "This is a terrible idea." ],
+      "why": "Raise the concern respectfully with the fact behind it and a safe alternative. Silence or a harsh reaction in front of the shift both fail." }
+  ],
+  "everyday": [
+    { "id": "ev-cafe", "cat": "social", "where": "You are at a busy café counter. It is your turn.", "who": "The barista", "asks": "Hi there, what can I get you?", "options": [
+      "Could I have a large latte, please? To take away.",
+      "Give me coffee.",
+      "I would like that you give me a coffee big." ],
+      "why": "\"Could I have…, please?\" is polite and natural. The second sounds rude in English; the third has wrong word order." },
+    { "id": "ev-neighbour", "cat": "social", "where": "You meet your new neighbour on the stairs for the first time.", "who": "Your new neighbour", "asks": "Oh hello — have you just moved in?", "options": [
+      "Yes, last week. I'm Ana, by the way. Nice to meet you!",
+      "Yes.",
+      "Why do you want to know?" ],
+      "why": "Answer, give your name and a friendly line — that is small talk. A one-word answer or a suspicious one sounds unfriendly." },
+    { "id": "ev-decline", "cat": "social", "where": "A colleague invites you to a party on Saturday, but you are busy.", "who": "Your colleague", "asks": "We're having a party on Saturday — would you like to come?", "options": [
+      "Thanks so much for inviting me! I'm afraid I can't make it this time — I'm away that weekend.",
+      "No.",
+      "I don't like parties." ],
+      "why": "Thank them, decline politely with \"I'm afraid…\" and a short reason. The other answers can hurt feelings." },
+    { "id": "ev-late", "cat": "social", "where": "You arrive fifteen minutes late to meet a friend.", "who": "Your friend", "asks": "There you are! I was starting to worry.", "options": [
+      "I'm so sorry I'm late — the bus was delayed. Thanks for waiting.",
+      "It's not my fault.",
+      "Yes, I'm late." ],
+      "why": "Apologise, give a short reason and thank them. Blaming or stating the obvious sounds cold." },
+    { "id": "ev-train", "cat": "travel", "where": "Your train has been cancelled. You go to the information desk.", "who": "The station staff", "asks": "Can I help you?", "options": [
+      "Yes, please. My train to Manchester was cancelled. When is the next one, and can I use the same ticket?",
+      "Train. Cancelled. Why?",
+      "This is a terrible station, everything is always late." ],
+      "why": "Say what happened and ask your two questions clearly. The second is too short to be polite; complaining won't get you on a train." },
+    { "id": "ev-directions", "cat": "travel", "where": "You are lost in a new city and need the museum.", "who": "A passer-by", "asks": "You look a bit lost — can I help?", "options": [
+      "Yes, thank you! Could you tell me the way to the museum?",
+      "Where museum?",
+      "No, I'm fine." ],
+      "why": "\"Could you tell me the way to…?\" is the natural polite question. Refusing help you need makes no sense." },
+    { "id": "ev-hotel", "cat": "travel", "where": "You arrive at your hotel reception.", "who": "The receptionist", "asks": "Good evening, welcome. How can I help?", "options": [
+      "Good evening. I have a reservation under the name Silva, for two nights.",
+      "Room. Now.",
+      "I booked something, I think, maybe." ],
+      "why": "Greet, then give the reservation name and dates. The second is rude; the third makes the receptionist's job harder." },
+    { "id": "ev-ticket", "cat": "travel", "where": "You are at the ticket office.", "who": "The ticket officer", "asks": "Where are you travelling to?", "options": [
+      "A return ticket to Brighton, please. Coming back this evening.",
+      "Brighton, give me.",
+      "I go Brighton and after I come." ],
+      "why": "\"A return ticket to…, please\" is exactly what people say. The others have wrong grammar or sound rude." },
+    { "id": "ev-return", "cat": "shopping", "where": "You bought a shirt that is too small. You go back to the shop with the receipt.", "who": "The shop assistant", "asks": "Hi, how can I help you today?", "options": [
+      "Hi. I bought this shirt yesterday, but it's too small. Could I exchange it for a bigger size?",
+      "This shirt is bad. Money back.",
+      "I want to return but maybe not, I don't know." ],
+      "why": "Say what happened and ask clearly for what you want. The second sounds aggressive; the third is confusing." },
+    { "id": "ev-price", "cat": "shopping", "where": "At a market, you like a lamp but there is no price on it.", "who": "The seller", "asks": "That one's lovely, isn't it?", "options": [
+      "It is! How much is it?",
+      "What price is having this?",
+      "Too expensive." ],
+      "why": "\"How much is it?\" is the natural question. The second is wrong grammar; the third is rude before you even know the price." },
+    { "id": "ev-restaurant", "cat": "shopping", "where": "Your food arrives cold at a restaurant.", "who": "The waiter", "asks": "Is everything all right with your meal?", "options": [
+      "I'm sorry, but my soup is a bit cold. Could you warm it up, please?",
+      "This is disgusting.",
+      "Yes, everything is perfect." ],
+      "why": "Complain politely: say the problem softly and ask for a solution. Being rude or pretending won't fix your soup." },
+    { "id": "ev-bill", "cat": "shopping", "where": "You have finished dinner and want to pay.", "who": "The waiter", "asks": "Can I get you anything else?", "options": [
+      "No, thank you. Could we have the bill, please?",
+      "Money. How much.",
+      "I want to pay now quickly." ],
+      "why": "\"Could we have the bill, please?\" is the standard polite request in Britain." },
+    { "id": "ev-pharmacy", "cat": "health", "where": "You have a sore throat and go to the pharmacy.", "who": "The pharmacist", "asks": "Hello, what can I do for you?", "options": [
+      "Hi. I've had a sore throat for two days. Can you recommend something for it?",
+      "Medicine, please.",
+      "I'm dying, help me." ],
+      "why": "Give your symptom and how long, then ask for advice. \"Medicine, please\" is too vague; the third is an exaggeration." },
+    { "id": "ev-doctor", "cat": "health", "where": "You phone the GP surgery to see a doctor.", "who": "The receptionist", "asks": "Good morning, surgery. How can I help?", "options": [
+      "Good morning. I'd like to make an appointment with a doctor, please. I've had a temperature since Monday.",
+      "Doctor. Today.",
+      "I'm sick, what do I do, what do I do?" ],
+      "why": "Ask for an appointment and give the main symptom. The receptionist can then find the right time for you." },
+    { "id": "ev-landlord", "cat": "home", "where": "Your heating has stopped working. You call your landlord.", "who": "Your landlord", "asks": "Hello?", "options": [
+      "Hi, it's Sam from flat 3. The heating stopped working this morning. Could you send someone to repair it?",
+      "The heating is broken. Fix it.",
+      "Hello. Nothing. Bye." ],
+      "why": "Say who you are, what is broken and when, and ask politely. The second is a demand; the third wastes the call." },
+    { "id": "ev-borrow", "cat": "home", "where": "It is raining and you forgot your umbrella. Your housemate is at home.", "who": "Your housemate", "asks": "You're going out in this rain?", "options": [
+      "I have to! Could I borrow your umbrella? I'll bring it back tonight.",
+      "Lend me umbrella.",
+      "Give me your umbrella, I take it." ],
+      "why": "\"Could I borrow…?\" asks politely and you promise to return it. Remember: YOU borrow, THEY lend." }
+  ]
+}

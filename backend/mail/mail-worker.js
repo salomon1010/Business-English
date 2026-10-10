@@ -37,6 +37,7 @@ const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
   "capacitor://localhost",   // the App Store build (mobile/ios): WKWebView cannot use https for a local bundle
+  "https://localhost",       // the Play build as a native shell (mobile/android, androidScheme https)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];

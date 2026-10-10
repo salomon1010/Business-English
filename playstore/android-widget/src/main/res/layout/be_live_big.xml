@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BE Mastery streak countdown (expanded) — BEStreakCountdown.views -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/be_live_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp">
+            <ProgressBar
+                android:id="@+id/lv_ring_ge"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:indeterminate="false"
+                android:max="1000"
+                android:progressDrawable="@drawable/be_live_ring_ge" />
+            <ProgressBar
+                android:id="@+id/lv_ring_pro"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:indeterminate="false"
+                android:max="1000"
+                android:progressDrawable="@drawable/be_live_ring_pro" android:visibility="gone" />
+            <ProgressBar
+                android:id="@+id/lv_ring_ok"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:indeterminate="false"
+                android:max="1000"
+                android:progressDrawable="@drawable/be_live_ring_ok" android:visibility="gone" />
+        <ImageView
+            android:id="@+id/lv_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/be_live_ic_ge" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lv_head"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#FFA5F3FC"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <Chronometer
+            android:id="@+id/lv_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:includeFontPadding="false"
+            android:shadowColor="#E622D3EE"
+            android:shadowRadius="14"
+            android:textColor="#FFFFFFFF"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+        <Chronometer
+            android:id="@+id/lv_clock_pro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:includeFontPadding="false"
+            android:shadowColor="#E6F59E0B"
+            android:shadowRadius="14"
+            android:textColor="#FFFFFFFF"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/lv_done"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:textColor="#FFFFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/lv_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="#D1FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

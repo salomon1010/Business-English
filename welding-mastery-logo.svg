@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" role="img" aria-label="Welding Mastery">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#e08a12"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+    <radialGradient id="bg" cx=".25" cy=".1" r="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset=".55" stop-color="#0d1630"/><stop offset="1" stop-color="#070b16"/></radialGradient>
+  </defs>
+  <rect width="160" height="100" fill="url(#bg)"/>
+  <g transform="translate(48 18)">
+    <rect x="2" y="2" width="60" height="60" rx="15" fill="#0b1224" stroke="url(#g1)" stroke-width="2.5"/>
+    <path d="M17 31c0-9 6.8-16 15-16s15 7 15 16v4H17Z" fill="#16233f" stroke="#5b7bb5" stroke-width="1.6"/>
+    <rect x="22" y="25" width="20" height="7" rx="2.5" fill="url(#g2)"/>
+    <path d="M13 37c6-2.2 12.5-2.2 19 1 6.5-3.2 13-3.2 19-1v13c-6-2.2-12.5-2.2-19 1-6.5-3.2-13-3.2-19-1Z" fill="#f4e6c4" stroke="url(#g1)" stroke-width="1.6"/>
+    <path d="M32 38v13" stroke="#c48a1c" stroke-width="1.4"/>
+    <path d="M20 47l2.6-7 2.6 7M21 44.6h3.3M38.3 40.2h5l-5 6.8h5" fill="none" stroke="#1d2b4a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <g stroke="#ffd36b" stroke-width="1.6" stroke-linecap="round"><path d="M49 13v4M47 15h4M53 20l2-1M45 9.5l-1-2"/></g>
+  </g>
+</svg>

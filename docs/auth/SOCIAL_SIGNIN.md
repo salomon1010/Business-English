@@ -309,3 +309,24 @@ module with real RS256 token verification (the Capacitor bridge, the Firebase we
 SDK and Google's endpoints are stand-ins). Plus `node auth-sheet.mjs` 18/18
 unchanged, `node mail-welcome.mjs` unchanged, and `cd mobile/ios && node
 scripts/check-release.mjs` with ten new iOS-configuration checks.
+
+---
+
+## 8. Audit, 9 Oct 2026 — what was broken and what was fixed
+
+Checked live: both Firebase projects, both `be-auth` proxies, and each provider's
+own sign-in page through Firebase's `createAuthUri`.
+
+| Path | Finding | Status |
+|---|---|---|
+| Web popup (browser tab), prod + staging | Providers on, domains authorised, Google and Apple both accept `https://auth[-staging].lomonec.com/__/auth/handler`; the popup reaches each provider's page in Chromium and WebKit | working |
+| Installed web app (Play TWA, home-screen), redirect | A **first** sign-in was lost: Firebase loads at boot only for a device that signed in before (`be12_owner`), so the reload never called `getRedirectResult()` | **fixed** — `be_auth_redirect` mark (10 min) makes the boot load Firebase; `fbRedirectDone` reads, clears, and handles a password collision like the popup |
+| Android Capacitor shell (`https://localhost`, not released) | No sign-in plugin, no popup opener, not an authorised domain: both buttons could only fail | **fixed** — the buttons are not drawn there (`socialWebOn`); a native Android flow is still to be built |
+| iPhone app, production (`be-mastery`) | iOS app `com.lomonec.bemastery` registered; iOS Google client in the same project | config correct (device matrix §7 still pending) |
+| iPhone app, **staging** (`be-mastery-test`), Apple | The test project had **no iOS app**, so an Apple token (audience = bundle id) was refused: "does not match the expected audience com.lomonec.bemastery.signin" | **fixed** — iOS app registered in be-mastery-test (`1:724002405539:ios:786933df7a656d37fd5316`); the audience check now passes |
+| iPhone app, **staging**, Google | The app's iOS client `847739483036-qfgi8l393orrmr8fsnhk50auq9ironjt…` belongs to **production**; be-mastery-test accepts Google tokens only from its own clients or a safelist | **owner step** — Firebase console → **be-mastery-test** → Authentication → Sign-in method → Google → *Safelist client IDs from external projects* → add that client id → Save |
+
+Tests: `tests/auth-redirect.mjs` (14, `npm run test:auth-redirect`).
+`tests/auth-social.mjs` A6 / K1 / K3 / K8 still fail: they assert the pre-4-Oct
+state (web flag off in production, no push entitlement, no URL types) that later
+deliberate changes replaced — left as they are, not rewritten here.

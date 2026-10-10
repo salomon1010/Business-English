@@ -1,15 +1,20 @@
 /* Copies the web app (repository root) into ./www for Capacitor.
    The web app is one file plus its data; nothing is built. What is left out is
    everything that is not the app: backend Workers, marketing, docs, tests, the
-   Android project, this folder. Run before `npx cap sync ios`. */
+   Android project, this folder. Run before `npx cap sync ios`.
+   Shared by the Android shell (8 Oct 2026): mobile/android runs this script with
+   `--out <its www> --platform android`; without them it is the iOS bundle, as before. */
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..", "..");
-const out = resolve(here, "..", "www");
-const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store"]);
+const argAfter = name => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
+const out = argAfter("--out") ? resolve(process.cwd(), argAfter("--out")) : resolve(here, "..", "www");
+const platform = argAfter("--platform") || "ios";
+/* `site` is the lomonec.com company website (deployed on its own, 7 Oct 2026); the app never loads it */
+const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store"]);
 
 rmSync(out, { recursive: true, force: true }); mkdirSync(out, { recursive: true });
 /* copy entry by entry (the destination lives inside the source tree, which cpSync refuses as a whole) */
@@ -54,5 +59,5 @@ const project = (/window\.FB_CONFIG=\{[\s\S]*?"?projectId"?\s*:\s*"([^"]+)"/.exe
 const want = staging ? "be-mastery-test" : "be-mastery";
 if (project !== want) throw new Error(`Firebase project in the bundle is ${project}, expected ${want}`);
 if (!staging && (/be-mastery-test/.test(page) || existsSync(resolve(out, "be-build.js")))) throw new Error("a production bundle must carry nothing of staging");
-writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for iOS (${staging ? "STAGING — not for App Store submission" : "production"})\nfirebase ${project}\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
+writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for ${platform === "android" ? "Android" : "iOS"} (${staging ? "STAGING — not for store submission" : "production"})\nfirebase ${project}\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
 console.log("www ready:", out);

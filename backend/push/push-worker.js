@@ -54,6 +54,7 @@ const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
   "capacitor://localhost",          // the App Store shell's own origin (iOS notifications, 4 Oct 2026)
+  "https://localhost",              // the Play build as a native shell (mobile/android)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];

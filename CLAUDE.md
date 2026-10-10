@@ -448,7 +448,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   draws the allowance card only when spent; `aiOff()` adds "spent". Being
   heard (transcribe, tts, polish, repolish, captions, practice chat) stays
   unmetered; `advanced_progress` and `recommended_content` stay hard locks.
-  **Ads: General English only** — `adsTrackAllows()` is `isGeneralEnglish()`
+  **Ads: General English only** (EXCEPT the game hubs, 10 Oct 2026: `adsTrackAllows(ctx)` also allows
+  the `GAME_AD_CONTEXTS` on Welding while Welding Mastery is open — see docs/ADVERTISING.md) — `adsTrackAllows()` is `isGeneralEnglish()`
   again; Welding shows no ad on any plan (reverses the 5 Oct morning note
   above). `PLAN_LIMITS_TRACK` is empty: 2/1/1/1 Free and 100/20/50/30 Premium
   on both programmes. Copy never says "unlimited" (`prem.headline` /
@@ -825,6 +826,35 @@ not JS, and `new Function` chokes on it. Check it separately with
   `say` — licence). Id `scene.<slug>`; gate `scnOn()`; `vidThumb()` for any clip
   picture. Details: `marketing/product/practice-partner/SHADOW_STUDIO_V2.md` §
   Animated scenes. Tests `tests/shadow-scenes.mjs` (64).
+- **Welding Mastery (9 Oct 2026, `feature/welding-mastery`, Welding ONLY, flag
+  `welding_mastery_enabled`: staging ON, production OFF) — `docs/WELDING_MASTERY.md`.** The game
+  hub `go("mastery", tab)` (`#v-mastery`): 250 terms in `tracks/welding/mastery.json` (the 38 old
+  words kept, the 24 curriculum definitions word for word), 52 original drawings in
+  `mastery-art.json`, eight games, Journey, Collection (favourites, custom words, the old saved
+  list moved here), Rewards, History (every round and answer, folded), Performance; a Game
+  Performance card on Progress. Rules in the pure `welding-mastery-engine.js` (mastery = 3
+  different days + one active recall, never XP; XP idempotent by event id), screens in
+  `welding-mastery.js` (its own en/fr `TX`). State `S.wm.welding`, merged by `WMEngine.merge` in
+  `fbMerge`, trimmed in `fbSyncPayload`. Gate `WMUI.on()` everywhere. **Server (be12-v669):** energy (Free 5
+  challenge rounds a day, Premium none; a wrong answer / failure / repeat costs nothing) and XP are
+  decided by `backend/wm-game.js` (be-polish `{wm:{op}}`, sign-in + Welding account via
+  `/programme`, RateLimiter DO buckets, HMAC round tickets); Premium adds 30/90-day trends
+  (`advanced_progress`), the Advanced workshop (KV `WM_PACK`, content kept out of this public
+  repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
+  be-entitlements, so the route answers 503 there. Tests:
+  `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
+- **English Mastery (10 Oct 2026, `feature/english-mastery`, General English ONLY, flag
+  `english_mastery_enabled`: staging ON, production OFF) — `docs/ENGLISH_MASTERY.md`.** The
+  Welding Mastery hub rebuilt for General English: `go("english", tab)` (`#v-english`), portal
+  above the Knowledge Boosters, Home Explore tile + recommendations (`wmHub()` picks WMUI or
+  EMUI), Progress card. 385 items BUILT from the curriculum + 150 everyday words
+  (`scripts/english-mastery/build.mjs` → `tracks/general/mastery.json`); eight games (Word Quest,
+  Quick Quiz, Sentence Builder, Listen & Win, Speak Up, Phrase Match, Word Puzzle, Real-Life
+  Missions). `english-mastery.js` is ASSEMBLED by `scripts/english-mastery/assemble.py` from
+  Welding's shared middle + the `ui-*.js` parts — never edit it by hand. Engine:
+  `WMEngine.make(EM)` = `EMEngine` (`WMEngine` itself unchanged). Server: `backend/wm-game.js`
+  `prog: "general-english"` (account must be GE; own `em…` buckets, own 5 energy, own KV pack
+  `ge-advanced-v1`, kept out of this public repo). Tests: `tests/english-mastery.mjs` (57).
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the

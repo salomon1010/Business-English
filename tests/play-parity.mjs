@@ -32,8 +32,9 @@ console.log("\n# the Play app is recognised, a browser is not");
   ok("4 · no JavaScript errors", errs.length === 0, errs.join(" | "));
   await ctx.close(); }
 { const { p, ctx } = await open({ ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" });
-  const r = await p.evaluate(() => ({ play: isPlayApp(), v2: flag("home_v2_enabled"), mic: micDeniedText("rec.mic_denied_toast") }));
-  ok("5 · a desktop browser is not the Play app and keeps the website's defaults", r.play === false && r.v2 === false && !/Site settings/.test(r.mic), JSON.stringify(r));
+  /* compared with FLAGS_DEFAULT itself: Home V2 became the website default in be12-v653 */
+  const r = await p.evaluate(() => ({ play: isPlayApp(), v2: flag("home_v2_enabled"), web: !!FLAGS_DEFAULT.home_v2_enabled, mic: micDeniedText("rec.mic_denied_toast") }));
+  ok("5 · a desktop browser is not the Play app and keeps the website's defaults", r.play === false && r.v2 === r.web && !/Site settings/.test(r.mic), JSON.stringify(r));
   await ctx.close(); }
 console.log("\n# Google and Apple sign-in inside the installed Play app");
 { const { p, ctx } = await open({ query: "?wid=abababababababababababababababab", standalone: true, flags: { social_signin_web_enabled: true, auth_proxy_enabled: false } });

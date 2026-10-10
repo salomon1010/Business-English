@@ -73,6 +73,14 @@ struct BEWidgetSnapshot: Decodable {
         var img: String?; var min: Int?; var ext: Bool?; var go: Go?
     }
     var recs: [Rec]?
+    /// The Welding Mastery widget's block (BEWidgetMastery.swift). Present only
+    /// in a Welding snapshot, and only while the game exists for this learner.
+    struct Mastery: Decodable {
+        struct Shift: Decodable { var t: String?; var p: Int?; var n: Int?; var done: Bool? }
+        var m: Int?; var total: Int?; var lvl: Int?; var xp: Int?; var need: Int?; var pct: Int?; var streak: Int?
+        var shift: Shift?; var next: String?; var labels: [String: String]?
+    }
+    var wm: Mastery?
 
     static func parse(_ json: String) -> BEWidgetSnapshot? {
         guard let data = json.data(using: .utf8), data.count <= 16_384 else { return nil }

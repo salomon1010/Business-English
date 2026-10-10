@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=88"></script>
-<script src="nudge-engine.js?v=5"></script>
+<script src="nudge-engine.js?v=7"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=84"></script>
 <script src="shadow-sync.js?v=8"></script>
@@ -79,6 +79,13 @@
 <script src="answer-evaluator.js?v=84"></script>
 <script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=87"></script>
+<!-- Welding Mastery (Welding programme only, flag welding_mastery_enabled): the engine is pure, the screens gate themselves on WMUI.on() -->
+<link rel="stylesheet" href="welding-mastery.css?v=9">
+<script src="welding-mastery-engine.js?v=3"></script>
+<script src="welding-mastery.js?v=8"></script>
+<!-- English Mastery (General English only, flag english_mastery_enabled, 10 Oct 2026): the same engine built for General English (EMEngine), its own screens, gated on EMUI.on() -->
+<link rel="stylesheet" href="english-mastery.css?v=2">
+<script src="english-mastery.js?v=4"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2344,6 +2351,31 @@ html[data-view="lines"] .view.on>h1.big+*,html[data-view="career"] .view.on>h1.b
    says the state (so the icons never swap to a tick). */
 .sv-sh-tg{gap:10px}
 .sv-wt-tg{margin:0 0 10px}
+/* a saved video reads YELLOW (owner, 9 Oct 2026): the bookmark fills, on every
+   theme and programme; a darker yellow edge keeps it visible on the light theme */
+.sv-save-t.on{color:#f5b301;border-color:#f5b301;background:color-mix(in srgb,#fbbf24 16%,transparent)}
+.sv-save-t.on svg{fill:#fbbf24;stroke:#d99a00}
+/* floated by svWtFloatSync once the row is under the pinned video: a column on
+   the right edge, just above the foot bar (circle + its padding + safe area) */
+.sv-wt-tg.float{position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right));margin:0;flex-direction:column;align-items:flex-end;
+  bottom:calc(clamp(36px,10.5vw,48px) + 34px + env(safe-area-inset-bottom));padding:6px;border-radius:28px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);box-shadow:0 4px 16px rgba(0,0,0,.18);animation:fade .15s}
+.sv-wt-tg.float .sv-sh-t{background:var(--card2)}
+/* width from the buttons, never from the row's old place in the page (a fixed box
+   with only `right` set shrinks to the room left of it) */
+.sv-wt-tg.float{width:max-content;max-width:none}
+.sv-wt-tg.float .sv-tr-grp{flex-direction:column;flex-wrap:nowrap;flex-shrink:0;width:30px;align-items:stretch}
+.sv-wt-tg.float .sv-tr-grp>*{flex:none}
+/* while floating the pill is a column too: flag on top of the language tag,
+   as wide as the other circles (owner, 9 Oct 2026) */
+.sv-wt-tg.float{min-width:38px}.sv-wt-tg.float .sv-tr-grp{white-space:nowrap}
+/* smaller while floating (owner, 9 Oct 2026): 30 px rounds instead of 44, so the
+   column sits lighter over the transcript */
+.sv-wt-tg.float{gap:5px;padding:4px;border-radius:19px}
+.sv-wt-tg.float .sv-sh-t{width:30px;min-width:30px;min-height:30px;height:30px}
+.sv-wt-tg.float .sv-sh-t svg{width:14px;height:14px}
+.sv-wt-tg.float .sv-tr-grp .sv-sh-t{width:30px;min-width:30px;padding:0;border-radius:99px 99px 0 0;background:transparent}
+.sv-wt-tg.float .sv-tr-lang{min-height:28px;height:28px;width:30px;min-width:30px;padding:0;font-size:10px;border-left:0;border-top:1px solid var(--line2);border-radius:0 0 99px 99px}
 .sv-sh-tg .sv-sh-t>span:not(.lang-ic){display:none}
 .sv-sh-tg .sv-sh-t{flex:none;width:44px;min-height:44px;padding:0;justify-content:center;gap:0}
 .sv-sh-tg .sv-sh-t svg{width:18px;height:18px}
@@ -2699,6 +2731,56 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .fnd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .fnd-acts .btn{min-height:44px}.fnd-rec{flex:1 1 140px;justify-content:center}
 .fnd-result{margin-top:10px;min-height:4px}
+/* the four buttons on one line (owner, 9 Oct 2026): compact padding, the record
+   button takes what is left */
+.fnd-acts{flex-wrap:nowrap;gap:6px}.fnd-acts .btn{padding:0 10px;font-size:14px;white-space:nowrap;flex:0 1 auto;min-width:44px;gap:6px}
+/* Hear and Slow are icons (Slow has the gauge) with their names in the
+   aria-label and title, so the row fits in every language on a narrow phone
+   and Record keeps its words */
+.fnd-acts .fnd-hear{width:44px;padding:0;justify-content:center;flex:none}.fnd-acts .fnd-bl{display:none}
+.fnd-acts .btn.fnd-mine{width:44px;padding:0;justify-content:center;flex:none}
+.fnd-acts .btn.fnd-rec{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;justify-content:center}
+.fnd-item.locked{opacity:.6}.fnd-item.locked .fnd-rec{cursor:not-allowed}
+.fnd-lock{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:13px;color:var(--mut2)}.fnd-lock svg{width:14px;height:14px}
+.fnd-na{margin:6px 0 0;font-size:12.5px;color:var(--mut2)}
+.fnd-check{margin-top:4px;padding:12px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2)}
+.fnd-check.pass{border-color:color-mix(in srgb,var(--green) 55%,var(--line2))}
+.fnd-check.fail{border-color:color-mix(in srgb,var(--red) 45%,var(--line2))}
+.fnd-said{font-size:18px;font-weight:700;line-height:1.6}
+.fnd-w.ok{color:var(--green)}
+.fnd-w.bad{color:var(--red);text-decoration:underline wavy var(--red);text-underline-offset:4px;text-decoration-thickness:1.5px}
+.fnd-verdict{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--txt)}
+.fnd-verdict .fnd-overall{margin:0}
+.fnd-fix{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.fnd-fix-top{display:flex;align-items:center;gap:10px}.fnd-fix-top .fnd-w{font-size:17px;font-weight:800}
+.fnd-fix-say{margin-top:4px;font-size:14px;color:var(--mut)}.fnd-fix-say code{font-family:inherit;color:var(--txt)}.fnd-fix-say b{color:var(--txt);letter-spacing:.3px}
+.fnd-fix-tip{margin-top:3px;font-size:13.5px;line-height:1.45;color:var(--mut)}
+.fnd-again{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.fnd-again svg{width:18px;height:18px;flex:none}
+.fnd-check>summary,.fnd-grp>summary,.fnd-report>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px}
+.fnd-check>summary::-webkit-details-marker,.fnd-grp>summary::-webkit-details-marker,.fnd-report>summary::-webkit-details-marker{display:none}
+.fnd-check .hm-chev,.fnd-grp .hm-chev,.fnd-report .hm-chev{margin-left:auto;display:inline-flex;transition:transform .2s}
+.fnd-check .hm-chev svg,.fnd-grp .hm-chev svg,.fnd-report .hm-chev svg{width:16px;height:16px}
+.fnd-check:not([open]) .fnd-rep-s .hm-chev,.fnd-grp:not([open])>summary .hm-chev,.fnd-report:not([open])>summary .hm-chev{transform:rotate(-90deg)}
+.fnd-rep-s{flex-wrap:wrap}.fnd-rep-t{font-size:14px;font-weight:700;color:var(--txt);flex:1 1 180px}
+.fnd-grp{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.fnd-grp>summary{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--mut2)}
+.fnd-grp-b{margin-top:6px}
+.fnd-grp .fnd-fix:first-child{border-top:0;padding-top:0;margin-top:4px}
+.fnd-fix-why{font-size:13px;color:var(--mut2)}
+.fnd-fix.fixed .fnd-fix-top .fnd-w{color:var(--green);text-decoration-color:var(--green)}
+.fnd-fix-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.fnd-fix-acts .btn-sm{min-height:38px}
+.fnd-dr{font-size:13px;font-weight:700}.fnd-dr.ok{color:var(--green);display:inline-flex;align-items:center;gap:4px}.fnd-dr.ok svg{width:14px;height:14px}.fnd-dr.no{color:var(--red)}
+.fnd-next-h{margin:10px 0 0;font-size:13.5px;color:var(--mut)}
+.fnd-check.err{border-color:color-mix(in srgb,var(--gold) 50%,var(--line2))}
+.fnd-err{display:flex;gap:8px;align-items:flex-start;margin:0;font-size:14px;color:var(--txt)}.fnd-err svg{width:16px;height:16px;flex:none;margin-top:2px}
+.fnd-err-acts{margin-top:10px}.fnd-err-acts .btn-primary{width:100%;justify-content:center;display:flex;align-items:center;gap:8px}.fnd-err-acts svg{width:18px;height:18px}
+.fnd-report{margin-top:14px;padding:14px 16px}
+.fnd-rep-v{margin:10px 0 0;font-size:14.5px;font-weight:700}.fnd-rep-v.ready{color:var(--green)}.fnd-rep-v.finish_weak{color:var(--gold)}
+.fnd-rep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fnd-rep-grid div{background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:10px;text-align:center}
+.fnd-rep-grid b{display:block;font-size:18px}.fnd-rep-grid span{font-size:11.5px;color:var(--mut2)}
+.fnd-rep-l{margin:12px 0 6px;font-size:13px;font-weight:700}.fnd-rep-words{display:flex;gap:6px;flex-wrap:wrap}
+.fnd-rep-note{margin:10px 0 0;font-size:12px;color:var(--mut2);line-height:1.45}
 .fnd-tick{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
 .fnd-tick svg{width:16px;height:16px}
 .fnd-overall{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;margin-top:6px}
@@ -4062,6 +4144,40 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
   #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:8px 4px}
   #v-practice .prac-subtabs .prac-subtab b{margin-left:3px;font-size:10.5px}
 }
+/* Compact vocabulary page (owner, 10 Oct 2026: "more compact, it's too large").
+   Four boosters (General English) become a 2x2 of short tiles — icon left, one
+   line each; Welding's three keep their single row. Slimmer tabs, a smaller
+   empty state, and a one-line "words collected" summary. */
+#v-practice .prac-kb{margin:0 0 12px}
+#v-practice .prac-kb-sum{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;padding:2px 0;border-radius:10px}
+#v-practice .prac-kb-sum::-webkit-details-marker{display:none}
+#v-practice .prac-kb-sum > span:first-child{flex:1;min-width:0}
+#v-practice .prac-kb-sum:focus-visible{outline:2px solid var(--acc2);outline-offset:3px}
+#v-practice .prac-kb-chev{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);transition:transform .2s}
+#v-practice .prac-kb-chev svg{width:16px;height:16px}
+#v-practice .prac-kb[open] .prac-kb-chev{transform:rotate(180deg)}
+#v-practice .prac-kb:not([open]) .prac-kb-sum .prac-sec-sub{margin-bottom:0}
+#v-practice .prac-kb-h{margin:0 0 2px}
+#v-practice .prac-kb .prac-sec-sub{margin:0 0 10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)){grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;text-align:left;padding:10px 12px;min-height:58px;border-radius:14px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card .pex-ic{grid-row:1 / span 2;width:34px;height:34px;margin:0;border-radius:10px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card .pex-ic svg{width:18px;height:18px}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card b{font-size:12.5px;line-height:1.2;align-self:end;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#v-practice .prac-ex:has(> .prac-ex-card:nth-child(4)) .prac-ex-card small{font-size:11px;line-height:1.25;align-self:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-practice .prac-subtabs{margin-bottom:10px}
+#v-practice .prac-subtabs .prac-subtab{min-height:36px;padding:6px 8px;border-radius:99px}
+#v-practice #vlBox .empty-st{padding:16px 14px;gap:6px}
+#v-practice #vlBox .empty-st .empty-ic svg{width:22px;height:22px}
+#v-practice #vlBox .empty-st b{font-size:15px}
+#v-practice #vlBox .empty-st p{font-size:13px;line-height:1.45;max-width:36ch;margin:0 auto}
+#v-practice .prac-stats{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;text-align:left;padding:14px 16px}
+#v-practice .prac-stats .prac-total{font-size:30px;grid-row:1}
+#v-practice .prac-stats .prac-total-l{grid-row:1;margin:0;font-size:13px;font-weight:600;color:var(--txt)}
+#v-practice .prac-stats .prac-bar{grid-column:1 / -1;margin:10px 0 8px;height:6px}
+#v-practice .prac-stats .prac-legend{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;gap:4px 14px;max-width:none;margin:0;font-size:12px}
+#v-practice .prac-stats .prac-legend .pdot{margin-right:6px;width:8px;height:8px}
+#v-practice .prac-stats .prac-add{grid-column:1 / -1;margin-top:12px}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -6498,7 +6614,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
     <h1 style="font-size:28px;line-height:1.2">Business English Mastery — speak like you belong in the room</h1>
     <p style="color:#9fb0cc;line-height:1.6;margin-top:14px">A 12-week system for confident professional spoken English. 25 minutes a day: shadowing real speakers, instant speaking feedback, 152 business phrases and visible progress. Free, no account, works offline.</p>
     <p style="color:#9fb0cc;line-height:1.6;margin-top:14px"><b>BE Mastery needs JavaScript.</b> Turn it on and reload, or read more below.</p>
-    <p style="margin-top:18px"><a href="flyer.html" style="color:#22d3ee">About BE Mastery</a> ·
+    <p style="margin-top:18px"><a href="https://lomonec.com/bemastery/" style="color:#22d3ee">About BE Mastery</a> ·
        <a href="manual/en.html" style="color:#22d3ee">User guide</a> ·
        <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" style="color:#22d3ee">Google Play</a></p>
   </div>
@@ -6536,6 +6652,8 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   <div id="v-phrasebank" class="view"></div>
   <div id="v-shadow" class="view"></div>
   <div id="v-practice" class="view"></div>
+  <div id="v-mastery" class="view"></div>
+  <div id="v-english" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
@@ -6568,7 +6686,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   </nav>
   <div class="footer-note" style="margin-top:6px" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
   <div class="footer-note" style="margin-top:0">
-    <a href="flyer.html" data-i18n="footer.about_link">About BE Mastery</a> ·
+    <a href="https://lomonec.com/bemastery/" target="_blank" rel="noopener" data-site="bemastery" data-i18n="footer.about_link">About BE Mastery</a> ·
     <!-- href kept so crawlers and no-JS visitors still reach the guide (this is
          one of the few crawlable links out of the app shell). With JS, the
          delegated footer handler opens it in the in-app document viewer. -->
@@ -6941,13 +7059,18 @@ const AREA_GEN="general-english";
    Apple's guideline 2.3.10 — no references to other platforms — so the
    Google Play link and button are dropped there. Everything else is identical. */
 const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
+/* The Play app as a native Capacitor shell (mobile/android, 8 Oct 2026 — replaces the
+   TWA; docs/ANDROID_NATIVE_SHELL_PLAN.md). It IS the Play app (isPlayApp), but it is
+   not Apple: the Play links stay. IS_NATIVE_APP = either store shell. */
+const IS_ANDROID_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="android");
+const IS_NATIVE_APP=IS_IOS_APP||IS_ANDROID_APP;
 if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
 /* In the shell a same-origin target=_blank link (privacy.html, delete-account.html)
    has no tab to open in: WKWebView would either navigate the whole app away or
    drop the tap. Show those pages in the in-app document sheet instead, which has
    its own close button. External links keep their default: Capacitor hands them
    to Safari. */
-if(IS_IOS_APP)document.addEventListener("click",e=>{
+if(IS_NATIVE_APP)document.addEventListener("click",e=>{   /* the Android WebView has no tabs either */
   const a=e.target&&e.target.closest?e.target.closest('a[target="_blank"]'):null;if(!a)return;
   const h=a.getAttribute("href")||"";
   if(!/^[a-z0-9_.\/-]+\.html(#[\w-]*)?$/i.test(h))return;
@@ -8903,6 +9026,47 @@ const I18N_EN={
  "fnd.how":"For each sentence: tap Hear, read the French underneath, then Record yourself saying it. All three recorded finishes the day.",
  "fnd.hear":"Hear",
  "fnd.slow":"Slow",
+ "fnd.mine":"Play my recording",
+ "fnd.mine_none":"No recording of this sentence yet.",
+ "fnd.how_pass":"When your pronunciation can be checked, each sentence needs {{n}}% before the next one opens.",
+ "fnd.locked":"Say the sentence above clearly first ({{n}}%) to open this one.",
+ "fnd.checking":"Checking your pronunciation…",
+ "fnd.pass":"Clear. On to the next sentence.",
+ "fnd.say_like":"Say it like:",
+ "fnd.tip_wait":"Finding a tip…",
+ "fnd.tip_generic":"Listen to the word slowly, say it alone three times, then say the whole sentence.",
+ "fnd.hear_word":"Hear “{{w}}” slowly",
+ "fnd.say_again":"Say it again",
+ "fnd.pass_first":"Say each sentence clearly ({{n}}%) to finish the day.",
+ "fnd.err_account":"Sign in to have your pronunciation checked. Each sentence must be checked before the next one opens.",
+ "fnd.err_offline":"You are offline, so your pronunciation cannot be checked. Connect, then check this take again.",
+ "fnd.err_silent":"No words were heard. Hold the phone closer, speak clearly and record again.",
+ "fnd.err_restoring":"Your account is still loading. Wait a second, then check again.",
+ "fnd.err_busy":"The check is not answering right now. Check this take again in a moment.",
+ "fnd.sign_in":"Sign in",
+ "fnd.check_again":"Check this take again",
+ "fnd.word_ok":"Good — heard clearly",
+ "fnd.word_no":"Not yet — we heard “{{heard}}”. Listen, then try again.",
+ "fnd.heard_instead":"We heard “{{heard}}”",
+ "fnd.not_heard":"Not heard",
+ "fnd.word_practise":"Practise this word",
+ "fnd.word_again":"Again",
+ "fnd.fail_n":"Not yet — you need {{n}}%. {{k}} word(s) to fix.",
+ "fnd.g_said":"What you said",
+ "fnd.g_target":"The sentence",
+ "fnd.g_fix":"Words to fix ({{n}})",
+ "fnd.now_sentence":"Good work on the words. Now say the whole sentence again — it needs {{n}}% to move on.",
+ "fnd.then_sentence":"Practise the red words, then say the whole sentence again. It needs {{n}}% to move on.",
+ "fnd.rep_h":"Your Foundations report",
+ "fnd.rep_ready":"Ready for the full programme: every sentence passed the check, and your first tries were strong.",
+ "fnd.rep_weak":"Every sentence passed, but your first tries average {{n}}%. Keep practising the words below in Week 1.",
+ "fnd.rep_progress":"In progress: {{m}} of {{t}} sentences passed the check.",
+ "fnd.rep_mastered":"sentences passed",
+ "fnd.rep_first":"first-try average",
+ "fnd.rep_hard":"needed 3+ tries",
+ "fnd.rep_words":"Words you practised most",
+ "fnd.rep_reconly":"{{n}} sentence(s) were recorded before the check existed, so they are not counted as passed.",
+ "fnd.rep_honest":"This report counts what the speech recogniser heard you say. It is a good test of how clearly you speak, not a teacher's assessment of every sound.",
  "fnd.record":"Record",
  "fnd.record_again":"Record again",
  "fnd.you_hear":"You hear",
@@ -11081,7 +11245,7 @@ function go(v,arg1,arg2){
   const _pgPrev=(typeof cur!=="undefined"&&cur)?cur:null;
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
+  const tv=v==="data"?"profile":(v==="simulation"||v==="partner"||v==="career"||v==="lines"||v==="mastery"||v==="english"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the Career Center under Practice (its fifth Welding tool); the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -11114,7 +11278,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,lines:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist,mastery:(e,a,b)=>window.WMUI?WMUI.render(e,a,b):go("practice"),english:(e,a,b)=>window.EMUI?EMUI.render(e,a,b):go("practice")})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -11397,6 +11561,9 @@ window.docToggleTheme=function(){
   try{fr.contentDocument.documentElement.setAttribute("data-theme",next)}catch(e){}   // and the flyer inside (same-origin, instant)
   const b=document.querySelector(".doc-theme");if(b)b.innerHTML=ic(next==="light"?"moon":"sun");
 };
+/* lomonec.com/bemastery in the learner's language: the site carries the app's 16 languages (site/bemastery/<code>/) */
+const BE_SITE="https://lomonec.com/bemastery/",BE_SITE_LANGS=["fr","es","pt","it","de","ru","ar","ur","hi","bn","id","vi","zh","ja","ko"];
+function beSiteUrl(){const c=String((S.profile&&S.profile.lang)||"en");return BE_SITE+(BE_SITE_LANGS.includes(c)?c+"/":"")}
 /* About the app — the flyer, which is theme-aware, so it gets the theme toggle. */
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
@@ -11426,6 +11593,8 @@ addEventListener("click",e=>{
   if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
   const href=a.getAttribute("href")||"";
   if(/^(mailto:|tel:)/i.test(href))return;
+  /* About BE Mastery is the public website (owner, 10 Oct 2026), in the learner's language when the site has it */
+  if(a.dataset.site){e.preventDefault();try{window.open(beSiteUrl(),"_blank","noopener")}catch(_){location.href=beSiteUrl()}return}
   let u;try{u=new URL(a.href,location.href)}catch(_){return}
   if(u.origin!==location.origin)return;
   e.preventDefault();
@@ -12628,12 +12797,17 @@ function homeV2On(){try{return flag("home_v2_enabled")&&(isGeneralEnglish()||wel
    Welding adds `home` (the engine's Home rows and ranking run for it) and has NO partner and NO
    AI coach — those are General English features and must never be offered on Welding. The push
    nudges never read this: they keep nudgeSignals() and stay General English only. */
+function wmHub(){try{if(window.WMUI&&WMUI.on())return WMUI;if(window.EMUI&&EMUI.on())return EMUI}catch(e){}return null}
 function homeSignals(){
   const sig=nudgeSignals();
   if(!isGeneralEnglish()){sig.home=true;sig.partner={};sig.aiCoach=false}
+  /* Welding Mastery: the game is part of what Home recommends (Welding only, flag welding_mastery_enabled) */
+  try{if(window.WMUI&&WMUI.on())sig.wm=WMUI.signals()}catch(e){}
+  /* English Mastery: the same, on General English (flag english_mastery_enabled) */
+  try{if(!sig.wm&&window.EMUI&&EMUI.on())sig.wm=EMUI.signals()}catch(e){}
   return sig;
 }
-const HOME_KIND_ICON={lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
+const HOME_KIND_ICON={mastery:"trophy",lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
 function homeReasonKey(r){const x=String(r&&r.reason||"");return x.startsWith("inactive_")?"inactive":x.startsWith("words_due")?"words_due":x.startsWith("trouble_words")?"trouble_words":x.startsWith("partner_waiting")?"partner_waiting":x.startsWith("streak_at_risk")?"streak_at_risk":x.startsWith("no_partner")?"no_partner":x}
 /* every recommendation for this learner now, best first — the push engine's own ranking */
 function homeRecs(){
@@ -12658,6 +12832,9 @@ function homeCard(r){
       sub:wk.theme&&wk.theme!==day.focus?wk.theme:"",meta:meta.k?dayTypeLabel(d):"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
       cta:t(k==="comeback"?"home.cta_restart":first&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r,w,d};
   }
+  if(k==="mastery"&&wmHub()){const x=wmHub().heroText(r);
+    return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,sub:why===("home.why_"+homeReasonKey(r))?"":why,meta:x.meta,metaIc:"trophy",desc:x.body,why:"",minutes:r.minutes,
+      cta:x.cta,go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic:wmHub()===window.EMUI?"english vocabulary game":"welding vocabulary game",rec:r,prem:false};}
   const x=nudgeText(r);
   const verb={words:"home.cta_review",challenge:"home.cta_challenge",shadow:"home.cta_shadow",partner_now:"home.cta_partner",partner_streak:"home.cta_partner",ai_coach:"home.cta_coach"}[k]||"home.cta_continue";
   const topic={words:"words vocabulary",challenge:(r.vars&&r.vars.title||"")+" pronunciation shadow",shadow:"pronunciation shadow",partner_now:"conversation partner",partner_streak:"conversation partner",ai_coach:"conversation coach"}[k]||"";
@@ -12741,9 +12918,9 @@ const HOME_PREM_KINDS=Object.freeze(["shadow","challenge"]);
 const HOME_PREM_ITEMS=Object.freeze(["video","challenge"]);
 function homeRecLocked(kind){return HOME_PREM_KINDS.indexOf(String(kind))>=0&&entLocked("recommended_content")}
 function homeItemLocked(it){return !!it&&(HOME_PREM_ITEMS.indexOf(String(it.type))>=0||!!it.external)&&entLocked("recommended_content")}
-const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
+const HOME_ROW_ICON={game:"trophy",challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
 /* the row's own mark: what kind of evidence it rests on */
-const HOME_ROWKIND_ICON={watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
+const HOME_ROWKIND_ICON={games:"trophy",watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
 /* every card that has no video shows the page it opens (owner, 27 Sep 2026: "where there is no
    picture, a screenshot of that feature"). home-shots/*.jpg are 16:9 clips of the app's own pages
    from the demo learner "Alex" (tests/home-shots.mjs): a lesson day, the word list, trouble words,
@@ -12752,6 +12929,7 @@ const HOME_SHOT={session:"session",words:"vocab",trouble:"trouble",phrases:"phra
   lesson:"session",comeback:"session",done:"session",placement:"session",foundations:"session",shadow:"trouble",partner_now:"partner",partner_streak:"partner",ai_coach:"ai",challenge:"trouble",roleplay:"ai"};
 function homeShot(k){return HOME_SHOT[k]?`home-shots/${HOME_SHOT[k]}.jpg`:""}
 function homeItemLine(it){
+  if(it.type==="game"&&wmHub())return wmHub().itemLine(it);
   switch(it.type){
     case "challenge":return t("home.it_challenge");
     case "video":return t(it.saved?"home.it_saved_clip":"home.it_video");
@@ -12766,6 +12944,7 @@ function homeItemLine(it){
   return "";
 }
 function homeItemTitle(it){
+  if(it.type==="game"&&wmHub())return wmHub().itemTitle(it);
   if(it.title)return NudgeEngine.clipTitle?NudgeEngine.clipTitle(it.title):it.title;
   if(it.type==="words")return t(it.saved?"home.it_words_saved_t":"home.it_words_t");
   if(it.type==="phrases")return t("home.it_phrases_wt",{w:it.w});
@@ -12781,7 +12960,7 @@ function homeRowKey(r){
 function homeRowCardHTML(r,it,i){
   /* a clip shows its thumbnail, a role-play its character's portrait, anything else the page it opens */
   const rp=it.type==="roleplay"?(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})():null;
-  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:homeShot(it.type);
+  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:it.type==="game"&&wmHub()?wmHub().LOGO_URL:homeShot(it.type);
   const img=src?`<img src="${src}" alt="" loading="lazy" decoding="async"${it.vid||rp?"":' class="hx-shot"'} onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
   const lock=homeItemLocked(it);
@@ -12814,7 +12993,7 @@ function homeRowsHTML(rows){
   return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
     <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
       ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
-      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx"><h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p></div></div>
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx">${r.id==="games"&&wmHub()?(()=>{const g=wmHub().rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div></div>
       ${lk?homeRowsPremHTML():`<div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>`}
     </div>`}).join("")}</section>`;
 }
@@ -13044,6 +13223,8 @@ function homeRecDest(c){
     if(L&&["shadow","phrases","practice","partner","review"].includes(L.v)){const lines=sessDest(L.v)==="lines";
       return {dest:lines?"lines":L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:lines?t("tools.lines_sub"):t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})}}
     return {dest:"journey",go:c.go,line:c.title,ctx:c.kicker||""}}
+  if(k==="mastery")return {dest:"mastery",go:c.go,line:c.desc,ctx:c.title};
+  if(k==="english")return {dest:"english",go:c.go,line:c.desc,ctx:c.title};
   const m={words:"practice",challenge:"shadow",shadow:"shadow",partner_now:"partner",partner_streak:"partner",ai_coach:"partner"}[k];
   return m?{dest:m,go:c.go,line:c.sub||c.desc,ctx:c.title}:null;
 }
@@ -13067,6 +13248,9 @@ function homeDestHTML(top,cards,vis){
     convo:weldStudioOn()?{ic:"chat",t:t("home.d_sim_t"),s:t("home.d_sim"),go:"go('simulation')",img:wp("convo"),art:1}:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
     lines:weldStudioOn()?{ic:"doc",t:t("tools.lines"),s:t("tools.lines_sub"),go:"go('lines')",img:"home-shots/trouble.jpg",art:0}:null,
     grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:wp?wp("grammar"):"home-photos/grammar.jpg?v=3",art:1},
+    /* Welding Mastery: its own place in Explore, with the game's logo (Welding only) */
+    mastery:window.WMUI&&WMUI.on()?WMUI.exploreTile():null,
+    english:window.EMUI&&EMUI.on()?EMUI.exploreTile():null,
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:wp?wp("progress"):"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
@@ -13077,7 +13261,7 @@ function homeDestHTML(top,cards,vis){
   /* every Explore card is the same size (owner, 28 Sep 2026): the primary recommendation's
      place leads the grid with its deep link and its words — no big card, no tag line. */
   const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
-  const order=["shadow","partner","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
+  const order=["shadow","partner","mastery","english","practice","lines","phrases","grammar","journey","review","convo"].filter(id=>D[id]);
   const rank=id=>id===primId?2:taken[id]?1:0;
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}"${r?` aria-label="${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}: ${esc(d.t)}"`:""} onclick="${r?r.go:d.go}">
@@ -14885,7 +15069,7 @@ function shv3Observe(){
   }
   if(_shv3RO)[w.querySelector(".sh-work-body"),w.querySelector(".sh-stick"),document.getElementById("shv3Bar")].forEach(e=>{if(e)_shv3RO.observe(e)});
   const body=w.querySelector(".sh-work-body");
-  if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>shv3ScrollDraw(true),{passive:true})}
+  if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>{shv3ScrollDraw(true);svWtFloatSync()},{passive:true})}
   shv3Measure();
 }
 /* the app-wide scroll thumb (see .app-scroll): one listener, in the capture
@@ -17939,6 +18123,27 @@ function beNativeWidget(){
   return null;
 }
 function widgetOn(){try{return !!(IS_IOS_APP&&flag("ios_widget_enabled")&&beNativeWidget())}catch(e){return false}}
+/* THE GAME STREAK COUNTDOWN (iOS Live Activity, owner 10 Oct 2026, both game hubs).
+   Leaving the app in the LAST THREE HOURS of the game day (UTC midnight, the day the
+   hubs and the server count) with today's daily not done starts a lock-screen card
+   that counts down to the deadline (BEWidget/BEStreakActivity.swift draws it; the
+   system runs the clock). Finishing the daily ends it ("streak safe"); so does
+   sign-out. The hub says what and until when (WMUI / EMUI liveInfo); nothing here
+   is sent anywhere. Flag ios_live_activity_enabled. */
+const LIVE_WINDOW_MS=3*3600e3;
+function beLive(){const p=beNativeWidget();return p&&typeof p.liveStart==="function"?p:null}
+function liveOn(){try{return !!(IS_IOS_APP&&flag("ios_live_activity_enabled")&&beLive())}catch(e){return false}}
+function liveSync(){
+  if(!liveOn())return;
+  let i=null;try{const hub=wmHub();i=hub&&hub.liveInfo?hub.liveInfo():null}catch(e){}
+  if(!i)return;
+  if(i.done){liveDone();return}
+  const left=i.deadline-Date.now();
+  if(left>60e3&&left<=LIVE_WINDOW_MS)beLive().liveStart({prog:i.prog,title:i.title,line:i.line,doneLine:i.doneLine,streak:i.streak,deadline:i.deadline}).catch(()=>{});
+}
+function liveDone(){try{if(liveOn())beLive().liveEnd({done:true}).catch(()=>{})}catch(e){}}
+function liveClear(){try{const p=beLive();if(p)p.liveEnd({done:false}).catch(()=>{})}catch(e){}}
+document.addEventListener("visibilitychange",()=>{try{if(document.visibilityState==="hidden")liveSync();else{const h=wmHub(),i=h&&h.liveInfo&&h.liveInfo();if(i&&i.done)liveDone()}}catch(e){}});
 /* Android: the Play app is a Trusted Web Activity, so the page cannot hand
    anything to it directly. It publishes the same snapshot to be-widget under
    the id the app put on the launch URL (?wid=), and the widget pulls it. */
@@ -18008,6 +18213,16 @@ function widgetRecs(){
   _wgRecs={at:Date.now(),v:out};
   return out;
 }
+/* Android's half of the streak countdown (owner, 10 Oct 2026). The iPhone starts a Live
+   Activity itself (liveSync); the Play app cannot be called from the page, so the hub's
+   liveInfo rides in the widget snapshot and the app's BEStreakCountdown posts the
+   notification from it, at the right hour, even if the app is not opened that day. */
+function widgetLiveBlock(){
+  if(!flag("android_live_countdown_enabled"))return undefined;
+  const h=wmHub(),i=h&&h.liveInfo?h.liveInfo():null;
+  if(!i)return undefined;
+  return {prog:i.prog,title:String(i.title||""),line:String(i.line||""),doneLine:String(i.doneLine||""),streak:+i.streak||0,deadline:+i.deadline||0,done:!!i.done};
+}
 function widgetSnapshot(){
   const safe=(f,d)=>{try{const v=f();return v==null?d:v}catch(e){return d}};
   const str=(f,d)=>{const v=safe(f,d);return typeof v==="string"&&v.trim()?v.trim():d};
@@ -18032,6 +18247,11 @@ function widgetSnapshot(){
     v:1,at:Date.now(),lang,dir:["ar","ur"].includes(lang)?"rtl":"ltr",
     gate:widgetGate(),
     recs:widgetRecs(),
+    /* the Welding Mastery widget's block — Welding only, absent everywhere else */
+    wm:safe(()=>pro&&window.WMUI&&WMUI.on()?WMUI.widgetData():undefined,undefined),
+    /* the game streak countdown (Android: the Play app posts it from this feed) — only
+       while a game hub is open for this learner; its own words, already translated */
+    live:safe(()=>widgetLiveBlock(),undefined),
     theme:document.documentElement.getAttribute("data-theme")==="light"?"light":"dark",
     area:pro?"pro":"ge",
     programme:key(pro?"area.name_pro":"area.name_gen",null,pro?"Welding English":"General English"),
@@ -18089,7 +18309,7 @@ function widgetSync(force){
   if(force)run();else _wgH=setTimeout(run,1200);
 }
 /* sign-out / account deletion: the widget forgets this learner too */
-function widgetClear(){
+function widgetClear(){try{liveClear()}catch(e){}
   _wgLast="";if(_wgH){clearTimeout(_wgH);_wgH=null}
   try{const P=beNativeWidget();if(P)Promise.resolve(P.clear()).catch(()=>{})}catch(e){}
   try{const wid=widgetFeedWid();if(wid&&WIDGET_API)fetch(WIDGET_API+"/feed?wid="+wid,{method:"DELETE",keepalive:true}).catch(()=>{})}catch(e){}
@@ -18102,14 +18322,16 @@ function widgetFeedBoot(){
   if(window._wgLaunch==="words")setTimeout(()=>{try{go("practice");pracStudyDue()}catch(e){}},400);
   /* Android: a recommendation, or a locked widget's sign-in / Premium tap */
   if(window._wgLaunch==="rec"&&window._wgRec)setTimeout(()=>{try{widgetOpenRoute({rec:window._wgRec})}catch(e){}},500);
+  /* Android: a tap on the streak countdown → today's daily in the hub it came from */
+  if(window._wgLaunch==="daily")setTimeout(()=>{try{widgetOpenRoute({view:/^#?mastery/.test(location.hash)?"mastery":"english",act:"daily"})}catch(e){}},600);
   if(window._wgLaunch==="signin"||window._wgLaunch==="premium")setTimeout(()=>{try{widgetOpenRoute({act:window._wgLaunch})}catch(e){}},500);
 }
 /* A tap on the widget: the plugin has already reduced the URL to a known
    view and, at most, a week, a day and an action. The same destinations the
    nudges reach, so a widget tap behaves like a notification tap. */
-const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases"];
+const WG_VIEWS=["session","journey","practice","shadow","review","home","foundations","lines","phrases","mastery","english"];
 /* the kinds of place a recommendation can open (nudgeGo's own views) */
-const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay"];
+const WG_REC_VIEWS=["session","practice","shadow","partner","phrases","phrasebank","roleplay","mastery","english"];
 function widgetOpenRoute(d){
   if(!d||typeof d!=="object")return false;
   /* a locked widget: the sign-in sheet, or the Premium offer where it exists */
@@ -18126,6 +18348,8 @@ function widgetOpenRoute(d){
     if(v==="foundations"){if(d.w)go("foundations",Number(d.w));else go("foundations");return true}
     if(v==="practice"){go("practice");if(d.act==="words")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(v==="journey"){_rmReturn=true;go("journey");return true}
+    if(v==="mastery"){if(window.WMUI&&WMUI.on()){if(d.act==="shift"||d.act==="daily")WMUI.play(d.act);else go("mastery")}else go("practice");return true}
+    if(v==="english"){if(window.EMUI&&EMUI.on()){if(d.act==="shift"||d.act==="daily")EMUI.play(d.act);else go("english")}else go("practice");return true}
     go(v);return true;
   }catch(e){return false}
 }
@@ -18507,6 +18731,9 @@ function nudgeGo(r){
       return true}
     if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
     if(r.view==="phrases"){go("phrases");return true}
+    /* Welding Mastery: the hub on that game, or on today's shift */
+    if(r.view==="mastery"){return !!(window.WMUI&&WMUI.play(String(r.act||"")))}
+    if(r.view==="english"){return !!(window.EMUI&&EMUI.play(String(r.act||"")))}
     /* a week's expressions: the phrase bank on that exact week */
     if(r.view==="phrasebank"){go("phrasebank",Number(r.args&&r.args[0])||currentPos().w);return true}
     /* a role-play scenario: that exact conversation */
@@ -20669,16 +20896,19 @@ function rPractice(el){
     ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
   </div>
   ${_libGroup==="vocabulary"?`
-  <div class="prac-kb">
-    <h3 class="prac-kb-h">${t("prac.kb_h")}</h3>
-    <p class="prac-sec-sub">${t("prac.kb_sub")}</p>
+  ${window.EMUI&&EMUI.on()?`<div class="em-portal-host">${EMUI.portalHTML()}</div>`:""}
+  <details class="prac-kb" ${kbFoldOpen()?"open":""} ontoggle="kbFold(this.open)">
+    ${/* Welding Mastery: on the Welding programme the three boosters are the "Quick Practice" row; General English keeps its wording.
+         Foldable (owner, 10 Oct 2026): the choice is remembered on this device. */""}
+    <summary class="prac-kb-sum"><span><h3 class="prac-kb-h">${window.WMUI&&WMUI.on()?esc(WMUI.quickH()):t("prac.kb_h")}</h3>
+    <p class="prac-sec-sub">${window.WMUI&&WMUI.on()?esc(WMUI.quickSub()):t("prac.kb_sub")}</p></span><span class="prac-kb-chev" aria-hidden="true">${ic("chevron")}</span></summary>
     <div class="prac-ex">
       <button class="prac-ex-card ${_kbReady.fc?"ready":""}" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
       <button class="prac-ex-card ${_kbReady.qz?"ready":""}" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
       <button class="prac-ex-card ${_kbReady.cw?"ready":""}" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
       ${isGeneralEnglish()?`<button class="prac-ex-card ${_kbReady.cv?"ready":""}" onclick="cvStart()"><span class="pex-ic">${ic("chat")}</span><b>${t("pp.cv_title")}</b><small>${t("pp.cv_sub")}</small></button>`:""}
     </div>
-  </div>`:""}
+  </details>`:""}
   <div id="libBody"></div>
 `;
   const body=el.querySelector("#libBody");
@@ -21862,7 +22092,14 @@ window.simOpenMissionDebrief=id=>{
 };
 function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;try{AdManager.markBreak("practice_complete")}catch(e){}if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
+/* the Knowledge Boosters fold: open until the learner closes it, then remembered (this device only) */
+function kbFoldOpen(){try{return localStorage.getItem("be_kb_fold")!=="0"}catch(e){return true}}
+function kbFold(open){try{localStorage.setItem("be_kb_fold",open?"1":"0")}catch(e){}}
 function rLibVocab(el){
+  /* Welding Mastery replaces the long professional list, the saved-word tabs,
+     the empty state and the add field with ONE portal card; all of them now
+     live inside the hub (Collection). General English is unchanged. */
+  if(window.WMUI&&WMUI.on()){WMUI.portalInto(el);manIconizeInline(el);return}
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
   const curriculumWords=trackVocabularyWords(),vocabulary=trackVocabulary();
   el.innerHTML=`
@@ -22372,7 +22609,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v654";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v679";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24161,6 +24398,8 @@ const FLAGS_DEFAULT={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
+  welding_mastery_enabled:false,       // Welding Mastery game hub (Welding programme only, 9 Oct 2026): staging ON, production OFF until the owner releases it
+  english_mastery_enabled:false,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
@@ -24169,6 +24408,8 @@ const FLAGS_DEFAULT={
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
+  ios_live_activity_enabled:false,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF
+  android_live_countdown_enabled:false,// the same countdown on Android: an ongoing notification the Play app posts from the widget feed (docs/ANDROID_LIVE_COUNTDOWN.md): staging ON, production OFF
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
@@ -24193,12 +24434,16 @@ const FLAGS_STAGING={
   learning_nudges_enabled:true,
   home_v2_enabled:true,
   welding_studio_enabled:true,
+  welding_mastery_enabled:true,        // Welding Mastery game hub — staging only
+  english_mastery_enabled:true,        // English Mastery game hub — staging only
   /* Google + Apple sign-in. flag() returns !!FLAGS_STAGING[name] on a staging
      bundle and never falls through to FLAGS_DEFAULT, so a key that lives only
      there is silently OFF here — which is why the buttons vanished on the
      staging build while every automated check passed. */
   social_signin_enabled:true,
   ios_push_enabled:true,
+  ios_live_activity_enabled:true,      // the game streak countdown — staging only
+  android_live_countdown_enabled:true, // the Android streak countdown — staging only
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console
@@ -24240,6 +24485,7 @@ const FLAGS_IOS={home_v2_enabled:true};
    marks this session as the Play app; a plain browser never has them. */
 function isPlayApp(){
   try{
+    if(IS_ANDROID_APP)return true;   /* the native Android shell is the Play app by construction */
     if(sessionStorage.getItem("be_twa")==="1")return true;
     const android=/Android/.test(navigator.userAgent||"");
     const ref=/^android-app:\/\/com\.bemastery\.app/.test(document.referrer||"");
@@ -24770,11 +25016,15 @@ const AD_POLICY=Object.freeze({
        buys NO exemption: decide() asks the same questions in the same order,
        and the 8-minute gap, the hourly and visit caps and the launch grace all
        apply to it exactly as they do to a finished session. */
-    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities","app_resume"]),
+    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities","app_resume","game_complete"]),
     /* MODERATE (Phase 8): at most one per natural break, never two within 8
        minutes, 3 an hour, 4 a visit, none in the first 2 minutes. The close
        control appears after skipAfterMs whatever the provider does. Tune here. */
     minGapMs:8*60e3, windowMs:60*60e3, maxPerWindow:3, maxPerSession:4, launchGraceMs:2*60e3, skipAfterMs:5000,
+    /* GAME HUBS (owner, 10 Oct 2026, "maximum within AdMob policy"): after a FINISHED
+       round of Welding Mastery or English Mastery the full-screen cap is looser —
+       4 minutes apart, 6 an hour, 8 a visit. Only this context; every other break keeps the caps above. */
+    byContext:Object.freeze({game_complete:Object.freeze({minGapMs:4*60e3, maxPerWindow:6, maxPerSession:8})}),
   }),
   native:Object.freeze({           /* in browsing / content areas only */
     /* shadow_pause (owner, 3 Oct 2026): the one slot inside the Shadow
@@ -24785,7 +25035,9 @@ const AD_POLICY=Object.freeze({
        It is a second slot on that page, above the foot one (`library`), and
        each placement keeps its own 60 s gap while sharing the hourly and
        per-visit volume caps below. */
-    contexts:Object.freeze(["home_feed","library","library_top","progress_foot","settings_foot","shadow_video"]),
+    /* game_hub = the foot of every game-hub tab, game_hub_mid = mid-page on the long tabs,
+       game_end = a round's end screen, AFTER the round (owner, 10 Oct 2026) */
+    contexts:Object.freeze(["home_feed","library","library_top","progress_foot","settings_foot","shadow_video","game_hub","game_hub_mid","game_end"]),
     minGapMs:60e3, windowMs:60*60e3, maxPerWindow:12, maxPerSession:20, launchGraceMs:0,
   }),
   rewarded:Object.freeze({         /* only ever at the learner's own request */
@@ -24823,11 +25075,17 @@ const _adHolds=new Set();let _adSession={};
    on the free plan in General English; Welding shows no ad on any plan;
    Premium removes them everywhere. Kept as a function because this is the
    ONE line that decides which programme is in the ad system. */
-function adsTrackAllows(){try{return isGeneralEnglish()}catch(e){return false}}
+/* THE GAME HUBS, ON BOTH PROGRAMMES (owner, 10 Oct 2026, reversing the line above
+   for these placements only): Welding Mastery shows ads too — free plan only,
+   Premium removes them. The exception is by PLACEMENT: a call that names one of the
+   game-hub contexts on Welding is allowed while Welding Mastery is open; every
+   other Welding page, and every call without a context, stays ad-free. */
+const GAME_AD_CONTEXTS=new Set(["game_hub","game_hub_mid","game_end","game_complete"]);
+function adsTrackAllows(ctx){try{if(isGeneralEnglish())return true;return !!ctx&&GAME_AD_CONTEXTS.has(ctx)&&!!(window.WMUI&&WMUI.on())}catch(e){return false}}
 const AdEligibility={
   policy:AD_POLICY,
   planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
-  trackAllowsAds(){return adsTrackAllows()},
+  trackAllowsAds(ctx){return adsTrackAllows(ctx)},
   /* a flow can hold ads off explicitly for its duration (Phase 8 hook) */
   protect(key){_adHolds.add(String(key))},
   release(key){_adHolds.delete(String(key))},
@@ -24872,6 +25130,8 @@ const AdEligibility={
        the app speaking, a partner call, an open dialog. So the ad is never
        there while the learner is actually speaking. */
     try{if(document.body.classList.contains("sh-work-open")&&ctx!=="shadow_video")return "view:shadow"}catch(e){}
+    /* a game round is open: learning, except the end screen's own slot once the round is over */
+    try{if(document.querySelector("#wmGame.show,#emGame.show")&&!(ctx==="game_end"&&document.querySelector("#wmGame.show .wm-end,#emGame.show .wm-end")))return "game"}catch(e){}
     try{if(typeof cur!=="undefined"&&cur&&cur.v!=="shadow"&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
     return null;
   },
@@ -24891,7 +25151,7 @@ const AdEligibility={
      maxPerSession (20/visit) are still counted across ALL native placements, so
      this cannot become more ads overall, only ads in the right places. */
   capReason(format,now,ctx){
-    const p=AD_POLICY[format],log=this._log().filter(x=>x.f===format);
+    const p=Object.assign({},AD_POLICY[format],(AD_POLICY[format].byContext||{})[ctx]||{}),log=this._log().filter(x=>x.f===format);
     if(now-AD_BOOT<p.launchGraceMs)return "cap:launch";
     const gapLog=(format==="native"&&ctx)?log.filter(x=>x.c===ctx):log;
     const last=gapLog.length?Math.max(...gapLog.map(x=>x.t)):0;
@@ -24903,7 +25163,7 @@ const AdEligibility={
   decide(format,context,opts={}){
     const now=opts.now??Date.now();
     if(!flag("ads_enabled"))return {show:false,reason:"flag_off"};
-    if(!this.trackAllowsAds())return {show:false,reason:"track"};   // Welding: never, for any format
+    if(!this.trackAllowsAds(context))return {show:false,reason:"track"};   // Welding: only the game-hub placements
     const p=AD_POLICY[format];if(!p)return {show:false,reason:"format"};
     if(!this.planAllowsAds())return {show:false,reason:"premium"};
     if(!p.contexts.includes(context))return {show:false,reason:"context"};
@@ -25036,9 +25296,11 @@ function adsSystemLive(){try{return !!entApiBase()&&flag("billing_enabled")}catc
 let _adsBridge=false,_adsBridgeBusy=false;
 function beNativeAdsInit(){
   if(_adsBridge||_adsBridgeBusy)return;
-  let ios=false;try{ios=IS_IOS_APP}catch(e){}
-  if(!ios)return;
-  try{if(!flag("ads_enabled")||!adsTrackAllows()||!adsSystemLive())return}catch(e){return}
+  /* both store shells carry a BEAds plugin with the same contract (iOS: BEAdsPlugin.swift;
+     Android: BEAdsPlugin.java, 9 Oct 2026). The TWA has none, so it stays out. */
+  let native=false;try{native=IS_NATIVE_APP}catch(e){}
+  if(!native)return;
+  try{if(!flag("ads_enabled")||!(adsTrackAllows()||adsTrackAllows("game_hub"))||!adsSystemLive())return}catch(e){return}
   /* capPlugin reads Capacitor.Plugins first: `Capacitor.registerPlugin` is an
      @capacitor/core API and this unbundled shell does not have it (see the note
      beside capPlugin). Asking for it was why the bridge never built on a real
@@ -25066,7 +25328,7 @@ function beNativeAdsInit(){
       let last="";
       const iv=setInterval(()=>{
         const el=slotBody(place);
-        if(!el||!adsTrackAllows()||!AdEligibility.planAllowsAds()){unwatch(place);return}
+        if(!el||!adsTrackAllows(place)||!AdEligibility.planAllowsAds()){unwatch(place);return}
         const b=r4(el),k=b.x+","+b.y+","+b.w+","+b.h;
         if(k!==last){last=k;try{P.moveNative(Object.assign({placement:place},b))}catch(e){}}
       },250);
@@ -25141,7 +25403,7 @@ const adTrack=(name,props)=>{try{track(name,Object.assign({provider:adProvider()
 const AdManager={
   /* a learning activity FINISHED (its result is on screen). The ad waits for
      the learner to move on, so it never sits over the feedback itself. */
-  markBreak(context){if(!adsTrackAllows())return;if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
+  markBreak(context){if(!adsTrackAllows(context))return;if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
   /* called at the end of every go(): offer the pending break over the page the
      learner chose; fill any native slot this page carries */
   afterNav(v){
@@ -25156,7 +25418,7 @@ const AdManager={
      app; resolves at once (false) whenever an ad is not appropriate. */
   async interstitial(context){
     if(_adShowing)return false;
-    if(!adsTrackAllows())return false;          // before any event, so a programme behind the line leaves no trace
+    if(!adsTrackAllows(context))return false;          // before any event, so a programme behind the line leaves no trace
     const d=AdEligibility.decide("interstitial",context);
     adTrack("ad_eligibility_checked",{format:"interstitial",context,result:d.show?"eligible":"refused"});
     if(!d.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
@@ -25196,7 +25458,7 @@ const AdManager={
       setTimeout(reveal,AD_POLICY.interstitial.skipAfterMs);
       Promise.resolve(p.show("interstitial",{context,host:ov.querySelector("#adCreative")})).then(r=>{
         if(!r||!r.shown){reveal();close();return}
-        AdEligibility.record("interstitial");adTrack("ad_displayed",{format:"interstitial",context});
+        AdEligibility.record("interstitial",Date.now(),context);adTrack("ad_displayed",{format:"interstitial",context});
       }).catch(()=>{reveal();close()});
     });
   },
@@ -25239,7 +25501,7 @@ const AdManager={
   },
   /* one native slot, one host. `how` is append, or before `ref`. */
   _fillSlot(place,host,how,ref){
-    if(!adsTrackAllows())return;                // before any event
+    if(!adsTrackAllows(place))return;                // before any event (Welding: only the game-hub placements)
     if(!host||host.querySelector('[data-ad-slot][data-placement="'+place+'"]'))return;
     const put=el=>{if(how==="before"&&ref&&ref.parentNode===host)host.insertBefore(el,ref);else host.appendChild(el)};
     /* the page re-rendered under an ad it already showed: put the SAME ad back
@@ -25409,14 +25671,22 @@ function beNativeBilling(){
    Same ids as BEStoreKitPlugin.allowed and the server's PRODUCTS. */
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
+/* The Android shell's Play Billing (BEPlayBillingPlugin.java, 9 Oct 2026). It answers
+   in the Digital Goods shapes below, so the evidence sent to our server is the same
+   {provider:"google_play",productId,purchaseToken}; the SERVER acknowledges. */
+function bePlayNative(){try{if(!IS_ANDROID_APP)return null}catch(e){return null}const P=capPlugin("BEPlayBilling");return P&&typeof P.purchase==="function"?P:null}
 const BillingProviders={
   play:{
-    id:"google_play",_svc:null,
+    id:"google_play",_svc:null,_native:null,
     async available(){
-      if(IS_IOS_APP||typeof window.getDigitalGoodsService!=="function"||typeof window.PaymentRequest!=="function")return false;
+      if(IS_IOS_APP)return false;
+      const N=bePlayNative();
+      if(N){try{const r=await N.available();if(r&&r.ok){this._native=N;return true}}catch(e){}return false}
+      if(typeof window.getDigitalGoodsService!=="function"||typeof window.PaymentRequest!=="function")return false;
       try{this._svc=this._svc||await window.getDigitalGoodsService(PLAY_BILLING_METHOD);return !!this._svc}catch(e){return false}   /* rejects outside a Play-billed TWA */
     },
     async products(){
+      if(this._native){const r=await this._native.products({ids:BILLING_PRODUCTS.slice()});return (r&&Array.isArray(r.products))?r.products:[]}
       const d=await this._svc.getDetails(BILLING_PRODUCTS.slice());
       /* the store's own facts, for display: period / trial are ISO 8601 durations
          (Digital Goods API ItemDetails); absent fields stay absent, never guessed */
@@ -25424,6 +25694,13 @@ const BillingProviders={
         amount:Number(x.price&&x.price.value),currency:x.price&&x.price.currency,period:x.subscriptionPeriod||"",trial:x.freeTrialPeriod||""}));
     },
     async purchase(id){
+      if(this._native){
+        let r;try{r=await this._native.purchase({id})}catch(e){return {error:String(e&&e.message||e)}}
+        if(!r||r.cancelled)return {cancelled:true};
+        if(!r.purchaseToken)return r.owned?{error:"already_owned"}:{error:r.error||"billing_failed"};
+        /* nothing to complete on the device: our server verifies and acknowledges */
+        return {evidence:{provider:"google_play",productId:r.productId||id,purchaseToken:r.purchaseToken},finish:()=>{}};
+      }
       /* the amount is Play's to decide; Payment Request requires a placeholder total */
       const req=new PaymentRequest([{supportedMethods:PLAY_BILLING_METHOD,data:{sku:id}}],{total:{label:"Total",amount:{currency:"USD",value:"0"}}});
       let resp;try{resp=await req.show()}catch(e){return {cancelled:true}}
@@ -25431,10 +25708,12 @@ const BillingProviders={
          reached — the payment may well have gone through, so never say "fail" */
       return {evidence:{provider:"google_play",productId:id,purchaseToken:resp.details&&resp.details.purchaseToken},finish:ok=>{try{resp.complete(ok==="unknown"?"unknown":ok?"success":"fail")}catch(e){}}};
     },
-    async restore(){const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
-    /* what this device owns, with no prompt — Play's listPurchases is silent */
+    async restore(){
+      if(this._native){const r=await this._native.owned();return ((r&&r.items)||[]).filter(p=>BILLING_PRODUCTS.includes(p.productId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.productId}))}
+      const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
+    /* what this device owns, with no prompt — Play's listPurchases / queryPurchases are silent */
     async owned(){return this.restore()},
-    manage(product){window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
+    manage(product){if(this._native){try{this._native.manage({product:product||""})}catch(e){}return}window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
   },
   storekit:{
     id:"app_store",
@@ -25753,7 +26032,7 @@ function premHeadHTML(str){const m=/^(.*?[.!?。؟])\s+(\S[\s\S]*)$/.exec(String
    removal of an ad nobody sees would not be true. */
 function premBenHTML(){
   const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
-  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}   /* the five capabilities are granted on both tracks; the ad-free row only where ads exist (General English) */
+  const ge=planOn();let ads=false;try{ads=!!flag("ads_enabled")&&(adsTrackAllows()||adsTrackAllows("game_hub"))}catch(e){}   /* the five capabilities are granted on both tracks; the ad-free row only where ads exist (General English) */
   const rows=[];
   if(ge)premBenefitRows().forEach(r=>rows.push(li(r[0],r[1],r[2])));
   if(ads)rows.push(li("prem.b_noads","ban"));
@@ -25839,7 +26118,7 @@ function premCmpHTML(){
   if(!planOn())return "";                               /* only where the limits are in force — now both tracks */
   const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
   const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
-  let ads=false;try{ads=!!flag("ads_enabled")&&adsTrackAllows()}catch(e){}
+  let ads=false;try{ads=!!flag("ads_enabled")&&(adsTrackAllows()||adsTrackAllows("game_hub"))}catch(e){}
   /* the tier spec (5 Oct 2026): the daily allowances lead, then storage, then ads where they exist */
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
     <tbody>${row("prem.cmp_ai",esc(t("prem.cmp_perday",{n:VERDICTS_FREE})),esc(t("prem.cmp_fair",{n:VERDICTS_PREMIUM})))}${row("prem.cmp_ytmin",esc(t("prem.cmp_trial",{n:YT_MIN_FREE})),esc(t("prem.cmp_min",{n:YT_MIN_PREMIUM})))}${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}${ads?row("prem.cmp_ads",esc(t("prem.cmp_yes")),esc(t("prem.cmp_none"))):""}</tbody></table>`;
@@ -26403,6 +26682,7 @@ function svRender(){
     ${svMode==="shadow"&&timed?`<div class="sv-ctl"><button class="btn-primary sv-shadow-this" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button></div>`:""}
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
+  svWtFloatSync();
   const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first
   svNowDraw(keep,true,-1);
   if(svMode==="watch"){svWtCur=-1;const p=svParaOf(keep);svWatchDraw(p?svParas(a).indexOf(p):0)}
@@ -26782,11 +27062,24 @@ let svWtCur=-1;
 function svWtTogglesHTML(){
   if(!svOn())return "";
   const ipaOn=svShIpaOn();
-  return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
+  return `<div class="sv-wt-slot"><div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
     ${svTrBtnHTML("svWtTrBtn")}
     <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic("waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
     ${shVidSaveBtnHTML()}
-  </div>`;
+  </div></div>`;
+}
+/* Once the row has scrolled up under the pinned video, it floats as a column
+   on the right, above the foot bar, so translate / language / IPA / save stay
+   in reach while the talk scrolls (owner, 9 Oct 2026). The same buttons move —
+   no copy — so every sync-by-id keeps working; the slot keeps the row's height
+   so the list does not jump when it lifts out. */
+function svWtFloatSync(){
+  const w=document.getElementById("shWork"),row=w&&w.querySelector(".sv-wt-tg");if(!row)return;
+  const slot=row.parentElement,st=w.querySelector(".sh-stick");
+  const on=!!(w.dataset.v3&&w.dataset.svmode==="watch"&&st&&slot.offsetParent&&slot.getBoundingClientRect().bottom<st.getBoundingClientRect().bottom+4);
+  if(on===row.classList.contains("float"))return;
+  if(on)slot.style.minHeight=slot.offsetHeight+"px";else slot.style.minHeight="";
+  row.classList.toggle("float",on);
 }
 /* Save this video to Your videos, from the Watch page (owner, 27 Sep 2026):
    a library video as a saved video, a YouTube link as a YouTube video — each
@@ -31414,7 +31707,6 @@ function fndGateHTML(el){
 }
 
 /* ---- the day view ---- */
-let _fndScores={};
 function rFoundations(el,dayArg){
   const pack=fndPack();
   if(!pack){go("home");return}
@@ -31430,8 +31722,7 @@ function rFoundations(el,dayArg){
   /* The gloss follows the app language. English UI still gets a gloss —
      French, because that is who asked for this — and any language the pack
      does not carry falls back the same way. */
-  const ui=(S.profile&&S.profile.lang)||"en";
-  const gl=(ui!=="en"&&pack.days[0]&&pack.days[0][ui])?ui:"fr";
+  const gl=fndGl(pack);
   const gloss=it=>it[gl]||it.fr||"";
   const qgloss=it=>it["q"+gl]||it.qfr||"";
   const theme=d[gl]||d.fr||"";
@@ -31441,11 +31732,15 @@ function rFoundations(el,dayArg){
   <h1 class="big">${esc(d.theme)}</h1>
   <p class="sub fnd-theme-fr">${esc(theme)}</p>
   <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>(i+1<=fndDayOf()?`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`:`<span class="locked"></span>`)).join("")}</div>
-  ${subInfo(t("fnd.how"))}
+  ${subInfo(t("fnd.how")+" "+t("fnd.how_pass",{n:FND_PASS}))}
   ${d.items.map((it,i)=>{
     const en=fndFill(it.en,"en"),fr=fndFill(gloss(it),gl);
     const q=it.q?fndFill(it.q,"en"):"",qfr=it.q?fndFill(qgloss(it),gl):"";
-    return `<section class="card fnd-item ${recDone[i]?"done":""}" id="fndItem${i}">
+    /* one sentence at a time (owner, 9 Oct 2026): the next opens only once
+       this one is said clearly enough (FND_PASS) — or, when the check cannot
+       run, once it is recorded */
+    const locked=i>0&&!recDone[i-1];
+    return `<section class="card fnd-item ${recDone[i]?"done":""} ${locked?"locked":""}" id="fndItem${i}">
       ${q?`<div class="fnd-q"><span class="fnd-lbl">${t("fnd.you_hear")}</span>
         <div class="fnd-q-row"><b>${esc(q)}</b>
           <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(q)},.9)" aria-label="${esc(t("fnd.hear"))}">${ic("sound")}</button></div>
@@ -31454,11 +31749,13 @@ function rFoundations(el,dayArg){
       <div class="fnd-en">${esc(en)}</div>
       <div class="fnd-fr">${esc(fr)}</div>
       <div class="fnd-acts">
-        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.92)">${ic("sound")} ${t("fnd.hear")}</button>
-        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.7)">${ic("sound")} ${t("fnd.slow")}</button>
-        <button class="btn ${recDone[i]?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})">${ic("mic")} ${t(recDone[i]?"fnd.record_again":"fnd.record")}</button>
+        <button class="btn btn-g fnd-hear" onclick="fbSay(${jarg(en)},.92)" aria-label="${esc(t("fnd.hear"))}" title="${esc(t("fnd.hear"))}">${ic("sound")}<span class="fnd-bl">${t("fnd.hear")}</span></button>
+        <button class="btn btn-g fnd-hear" onclick="fbSay(${jarg(en)},.7)" aria-label="${esc(t("fnd.slow"))}" title="${esc(t("fnd.slow"))}">${ic("gauge")}<span class="fnd-bl">${t("fnd.slow")}</span></button>
+        ${fndHasTake(day,i)?`<button class="btn btn-g fnd-mine" onclick="fndPlayMine(${day},${i})" aria-label="${esc(t("fnd.mine"))}" title="${esc(t("fnd.mine"))}">${ic("play")}</button>`:""}
+        <button class="btn ${recDone[i]||locked?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})" ${locked?"disabled":""}>${ic("mic")} ${t(fndHasTake(day,i)?"fnd.record_again":"fnd.record")}</button>
       </div>
-      <div class="fnd-result" id="fndRes${i}">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
+      ${locked?`<p class="fnd-lock">${ic("lock")} ${t("fnd.locked",{n:FND_PASS})}</p>`:""}
+      <div class="fnd-result" id="fndRes${i}" aria-live="polite">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
     </section>`}).join("")}
   <div class="card fnd-foot ${allRec?"ready":""}">
     ${allRec
@@ -31466,39 +31763,237 @@ function rFoundations(el,dayArg){
         ${day<FND_TOTAL_DAYS
           ?`<button class="btn-primary" onclick="fndNextDay(${day})">${t("fnd.next_day")}</button>`
           :`<button class="btn-primary" onclick="fndFinish()">${t("fnd.finished_btn")}</button>`}`
-      :`<span class="sub">${t("fnd.rec_first")}</span>`}
-  </div>`;
+      :`<span class="sub">${t("fnd.pass_first",{n:FND_PASS})}</span>`}
+  </div>
+  ${fndReportHTML()}`;
   manIconizeInline(el);
   /* redraw any scores from this session so a re-render does not lose them */
-  Object.keys(_fndScores).forEach(k=>{const [dd,ii]=k.split("-");if(Number(dd)===day)fndDrawScore(Number(ii),_fndScores[k])});
+  Object.keys(_fndRep).forEach(k=>{const [dd,ii]=k.split("-");if(Number(dd)===day)fndDrawScore(day,Number(ii))});
+}
+/* ===== The Foundations check (owner, 9 Oct 2026) =====
+   EVERY PROGRAMME — General English and Welding alike (owner, 9 Oct 2026:
+   "make sure all these modifications are done on the welding side as well";
+   the evidence stays per area through fndState()). A take is played back, TRANSCRIBED (the free
+   speech-to-text route, so no AI allowance is spent) and compared word by word
+   with the sentence. The report shows what the learner actually said, with the
+   wrong / extra words underlined in red, the sentence with the missed words
+   underlined, and for each word to fix: how to say it (IPA + respelling + one
+   tip in the learner's language) and "Practise this word", repeated until the
+   word itself is heard. Practising a word never passes the sentence: the whole
+   sentence must reach FND_PASS before the next one opens. REQUIRED — when the
+   check cannot run (no account, offline, Worker busy) nothing passes; the
+   learner is told why and can check the same take again.
+   Honest about what is measured: the comparison is what the recogniser heard,
+   which is a good test of intelligibility but not a phoneme-level analysis —
+   the copy says "not heard" / "heard instead", never names a wrong sound. */
+const FND_PASS=80;
+let _fndBusy={},_fndTook={},_fndRep={},_fndDrill={},_fndBlob={};
+let _fndTips={};try{_fndTips=JSON.parse(localStorage.getItem("be_fnd_tips")||"{}")||{}}catch(e){_fndTips={}}
+function fndGl(pack){
+  pack=pack||fndPack();
+  const ui=(S.profile&&S.profile.lang)||"en";
+  return (ui!=="en"&&pack&&pack.days[0]&&pack.days[0][ui])?ui:"fr";
+}
+function fndHasTake(day,i){const k=day+"-"+i,f=fndState(),r=f.done["d"+day+"r"]||{};return !!(r[i]||_fndTook[k]||_fndRep[k])}
+function fndNorm(w){return String(w||"").toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9']/g,"").replace(/^'+|'+$/g,"")}
+function fndToks(s){return String(s||"").split(/\s+/).map(fndNorm).filter(Boolean)}
+function fndSentence(day,i){const pack=fndPack(),it=pack&&pack.days[day-1]&&pack.days[day-1].items[i];return it?fndFill(it.en,"en"):""}
+/* Word alignment (edit distance on words, exact matches only). Returns, for the
+   target, ok / sub (heard something else) / miss, and for what was heard, ok /
+   sub / extra. Strict on purpose: "understan" is not "understand". */
+function fndAlign(target,heard){
+  const T=fndToks(target),H=fndToks(heard),n=T.length,m=H.length;
+  const d=Array.from({length:n+1},(_,i)=>{const r=new Array(m+1).fill(0);r[0]=i;return r});
+  for(let j=1;j<=m;j++)d[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(T[i-1]===H[j-1]?0:1));
+  const tgt=T.map(w=>({w,st:"miss",heard:""})),hrd=H.map(w=>({w,st:"extra"}));
+  let i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&d[i][j]===d[i-1][j-1]+(T[i-1]===H[j-1]?0:1)){
+      const same=T[i-1]===H[j-1];tgt[i-1].st=same?"ok":"sub";tgt[i-1].heard=same?"":H[j-1];hrd[j-1].st=same?"ok":"sub";i--;j--;
+    }else if(i>0&&d[i][j]===d[i-1][j]+1){tgt[i-1].st="miss";i--}
+    else{hrd[j-1].st="extra";j--}
+  }
+  const ok=tgt.filter(x=>x.st==="ok").length,extra=hrd.filter(x=>x.st==="extra").length;
+  return {tgt,hrd,pct:n?Math.round(ok/(n+extra)*100):0};
+}
+function fndEv(){const f=fndState();f.ev=f.ev||{};return f.ev}
+function fndEvNote(day,i,pct,drilled){
+  const ev=fndEv(),k="d"+day+"-"+i,e=ev[k]||(ev[k]={first:null,best:0,tries:0,words:{}});
+  if(pct!=null){e.tries++;if(e.first==null)e.first=pct;e.best=Math.max(e.best,pct);e.last=pct;e.at=Date.now();if(pct>=FND_PASS&&!e.passedAt)e.passedAt=Date.now()}
+  if(drilled){e.words[drilled]=(e.words[drilled]||0)+1}
+  save();
 }
 window.fndRecord=(day,i)=>{
   const pack=fndPack();if(!pack)return;
-  const it=pack.days[day-1].items[i],en=fndFill(it.en,"en");
+  const f=fndState(),k="d"+day+"r";
+  if(i>0&&!(f.done[k]||{})[i-1]){toast(t("fnd.locked",{n:FND_PASS}));return}
+  const en=fndSentence(day,i);
   const btn=document.getElementById("fndRec"+i);
-  phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,()=>{
-    const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
-    /* a day is done when all three are recorded — the recording is the evidence,
-       the score (if the grader is reachable) is the feedback */
-    const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
-    if(dayDone){f.done["d"+day]=true;markPracticed();try{AdManager.markBreak("lesson_complete")}catch(e){}}
-    save();
-    const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
-    if(dayDone)setTimeout(rmCelebrate,500);
-  },blob=>{
-    fbAssess(blob,en).then(r=>{
-      if(!r||!r.words||!r.words.length)return;
-      _fndScores[day+"-"+i]=r;
-      fndDrawScore(i,r);
-    }).catch(()=>{});
+  phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,null,blob=>{
+    /* the learner hears their own take the moment they stop (owner, 9 Oct
+       2026); the play button beside Slow replays it any time after */
+    exPlayBlob(blob);
+    const key=day+"-"+i;_fndTook[key]=1;
+    _fndBlob[key]=blob;fndCheck(day,i,blob);
   });
 };
-function fndDrawScore(i,r){
+async function fndCheck(day,i,blob){
+  const key=day+"-"+i,en=fndSentence(day,i);
+  _fndBusy[key]=1;delete _fndRep[key];_fndDrill[key]={};fndRedraw(day);
+  /* a fresh Blob each time: fbTranscribe caches by blob, failures included */
+  const heard=await fbTranscribe(new Blob([blob],{type:blob.type||"audio/webm"}));
+  delete _fndBusy[key];
+  if(!heard){
+    const why=_fbTxWhy;
+    _fndRep[key]={err:why||"silent"};fndRedraw(day);return;
+  }
+  const al=fndAlign(en,heard);
+  _fndRep[key]={heard,al,pct:al.pct};
+  fndEvNote(day,i,al.pct);
+  if(al.pct>=FND_PASS)fndPass(day,i);
+  else{fndRedraw(day);fndTipsLoad(day,i);fndReveal(i)}
+}
+window.fndRecheck=(day,i)=>{const b=_fndBlob[day+"-"+i];if(b)fndCheck(day,i,b);else fndRecord(day,i)};
+function fndReveal(i){setTimeout(()=>{const r=document.getElementById("fndRes"+i);if(r)r.scrollIntoView({behavior:"smooth",block:"nearest"})},250)}
+function fndRedraw(day){const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day)}
+/* a sentence is through: mark it, finish the day when it was the last, and
+   bring the next sentence into view */
+function fndPass(day,i){
+  const pack=fndPack(),f=fndState(),k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
+  const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
+  if(dayDone){f.done["d"+day]=true;markPracticed();try{AdManager.markBreak("lesson_complete")}catch(e){}}
+  save();fndRedraw(day);
+  if(dayDone)setTimeout(rmCelebrate,500);
+  else setTimeout(()=>{const n=document.getElementById("fndItem"+(i+1));if(n)n.scrollIntoView({behavior:"smooth",block:"center"})},700);
+}
+/* the newest take of this sentence, from the recordings store (newest first) */
+window.fndPlayMine=async(day,i)=>{
+  const r=(await getRecs(fndRecCtx(day,i)))[0];
+  if(r&&r.blob)exPlayBlob(r.blob);else toast(t("fnd.mine_none"));
+};
+/* ---- word practice: say the word alone until it is heard ---- */
+window.fndDrill=(day,i,word)=>{
+  const key=day+"-"+i,D=_fndDrill[key]=_fndDrill[key]||{};
+  const btn=document.querySelector(`#fndRes${i} [data-drill="${CSS.escape(word)}"]`);
+  phRecInto(recCtx("fnd"+day+"-"+i+"-w-"+word.replace(/[^a-z0-9]/g,"")),("Word — "+word).slice(0,40),btn,null,async blob=>{
+    D[word]={st:"busy"};fndDrawScore(day,i);
+    const heard=await fbTranscribe(new Blob([blob],{type:blob.type||"audio/webm"}));
+    if(!heard){D[word]={st:"err",why:_fbTxWhy||"silent"};fndDrawScore(day,i);return}
+    const ok=fndToks(heard).includes(word);
+    const prev=D[word]&&D[word].n||0;
+    D[word]={st:ok?"ok":"no",heard,n:prev+1};
+    fndEvNote(day,i,null,word);
+    fndDrawScore(day,i);
+  });
+};
+function fndTipKey(w,lang){return lang+":"+w}
+const FND_TIP_SYSTEM=lang=>`You are a patient English pronunciation coach for a complete beginner whose first language is ${lang}. The user gives an English sentence and the words from it that the learner did not say clearly. For EACH word give: its General American IPA (use ˈ for stress, no slashes), an easy respelling with the stressed syllable in CAPITALS (like un-der-STAND), and ONE short tip in ${lang} (at most 16 words) on how to say it — the mouth position or the sound a ${lang} speaker usually gets wrong. Respond with ONLY minified JSON: {"reply":"word=ipa=respelling=tip|word=ipa=respelling=tip"} with every word exactly as given, in order, nothing else.`;
+function fndFixWords(day,i){const r=_fndRep[day+"-"+i];if(!r||!r.al)return [];return [...new Set(r.al.tgt.filter(x=>x.st!=="ok").map(x=>x.w))]}
+async function fndTipsLoad(day,i){
+  const lang=fndGl(),L=LANGS.find(x=>x.code===lang),name=L?L.en:"French";
+  const bad=fndFixWords(day,i).filter(w=>!_fndTips[fndTipKey(w,lang)]).slice(0,6);
+  if(!bad.length||!POLISH_API||!navigator.onLine)return;
+  try{
+    const r=await svAiChat(FND_TIP_SYSTEM(name),`Sentence: "${fndSentence(day,i).slice(0,300)}"\nWords: ${bad.join(", ")}`,"practice");
+    if(!r.ok)return;
+    const j=await r.json();
+    String((j&&j.reply)||"").split("|").forEach(row=>{
+      const [w,ipa,say,...tip]=row.split("=").map(s=>String(s||"").trim());
+      const n=fndNorm(w);if(!n||!bad.includes(n)||!ipa||/[A-Z0-9]/.test(ipa))return;
+      _fndTips[fndTipKey(n,lang)]={ipa:ipa.replace(/[\/\[\]]/g,"").slice(0,40),say:(say||"").slice(0,40),tip:tip.join("=").slice(0,160)};
+    });
+    const ks=Object.keys(_fndTips);while(ks.length>400)delete _fndTips[ks.shift()];
+    try{localStorage.setItem("be_fnd_tips",JSON.stringify(_fndTips))}catch(e){}
+  }catch(e){return}
+  if(cur.v==="foundations")fndDrawScore(day,i);
+}
+/* one group of the report: a collapsible section */
+function fndGroup(kind,title,body,open){return `<details class="fnd-grp" data-g="${kind}" ${open?"open":""}><summary>${title}<span class="hm-chev">${ic("chevron")}</span></summary><div class="fnd-grp-b">${body}</div></details>`}
+function fndErrHTML(day,i,why){
+  const msg=why==="account"?t("fnd.err_account"):why==="offline"?t("fnd.err_offline"):why==="silent"?t("fnd.err_silent"):why==="restoring"?t("fnd.err_restoring"):t("fnd.err_busy");
+  const act=why==="account"?`<button class="btn-primary" onclick="fbOpenModal('in')">${t("fnd.sign_in")}</button>`
+    :why==="silent"?`<button class="btn-primary" onclick="fndRecord(${day},${i})">${ic("mic")} ${t("fnd.say_again")}</button>`
+    :`<button class="btn-primary" onclick="fndRecheck(${day},${i})">${ic("repeat")} ${t("fnd.check_again")}</button>`;
+  return `<div class="fnd-check err" role="alert"><p class="fnd-err">${ic("info")} ${msg}</p><div class="fnd-err-acts">${act}</div></div>`;
+}
+function fndDrawScore(day,i){
   const box=document.getElementById("fndRes"+i);if(!box)return;
-  const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
-  const overall=Number.isFinite(r.overall)?Math.round(r.overall):Math.round(r.words.filter(w=>w&&w.score>=80).length/r.words.length*100);
-  box.innerHTML=`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
-    <div class="fnd-overall" style="color:${col(overall)}">${overall}%</div>`;
+  const key=day+"-"+i;
+  if(_fndBusy[key]){box.innerHTML=DS.aiInline(t("fnd.checking"));return}
+  const r=_fndRep[key];if(!r)return;
+  if(r.err){box.innerHTML=fndErrHTML(day,i,r.err);manIconizeInline(box);return}
+  const pass=r.pct>=FND_PASS,lang=fndGl(),D=_fndDrill[key]||{};
+  const col=pass?"var(--green)":r.pct>=50?"var(--gold)":"var(--red)";
+  /* what the learner said, as heard, with the words that do not belong underlined */
+  const heardTok=String(r.heard).split(/\s+/).filter(Boolean);
+  let hi=0;
+  const saidHTML=heardTok.map(raw=>{const n=fndNorm(raw);if(!n)return esc(raw);const x=r.al.hrd[hi++];return `<span class="fnd-w ${x&&x.st==="ok"?"ok":"bad"}">${esc(raw)}</span>`}).join(" ");
+  /* the sentence, with the words that were not heard underlined */
+  const shownTok=fndSentence(day,i).split(/\s+/).filter(Boolean);
+  let ti=0;
+  const tgtHTML=shownTok.map(raw=>{const m=raw.match(/^([^A-Za-z0-9'’]*)(.*?)([^A-Za-z0-9'’]*)$/)||["","",raw,""];if(!fndNorm(m[2]))return esc(raw);const x=r.al.tgt[ti++];return `${esc(m[1])}<span class="fnd-w ${x&&x.st==="ok"?"ok":"bad"}">${esc(m[2])}</span>${esc(m[3])}`}).join(" ");
+  const fix=fndFixWords(day,i);
+  const rows=fix.map(w=>{
+    const x=r.al.tgt.find(y=>y.w===w),tip=_fndTips[fndTipKey(w,lang)],ipa=(tip&&tip.ipa)||SV_IPA_SEED[w]||"";
+    const how=tip?esc(tip.tip):(POLISH_API&&navigator.onLine?DS.aiInline(t("fnd.tip_wait")):esc(t("fnd.tip_generic")));
+    const d=D[w];
+    const dst=!d?"":d.st==="busy"?DS.aiInline(t("fnd.checking")):d.st==="ok"?`<span class="fnd-dr ok">${ic("check")} ${t("fnd.word_ok")}</span>`
+      :d.st==="no"?`<span class="fnd-dr no">${t("fnd.word_no",{heard:d.heard})}</span>`:`<span class="fnd-dr no">${t(d.why==="account"?"fnd.err_account":d.why==="offline"?"fnd.err_offline":d.why==="silent"?"fnd.err_silent":"fnd.err_busy")}</span>`;
+    return `<div class="fnd-fix ${d&&d.st==="ok"?"fixed":""}">
+      <div class="fnd-fix-top"><span class="fnd-w bad">${esc(w)}</span>
+        <span class="fnd-fix-why">${x&&x.st==="sub"?t("fnd.heard_instead",{heard:x.heard}):t("fnd.not_heard")}</span></div>
+      ${ipa||(tip&&tip.say)?`<div class="fnd-fix-say">${t("fnd.say_like")} ${ipa?`<code>/${esc(ipa)}/</code>`:""}${tip&&tip.say?` <b>${esc(tip.say)}</b>`:""}</div>`:""}
+      <div class="fnd-fix-tip">${how}</div>
+      <div class="fnd-fix-acts">
+        <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w)},.6)" aria-label="${esc(t("fnd.hear_word",{w}))}">${ic("sound")}</button>
+        <button class="btn ${d&&d.st==="ok"?"btn-g":"btn-p"} btn-sm" data-drill="${esc(w)}" onclick="fndDrill(${day},${i},${jarg(w)})">${ic("mic")} ${t(d&&d.st==="ok"?"fnd.word_again":"fnd.word_practise")}</button>
+        ${dst}
+      </div>
+    </div>`}).join("");
+  const allFixed=fix.length&&fix.every(w=>D[w]&&D[w].st==="ok");
+  const summary=`<span class="fnd-overall" style="color:${col}">${r.pct}%</span><span class="fnd-rep-t">${pass?t("fnd.pass"):t("fnd.fail_n",{n:FND_PASS,k:fix.length})}</span>`;
+  box.innerHTML=`<details class="fnd-check ${pass?"pass":"fail"}" open>
+    <summary class="fnd-rep-s">${summary}<span class="hm-chev">${ic("chevron")}</span></summary>
+    ${fndGroup("said",t("fnd.g_said"),`<div class="fnd-said">${saidHTML||"—"}</div>`,true)}
+    ${fndGroup("target",t("fnd.g_target"),`<div class="fnd-said">${tgtHTML}</div>`,true)}
+    ${fix.length?fndGroup("fix",t("fnd.g_fix",{n:fix.length}),rows,true):""}
+  </details>
+  ${pass?"":`<p class="fnd-next-h">${t(allFixed?"fnd.now_sentence":"fnd.then_sentence",{n:FND_PASS})}</p><button class="btn-primary fnd-again" onclick="fndRecord(${day},${i})">${ic("mic")} ${t("fnd.say_again")}</button>`}`;
+  manIconizeInline(box);
+}
+/* ---- the 15-day evaluation: what the learner actually did, honestly summed ---- */
+function fndReportData(){
+  const pack=fndPack();if(!pack)return null;
+  const f=fndState(),ev=f.ev||{};
+  let total=0,mastered=0,checked=0,firstSum=0,firstN=0,hard=[],words={},recOnly=0;
+  pack.days.slice(0,FND_TOTAL_DAYS).forEach((d,di)=>d.items.forEach((_,i)=>{
+    total++;const e=ev["d"+(di+1)+"-"+i],done=((f.done["d"+(di+1)+"r"]||{})[i]);
+    if(e&&e.passedAt)mastered++;else if(done)recOnly++;
+    if(e&&e.first!=null){checked++;firstSum+=e.first;firstN++;if(e.tries>=3)hard.push({day:di+1,i,tries:e.tries,best:e.best})}
+    if(e&&e.words)Object.keys(e.words).forEach(w=>words[w]=(words[w]||0)+e.words[w]);
+  }));
+  const first=firstN?Math.round(firstSum/firstN):null;
+  const top=Object.keys(words).sort((a,b)=>words[b]-words[a]).slice(0,6);
+  /* ready = every sentence passed the check, and first tries average 70+ */
+  const verdict=mastered===total?(first!=null&&first>=70?"ready":"finish_weak"):checked?"progress":"none";
+  return {total,mastered,checked,first,hard,top,recOnly,verdict};
+}
+function fndReportHTML(){
+  const r=fndReportData();if(!r||r.verdict==="none")return "";
+  const v=r.verdict==="ready"?t("fnd.rep_ready"):r.verdict==="finish_weak"?t("fnd.rep_weak",{n:r.first}):t("fnd.rep_progress",{m:r.mastered,t:r.total});
+  return `<details class="card fnd-report" id="fndReport">
+    <summary><b>${t("fnd.rep_h")}</b><span class="hm-chev">${ic("chevron")}</span></summary>
+    <p class="fnd-rep-v ${r.verdict}">${v}</p>
+    <div class="fnd-rep-grid">
+      <div><b>${r.mastered}/${r.total}</b><span>${t("fnd.rep_mastered")}</span></div>
+      <div><b>${r.first!=null?r.first+"%":"—"}</b><span>${t("fnd.rep_first")}</span></div>
+      <div><b>${r.hard.length}</b><span>${t("fnd.rep_hard")}</span></div>
+    </div>
+    ${r.top.length?`<p class="fnd-rep-l">${t("fnd.rep_words")}</p><div class="fnd-rep-words">${r.top.map(w=>`<button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w)},.6)">${ic("sound")} ${esc(w)}</button>`).join("")}</div>`:""}
+    ${r.recOnly?`<p class="fnd-rep-note">${t("fnd.rep_reconly",{n:r.recOnly})}</p>`:""}
+    <p class="fnd-rep-note">${t("fnd.rep_honest")}</p>
+  </details>`;
 }
 window.fndNextDay=(day)=>{
   const f=fndState();
@@ -31814,6 +32309,8 @@ function rReview(el,wArg){
   ${pgEssentialsHTML()}
   <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
   ${pfCertHTML()}
+  ${window.WMUI&&WMUI.on()?WMUI.perfCardHTML():""}
+  ${window.EMUI&&EMUI.on()?EMUI.perfCardHTML():""}
   <div class="pf-group-h pg-record-h">${t("pf.record_h")}</div>
   ${pfRecordCoreHTML(pgRecordLocked())}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
@@ -34545,7 +35042,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist"];
+  const valid=["home","journey","phrases","phrasebank","shadow","lines","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist","mastery","english"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);
@@ -34965,6 +35462,32 @@ function fbAuthSettled(ms){
    "this device is just behind its own account" from "this is somebody else's
    data left on the device", and those two cases need opposite handling. */
 const FB_OWNER_KEY="be12_owner";
+/* A Google / Apple REDIRECT sign-in (the installed web app: Play TWA, home-screen
+   app) leaves the page and comes back to a fresh load. Firebase is loaded at boot
+   only for a device that has signed in before (FB_OWNER_KEY), so a FIRST sign-in
+   came back to a page that never asked getRedirectResult() and looked signed out
+   (9 Oct 2026). The mark says "a redirect is under way" for ten minutes; the boot
+   then loads Firebase, and fbInit clears it once the result is read. */
+const FB_REDIRECT_KEY="be_auth_redirect";
+function fbRedirectMark(kind){try{localStorage.setItem(FB_REDIRECT_KEY,JSON.stringify({kind:kind==="apple"?"apple":"google",at:Date.now()}))}catch(e){}}
+function fbRedirectPending(){try{const m=JSON.parse(localStorage.getItem(FB_REDIRECT_KEY)||"null");return !!(m&&Date.now()-m.at<600000)}catch(e){return false}}
+function fbRedirectKind(){try{return (JSON.parse(localStorage.getItem(FB_REDIRECT_KEY)||"null")||{}).kind||""}catch(e){return ""}}
+function fbRedirectClear(){try{localStorage.removeItem(FB_REDIRECT_KEY)}catch(e){}}
+/* finishes a redirect sign-in once the reloaded page has Firebase (fbInit) */
+function fbRedirectDone(p){
+  const kind=fbRedirectKind(),was=fbRedirectPending();
+  return Promise.resolve(p).then(r=>{fbRedirectClear();if(r&&r.user){try{fbCloseModal()}catch(e){}try{if(r.additionalUserInfo&&r.additionalUserInfo.isNewUser)fbWelcome();fbSocialName(fbWebName(r))}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}})
+    .catch(async e=>{fbRedirectClear();
+      /* the same route as the popup (fbSocial): an e-mail that already has a
+         password account is asked to log in, and the provider is linked after */
+      if(e&&e.code==="auth/account-exists-with-different-credential"){
+        try{const cred=e.credential||null,em=fbNormEmail(e.email);await fbOpenModal("in");if(cred&&em)_fbPend={cred,kind:kind||"google",email:em};const el=document.getElementById("authEmail");if(el&&em)el.value=em;fbSetErr(em?t("auth.err_account_exists",{email:em}):t("auth.err_account_exists_short"))}catch(_){}
+        return;
+      }
+      if(!was)return;            /* nothing of ours was under way: say nothing */
+      try{toast(fbErr(e,kind))}catch(_){}
+    });
+}
 const FB_TRUST_KEY="be12_trust_account";   // "always use my account on this device" — set by the sign-in conflict dialog
 const FB_NUDGE_KEY="be12_syncNudge";
 const FB_SDK="https://www.gstatic.com/firebasejs/10.12.5/";
@@ -34979,7 +35502,7 @@ function fbInit(){
     FBauth.onAuthStateChanged(fbOnAuth);
     /* complete a Google / Apple redirect sign-in when the app reloads after it
        (an installed app with a same-origin handler — see fbSocialWeb) */
-    FBauth.getRedirectResult().then(r=>{if(r&&r.user){try{fbCloseModal()}catch(e){}try{if(r.additionalUserInfo&&r.additionalUserInfo.isNewUser)fbWelcome();fbSocialName(fbWebName(r))}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}}).catch(e=>{try{toast(fbErr(e))}catch(_){}});
+    fbRedirectDone(FBauth.getRedirectResult());
     return true;
   }catch(e){console.warn("Firebase unavailable:",e&&e.message);return false}
 }
@@ -35000,7 +35523,7 @@ function fbLoad(){
 /* A device that has signed in holds the account's copy, so its session and
    first-sync must be restored at boot exactly as before. A device that never
    has needs nothing from Firebase until someone opens the sign-in sheet. */
-try{if(localStorage.getItem(FB_OWNER_KEY))fbLoad();}catch(e){}
+try{if(localStorage.getItem(FB_OWNER_KEY)||fbRedirectPending())fbLoad();}catch(e){}
 /* "Can this device offer cloud sync at all?" — answered from the inline config,
    NOT from FBauth. Since fbLoad() is lazy, FBauth is null for everyone who has
    not signed in, which is precisely the audience the sign-in card and the sync
@@ -35062,6 +35585,9 @@ function fbMerge(local,cloud){
        gram   — grammar drill stats; keep the best score and the higher run count.
        convos — AI conversations; union on timestamp, same 200 cap as roleplay. */
   m.dayLog=fbMax(local.dayLog,cloud.dayLog);
+  /* Welding Mastery: per word the copy with more answers, XP per day the larger copy
+     (never the sum), achievements their earliest date — WMEngine.merge */
+  if(local.wm||cloud.wm)m.wm=window.WMEngine?WMEngine.merge(local.wm||{},cloud.wm||{}):Object.assign({},cloud.wm,local.wm);
   /* certificate date: per area, the earlier finish wins, so it never moves */
   {const L=local.certAt||{},C=cloud.certAt||{},o={};new Set(Object.keys(L).concat(Object.keys(C))).forEach(a=>{o[a]=(L[a]&&C[a])?(L[a]<C[a]?L[a]:C[a]):(L[a]||C[a])});m.certAt=o;}
   /* The per-area stores split one level deeper than everything above: the outer
@@ -35389,6 +35915,8 @@ function fbSyncPayload(s){
      a second device that adopted it would take over the first one's reminder
      (see pushId). It lives in localStorage; this strip stops the old copies. */
   delete out.pushId;
+  /* Welding Mastery: the open round stays on the device; day records older than 120 days stay too */
+  if(out.wm&&window.WMEngine){const o={};Object.entries(out.wm).forEach(([a,v])=>{o[a]=WMEngine.trimForSync(v,Date.now())});out.wm=o}
   /* the Challenge history travels (the line, the verdict, what to fix); the
      learner's own spoken words stay on the device, as everywhere else */
   if(out.chHistA){const o={};Object.entries(out.chHistA).forEach(([a,list])=>{o[a]=(list||[]).map(e=>{const y=Object.assign({},e);delete y.heard;return y})});out.chHistA=o}
@@ -35654,6 +36182,11 @@ function fbAuthProxyHost(){try{const e=window.beEnv&&beEnv();return (e&&e.authPr
 function socialWebOn(){
   try{
     if(IS_IOS_APP)return false;
+    /* The Android Capacitor shell (https://localhost, 9 Oct 2026) has no sign-in
+       plugin yet: a WebView has no popup opener and localhost is not an
+       authorised Firebase domain, so both buttons could only fail there. E-mail
+       and password stand alone until a native Android flow exists. */
+    try{if(IS_ANDROID_APP)return false}catch(e){}
     if(!flag("social_signin_web_enabled"))return false;
     if(!fbConfigured())return false;
     if(fbIsStandalone()&&!fbAuthSameOrigin())return false;
@@ -35684,14 +36217,14 @@ function fbWebName(res){
 async function fbSocialWeb(kind){
   const provider=fbWebProvider(kind);
   if(fbIsStandalone()){                    /* reachable only with a same-origin handler (socialWebOn) */
-    await FBauth.signInWithRedirect(provider);return null;
+    fbRedirectMark(kind);await FBauth.signInWithRedirect(provider);return null;
   }
   try{return await FBauth.signInWithPopup(provider)}
   catch(e){
     const c=(e&&e.code)||"";
     if(/popup-closed-by-user|cancelled-popup-request/.test(c))throw {code:"cancelled"};
     if(/popup-blocked|operation-not-supported-in-this-environment|web-storage-unsupported/.test(c)){
-      if(fbAuthSameOrigin()){await FBauth.signInWithRedirect(provider);return null}
+      if(fbAuthSameOrigin()){fbRedirectMark(kind);await FBauth.signInWithRedirect(provider);return null}
       throw {code:"auth/popup-blocked"};
     }
     throw e;

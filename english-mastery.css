@@ -1,0 +1,63 @@
+/* BE Mastery — English Mastery (General English only, 10 Oct 2026).
+   Every layout rule comes from welding-mastery.css (the two hubs share their
+   markup classes, wm-*). This file gives English Mastery its own room — deep
+   indigo, teal for what you can touch, coral for the big moments, gold kept
+   for XP — and styles the pieces only this hub has: Sentence Builder's word
+   tiles, Speak Up's recorder and word marks, the translation block and the
+   learning-loop card. The overlay, sheet, portal and Progress card carry the
+   class "em", so they wear these colours from any page. */
+:root[data-view="english"], .wm-game.em, .wm-sheet-bg.em, .wm-portal.em, .wm-perf-card.em {
+  --wm-bg: #0a0b22; --wm-bg2: #10123a; --wm-card: #151842; --wm-card2: #1c2056; --wm-line: rgba(129, 140, 248, .18); --wm-line2: rgba(129, 140, 248, .34);
+  --wm-txt: #e2e5fb; --wm-mut: #a3a8d0; --wm-blue: #14b8a6; --wm-blue2: #5eead4; --wm-cyan: #22d3ee; --wm-gold: #f5b52e; --wm-gold2: #ffd36b;
+  --wm-green: #34d399; --wm-red: #fb7185; --wm-purple: #a5b4fc; --wm-r: 16px;
+}
+:root[data-view="english"], html:root[data-view="english"][data-track] {
+  --bg: var(--wm-bg); --bg2: var(--wm-bg2); --card: var(--wm-card); --card2: var(--wm-card2); --line: var(--wm-line); --line2: var(--wm-line2);
+  --txt: var(--wm-txt); --mut: var(--wm-mut); --acc: var(--wm-blue); --acc2: var(--wm-cyan); --green: var(--wm-green); --gold: var(--wm-gold);
+  --accent: var(--wm-blue); --accent-fill: #0d9488; --accent-text: var(--wm-blue2); --on-accent: #fff; --focus: var(--wm-cyan);
+  --grad: linear-gradient(135deg, #0d9488, #6366f1);
+}
+:root[data-view="english"] body { background: radial-gradient(ellipse 90% 50% at 50% -10%, rgba(99, 102, 241, .22), transparent 70%), var(--wm-bg); }
+:root[data-view="english"] .wm-hero h1 span, .wm-portal.em .wm-portal-title span { color: #fb7185; }
+.wm-portal.em { background: linear-gradient(135deg, #151842, #1c2056 55%, #0f3b46); }
+.em-portal-host { margin: 4px 0 14px; }
+
+/* Sentence Builder */
+.em-built { min-height: 56px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; padding: 12px; margin: 12px 0; border-radius: 14px; border: 2px dashed var(--wm-line2); background: rgba(20, 184, 166, .05); }
+.em-toks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+.em-tok { min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--wm-line2); background: var(--wm-card2); color: var(--wm-txt); font: 600 16px/1.2 inherit; cursor: pointer; }
+.em-tok:disabled { opacity: .3; cursor: default; }
+.em-tok.f { min-height: 0; padding: 6px 11px; background: rgba(20, 184, 166, .16); border-color: rgba(94, 234, 212, .5); cursor: default; }
+.em-tok.f.hint { background: rgba(245, 181, 46, .16); border-color: rgba(255, 211, 107, .5); }
+
+/* Speak Up */
+.em-speak { display: grid; gap: 10px; justify-items: center; margin: 10px 0; }
+.em-say { font-size: 20px; line-height: 1.5; text-align: center; font-weight: 600; margin: 4px 0; }
+.em-say span.ok { color: var(--wm-green); }
+.em-say span.miss { color: var(--wm-red); text-decoration: underline dotted; text-underline-offset: 4px; }
+.em-mic { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; width: 92px; height: 92px; border-radius: 50%; justify-content: center; border: 0; color: #fff; background: radial-gradient(circle at 35% 30%, #2dd4bf, #0d9488); box-shadow: 0 10px 28px rgba(13, 148, 136, .45); font: 700 12px/1 inherit; cursor: pointer; }
+.em-mic .wm-ic { width: 30px; height: 30px; }
+.em-mic.on { background: radial-gradient(circle at 35% 30%, #fda4af, #e11d48); box-shadow: 0 0 0 8px rgba(251, 113, 133, .2), 0 10px 28px rgba(225, 29, 72, .45); animation: emPulse 1.2s ease-in-out infinite; }
+.em-mic:disabled { opacity: .5; }
+@keyframes emPulse { 50% { box-shadow: 0 0 0 14px rgba(251, 113, 133, .12), 0 10px 28px rgba(225, 29, 72, .45); } }
+html.wm-still .em-mic.on { animation: none; }
+@media (prefers-reduced-motion: reduce) { .em-mic.on { animation: none; } }
+.em-sp-res { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 12px; border-radius: 14px; background: var(--wm-card2); width: 100%; }
+.em-sp-res b { font-size: 22px; color: var(--wm-blue2); }
+
+/* the learner's own language */
+.em-gl p { font-size: 16px; }
+.em-gl-btn { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+
+/* the learning loop on Home */
+.em-loop { display: grid; gap: 10px; background: linear-gradient(135deg, rgba(20, 184, 166, .14), rgba(99, 102, 241, .14)); }
+.em-loop-h { display: flex; gap: 10px; align-items: center; }
+.em-loop-h small { display: block; color: var(--wm-mut); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.em-loop-h b { font-size: 14px; line-height: 1.4; }
+
+/* Real-Life Missions and long sentence cards */
+.em-mis blockquote { font-size: 17px; }
+.wm-card-w.long { font-size: 20px; line-height: 1.35; }
+
+/* the learning-loop card follows Today's goal on Home: the same 12 px as the other cards */
+.em-loop { margin-top: 12px; }

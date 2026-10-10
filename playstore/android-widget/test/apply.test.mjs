@@ -67,18 +67,18 @@ console.log("\n# a staging-host project");
   ok("1 · the widget sources, layouts, drawables and the three provider infos are copied in", ["java/com/bemastery/app/widget/BEWidgetProvider.java", "java/com/bemastery/app/widget/BEWidgetProviderGE.java", "java/com/bemastery/app/widget/BEWidgetProviderPro.java", "java/com/bemastery/app/widget/BEWidgetRenderer.java", "res/layout/be_widget_small.xml", "res/layout/be_widget_medium.xml", "res/layout/be_widget_large.xml", "res/layout/be_widget_empty.xml", "res/xml/be_widget_info.xml", "res/xml/be_widget_info_ge.xml", "res/xml/be_widget_info_pro.xml", "res/drawable/be_widget_pill_pro.xml", "res/values/be_widget.xml", "res/values-v31/be_widget.xml"].every(f => existsSync(join(dir, "app/src/main", f))));
   ok("2 · the debug-only preview screen goes under src/debug, never src/main", existsSync(join(dir, "app/src/debug/AndroidManifest.xml")) && existsSync(join(dir, "app/src/debug/java/com/bemastery/app/widget/BEWidgetPreviewActivity.java")) && !existsSync(join(dir, "app/src/main/java/com/bemastery/app/widget/BEWidgetPreviewActivity.java")));
   ok("3 · the feed address follows the host: staging → be-widget-staging", r.api === APIS.staging && readFileSync(join(dir, "app/src/main/res/values/be_widget_api.xml"), "utf8").includes(APIS.staging));
-  ok("4 · the manifest gains INTERNET and the four widget receivers (open programme / General English / Welding / Recommendations) and the list's service, each with both actions and its own provider info, inside <application>",
+  ok("4 · the manifest gains INTERNET and the five widget receivers (open programme / General English / Welding / Recommendations / Welding Mastery) and the list's service, each with both actions and its own provider info, inside <application>",
     /uses-permission android:name="android.permission.INTERNET"/.test(m)
     && /<receiver[\s\S]*?\.widget\.BEWidgetProvider"[\s\S]*?APPWIDGET_UPDATE[\s\S]*?com\.bemastery\.app\.widget\.REFRESH[\s\S]*?@xml\/be_widget_info"/.test(m)
     && /\.widget\.BEWidgetProviderGE"[\s\S]*?@string\/be_widget_name_ge[\s\S]*?@xml\/be_widget_info_ge"/.test(m)
-    && /\.widget\.BEWidgetProviderPro"[\s\S]*?@string\/be_widget_name_pro[\s\S]*?@xml\/be_widget_info_pro"[\s\S]*?<\/receiver>/.test(m) && /BIND_REMOTEVIEWS" \/>\s*<\/application>/.test(m)
-    && (m.match(/<receiver/g) || []).length === 4
+    && /\.widget\.BEWidgetProviderPro"[\s\S]*?@string\/be_widget_name_pro[\s\S]*?@xml\/be_widget_info_pro"[\s\S]*?<\/receiver>/.test(m) && /BIND_REMOTEVIEWS" \/>[\s\S]*?<\/application>/.test(m)
+    && (m.match(/<receiver/g) || []).length === 6
     /* the Recommendations widget (6 Oct 2026): its receiver and the list's service, bindable by the system only */
     && /\.widget\.BEWidgetRecsProvider/.test(m) && /@xml\/be_widget_info_recs/.test(m)
     && /<service[\s\S]*?\.widget\.BEWidgetRecsService[\s\S]*?android\.permission\.BIND_REMOTEVIEWS/.test(m) && (m.match(/BEWidgetRecsService/g) || []).length === 1, m);
   ok("5 · LauncherActivity decorates the launch URL with ?wid= and schedules a refresh on start and on return", /return com\.bemastery\.app\.widget\.BEWidgetLaunch\.decorate\(this, uri\);/.test(la) && /protected void onStart\(\)[\s\S]*scheduleRefresh\(this, 25000L\)/.test(la) && /protected void onRestart\(\)[\s\S]*scheduleRefresh\(this, 4000L\)/.test(la) && /^}\s*$/m.test(la), la);
   const m2 = patchManifest(m), la2 = patchLauncher(la);
-  ok("6 · running it again changes nothing (idempotent — safe after every bubblewrap update)", m2 === m && la2 === la && (m.match(/<receiver/g) || []).length === 4 && (m.match(/BEWidgetRecsService/g) || []).length === 1 && (la.match(/protected void onRestart/g) || []).length === 1,
+  ok("6 · running it again changes nothing (idempotent — safe after every bubblewrap update)", m2 === m && la2 === la && (m.match(/<receiver/g) || []).length === 6 && (m.match(/BEWidgetRecsService/g) || []).length === 1 && (la.match(/protected void onRestart/g) || []).length === 1,
     JSON.stringify({ manifestSame: m2 === m, launcherSame: la2 === la, receivers: (m.match(/<receiver/g) || []).length, onRestartHooks: (la.match(/protected void onRestart/g) || []).length }));
   rmSync(dir, { recursive: true, force: true });
 }
@@ -91,6 +91,23 @@ console.log("\n# a production-host project, and refusals");
   ok("8 · a LauncherActivity that is not Bubblewrap's is refused rather than half-patched", threw);
   rmSync(dir, { recursive: true, force: true });
 }
+{
+  const once = patchManifest(MANIFEST), twice = patchManifest(once);
+  ok("W1 · the Welding Mastery widget gets its own receiver, with the refresh action and its info file", /\.widget\.BEWidgetMasteryProvider"/.test(once) && /@xml\/be_widget_info_mastery/.test(once));
+  ok("W2 · patching twice adds it once", (twice.match(/BEWidgetMasteryProvider"/g) || []).length === 1);
+}
+{
+  /* the streak countdown (10 Oct 2026) */
+  const once = patchManifest(MANIFEST), twice = patchManifest(once);
+  ok("L1 · the countdown's receiver: not exported, its alarm action, a restart and an app update", /<receiver\s+android:name="\.widget\.BEStreakReceiver"\s+android:exported="false">[\s\S]*?com\.bemastery\.app\.live\.TICK[\s\S]*?BOOT_COMPLETED[\s\S]*?MY_PACKAGE_REPLACED[\s\S]*?<\/receiver>/.test(once) && /RECEIVE_BOOT_COMPLETED/.test(once), once);
+  ok("L2 · patching twice adds the receiver and the permission once", (twice.match(/BEStreakReceiver"/g) || []).length === 1 && (twice.match(/RECEIVE_BOOT_COMPLETED/g) || []).length === 1);
+  const dir = project("staging.lomonec.com"); apply(dir);
+  const la = readFileSync(join(dir, "app/src/main/java/com/bemastery/app/LauncherActivity.java"), "utf8");
+  ok("L3 · LauncherActivity wakes the countdown after a launch, on return and on leaving", /onStart\(\)[\s\S]*BEStreakCountdown\.schedule\(this, 26000L\)/.test(la) && /onRestart\(\)[\s\S]*BEStreakCountdown\.schedule\(this, 5000L\)/.test(la) && /onStop\(\)[\s\S]*BEStreakCountdown\.schedule\(this, 8000L\)/.test(la));
+  ok("L4 · the copied sources include the countdown and its layouts", ["java/com/bemastery/app/widget/BEStreakCountdown.java", "java/com/bemastery/app/widget/BEStreakReceiver.java", "res/layout/be_live_small.xml", "res/layout/be_live_big.xml", "res/values/be_streak.xml"].every(f => existsSync(join(dir, "app/src/main", f))));
+  rmSync(dir, { recursive: true, force: true });
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

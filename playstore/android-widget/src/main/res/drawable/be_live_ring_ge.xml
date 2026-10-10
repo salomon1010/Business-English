@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the draining ring: a determinate ProgressBar, track + arc from the top -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="ring" android:innerRadiusRatio="2.6" android:thicknessRatio="11" android:useLevel="false">
+            <solid android:color="#3322D3EE" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <rotate android:fromDegrees="270" android:toDegrees="270" android:pivotX="50%" android:pivotY="50%">
+            <shape android:shape="ring" android:innerRadiusRatio="2.6" android:thicknessRatio="11" android:useLevel="true">
+                <solid android:color="#FF22D3EE" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

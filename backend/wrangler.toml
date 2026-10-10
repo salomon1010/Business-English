@@ -109,3 +109,15 @@ PREMIUM_ENFORCED = "1"
 ENTITLEMENTS_URL = "https://be-entitlements-staging.nore-ngou.workers.dev"
 # staging signs in to the VALIDATION project, not production (owner, 27 Sep 2026)
 FIREBASE_PROJECT_ID = "be-mastery-test"
+# Welding Mastery (9 Oct 2026, wm-game.js): the learner's programme is read from
+# the account by the partner Worker's /programme — staging asks staging
+PARTNER_API = "https://be-partner-staging.nore-ngou.workers.dev"
+
+# Welding Mastery's Premium pack (the advanced workshop scenarios). It lives in KV,
+# NOT in this repository: the repository is public and the site serves it, so a
+# file here would be free to anyone. Upload with
+#   npx wrangler kv key put --namespace-id b3798804a2b649f4afdd6ca9a7fc5bb7 advanced-v1 --path <private file> --remote
+# Production has no binding: the route answers 503 pack_unavailable there.
+[[env.staging.kv_namespaces]]
+binding = "WM_PACK"
+id = "b3798804a2b649f4afdd6ca9a7fc5bb7"

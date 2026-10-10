@@ -34,6 +34,7 @@
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "capacitor://localhost",   // the App Store build (mobile/ios)
+  "https://localhost",       // the Play build as a native shell (mobile/android)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];

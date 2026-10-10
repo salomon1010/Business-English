@@ -25,6 +25,9 @@ struct BEWidgetPluginTests {
         ("bemastery://open?view=session&w=3&d=Tue", "session", 3, "Tue", nil),
         ("bemastery://open?view=practice&act=words", "practice", nil, nil, "words"),
         ("bemastery://open?view=journey", "journey", nil, nil, nil),
+        /* the game streak countdown (Live Activity): today's daily in either hub */
+        ("bemastery://open?view=english&act=daily", "english", nil, nil, "daily"),
+        ("bemastery://open?view=mastery&act=daily", "mastery", nil, nil, "daily"),
         ("BEMASTERY://OPEN?view=review", "review", nil, nil, nil),
     ] as [(String, String, Int?, String?, String?)])
     func aWidgetTapIsRoutedToAKnownView(url: String, view: String, w: Int?, d: String?, act: String?) throws {

@@ -59,6 +59,18 @@ export class RateLimiter {
   async fetch(request) {
     let body;
     try { body = await request.json(); } catch (e) { return j({ error: "bad_request" }, 400); }
+    /* PEEK (9 Oct 2026, Welding Mastery): read where named buckets stand, write
+       nothing. A game status screen must show "3 of 5 energy used" without
+       spending a unit to find out. Read-only, so no concurrency guard is needed
+       beyond the object's own one-request-at-a-time. */
+    if (body && Array.isArray(body.peek)) {
+      if (!body.peek.length || body.peek.length > 8 || body.peek.some(n => typeof n !== "string" || !n || n.length > 64)) return j({ error: "bad_request" }, 400);
+      const now = Number.isFinite(body.now) ? body.now : Date.now();
+      const have = await this.state.storage.get(body.peek.map(n => "b:" + n));
+      const counts = {};
+      for (const n of body.peek) { const cur = have.get("b:" + n); counts[n] = cur && cur.resetAt > now ? (cur.count || 0) : 0; }
+      return j({ ok: true, counts });
+    }
     const buckets = Array.isArray(body && body.buckets) ? body.buckets : null;
     if (!buckets || !buckets.length || buckets.length > 8) return j({ error: "bad_request" }, 400);
     for (const b of buckets) {
@@ -169,6 +181,19 @@ export async function consume(env, subject, buckets) {
   }
 }
 
+/* peek(env, subject, names) -> { ok, counts, degraded? }: where buckets stand, nothing written */
+export async function peek(env, subject, names) {
+  const ns = env && env.RATE_LIMITER;
+  if (!ns) return memPeek(subject, names);
+  try {
+    const stub = ns.get(ns.idFromName(subject));
+    const r = await stub.fetch("https://rate-limit.invalid/peek", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ peek: names }) });
+    if (!r.ok) return { ok: false, degraded: true };
+    const out = await r.json();
+    return { ok: true, counts: (out && out.counts) || {} };
+  } catch (e) { return { ok: false, degraded: true }; }
+}
+
 /* ---- the fallback. NOT AUTHORITATIVE. See the header. ---- */
 const mem = new Map();          // subject -> Map(bucket -> { count, resetAt })
 export function memConsume(subject, buckets, now = Date.now()) {
@@ -187,6 +212,11 @@ export function memConsume(subject, buckets, now = Date.now()) {
   const counts = {};
   for (const [k, v] of recs) { m.set(k, v); counts[k] = v.count; }
   if (mem.size > 5000) mem.clear();      // crude memory guard, as before
+  return { ok: true, degraded: true, counts };
+}
+export function memPeek(subject, names, now = Date.now()) {
+  const m = mem.get(subject), counts = {};
+  for (const n of names) { const cur = m && m.get(n); counts[n] = cur && cur.resetAt > now ? cur.count : 0; }
   return { ok: true, degraded: true, counts };
 }
 export function _memReset() { mem.clear(); }     // tests only

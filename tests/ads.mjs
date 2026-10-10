@@ -291,8 +291,10 @@ console.log("\n# track isolation");
   WENV = workerEnv();
   const { ctx, p } = await open("welding");
   await signIn(p, "weld1");
-  const w = await p.evaluate(() => ({ ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null }));
-  ok("T1 · Welding: the shared ad system adds no General-English feature (no Practice Partner, no Shadow V2)", !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
+  /* Welding's video Shadow Studio comes from the Welding studio (production ON since be12-v654,
+     owner 8 Oct 2026), never from the ad system: Shadow V2 follows weldStudioOn() exactly */
+  const w = await p.evaluate(() => ({ ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null, studio: typeof weldStudioOn === "function" ? weldStudioOn() : null }));
+  ok("T1 · Welding: the shared ad system adds no General-English feature (no Practice Partner; Shadow V2 only through the Welding studio)", !w.ge && !w.pp && w.sv === w.studio, JSON.stringify(w));
   await breakThen(p, "practice_complete", "go('home')");
   const o = await overlay(p);
   /* The tier spec (docs/TIERS.md, 5 Oct 2026): ads are General English only

@@ -90,6 +90,23 @@ console.log("\n# limits, deletion, origins");
   ok("17 · anything else is 404", r.status === 404);
 }
 
+{
+  const wm = { m: 38, total: 250, lvl: 4, xp: 720, need: 280, pct: 40, streak: 5, next: "Visual recognition", uid: "u1",
+    shift: { t: "Identify five tools correctly", p: 2, n: 5, done: false, words: ["secret"] }, labels: { title: "Welding Mastery", "Bad-Key": "x" } };
+  const pro = shapeSnap({ ...SNAP, area: "pro", wm, recs: [{ t: "Today's Shift", k: "game", go: { view: "mastery", act: "listen" } }] });
+  ok("WM1 · the Welding Mastery block passes on a Welding snapshot: numbers, the shift, clean labels, nothing extra", pro.wm && pro.wm.m === 38 && pro.wm.shift.p === 2 && pro.wm.shift.t === "Identify five tools correctly" && !pro.wm.uid && !pro.wm.shift.words && !("Bad-Key" in pro.wm.labels), JSON.stringify(pro.wm));
+  ok("WM2 · a game recommendation keeps its place (mastery / listen)", pro.recs[0].go.view === "mastery" && pro.recs[0].go.act === "listen", JSON.stringify(pro.recs));
+  ok("WM3 · a General English snapshot never carries the block", shapeSnap({ ...SNAP, area: "ge", wm }).wm === undefined);
+}
+
+{
+  const live = { prog: "general-english", title: "English Mastery", line: "Last chance! Keep your 4-day streak.", doneLine: "Done — your streak is safe.", streak: 4, deadline: 1792540800000, done: false, uid: "u1" };
+  const s = shapeSnap({ ...SNAP, live });
+  ok("LV1 · the streak countdown block passes: hub, words, streak, deadline — nothing extra", s.live && s.live.prog === "general-english" && s.live.streak === 4 && s.live.deadline === 1792540800000 && s.live.done === false && !s.live.uid, JSON.stringify(s.live));
+  ok("LV2 · an unknown hub drops the block", shapeSnap({ ...SNAP, live: { ...live, prog: "other" } }).live === undefined);
+  ok("LV3 · Welding keeps its own hub", shapeSnap({ ...SNAP, area: "pro", live: { ...live, prog: "welding" } }).live.prog === "welding");
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

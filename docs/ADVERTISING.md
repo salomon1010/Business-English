@@ -205,3 +205,22 @@ once it is published (the Android app is already linked to its Play listing).
   - language-polish test 1;
   - shadow-challenge's line-398 crash (after 85 passes);
   - the partner end-to-end `.pp-how-link` timeout.
+
+## Game hubs on both programmes (owner, 10 Oct 2026)
+
+The owner reversed "Welding shows no ad" **for the game hubs only**:
+- `adsTrackAllows(ctx)` is true on General English, and on Welding only for the
+  game-hub contexts (`GAME_AD_CONTEXTS`: `game_hub`, `game_hub_mid`, `game_end`,
+  `game_complete`) while Welding Mastery is open (`WMUI.on()`). Every call without
+  a context — and every other Welding page — stays ad-free.
+- Native: `game_hub` at the foot of every hub tab, `game_hub_mid` mid-page on the
+  long tabs (Games grid, Journey list, Collection list, History, Rewards, Stats),
+  `game_end` under the buttons of a round's results screen. Hosts are drawn by
+  `adsPlace()` / `finish()` in welding-mastery.js (and, assembled, english-mastery.js).
+- Interstitial: `game_complete`, armed by a finished round and offered when the
+  learner closes it (`gameClose` → `AdManager.afterNav`). Its own caps
+  (`AD_POLICY.interstitial.byContext`): 4 min apart, 6 an hour, 8 a visit; every
+  other break keeps 8 min / 3 / 4.
+- Never during a round: `protectedReason` answers `game` while a round overlay is
+  open, except `game_end` on the results screen.
+- Premium removes all of them (`planAllowsAds`). Tests: `tests/game-ads.mjs` (18).

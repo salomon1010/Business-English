@@ -65,7 +65,7 @@
 <link rel="stylesheet" href="../css/base.css?v=20261007k">
 <link rel="stylesheet" href="../css/components.css?v=20261007p">
 <link rel="stylesheet" href="../css/sections.css?v=20261007n">
-<link rel="stylesheet" href="../css/dynamic.css?v=20261007f">
+<link rel="stylesheet" href="../css/dynamic.css?v=20261010a">
 </head>
 <body data-root="../">
 <a class="skip" href="#main">Перейти к содержимому</a>
@@ -212,14 +212,15 @@
 </section>
 
 <!-- WhatsNew: dated, and only what is built -->
-<section class="section" id="new">
+<!-- hidden for now (owner, 10 Oct 2026): remove the hidden attribute and restore the "New" link in js/config.js to bring it back -->
+<section class="section" id="new" hidden>
   <div class="wrap">
     <div class="section-head center" data-reveal>
       <span class="label"><span class="dot"></span>Новое</span>
       <h2>Становится <span class="grad">лучше</span> каждый день.</h2>
       <p class="lede" style="margin:16px auto 0">Последние обновления BE Mastery.</p>
     </div>
-    <div class="new-grid"><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">окт. 2026</span><h3>Скоро на iPhone</h3><p>Приложение для iPhone сейчас на проверке в Apple. Один аккаунт сохранит ваш прогресс на обоих телефонах.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">окт. 2026</span><h3>Вход через Apple или Google</h3><p>Одно касание — и ваш прогресс сохранён и доступен и на iPhone, и на Android.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">окт. 2026</span><h3>Виджеты на главном экране</h3><p>Ваша серия занятий, шаг на сегодня и ваши рекомендации — без открытия приложения.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">окт. 2026</span><h3>Слушайте себя</h3><p>Каждая запись воспроизводится сразу после остановки, а Лаборатория фраз читает ваш текст вслух.</p></article><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">сент. 2026</span><h3>Студия Английского для сварки</h3><p>Десять профессий, рабочие симуляции, тренеры по собеседованиям и настоящие фразы из цеха для шэдоуинга.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">сент. 2026</span><h3>Перевод и транскрипция</h3><p>Каждая фраза из Шэдоуинга — на вашем языке и в фонетической транскрипции, слово за словом.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">сент. 2026</span><h3>Звонки для практики в реальном времени</h3><p>Раунды по таймеру с реальным партнёром и личный отчёт о вашей части звонка.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">сент. 2026</span><h3>Коуч, который говорит</h3><p>Ваш отчёт о речи, озвученный коучем, с исправлениями и более точными словами.</p></article></div>
+    <div class="new-grid"><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">окт. 2026</span><h3>Скоро на iPhone</h3><p>Приложение для iPhone сейчас на проверке в Apple. Один аккаунт сохранит ваш прогресс на обоих телефонах.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">окт. 2026</span><h3>Вход через Apple или Google</h3><p>Одно касание — и ваш прогресс сохранён и доступен и на iPhone, и на Android.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">окт. 2026</span><h3>Виджеты на главном экране</h3><p>Ваша серия занятий, шаг на сегодня и ваши рекомендации — без открытия приложения.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">окт. 2026</span><h3>Слушайте себя</h3><p>Каждая запись воспроизводится сразу после остановки, а Лаборатория фраз читает ваш текст вслух.</p></article><article class="new-card glass" data-reveal data-reveal-delay="0"><span class="new-date">сент. 2026</span><h3>Студия Английского для сварки</h3><p>Десять профессий, рабочие симуляции, тренеры по собеседованиям и настоящие фразы из цеха для шэдоуинга.</p></article><article class="new-card glass" data-reveal data-reveal-delay="70"><span class="new-date">сент. 2026</span><h3>Перевод и транскрипция</h3><p>Каждая фраза из Шэдоуинга — на вашем языке и в фонетической транскрипции, слово за словом.</p></article><article class="new-card glass" data-reveal data-reveal-delay="140"><span class="new-date">сент. 2026</span><h3>Звонки для практики в реальном времени</h3><p>Раунды по таймеру с реальным партнёром и личный отчёт о вашей части звонка.</p></article><article class="new-card glass" data-reveal data-reveal-delay="210"><span class="new-date">сент. 2026</span><h3>Учитесь играя</h3><p>English Mastery и Welding Mastery: по восемь игр, задание дня и значки навыков.</p></article></div>
   </div>
 </section>
 
@@ -611,11 +612,38 @@
   </div>
 </section>
 
-<!-- ── 08 WHO IT'S FOR ───────────────────────────────────────────────── -->
+<!-- ── 09 PLAY TO LEARN ─────────────────────────────────────────────────────
+     The two game hubs: English Mastery (General English) and Welding Mastery
+     (Welding English). Shots: scripts/store-art/shoot-games.mjs. -->
+<section class="section" id="games">
+  <div class="wrap">
+    <div class="section-head center" data-reveal>
+      <span class="label"><span class="n">09</span> Учитесь играя</span>
+      <h2>Пять минут игры — <span class="grad">и в итоге настоящий английский</span>.</h2>
+      <p class="lede" style="margin:16px auto 0">У каждой программы своё игровое пространство, построенное на её уроках. Восемь коротких игр превращают то, что вы учите, в ответы, которые можно сказать вслух.</p>
+    </div>
+    <h3 class="shots-h" data-reveal>English Mastery · Общий английский</h3>
+    <div class="shots shots-home" data-shots><figure class="shot" data-reveal data-reveal-delay="0"><div class="shot-phone"><img src="../img/games/em-home.webp" width="660" height="1434" alt="Пространство English Mastery: уровень, XP, серия и энергия, задание дня по английскому и цель недели" loading="lazy"></div><figcaption><b>English Mastery</b><span>Задание дня и цель недели</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="80"><div class="shot-phone"><img src="../img/games/em-games.webp" width="660" height="1434" alt="Игры English Mastery: Word Quest, Quick Quiz, Sentence Builder и Listen &amp; Win, у каждой — навык, который она тренирует" loading="lazy"></div><figcaption><b>Восемь игр</b><span>Каждая тренирует свой навык</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="160"><div class="shot-phone"><img src="../img/games/em-speak.webp" width="660" height="1434" alt="Speak Up после записи: распознано 88% слов, пропущенное слово отмечено красным" loading="lazy"></div><figcaption><b>Speak Up</b><span>Видно, какие слова распознаны</span></figcaption></figure></div>
+    <h3 class="shots-h" data-reveal>Welding Mastery · Английский для сварки</h3>
+    <div class="shots shots-home" data-shots><figure class="shot" data-reveal data-reveal-delay="0"><div class="shot-phone"><img src="../img/games/wm-home.webp" width="660" height="1434" alt="Пространство Welding Mastery: уровень, XP, серия и энергия, задание дня по английскому для сварки и цель недели" loading="lazy"></div><figcaption><b>Welding Mastery</b><span>250 профессиональных слов, настоящие фото</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="80"><div class="shot-phone"><img src="../img/games/wm-games.webp" width="660" height="1434" alt="Игры Welding Mastery: Карточки, Викторина, Кроссворд, Визуальное узнавание, Аудирование и Собери слово" loading="lazy"></div><figcaption><b>Восемь игр</b><span>Каждая тренирует свой навык</span></figcaption></figure><figure class="shot" data-reveal data-reveal-delay="160"><div class="shot-phone"><img src="../img/games/wm-visual.webp" width="660" height="1434" alt="Визуальное узнавание: настоящая фотография огнетушителя, указание автора и четыре названия на выбор" loading="lazy"></div><figcaption><b>Визуальное узнавание</b><span>Назовите инструмент по настоящей фотографии</span></figcaption></figure></div>
+    <div class="games-copy" data-reveal>
+      <ul class="bullets">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>English Mastery, для общего английского:</b> 385 слов, выражений и фраз из вашего 12-недельного плана и из повседневной жизни, в восьми играх — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle и Real-Life Missions.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Welding Mastery, для английского сварщика:</b> 250 профессиональных слов с настоящими фотографиями инструментов, кроссворд, раунды на слух и задания из мастерской.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Задание дня, цель недели и значки навыков.</b> Слово считается освоенным только после верных ответов в три разных дня — одних XP для этого никогда не достаточно.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Speak Up вас слышит:</b> скажите фразу и посмотрите, какие слова распознаны. Оценку произношения ставит ИИ, и об этом сказано.</span></li>
+      </ul>
+      <p class="hero-fine" style="margin-top:18px">Войдите, чтобы играть. Бесплатно: пять раундов заданий в день в каждой программе — неверный ответ никогда не стоит раунда — плюс неограниченное повторение и задание дня. Premium: неограниченные раунды, сложные ситуации и тренды за 30 и 90 дней.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 09 WHO IT'S FOR ───────────────────────────────────────────────── -->
 <section class="section" id="who">
   <div class="wrap">
     <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">09</span> Для кого это</span>
+      <span class="label"><span class="n">10</span> Для кого это</span>
       <h2>Для момента, <span class="grad">когда слово переходит к вам</span>.</h2>
     </div>
     <div class="who">
@@ -631,7 +659,7 @@
 <section class="section" id="paths">
   <div class="wrap">
     <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">10</span> Две программы</span>
+      <span class="label"><span class="n">11</span> Две программы</span>
       <h2>Два пути. Одна цель: <span class="grad">уверенное общение</span>.</h2>
       <p class="lede" style="margin:16px auto 0">Выберите ту, что соответствует среде, в которой вы на самом деле работаете. Это две отдельные программы с отдельным прогрессом — переключайтесь, когда захотите.</p>
     </div>
@@ -645,6 +673,7 @@
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Студия шэдоуинга: сотни настоящих видео для просмотра, повторения и освоения</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Партнёр по практике: голосовые сообщения или звонки в прямом эфире с реальными людьми</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Отчёт о речи, Лаборатория фраз, упражнения по грамматике и 14 симуляций из жизни</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>English Mastery: восемь игр на слова и выражения вашего плана</span></li>
         </ul>
         <p class="foot">Партнёр по практике и практика с людьми доступны только в этой программе.</p>
       </div>
@@ -658,6 +687,7 @@
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Инструктажи по безопасности, контроль качества и передача смены</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Собеседования в цеху с отчётом от каждого интервьюера</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Профессиональные тренеры по собеседованиям, оценивающие по стандартам самой профессии</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span>Welding Mastery: восемь игр на 250 профессиональных слов, с настоящими фото</span></li>
         </ul>
         <div class="flow" aria-label="Цепочка общения в цеху">
           <span>Начальник</span><i>→</i><span>Рабочий</span><i>→</i><span>Безопасность</span><i>→</i><span>Качество</span><i>→</i><span>Собеседование</span>
@@ -675,13 +705,14 @@
 <section class="section" id="welding">
   <div class="wrap split">
     <div data-reveal>
-      <span class="label"><span class="n">11</span> Английский для сварки</span>
+      <span class="label"><span class="n">12</span> Английский для сварки</span>
       <h2>Английский для цеха, <span class="grad">площадки и собеседования</span>.</h2>
       <p class="lede" style="margin-top:16px">Отдельная программа для рабочих профессий. Вы практикуете фразы, которые на самом деле говорят начальник, инспектор и интервьюер, — и ответы, которые они ждут от вас.</p>
       <ul class="bullets">
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Шэдоуинг текста на практике:</b> настоящие фразы из вашего цеха. Услышьте каждую, прочитайте, повторите вслух — так, как ответите на рабочем месте.</span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Рабочие симуляции и тренеры по собеседованиям:</b> инструктаж по безопасности, наряд-допуск, передача смены и собеседование при приёме на работу — каждое с отчётом по стандартам профессии.</span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Основы на родном языке:</b> пятнадцать дней первых фраз для тех, кто начинает с нуля.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Welding Mastery:</b> восемь игр на 250 профессиональных слов, с настоящими фото инструментов, заданием дня и значками навыков.</span></li>
       </ul>
       <p class="mini-cta"><span>Выберите Английский для сварки при открытии приложения.</span>
         <a href="#download" data-ev="hero_cta_clicked" data-ev-source="welding">Получить приложение
@@ -737,7 +768,7 @@
 <section class="section" id="pricing">
   <div class="wrap">
     <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">12</span> Тарифы</span>
+      <span class="label"><span class="n">13</span> Тарифы</span>
       <h2>Бесплатно, <span class="grad">чтобы начать</span>.</h2>
       <p class="lede" style="margin:16px auto 0">Программа на двенадцать недель, Студия шэдоуинга, ИИ-коуч, Партнёр по практике и ваш прогресс сегодня бесплатны. Банковская карта не нужна.</p>
     </div>
@@ -779,7 +810,7 @@
 <section class="section" id="faq">
   <div class="wrap">
     <div class="section-head center" data-reveal>
-      <span class="label"><span class="n">13</span> Questions</span>
+      <span class="label"><span class="n">14</span> Questions</span>
       <h2>Перед тем как <span class="grad">скачать</span>.</h2>
     </div>
     <div class="faq" data-reveal>
@@ -800,7 +831,7 @@
 <section class="section download" id="download">
   <div class="wrap">
     <div class="cta-panel" data-reveal>
-      <span class="label"><span class="n">14</span> Получить приложение</span>
+      <span class="label"><span class="n">15</span> Получить приложение</span>
       <h2>Ваша разговорная практика <span class="grad">всегда с вами</span>.</h2>
       <p class="lede" style="margin-left:auto;margin-right:auto">Двадцать пять минут в поезде, на парковке, перед встречей. Приложение записывает, оценивает и помнит — а партнёр может уже ждать вас, когда вы его откроете.</p>
 
@@ -841,7 +872,7 @@
 </div><!-- /page -->
 
 <script src="../js/i18n/ru.js?v=0db2af14"></script>
-<script src="../js/config.js?v=20261007h"></script>
+<script src="../js/config.js?v=20261010a"></script>
 <script src="../js/analytics.js?v=20261007f" defer></script>
 <script src="../js/motion.js?v=20261007f" defer></script>
 <script src="../js/app.js?v=20261007p" defer></script>

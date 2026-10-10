@@ -106,8 +106,6 @@ export default [
    `<h3>翻訳と発音記号</h3><p>シャドーイングの各セリフを、あなたの言語と発音記号で、単語ごとに確認できます。</p>`],
   [`<h3>Live practice calls</h3><p>Timed rounds with a real partner, and a private report on your side of the call.</p>`,
    `<h3>ライブ練習コール</h3><p>実際のパートナーと時間制のラウンドで練習し、あなた自身の発言について非公開のレポートを受け取れます。</p>`],
-  [`<h3>A coach that speaks</h3><p>Your speaking report, read to you by the coach, with corrections and better words.</p>`,
-   `<h3>話してくれるコーチ</h3><p>あなたのスピーキングレポートを、コーチが訂正とより良い言い回しとともに読み上げます。</p>`],
 
   // 01 problem
   [`<span class="n">01</span> The problem</span>`, `<span class="n">01</span> 課題</span>`],
@@ -314,7 +312,7 @@ export default [
   [`<b>Both programmes</b><span>Welding and General English side by side</span>`, `<b>両方のプログラム</b><span>溶接の英語と一般英語を並べて表示</span>`],
 
   // 09 who
-  [`<span class="n">09</span> Who it's for</span>`, `<span class="n">09</span> こんな方に</span>`],
+  [`<span class="n">10</span> Who it's for</span>`, `<span class="n">10</span> こんな方に</span>`],
   [`<h2>For the moment <span class="grad">it's your turn to speak</span>.</h2>`, `<h2><span class="grad">あなたが話す番</span>がやってくる、その瞬間のために。</h2>`],
   [`<b>In meetings</b><p>You follow every word, then freeze when it's your turn. Rehearse the update before you give it.</p>`,
    `<b>会議で</b><p>話の内容はすべて理解できるのに、自分の番になると固まってしまう。報告の前にリハーサルしましょう。</p>`],
@@ -326,7 +324,7 @@ export default [
    `<b>技能職</b><p>溶接工には専用のプログラムがあります：現場、安全、品質チェック、そして面接。</p>`],
 
   // 10 paths
-  [`<span class="n">10</span> Two programmes</span>`, `<span class="n">10</span> 2つのプログラム</span>`],
+  [`<span class="n">11</span> Two programmes</span>`, `<span class="n">11</span> 2つのプログラム</span>`],
   [`<h2>Two paths. One goal: <span class="grad">confident communication</span>.</h2>`, `<h2>2つの道。目指すのは一つ：<span class="grad">自信あるコミュニケーション</span>。</h2>`],
   [`Pick the one that matches the room you actually walk into. They are separate programmes with separate progress — switch whenever you like.`,
    `実際に自分が身を置く場に合うものを選びましょう。それぞれ別のプログラムで、進捗も別々に管理されます——いつでも切り替えられます。`],
@@ -351,7 +349,7 @@ export default [
   [`Starts with fifteen days of Foundations in your own language if you need them.`, `必要な方には、あなたの言語による15日間の基礎から始められます。`],
 
   // 11 welding
-  [`<span class="n">11</span> Welding English</span>`, `<span class="n">11</span> 溶接の英語</span>`],
+  [`<span class="n">12</span> Welding English</span>`, `<span class="n">12</span> 溶接の英語</span>`],
   [`<h2>English for the workshop, <span class="grad">the site and the interview</span>.</h2>`, `<h2>現場、<span class="grad">サイト、面接</span>のための英語。</h2>`],
   [`A programme of its own for skilled trades. You practise the sentences a supervisor, an inspector and an interviewer actually say — and the answers they expect back.`,
    `技能職のための専用プログラムです。監督者、検査官、面接官が実際に言う言葉と、求められている答え方を練習します。`],
@@ -409,7 +407,7 @@ export default [
   [`<b>Your own progress</b><span>Kept apart from General English</span>`, `<b>あなた自身の進捗</b><span>一般英語とは別に管理</span>`],
 
   // 12 pricing
-  [`<span class="n">12</span> Pricing</span>`, `<span class="n">12</span> 料金</span>`],
+  [`<span class="n">13</span> Pricing</span>`, `<span class="n">13</span> 料金</span>`],
   [`<h2>Free <span class="grad">to start</span>.</h2>`, `<h2><span class="grad">始めるのは</span>無料。</h2>`],
   [`The twelve-week programme, Shadow Studio, the AI coach, Practice Partner and your progress are free today. No card needed.`,
    `12週間のプログラム、Shadow Studio、AIコーチ、Practice Partner、そしてあなたの進捗は、今は無料で使えます。カードは不要です。`],
@@ -462,7 +460,7 @@ export default [
    `<p>いいえ。これはプログラムを完了した証で、あなたの名前が入ります。レベルテストではありません。</p>`],
 
   // 14 download + footer
-  [`<span class="n">14</span> Get the app</span>`, `<span class="n">14</span> ${GET}</span>`],
+  [`<span class="n">15</span> Get the app</span>`, `<span class="n">15</span> ${GET}</span>`],
   [`<h2>Your speaking practice <span class="grad">goes with you</span>.</h2>`, `<h2>スピーキング練習は、<span class="grad">どこへでも一緒に</span>。</h2>`],
   [`Twenty-five minutes on the train, in the car park, before the meeting. The app records, scores and remembers — and a partner can be waiting when you open it.`,
    `電車の中で、駐車場で、会議の前の25分。アプリが録音し、採点し、記憶します——そしてアプリを開いたとき、パートナーが待っていることもあります。`],
@@ -471,4 +469,58 @@ export default [
   [`<li><b>Offline</b><span>Practise with no signal</span></li>`, `<li><b>オフライン</b><span>通信がなくても練習可能</span></li>`],
   [`<li><b>15 languages</b><span>Guidance in your own</span></li>`, `<li><b>15言語</b><span>自分の言語でガイドを表示</span></li>`],
   [`<p>Build the confidence to speak when it matters.</p>`, `<p>大切な場面で話せる自信をつけましょう。</p>`],
+
+  // the game hubs (10 Oct 2026)
+  [`<span class="n">09</span> Play to learn</span>`,
+   `<span class="n">09</span> 遊んで学ぶ</span>`],
+  [`<h2>Five minutes of play, <span class="grad">real English at the end of it</span>.</h2>`,
+   `<h2>5分間のゲームで、<span class="grad">最後には本物の英語を</span>。</h2>`],
+  [`Each programme has its own game hub, built from its own lessons. Eight short games turn what you are learning into answers you can give out loud.`,
+   `それぞれのプログラムに、そのレッスンから作られた専用のゲームハブがあります。8つの短いゲームが、学んでいることを声に出して言える答えに変えます。`],
+  [`<b>English Mastery, for General English:</b> 385 words, phrases and sentences from your 12-week plan and from everyday life, in eight games — Word Quest, Quick Quiz, Sentence Builder, Listen &amp; Win, Speak Up, Phrase Match, Word Puzzle and Real-Life Missions.`,
+   `<b>English Mastery（一般英語）：</b>12週間のプランと日常生活から選んだ385の単語・フレーズ・文を、8つのゲームで — Word Quest、Quick Quiz、Sentence Builder、Listen &amp; Win、Speak Up、Phrase Match、Word Puzzle、Real-Life Missions。`],
+  [`<b>Welding Mastery, for Welding English:</b> 250 trade words with real photographs of the tools, a crossword, listening rounds and workshop challenges.`,
+   `<b>Welding Mastery（溶接英語）：</b>工具の実物写真つきの専門用語250語、クロスワード、リスニングのラウンド、作業場のチャレンジ。`],
+  [`<b>A daily mission, a weekly goal and skill badges.</b> A word counts as mastered only after correct answers on three different days — XP alone never masters it.`,
+   `<b>デイリーミッション、週間目標、スキルバッジ。</b>単語は3つの異なる日に正解して初めて習得とみなされます — XPだけで習得になることはありません。`],
+  [`<b>Speak Up hears you:</b> say a sentence and see which words came through. The pronunciation score is AI, and it says so.`,
+   `<b>Speak Upはあなたの声を聞きます：</b>文を声に出して、どの単語が伝わったかを確認できます。発音スコアはAIによるもので、そのことが明記されます。`],
+  [`Sign in to play. Free: five challenge rounds a day in each programme — a wrong answer never costs a round — plus unlimited review and the daily mission. Premium: unlimited rounds, advanced situations and 30- and 90-day trends.`,
+   `プレイするにはサインインしてください。無料：各プログラムで1日5回のチャレンジ — 間違えても回数は減りません — に加えて、無制限の復習とデイリーミッション。Premium：回数無制限、上級のシチュエーション、30日・90日のトレンド。`],
+  [`<b>English Mastery</b><span>A daily mission and your weekly goal</span>`,
+   `<b>English Mastery</b><span>デイリーミッションと週間目標</span>`],
+  [`<b>Eight games</b><span>Each one practises a different skill</span>`,
+   `<b>8つのゲーム</b><span>それぞれ別のスキルを練習</span>`],
+  [`<b>Speak Up</b><span>See which words came through</span>`,
+   `<b>Speak Up</b><span>どの単語が伝わったか確認</span>`],
+  [`<b>Welding Mastery</b><span>250 trade words, real photographs</span>`,
+   `<b>Welding Mastery</b><span>専門用語250語、実物写真</span>`],
+  [`The English Mastery hub: level, XP, streak and energy, today's English mission and the weekly goal`,
+   `English Masteryのハブ：レベル、XP、連続記録とエネルギー、今日の英語ミッションと週間目標`],
+  [`The English Mastery games: Word Quest, Quick Quiz, Sentence Builder and Listen &amp; Win, each with the skill it practises`,
+   `English Masteryのゲーム：Word Quest、Quick Quiz、Sentence Builder、Listen &amp; Win。それぞれ練習するスキルつき`],
+  [`Speak Up after a take: 88% of the words heard, the missing word marked in red`,
+   `録音後のSpeak Up：単語の88%を認識、抜けた単語は赤で表示`],
+  [`The Welding Mastery games: Cards, Quiz, Crossword, Visual recognition, Listening and Word Builder`,
+   `Welding Masteryのゲーム：カード、クイズ、クロスワード、画像認識、リスニング、単語づくり`],
+  [`<h3>Play to learn</h3><p>English Mastery and Welding Mastery: eight games each, a daily mission and skill badges.</p>`,
+   `<h3>遊んで学ぶ</h3><p>English MasteryとWelding Mastery：それぞれ8つのゲーム、デイリーミッション、スキルバッジ。</p>`],
+  [`<span>English Mastery: eight games on your plan's words and phrases</span>`,
+   `<span>English Mastery：プランの単語とフレーズで遊ぶ8つのゲーム</span>`],
+  [`<span>Welding Mastery: eight games on 250 trade words, with real photographs</span>`,
+   `<span>Welding Mastery：専門用語250語で遊ぶ8つのゲーム、実物写真つき</span>`],
+
+  // Welding Mastery in its own row + the Welding English line (10 Oct 2026)
+  [`<h3 class="shots-h" data-reveal>English Mastery · General English</h3>`,
+   `<h3 class="shots-h" data-reveal>English Mastery · 一般英語</h3>`],
+  [`<h3 class="shots-h" data-reveal>Welding Mastery · Welding English</h3>`,
+   `<h3 class="shots-h" data-reveal>Welding Mastery · 溶接の英語</h3>`],
+  [`<b>Visual recognition</b><span>Name the tool from a real photograph</span>`,
+   `<b>画像認識</b><span>実物の写真から工具の名前を答える</span>`],
+  [`The Welding Mastery hub: level, XP, streak and energy, today's welding-English challenge and the weekly goal`,
+   `Welding Masteryのハブ：レベル、XP、連続記録とエネルギー、今日の溶接英語チャレンジと週間目標`],
+  [`Visual recognition: a real photograph of a fire extinguisher, its credit, and four names to choose from`,
+   `画像認識：消火器の実物写真とそのクレジット、4つの選択肢`],
+  [`<b>Welding Mastery:</b> eight games on 250 trade words, with real photographs of the tools, a daily challenge and skill badges.`,
+   `<b>Welding Mastery：</b>専門用語250語の8つのゲーム。工具の実物写真、デイリーチャレンジ、スキルバッジつき。`],
 ];

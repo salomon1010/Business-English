@@ -40,7 +40,7 @@ import { seal } from "./src/token-vault.js";
 import * as admob from "./src/admob.js";
 import { verifyIdToken } from "./src/firebase-auth.js";
 
-const ORIGINS_DEFAULT = ["https://app.lomonec.com", "capacitor://localhost"];
+const ORIGINS_DEFAULT = ["https://app.lomonec.com", "capacitor://localhost", "https://localhost"];
 const DEV_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 function cors(req, env) {

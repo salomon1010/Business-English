@@ -26,6 +26,7 @@ const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
   "capacitor://localhost",   // the App Store build (mobile/ios): WKWebView cannot use https for a local bundle
+  "https://localhost",       // the Play build as a native shell (mobile/android, androidScheme https)
   "http://localhost:8000",  "http://127.0.0.1:8000",   // python3 -m http.server 8000
   "http://localhost:4173",  "http://127.0.0.1:4173",   // vite preview
   "http://localhost:5173",  "http://127.0.0.1:5173",   // vite dev
@@ -182,6 +183,7 @@ const ASSESS_PER_DAY = 400;
    the mechanism, the fixed-window trade-off and the degraded fallback. The
    numbers themselves are unchanged; what changed is that they are true. */
 import { RateLimiter, consume } from "./rate-limit.js";
+import { wmHandle } from "./wm-game.js";
 /* The SAME Firebase ID-token verifier be-entitlements uses — RS256 against
    Google's securetoken JWKS, checking aud, iss, exp, iat and returning the
    `sub` and nothing else. Imported rather than copied so there is one
@@ -1404,6 +1406,12 @@ export default {
     }
 
     let body; try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400, cors); }
+
+    // ---- Welding Mastery: energy, XP and the Premium pack, all decided here (wm-game.js) ----
+    if (body.wm && typeof body.wm === "object") {
+      { const l = await limit(env, "ip:" + ip, "wm", 60, 3000, cors); if (l) return l; }
+      return await wmHandle(body, request, env, cors, { capabilities, perAccount, json });
+    }
 
     // ---- Role-play chat: scenario + history in → in-character reply out ----
     if (body.chat && typeof body.chat === "object") {
