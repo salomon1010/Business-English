@@ -3,10 +3,21 @@
    for exporting corsHeaders) serves every request as before; ONLY a `{ wm: … }` body is
    answered by the game route (wm-game.js), whose energy, tickets and XP live in the
    RateLimiter Durable Object. No metering, no YouTube trial, no tier change: those
-   live in the repo's polish-worker.js and are NOT part of this deploy. */
+   live in the repo's polish-worker.js and are NOT part of this deploy.
+
+   AI COST CONTROL (10 Oct 2026, docs/AI-COST-CONTROL.md) — DORMANT by default.
+   With neither ANON_AI_POLICY nor an AI_LEDGER binding configured, every
+   non-game request takes exactly the old path below, untouched. When either is
+   set, the request is classified (ai-guard routeOf), a caller without a VERIFIED
+   Firebase token is held by the anonymous policy, and one ledger row is written.
+   The old code's provider calls are invisible from here, so the row is a
+   request-side ESTIMATE (cost_method "request-estimate") and a 2xx answer is
+   assumed to have been billed. Nothing about a signed-in learner changes. */
 import base, { corsHeaders } from "./deployed.js";
 import { wmHandle } from "./wm-game.js";
 import { consume } from "./rate-limit.js";
+import { ROUTES, newCtx, withCtx, routeOf, declaredTrack, measure, billable, anonGate, inflightGate, anonPolicy, settle } from "./ai-guard.js";
+import { verifyIdToken } from "./entitlements/src/firebase-auth.js";
 export { RateLimiter } from "./rate-limit.js";
 
 const json = (obj, status, cors) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json", ...cors } });
@@ -35,6 +46,46 @@ async function perAccount(a, env, cors) {
   const r = await consume(env, "acct:u:" + a.uid, [{ name: "acct:min", limit: 30, windowMs: 60_000 }, { name: "acct:day", limit: 600, windowMs: 86_400_000 }]);
   return r.ok ? null : json({ error: "rate_limited", retryAfter: r.retryAfter }, 429, { ...cors, "Retry-After": String(r.retryAfter || 60) });
 }
+
+/* the cost-controlled path for one AI request (only reached when configured) */
+async function guarded(req, env, ctx) {
+  const cors = corsHeaders(req.headers.get("Origin") || "");
+  if (!cors["Access-Control-Allow-Origin"]) return base.fetch(req, env, ctx);      // the old code answers 403 itself
+  /* SAFETY NET: if classifying or counting faults (an odd body, a limiter error),
+     the request goes straight to the old code, unmeasured — report mode must never
+     be the reason a learner's request fails. Only this part is guarded: the old code
+     is called exactly once either way. */
+  let rc, e, refused;
+  try {
+    rc = newCtx(req); e = withCtx(env, rc);
+    rc.ip = req.headers.get("CF-Connecting-IP") || "0";
+    const ctype = req.headers.get("content-type") || "";
+    let raw = "";
+    if (ctype.startsWith("audio/")) {
+      rc.route = "transcribe";
+      rc.m = measure("transcribe", null, +(req.headers.get("content-length") || 0));
+    } else {
+      let body = null;
+      try { raw = await req.clone().text(); body = JSON.parse(raw); } catch (err) {}
+      if (!body || typeof body !== "object") return base.fetch(req, env, ctx);     // malformed: the old code's 400
+      rc.route = routeOf(ctype, body); rc.m = measure(rc.route, body, 0); rc.track = declaredTrack(body);
+    }
+    /* a refused request never reaches the old code, so it can never reach a provider */
+    refused = await anonGate(req, e, cors, { verify: verifyIdToken }, json)
+                 || (raw ? await inflightGate(req, e, cors, raw, json) : null);   // AI_DEDUPE=1 only
+  } catch (err) { return base.fetch(req, env, ctx); }
+  const res = refused || await base.fetch(req, env, ctx);
+  if (!refused && billable(rc.route)) {
+    const meta = ROUTES[rc.route] || {};
+    /* the old code's 5xx is opaque: a provider error (not billed) or a failure
+       after the provider answered (billed) — costed as possibly billed */
+    rc.calls.push({ provider: meta.provider, model: meta.model, status: res.status, billed: res.status < 400, maybeBilled: res.status >= 500, ms: Date.now() - rc.t0 });
+  }
+  const done = settle(e, res.status).catch(() => {});
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(done); else await done;
+  return res;
+}
+
 export default {
   async fetch(req, env, ctx) {
     if (req.method === "POST" && !new URL(req.url).search) {
@@ -46,6 +97,8 @@ export default {
         catch (e) { return json({ error: "wm_unavailable" }, 503, cors); }
       }
     }
-    return base.fetch(req, env, ctx);
+    /* dormant unless configured: exactly the old path */
+    if (req.method !== "POST" || (anonPolicy(env) === "off" && !env.AI_LEDGER)) return base.fetch(req, env, ctx);
+    return guarded(req, env, ctx);
   },
 };

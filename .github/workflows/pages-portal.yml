@@ -1,0 +1,48 @@
+# Publishes app.lomonec.com as the LOMON EC portal at / and BE Mastery at
+# /bemastery/ (docs/PORTAL.md). DORMANT until the owner switches it on:
+#   1. Settings → Pages → Source: "GitHub Actions"
+#      (or: gh api -X PUT repos/salomon1010/Business-English/pages -f build_type=workflow)
+#   2. Settings → Variables → Actions: PORTAL_PAGES = on
+# Until then the site keeps deploying from the main branch root as before, a
+# push skips this job, and only a manual run (workflow_dispatch) builds — the
+# deploy step of a manual run fails harmlessly while the source is still
+# "Deploy from a branch". Rollback: set the source back to the main branch.
+name: Pages (portal + /bemastery/)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || vars.PORTAL_PAGES == 'on'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Assemble the site
+        run: node scripts/portal/build-site.mjs _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

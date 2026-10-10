@@ -109,7 +109,8 @@ console.log("\n# the route is FREE — ytai is authenticated, never paid");
      with enforcement ON and the entitlement service reporting a FREE plan */
   const r402 = await ytai(await mint({ sub: "uid-free-402" }), { env: { ...ENV, PREMIUM_ENFORCED: "1", ENTITLEMENTS_URL: "https://ent.test" } });
   ok("9 · with enforcement ON and a Free plan, an authenticated ytai call is not refused for payment", r402.status !== 402, String(r402.status));
-  ok("9b · the only identity code is the shared verifier, used once", (code.match(/verifyIdToken/g) || []).length === 2, JSON.stringify((code.match(/verifyIdToken/g) || []).length)); }
+  /* import + ytaiAccount + the anonymous policy, which is handed the SAME verifier (ai-guard.js, 10 Oct 2026) */
+  ok("9b · the only identity code is the shared verifier (imported once, no copy)", (code.match(/verifyIdToken/g) || []).length === 3 && (code.match(/import \{ verifyIdToken \}/g) || []).length === 1 && !/async function verifyIdToken/.test(code), JSON.stringify((code.match(/verifyIdToken/g) || []).length)); }
 
 console.log("\n# the cache is BEHIND the gate, not in front of it");
 { const store = new Map();

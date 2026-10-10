@@ -3480,5 +3480,20 @@
  "wg.recs_h": "Recommandé pour vous",
  "wg.recs_none": "Pratiquez un peu — vos recommandations apparaîtront ici.",
  "wg.recs_more": "Plus",
- "mic.blocked_play": "⚠️ Le micro est désactivé pour BE Mastery. Appuyez longuement sur l'icône BE Mastery, touchez Paramètres du site › Micro › Autoriser, puis réessayez."
+ "mic.blocked_play": "⚠️ Le micro est désactivé pour BE Mastery. Appuyez longuement sur l'icône BE Mastery, touchez Paramètres du site › Micro › Autoriser, puis réessayez.",
+ "land.kicker": "BE Mastery par Lomonec",
+ "land.sub": "25 minutes concentrées par jour : écoutez, répétez, parlez, et recevez un retour sur ce que vous avez vraiment dit. Un programme de 12 semaines pour l'anglais professionnel.",
+ "land.create": "Créer un compte gratuit",
+ "land.signin": "Se connecter",
+ "land.why": "Sur le web, votre apprentissage est enregistré dans votre compte : il n'est jamais perdu quand le navigateur efface ses données, et il vous suit dans l'application BE Mastery.",
+ "land.tracks_h": "Deux programmes",
+ "land.plans_h": "Gratuit et Premium",
+ "land.free_only_h": "Gratuit",
+ "land.free_t": "Compte gratuit",
+ "land.free_b": "Le cours complet dans les deux programmes, avec votre progression enregistrée dans votre compte.",
+ "land.prem_t": "Premium",
+ "land.prem_b": "Plus de retours IA chaque jour, des bilans de progression sur 30 et 90 jours et des recommandations personnalisées. Premium s'achète dans l'application BE Mastery sur Google Play ; connectez-vous ici avec le même compte et il s'applique aussi ici.",
+ "land.play": "Télécharger l'application sur Google Play",
+ "land.more": "À propos de BE Mastery",
+ "land.privacy": "Confidentialité"
 }

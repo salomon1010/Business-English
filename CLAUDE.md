@@ -875,6 +875,30 @@ not JS, and `new Function` chokes on it. Check it separately with
   `WMEngine.make(EM)` = `EMEngine` (`WMEngine` itself unchanged). Server: `backend/wm-game.js`
   `prog: "general-english"` (account must be GE; own `em…` buckets, own 5 energy, own KV pack
   `ge-advanced-v1`, kept out of this public repo). Tests: `tests/english-mastery.mjs` (57).
+- **LOMON EC portal + /bemastery/ (10 Oct 2026, `staging`, NOT live) — `docs/PORTAL.md`,
+  `docs/ACCESS-MATRIX.md`.** `scripts/portal/build-site.mjs` assembles `_site/`: `portal/` at `/`,
+  the app at `/bemastery/` (the store bundles' file list; the repo layout does NOT move),
+  real root copies of `privacy.html` / `delete-account.html` (store-registered) /
+  `yt-embed.html` (shipped iOS relay) / `.well-known`, forwarding stubs for other old pages,
+  and `portal/root-sw.js` as `/sw.js` (retires the old root worker). The portal's head
+  forwards legacy launches (TWA `/`, standalone, `?wid/widget/nudge/flags`, `#view`, an
+  existing `be12_v1` learner) to `/bemastery/` with query + hash; `?portal=1` stays.
+  `.github/workflows/pages-portal.yml` is DORMANT until the owner sets Pages source → Actions
+  and `PORTAL_PAGES=on`. `APP_URL` follows `/bemastery/` on app.lomonec.com only. **Web
+  visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, OFF everywhere): plain
+  browser tab + no account + no local profile only — never the iOS/Play apps, an installed
+  PWA or an existing anonymous learner (owner); `webGateLift` after sign-in, back after
+  sign-out/deletion. Keys `land.*` (fr translated). Test: `tests/portal.mjs` (33).
+- **AI cost control (10 Oct 2026, `staging`, NOT deployed) — `docs/AI-COST-CONTROL.md`.**
+  `backend/ai-guard.js`, shared by `polish-worker.js` and `polish-prod/entry.js`: anonymous
+  policy `ANON_AI_POLICY` off (default) / report / enforce (verified-token check, per-IP
+  daily allowance per class + a global anonymous pool in estimated USD; 429
+  `{scope:"anon"}`); quota REFUNDS on any ≥400 (DO `release` in rate-limit.js); opt-in
+  `AI_DEDUPE=1` (409 duplicate_in_flight); `pfetch` = provider timeout + usage capture for
+  all 10 paid calls; ledger to Analytics Engine `AI_LEDGER` (no content; caller = HMAC under
+  `LEDGER_SALT`). Prod entry.js is dormant without config. Client: `aiAllowTap` /
+  `aiAnonOut` route a `scope:"anon"` refusal to the sign-in note. Tests:
+  `backend/test-ai-guard.mjs` (51), `tests/ai-anon-client.mjs` (7). PRICES are unverified.
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the

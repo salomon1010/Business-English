@@ -112,6 +112,20 @@ FIREBASE_PROJECT_ID = "be-mastery-test"
 # Welding Mastery (9 Oct 2026, wm-game.js): the learner's programme is read from
 # the account by the partner Worker's /programme — staging asks staging
 PARTNER_API = "https://be-partner-staging.nore-ngou.workers.dev"
+# AI cost control (10 Oct 2026, ai-guard.js, docs/AI-COST-CONTROL.md) — staging only.
+# One identical metered request in flight per caller (409 duplicate_in_flight).
+# ANON_AI_POLICY is not set here: with PREMIUM_ENFORCED on, staging already
+# demands an account, so the anonymous policy never runs on this environment.
+# LEDGER_SALT is a SECRET (wrangler secret put LEDGER_SALT --env staging); without
+# it the ledger records no caller id at all.
+AI_DEDUPE = "1"
+
+# The AI usage ledger (ai-guard.js ledger()): one row per billable request,
+# units + an ESTIMATED cost, no content. Analytics Engine is already enabled on
+# the account (be-events uses it).
+[[env.staging.analytics_engine_datasets]]
+binding = "AI_LEDGER"
+dataset = "be_ai_ledger_staging"
 
 # Welding Mastery's Premium pack (the advanced workshop scenarios). It lives in KV,
 # NOT in this repository: the repository is public and the site serves it, so a
