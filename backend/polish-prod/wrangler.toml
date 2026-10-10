@@ -8,10 +8,15 @@ workers_dev = true
 FIREBASE_PROJECT_ID = "be-mastery"
 ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
 PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
-# AI cost control, P1 (owner-approved 10 Oct 2026, docs/AI-COST-CONTROL.md §10):
-# REPORT-ONLY — visitors are counted and recorded, never refused. "enforce" is a
-# separate approval. LEDGER_SALT is a secret (wrangler secret put LEDGER_SALT).
-ANON_AI_POLICY = "report"
+# AI cost control (docs/AI-COST-CONTROL.md §10–12). P1 report-only 10 Oct 2026;
+# P2 ENFORCE the same afternoon (owner: "update everything, deploy"). A caller with no
+# verified account gets, per IP per UTC day, 40 transcriptions / 40 chats / 15 polish /
+# 150 voice clips / 3 AI verdicts, inside one $10/day pool for every visitor together;
+# past that, 429 {scope:"anon"} and the app shows its sign-in note. Signed-in learners,
+# Shadow's reading helpers, pasted-video transcription and the games are not held by it.
+# Rollback without code: ANON_AI_POLICY = "report" (or "off") and redeploy.
+# LEDGER_SALT is a secret (wrangler secret put LEDGER_SALT).
+ANON_AI_POLICY = "enforce"
 
 # the AI usage ledger: one row per billable request, units + an estimated cost, no content
 [[analytics_engine_datasets]]
