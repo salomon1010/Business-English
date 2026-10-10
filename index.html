@@ -22618,7 +22618,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v682";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v683";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24406,20 +24406,20 @@ const FLAGS_DEFAULT={
   shadow_apply_phrase_enabled:true,    // Apply It: the phrase goes to the AI coach (ppAiStart) and to partner requests — 26 Sep 2026, was off while the AI side read nothing
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
-  shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
-  welding_mastery_enabled:false,       // Welding Mastery game hub (Welding programme only, 9 Oct 2026): staging ON, production OFF until the owner releases it
-  english_mastery_enabled:false,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it
+  shadow_scenes_enabled:true,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it  [production ON, owner 10 Oct 2026]
+  welding_mastery_enabled:true,       // Welding Mastery game hub (Welding programme only, 9 Oct 2026): staging ON, production OFF until the owner releases it  [production ON, owner 10 Oct 2026]
+  english_mastery_enabled:true,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it  [production ON, owner 10 Oct 2026]
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   smart_coach_enabled:false,           // Smart Coach — the Smart Practice Planner in the Daily reminder sheet (both programmes, 10 Oct 2026): staging ON, production OFF (be-coach exists on staging only)
-  learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
+  learning_nudges_enabled:true,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it  [production ON, owner 10 Oct 2026]
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
-  ios_live_activity_enabled:false,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF
-  android_live_countdown_enabled:false,// the same countdown on Android: an ongoing notification the Play app posts from the widget feed (docs/ANDROID_LIVE_COUNTDOWN.md): staging ON, production OFF
+  ios_live_activity_enabled:true,     // the game streak countdown on the lock screen (iOS Live Activity, both game hubs, 10 Oct 2026): staging ON, production OFF  [production ON, owner 10 Oct 2026]
+  android_live_countdown_enabled:true,// the same countdown on Android: an ongoing notification the Play app posts from the widget feed (docs/ANDROID_LIVE_COUNTDOWN.md): staging ON, production OFF  [production ON, owner 10 Oct 2026]
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)

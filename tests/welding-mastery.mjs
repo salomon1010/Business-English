@@ -471,8 +471,9 @@ console.log("\n# Home, recommendations and the widget — the game is part of th
   await H.ctx.close();
   const G = await open("general-english");
   await G.p.evaluate(() => go("home")); await sleep(900);
-  const g = await G.p.evaluate(() => ({ tile: !!document.querySelector('.hx-dcard[data-dest="mastery"]'), hero: (_homeRecs || []).some(r => r.kind === "mastery"), row: (_homeRows || []).some(r => r.id === "games"), wm: widgetSnapshot().wm }));
-  ok("E10 · General English: no tile, no game recommendation, no games row, no widget block", !g.tile && !g.hero && !g.row && g.wm === undefined, JSON.stringify(g));
+  /* since 10 Oct 2026 General English has its OWN game hub (English Mastery) in these places: what must never show is Welding's */
+  const g = await G.p.evaluate(() => ({ tile: !!document.querySelector('.hx-dcard[data-dest="mastery"]'), hub: wmHub() === window.EMUI, wmOn: WMUI.on(), wm: widgetSnapshot().wm }));
+  ok("E10 · General English: no Welding tile, its games come from English Mastery (never Welding Mastery), no Welding widget block", !g.tile && g.hub && !g.wmOn && g.wm === undefined, JSON.stringify(g));
   await G.ctx.close();
 }
 
@@ -573,15 +574,16 @@ console.log("\n# isolation — General English sees and stores none of it");
   const G = await open("general-english");
   const { p } = G;
   await p.evaluate(() => { go("practice"); libGroup("vocabulary"); }); await sleep(600);
-  const v = await p.evaluate(() => ({ kb: (document.querySelector(".prac-kb-h") || {}).textContent, portal: !!document.querySelector(".wm-portal"), on: WMUI.on(), boosters: document.querySelectorAll(".prac-ex .prac-ex-card").length }));
+  const v = await p.evaluate(() => ({ kb: (document.querySelector(".prac-kb-h") || {}).textContent, portal: !!document.querySelector(".wm-portal:not(.em-portal)"), on: WMUI.on(), boosters: document.querySelectorAll(".prac-ex .prac-ex-card").length }));
   ok("I1 · General English keeps 'Knowledge Boosters', four boosters, no portal", v.kb !== "Quick Practice" && !v.portal && !v.on && v.boosters === 4, JSON.stringify(v));
   await p.evaluate(() => go("mastery")); await sleep(500);
   ok("I2 · the mastery route renders only a notice for a General English learner, never the hub", await p.evaluate(() => !document.querySelector(".wm-hub") && !!document.querySelector(".wm-off")));
   ok("I3 · no game can be started on General English", await p.evaluate(() => { WMUI._start("cards"); return !WMUI._game(); }));
   await p.evaluate(() => go("review")); await sleep(900);
-  ok("I4 · no Game Performance card on the General English Progress page", await p.evaluate(() => !document.querySelector(".wm-perf-card")));
-  ok("I5 · nothing is written to S.wm for a General English learner", (await state(p)) === null, JSON.stringify(await state(p)));
-  const fetched = await p.evaluate(() => performance.getEntriesByType("resource").some(r => /mastery\.json|mastery-art\.json/.test(r.name)));
+  ok("I4 · no Welding Game Performance card on the General English Progress page", await p.evaluate(() => !document.querySelector(".wm-perf-card:not(.em-perf-card)")));
+  /* English Mastery is on for General English since 10 Oct 2026 and keeps its OWN record (S.wm["general-english"]): what must never appear is Welding's */
+  ok("I5 · nothing of Welding Mastery is written for a General English learner", await p.evaluate(() => !(S.wm && S.wm.welding)), JSON.stringify(await state(p)));
+  const fetched = await p.evaluate(() => performance.getEntriesByType("resource").some(r => /tracks\/welding\/mastery(-art)?\.json/.test(r.name)));
   ok("I6 · the Welding corpus is never even downloaded on General English", !fetched);
   ok("I7 · no page errors on the General English run", G.errs.length === 0, G.errs.join(" | "));
   await G.ctx.close();
@@ -591,7 +593,7 @@ console.log("\n# isolation — General English sees and stores none of it");
   const { p } = W;
   await p.evaluate(() => { areaSwitch("general-english", "home"); }); await sleep(900);
   await p.evaluate(() => { go("practice"); libGroup("vocabulary"); }); await sleep(500);
-  ok("I8 · after switching to General English: no portal, and the Welding record is kept, not copied", await p.evaluate(() => !document.querySelector(".wm-portal") && !!S.wm.welding && Object.keys(S.wm).length === 1));
+  ok("I8 · after switching to General English: no portal, and the Welding record is kept, not copied", await p.evaluate(() => !WMUI.on() && !document.querySelector("#v-practice .wm-portal:not(.em-portal)") && !!S.wm.welding && Object.keys(S.wm).every(k => k === "welding" || k === "general-english")));
   await p.evaluate(() => { areaSwitch("welding", "home"); }); await sleep(900);
   await p.evaluate(() => { go("practice"); libGroup("vocabulary"); }); await sleep(500);
   ok("I9 · back on Welding: the portal shows the real progress (1 mastered, XP line present)", await p.evaluate(() => /1 of 250/.test(document.querySelector(".wm-portal-prog small").textContent) && !!document.querySelector(".wm-portal-stats")));

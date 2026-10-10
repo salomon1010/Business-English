@@ -1,0 +1,18 @@
+name = "be-polish"
+main = "entry.js"
+compatibility_date = "2026-07-31"
+compatibility_flags = ["global_fetch_strictly_public"]
+workers_dev = true
+
+[vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
+PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1-rate-limiter"
+new_sqlite_classes = ["RateLimiter"]

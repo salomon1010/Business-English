@@ -414,6 +414,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   Nothing is switched on: `ads_enabled` and `billing_enabled` stay OFF, and the
   production Worker is NOT deployed (`be-entitlements` is not a Worker on the
   account — only the empty D1 exists).
+- **RELEASED TO PRODUCTION 10 Oct 2026 (be12-v683, owner):** `english_mastery_enabled`,
+  `welding_mastery_enabled`, `shadow_scenes_enabled`, `learning_nudges_enabled`,
+  `ios_live_activity_enabled`, `android_live_countdown_enabled` are ON in FLAGS_DEFAULT —
+  wherever a bullet below says one of them is "production OFF", that is now history. The
+  games' server side in production is "games only, everyone Free":
+  - **be-entitlements production is DEPLOYED** with no store secrets (every account Free;
+    the store routes answer 501).
+  - **Production be-polish = its own 1 Oct code + only the game route**
+    (`backend/polish-prod/`, README there; rollback version id in it). Never `wrangler deploy`
+    `backend/` to production: that releases the metering, the YouTube trial and the tiers.
+  - `ENT_API` stays empty and ads / billing / Smart Coach stay OFF.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

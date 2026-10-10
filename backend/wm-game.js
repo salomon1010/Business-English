@@ -98,9 +98,11 @@ async function ticketOk(env, uid, sid, mode, ticket, now, prog) {
 /* ---- the programme, from the account ---- */
 const trackCache = new Map();               // uid -> { track, at }
 const TRACK_TTL = 10 * 60_000;
-async function programme(req, env, uid) {
+async function programme(req, env, uid, want) {
   const hit = uid && trackCache.get(uid);
-  if (hit && Date.now() - hit.at < TRACK_TTL) return { track: hit.track };
+  /* only a cached answer that MATCHES is trusted: a learner who has just switched
+     programme is asked about again at once, not refused for the cache's ten minutes */
+  if (hit && Date.now() - hit.at < TRACK_TTL && (!want || hit.track === want)) return { track: hit.track };
   if (!env.PARTNER_API) return { status: 503 };
   let r;
   try { r = await fetch(String(env.PARTNER_API).replace(/\/+$/, "") + "/programme", { headers: { authorization: req.headers.get("Authorization") || "" } }); }
@@ -162,7 +164,7 @@ export async function wmHandle(body, req, env, cors, deps) {
   if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
   if (!a.uid) return json({ error: "auth_required" }, 401, cors);
 
-  const t = await programme(req, env, a.uid);
+  const t = await programme(req, env, a.uid, P.track);
   if (t.status === 401) return json({ error: "auth_required" }, 401, cors);
   if (t.status === 503) return json({ error: "track_unavailable" }, 503, cors);
   /* the ACCOUNT's programme must be the one asked for — never the request's word for it */

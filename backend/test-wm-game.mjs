@@ -202,6 +202,9 @@ console.log("\n# English Mastery (General English) — same rules, its own progr
   ACCOUNTS[g].track = "welding"; NOW += 11 * 60_000;
   const cross = await wm("finish", { sid: id2, mode: "cards", ticket: q.j.ticket, n: 10, ok: 10 }, { uid: g }); tick();
   ok("G13 · an English Mastery ticket cannot finish a Welding round (the programme is signed into the ticket)", cross.status === 403 && cross.j.error === "ticket", JSON.stringify(cross));
+  /* found in production, 10 Oct 2026: a learner who has JUST switched is served at once, not refused for the cache's ten minutes */
+  ACCOUNTS[g].track = "general-english";
+  ok("G13b · a programme switch is recognised straight away (no waiting out the cache)", (await wm("status", G, { uid: g })).status === 200); tick();
   const gd = acct("ge-free-2", "free", "general-english");
   const d = await wm("start", { ...G, sid: sid(), mode: "daily" }, { uid: gd }); tick();
   const df = await wm("finish", { ...G, sid: d.j.sid, mode: "daily", ticket: d.j.ticket, n: 8, ok: 6 }, { uid: gd }); tick();
