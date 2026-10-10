@@ -888,7 +888,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, OFF everywhere): plain
   browser tab + no account + no local profile only — never the iOS/Play apps, an installed
   PWA or an existing anonymous learner (owner); `webGateLift` after sign-in, back after
-  sign-out/deletion. Keys `land.*` (fr translated). Test: `tests/portal.mjs` (32).
+  sign-out/deletion. Keys `land.*` (fr translated). Test: `tests/portal.mjs` (33).
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the

@@ -114,7 +114,7 @@ before its address answers.
 
 ## 7. Tests
 
-`cd tests && node portal.mjs` (32 checks) builds the site into a temporary
+`cd tests && node portal.mjs` (33 checks) builds the site into a temporary
 folder, serves it and checks the portal, the forwarder and its open-redirect
 guard, the legacy addresses, every app-shell file under `/bemastery/`, both
 service workers, and the visitor landing on every platform rule.

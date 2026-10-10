@@ -164,6 +164,14 @@ try {
       FBUser = null; return out;
     });
     ok("Signed in as a NEW account: the landing gives way to the usual questions, name filled in", !lift.gate && lift.ob && lift.name === "Ada", JSON.stringify(lift));
+    /* Welding must match General English: the same new web account can choose Welding and land in it */
+    const weld = await page.evaluate(async () => {
+      OB.name = "Ada"; obTrackPick("welding"); OB.trade = OB.trade || ""; obFinish();
+      await new Promise(r => setTimeout(r, 500)); try { wcClose(); } catch (e) {}
+      await new Promise(r => setTimeout(r, 400));
+      return { area: areaId(), gate: !!document.getElementById("webGate"), ob: !!document.getElementById("obWrap"), profile: !!S.profile, ge: isGeneralEnglish() };
+    });
+    ok("…and that new account can choose Welding and lands in the Welding programme (no General English area)", weld.area === "welding" && !weld.ge && weld.profile && !weld.gate && !weld.ob, JSON.stringify(weld));
     const back = await page.evaluate(() => { document.getElementById("obWrap")?.remove(); fbWipeDevice(); const on = webGateOn(); if (on) webGateRender(); return on && !!document.getElementById("webGate"); });
     ok("After sign-out / account deletion wipes the device, the visitor is back on the landing", back);
     await ctx.close();
