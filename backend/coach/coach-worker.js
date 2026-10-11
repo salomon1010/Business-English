@@ -33,7 +33,7 @@ import "../../smart-coach-engine.js";
 export { CoachStore } from "./coach-store.js";
 const E = globalThis.SmartCoachEngine;
 
-const ORIGINS = ["https://staging.lomonec.com", "capacitor://localhost", "https://localhost",
+const ORIGINS = ["https://app.lomonec.com", "https://staging.lomonec.com", "capacitor://localhost", "https://localhost",
   "http://localhost:8000", "http://127.0.0.1:8000"];
 const PREMIUM_OPS = new Set(["approve", "reschedule", "resume", "restart", "complete"]);
 const OPS = new Set(["status", "approve", "reschedule", "pause", "resume", "cancel", "restart", "complete", "mark"]);

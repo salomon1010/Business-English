@@ -1,6 +1,7 @@
 # be-coach — the Smart Coach's server (Smart Practice Planner, 10 Oct 2026).
-# STAGING ONLY. There is deliberately no production deployment: production has no
-# be-entitlements Worker, and the route answers 503 coach_unavailable without one.
+# PRODUCTION since 10 Oct 2026 (launch Phase B, first version 9c8da359): top level = be-coach,
+# bound to production be-entitlements, be-partner and be-polish's RateLimiter. The app reaches it
+# only once smart_coach_enabled is on. Staging = [env.staging].
 #
 # Deploy staging from this folder:
 #     npx wrangler deploy --env staging
@@ -15,12 +16,19 @@ compatibility_date = "2026-09-01"
 compatibility_flags = ["global_fetch_strictly_public"]
 
 [vars]
-ENTITLEMENTS_URL = ""
-PARTNER_API = ""
+# PRODUCTION (10 Oct 2026, launch Phase B): the production entitlement and partner Workers.
+ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
+PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 
 [[durable_objects.bindings]]
 name = "COACH"
 class_name = "CoachStore"
+
+# game rounds are confirmed against production be-polish's RateLimiter (wm-game.js writes them)
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+script_name = "be-polish"
 
 [[migrations]]
 tag = "v1-coach-store"
