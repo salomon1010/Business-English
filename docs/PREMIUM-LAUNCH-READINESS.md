@@ -2,9 +2,8 @@
 
 Status (10 Oct 2026, late): **Phases A (code) and B DONE; Phase C prepared, NOT switched on**
 — it waits for the owner's sandbox purchases (§9). Owner instruction: "fix A, B and C".
-Read-only audit of `staging` (HEAD after `a98aa589`), the live Workers and both store
-consoles. Nothing was enabled, deployed, submitted or purchased. No credential or payment
-value is recorded here.
+§1–8 are the ORIGINAL read-only audit (before any change; "today" there means before
+Phase A). §9 records what has been done since. No credential or payment value is recorded here.
 
 ## 1. What exists
 
