@@ -38,7 +38,9 @@ be-auth hands an answer whose state starts with `bea.` back through `bemastery:/
 (303, never the code) instead of forwarding it; the app returns idToken + raw nonce.
 be-auth production 2c3f16e6 (rollback `wrangler rollback d8b9896a-2e00-4e20-8464-bc90b8892716`).
 Production builds only: a staging build would need the test project's Services ID and
-auth-staging.lomonec.com.
+auth-staging.lomonec.com. Since 11 Oct 2026 a staging build (`-PbeStaging=true`,
+`BuildConfig.BE_STAGING`) answers `available()` with `apple:false, google:false`, so its
+sign-in sheet shows e-mail only instead of two buttons that can only fail.
 
 **Still to build:** native Google sign-in (7), the widget port (7), device tests and
 the staged release (8).

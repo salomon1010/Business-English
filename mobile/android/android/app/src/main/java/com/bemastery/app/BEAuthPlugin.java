@@ -64,11 +64,16 @@ public class BEAuthPlugin extends Plugin {
         catch (Exception e) { return ""; }
     }
 
+    /* A staging build (be-mastery-test) answers no to both, so the sheet shows e-mail only
+       instead of two buttons that can only fail: Google needs be-mastery-test's "Safelist
+       client IDs from external projects" step, and Apple would need the test project's own
+       Services ID and auth-staging.lomonec.com (docs/ANDROID_NATIVE_SHELL_PLAN.md). */
     @PluginMethod
     public void available(PluginCall call) {
+        boolean staging = BuildConfig.BE_STAGING;
         JSObject r = new JSObject();
-        r.put("apple", !appleServicesId().isEmpty());
-        r.put("google", !webClientId().isEmpty());
+        r.put("apple", !staging && !appleServicesId().isEmpty());
+        r.put("google", !staging && !webClientId().isEmpty());
         call.resolve(r);
     }
 
