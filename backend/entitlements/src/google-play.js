@@ -90,6 +90,10 @@ export function toRecord(sub, nowMs) {
     source: "google_play", updated_at: nowMs,
     acknowledged: sub.acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
     linked: sub.linkedPurchaseToken || null, test: !!sub.testPurchase,
+    /* the account the app named at purchase time (BillingFlowParams.setObfuscatedAccountId
+       = our appAccountToken, the same HMAC(uid) StoreKit carries) — absent on older purchases */
+    accountId: (sub.externalAccountIdentifiers && sub.externalAccountIdentifiers.obfuscatedExternalAccountId)
+      ? String(sub.externalAccountIdentifiers.obfuscatedExternalAccountId).toLowerCase() : null,
   };
 }
 

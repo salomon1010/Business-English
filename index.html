@@ -25824,9 +25824,13 @@ const BillingProviders={
     },
     async purchase(id){
       if(this._native){
-        let r;try{r=await this._native.purchase({id})}catch(e){return {error:String(e&&e.message||e)}}
+        /* the server's account token rides on the purchase (obfuscatedAccountId), so the
+           server binds it to THIS account only — the same token StoreKit carries. Without
+           it (server unreachable) the purchase still goes through: first bind wins. */
+        let acct="";try{acct=((await billingApi("GET","/v1/purchases/account-token"))||{}).appAccountToken||""}catch(e){}
+        let r;try{r=await this._native.purchase({id,accountId:acct})}catch(e){return {error:String(e&&e.message||e)}}
         if(!r||r.cancelled)return {cancelled:true};
-        if(!r.purchaseToken)return r.owned?{error:"already_owned"}:{error:r.error||"billing_failed"};
+        if(!r.purchaseToken)return r.owned?{owned:true}:{error:r.error||"billing_failed"};
         /* nothing to complete on the device: our server verifies and acknowledges */
         return {evidence:{provider:"google_play",productId:r.productId||id,purchaseToken:r.purchaseToken},finish:()=>{}};
       }
@@ -25842,6 +25846,17 @@ const BillingProviders={
       const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
     /* what this device owns, with no prompt — Play's listPurchases / queryPurchases are silent */
     async owned(){return this.restore()},
+    /* a purchase the plugin reports outside a purchase call (a pending payment that
+       cleared, one finished in the background) goes to the server like a Restore */
+    _listening:false,
+    listen(){
+      if(this._listening||!this._native||typeof this._native.addListener!=="function")return;this._listening=true;
+      try{this._native.addListener("purchase",async x=>{
+        if(!x||!x.purchaseToken||!FBUser)return;
+        try{const j=await billingApi("POST","/v1/purchases/restore",{provider:"google_play",items:[{purchaseToken:x.purchaseToken,productId:x.productId}]});
+          billingTakeView(j.view);if(x.productId)Billing.ownedIds=[x.productId].concat(Billing.ownedIds||[]).filter((v,i,a)=>a.indexOf(v)===i);Billing._draw()}catch(e){}   /* offline: the next launch's reconcile sends it */
+      })}catch(e){}
+    },
     manage(product){if(this._native){try{this._native.manage({product:product||""})}catch(e){}return}window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
   },
   storekit:{
@@ -26033,6 +26048,7 @@ const Billing={
     let r;try{r=await this.provider.purchase(id)}catch(e){r={error:e}}
     if(!r||r.cancelled){track("purchase_failed",{...ev,reason:"cancelled"});this.state="ready";this._draw();return}
     if(r.pending){track("purchase_pending",ev);this.state="ready";this.note=t("acc.prem_payment_pending");this._draw();return}   /* Ask to Buy: the approval arrives through the store's updates */
+    if(r.owned){this.state="ready";return this.restore()}   /* Play: this Google account already has it — bring it back instead of saying "failed" */
     if(r.error){track("purchase_failed",{...ev,reason:"store"});this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);

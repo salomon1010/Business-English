@@ -33,7 +33,8 @@ const fail = (status, why) => ({ ok: false, status, why });
 const google_play = {
   id: "google_play",
   configured: env => gp.configured(env),
-  async verifyPurchase(ev, { env, deps, now }) {
+  async verifyPurchase(ev, ctx) {
+    const { env, deps, now } = ctx;
     const token = String((ev && ev.purchaseToken) || "");
     if (!TOKEN_RE.test(token)) return fail(400, "token");
     let sub; try { sub = await gp.getSubscription(env, token, deps); } catch (e) { return fail(502, e.code || "google"); }
@@ -41,11 +42,18 @@ const google_play = {
     const rec = gp.toRecord(sub, now);
     if (!rec) return fail(422, "not_our_product");
     if (ev.productId && ev.productId !== rec.product) return fail(422, "product_mismatch");
+    /* a purchase that names an account (the Android app passes our appAccountToken as
+       obfuscatedAccountId, 10 Oct 2026) may only be bound to THAT account — as on Apple.
+       One that names none (bought before this, or by the TWA) keeps "first bind wins". */
+    if (rec.accountId && ctx.uid && env.APP_ACCOUNT_SECRET && rec.accountId !== (await as.appAccountToken(ctx.uid, env)).toLowerCase()) return fail(403, "account_mismatch");
     const link = { provider: "google_play", ext_id: await sha256Hex(enc.encode(token)), secret_ref: token,
       record: { plan: rec.plan, product: rec.product, status: rec.status, starts_at: rec.starts_at, expires_at: rec.expires_at,
         will_renew: sub.subscriptionState === "SUBSCRIPTION_STATE_CANCELED" ? 0 : (rec.status === "active" || rec.status === "grace" ? 1 : null),
         source: "google_play", updated_at: now },
-      needsAck: !rec.acknowledged, productId: rec.product };
+      needsAck: !rec.acknowledged, productId: rec.product,
+      /* lets a notification bind a purchase no account has claimed yet — and acknowledge it
+         before Play's 3-day refund, without waiting for the app's next launch */
+      ...(rec.accountId ? { bindByAccountToken: rec.accountId } : {}) };
     if (rec.linked) link.supersedes = await sha256Hex(enc.encode(rec.linked));   /* an upgrade / resubscribe replaces the old token */
     return { ok: true, links: [link] };
   },

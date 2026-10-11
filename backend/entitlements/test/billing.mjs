@@ -468,6 +468,28 @@ console.log("\n# Phase 11 — a purchase paid with a slow method (Play 'pending'
   ok("PP3 · the pending payment is cancelled: still Free, never acknowledged, token erased", !(await view("pec")).paid && G.subs.get(tok(71)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_PENDING" && env.DB.raw.prepare("SELECT secret_ref FROM purchase_links WHERE uid='pec'").get().secret_ref === null);
 }
 
+console.log("\n# 10 Oct 2026 — the Android app names the account (obfuscatedAccountId); a Play refund sticks");
+{
+  clock += 120_000;
+  const mine = await aToken("acct-a"), ext = { externalAccountIdentifiers: { obfuscatedExternalAccountId: mine } };
+  G.subs.set(tok(80), gsub(ext));
+  let r = await gverify("acct-b", tok(80));
+  ok("AB1 · a purchase that names account A is refused for account B (403 account_mismatch) and grants B nothing", r.status === 403 && r.json.error === "account_mismatch" && !(await view("acct-b")).paid, JSON.stringify(r.json));
+  r = await gverify("acct-a", tok(80));
+  ok("AB2 · …and bound to account A, whose token it carries", r.status === 200 && (await view("acct-a")).paid, JSON.stringify(r.json));
+  G.subs.set(tok(81), gsub({ externalAccountIdentifiers: { obfuscatedExternalAccountId: await aToken("acct-c") }, acknowledgementState: "ACKNOWLEDGEMENT_STATE_PENDING" }));
+  await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 4, purchaseToken: tok(81), subscriptionId: "premium_monthly" } }, "m-ab3");
+  ok("AB3 · a notification for a purchase the app never reported binds it to the named account and acknowledges it (no 3-day refund)", (await view("acct-c")).paid && G.acks.includes(tok(81)));
+  G.subs.set(tok(82), gsub());
+  r = await gverify("acct-d", tok(82));
+  ok("AB4 · a purchase that names no account (older / TWA) still binds as before: first bind wins", r.status === 200 && (await view("acct-d")).paid);
+  await rtdn({ voidedPurchaseNotification: { purchaseToken: tok(80), orderId: "GPA.80", productType: 1, refundType: 1 } }, "m-ab5");
+  const afterVoid = (await view("acct-a")).paid;
+  r = await gverify("acct-a", tok(80));              /* Google still reports the token ACTIVE (a refund without revocation) */
+  await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 2, purchaseToken: tok(80), subscriptionId: "premium_monthly" } }, "m-ab5b");
+  ok("AB5 · a Play refund sticks: neither a later verify nor a notification on the same token hands Premium back", afterVoid === false && !(await view("acct-a")).paid, JSON.stringify(await view("acct-a")));
+}
+
 rmSync(dir, { recursive: true, force: true });
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

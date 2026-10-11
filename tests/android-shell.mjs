@@ -22,7 +22,8 @@ async function open({ area = "general-english", platform = "android" } = {}) {
       products: async () => ({ products: [
         { id: "premium_monthly", title: "Monthly", price: "$2.99", amount: 2.99, currency: "USD", period: "P1M", trial: "P3D" },
         { id: "premium_annual", title: "Annual", price: "$19.99", amount: 19.99, currency: "USD", period: "P1Y", trial: "P3D" }] }),
-      purchase: async ({ id }) => (window.__buy || (() => ({ productId: id, purchaseToken: "tok-" + id })))(id),
+      purchase: async (args) => { window.__buyArgs = args; const id = args.id; return (window.__buy || (() => ({ productId: id, purchaseToken: "tok-" + id })))(id); },
+      addListener: (name, cb) => { (window.__pl = window.__pl || {})[name] = cb; return { remove() {} }; },
       owned: async () => ({ items: [{ productId: "premium_annual", purchaseToken: "tok-owned", acknowledged: true, pending: false }, { productId: "someone_elses_sku", purchaseToken: "x" }] }),
       manage: async (o) => { window.__managed = o; },
     };
@@ -69,21 +70,27 @@ console.log("\n# Play Billing goes through the native plugin, with the evidence 
 { const { p, ctx, errs } = await open();
   const r = await p.evaluate(async () => {
     const P = BillingProviders.play;
+    const api = []; billingApi = async (m, path, body) => { api.push({ m, path, body }); if (path === "/v1/purchases/account-token") return { appAccountToken: "0b6f3c2a-1d4e-4f5a-8b9c-0d1e2f3a4b5c" }; return { view: null, results: [] }; };
     const out = { available: await P.available(), native: !!P._native, digitalGoods: !!P._svc };
     out.products = await P.products();
-    const buy = await P.purchase("premium_annual"); out.evidence = buy.evidence; out.finishIsFn = typeof buy.finish === "function";
+    const buy = await P.purchase("premium_annual"); out.evidence = buy.evidence; out.finishIsFn = typeof buy.finish === "function"; out.buyArgs = window.__buyArgs;
     window.__buy = () => ({ cancelled: true }); out.cancel = await P.purchase("premium_monthly");
     window.__buy = () => ({ owned: true }); out.owned = await P.purchase("premium_monthly");
     out.restore = await P.restore();
     P.manage("premium_annual"); out.managed = window.__managed;
+    FBUser = { uid: "u1" }; P._listening = false; P.listen();
+    await window.__pl.purchase({ productId: "premium_monthly", purchaseToken: "tok-later" }); await new Promise(r => setTimeout(r, 50));
+    out.bg = api.filter(x => x.path === "/v1/purchases/restore").map(x => x.body);
     return out;
   });
   ok("11 · available() takes the native plugin, not Chrome's Digital Goods API", r.available && r.native && !r.digitalGoods, JSON.stringify(r));
   ok("12 · products are Play's own (price, period, 3-day trial) — never a number from the code", r.products.length === 2 && r.products[1].price === "$19.99" && r.products[1].period === "P1Y" && r.products[0].trial === "P3D", JSON.stringify(r.products));
   ok("13 · a purchase hands the server {provider:'google_play', productId, purchaseToken}", r.evidence && r.evidence.provider === "google_play" && r.evidence.productId === "premium_annual" && r.evidence.purchaseToken === "tok-premium_annual" && r.finishIsFn, JSON.stringify(r.evidence));
-  ok("14 · a cancelled sheet is a cancel, an owned plan is an error, not a purchase", r.cancel.cancelled === true && !r.cancel.evidence && r.owned.error === "already_owned", JSON.stringify([r.cancel, r.owned]));
+  ok("14 · a cancelled sheet is a cancel; an owned plan is reported as owned (Billing then restores it), not a purchase", r.cancel.cancelled === true && !r.cancel.evidence && r.owned.owned === true, JSON.stringify([r.cancel, r.owned]));
   ok("15 · restore lists only our two products, silently", r.restore.length === 1 && r.restore[0].productId === "premium_annual" && r.restore[0].purchaseToken === "tok-owned", JSON.stringify(r.restore));
   ok("16 · Manage opens Play's page through the plugin, for that plan", r.managed && r.managed.product === "premium_annual", JSON.stringify(r.managed));
+  ok("16b · the purchase carries the server's account token (obfuscatedAccountId), never the uid", r.buyArgs && r.buyArgs.accountId === "0b6f3c2a-1d4e-4f5a-8b9c-0d1e2f3a4b5c", JSON.stringify(r.buyArgs));
+  ok("16c · a purchase Play reports outside a purchase call (a pending payment that cleared) goes to the server at once", r.bg.length === 1 && r.bg[0].provider === "google_play" && r.bg[0].items[0].purchaseToken === "tok-later", JSON.stringify(r.bg));
   ok("17 · no JavaScript errors", errs.length === 0, errs.join(" | "));
   await ctx.close(); }
 { const { p, ctx } = await open({ platform: "ios" });

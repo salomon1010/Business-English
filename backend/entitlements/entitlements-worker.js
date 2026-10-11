@@ -101,7 +101,11 @@ async function bindLink(env, uid, l) {
   const sealed = ENDED.includes(r.status) ? null : await seal(l.secret_ref, env, l.provider + ":" + l.ext_id);
   const res = await q(env, `INSERT INTO purchase_links(provider,ext_id,uid,plan,product,source,status,starts_at,expires_at,will_renew,secret_ref,updated_at)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
-      ON CONFLICT(provider,ext_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, source=excluded.source, status=excluded.status,
+      ON CONFLICT(provider,ext_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, source=excluded.source,
+        /* a Play refund sticks to its purchase: a later verify or notification must not hand
+           Premium back on the same token (a resubscription always gets a NEW token).
+           Apple is left alone: REFUND_REVERSED legitimately restores it. */
+        status=CASE WHEN purchase_links.status='revoked' AND excluded.provider='google_play' THEN 'revoked' ELSE excluded.status END,
         starts_at=excluded.starts_at, expires_at=excluded.expires_at, will_renew=excluded.will_renew,
         secret_ref=CASE WHEN excluded.status IN ('expired','revoked') THEN NULL ELSE COALESCE(excluded.secret_ref, purchase_links.secret_ref) END,
         updated_at=excluded.updated_at
@@ -290,7 +294,7 @@ export async function handle(req, env, deps = {}) {
       for (const u of n.updates) {
         const row = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", u.provider, u.ext_id).first();
         let uid = row && row.uid;
-        if (!uid && u.bindByAccountToken) {                       /* first sight of an Apple purchase: the appAccountToken names its account */
+        if (!uid && u.bindByAccountToken) {                       /* first sight of an Apple or Play purchase: the account token names its account */
           const a = await q(env, "SELECT uid FROM app_accounts WHERE token=?", String(u.bindByAccountToken).toLowerCase()).first();
           uid = a && a.uid;
         }

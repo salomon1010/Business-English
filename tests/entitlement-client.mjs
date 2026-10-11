@@ -162,7 +162,9 @@ console.log("\n# track isolation");
   const { ctx, p, set } = await page("welding");
   await signIn(p); set({ status: 200, body: PREMIUM }); await p.evaluate(() => entRefresh());
   const w = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null }));
-  ok("40 · Welding + Premium: Premium applies, but General-English-only features stay off (Practice Partner, Shadow V2)", w.prem && !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
+  /* Shadow V2 is no longer General English only: Welding has the same studio (owner rule,
+     8 Oct 2026: "Welding must match General English"). Practice Partner stays GE only. */
+  ok("40 · Welding + Premium: Premium applies; Practice Partner stays General English only, and Welding has the same Shadow studio", w.prem && !w.ge && !w.pp && w.sv === true, JSON.stringify(w));
   await p.evaluate(() => areaSwitch("general-english", "home")); await sleep(300);
   const g = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), pp: ppAvailable() }));
   ok("41 · the same account in General English: same plan, Practice Partner as before", g.prem && g.pp === true, JSON.stringify(g));
