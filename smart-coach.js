@@ -212,7 +212,8 @@
   function api() {
     try { const o = localStorage.getItem("be_coach_api"); if (o && /^https?:\/\//.test(o)) return o.replace(/\/+$/, ""); } catch (e) {}
     try { const e = window.beEnv && beEnv(); if (e && e.coach) return e.coach; } catch (e) {}
-    return "";
+    /* production (be-coach, deployed 10 Oct 2026): reached only once smart_coach_enabled is on */
+    return "https://be-coach.nore-ngou.workers.dev";
   }
   function signedIn() { try { return typeof FBUser !== "undefined" && !!FBUser; } catch (e) { return false; } }
   function premiumShown() { try { return planOn() ? entIsPremiumForDisplay() : false; } catch (e) { return false; } }

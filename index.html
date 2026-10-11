@@ -24691,6 +24691,10 @@ const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$|shadow_sc
    synced to Firestore and a cloud merge can never "restore" a plan.
    Not deployed: ENT_API is empty, so everyone is FREE and no request is made. */
 const ENT_API="";
+/* The PRODUCTION entitlement service (launch Phase B, 10 Oct 2026: deployed with its store
+   secrets). Phase C sets ENT_API to it in the SAME release that turns billing_enabled on —
+   two keys on purpose: either one alone gates nothing (tests/premium-boundary.mjs 9). */
+const ENT_API_PROD="https://entitlements.lomonec.com";
 const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
 /* The capability names Premium can grant. It matches CAPABILITIES in
    backend/entitlements/src/entitlement-core.js exactly; hasEntitlement()

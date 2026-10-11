@@ -1,6 +1,7 @@
 # Premium + Smart Coach — launch readiness (10 Oct 2026)
 
-Status: **READY FOR REVIEW — DO NOT MERGE OR DEPLOY TO PRODUCTION.**
+Status (10 Oct 2026, late): **Phases A (code) and B DONE; Phase C prepared, NOT switched on**
+— it waits for the owner's sandbox purchases (§9). Owner instruction: "fix A, B and C".
 Read-only audit of `staging` (HEAD after `a98aa589`), the live Workers and both store
 consoles. Nothing was enabled, deployed, submitted or purchased. No credential or payment
 value is recorded here.
@@ -138,3 +139,46 @@ Notifications V2 delivery, a device purchase.
 `staging`, then build a staging Android bundle (vc 17) for internal testing so licence
 testers can make Play test purchases against be-entitlements-staging. No production
 Worker, configuration, price or flag changes.
+
+## 9. Progress (10 Oct 2026, late)
+
+**Done**
+- A1 (`99ab6498`): Play purchases carry `obfuscatedAccountId` = the server's account token and
+  are bound to that account only (403 `account_mismatch` otherwise); notifications bind and
+  acknowledge unclaimed purchases; a Play refund sticks; out-of-call purchase updates reach the
+  server; already-owned → Restore. Stale tests fixed. Staging be-entitlements redeployed
+  (57563168, rollback 79eb8def).
+- Play store config: `premium_monthly` now US$2.99 (Google's 174 regional equivalents,
+  regions version 2026/01); `premium_annual` gained offer `trial3d` (3 days free, ACTIVE).
+  Both stores now match docs/TIERS.md.
+- A2: Android vc 17 (STAGING bundle) on internal testing for test purchases.
+- B: be-entitlements production on `entitlements.lomonec.com` with all four secrets
+  (2574ea70, rollback 64d2f849; recovery copies `~/.config/be-mastery/secrets/`, 600);
+  RTDN push subscription `be-mastery-play-rtdn-push-prod`; App Store Server Notifications V2:
+  production → entitlements.lomonec.com, sandbox → entitlements-staging.lomonec.com.
+- B: be-coach production deployed (9c8da359), `app.lomonec.com` allowed.
+- B9a: production be-polish = the full `polish-worker.js` with `PREMIUM_ENFORCED="0"`
+  (f6429592; rollback 8051b272 = the 1 Oct wrapper). No learner-visible change.
+- C prep: `ENT_API_PROD` and the production coach URL are in the client, unused until the
+  flags are on.
+
+**Waiting for the owner (cannot be done from here)**
+1. Play Console → Settings → License testing → add the testers' Gmail.
+2. On the vc 17 staging build (sign in by e-mail with a test account): buy monthly (trial),
+   cancel, buy annual, a slow payment, a refund in Play Console (Order management), Restore on
+   a second phone. Note anything that looks wrong.
+3. iPhone: TestFlight staging build + a sandbox Apple ID — the same list.
+4. Confirm Play Console → Monetisation setup → Real-time developer notifications names the
+   topic `projects/be-mastery/topics/be-mastery-play-rtdn` (production now listens on it).
+5. Rotate the Sign in with Apple key (§5.14).
+
+**Phase C switch-on runbook (after 2–3 pass; ~30 min)**
+1. `index.html`: `ENT_API = ENT_API_PROD`; FLAGS_DEFAULT `billing_enabled:true`,
+   `smart_coach_enabled:true`; bump `sw.js` + `APP_VERSION`; run `npm test` + `test:premium`.
+2. `backend/wrangler.toml` top level: `PREMIUM_ENFORCED = "1"`; `npx wrangler deploy --env ""`
+   in `backend/` — record the version; verify a Free account gets `X-BE-Allowance`.
+3. Merge `staging` → `main` (web goes live; Pages workflow), poll `/bemastery/sw.js`.
+4. Production Android build (vc ≥ 18, `scripts/release.sh`) → internal → production staged
+   rollout 10 % → 50 % → 100 %; iOS build with the subscriptions submitted for review.
+5. Update privacy.html §5b/§7b and the store data forms before step 3.
+**Rollback C:** flags off + cache bump (web), `PREMIUM_ENFORCED="0"` redeploy (one command).
