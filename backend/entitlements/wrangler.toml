@@ -14,6 +14,9 @@
 name = "be-entitlements"
 main = "entitlements-worker.js"
 compatibility_date = "2026-09-01"
+# the production custom domain (RTDN must reach it; the app uses it too). workers.dev stays on.
+routes = [{ pattern = "entitlements.lomonec.com", custom_domain = true }]
+workers_dev = true
 
 [vars]
 FIREBASE_PROJECT_ID = "be-mastery"
@@ -27,14 +30,13 @@ APPLE_ENVIRONMENTS = "Production,Sandbox"
 # SHA-256 of Apple Root CA - G3 (public). Pinned so a JWS chain must end in
 # Apple's own root. Same value as staging, by design: it is Apple's root.
 APPLE_ROOT_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179"
-# Google Play. PLAY_PACKAGE is the production listing; the two RTDN values are
-# NOT set, because the production push subscription and the production custom
-# domain do not exist yet. google-play.js answers 501 while GOOGLE_SA_JSON is
-# unset and throws rtdn_not_configured on a notification, which is the honest
-# behaviour: no half-verified purchase is ever accepted.
+# Google Play. PLAY_PACKAGE is the production listing.
 PLAY_PACKAGE = "com.bemastery.app"
-# RTDN_AUDIENCE  = "https://entitlements.lomonec.com/v1/billing/google_play"  (owner)
-# RTDN_SA_EMAIL  = the production push subscription's service account         (owner)
+# RTDN (10 Oct 2026): the topic Play Console names (be-mastery-play-rtdn) has a SECOND push
+# subscription, be-mastery-play-rtdn-push-prod, to THIS Worker's custom domain (Pub/Sub pushes
+# to workers.dev never reach a Worker — see the staging note). Audience blank → aud = endpoint.
+RTDN_AUDIENCE = "https://entitlements.lomonec.com/v1/billing/google_play"
+RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
 
 # Observability OFF, explicitly: Workers traces record outbound fetch URLs,
 # and the Google Play API URL carries the purchase token (Phase 10/11 review).
