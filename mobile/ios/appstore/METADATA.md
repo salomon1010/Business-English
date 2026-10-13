@@ -72,7 +72,7 @@ Privacy policy: https://app.lomonec.com/privacy.html
 
 BE MASTERY PREMIUM
 The 12-week programme, the daily sessions, the Shadowing Studio library, recording, playback and your own self-evaluation are free, on both tracks. With a free account you also get cloud sync, Practice Partner in full and three AI verdicts a day.
-Premium adds more of the AI on top of that practice: up to 120 AI verdicts a day (speaking reports, pronunciation assessments and AI coach replies) and up to 240 minutes a day of your own YouTube videos transcribed, within fair use; 30- and 90-day analytics and your long-term record; personalised recommendations; more room for the videos, clips and reports you keep; and no ads.
+Premium adds more of the AI on top of that practice: up to 120 AI verdicts a day (speaking reports, pronunciation assessments and AI coach replies) and up to 60 minutes a day of your own YouTube videos transcribed, within fair use; 30- and 90-day analytics and your long-term record; personalised recommendations; more room for the videos, clips and reports you keep; and no ads.
 One subscription covers both General English and Welding English. US$19.99 per year or US$2.99 per month; it renews unless you cancel at least 24 hours before the period ends, and you can cancel any time in your App Store settings.
 Terms of Use (Apple standard EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Privacy policy: https://app.lomonec.com/privacy.html

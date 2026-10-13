@@ -132,9 +132,26 @@ create — so this is an owner action, not an automatable one.
 - **Step 5** (configuration): revert the three lists to single-valued and
   redeploy. Welding purchases are then refused with `app_unmapped`; General
   English is untouched. No data change.
-- **Step 3** (Worker): redeploy the previous version. Safe while 0005 is
-  applied, because the DEFAULT lets pre-split code keep writing — that is the
-  whole point of it.
+- **Step 3** (Worker): redeploy the previous version — but **only after step 5
+  has been rolled back first**. The order is not interchangeable, and getting it
+  wrong is the one way this change can leak Premium across the two apps:
+
+  > **THE FAILURE PATH.** The pre-split Worker has no app dimension at all — it
+  > derives one entitlement row per account, not per (account, app). If it is
+  > running while `APPLE_BUNDLE_ID` / `PLAY_PACKAGE` still name both apps, it
+  > will accept a Welding transaction (the bundle id is on the allow-list) and
+  > write it as that account's single entitlement — and General English will
+  > then read Premium from a Welding purchase. This is precisely why a bundle-id
+  > allow-list is not sufficient on its own: the allow-list decides *whether* to
+  > accept, and only the app scoping decides *what it grants*.
+  >
+  > So: **revert the lists, confirm the revert is live, then roll the Worker
+  > back.** Never the other way round, and never leave the widened lists in
+  > place with the old Worker deployed, even briefly.
+
+  With the lists already single-valued, the rollback is safe: 0005's
+  `DEFAULT 'general-english'` lets the pre-split code keep inserting, which is
+  the whole point of the DEFAULT.
 - **Step 2** (migration): there is no down-migration, and 0005 drops and
   recreates `entitlements`. Rollback is restore-from-export. This is why step 1
   exists and why the export is not optional.
@@ -144,7 +161,8 @@ create — so this is an owner action, not an automatable one.
 - Do not apply 0005 to production, deploy the Worker, or extend the lists
   without the owner's explicit authorisation.
 - Do not widen `APPLE_BUNDLE_ID` or `PLAY_PACKAGE` without `APP_PROGRAMMES` in
-  the same change.
+  the same change, and never widen any of them while the pre-split Worker is
+  the deployed one — see the failure path in §6.
 - Do not change the server video allowance to match marketing copy. 60 minutes
   a day (`YTAI_PREMIUM_SEC_PER_DAY = 60 * 60`) is the owner-approved limit, and
   the published App Store descriptions name no number, so nothing obliges a

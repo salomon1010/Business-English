@@ -732,6 +732,33 @@ console.log("\n# Two apps, separate entitlements");
     && ((await env.DB.prepare("SELECT count(*) n FROM entitlements WHERE uid='duo2'").first()).n) === 0
     && (await view("duo2", GE)).paid === false && (await view("duo2", WE)).paid === false,
     JSON.stringify({ before, rowsBefore, ...r.json }));
+
+  /* ---- RESTORE is app-scoped too (added 13 Oct 2026) ----
+     Every W test above goes through /v1/purchases/verify. Restore is a second,
+     independent write path: the app calls it on launch with whatever the store
+     says the device owns, and it binds and recomputes just as verify does. It
+     was untested across the two apps, so a regression there — restore ignoring
+     the app and granting the asking app instead of the selling one — would have
+     passed the whole suite. These four close that.
+     Restore names no app: the programme comes from the package the token
+     verified against, exactly as it does for verify. */
+  env = envFor(BOTH); clock = T0;
+  G.subs.set(tok(140), gsub()); G.tokenPkg.set(tok(140), WPKG);
+  r = await call("POST", "/v1/purchases/restore", { uid: "res1", body: { provider: "google_play", items: [{ purchaseToken: tok(140), productId: "premium_monthly" }] } });
+  const rW = await view("res1", WE), rG = await view("res1", GE);
+  ok("W24 · restoring a WELDING purchase grants Premium in the Welding app",
+    r.status === 200 && rW.paid === true && rW.app === WE, JSON.stringify({ status: r.status, rW }));
+  ok("W25 · …and the same account is still Free in General English — restore cannot cross apps either",
+    rG.paid === false && rG.plan === "free" && rG.app === GE, JSON.stringify(rG));
+
+  /* the mirror: a General English restore on the SAME account */
+  G.subs.set(tok(141), gsub());
+  r = await call("POST", "/v1/purchases/restore", { uid: "res1", body: { provider: "google_play", items: [{ purchaseToken: tok(141), productId: "premium_monthly" }] } });
+  ok("W26 · restoring a General English purchase on the same account makes BOTH apps Premium, from two separate links",
+    r.status === 200 && (await view("res1", GE)).paid === true && (await view("res1", WE)).paid === true, JSON.stringify(r.json));
+  const resRows = ((await env.DB.prepare("SELECT app_id, count(*) n FROM purchase_links WHERE uid='res1' GROUP BY app_id ORDER BY app_id").all()).results || []).map(x => `${x.app_id}:${x.n}`).join(",");
+  ok("W27 · …and restore filed each under the app that sold it, not under the asking app",
+    resRows === `${GE}:1,${WE}:1`, resRows);
 }
 
 /* ============================================================================
