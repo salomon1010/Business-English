@@ -419,9 +419,14 @@ not JS, and `new Function` chokes on it. Check it separately with
   `BEMastery_*` set was reverted the same day before any product existed in App
   Store Connect; Play ids must be lowercase, so the Play ids are the only ones both
   stores can share). `BILLING_PRODUCTS`, `BEStoreKitPlugin.allowed`,
-  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Confirmed annual
-  price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
-  be changed there — the app always shows the store's own `displayPrice`.**
+  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Pricing — the
+  2 Oct 2026 "$24.99/yr" note is SUPERSEDED. Verified live in App Store Connect
+  on 13 Oct 2026 (read-only API): `premium_annual` 6819570241 is USA
+  customerPrice 19.99 (proceeds 16.99) and `premium_monthly` 6819570240 is 2.99
+  (proceeds 2.54), both READY_TO_SUBMIT in group 22444441, 175 territory prices
+  and a 3-day free trial each. US$19.99/yr and US$2.99/mo are the owner's
+  decision of 5-6 Oct 2026 and what the store actually holds. Do NOT change the
+  consoles to $24.99. The app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
@@ -441,8 +446,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   secrets + the two RTDN values are missing — see the file's header), so `ENT_API`
   stays empty. Do NOT drop `capacitor://localhost` from `ALLOWED_ORIGINS`: it is
   the App Store shell's own origin. The annual price in `BEMastery.storekit` is
-  **24.99** (Xcode's local store only; the app always draws the store's own
-  `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
+  **19.99**, matching the live store record (Xcode's local store only; the app
+  always draws the store's own `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
   via `beNativeAdsInit()`): Google Mobile Ads **12.x** + UMP **3.x**, added as ONE
   remote SPM package (UMP is a *product of* the ads package — a second package
   breaks the build), registered in `BEBridgeViewController`. **Interstitial and
@@ -502,7 +507,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   (`VERDICT_CAPS`, `verdictAllowance`, bucket `verdict:<day>`, 429
   `{error:"allowance",scope:"verdicts"}`, header `X-BE-Allowance`); the
   learner's own YouTube video is metered in seconds (`ytaisec:<day>`, 1800 /
-  14400 a day, `scope:"video"`, `X-BE-Video-Allowance`). Client: `ENT_METERED`
+  **3600** a day — 30 min Free, **60 min** Premium; the spec text said 14400/240
+  min but `YTAI_PREMIUM_SEC_PER_DAY` has always been `60 * 60` and the constants
+  are the contract, corrected 13 Oct 2026. The published App Store description
+  names no number, so nothing was mis-sold, `scope:"video"`,
+  `X-BE-Video-Allowance`). Client: `ENT_METERED`
   makes `entLocked()` false for those two caps; `aiAllowance / aiAllowOut /
   aiAllowNote / ytAllowNote`, `aiAllowTap` in the one fetch wrapper,
   `localStorage.be_ai_allow` / `be_yt_allow` (display only); `premLockHTML`
