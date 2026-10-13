@@ -169,11 +169,18 @@ technical one.
 |---|---|---|
 | 1 | build identity in place | **done** — `ios/App/Welding.xcconfig`; a Release build for the Simulator produces `com.lomonec.bemastery.welding` / `BE Welding` / `group.com.lomonec.bemastery.welding` with both extensions correctly prefixed |
 | 2 | release checks | **done** — `check-release.mjs --programme welding` PASS, 0 failures, 0 warnings |
-| 3 | archive + Distribution IPA | **BLOCKED** on steps A1–A4 below |
+| 3 | archive + Distribution IPA | **done** (13 Oct 2026) — `welding.xcarchive` and a Distribution-signed IPA exist; verified `Apple Distribution: LOMON EC LLC (8TKAAK2MG6)`, `application-identifier 8TKAAK2MG6.com.lomonec.bemastery.welding`, `aps-environment production`, `group.com.lomonec.bemastery.welding`, `get-task-allow false`, both extensions, embedded bundle "programme welding" |
 
-#### Why this cannot be done from here
+#### Why this could not be done on 12 Oct — SUPERSEDED 13 Oct 2026
 
-Checked on 12 Oct 2026:
+> **A1–A4 ARE COMPLETE. Do not work through them again** — see the note at the
+> head of A1–A4. The three conditions below were true on 12 Oct and are no
+> longer: the identifiers are registered, App Store profiles are ACTIVE, and
+> the API issuer id is present in the local tooling (`asc-tools/asc.mjs`),
+> which is how the read-only queries in this document's verification notes were
+> made. Kept only as the record of why the work moved to the portal that day.
+
+Checked on 12 Oct 2026, now historical:
 
 * `AuthKey_A88M365B2K.p8` is on the Mac and `mobile/ios/appstore/SUBSCRIPTIONS.md`
   records it as an App Store Connect API key with the App Manager role.
@@ -189,10 +196,31 @@ So no already-authorized local tool can register these identifiers. The owner
 does it in the portal, or supplies the issuer ID (from App Store Connect →
 Users and Access → Integrations → App Store Connect API) so the API can.
 
-#### A1–A4 · Apple Developer portal — click by click
+#### A1–A4 · Apple Developer portal — **ALREADY DONE, do not repeat**
 
-Sign in at <https://developer.apple.com/account> as **LOMON EC LLC
-(8TKAAK2MG6)**, then **Certificates, Identifiers & Profiles → Identifiers**.
+> **COMPLETE — verified read-only against the App Store Connect API,
+> 13 October 2026.** All three identifiers are registered and all four App
+> Store provisioning profiles are ACTIVE (expiry 2027-09-29):
+>
+> | identifier | state |
+> |---|---|
+> | `com.lomonec.bemastery.welding` | registered · `APPLE_ID_AUTH`, `APP_GROUPS`, `IN_APP_PURCHASE`, `PUSH_NOTIFICATIONS` |
+> | `com.lomonec.bemastery.welding.BEWidget` | registered · profile ACTIVE |
+> | `com.lomonec.bemastery.welding.BEPushService` | registered · profile ACTIVE |
+>
+> The App Group `group.com.lomonec.bemastery.welding` is registered and
+> configured: it appears as an entitlement in the Distribution-signed IPA,
+> which Apple would not have issued a profile for otherwise.
+>
+> Note the capabilities differ from step 3 below: the registered app id also
+> carries **In-App Purchase**, which it needs in order to sell the
+> subscriptions in A6–A8. Nothing needs changing.
+>
+> **The remaining Apple work is A5–A8 only.**
+
+Kept for the record. Sign in at <https://developer.apple.com/account> as
+**LOMON EC LLC (8TKAAK2MG6)**, then **Certificates, Identifiers & Profiles →
+Identifiers**.
 
 **A1 · the app's own identifier**
 
@@ -300,9 +328,26 @@ against both consoles — `docs/APP_SPLIT.md` § 3, and
 | `premium_annual` | Premium annual | 1 year | **US$19.99** | 1 |
 | `premium_monthly` | Premium monthly | 1 month | **US$2.99** | 1 |
 
-Both at level 1 — the two plans give the same features. Reusing the ids is
-correct: App Store product ids are scoped to the app, so these are new,
-separate products.
+Both at level 1 — the two plans give the same features.
+
+> **REUSING THE IDS IS UNVERIFIED — try it and report what App Store Connect
+> says.** An earlier version of this section asserted that "App Store product
+> ids are scoped to the app" as settled fact. It is not. Apple's help
+> documentation says an id cannot be reused *within* an app and that in-app
+> purchases are not shareable between apps, but it does not state the
+> account-level rule; developer reports describe the error "The Product ID you
+> entered is already being used by another subscription" for an id used only in
+> a *different* app on the same account. It could not be tested from here,
+> because the test needs the Welding app record to exist first (A5).
+>
+> Product ids cannot be renamed or reused once created, so this is the one step
+> to do deliberately. If App Store Connect refuses `premium_annual` /
+> `premium_monthly`, **do not force it** — pick distinct ids (for example
+> `welding_premium_annual` / `welding_premium_monthly`), tell the engineers, and
+> they change two lists: `PRODUCTS` in
+> `backend/entitlements/src/entitlement-core.js` and `BILLING_PRODUCTS` in
+> `index.html`. Nothing else moves, because the app a purchase belongs to is
+> derived from the store identity Apple signed, never from the product id.
 
 **A8 · the trial.** On each product → **Introductory Offers → +** → Free trial,
 **3 days**, new subscribers, all territories. Apple allows one introductory
