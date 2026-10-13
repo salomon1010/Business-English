@@ -198,23 +198,37 @@ Users and Access → Integrations → App Store Connect API) so the API can.
 
 #### A1–A4 · Apple Developer portal — **ALREADY DONE, do not repeat**
 
-> **COMPLETE — verified read-only against the App Store Connect API,
-> 13 October 2026.** All three identifiers are registered and all four App
-> Store provisioning profiles are ACTIVE (expiry 2027-09-29):
+> **COMPLETE — verified read-only against the App Store Connect API by two
+> independent sessions, 13 October 2026.** All three identifiers are
+> registered:
 >
-> | identifier | state |
-> |---|---|
-> | `com.lomonec.bemastery.welding` | registered · `APPLE_ID_AUTH`, `APP_GROUPS`, `IN_APP_PURCHASE`, `PUSH_NOTIFICATIONS` |
-> | `com.lomonec.bemastery.welding.BEWidget` | registered · profile ACTIVE |
-> | `com.lomonec.bemastery.welding.BEPushService` | registered · profile ACTIVE |
+> | identifier | registered | Store profile |
+> |---|---|---|
+> | `com.lomonec.bemastery.welding` | yes | ACTIVE, expires 2027-09-29 |
+> | `com.lomonec.bemastery.welding.BEWidget` | yes | ACTIVE, expires 2027-09-29 |
+> | `com.lomonec.bemastery.welding.BEPushService` | yes | ACTIVE, expires 2027-09-29 |
 >
-> The App Group `group.com.lomonec.bemastery.welding` is registered and
-> configured: it appears as an entitlement in the Distribution-signed IPA,
-> which Apple would not have issued a profile for otherwise.
+> **Three** Welding Store profiles, not four — an earlier version of this note
+> said four, having miscounted General English's own profile, which expires on
+> the same date.
 >
-> Note the capabilities differ from step 3 below: the registered app id also
-> carries **In-App Purchase**, which it needs in order to sell the
-> subscriptions in A6–A8. Nothing needs changing.
+> **Do not go looking for those three in the portal: they are not listed
+> there.** They are Xcode-managed ("iOS Team Store Provisioning Profile: …"),
+> minted by `-allowProvisioningUpdates` during the archive on this Mac. They
+> are real records — the API returns them under each bundle id — but the
+> account-wide profiles listing shows only one profile for the whole team,
+> "BE Mastery App Store 2026" (expires 2027-09-28), which is the General
+> English one. On a different Mac, Xcode would mint its own from the same
+> registered identifiers.
+>
+> **The evidence that the capabilities are right is the signed binary, not a
+> capability list.** The Distribution-signed Welding IPA carries
+> `aps-environment = production`, `group.com.lomonec.bemastery.welding` and
+> `com.apple.developer.applesignin` as entitlements, and Apple does not issue a
+> profile for entitlements the identifier is not enabled for. A capability
+> listing read from the API is poor evidence here, because `IN_APP_PURCHASE`
+> comes back on every identifier on the account, extensions included — it is on
+> by default and means nothing in particular.
 >
 > **The remaining Apple work is A5–A8 only.**
 

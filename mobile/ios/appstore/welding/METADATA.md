@@ -7,13 +7,15 @@ This app has **never been submitted** and has **no App Store Connect record
 yet** — that is the one blocker for this listing.
 
 Its three Apple identifiers ARE registered, which an earlier version of this
-note denied. Verified read-only against the App Store Connect API on 13 October
-2026: `com.lomonec.bemastery.welding`, `.welding.BEWidget` and
-`.welding.BEPushService` all exist, the app id carries App Groups, Push
-Notifications, Sign in with Apple and In-App Purchase, and all four App Store
-provisioning profiles are ACTIVE to 2027-09-29. A Distribution-signed IPA has
-been built and verified from them. So the build is **not** blocked; only the
-store record is. The remaining Apple steps are
+note denied. Verified read-only against the App Store Connect API by two
+independent sessions on 13 October 2026: `com.lomonec.bemastery.welding`,
+`.welding.BEWidget` and `.welding.BEPushService` all exist, each with an ACTIVE
+Store provisioning profile expiring 2027-09-29. Those three profiles are
+Xcode-managed and do not appear in the portal's own profiles listing, so there
+is no point looking for them there. A Distribution-signed IPA has been built
+and verified from them, carrying production push, the App Group and Sign in
+with Apple as entitlements. So the build is **not** blocked; only the store
+record is. The remaining Apple steps are
 `docs/APP_SPLIT_SUBMISSION.md` § A5–A8.
 
 The copy below is the Google Play Welding listing
