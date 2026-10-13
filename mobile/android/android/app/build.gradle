@@ -4,12 +4,8 @@ android {
     namespace = "com.bemastery.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.bemastery.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // above the Play TWA's last versionCode (10, twa-manifest.json): Play only installs a higher one
-        versionCode 17
-        versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // BE_TEST_ADS: a staging build (./gradlew -PbeStaging=true …, scripts/build.sh --staging)
         // requests Google's TEST ad units only, like a debug build. A production release is false.
@@ -25,6 +21,39 @@ android {
     }
     buildFeatures {
         buildConfig true
+    }
+    // THE TWO-APP SPLIT (12 Oct 2026, docs/APP_SPLIT.md). One codebase, two Play
+    // listings. The flavor decides the applicationId, the launcher name and icon,
+    // the ad units, which widgets are declared, and BE_PROGRAMME — which the web
+    // layer reads back and pins areaId() to, so the curriculum, Home, the studio,
+    // the games and the ads gate all follow. src/main is everything they share.
+    flavorDimensions "programme"
+    productFlavors {
+        general {
+            dimension "programme"
+            applicationId "com.bemastery.app"
+            // above every code already uploaded: the Play TWA's last was 10
+            // (twa-manifest.json) and this shell's internal-test bundles ran 12-17,
+            // so the first PRODUCTION bundle of the native shell is 18. 18 was built
+            // before Phase C and cannot sell; 19 is the first bundle that can.
+            versionCode 19
+            versionName "1.2.0"
+            buildConfigField "String", "BE_PROGRAMME", '"general-english"'
+            // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
+            // hands the answer back on bemastery://apple. Only ONE app may claim that
+            // scheme, so it stays with the existing app (see the welding flavor).
+            manifestPlaceholders = [beAppleScheme: "bemastery", beAppleHost: "apple", beWidgetScheme: "bemastery"]
+        }
+        welding {
+            dimension "programme"
+            applicationId "com.lomonec.bemastery.welding"
+            // a brand-new Play listing starts at 1; nothing has ever been uploaded
+            versionCode 1
+            versionName "1.0.0"
+            buildConfigField "String", "BE_PROGRAMME", '"welding"'
+            // its own scheme, so the two apps never contend for a deep link
+            manifestPlaceholders = [beAppleScheme: "bemasterywelding", beAppleHost: "apple", beWidgetScheme: "bemasterywelding"]
+        }
     }
     // The Play UPLOAD key (alias bemastery, SHA-256 3D:E6:6D…; Play App Signing re-signs for
     // learners). Nothing secret is in the repo: scripts/release.sh passes the keystore path and
@@ -90,4 +119,25 @@ try {
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+/* The web bundle and the Gradle flavor must be the same programme, or the app
+   ships one programme's shell around the other's content — correctly signed,
+   correctly named, and wrong only once a learner opens it. That exact mistake
+   was made on iOS on 13 Oct 2026, so this is a BUILD FAILURE, not a warning.
+   It reads BUNDLE_INFO.txt, which sync-web.mjs writes beside the bundle. */
+android.applicationVariants.all { variant ->
+    def want = variant.productFlavors[0].name == "welding" ? "welding" : "general-english"
+    def check = tasks.register("verify${variant.name.capitalize()}WebBundleProgramme") {
+        doLast {
+            def info = file("src/main/assets/public/BUNDLE_INFO.txt")
+            if (!info.exists()) throw new GradleException(
+                "no web bundle: run mobile/android/scripts/build.sh ${want == 'welding' ? 'welding' : ''} first".trim())
+            def got = (info.text =~ /(?m)^programme (.+)$/)
+            if (!got) throw new GradleException("BUNDLE_INFO.txt names no programme: ${info.text}")
+            if (got[0][1].trim() != want) throw new GradleException(
+                "the web bundle is '${got[0][1].trim()}' but this is the ${want} build — re-sync before building")
+        }
+    }
+    variant.mergeAssetsProvider.configure { dependsOn check }
 }

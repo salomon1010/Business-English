@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- THE TWO-APP SPLIT: the Welding flavor's own identity. Everything not
+     overridden here comes from src/main, so the two apps share one codebase. -->
+<resources>
+    <string name="app_name">BE Welding</string>
+    <string name="title_activity_main">BE Welding</string>
+    <string name="package_name">com.lomonec.bemastery.welding</string>
+    <string name="custom_url_scheme">com.lomonec.bemastery.welding</string>
+</resources>
