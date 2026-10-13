@@ -27,8 +27,15 @@ const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }
 
 async function open({ track = "general-english", billing = true, api = true, plan = FREE, signedIn = true } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
-  await ctx.addInitScript(([s, api, flags]) => { localStorage.setItem("be12_v1", s); if (api) localStorage.setItem("be_ent_api", "http://ent.test"); if (flags) localStorage.setItem("be_flags", JSON.stringify(flags)); },
-    [seed(track), api, billing ? { billing_enabled: true, home_v2_enabled: true } : { home_v2_enabled: true }]);
+  /* BOTH switches are written explicitly, in both directions. Expressing "off"
+     by omission worked only while ENT_API was "" and FLAGS_DEFAULT.billing_enabled
+     was false: Phase C (11 Oct 2026) set both, so an omitted key silently became
+     ON and the cases below stopped testing what they claim. An empty be_ent_api
+     is what entApiBase() reads as "no entitlement service". */
+  await ctx.addInitScript(([s, api, flags]) => { localStorage.setItem("be12_v1", s);
+    localStorage.setItem("be_ent_api", api ? "http://ent.test" : "");
+    localStorage.setItem("be_flags", JSON.stringify(flags)); },
+    [seed(track), api, { billing_enabled: !!billing, home_v2_enabled: true }]);
   const ai = [];                                   // every request that reaches the AI Worker
   /* the Worker's metered answers carry X-BE-Allowance (the tier spec, 5 Oct
      2026) and expose it through CORS, exactly as backend/polish-worker.js does */

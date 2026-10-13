@@ -58,7 +58,18 @@ console.log("\n# the server decides; the client only displays");
   v = await view(p);
   ok("7 · signed in, server says free → Free", v.v.plan === "free" && !v.prem);
   const rq = reqs[reqs.length - 1];
-  ok("8 · the request carries only the Firebase token: GET, no body, no query, no plan hint", rq.method === "GET" && !rq.body && !/\?/.test(rq.url) && rq.headers.authorization === "Bearer test-token-u1" && !Object.keys(rq.headers).some(h => /plan|premium/i.test(h)));
+  /* THE ONE QUERY THE CLIENT MAY SEND is ?app=<programme> (the two-app split):
+     it names which app is asking, and the server can only ever SELECT among that
+     account's own purchases with it — it can never create or widen one. Anything
+     else, and any plan hint in particular, must still be absent: the plan is the
+     server's answer, never the client's claim. */
+  const q = (rq.url.split("?")[1] || "");
+  ok("8 · the request carries only the Firebase token and at most ?app=: GET, no body, no plan hint",
+    rq.method === "GET" && !rq.body
+    && (q === "" || /^app=(general-english|welding)$/.test(q))
+    && rq.headers.authorization === "Bearer test-token-u1"
+    && !Object.keys(rq.headers).some(h => /plan|premium/i.test(h))
+    && !/plan|premium|paid|entitl/i.test(q), JSON.stringify({ url: rq.url, query: q }));
   set({ status: 200, body: PREMIUM }); await p.evaluate(() => entRefresh());
   v = await view(p);
   ok("9 · server says premium → Premium is displayed", v.v.plan === "premium" && v.prem && v.v.ads === false);
