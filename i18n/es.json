@@ -3500,5 +3500,9 @@
  "keep.title": "Keep your progress",
  "keep.body": "Your {{n}} completed sessions are saved on this phone only. Sign in (it's free) and your progress is kept in your account — through app updates, a new phone or a reinstall.",
  "keep.ok": "Sign in to keep it",
- "keep.later": "Not now"
+ "keep.later": "Not now",
+ "keep.restore_t": "¿Ya usabas BE Mastery?",
+ "keep.restore_b": "Esta actualización traslada BE Mastery a su propia aplicación, así que la práctica guardada solo en el navegador no se traslada. No se pierde nada: inicia sesión y tu progreso vuelve desde tu cuenta. Si nunca iniciaste sesión, sigue estando en Chrome en este teléfono.",
+ "keep.restore_ok": "Inicia sesión para recuperarlo",
+ "keep.restore_new": "Soy nuevo aquí"
 }

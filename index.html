@@ -157,6 +157,22 @@ window.FB_CONFIG={
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
   try{var _evo=localStorage.getItem("be_events_api");if(_evo!==null)EVENTS_API=_evo}catch(e){}
+  /* ===== THE APP'S FIXED PROGRAMME — the two-app split (owner, 12 Oct 2026) =====
+     BE Mastery ships as TWO store apps built from this one codebase:
+       BE Mastery — General English  (Play com.bemastery.app, App Store com.lomonec.bemastery)
+       BE Mastery — Welding English  (Play com.lomonec.bemastery.welding, App Store com.lomonec.bemastery.welding)
+     A store bundle carries be-build.js with {track:"<id>"}, written by
+     mobile/ios/scripts/sync-web.mjs --track <id>. BE_APP_TRACK is that id, and
+     it is the WHOLE separation, because areaId() is the single question every
+     feature asks about the programme (see "Areas" in CLAUDE.md): pinning it
+     pins the curriculum, Home, the studio, the games, the ads gate, the
+     analytics gate and the backend's own programme read, in one place. The
+     track-selection screens refuse the other id as well, so there is no code
+     path to the other programme — this is not a hidden tab.
+     null on the web (app.lomonec.com has always served both programmes) and in
+     any bundle built without --track, so nothing changes there. Read before
+     the main script so areaId() and the track registration can both use it. */
+  window.BE_APP_TRACK=(function(){try{var v=window.BE_BUILD&&window.BE_BUILD.track;return (v==="general-english"||v==="welding")?v:null}catch(e){return null}})();
   window.BE_EVENTS_API=EVENTS_API;   /* the service worker counts nudge_sent / nudge_dismissed itself (it has no track()) */
   if(EVENTS_API)window.track=function(name,props){
     try{
@@ -1606,7 +1622,35 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 /* the header is two lines and never more (owner, 27 Sep 2026: "one line … because you did this,
    and another line below, not too big"): the heading and its reason each keep to one line and
    end in an ellipsis. No "Not now" — the rows are the Home page's own choice, not an option. */
-.hx-row-h{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+/* ONE ROW OPEN AT A TIME (owner, 12 Oct 2026). The header IS the control: a
+   transparent button stretched over the whole row, so the heading and its
+   reason stay real <h3>/<p> (a heading inside a button stops being a heading
+   for a screen reader) and the whole strip is still one tap target. The
+   chevron sits at the end and the header reserves its width, so the two lines
+   go on ending in an ellipsis exactly as before. */
+/* min-height: the header IS the expand control, and two short text lines made
+   it 35 px — under Apple's 44 pt tap target (measured on an iPhone 13 viewport,
+   12 Oct 2026). The lines themselves are unchanged; the row just reserves a
+   thumb's worth of height. */
+.hx-row-h{position:relative;display:flex;align-items:center;gap:10px;margin:0 0 8px;padding-inline-end:26px;min-height:44px}
+.hx-row-tog{position:absolute;inset:0;width:100%;display:flex;align-items:center;justify-content:flex-end;
+  margin:0;padding:0;border:0;background:none;color:var(--mut);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hx-row-tog:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:10px}
+.hx-row-chev{display:grid;place-items:center;width:24px;height:24px;transition:transform .18s ease,color .15s}
+.hx-row-chev svg{width:16px;height:16px}
+.hx-row.open .hx-row-chev{transform:rotate(180deg);color:var(--txt)}
+/* collapsed is the `hidden` attribute — the cards leave the layout and the
+   accessibility tree together, which is what "collapsed" has to mean for both */
+.hx-row-p[hidden]{display:none}
+.hx-row.open>.hx-row-p{margin-top:-2px}
+/* a closed row is a heading and nothing else, so it does not keep the gap its
+   cards used to need — the point of the whole change is how many of them the
+   learner can see at once */
+.hx-row:not(.open){margin-bottom:12px}
+.hx-row:not(.open)>.hx-row-h{margin-bottom:0}
+.hx-row-in{animation:hxRowIn .18s ease}
+@keyframes hxRowIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hx-row-in{animation:none}.hx-row-chev{transition:none}}
 .hx-row-h h3,.hx-row-h p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hx-row-h h3{font-size:14px;font-weight:700;line-height:1.3;margin:0;letter-spacing:-.005em}
 .hx-row-h p{margin:1px 0 0;font-size:11.5px;line-height:1.35;color:var(--mut)}
@@ -6321,7 +6365,17 @@ h1.big{letter-spacing:-.025em}
      · no Premium link here. It stays on the foot slots, where there is room —
        this one is a strip, not a card.
    AD_NATIVE_H_STRIP is the height the shell reserves for the creative. */
-.ad-native[data-placement="shadow_video"]{--ad-bleed:16px}
+/* THE BLEED IS THE HOST'S OWN PADDING, AND V3 HAS NONE (12 Oct 2026).
+   16px was never either workspace's padding: the classic .sh-work-body has
+   18px, and the V3 body has 0 (it is set to padding-left:0;padding-right:0
+   above). So on every phone the strip measured 32px WIDER than the screen,
+   starting 16px off the left edge — and that rectangle is what the shell is
+   given, so the Android view was sized and placed to it and the creative was
+   cut off on the left and ran off the right. That is the clipped "lood It!" in
+   the owner's photos, and it is also why a strict "wholly on screen" test
+   could never have passed. */
+.ad-native[data-placement="shadow_video"]{--ad-bleed:18px}
+#shWork[data-v3] .ad-native[data-placement="shadow_video"]{--ad-bleed:0px}
 .ad-native[data-placement="library_top"]{--ad-bleed:20px}
 .ad-native[data-placement="shadow_video"],.ad-native[data-placement="library_top"]{
   position:relative;margin:8px calc(-1 * var(--ad-bleed));padding:0;border:0;border-radius:0;
@@ -6921,11 +6975,25 @@ function awardCompetency(input){
   if(coaching&&!input.quiet&&!COACH_MODAL_SKIP.includes(input.activityType))LearningCoach.present(coaching);
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
-ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
+/* A single-programme build (BE_APP_TRACK, the two-app split) WRITES its own
+   programme into the state at boot, before anything reads it. Two reasons, and
+   both matter:
+     - the backend's authority is the account's own synced copy of this field
+       (be-partner accountTrack(), which be-push, be-coach and the game Worker
+       all reuse), so the server must see the programme of the app in use;
+     - a learner who had the other programme open on the web, or whose account
+       was synced from the other app, must still land in THIS app's programme.
+   Documented limit: with both apps installed on one account the server's view
+   follows whichever app synced last. It cannot leak content (each bundle ships
+   only its own) and it cannot change Premium (that is account-level by design);
+   see docs/APP_SPLIT.md § "One account, two apps". */
+if(BE_APP_TRACK){S.professionalTracks=S.professionalTracks||{};if(S.professionalTracks.activeId!==BE_APP_TRACK){S.professionalTracks.activeId=BE_APP_TRACK;try{save()}catch(e){}}}
+ProfessionalTrackContext.setActive(BE_APP_TRACK||(S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
 /* ONE source of the active track: the persisted state. The context reads it on
    every call, so replacing S (sync, import, restore, sign-out) can never leave
-   the journey on one track and the features on the other. */
-ProfessionalTrackContext.bindActive(()=>(typeof S!=="undefined"&&S&&S.professionalTracks)?S.professionalTracks.activeId:null);
+   the journey on one track and the features on the other. In a single-programme
+   build the one source is the build itself. */
+ProfessionalTrackContext.bindActive(()=>BE_APP_TRACK||((typeof S!=="undefined"&&S&&S.professionalTracks)?S.professionalTracks.activeId:null));
 areaSplit();
 function applyTrackIdentity(){
   const track=activeProfessionalTrack();
@@ -7115,7 +7183,10 @@ if(IS_NATIVE_APP)document.addEventListener("click",e=>{   /* the Android WebView
    ProfessionalTrackContext: a registered track id, else General English. An
    unknown id no longer counts as "not General English" here while the journey
    falls back to General English there. */
-function areaId(){const id=S&&S.professionalTracks&&S.professionalTracks.activeId;try{return (id&&window.ProfessionalTrackContext&&ProfessionalTrackContext.get(id))?id:AREA_GEN}catch(e){return id||AREA_GEN}}
+/* A single-programme build answers its own id and nothing else: a synced
+   state, an import or a tampered localStorage naming the other programme
+   cannot move this app. */
+function areaId(){if(BE_APP_TRACK)return BE_APP_TRACK;const id=S&&S.professionalTracks&&S.professionalTracks.activeId;try{return (id&&window.ProfessionalTrackContext&&ProfessionalTrackContext.get(id))?id:AREA_GEN}catch(e){return id||AREA_GEN}}
 /* After S is replaced wholesale, repaint what shows the track (chip, theme) and
    stamp legacy records — the track itself needs no copying any more. */
 function trackStateReloaded(){try{areaSplit()}catch(e){}try{applyTrackIdentity()}catch(e){}}
@@ -10374,6 +10445,10 @@ const I18N_EN={
  "keep.body":"Your {{n}} completed sessions are saved on this phone only. Sign in (it's free) and your progress is kept in your account — through app updates, a new phone or a reinstall.",
  "keep.ok":"Sign in to keep it",
  "keep.later":"Not now",
+ "keep.restore_t":"Used BE Mastery before?",
+ "keep.restore_b":"This update moves BE Mastery into its own app, so practice saved only in your browser does not come across. Nothing is lost: sign in and your progress comes back from your account. If you never signed in, it is still in Chrome on this phone.",
+ "keep.restore_ok":"Sign in to bring it back",
+ "keep.restore_new":"I'm new here",
  "cal.label":"Block the time",
  "cal.note":"A calendar entry survives a silent phone and shows colleagues you\u2019re busy. Six days a week, 25 minutes.",
  "cal.add_google":"Google Calendar",
@@ -11282,7 +11357,20 @@ function goDismissOffers(){
     if(typeof EX_TYPER!=="undefined"&&EX_TYPER){clearInterval(EX_TYPER);EX_TYPER=null}
   }catch(e){}
 }
+/* THE TWO-APP SPLIT AT THE ROUTER (12 Oct 2026) ------------------------------
+   Views that belong to ONE programme. In a single-programme build (BE_APP_TRACK)
+   go() refuses the other programme's pages outright, so a typed hash, a view
+   restored from sessionStorage after a relaunch, a bemastery:// deep link, a
+   widget tap or a notification cannot open them. The tab that leads there is
+   already absent — this is the second lock, because "hide the button" is not a
+   separation.
+   Deliberately inert on the web (BE_APP_TRACK null): app.lomonec.com serves
+   both programmes to one account and has always let a learner reach either
+   one's pages, which is their own content, not somebody else's. */
+const VIEW_TRACK={partner:AREA_GEN,english:AREA_GEN,roleplay:AREA_GEN,mastery:"welding",simulation:"welding",lines:"welding",career:"welding"};
+function viewAllowedHere(v){const need=VIEW_TRACK[v];return !(BE_APP_TRACK&&need&&need!==BE_APP_TRACK)}
 function go(v,arg1,arg2){
+  if(!viewAllowedHere(v)){v="practice";arg1=undefined;arg2=undefined}
   goDismissOffers();
   try{if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}}catch(err){try{perfMark("error",0,"teardown:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   /* Walking out of a workshop conversation has to switch the microphone off.
@@ -13042,14 +13130,62 @@ function homeRowsPremHTML(){
       <span class="hx-row-prem-t">${esc(t("home.rows_prem"))}</span><i aria-hidden="true">\u203a</i>
     </button>`;
 }
+/* ---- ONE ROW OPEN AT A TIME (owner, 12 Oct 2026, from a photo of a phone) ----
+   Eight "Because you…" rows, each with its own swipe strip of cards, filled the
+   whole page and pushed everything below it off the screen. The rows stay — the
+   engine is untouched — but only one strip is open: the strongest signal when
+   the page is first drawn, and after that whichever one the learner chose.
+
+   `_hxOpen` is the whole of the state, and it has three values, because "never
+   touched" and "the learner closed it" must not mean the same thing:
+     undefined  nothing chosen yet          → the first row, the strongest signal
+     null       the learner closed it       → nothing opens by itself (rule 6)
+     "<row id>" the learner opened that one → that row, while it still exists
+   It is module-level, like _homeRows and _homeRecs beside it, so it survives the
+   re-draws (the library index landing, the role-play photos) and a trip into a
+   recommendation and back; a reload starts again at the strongest signal.
+   Because the markup is built from ONE id, two rows open at once is not a state
+   this can reach, however often the page is re-rendered. */
+let _hxOpen;
+function homeRowOpenId(rows){
+  if(!rows||!rows.length)return null;
+  if(_hxOpen===undefined)return rows[0].id;              /* first load: the strongest signal */
+  if(_hxOpen===null)return null;                         /* the learner closed it: leave it closed */
+  return rows.some(r=>r.id===_hxOpen)?_hxOpen:rows[0].id;/* their row is gone: back to the default */
+}
+/* The header is the control. Toggling moves nothing above it: the row's own top
+   is pinned to where it was, so opening a row further down the page does not
+   throw the learner's place away as the rows above it collapse. */
+window.homeRowToggle=id=>{
+  const sec=document.getElementById("hxRows");if(!sec)return;
+  const row=sec.querySelector('.hx-row[data-row="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');
+  const before=row?row.getBoundingClientRect().top:0;
+  _hxOpen=(homeRowOpenId(_homeRows)===id)?null:id;
+  homeRowsSync();
+  if(row){const d=row.getBoundingClientRect().top-before;if(d)try{scrollBy(0,d)}catch(e){}}
+};
+/* paint the open/closed state onto rows that are already on the page — no
+   re-render, so a card the learner is half-way through swiping does not jump */
+function homeRowsSync(){
+  const sec=document.getElementById("hxRows");if(!sec)return;
+  const open=homeRowOpenId(_homeRows);
+  sec.querySelectorAll(".hx-row").forEach(row=>{
+    const on=row.dataset.row===open,p=row.querySelector(".hx-row-p"),b=row.querySelector(".hx-row-tog");
+    row.classList.toggle("open",on);
+    if(b)b.setAttribute("aria-expanded",on?"true":"false");
+    if(p){const was=!p.hidden;p.hidden=!on;if(on&&!was)p.classList.remove("hx-row-in"),void p.offsetWidth,p.classList.add("hx-row-in")}
+  });
+}
 function homeRowsHTML(rows){
   if(!rows||!rows.length)return "";
-  const lk=entLocked("recommended_content");
-  return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
-    <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
+  const lk=entLocked("recommended_content"),open=homeRowOpenId(rows);
+  return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);
+    const on=r.id===open,pid="hxRowP"+ri,tid="hxRowT"+ri;return `
+    <div class="hx-row${ri===0?" hx-row-lead":""}${on?" open":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
       ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
-      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx">${r.id==="games"&&wmHub()?(()=>{const g=wmHub().rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div></div>
-      ${lk?homeRowsPremHTML():`<div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>`}
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx" id="${tid}">${r.id==="games"&&wmHub()?(()=>{const g=wmHub().rowHead(r);return `<h3>${esc(g.h)}</h3><p>${esc(g.s)}</p>`})():`<h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p>`}</div>
+        <button type="button" class="hx-row-tog" aria-expanded="${on?"true":"false"}" aria-controls="${pid}" aria-labelledby="${tid}" onclick="homeRowToggle('${esc(r.id)}')"><span class="hx-row-chev" aria-hidden="true">${ic("chevron")}</span></button></div>
+      <div class="hx-row-p${on?" hx-row-in":""}" id="${pid}" role="region" aria-labelledby="${tid}"${on?"":" hidden"}>${lk?homeRowsPremHTML():`<div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>`}</div>
     </div>`}).join("")}</section>`;
 }
 /* analytics: recommendation_impression / _open / _started / _completed / _dismissed. Fixed
@@ -13351,14 +13487,7 @@ function rHomeV2(el){
     ${homeDestHTML(top,gate?[]:cards.slice(1),vis)}
     ${ppHomeCardHTML()}
     ${homeNudgeHTML()}
-    <div class="hero">
-      ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
-    </div>
-    <button class="pf-row pf-setup home-career" onclick="go('tracks')">
-      <span class="pf-ic">${ic("briefcase")}</span>
-      <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
-      <span class="pf-chev" aria-hidden="true">›</span>
-    </button>`;
+    ${homeTracksHTML()}`;
     manIconizeInline(el);hxDots();hxRotate();hxSwipeBind();homeRecImpress(_homeRows);
     hxOnlinePaint();try{ppPresencePoll()}catch(e){}
   };
@@ -13403,14 +13532,7 @@ function rHomeGeneral(el){
         knew — "General English · Current track" on the General English Home —
         and the only actionable half was the other one. The row stays underneath
         for the tracks still in development. */""}
-  <div class="hero">
-    ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
-  </div>
-  <button class="pf-row pf-setup home-career" onclick="go('tracks')">
-    <span class="pf-ic">${ic("briefcase")}</span>
-    <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>`;
+  ${homeTracksHTML()}`;
   manIconizeInline(el);
 }
 
@@ -13490,11 +13612,7 @@ function rHome(el){
         Tracks page already shows, with a button underneath to go to that page
         anyway — two ways to the same place, one of them a dead end. It is now a
         row that goes there, matching the Career Center row above it. */""}
-  <button class="pf-row pf-setup home-career" onclick="go('tracks')">
-    <span class="pf-ic">${ic("briefcase")}</span>
-    <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>`;
+  ${homeProgrammeRowHTML()}`;
   manIconizeInline(el);
 }
 
@@ -13645,8 +13763,31 @@ function trackPlaceholderCard(key){
     <span class="rp-entry-t"><b>${t(key)}</b><small>${t("tracks.coming_soon")}</small></span>
   </div>`;
 }
+/* The other programme's selection card plus the way to the Programme page —
+   the two things on Home that exist only because ONE app carries both
+   programmes. A single-programme build (the two-app split, BE_APP_TRACK) draws
+   neither: there is nothing to choose and nothing to cross to. */
+function homeProgrammeRowHTML(){
+  if(BE_APP_TRACK)return "";
+  return `<button class="pf-row pf-setup home-career" onclick="go('tracks')">
+    <span class="pf-ic">${ic("briefcase")}</span>
+    <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
+    <span class="pf-chev" aria-hidden="true">\u203a</span>
+  </button>`;
+}
+function homeTracksHTML(){
+  if(BE_APP_TRACK)return "";
+  return `<div class="hero">
+      ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
+    </div>`+homeProgrammeRowHTML();
+}
 function rTracks(el,from){
-  const tracks=ProfessionalTrackContext.all();
+  /* The two-app split: this page lists the programmes the APP has. A
+     single-programme build lists exactly one — the other track is still
+     registered because the Welding curriculum inherits the English-language
+     machinery from General English (see professional-tracks.js), but it is
+     never offered, and selectProfessionalTrack refuses it anyway. */
+  const tracks=ProfessionalTrackContext.all().filter(x=>!BE_APP_TRACK||x.id===BE_APP_TRACK);
   const comingSoon=["tracks.electrician","tracks.construction","tracks.healthcare","tracks.manufacturing","tracks.customer_service","tracks.hvac","tracks.plumbing","tracks.mechanical"];
   el.innerHTML=`
     <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('${from==="profile"?"profile":"home"}')">${from==="profile"?t("profile.back"):t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
@@ -13667,6 +13808,8 @@ function rTracks(el,from){
 window.selectProfessionalTrack=id=>{
   const track=ProfessionalTrackContext.get(id);
   if(!track)return;
+  /* a single-programme build has nothing to select: refuse, do not toast */
+  if(BE_APP_TRACK&&id!==BE_APP_TRACK)return;
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
   ProfessionalTrackContext.setActive(id);
@@ -15957,6 +16100,7 @@ window.shOpenWork=()=>{
   _shPrevFocus=document.activeElement;
   w.style.display="flex";
   document.body.classList.add("sh-work-open");   // stops the picker scrolling behind the overlay
+  adNativeSync();                                /* the library's slots are behind this overlay now: hide their platform views */
   const body=w.querySelector(".sh-work-body");if(body)body.scrollTop=0;
   try{if(svAsset&&svOn()){svNowDraw(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0),true,svLast.word);svLayoutSync()}}catch(e){}   // the card measures its two lines only once on screen
   document.addEventListener("keydown",shWorkKeys);
@@ -15972,6 +16116,7 @@ window.shCloseWork=()=>{
   const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic("play");
   const w=document.getElementById("shWork");if(w)w.style.display="none";
   document.body.classList.remove("sh-work-open");
+  adNativeSync();                                /* the library is in front again: its own slot may be drawn once more */
   try{const b=document.getElementById("shv3Bar");if(b)b.remove()}catch(e){}
   try{shLibDockSync()}catch(e){}
   document.removeEventListener("keydown",shWorkKeys);
@@ -16783,6 +16928,42 @@ function srText(results){
    app asks a signed-out learner with any progress to sign in — true advice today, vital
    at the switch. Every 3 days at most, 4 times in all; returns true when it asked, so the
    backup nudge does not stack on top of it. */
+/* ---- THE WEBVIEW-ORIGIN MIGRATION (11 Oct 2026) ----
+   The Play app was a Trusted Web Activity: Chrome drew app.lomonec.com and the
+   learner's practice lived in Chrome's storage for that site. The native shell
+   draws the same page in its OWN WebView, whose origin is https://localhost, so
+   none of that storage is reachable here. That is the browser's design, not a
+   defect, and nothing in the app can cross it — which is exactly why it matters:
+   a learner who never signed in opens the updated app to an empty first run, and
+   it looks like everything is gone.
+
+   It is not gone. It is still in Chrome under the old origin, and for anyone who
+   signed in it is in Firestore. So on the FIRST run of the Android shell, with no
+   profile here and no account, the app says what happened and offers sign-in.
+
+   Deliberately NOT a gate: onboarding is already drawn underneath, "I'm new here"
+   just closes it, and it is asked once per device. The marker lives in
+   localStorage rather than S because a cloud sync replaces S wholesale. No new
+   credential path — it opens the same sign-in sheet every other entry point uses.
+   keepNudge (below) is the other half, on the TWA, asking learners to sign in
+   BEFORE the switch; this is the safety net for everyone who never saw it. */
+const RESTORE_ASK_KEY="be_restore_asked";
+function restoreAsk(){
+  try{
+    if(!flag("play_keep_progress_enabled"))return false;   /* one flag covers both halves of the migration */
+    if(!IS_ANDROID_APP)return false;                       /* the TWA has keepNudge; iOS never had a TWA to migrate from */
+    if(S.profile)return false;                             /* a learner is already set up here: nothing to restore */
+    let u=null;try{u=FBUser}catch(e){}
+    if(u)return false;                                     /* signed in: the sync brings the profile by itself */
+    let asked=null;try{asked=localStorage.getItem(RESTORE_ASK_KEY)}catch(e){}
+    if(asked)return false;
+    try{localStorage.setItem(RESTORE_ASK_KEY,"1")}catch(e){}
+    askConfirm({icon:"user",danger:false,title:t("keep.restore_t"),body:t("keep.restore_b"),
+      confirmLabel:t("keep.restore_ok"),cancelLabel:t("keep.restore_new")})
+      .then(yes=>{if(yes)try{fbOpenModal("in")}catch(e){}});
+    return true;
+  }catch(e){return false}
+}
 const KEEP_EVERY_MS=3*86_400_000,KEEP_MAX=4;
 function keepNudge(){
   try{
@@ -18209,12 +18390,12 @@ function pushNativeBoot(){
 let _beWidgetPlug=null,_wgLast="",_wgH=null;
 function beNativeWidget(){
   if(_beWidgetPlug)return _beWidgetPlug;
-  if(!IS_IOS_APP)return null;
+  if(!IS_NATIVE_APP)return null;          /* the App Store shell and, since 11 Oct 2026, the Android shell (BEWidgetPlugin.java) */
   const p=capPlugin("BEWidget");
   if(p&&typeof p.update==="function"){_beWidgetPlug=p;return p}
   return null;
 }
-function widgetOn(){try{return !!(IS_IOS_APP&&flag("ios_widget_enabled")&&beNativeWidget())}catch(e){return false}}
+function widgetOn(){try{return !!((IS_IOS_APP&&flag("ios_widget_enabled")||IS_ANDROID_APP&&flag("android_widget_enabled"))&&beNativeWidget())}catch(e){return false}}
 /* THE GAME STREAK COUNTDOWN (iOS Live Activity, owner 10 Oct 2026, both game hubs).
    Leaving the app in the LAST THREE HOURS of the game day (UTC midnight, the day the
    hubs and the server count) with today's daily not done starts a lock-screen card
@@ -22724,7 +22905,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v686";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v687";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24517,11 +24698,11 @@ const FLAGS_DEFAULT={
   english_mastery_enabled:true,       // English Mastery game hub (General English only, 10 Oct 2026): staging ON, production OFF until the owner releases it  [production ON, owner 10 Oct 2026]
   welding_studio_enabled:true,         // Welding Professional English (owner, 29 Sep 2026): Shadow = the video Shadow Studio on refinery-trade clips, workplace lines move to Practice, Home = Home V2 with Welding recommendations. Production ON since be12-v654 (owner, 8 Oct 2026: Welding must match General English)
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
-  smart_coach_enabled:false,           // Smart Coach — the Smart Practice Planner in the Daily reminder sheet (both programmes, 10 Oct 2026): staging ON, production OFF (be-coach exists on staging only)
+  smart_coach_enabled:true,            // Smart Coach — the Smart Practice Planner in the Daily reminder sheet (both programmes, 10 Oct 2026). ON (Phase C, 11 Oct 2026): be-coach production is deployed (9c8da359) and the client carries its URL, so the page has a Worker to talk to.
   learning_nudges_enabled:true,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it  [production ON, owner 10 Oct 2026]
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
-  billing_enabled:false,               // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
+  billing_enabled:true,                // Phase 9: store purchases (Play Billing in the Android shell, StoreKit in the iOS shell). ON (Phase C, 11 Oct 2026) — with ENT_API set this makes planOn() true, so gates are in force and Premium is on sale. Turning it back off is the one-step rollback.
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.
   android_push_enabled:true,           // Android shell notifications through its BEPush plugin (FCM). Does nothing without google-services.json in the build AND FCM_SA_JSON on be-push — a kill switch, like ios_push_enabled.
   ios_push_enabled:true,               // iOS notifications (daily reminder, partner invitations, learning nudges) through the App Store shell's BEPush plugin. ON, but it can only do anything where that plugin exists AND be-push has the APNs key — a kill switch for the shell, not a web change (docs/IOS_NOTIFICATIONS.md).
@@ -24689,12 +24870,39 @@ const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$|shadow_sc
    later) is enforced where it is spent, on the server, against the same
    service. The cached view lives in its own key, outside S, so it is never
    synced to Firestore and a cloud merge can never "restore" a plan.
-   Not deployed: ENT_API is empty, so everyone is FREE and no request is made. */
-const ENT_API="";
+   LIVE since Phase C (11 Oct 2026): ENT_API is the production service below, so
+   the plan is the server's answer and the gates are in force. Rollback is
+   billing_enabled:false — ENT_API alone gates nothing (premium-boundary 9). */
+const ENT_API="https://entitlements.lomonec.com";   /* = ENT_API_PROD below; written out because both are top-level `const` and reading it from an earlier line would throw a TDZ ReferenceError at load */
 /* The PRODUCTION entitlement service (launch Phase B, 10 Oct 2026: deployed with its store
    secrets). Phase C sets ENT_API to it in the SAME release that turns billing_enabled on —
    two keys on purpose: either one alone gates nothing (tests/premium-boundary.mjs 9). */
 const ENT_API_PROD="https://entitlements.lomonec.com";
+/* PER-APP ENTITLEMENT (owner, 12 Oct 2026 — docs/APP_SPLIT.md § Premium).
+   The two store apps sell their own subscriptions and a purchase in one does
+   NOT unlock the other, so every entitlement question names the app it is
+   about: entRefresh asks /v1/entitlement?app=<programme> and the cache is
+   keyed by (uid, app) so one app's plan can never be drawn in the other.
+   On the web BE_APP_TRACK is null and the question is about the General
+   English app, which is the only app the website has ever sold. */
+function entApp(){return BE_APP_TRACK||AREA_GEN}
+/* Is a server view about THIS app? The entitlement service names the app it
+   answered about (`app`). An OLDER service does not know about apps at all and
+   answers about the account as a whole: that is the pre-split contract and is
+   right for the General English app, which is the only app that has ever sold a
+   subscription — but for any other app it would hand over another app's plan,
+   which is the one thing the owner's rule forbids. So a missing `app` is
+   accepted only for the default app.
+   This matters because of DEPLOYMENT ORDER: if the Welding app reaches a store
+   before be-entitlements understands `?app=`, every General English subscriber
+   would silently be Premium in the Welding app too. The server already fails
+   closed the same way (unknownApp → Free); this is its mirror. */
+function entViewIsOurs(j){
+  try{
+    const a=j&&typeof j.app==="string"&&j.app?j.app:null;
+    return a?a===entApp():entApp()===AREA_GEN;
+  }catch(e){return false}
+}
 const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
 /* The capability names Premium can grant. It matches CAPABILITIES in
    backend/entitlements/src/entitlement-core.js exactly; hasEntitlement()
@@ -24745,7 +24953,10 @@ function entSanitize(j){
 }
 function entCacheRead(uid){
   try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");
-    if(!c||c.uid!==uid||!(Date.now()-c.at<ENT_TTL))return null;
+    /* a cache written by the OTHER app (or before the split) is not this app's
+       plan: an absent `app` means the General English app, which is what every
+       entry written before 12 Oct 2026 is */
+    if(!c||c.uid!==uid||(c.app||AREA_GEN)!==entApp()||!(Date.now()-c.at<ENT_TTL))return null;
     const v=entSanitize(c.view);
     if(v.expiresAt!=null&&Date.now()>=v.expiresAt)return null;       /* never display a plan past its own end */
     return v}catch(e){return null}
@@ -25031,7 +25242,7 @@ function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CA
 function entNoteChange(uid,next){
   let prev=null;
   if(_entView&&_entUid===uid)prev=_entView;
-  else try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");if(c&&c.uid===uid)prev=entSanitize(c.view)}catch(e){}
+  else try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");if(c&&c.uid===uid&&(c.app||AREA_GEN)===entApp())prev=entSanitize(c.view)}catch(e){}
   if(!prev||!next||!prev.paid)return;
   const p={provider:prev.source||"none"};
   if(!next.paid&&next.state==="revoked")track("entitlement_revoked",{provider:p.provider,state:"revoked"});
@@ -25052,13 +25263,17 @@ async function entRefresh(){
   if(_entBusy)return _entBusy;
   _entBusy=(async()=>{
     try{
-      const r=await fetch(base+"/v1/entitlement",{headers:{authorization:"Bearer "+await FBUser.getIdToken()}});
+      const r=await fetch(base+"/v1/entitlement?app="+encodeURIComponent(entApp()),{headers:{authorization:"Bearer "+await FBUser.getIdToken()}});
       if(r.status===401){entWipe();return ENT_FREE}
       if(!r.ok)return entView();                                      /* server trouble: keep what we last knew (display only) */
-      const v=entSanitize(await r.json());
+      const j=await r.json();
+      /* an answer about another app — or from a service too old to say which —
+         is not this app's plan: Free, and nothing cached */
+      if(!entViewIsOurs(j)){entWipe();_entView=ENT_FREE;_entUid=uid;return ENT_FREE}
+      const v=entSanitize(j);
       entNoteChange(uid,v);
       _entView=v;_entUid=uid;
-      try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,at:Date.now(),view:v}))}catch(e){}
+      try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,app:entApp(),at:Date.now(),view:v}))}catch(e){}
       return v;
     }catch(e){return entView()}
     finally{_entBusy=null;entApply();try{_wgRecs.at=0;widgetSync(true)}catch(e){}}
@@ -25394,6 +25609,12 @@ const AdProviders={
 /* which provider runs: the native bridge in the store shells, the mock only
    where it is allowed, otherwise none. A web network (Phase 9 decision) slots in here. */
 function adProvider(){for(const id of ["native","mock"]){const p=AdProviders[id];if(p.available())return p}return AdProviders.none}
+/* A full-screen overlay opened or closed. A platform-drawn ad cannot see that
+   — no scroll, no resize, no re-render — so it is told to look again, and the
+   slots now behind the overlay hide at once instead of flashing over it for up
+   to 400 ms. A no-op on the web, where an ad is an ordinary element the page
+   covers by itself. */
+function adNativeSync(){try{const b=window.BENativeAds;if(b&&typeof b.sync==="function")b.sync()}catch(e){}}
 
 /* ================= THE STORE SHELL'S AD BRIDGE =================
    window.BENativeAds, built from Capacitor's BEAds plugin (Swift:
@@ -25452,21 +25673,80 @@ function beNativeAdsInit(){
        It follows the PLACEMENT, not one element: placeNative re-appends a kept
        slot after a re-render, and the creative must stay with it rather than
        vanish because that particular node was briefly out of the document. */
-    const watched={};
+    const watched={};let _syncRAF=0,_syncIV=0;
     const r4=el=>{const b=el.getBoundingClientRect();return {x:Math.round(b.left),y:Math.round(b.top),w:Math.round(b.width),h:Math.round(b.height)}};
     const slotBody=place=>{const s=document.querySelector('[data-ad-slot][data-placement="'+place+'"]');return s&&s.isConnected?(s.querySelector(".ad-native-body")||s):null};
-    const unwatch=place=>{const w=watched[place];if(!w)return;clearInterval(w.iv);delete watched[place];try{P.hideNative({placement:place})}catch(e){}};
-    const watch=place=>{
-      const w=watched[place];if(w){clearInterval(w.iv);delete watched[place]}
-      let last="";
-      const iv=setInterval(()=>{
-        const el=slotBody(place);
-        if(!el||!adsTrackAllows(place)||!AdEligibility.planAllowsAds()){unwatch(place);return}
-        const b=r4(el),k=b.x+","+b.y+","+b.w+","+b.h;
-        if(k!==last){last=k;try{P.moveNative(Object.assign({placement:place},b))}catch(e){}}
-      },250);
-      watched[place]={iv};
+    const unwatch=place=>{if(!watched[place])return;delete watched[place];try{P.hideNative({placement:place})}catch(e){}if(!Object.keys(watched).length)stopSync()};
+    /* ---- IS THE LEARNER ACTUALLY LOOKING AT THIS SLOT? ----------------------
+       (owner, 12 Oct 2026, from four photos of a phone.)
+       A native-SDK native ad is a PLATFORM view drawn OVER the WebView, not a
+       node in the page, so the page cannot cover it, scroll it away or hide it:
+       only the shell can. The follower asked two questions — is the slot still
+       in the document, and where is it — and then drew the ad there whatever
+       else was on screen. The Shadow workspace is a full-screen overlay inside
+       #v-shadow, so opening a clip left the library's two slots (library,
+       library_top) still in the document behind it, still followed, and still
+       painted on top of the transcript, the report and the recorder: the two
+       stray "ads" in the owner's photos were never the workspace's own slot.
+       Being in the document is not the same as being on screen. So the answer
+       is recomputed, and it is the app's existing rules, not a new one:
+         · the slot is still in the document and still has a real box;
+         · the programme and the plan still allow it (as before);
+         · nothing protects the screen from it RIGHT NOW — protectedReason() is
+           exactly what refuses every placement but shadow_video while the
+           workspace is open, and it already existed; it was simply never asked
+           again once the ad had been placed;
+         · its rectangle lies wholly inside the viewport, so a slot scrolled
+           half off the top cannot paint over the header or the foot bar.
+       Hidden is not gone: the view is told to hide, the slot keeps its place
+       and its creative, and closing the workspace brings it back with no new
+       request and no second impression. */
+    const allowed=place=>{
+      try{if(!adsTrackAllows(place)||!AdEligibility.planAllowsAds())return false}catch(e){return false}
+      try{if(AdEligibility.protectedReason(place))return false}catch(e){}
+      /* the video went full screen: the page is covered by the player's own
+         element, and a platform view would paint straight over it */
+      try{if(document.fullscreenElement||document.webkitFullscreenElement)return false}catch(e){}
+      return true;
     };
+    const onScreen=b=>b.w>=40&&b.h>=20&&b.x>=0&&b.y>=0
+      &&b.x+b.w<=(window.innerWidth||0)+1&&b.y+b.h<=(window.innerHeight||0)+1;
+    /* `deep` re-asks the policy; a scroll only moves the rectangle. The policy
+       answer costs a handful of selector queries, which is nothing four times a
+       second and too much on every frame of a scroll. */
+    const syncNow=deep=>{
+      _syncRAF=0;
+      for(const place of Object.keys(watched)){
+        const w=watched[place],el=slotBody(place);
+        if(!el){unwatch(place);continue}
+        if(deep||w.allow===undefined)w.allow=allowed(place);
+        const b=r4(el),on=w.allow&&onScreen(b),k=on?b.x+","+b.y+","+b.w+","+b.h:"off";
+        if(k===w.last)continue;
+        w.last=k;
+        try{P.moveNative(Object.assign({placement:place,visible:on},b))}catch(e){}
+      }
+    };
+    const sync=()=>{if(!_syncRAF)_syncRAF=requestAnimationFrame(()=>syncNow(false))};
+    const syncDeep=()=>{if(_syncRAF){cancelAnimationFrame(_syncRAF);_syncRAF=0}syncNow(true)};
+    const startSync=()=>{
+      if(_syncIV)return;
+      /* On SCROLL, not on a timer. The old follower ran every 250 ms, so during
+         a scroll the platform view stayed a quarter of a second behind the slot
+         and visibly slid across the text under it — which is what "the ad
+         floats" looked like. Capture, because the scroller is the workspace
+         body, not the window. */
+      addEventListener("scroll",sync,{capture:true,passive:true});
+      addEventListener("resize",sync,{passive:true});
+      addEventListener("orientationchange",sync,{passive:true});
+      _syncIV=setInterval(syncDeep,400);     /* the policy re-check, and a net under layout changes nothing reports */
+    };
+    const stopSync=()=>{
+      if(!_syncIV)return;
+      removeEventListener("scroll",sync,{capture:true});
+      removeEventListener("resize",sync);removeEventListener("orientationchange",sync);
+      clearInterval(_syncIV);_syncIV=0;if(_syncRAF){cancelAnimationFrame(_syncRAF);_syncRAF=0}
+    };
+    const watch=place=>{watched[place]={last:"",allow:undefined};startSync();syncDeep()};
     window.BENativeAds={
       supports(f){return formats.includes(f)},
       preload(f,c){try{if(f==="interstitial")P.load({format:f,context:(c&&c.context)||""})}catch(e){}},
@@ -25490,6 +25770,9 @@ function beNativeAdsInit(){
         return {shown:!!res.shown,closable:true,completed:res.completed!==false};
       },
       dismiss(){try{P.dismiss()}catch(e){}},
+      /* the screen changed in a way no scroll or resize reports — a full-screen
+         overlay opened or closed. Re-ask at once rather than up to 400 ms later. */
+      sync(){try{syncDeep()}catch(e){}},
       /* the page reserves the height, the shell draws the creative over it */
       /* EVERY FAILURE HERE USED TO BE SILENT (3 Oct 2026). The Shadow slot was
          requested three times on the owner's iPhone and displayed none of them,
@@ -25505,7 +25788,9 @@ function beNativeAdsInit(){
         let b;try{b=r4(el)}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"measure_threw"});return false}
         if(b.w<40||b.h<40){adTrack("ad_suppressed",{format:"native",context:place,reason:"size_"+b.w+"x"+b.h});return false}
         let out=null;
-        try{out=await P.showNative(Object.assign({placement:place},b))}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"show_threw"});return false}
+        /* born with the same answer the follower would give it a frame later, so
+           a slot that is already below the fold never flashes on screen first */
+        try{out=await P.showNative(Object.assign({placement:place,visible:onScreen(b)},b))}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"show_threw"});return false}
         if(!out||out.shown!==true){try{el.style.minHeight=""}catch(e){}adTrack("ad_suppressed",{format:"native",context:place,reason:"no_fill"});return false}
         watch(place);
         return true;
@@ -25975,7 +26260,12 @@ async function billingApi(method,path,body){
   return j;
 }
 /* the answer from the server replaces what the screen shows (display only) */
-function billingTakeView(v){if(!v)return;const s=entSanitize(v);entNoteChange(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
+/* The view a purchase route answered with. The server names the app that SOLD
+   the purchase, so a reply about the other app is ignored rather than drawn —
+   it cannot be this app's plan. */
+function billingTakeView(v){if(!v)return;
+  try{if(typeof v.app==="string"&&v.app&&v.app!==entApp())return}catch(e){}
+  const s=entSanitize(v);entNoteChange(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,app:entApp(),at:Date.now(),view:s}))}catch(e){}entApply()}
 
 /* WHY THE STORE IS NOT THERE (3 Oct 2026). "Premium can't be bought on this
    device" was one message for five different causes, so a physical failure
@@ -26848,13 +27138,31 @@ function svRender(){
    A DOM move rather than CSS order, so shLowerShow's sibling walk stays true. */
 function svPlace(first){
   const box=svBox(),seg=document.getElementById("shSeg"),hint=document.getElementById("shMarkHint");if(!box||!seg||!hint||box.parentNode!==seg.parentNode)return;
+  const ad=document.getElementById("shAdHost"),adHere=ad&&ad.parentNode===box.parentNode?ad:null;
   if(first){if(box.nextElementSibling!==seg)seg.parentNode.insertBefore(box,seg)}
   else{
     /* video -> ad -> the paragraph card (owner, 10 Oct 2026, from a phone: the ad
        sat UNDER the card). The ad's permanent host follows the hint, so the card
        goes after the host, never between the hint and it. */
-    const ad=document.getElementById("shAdHost"),after=ad&&ad.parentNode===box.parentNode?ad:hint;
+    /* Anchored on the HINT, not on the host: in Watch the host is lifted above
+       the clip tools with the card, so anchoring on it would keep the Watch
+       order when the learner goes back to Shadow. The host's own place between
+       the hint and the card is then restored by the pin below, which is why the
+       anchor skips it when it is already there (no DOM churn per render). */
+    const after=hint.nextElementSibling===adHere?adHere:hint;
     if(after.nextElementSibling!==box)after.parentNode.insertBefore(box,after.nextElementSibling);
+  }
+  /* ONE ORDER IN EVERY MODE (owner, 12 Oct 2026, from four photos of a phone).
+     Watch lifts the transcript ABOVE the clip tools, and the ad host stayed
+     where the markup put it — after the hint — so in Watch the sequence read
+     video -> transcript -> ad, and shLowerShow's sibling walk (everything after
+     #shV2) then set the host to display:none, which measures 0x0 and spends the
+     clip's one attempt on a slot that could never be drawn. Pinning the host to
+     the transcript's own previous sibling makes it video -> ad -> transcript in
+     Watch, Shadow and Challenge alike, and takes the host out of that walk. */
+  if(adHere){
+    if(box.previousElementSibling!==adHere)box.parentNode.insertBefore(adHere,box);
+    if(adHere.style.display==="none")adHere.style.display="";   /* an earlier shLowerShow(false) hid it */
   }
 }
 /* the full list, folded or open; remembered on this device */
@@ -32354,6 +32662,9 @@ function progressHTML(){
    back to this same page afterwards is what makes it read as two reviews rather
    than one review with a filter on it. */
 function areaScopeHTML(){
+  /* The two-app split: a single-programme build has no other area to name or
+     cross to, so the banner (and its switch) are not drawn at all. */
+  if(BE_APP_TRACK)return "";
   const pro=areaIsPro(),trade=areaLabel();
   const other=pro?"general-english":"welding";
   const otherName=pro?t("area.name_gen"):t("area.name_pro");
@@ -32369,6 +32680,7 @@ function areaScopeHTML(){
    belong to, and the way across. Same strings and the same switch as the
    review banner, so there is one idea here, not two. */
 function areaNoteHTML(view){
+  if(BE_APP_TRACK)return "";   /* the two-app split: one programme, nothing to switch to */
   const pro=areaIsPro(),rev=view==="review";
   const other=pro?"general-english":"welding";
   const otherName=pro?t("area.name_gen"):t("area.name_pro");
@@ -32381,6 +32693,7 @@ function areaNoteHTML(view){
 window.areaGoProfile=id=>{areaSwitch(id,"home")};
 function areaSwitch(id,view){
   if(!ProfessionalTrackContext.get(id))return;
+  if(BE_APP_TRACK&&id!==BE_APP_TRACK)return;   /* the two-app split: this app has one programme */
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
   ProfessionalTrackContext.setActive(id);
@@ -35193,7 +35506,15 @@ window._booted=false;let _bootRetrying=false;
 function curriculumCardHTML(msg){return `<div class="card" style="margin:24px 0;text-align:center"><p style="color:var(--mut);margin-bottom:12px">${esc(msg)}</p><button class="btn btn-p" onclick="bootRetry()">${esc(t("nav.retry"))}</button></div>`}
 async function curriculumBoot(){
   const mine=areaIsPro()?"welding":"general",other=mine==="welding"?"general":"welding";
-  CurriculumProvider.load(other).catch(e=>{try{console.warn("[curriculum] background",e)}catch(_){}});
+  /* The two-app split: a General English build never fetches the Welding pack —
+     there is no programme to switch to, and the files are not in its bundle.
+     A Welding build still loads `general` in the background, because the
+     Welding curriculum INHERITS the English-language machinery from it (stop
+     words, CEFR levels, grammar rules and drills — professional-tracks.js);
+     without it Practice offers questions with nothing behind them. That is
+     language machinery, not General English content: no GE week, mission,
+     video, recommendation or screen is reachable in the Welding app. */
+  if(!BE_APP_TRACK||other==="general")CurriculumProvider.load(other).catch(e=>{try{console.warn("[curriculum] background",e)}catch(_){}});
   try{await CurriculumProvider.load(mine);return true}
   catch(e){try{console.error("[curriculum]",e)}catch(_){}try{perfMark("error",0,"curriculum "+String(e&&e.message||e).slice(0,60))}catch(_){}return false}
 }
@@ -35291,7 +35612,9 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 }
 
 /* ===== ONBOARDING (first launch) ===== */
-let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",trade:"",best:0};
+/* track: a single-programme build (the two-app split) starts with its own
+   programme already chosen — the track step is never shown. */
+let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:BE_APP_TRACK||"",trade:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
 /* OB_TARGET used to be a second, hand-lowercased copy of OB_LINE, and the
    scorer read it directly. Once obWinLine() started returning the learner's
@@ -35323,8 +35646,9 @@ function obRender(){
     document.body.appendChild(el)}
   /* Welding leaves after the track step, so its dots only count the steps it will
      actually see. Showing seven and stopping at three would read as unfinished. */
-  const total=7;
-  const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
+  const total=BE_APP_TRACK?6:7;   /* the two-app split skips the programme step */
+  const lit=BE_APP_TRACK&&OB.step>2?OB.step-1:OB.step;
+  const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===lit?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo ob-logo-img" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
      <h1>${t("ob.hero_pre")} <em class="ob-em">${t("ob.hero_em")}</em></h1>
@@ -35420,6 +35744,10 @@ function obRender(){
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
   OB.step++;
+  /* Step 2 is "choose your programme". A single-programme build has nothing to
+     ask: the programme is the app the learner installed, so the step is skipped
+     rather than shown with one option. OB.track is already set. */
+  if(BE_APP_TRACK&&OB.step===2)OB.step++;
   if(OB.step>6)return obFinish();
   obRender();
 };
@@ -35438,6 +35766,7 @@ function obWinLine(){
   return OB_LINE;
 }
 window.obTrackPick=(id)=>{
+  if(BE_APP_TRACK&&id!==BE_APP_TRACK)return;   /* the two-app split: onboarding never offers the other programme */
   OB.track=id;
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
@@ -35672,7 +36001,7 @@ function webGateLift(){
   obRender();
   try{const n=document.getElementById("obName");if(n&&OB.name)n.value=OB.name}catch(e){}
 }
-if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else obRender()}
+if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else{obRender();try{restoreAsk()}catch(e){}}}   /* the Android shell's first run explains the move and offers sign-in, over onboarding */
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
 else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}try{widgetFeedBoot()}catch(e){}}
