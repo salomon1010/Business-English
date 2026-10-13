@@ -264,6 +264,24 @@ Identifiers**.
    capability the app does not use.)
 4. **Continue → Register**.
 
+> **Observed 13 October 2026 — a drift from step 3, recorded so nobody
+> "corrects" it.** The registered `…welding.BEPushService` identifier reports
+> four capabilities, including **Push Notifications** and **Sign in with
+> Apple**, which step 3 does not ask for. Xcode enabled them while provisioning
+> during the archive.
+>
+> **Nothing is granted by them, and they must be left alone.** The extension
+> ships no entitlements file, so it claims none of them at signing time. And
+> **revoking a capability can invalidate a provisioning profile Apple has
+> already issued** — the three Welding Store profiles are live and were used to
+> sign the verified IPA, so "tidying" this to match step 3 risks breaking a
+> working signing setup in order to fix nothing.
+>
+> This is observed state, not a finding: a capability listing is weak evidence
+> in both directions, because `IN_APP_PURCHASE` comes back on every identifier
+> on the account by default. Step 3 above is left exactly as written — it is
+> still the right instruction for registering the identifier from scratch.
+
 **A4 · the App Group**
 
 1. **Identifiers** → the type dropdown (top right, reads "App IDs") →
