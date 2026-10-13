@@ -23,15 +23,70 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- back from Sign in with Apple: the proxy at auth.lomonec.com hands Apple's answer here -->
+            <!-- back from Sign in with Apple: the proxy at auth.lomonec.com hands Apple's answer here.
+                 The scheme is a flavor placeholder (the two-app split): auth.lomonec.com redirects
+                 to a HARD-CODED bemastery://apple, so only the General English app may claim it —
+                 two apps claiming one scheme put an app chooser between the learner and their
+                 sign-in. The Welding flavor claims bemasterywelding:// and BEAuthPlugin reports
+                 Apple as unavailable there until be-auth can redirect per app (docs/APP_SPLIT.md). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="bemastery" android:host="apple" />
+                <data android:scheme="${beAppleScheme}" android:host="${beAppleHost}" />
+            </intent-filter>
+
+            <!-- a tap on a home-screen widget (BEWidgetLaunch in shell mode → BEWidgetPlugin).
+                 Always an EXPLICIT intent (setClassName with the app's own package), so each
+                 app's widgets open that app however many are installed; the filter only has to
+                 let the data through. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="${beWidgetScheme}" android:host="open" />
             </intent-filter>
 
         </activity>
+
+        <!-- Home-screen widgets: the Play TWA's own (playstore/android-widget, docs/ANDROID_WIDGET.md),
+             built in through build.gradle's sourceSets. The page feeds them through BEWidgetPlugin. -->
+        <receiver android:name=".widget.BEWidgetProvider" android:exported="true" android:label="@string/be_widget_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetProviderGE" android:exported="true" android:label="@string/be_widget_name_ge">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_ge" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetProviderPro" android:exported="true" android:label="@string/be_widget_name_pro">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_pro" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetRecsProvider" android:exported="true" android:label="@string/be_widget_name_recs">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_recs" />
+        </receiver>
+        <service
+            android:name=".widget.BEWidgetRecsService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <receiver android:name=".widget.BEWidgetMasteryProvider" android:exported="true" android:label="@string/be_widget_name_mastery">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_mastery" />
+        </receiver>
+        <!-- the game streak countdown (BEStreakCountdown, docs/ANDROID_LIVE_COUNTDOWN.md) -->
+        <receiver android:name=".widget.BEStreakReceiver" android:exported="false">
+            <intent-filter><action android:name="com.bemastery.app.live.TICK" /></intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <!-- AdMob reads its app id from here (res/values/ads.xml). Real in every build, as
              Google recommends; only the ad UNITS are swapped for test units in debug/staging. -->
@@ -85,6 +140,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Android 13+: the reminder / invitation prompt, asked from the Settings switch, never at launch -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- the streak countdown re-arms its alarms after a restart (BEStreakReceiver) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 </manifest>

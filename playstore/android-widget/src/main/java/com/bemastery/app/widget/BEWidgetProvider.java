@@ -74,7 +74,7 @@ public class BEWidgetProvider extends AppWidgetProvider {
     }
 
     /** Every placed widget of every kind, from what is on the phone now. */
-    static void drawEverything(Context c) {
+    public static void drawEverything(Context c) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(c);
         for (Class<?> p : PROVIDERS) drawAll(c, mgr, ids(c, p), areaOf(p));
         BEWidgetRecsProvider.drawEverything(c);   // the Recommendations widget reads the same snapshot

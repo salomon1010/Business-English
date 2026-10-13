@@ -25,10 +25,13 @@ const DAY = 864e5, NOW = Date.now();
 const db = new DatabaseSync(":memory:");
 for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
-const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app" };
+const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app", APP_PROGRAMMES: "general-english" };
 const grant = (uid, { status = "active", expires = NOW + 30 * DAY, product = "premium_annual" } = {}) =>
-  db.prepare("INSERT OR REPLACE INTO entitlements(uid,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?)")
-    .run("dev:" + uid, "premium", product, status, NOW - DAY, expires, "google_play", "test", Date.now());
+  /* PER-APP ENTITLEMENT (migration 0005): the derived row is per (account, app).
+     These suites exercise the General English app — the web build, and what every
+     pre-split purchase is. */
+  db.prepare("INSERT OR REPLACE INTO entitlements(uid,app_id,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)")
+    .run("dev:" + uid, "general-english", "premium", product, status, NOW - DAY, expires, "google_play", "test", Date.now());
 
 const PLAY_STUB = ({ trial, products, owned }) => {
   window.__play = { shows: [], lists: 0, noProducts: !products, trial, owned: owned || [] };

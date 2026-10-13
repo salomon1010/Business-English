@@ -1,9 +1,18 @@
 <?xml version='1.0' encoding='utf-8'?>
-<!-- THE TWO-APP SPLIT: the Welding flavor's own identity. Everything not
-     overridden here comes from src/main, so the two apps share one codebase. -->
+<!-- THE TWO-APP SPLIT (12 Oct 2026) — the Welding English app's own identity.
+     Only what must differ is here; every other string comes from src/main.
+     "BE Mastery Welding" is 19 characters: a Play listing title may be 30, and
+     an Android launcher shows about 12 before it truncates, so the launcher
+     label is the shorter "BE Welding" and the store title carries the full
+     name (playstore/listing-welding-*.txt). -->
 <resources>
     <string name="app_name">BE Welding</string>
-    <string name="title_activity_main">BE Welding</string>
+    <string name="title_activity_main">BE Mastery Welding</string>
     <string name="package_name">com.lomonec.bemastery.welding</string>
     <string name="custom_url_scheme">com.lomonec.bemastery.welding</string>
+    <!-- The gallery labels say which app the widget belongs to: a learner with both
+         installed sees two "Your road map" entries otherwise. -->
+    <string name="be_widget_name">Welding road map</string>
+    <string name="be_widget_name_recs">Welding recommendations</string>
+    <string name="be_widget_name_mastery">Welding Mastery</string>
 </resources>

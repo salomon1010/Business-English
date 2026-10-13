@@ -277,6 +277,18 @@ async function learner(id, track) {
   await page.goto(BASE + "/index.html?i=" + Date.now(), { waitUntil: "load" });
   await sleep(1000);
   await page.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov").forEach(e => e.remove()));
+  /* A SIGNED-IN FREE LEARNER. The AI routes require an account — a free one is
+     enough (owner, 1 Oct 2026: "an AI route needs an ACCOUNT, free capabilities
+     included; anonymous learners get no AI"). be-polish enforces it with a 401,
+     and since Phase C turned billing on the page asks the same question before
+     spending a turn (aiNoAccount). A suite that exercises coaching must therefore
+     be signed in, exactly as a real learner must be. This is the FREE tier, not
+     Premium: it grants nothing the server would not. */
+  await page.evaluate(k => { FBUser = { uid: "t-" + k, email: k + "@test.invalid", getIdToken: async () => "tok-" + k }; }, String(id));
+  /* setting FBUser does not run fbOnAuth, so the plan must be fetched explicitly —
+     the same call the real auth callback makes. */
+  await page.evaluate(() => entRefresh()).catch(() => {});
+  await sleep(250);
   return { ctx: ctx2, page };
 }
 async function speak(page, text) {

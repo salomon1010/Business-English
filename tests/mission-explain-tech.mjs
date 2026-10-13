@@ -359,6 +359,18 @@ async function learner(id, track, viewport) {
       fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, "welding": { placed: "full", finished: true, day: 15, done: {} } },
       days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now() }));
   }, { track });
+  /* THE ENTITLEMENT SERVICE, answered as a PREMIUM account. Progress's whole
+     "See all details" fold — the evidence panels this suite asserts — is Premium
+     (owner, 30 Sep 2026: pgRecordLocked() = entLocked("advanced_progress"), a
+     hard lock, not metered). Before Phase C nothing was gated, so a test learner
+     saw the panels for free; now they are exactly what a subscriber buys. The plan
+     is supplied the way the app really learns it — the server's answer to
+     GET /v1/entitlement — so no gate is patched here. */
+  await ctx.route(u => /entitlements\.lomonec\.com|be-entitlements/.test(u.href), route => route.fulfill({ status: 200, contentType: "application/json",
+    headers: { "access-control-allow-origin": "*" },
+    body: JSON.stringify({ plan: "premium", paid: true, state: "active", ads: false, source: "google_play",
+      startedAt: Date.now() - 86400000, expiresAt: Date.now() + 30 * 86400000, renews: true,
+      capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true } }) }));
   await ctx.route(u => u.href.startsWith(POLISH), async route => {
     polishHits++;
     if (coachMode === "abort") return route.abort("failed");
@@ -373,6 +385,18 @@ async function learner(id, track, viewport) {
   await page.goto(BASE + "/index.html?w5=" + Date.now(), { waitUntil: "load" });
   await sleep(1000);
   await page.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov").forEach(e => e.remove()));
+  /* A SIGNED-IN FREE LEARNER. The AI routes require an account — a free one is
+     enough (owner, 1 Oct 2026: "an AI route needs an ACCOUNT, free capabilities
+     included; anonymous learners get no AI"). be-polish enforces it with a 401,
+     and since Phase C turned billing on the page asks the same question before
+     spending a turn (aiNoAccount). A suite that exercises coaching must therefore
+     be signed in, exactly as a real learner must be. This is the FREE tier, not
+     Premium: it grants nothing the server would not. */
+  await page.evaluate(k => { FBUser = { uid: "t-" + k, email: k + "@test.invalid", getIdToken: async () => "tok-" + k }; }, String(id));
+  /* setting FBUser does not run fbOnAuth, so the plan must be fetched explicitly —
+     the same call the real auth callback makes. */
+  await page.evaluate(() => entRefresh()).catch(() => {});
+  await sleep(250);
   await page.evaluate(() => { window.__ev = []; const t0 = window.track; window.track = (n, p) => { window.__ev.push([n, p || {}]); return t0 && t0(n, p); }; });
   return { ctx, page };
 }

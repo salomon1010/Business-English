@@ -159,6 +159,15 @@ public final class BEStreakCountdown {
     /** Accent colours, as the iPhone card: cyan English Mastery, amber Welding Mastery, green safe. */
     static int accent(Live l, boolean safe) { return safe ? 0xFF34D399 : l.welding() ? 0xFFF59E0B : 0xFF22D3EE; }
 
+    /* the status-bar icon: Bubblewrap's ic_notification_icon in the TWA, ic_stat_be in the
+       native shell (mobile/android) — the same sources build both */
+    static int smallIcon(Context c) {
+        String pkg = c.getPackageName();
+        int id = c.getResources().getIdentifier("ic_notification_icon", "drawable", pkg);
+        if (id == 0) id = c.getResources().getIdentifier("ic_stat_be", "drawable", pkg);
+        return id != 0 ? id : android.R.drawable.ic_popup_reminder;
+    }
+
     static void post(Context c, Live l, long now, boolean safe) {
         if (Build.VERSION.SDK_INT < 24) return;          // no counting-down Chronometer before Android 7
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -166,7 +175,7 @@ public final class BEStreakCountdown {
         channel(c, nm);
         RemoteViews small = views(c, l, now, safe, false), big = views(c, l, now, safe, true);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CHANNEL) : new Notification.Builder(c);
-        b.setSmallIcon(R.drawable.ic_notification_icon)
+        b.setSmallIcon(smallIcon(c))
                 .setColor(accent(l, safe))
                 .setContentTitle(l.title)
                 .setContentText(safe ? l.doneLine : l.line)

@@ -32,11 +32,11 @@
      runs without Firebase; production must never set it.
    - Responses are no-store: a shared cache must never serve one learner's
      plan to another. */
-import { resolve, validateRecord, isPremium, pickRecord, REWARD_KINDS, REWARD_SESSION_TTL_MS, rewardKindEnabled } from "./src/entitlement-core.js";
+import { resolve, validateRecord, isPremium, pickRecord, REWARD_KINDS, REWARD_SESSION_TTL_MS, rewardKindEnabled, programmes, defaultProgramme, knownProgramme, appOf } from "./src/entitlement-core.js";
 import { ADAPTERS, REWARD_VERIFIERS } from "./src/adapters.js";
 import { BILLING_PROVIDERS } from "./src/billing.js";
 import { appAccountToken } from "./src/app-store.js";
-import { seal } from "./src/token-vault.js";
+import { seal, open as unseal } from "./src/token-vault.js";
 import * as admob from "./src/admob.js";
 import { verifyIdToken } from "./src/firebase-auth.js";
 
@@ -87,7 +87,11 @@ async function balances(env, uid) {
   const r = await q(env, "SELECT kind, balance FROM reward_credits WHERE uid=?", uid).all();
   const o = {}; for (const row of (r && r.results) || []) o[row.kind] = row.balance; return o;
 }
-const readRecord = (env, uid) => q(env, "SELECT uid,plan,product,status,starts_at,expires_at,will_renew,source,updated_at FROM entitlements WHERE uid=?", uid).first();
+/* PER-APP ENTITLEMENT (12 Oct 2026): the derived row is per (account, app), so
+   a purchase made in one app is never read as the other app's plan. `app`
+   defaults to the first configured programme, which is what a single-app
+   configuration and every pre-split row are. */
+const readRecord = (env, uid, app) => q(env, "SELECT uid,plan,product,status,starts_at,expires_at,will_renew,source,updated_at FROM entitlements WHERE uid=? AND app_id=?", uid, app || defaultProgramme(env)).first();
 
 /* ---- account binding. A purchase link belongs to ONE account: the first
    verified bind wins, atomically (the conditional upsert below cannot move a
@@ -99,9 +103,13 @@ const ENDED = ["expired", "revoked"];
 async function bindLink(env, uid, l) {
   const r = l.record;
   const sealed = ENDED.includes(r.status) ? null : await seal(l.secret_ref, env, l.provider + ":" + l.ext_id);
-  const res = await q(env, `INSERT INTO purchase_links(provider,ext_id,uid,plan,product,source,status,starts_at,expires_at,will_renew,secret_ref,updated_at)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+  const res = await q(env, `INSERT INTO purchase_links(provider,ext_id,uid,plan,product,source,status,starts_at,expires_at,will_renew,secret_ref,updated_at,app_id)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(provider,ext_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, source=excluded.source,
+        /* PER-APP ENTITLEMENT: the app that sold a purchase never changes, and a
+           later verify must not be able to move it to another app. The stored
+           value wins; excluded.app_id only fills a row that has none. */
+        app_id=COALESCE(purchase_links.app_id, excluded.app_id),
         /* a Play refund sticks to its purchase: a later verify or notification must not hand
            Premium back on the same token (a resubscription always gets a NEW token).
            Apple is left alone: REFUND_REVERSED legitimately restores it. */
@@ -110,22 +118,100 @@ async function bindLink(env, uid, l) {
         secret_ref=CASE WHEN excluded.status IN ('expired','revoked') THEN NULL ELSE COALESCE(excluded.secret_ref, purchase_links.secret_ref) END,
         updated_at=excluded.updated_at
       WHERE purchase_links.uid=excluded.uid`,
-    l.provider, l.ext_id, uid, r.plan, r.product ?? null, r.source, r.status, r.starts_at ?? null, r.expires_at ?? null, r.will_renew ?? null, sealed, r.updated_at).run();
+    l.provider, l.ext_id, uid, r.plan, r.product ?? null, r.source, r.status, r.starts_at ?? null, r.expires_at ?? null, r.will_renew ?? null, sealed, r.updated_at,
+    l.app_id ?? defaultProgramme(env)).run();
   if (changes(res)) return { ok: true };
   const o = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", l.provider, l.ext_id).first();
   return o && o.uid === uid ? { ok: true } : { ok: false, owner: o && o.uid };
 }
+/* Bind a provider's verified links and record what happened. Shared by the
+   purchase routes and by the self-heal below, so neither can drift from the
+   other: binding, supersede, acknowledge and the audit line are written once. */
+async function applyLinks(env, uid, links, p, ctx, now, actor, action) {
+  const out = [];
+  for (const l of links || []) {
+    const b = await bindLink(env, uid, l);
+    if (!b.ok) { out.push({ ok: false, why: "bound_elsewhere", status: 409 }); continue; }
+    if (l.supersedes) await q(env, "UPDATE purchase_links SET status='expired', secret_ref=NULL, updated_at=? WHERE provider=? AND ext_id=? AND uid=?", now, l.provider, l.supersedes, uid).run();
+    if (p.afterBind) await p.afterBind(l, ctx);
+    await audit(env, now, uid, actor, action, l.record);
+    out.push({ ok: true });
+  }
+  return out;
+}
+
+/* ---- SELF-HEAL ON READ (11 Oct 2026) -------------------------------------
+   A renewal Google never told us about. RTDN is at-least-once, not
+   guaranteed: a dropped SUBSCRIPTION_RENEWED leaves the row saying "active"
+   with last period's expires_at, so resolve() reads it as expired and a
+   PAYING learner is shown Free until their phone next launches and
+   reconcile() re-sends what Play says it owns. On the web — the surface with
+   no store to reconcile from — that could last indefinitely.
+
+   This asks Google once, on the read that would otherwise say Free, and only
+   for the one case it can repair:
+     · provider google_play (Apple's own notifications carry the signed
+       records, and an Apple row keeps no token to re-ask with);
+     · status still active / trialing / grace — a row Google has told us is
+       expired or revoked is NOT re-asked, and keeps no token anyway
+       (bindLink nulls secret_ref on a terminal status);
+     · expires_at already past, so the learner is being denied right now;
+     · secret_ref still sealed, i.e. there IS a token to ask with.
+
+   The cooldown needs no new storage: every attempt writes updated_at (a
+   success through bindLink, a refusal through the stamp below), so one
+   account asks Google at most once per SELF_HEAL_COOLDOWN_MS. Verification is
+   the DEVICE'S OWN path, verifyPurchase — same account-mismatch check, same
+   supersede, same acknowledge — so a self-heal can never grant more than a
+   purchase submitted from the phone would. Any failure returns null and the
+   caller answers exactly what it would have answered before. */
+export const SELF_HEAL_COOLDOWN_MS = 10 * 60_000;
+async function selfHealPlay(env, uid, now, deps, want) {
+  const p = BILLING_PROVIDERS.google_play;
+  if (!p || !p.configured(env)) return null;
+  const row = await q(env, `SELECT ext_id, secret_ref FROM purchase_links
+      WHERE uid=? AND provider='google_play' AND secret_ref IS NOT NULL
+        AND status IN ('active','trialing','grace')
+        AND expires_at IS NOT NULL AND expires_at < ? AND updated_at <= ?
+      ORDER BY expires_at DESC LIMIT 1`, uid, now, now - SELF_HEAL_COOLDOWN_MS).first();
+  if (!row) return null;
+  const stamp = () => q(env, "UPDATE purchase_links SET updated_at=? WHERE provider='google_play' AND ext_id=? AND uid=?", now, row.ext_id, uid).run();
+  let token = null;
+  try { token = await unseal(row.secret_ref, env, "google_play:" + row.ext_id); } catch (e) { token = null; }
+  if (!token) { await stamp(); return null; }        /* no key, or a token sealed under another id: never ask again in this window */
+  const ctx = { uid, env, deps, now };
+  let v = null;
+  try { v = await p.verifyPurchase({ purchaseToken: token }, ctx); } catch (e) { v = null; }
+  if (!v || !v.ok) { await stamp(); return null; }    /* Google says it is not live, or could not be reached */
+  const applied = await applyLinks(env, uid, v.links, p, ctx, now, "self-heal:google_play", "verify");
+  if (!applied.some(x => x.ok)) { await stamp(); return null; }
+  return await recompute(env, uid, now, want);
+}
+
 /* the entitlement row is DERIVED from the account's links */
-async function recompute(env, uid, now) {
+/* PER-APP ENTITLEMENT (12 Oct 2026): one derived row per (account, app). A
+   purchase made in the Welding app can only ever decide the Welding row, so a
+   learner who is Premium in one app is Free in the other until they buy there
+   too — the owner's rule. Every configured programme is recomputed, because one
+   verified purchase can also EXPIRE a row (a refund, a supersede).
+   `want` is the programme the caller is asking about; its view is returned. */
+async function recompute(env, uid, now, want) {
   const rows = ((await q(env, "SELECT * FROM purchase_links WHERE uid=?", uid).all()).results) || [];
-  const pick = pickRecord(rows.map(r => ({ uid, plan: r.plan, product: r.product, status: r.status, starts_at: r.starts_at, expires_at: r.expires_at,
-    will_renew: r.will_renew, source: r.source, updated_at: r.updated_at })), now);
-  if (!pick) { await q(env, "DELETE FROM entitlements WHERE uid=?", uid).run(); return resolve(null, now); }
-  await q(env, `INSERT INTO entitlements(uid,plan,product,status,starts_at,expires_at,will_renew,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,NULL,?)
-      ON CONFLICT(uid) DO UPDATE SET plan=excluded.plan, product=excluded.product, status=excluded.status, starts_at=excluded.starts_at,
-        expires_at=excluded.expires_at, will_renew=excluded.will_renew, source=excluded.source, updated_at=excluded.updated_at`,
-    uid, pick.plan, pick.product ?? null, pick.status, pick.starts_at ?? null, pick.expires_at ?? null, pick.will_renew ?? null, pick.source, now).run();
-  return resolve(pick, now);
+  const link = r => ({ uid, plan: r.plan, product: r.product, status: r.status, starts_at: r.starts_at, expires_at: r.expires_at,
+    will_renew: r.will_renew, source: r.source, updated_at: r.updated_at, app_id: appOf(env, r.app_id) });
+  const all = rows.map(link);
+  const asked = want || defaultProgramme(env);
+  let out = resolve(null, now);
+  for (const app of programmes(env)) {
+    const pick = pickRecord(all, now, app);
+    if (!pick) { await q(env, "DELETE FROM entitlements WHERE uid=? AND app_id=?", uid, app).run(); if (app === asked) out = resolve(null, now); continue; }
+    await q(env, `INSERT INTO entitlements(uid,app_id,plan,product,status,starts_at,expires_at,will_renew,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?,NULL,?)
+        ON CONFLICT(uid,app_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, status=excluded.status, starts_at=excluded.starts_at,
+          expires_at=excluded.expires_at, will_renew=excluded.will_renew, source=excluded.source, updated_at=excluded.updated_at`,
+      uid, app, pick.plan, pick.product ?? null, pick.status, pick.starts_at ?? null, pick.expires_at ?? null, pick.will_renew ?? null, pick.source, now).run();
+    if (app === asked) out = resolve(pick, now);
+  }
+  return out;
 }
 /* a reward session verified by a network (mock / AdMob): single use per transaction */
 async function applyRewardVerification(env, now, providerId, nonce, txn) {
@@ -145,6 +231,25 @@ const audit = (env, ts, uid, actor, action, r) => q(env,
 
 export async function handle(req, env, deps = {}) {
   const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
+  /* PER-APP ENTITLEMENT (12 Oct 2026): which of the two apps is asking. It can
+     only SELECT among this account's own purchases — never create one — so a
+     client naming it is safe; what grants an entitlement is still only a
+     store-signed purchase, and which app that purchase belongs to comes from
+     the store identity the signature carries (billing.js).
+
+     NO ?app= AT ALL is a pre-split client, and means the first configured
+     programme — which is also what a single-app configuration always is.
+
+     AN APP THIS SERVICE DOES NOT KNOW must NOT fall back to another app's
+     plan. That would hand the Welding app the General English plan on any
+     deployment where APP_PROGRAMMES has not been extended yet — exactly the
+     leak the owner's rule forbids. `unknownApp` makes those routes answer
+     Free for the app that was asked about. */
+  const appParam = url.searchParams.get("app");
+  const askedApp = appParam == null ? defaultProgramme(env) : knownProgramme(env, appParam);
+  const unknownApp = askedApp === null;
+  /* echoed back so a misconfiguration is visible, sanitised because it came from the caller */
+  const askedAppName = unknownApp ? String(appParam).replace(/[^a-z0-9-]/gi, "").slice(0, 40) : askedApp;
   const now = deps.now ? deps.now() : Date.now();
   const c = cors(req, env);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: c });
@@ -157,14 +262,22 @@ export async function handle(req, env, deps = {}) {
   if (path === "/v1/entitlement" && req.method === "GET") {
     const uid = await authUid(req, env, deps);
     if (!uid) return err(401, "auth", c);
-    const rec = await readRecord(env, uid);
-    return json({ ...resolve(rec, now), checkedAt: now }, 200, c);
+    /* an app this service is not configured for is Free here, never another
+       app's plan */
+    if (unknownApp) return json({ ...resolve(null, now), app: askedAppName, checkedAt: now }, 200, c);
+    const rec = await readRecord(env, uid, askedApp);
+    let view = resolve(rec, now);
+    /* a renewal notification that never arrived: ask Google once, then answer */
+    if (!view.paid) { const healed = await selfHealPlay(env, uid, now, deps, askedApp); if (healed) view = healed; }
+    /* the view names the app it is about, so a client can never mistake one
+       app's plan for the other's */
+    return json({ ...view, app: askedApp, checkedAt: now }, 200, c);
   }
 
   if (path === "/v1/me" && req.method === "DELETE") {
     const uid = await authUid(req, env, deps);
     if (!uid) return err(401, "auth", c);
-    const had = await readRecord(env, uid);
+    const had = await readRecord(env, uid, askedApp || defaultProgramme(env));
     const links = await q(env, "SELECT count(*) AS n FROM purchase_links WHERE uid=?", uid).first();
     /* the store subscription itself is cancelled in the store, never here —
        this removes what BE Mastery holds about the account */
@@ -187,7 +300,7 @@ export async function handle(req, env, deps = {}) {
     if (!v.ok) return json({ error: "invalid", why: v.why }, 400);
     await bindLink(env, rec.uid, { provider: "manual", ext_id: "grant:" + rec.uid, record: rec });
     await audit(env, now, rec.uid, "admin", "grant", rec);
-    return json({ ok: true, view: await recompute(env, rec.uid, now) });
+    return json({ ok: true, view: await recompute(env, rec.uid, now, rec.app_id || defaultProgramme(env)) });
   }
 
   /* ---------------------------------------------------------- rewards */
@@ -200,7 +313,8 @@ export async function handle(req, env, deps = {}) {
     let body; try { body = await req.json(); } catch (e) { return err(400, "json", c); }
     const kind = String((body && body.kind) || "");
     if (!rewardKindEnabled(kind, env.REWARD_KINDS_ENABLED)) return err(403, "kind_off", c);
-    if (isPremium(resolve(await readRecord(env, uid), now))) return err(409, "premium", c);   /* Premium never sees rewarded ads */
+    if (unknownApp) return err(400, "unknown_app", c);
+    if (isPremium(resolve(await readRecord(env, uid, askedApp), now))) return err(409, "premium", c);   /* Premium in THIS app never sees rewarded ads */
     const used = await q(env, "SELECT count(*) AS n FROM reward_sessions WHERE uid=? AND kind=? AND claimed_at>=?", uid, kind, dayStart(now)).first();
     if (((used && used.n) || 0) >= REWARD_KINDS[kind].dailyMax) return err(429, "daily_cap", c);
     const nonce = nonceHex();
@@ -262,19 +376,17 @@ export async function handle(req, env, deps = {}) {
     const items = restore ? (Array.isArray(body.items) ? body.items.slice(0, 20) : []) : [body];
     if (!items.length) return err(400, "items", c);
     const ctx = { uid, env, deps, now }, results = [];
+    /* the app a verified purchase belongs to, so the answer is the view of the
+       app that actually sold it rather than whichever app asked */
+    let soldApp = null;
     for (const it of items) {
       const v = await p.verifyPurchase(it || {}, ctx);
       if (!v.ok) { results.push({ ok: false, why: v.why, status: v.status }); continue; }
-      for (const l of v.links) {
-        const b = await bindLink(env, uid, l);
-        if (!b.ok) { results.push({ ok: false, why: "bound_elsewhere", status: 409 }); continue; }
-        if (l.supersedes) await q(env, "UPDATE purchase_links SET status='expired', secret_ref=NULL, updated_at=? WHERE provider=? AND ext_id=? AND uid=?", now, l.provider, l.supersedes, uid).run();
-        if (p.afterBind) await p.afterBind(l, ctx);
-        await audit(env, now, uid, "provider:" + p.id, restore ? "restore" : "verify", l.record);
-        results.push({ ok: true });
-      }
+      if (!soldApp && v.links && v.links[0] && v.links[0].app_id) soldApp = v.links[0].app_id;
+      for (const r of await applyLinks(env, uid, v.links, p, ctx, now, "provider:" + p.id, restore ? "restore" : "verify")) results.push(r);
     }
-    const view = await recompute(env, uid, now);
+    const forApp = soldApp || askedApp || defaultProgramme(env);
+    const view = { ...(await recompute(env, uid, now, forApp)), app: forApp };
     if (!restore && !results[0].ok) return json({ error: results[0].why, view: { ...view, checkedAt: now } }, results[0].status || 400, c);
     /* results name no purchase ids — only whether each item bound */
     return json({ ok: true, results, view: { ...view, checkedAt: now } }, 200, c);

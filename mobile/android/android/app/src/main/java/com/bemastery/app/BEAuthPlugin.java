@@ -68,11 +68,21 @@ public class BEAuthPlugin extends Plugin {
        instead of two buttons that can only fail: Google needs be-mastery-test's "Safelist
        client IDs from external projects" step, and Apple would need the test project's own
        Services ID and auth-staging.lomonec.com (docs/ANDROID_NATIVE_SHELL_PLAN.md). */
+    /* THE TWO-APP SPLIT (12 Oct 2026): Sign in with Apple is answered "no" in the
+       Welding build. auth.lomonec.com redirects Apple's answer to a HARD-CODED
+       bemastery://apple, which only one installed app may claim; a second claimant
+       puts an app chooser between the learner and their sign-in, and the app that
+       did not start the flow would silently drop it (the state would not match).
+       Google and e-mail are unaffected, so nothing is lost but one button. It
+       turns on the day be-auth can pick the scheme per app — docs/APP_SPLIT.md
+       § "Sign in with Apple on Android". */
+    private static boolean appleCanReturnHere() { return "general-english".equals(BuildConfig.BE_PROGRAMME); }
+
     @PluginMethod
     public void available(PluginCall call) {
         boolean staging = BuildConfig.BE_STAGING;
         JSObject r = new JSObject();
-        r.put("apple", !staging && !appleServicesId().isEmpty());
+        r.put("apple", !staging && appleCanReturnHere() && !appleServicesId().isEmpty());
         r.put("google", !staging && !webClientId().isEmpty());
         call.resolve(r);
     }
@@ -144,6 +154,7 @@ public class BEAuthPlugin extends Plugin {
 
     @PluginMethod
     public void appleSignIn(PluginCall call) {
+        if (!appleCanReturnHere()) { call.reject("Sign in with Apple is not available in this app.", "unconfigured"); return; }
         String sid = appleServicesId();
         if (sid.isEmpty()) { call.reject("Sign in with Apple is not configured in this build.", "unconfigured"); return; }
         if (getActivity() == null) { call.reject("no activity", "provider"); return; }

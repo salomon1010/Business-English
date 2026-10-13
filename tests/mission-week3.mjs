@@ -141,6 +141,18 @@ async function learner(id, track) {
     }
   }, { track });
 
+  /* THE ENTITLEMENT SERVICE, answered as a PREMIUM account. Progress's whole
+     "See all details" fold — the evidence panels this suite asserts — is Premium
+     (owner, 30 Sep 2026: pgRecordLocked() = entLocked("advanced_progress"), a
+     hard lock, not metered). Before Phase C nothing was gated, so a test learner
+     saw the panels for free; now they are exactly what a subscriber buys. The plan
+     is supplied the way the app really learns it — the server's answer to
+     GET /v1/entitlement — so no gate is patched here. */
+  await ctx.route(u => /entitlements\.lomonec\.com|be-entitlements/.test(u.href), route => route.fulfill({ status: 200, contentType: "application/json",
+    headers: { "access-control-allow-origin": "*" },
+    body: JSON.stringify({ plan: "premium", paid: true, state: "active", ads: false, source: "google_play",
+      startedAt: Date.now() - 86400000, expiresAt: Date.now() + 30 * 86400000, renews: true,
+      capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true } }) }));
   await ctx.route(u => u.href.startsWith(POLISH), async route => {
     polishHits++;
     if (coachMode === "abort") return route.abort("failed");

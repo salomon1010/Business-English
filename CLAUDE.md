@@ -115,6 +115,51 @@ not JS, and `new Function` chokes on it. Check it separately with
   the mission report to the attempt row for the Speaking History and the
   conversation sheet, which still draw that report. Test:
   `tests/mission-coach-report.mjs` (16).
+- **TWO STORE APPS, ONE CODEBASE (owner, 12 Oct 2026) — `docs/APP_SPLIT.md`.**
+  BE Mastery ships as **BE Mastery** (General English; Play `com.bemastery.app`,
+  App Store `com.lomonec.bemastery` — unchanged) and **BE Mastery Welding**
+  (Play/App Store `com.lomonec.bemastery.welding` — new). A store bundle carries
+  `be-build.js` `{track:"<id>"}`, written by `mobile/ios/scripts/sync-web.mjs
+  --track <id>`; index.html reads it as **`BE_APP_TRACK`**, and that one value
+  pins `areaId()` — the single question every feature asks — so the curriculum,
+  Home, the studio, the games, the ads gate, the analytics boundary and the
+  backend's own programme read all follow. `selectProfessionalTrack` /
+  `areaSwitch` / `obTrackPick` refuse the other id, `go()` refuses the other
+  programme's views (`VIEW_TRACK`: partner/english/roleplay are GE,
+  mastery/simulation/lines/career are Welding), the onboarding programme step is
+  skipped, and sync-web REMOVES the other programme's content from the bundle —
+  except `tracks/general/*`'s SECTION files, which the Welding curriculum
+  inherits the English-language machinery from (missions.json and the mastery
+  packs ARE removed). **`BE_APP_TRACK` is null on the web and in any bundle built
+  without `--track`, so app.lomonec.com is unchanged and still serves both
+  programmes.** Android = Gradle flavors `general` / `welding` (+
+  `verify<Variant>WebBundleProgramme`, which fails a build whose web bundle is
+  the other programme's); iOS = `ios/App/Welding.xcconfig` overriding
+  `BE_APP_BUNDLE_ID` / `BE_APP_GROUP` / `BE_DISPLAY_NAME` / `BE_PROGRAMME`, with
+  every target deriving its bundle id from the first. **Premium is PER APP (owner,
+  12 Oct 2026 — this REVERSED the same morning's shared-entitlement design):
+  each app sells its own subscription at the SAME price points
+  (`premium_monthly` P1M US$2.99 grace P3D, `premium_annual` P1Y US$19.99 grace
+  P14D, a `trial3d` 3-day free offer on each — read back from the live Play
+  console, not assumed), and a purchase in one app does NOT unlock the other.**
+  `purchase_links.app_id` + a per-app `entitlements` row (migration 0005) record
+  which app sold a purchase, taken from the Play listing Google verified the
+  token against or the `bundleId` in Apple's JWS — never from the client.
+  `PLAY_PACKAGE` / `APPLE_BUNDLE_ID` / `APP_PROGRAMMES` are INDEX-ALIGNED lists
+  (position i = the same app); `GET /v1/entitlement?app=<programme>` answers
+  about one app and the view carries `app`; the client asks with `entApp()` =
+  `BE_APP_TRACK || AREA_GEN` and keys its cache by (uid, app). Two deliberate
+  failure modes: a store list extended without `APP_PROGRAMMES` refuses the NEW
+  app's purchases and leaves the existing app's working, and an app the service
+  does not know is answered **Free**, never the other app's plan. To restore one
+  shared subscription, set `APP_PROGRAMMES = "general-english,general-english"` —
+  configuration, not code. Build:
+  `mobile/android/scripts/{build,release}.sh [general|welding]`,
+  `mobile/ios/scripts/build.sh [general|welding]`,
+  `check-release.mjs --programme <id>`. Tests: `tests/app-split.mjs` (76),
+  `backend/entitlements/test/billing.mjs` W1-W23 (138). **Nothing is uploaded or
+  submitted**; every store/Firebase/AdMob/Worker step only the owner can do is in
+  `docs/APP_SPLIT.md` § Store actions.
 - **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
   programmes share one engine but must never share evidence: the Progress/Review
   page reports on the OPEN area only. `areaId()` is the area (`S.professionalTracks

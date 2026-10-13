@@ -26,6 +26,7 @@
 import * as gp from "./google-play.js";
 import * as as from "./app-store.js";
 import { sha256Hex, enc } from "./crypto-util.js";
+import { programmeOfStoreId } from "./entitlement-core.js";
 
 const TOKEN_RE = /^[A-Za-z0-9._-]{16,512}$/;
 const fail = (status, why) => ({ ok: false, status, why });
@@ -37,10 +38,32 @@ const google_play = {
     const { env, deps, now } = ctx;
     const token = String((ev && ev.purchaseToken) || "");
     if (!TOKEN_RE.test(token)) return fail(400, "token");
-    let sub; try { sub = await gp.getSubscription(env, token, deps); } catch (e) { return fail(502, e.code || "google"); }
-    if (!sub) return fail(404, "unknown_purchase");                       /* Google does not know this token for our app */
+    /* THE TWO-APP SPLIT: PLAY_PACKAGE is an allow-list (General English and
+       Welding English are two listings, one entitlement). `hint` is the
+       package an RTDN named, so the usual path is still one request; a token
+       from the app carries none and is tried against each listing. */
+    let hit; try { hit = await gp.getSubscriptionWithPackage(env, token, deps, (ev && ev.packageName) || null); } catch (e) { return fail(502, e.code || "google"); }
+    if (!hit) return fail(404, "unknown_purchase");                       /* no listing of ours knows this token */
+    const sub = hit.sub;
+    /* The listing must map to a configured programme. A misaligned
+       PLAY_PACKAGE / APP_PROGRAMMES pair gives null, and a purchase is refused
+       rather than filed against the wrong app. */
+    const appId = programmeOfStoreId(env, hit.pkg);
+    if (!appId) return fail(500, "app_unmapped");
     const rec = gp.toRecord(sub, now);
     if (!rec) return fail(422, "not_our_product");
+    /* A LICENCE-TEST PURCHASE MUST NOT BECOME A PRODUCTION ENTITLEMENT
+       (owner, 12 Oct 2026). Google marks a licence tester's purchase
+       testPurchase, and until now the flag was read off the subscription and
+       then dropped on the floor: a free test purchase produced a row
+       indistinguishable from a paid one. Apple's side already had this control
+       — APPLE_ENVIRONMENTS, strict by default, refusing a Sandbox transaction
+       with 422 (test A10) — so this is the same rule on the same terms:
+         PLAY_ALLOW_TEST_PURCHASES = "1"   staging / a licence-testing Worker
+         unset or anything else            production: test purchases refused
+       Strict by default, like APPLE_ENVIRONMENTS, because the dangerous
+       direction is a test purchase quietly becoming revenue. */
+    if (rec.test && String(env.PLAY_ALLOW_TEST_PURCHASES || "") !== "1") return fail(422, "test_purchase");
     if (ev.productId && ev.productId !== rec.product) return fail(422, "product_mismatch");
     /* a purchase that names an account (the Android app passes our appAccountToken as
        obfuscatedAccountId, 10 Oct 2026) may only be bound to THAT account — as on Apple.
@@ -50,7 +73,11 @@ const google_play = {
       record: { plan: rec.plan, product: rec.product, status: rec.status, starts_at: rec.starts_at, expires_at: rec.expires_at,
         will_renew: sub.subscriptionState === "SUBSCRIPTION_STATE_CANCELED" ? 0 : (rec.status === "active" || rec.status === "grace" ? 1 : null),
         source: "google_play", updated_at: now },
-      needsAck: !rec.acknowledged, productId: rec.product,
+      needsAck: !rec.acknowledged, productId: rec.product, packageName: hit.pkg,   /* acknowledge() must use the listing the token belongs to */
+      /* PER-APP ENTITLEMENT (12 Oct 2026): which of our apps sold this, taken
+         from the listing Google verified the token against — never from the
+         client. A purchase grants Premium in that app only. */
+      app_id: appId,
       /* lets a notification bind a purchase no account has claimed yet — and acknowledge it
          before Play's 3-day refund, without waiting for the app's next launch */
       ...(rec.accountId ? { bindByAccountToken: rec.accountId } : {}) };
@@ -68,14 +95,14 @@ const google_play = {
     }
     const sn = d.subscriptionNotification; if (!sn) return { ok: true, id, updates: [] };
     /* the notification says only "this token changed": ask Google for the truth */
-    const v = await this.verifyPurchase({ purchaseToken: sn.purchaseToken }, ctx);
+    const v = await this.verifyPurchase({ purchaseToken: sn.purchaseToken, packageName: d.packageName }, ctx);
     if (!v.ok) return v.status === 404 ? { ok: true, id, updates: [] } : v;
     return { ok: true, id, updates: v.links };
   },
   async afterBind(link, { env, deps }) {
     /* only a paid purchase is acknowledged: never an ended, refunded or still-unpaid one */
     if (link.needsAck && (link.record.status === "active" || link.record.status === "grace" || link.record.status === "trialing")) {
-      try { await gp.acknowledge(env, link.productId, link.secret_ref, deps); } catch (e) {}   /* retried by the next verify / RTDN */
+      try { await gp.acknowledge(env, link.productId, link.secret_ref, deps, link.packageName); } catch (e) {}   /* retried by the next verify / RTDN */
     }
   },
 };
@@ -107,7 +134,10 @@ const app_store = {
     if (!rec) return fail(422, "not_our_product");
     if (rec.ignore) return { ok: true, ignore: rec.ignore };
     if (!rec.originalTransactionId) return fail(422, "no_original_id");
-    return { ok: true, tx, link: { provider: "app_store", ext_id: rec.originalTransactionId,
+    /* the bundle id Apple SIGNED, mapped to one of our apps by configuration */
+    const appId = programmeOfStoreId(env, tx.bundleId);
+    if (!appId) return fail(500, "app_unmapped");
+    return { ok: true, tx, link: { provider: "app_store", ext_id: rec.originalTransactionId, app_id: appId,
       record: { plan: rec.plan, product: rec.product, status: rec.status, starts_at: rec.starts_at, expires_at: rec.expires_at,
         will_renew: ren ? (ren.autoRenewStatus === 1 ? 1 : 0) : null, source: "app_store", updated_at: now },
       appAccountToken: rec.appAccountToken, txExpires: rec.txExpires } };
@@ -128,7 +158,7 @@ const app_store = {
     if (!p.notificationUUID) return fail(400, "uuid");
     const id = "as:" + p.notificationUUID, d = p.data || {};
     if (p.notificationType === "TEST") return { ok: true, id, updates: [] };
-    if (d.bundleId !== ctx.env.APPLE_BUNDLE_ID) return fail(422, "bundle");
+    if (!as.bundleIds(ctx.env).includes(d.bundleId)) return fail(422, "bundle");   /* either app, never a third */
     /* a notification for the other environment (Sandbox at the production URL,
        or the reverse) is acknowledged and changes nothing — answering an error
        would only make Apple retry it for days */

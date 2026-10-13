@@ -30,10 +30,13 @@ const wv = i => "w" + String(i).padStart(10, "0");
 const db = new DatabaseSync(":memory:");
 for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
-const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app" };
+const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app", APP_PROGRAMMES: "general-english" };
 const grant = (uid, { status = "active", expires = NOW + 30 * DAY } = {}) =>
-  db.prepare("INSERT OR REPLACE INTO entitlements(uid,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?)")
-    .run("dev:" + uid, "premium", "premium_annual", status, NOW - DAY, expires, "google_play", "test", Date.now());   /* DEV_AUTH identities are "dev:<name>" */
+  /* PER-APP ENTITLEMENT (migration 0005): the derived row is per (account, app).
+     These suites exercise the General English app — the web build, and what every
+     pre-split purchase is. */
+  db.prepare("INSERT OR REPLACE INTO entitlements(uid,app_id,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)")
+    .run("dev:" + uid, "general-english", "premium", "premium_annual", status, NOW - DAY, expires, "google_play", "test", Date.now());   /* DEV_AUTH identities are "dev:<name>" */
 
 const PLAY_STUB = trial => {
   window.__play = { shows: [], lists: 0 };
@@ -54,7 +57,12 @@ async function open({ track = "general-english", uid = null, billing = true, ext
     await ctx.addInitScript(([s, bill, theme]) => {
       if (!localStorage.getItem("__seeded")) { localStorage.setItem("be12_v1", s); localStorage.setItem("__seeded", "1"); }
       localStorage.setItem("be_ent_api", "http://ent.test");
-      if (bill) localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true }));
+      /* ALWAYS written, both ways. While FLAGS_DEFAULT.billing_enabled was false,
+         omitting the key for `billing:false` happened to give the right answer;
+         Phase C (11 Oct 2026) set that default true, so the omission silently
+         turned every "billing off" case into billing ON and four checks here
+         asserted a state they were no longer in. An off switch has to say off. */
+      localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: !!bill }));
       if (theme) localStorage.setItem("be_theme", theme);
     }, [seed(track, extra), billing, theme]);
     await ctx.addInitScript(PLAY_STUB, trial);

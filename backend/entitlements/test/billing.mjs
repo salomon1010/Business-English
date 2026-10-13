@@ -43,7 +43,11 @@ const idTok = uid => { const s = Math.floor(clock / 1000); const d = b64u(JSON.s
 /* ---------------- Google: service account, androidpublisher, Pub/Sub ---------------- */
 const sa = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const SA = { client_email: "be-billing@test.iam.gserviceaccount.com", private_key: sa.privateKey.export({ type: "pkcs8", format: "pem" }), private_key_id: "sa1" };
-const G = { subs: new Map(), acks: [], tokenCalls: 0, apiCalls: 0 };
+/* THE TWO-APP SPLIT: Play now has two listings and the Worker may be configured
+   with both. `tokenPkg` says which listing a token really belongs to (default
+   the original app), and the fake answers 404 for any other — exactly as Google
+   does, which is what lets the Worker find the right one by asking each. */
+const G = { subs: new Map(), acks: [], tokenCalls: 0, apiCalls: 0, tokenPkg: new Map(), ackPkg: [] };
 const iso = ms => new Date(ms).toISOString();
 const gsub = (o = {}) => ({ kind: "androidpublisher#subscriptionPurchaseV2", subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", startTime: iso(T0 - DAY),
   acknowledgementState: "ACKNOWLEDGEMENT_STATE_PENDING", lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 30 * DAY) }], ...o });
@@ -61,9 +65,13 @@ async function fakeFetch(url, init = {}) {
   if (m) {
     G.apiCalls++;
     if ((init.headers || {}).authorization !== "Bearer g-access") return new Response("{}", { status: 401 });
-    if (decodeURIComponent(m[1]) !== "com.bemastery.app") return new Response("{}", { status: 404 });
-    if (m[5]) { G.acks.push(decodeURIComponent(m[4])); const s = G.subs.get(decodeURIComponent(m[4])); if (s) s.acknowledgementState = "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED"; return new Response("{}", { status: 200 }); }
-    const s = G.subs.get(decodeURIComponent(m[3])); return s ? new Response(JSON.stringify(s), { status: 200 }) : new Response("{}", { status: 404 });
+    const askedPkg = decodeURIComponent(m[1]);
+    if (m[5]) { const t = decodeURIComponent(m[4]);
+      if (askedPkg !== (G.tokenPkg.get(t) || "com.bemastery.app")) return new Response("{}", { status: 404 });
+      G.acks.push(t); G.ackPkg.push(askedPkg); const s = G.subs.get(t); if (s) s.acknowledgementState = "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED"; return new Response("{}", { status: 200 }); }
+    const t = decodeURIComponent(m[3]);
+    if (askedPkg !== (G.tokenPkg.get(t) || "com.bemastery.app")) return new Response("{}", { status: 404 });
+    const s = G.subs.get(t); return s ? new Response(JSON.stringify(s), { status: 200 }) : new Response("{}", { status: 404 });
   }
   return new Response("not faked: " + u, { status: 599 });
 }
@@ -71,7 +79,7 @@ const goog = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const GJWK = { ...goog.publicKey.export({ format: "jwk" }), kid: "g1", alg: "RS256" };
 const oidc = (o = {}) => { const s = Math.floor(clock / 1000); const d = b64u(JSON.stringify({ alg: "RS256", kid: o.kid || "g1" })) + "." + b64u(JSON.stringify({ iss: "https://accounts.google.com", aud: o.aud || "https://ent.test/v1/billing/google_play", email: o.email || "pubsub@test.iam.gserviceaccount.com", email_verified: true, iat: s - 5, exp: s + 3600 }));
   const g = createSign("RSA-SHA256"); g.update(d); return d + "." + b64u(g.sign(o.key || goog.privateKey)); };
-const rtdnBody = (data, messageId) => JSON.stringify({ message: { data: Buffer.from(JSON.stringify({ version: "1.0", packageName: "com.bemastery.app", eventTimeMillis: String(clock), ...data })).toString("base64"), messageId }, subscription: "projects/p/subscriptions/s" });
+const rtdnBody = (data, messageId, pkg = "com.bemastery.app") => JSON.stringify({ message: { data: Buffer.from(JSON.stringify({ version: "1.0", packageName: pkg, eventTimeMillis: String(clock), ...data })).toString("base64"), messageId }, subscription: "projects/p/subscriptions/s" });
 
 /* ---------------- Apple: a real certificate chain ---------------- */
 const dir = mkdtempSync(join(tmpdir(), "be-apple-"));
@@ -121,9 +129,10 @@ async function call(method, path, { uid, body, headers = {} } = {}) {
   const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (e) {}
   return { status: r.status, json: j, text: t };
 }
-const view = async uid => (await call("GET", "/v1/entitlement", { uid })).json;
+/* PER-APP ENTITLEMENT: the view is about ONE app; `app` names it (?app=…). */
+const view = async (uid, app) => (await call("GET", "/v1/entitlement" + (app ? "?app=" + encodeURIComponent(app) : ""), { uid })).json;
 const gverify = (uid, token, extra = {}) => call("POST", "/v1/purchases/verify", { uid, body: { provider: "google_play", purchaseToken: token, ...extra } });
-const rtdn = (data, id, o = {}) => call("POST", "/v1/billing/google_play", { headers: { authorization: "Bearer " + oidc(o), "content-type": "application/json" }, body: rtdnBody(data, id) });
+const rtdn = (data, id, o = {}) => call("POST", "/v1/billing/google_play", { headers: { authorization: "Bearer " + oidc(o), "content-type": "application/json" }, body: rtdnBody(data, id, o.pkg) });
 const aToken = async uid => (await call("GET", "/v1/purchases/account-token", { uid })).json.appAccountToken;
 const averify = (uid, tx, ren) => call("POST", "/v1/purchases/verify", { uid, body: { provider: "app_store", signedTransaction: jws(tx), ...(ren ? { signedRenewalInfo: jws(ren) } : {}) } });
 const anotify = (type, subtype, tx, ren, uuid = randomUUID()) => call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: type, subtype, notificationUUID: uuid, version: "2.0", signedDate: clock,
@@ -355,7 +364,9 @@ console.log("\n# provider-neutral behaviour");
   r = await gverify("sam", tok(20));
   ok("P5 · after deletion the purchase token is free to bind again (the buyer can sign up anew and restore)", r.status === 200);
   const keys = Object.keys(await view("sam")).sort().join();
-  ok("P6 · the view stays provider-neutral: no token, transaction id, product id or account id", keys === "ads,capabilities,checkedAt,expiresAt,paid,plan,renews,source,startedAt,state", keys);
+  /* `app` is our own programme id (the two-app split, 12 Oct 2026) — it names
+     which app the view is about, and carries nothing of the provider. */
+  ok("P6 · the view stays provider-neutral: no token, transaction id, product id or account id", keys === "ads,app,capabilities,checkedAt,expiresAt,paid,plan,renews,source,startedAt,state", keys);
 }
 
 console.log("\n# Phase 10 — limits and the lost-purchase path");
@@ -488,6 +499,350 @@ console.log("\n# 10 Oct 2026 — the Android app names the account (obfuscatedAc
   r = await gverify("acct-a", tok(80));              /* Google still reports the token ACTIVE (a refund without revocation) */
   await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 2, purchaseToken: tok(80), subscriptionId: "premium_monthly" } }, "m-ab5b");
   ok("AB5 · a Play refund sticks: neither a later verify nor a notification on the same token hands Premium back", afterVoid === false && !(await view("acct-a")).paid, JSON.stringify(await view("acct-a")));
+}
+
+console.log("\n# Self-heal on read — a renewal notification that never arrived");
+{
+  _resetTokenCache();
+  env = envFor();
+  clock = T0;
+  /* a live monthly, bought from the phone: the row is active to T0+30d and keeps its sealed token */
+  G.subs.set(tok(90), gsub());
+  await gverify("heal-a", tok(90));
+  const before = await view("heal-a");
+
+  /* the month passes and Play renews, but the RTDN is lost: nothing told us */
+  clock = T0 + 31 * DAY;
+  G.subs.set(tok(90), gsub({ startTime: iso(T0 - DAY), lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 61 * DAY) }],
+    acknowledgementState: "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED" }));
+  const calls0 = G.apiCalls;
+  const healed = await view("heal-a");
+  ok("SH1 · a read that would say Free asks Google once and returns the RENEWED period instead",
+    before.paid === true && healed.paid === true && healed.plan === "premium" && healed.source === "google_play"
+    && healed.expiresAt === T0 + 61 * DAY && G.apiCalls > calls0, JSON.stringify({ before: before.expiresAt, healed }));
+
+  const calls1 = G.apiCalls;
+  ok("SH2 · the next read is served from the repaired row — no second call to Google",
+    (await view("heal-a")).paid === true && G.apiCalls === calls1);
+
+  /* the same shape, but the subscription really did end */
+  clock = T0;
+  G.subs.set(tok(91), gsub());
+  await gverify("heal-b", tok(91));
+  clock = T0 + 31 * DAY;
+  G.subs.set(tok(91), gsub({ subscriptionState: "SUBSCRIPTION_STATE_EXPIRED", lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 30 * DAY) }] }));
+  const calls2 = G.apiCalls;
+  const gone = await view("heal-b");
+  ok("SH3 · Google says it ended → still Free, and the row is marked so nothing is invented", gone.paid === false && gone.plan === "free" && G.apiCalls > calls2, JSON.stringify(gone));
+  const calls3 = G.apiCalls;
+  ok("SH4 · …and the cooldown holds: a second read inside the window does NOT ask Google again",
+    (await view("heal-b")).paid === false && G.apiCalls === calls3, String(G.apiCalls - calls3));
+
+  /* a refunded purchase must never be re-asked: the void dropped its token */
+  clock = T0;
+  G.subs.set(tok(92), gsub());
+  await gverify("heal-c", tok(92));
+  await rtdn({ voidedPurchaseNotification: { purchaseToken: tok(92), orderId: "GPA.92", productType: 1, refundType: 1 } }, "m-sh5");
+  clock = T0 + 31 * DAY;
+  G.subs.set(tok(92), gsub({ lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 61 * DAY) }] }));
+  const calls4 = G.apiCalls;
+  ok("SH5 · a revoked purchase is never re-asked, however healthy Google now claims the token is",
+    (await view("heal-c")).paid === false && G.apiCalls === calls4, JSON.stringify(await view("heal-c")));
+
+  /* an Apple row holds no token: nothing to ask with, and nothing is attempted */
+  clock = T0;
+  const atk = await aToken("heal-d");
+  await averify("heal-d", { originalTransactionId: "ot-sh6", transactionId: "t-sh6", productId: "premium_monthly", bundleId: "com.lomonec.bemastery",
+    purchaseDate: T0 - DAY, expiresDate: T0 + 30 * DAY, type: "Auto-Renewable Subscription", appAccountToken: atk, environment: "Production" });
+  clock = T0 + 31 * DAY;
+  const calls5 = G.apiCalls;
+  ok("SH6 · an expired Apple row is left to Apple's own notifications — no Google call",
+    (await view("heal-d")).paid === false && G.apiCalls === calls5, JSON.stringify(await view("heal-d")));
+
+  /* a learner with no purchase at all must not cost a store request */
+  const calls6 = G.apiCalls;
+  ok("SH7 · a Free account with no purchase costs no store request", (await view("heal-none")).plan === "free" && G.apiCalls === calls6);
+  clock = T0;
+}
+
+console.log("\n# One account, both stores — the shared entitlement");
+{
+  _resetTokenCache();
+  env = envFor();
+  clock = T0;
+  /* bought on the iPhone: annual, paid to T0+365d */
+  const atk = await aToken("duo");
+  await averify("duo", { originalTransactionId: "ot-duo", transactionId: "t-duo", productId: "premium_annual", bundleId: "com.lomonec.bemastery",
+    purchaseDate: T0 - DAY, expiresDate: T0 + 365 * DAY, type: "Auto-Renewable Subscription", appAccountToken: atk, environment: "Production" });
+  const afterApple = await view("duo");
+  ok("X1 · an Apple purchase is the account's entitlement, and every surface asking for that account gets it",
+    afterApple.paid === true && afterApple.plan === "premium" && afterApple.source === "app_store" && afterApple.expiresAt === T0 + 365 * DAY, JSON.stringify(afterApple));
+
+  /* the same learner buys monthly on an Android phone as well */
+  G.subs.set(tok(95), gsub());
+  const gp = await gverify("duo", tok(95));
+  const both = await view("duo");
+  const links = ((await env.DB.prepare("SELECT provider, uid FROM purchase_links WHERE uid=? ORDER BY provider").bind("duo").all()).results || []).map(r => r.provider).join(",");
+  ok("X2 · a second store on the SAME account does not make a second plan: one entitlement, the in-force link with the latest expiry (Apple's year over Play's month)",
+    gp.status === 200 && both.paid === true && both.source === "app_store" && both.expiresAt === T0 + 365 * DAY && links === "app_store,google_play",
+    JSON.stringify({ both, links }));
+  ok("X3 · neither purchase leaks to another account",
+    (await view("duo-other")).plan === "free" && (await view("duo-other")).paid === false);
+}
+
+/* ================= TWO APPS, SEPARATE ENTITLEMENTS =========================
+   Owner's rule, 12 Oct 2026: BE Mastery ships as two store apps, each with its
+   own subscription products at the same price points, and **a purchase in one
+   app must not unlock the other**. (This REVERSES the shared-entitlement design
+   of the morning, which these checks used to assert.)
+
+   How it is enforced: every purchase link records the app that sold it, taken
+   from the store identity the signature carries — the Play listing Google
+   verified the token against, or the bundle id in Apple's JWS — mapped to a
+   programme by index-aligned configuration:
+
+     PLAY_PACKAGE    = "com.bemastery.app,com.lomonec.bemastery.welding"
+     APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"
+     APP_PROGRAMMES  = "general-english,welding"
+
+   The entitlement is then resolved per (account, app). A client names the app
+   it is asking about, which can only ever SELECT among that account's own
+   purchases — it can never create one. */
+const WPKG = "com.lomonec.bemastery.welding", WBID = "com.lomonec.bemastery.welding";
+const GE = "general-english", WE = "welding";
+const BOTH = { PLAY_PACKAGE: "com.bemastery.app," + WPKG, APPLE_BUNDLE_ID: "com.lomonec.bemastery," + WBID, APP_PROGRAMMES: GE + "," + WE };
+console.log("\n# Two apps, separate entitlements");
+{
+  /* ---- a Welding purchase while only the original app is configured ---- */
+  env = envFor(); clock = T0;
+  G.subs.set(tok(120), gsub()); G.tokenPkg.set(tok(120), WPKG);
+  let r = await gverify("sp1", tok(120));
+  ok("W1 · a Welding-listing purchase is refused while PLAY_PACKAGE names only the original app",
+    r.status === 404 && r.json.error === "unknown_purchase", JSON.stringify(r.json));
+
+  /* ---- both apps configured: the Welding purchase grants Welding ONLY ---- */
+  env = envFor(BOTH);
+  G.subs.set(tok(121), gsub()); G.tokenPkg.set(tok(121), WPKG);
+  G.acks.length = 0; G.ackPkg.length = 0;
+  r = await gverify("sp2", tok(121));
+  const wView = await view("sp2", WE), gView = await view("sp2", GE);
+  ok("W2 · the Welding app's purchase is verified and grants Premium in the WELDING app",
+    r.status === 200 && wView.paid === true && wView.plan === "premium" && wView.app === WE, JSON.stringify({ r: r.json, wView }));
+  ok("W3 · …and the SAME ACCOUNT is still Free in the General English app — a purchase in one app does not unlock the other",
+    gView.paid === false && gView.plan === "free" && gView.app === GE, JSON.stringify(gView));
+  ok("W4 · the verify answer is the view of the app that SOLD it, whichever app asked", r.json.view && r.json.view.app === WE && r.json.view.paid === true, JSON.stringify(r.json.view));
+  ok("W5 · it is acknowledged against the listing that sold it, not the other one",
+    G.acks.includes(tok(121)) && G.ackPkg[G.ackPkg.length - 1] === WPKG, G.ackPkg.join(","));
+
+  /* ---- and the mirror image ---- */
+  G.subs.set(tok(122), gsub());
+  r = await gverify("sp3", tok(122));
+  const g3 = await view("sp3", GE), w3 = await view("sp3", WE);
+  ok("W6 · a purchase in the original listing grants Premium in the General English app only",
+    r.status === 200 && g3.paid === true && w3.paid === false, JSON.stringify({ g3: g3.plan, w3: w3.plan }));
+
+  /* ---- buying in BOTH apps is two entitlements, not one plan twice ---- */
+  G.subs.set(tok(123), gsub()); G.tokenPkg.set(tok(123), WPKG);
+  await gverify("sp3", tok(123));
+  ok("W7 · the same learner buying in both apps is Premium in both, from two separate purchases",
+    (await view("sp3", GE)).paid === true && (await view("sp3", WE)).paid === true);
+  const rows = ((await env.DB.prepare("SELECT app_id, count(*) n FROM purchase_links WHERE uid='sp3' GROUP BY app_id ORDER BY app_id").all()).results || []).map(x => `${x.app_id}:${x.n}`).join(",");
+  ok("W8 · …and the two purchases are filed under their own apps", rows === `${GE}:1,${WE}:1`, rows);
+
+  /* ---- a token that is not ours at all ---- */
+  G.subs.set(tok(124), gsub()); G.tokenPkg.set(tok(124), "com.someone.else");
+  r = await gverify("sp4", tok(124));
+  ok("W9 · a token from an app that is not ours is refused", r.status === 404 && r.json.error === "unknown_purchase", JSON.stringify(r.json));
+
+  /* ---- notifications ---- */
+  G.subs.set(tok(125), gsub()); G.tokenPkg.set(tok(125), WPKG);
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(125), subscriptionId: "premium_monthly" } }, "m-w1", { pkg: WPKG });
+  ok("W10 · a Play notification for the Welding listing is accepted", r.status === 200, JSON.stringify(r.json));
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(125), subscriptionId: "premium_monthly" } }, "m-w2", { pkg: "com.someone.else" });
+  ok("W11 · a notification naming a package that is not ours is refused", r.status === 401 && /package/.test(JSON.stringify(r.json)), JSON.stringify(r.json));
+
+  /* ---- Apple: the same rule, from the bundle id Apple SIGNED ---- */
+  env = envFor(BOTH);
+  let atk = await aToken("sa1");
+  r = await averify("sa1", atx({ bundleId: WBID, originalTransactionId: "ot-w1", appAccountToken: atk }));
+  ok("W12 · an App Store purchase from the Welding app grants Premium in the Welding app",
+    r.status === 200 && (await view("sa1", WE)).paid === true, JSON.stringify(r.json));
+  ok("W13 · …and not in the General English app", (await view("sa1", GE)).paid === false);
+  atk = await aToken("sa2");
+  r = await averify("sa2", atx({ bundleId: "com.someone.else", originalTransactionId: "ot-w2", appAccountToken: atk }));
+  ok("W14 · a transaction from an app that is not ours is refused", r.status === 422 && r.json.error === "not_our_product", JSON.stringify(r.json));
+
+  /* ---- a client cannot talk itself into Premium ---- */
+  env = envFor(BOTH);
+  G.subs.set(tok(126), gsub()); G.tokenPkg.set(tok(126), WPKG);
+  await gverify("sp5", tok(126));
+  ok("W15 · naming the other app in ?app= cannot grant Premium there — it only selects among that account's real purchases",
+    (await view("sp5", GE)).paid === false && (await view("sp5", WE)).paid === true);
+  ok("W16 · an app this service does not know answers Free for THAT app — never another app's plan",
+    (await view("sp5", "plumbing")).paid === false && (await view("sp5", "plumbing")).app === "plumbing", JSON.stringify(await view("sp5", "plumbing")));
+  ok("W17 · no ?app= at all is the first configured app — what every pre-split client sends",
+    (await view("sp5")).app === GE);
+
+  /* ---- a configuration mistake must fail in the SAFE direction ---- */
+  env = envFor({ PLAY_PACKAGE: "com.bemastery.app," + WPKG });     /* no APP_PROGRAMMES */
+  G.subs.set(tok(127), gsub());
+  r = await gverify("sp6", tok(127));
+  ok("W18 · a second listing added without APP_PROGRAMMES leaves the EXISTING app's purchases working", r.status === 200 && (await view("sp6")).paid === true, JSON.stringify(r.json));
+  G.subs.set(tok(128), gsub()); G.tokenPkg.set(tok(128), WPKG);
+  r = await gverify("sp7", tok(128));
+  ok("W19 · …and refuses the unmapped app's rather than filing it under the wrong one", r.status === 500 && r.json.error === "app_unmapped", JSON.stringify(r.json));
+
+  env = envFor(BOTH);                                               /* the previous block left a deliberately misconfigured env */
+  /* ---- a purchase made before the split -------------------------------------
+     Its row has no app_id (migration 0005 leaves existing rows NULL), and every
+     read treats NULL as the FIRST configured app. Proved by recomputing the
+     account — which a verify does — with the old row still NULL: the General
+     English app must come out Premium from it. */
+  G.subs.set(tok(129), gsub());
+  await gverify("old1", tok(129));                                /* an ordinary General English purchase */
+  await env.DB.prepare("UPDATE purchase_links SET app_id=NULL WHERE uid='old1'").run();
+  const nulled = (await env.DB.prepare("SELECT app_id FROM purchase_links WHERE uid='old1'").first()).app_id;
+  G.subs.set(tok(131), gsub()); G.tokenPkg.set(tok(131), WPKG);
+  await gverify("old1", tok(131));                                /* buying in the Welding app recomputes both */
+  ok("W20 · a purchase made before the split (no app_id) still counts as the original app's",
+    nulled === null && (await view("old1", GE)).paid === true && (await view("old1", WE)).paid === true, JSON.stringify({ nulled, ge: (await view("old1", GE)).plan, we: (await view("old1", WE)).plan }));
+
+  /* ---- PRODUCTION SHAPE TODAY: one programme configured ---------------------
+     This is the state the service is actually in until the owner extends
+     APP_PROGRAMMES. The Welding app will already be asking about itself, and
+     it must be told Free — not handed the General English plan. */
+  env = envFor();                                                  /* PLAY_PACKAGE/APPLE_BUNDLE_ID single-valued, no APP_PROGRAMMES */
+  G.subs.set(tok(140), gsub());
+  await gverify("prod1", tok(140));
+  ok("W22 · production shape: a General English purchase makes that app Premium", (await view("prod1")).paid === true && (await view("prod1")).app === GE);
+  ok("W23 · …and the Welding app asking the SAME account is told Free, not handed the other app's plan",
+    (await view("prod1", WE)).paid === false && (await view("prod1", WE)).plan === "free", JSON.stringify(await view("prod1", WE)));
+  /* ---- deletion clears BOTH apps: one account, a purchase in each ---- */
+  env = envFor(BOTH);
+  G.subs.set(tok(141), gsub());                                    /* General English */
+  G.subs.set(tok(142), gsub()); G.tokenPkg.set(tok(142), WPKG);    /* Welding */
+  await gverify("duo2", tok(141));
+  await gverify("duo2", tok(142));
+  const before = ((await env.DB.prepare("SELECT count(*) n FROM purchase_links WHERE uid='duo2'").first()).n);
+  const rowsBefore = ((await env.DB.prepare("SELECT count(*) n FROM entitlements WHERE uid='duo2'").first()).n);
+  r = await call("DELETE", "/v1/me", { uid: "duo2" });
+  ok("W21 · account deletion erases every app's links and entitlement rows",
+    before === 2 && rowsBefore === 2 && r.json.erased === true
+    && ((await env.DB.prepare("SELECT count(*) n FROM purchase_links WHERE uid='duo2'").first()).n) === 0
+    && ((await env.DB.prepare("SELECT count(*) n FROM entitlements WHERE uid='duo2'").first()).n) === 0
+    && (await view("duo2", GE)).paid === false && (await view("duo2", WE)).paid === false,
+    JSON.stringify({ before, rowsBefore, ...r.json }));
+}
+
+/* ============================================================================
+   X · ONE ACCOUNT, EVERY PLATFORM (12 Oct 2026)
+
+   The product promise is "buy once, Premium everywhere you sign in": iOS,
+   Android and app.lomonec.com are three clients of ONE account entitlement.
+   Every W test above proves the opposite boundary — that the two APPS are
+   separate — so this section proves the sharing that must survive it, which
+   nothing else asserted.
+
+   The three clients ask differently, and all three must get the same answer:
+     iOS / Android store build  GET /v1/entitlement?app=general-english
+     the website                the same (BE_APP_TRACK is null -> entApp() is
+                                general-english)
+     a pre-split client, or any client against the currently DEPLOYED worker
+                                GET /v1/entitlement  with no ?app= at all
+   The last shape is not hypothetical: production has no app_id column yet, so
+   it is what the live service answers today. appOf() attributes a NULL app to
+   the first configured programme, which is why it must agree. */
+console.log("\n# One account, every platform");
+{
+  env = envFor(BOTH); clock = T0;
+
+  /* ---- Apple buys; every client of that account sees it ---- */
+  const tA = (await call("GET", "/v1/purchases/account-token", { uid: "x_apple" })).json.appAccountToken;
+  let r = await averify("x_apple", atx({ originalTransactionId: "1000000901", appAccountToken: tA }),
+    { originalTransactionId: "1000000901", autoRenewStatus: 1, signedDate: T0 });
+  const iosView = await view("x_apple", GE), webView = await view("x_apple", GE), oldView = await view("x_apple");
+  ok("X1 · an Apple purchase grants Premium for the account (source app_store)",
+    r.status === 200 && iosView.paid === true && iosView.plan === "premium" && iosView.source === "app_store",
+    JSON.stringify({ status: r.status, iosView }));
+  ok("X2 · the website asks the same question as the iOS app and gets the same answer",
+    webView.paid === true && webView.plan === iosView.plan && webView.app === GE, JSON.stringify(webView));
+  ok("X3 · a client that names no app at all (a pre-split client, and the live service today) also reads Premium",
+    oldView.paid === true && oldView.plan === "premium", JSON.stringify(oldView));
+
+  /* ---- a DIFFERENT account inherits nothing ---- */
+  ok("X4 · a different account is Free — an entitlement is never ambient",
+    (await view("x_other", GE)).paid === false && (await view("x_other")).paid === false);
+  r = await averify("x_other", atx({ originalTransactionId: "1000000901", appAccountToken: tA }));
+  ok("X5 · and it cannot claim the first account's transaction (403 account_mismatch), which stays Premium",
+    r.status === 403 && r.json.error === "account_mismatch" && (await view("x_apple", GE)).paid === true,
+    JSON.stringify({ status: r.status, json: r.json }));
+
+  /* ---- Google Play buys on a second account: Play -> iOS / web, same rule ---- */
+  G.subs.set(tok(901), gsub()); G.tokenPkg.set(tok(901), "com.bemastery.app");
+  r = await gverify("x_play", tok(901));
+  const playIos = await view("x_play", GE), playOld = await view("x_play");
+  ok("X6 · a Google Play purchase unlocks the SAME account on iOS and the website (source google_play)",
+    r.status === 200 && playIos.paid === true && playIos.source === "google_play" && playOld.paid === true,
+    JSON.stringify({ status: r.status, playIos, playOld }));
+  ok("X7 · the two buyers do not bleed into each other",
+    (await view("x_apple", GE)).source === "app_store" && (await view("x_play", GE)).source === "google_play");
+
+  /* ---- sharing across platforms must NOT become sharing across apps ---- */
+  ok("X8 · neither purchase unlocks the Welding app — platform sharing is not app sharing",
+    (await view("x_apple", WE)).paid === false && (await view("x_play", WE)).paid === false,
+    JSON.stringify({ apple: await view("x_apple", WE), play: await view("x_play", WE) }));
+
+  /* ---- the store being unreachable must not downgrade a payer ---- */
+  const seen = G.apiCalls;
+  G.subs.delete(tok(901));                       /* Google answers 404 for the token now */
+  r = await gverify("x_play", tok(901));
+  ok("X9 · a failed re-verify never takes Premium away from an account that has it",
+    G.apiCalls > seen && (await view("x_play", GE)).paid === true,
+    JSON.stringify({ status: r.status, json: r.json, view: await view("x_play", GE) }));
+}
+
+/* ============================================================================
+   T · A TEST PURCHASE IS NOT REVENUE (12 Oct 2026)
+
+   Apple's half already existed: APPLE_ENVIRONMENTS defaults to "Production"
+   and a Sandbox transaction is refused (A10), a Sandbox notification at a
+   Production-only Worker is acknowledged and changes nothing (A24). Google's
+   half did not: google-play.js read sub.testPurchase into the record and
+   nothing ever looked at it, so a licence tester's free purchase produced a
+   production entitlement no different from a paid one. */
+console.log("\n# A test purchase is not revenue");
+{
+  env = envFor(); clock = T0;
+
+  /* production: strict, like Apple */
+  G.subs.set(tok(950), gsub({ testPurchase: true }));
+  let r = await gverify("t_prod", tok(950));
+  ok("T1 · a Play licence-test purchase is refused in production (422 test_purchase)",
+    r.status === 422 && (r.json.error === "test_purchase" || (r.json.results && r.json.results[0] && r.json.results[0].why === "test_purchase")),
+    JSON.stringify({ status: r.status, json: r.json }));
+  ok("T2 · …and it granted nothing", (await view("t_prod", GE)).paid === false);
+
+  /* a real purchase on the same Worker is untouched */
+  G.subs.set(tok(951), gsub());
+  r = await gverify("t_real", tok(951));
+  ok("T3 · a real purchase on the same Worker is unaffected", r.status === 200 && (await view("t_real", GE)).paid === true,
+    JSON.stringify({ status: r.status }));
+
+  /* a licence-testing Worker opts in, explicitly */
+  env = envFor({ PLAY_ALLOW_TEST_PURCHASES: "1" });
+  G.subs.set(tok(952), gsub({ testPurchase: true }));
+  r = await gverify("t_stage", tok(952));
+  ok("T4 · a Worker that sets PLAY_ALLOW_TEST_PURCHASES=1 accepts it, so licence testing still works",
+    r.status === 200 && (await view("t_stage", GE)).paid === true, JSON.stringify({ status: r.status, json: r.json }));
+
+  /* the switch is strict by default: only the exact string turns it on */
+  for (const v of ["0", "true", "yes", ""]) {
+    env = envFor({ PLAY_ALLOW_TEST_PURCHASES: v });
+    G.subs.set(tok(953), gsub({ testPurchase: true }));
+    const rr = await gverify("t_" + (v || "empty"), tok(953));
+    ok(`T5 · PLAY_ALLOW_TEST_PURCHASES=${JSON.stringify(v)} does not open it`, rr.status === 422, JSON.stringify(rr.json));
+  }
+  env = envFor();
 }
 
 rmSync(dir, { recursive: true, force: true });

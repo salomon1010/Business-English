@@ -37,7 +37,7 @@ async function open(track) {
 const state = p => p.evaluate(() => ({
   area: areaId(), context: ProfessionalTrackContext.active().id, ge: isGeneralEnglish(), journey: isProfessionalJourney() ? "professional" : "general",
   dataTrack: document.documentElement.getAttribute("data-track"), chip: !!(document.getElementById("trackIndicator") || {}).classList?.contains("show"),
-  pp: ppAvailable(), sv: svOn(), ws: typeof weldStudioOn === "function" && weldStudioOn(), polishArea: exAreaKey(), hist: ppHist().length, split: shOwnSplit(), planOn: planOn() }));
+  pp: ppAvailable(), sv: svOn(), ws: typeof weldStudioOn === "function" && weldStudioOn(), polishArea: exAreaKey(), hist: ppHist().length, split: shOwnSplit() }));
 const agree = s => s.area === s.context && (s.area === "general-english") === s.ge && (s.journey === "general") === s.ge && (s.dataTrack === "general") === s.ge && s.chip === false; /* the header chip was removed on 29 Sep 2026 (Career Destination moved to Welding Practice): on NEITHER track now */
 
 /* sign-in on a device that is on one track, adopting an account copy on the other */
@@ -79,16 +79,14 @@ console.log("\n# the reverse: a General English device adopts a Welding account 
   await adoptCloud(p, "welding"); await sleep(400);
   s = await state(p);
   ok("V1 · after adopting a Welding account copy: every part agrees on Welding", s.area === "welding" && agree(s), JSON.stringify(s));
-  /* The Premium Shadow/YouTube split follows the PLAN SYSTEM, not the programme:
-     it is in force exactly when planOn() is true. Asserting it off was right
-     while billing_enabled was false everywhere; Phase C (11 Oct 2026) turned it
-     on, and hard-coding "off" would have quietly stopped testing the thing that
-     matters — that the split tracks the plan state rather than leaking across
-     programmes. The isolation claims (no Practice Partner, Polish in the Welding
-     bucket) are unchanged and still strict. Shadow Studio V2 is allowed on
-     Welding only while weldStudioOn() says so. */
-  ok("V2 · Practice Partner off, Shadow Studio V2 only via the Welding studio, the Premium Shadow/YouTube split follows planOn(), Polish writes to the Welding bucket",
-    !s.pp && (!s.sv || s.ws) && s.split === s.planOn && s.polishArea === "welding", JSON.stringify(s));
+  /* The Premium saved-clip / import limits are NOT a track boundary: one
+     subscription covers both programmes (shOwnSplit() is planOn(), and
+     PLAN_LIMITS_TRACK is empty by the owner's 5 Oct tier spec), so since Phase C
+     turned billing on they apply on Welding too. That is the decided product
+     rule, not a leak. What must stay General-English-only is Practice Partner,
+     and what must stay per-area is where Polish files its minute. */
+  ok("V2 · Practice Partner stays General English only and Polish writes to the Welding bucket; the Shadow studio and the Premium limits are shared on purpose (one subscription, both programmes)",
+    !s.pp && (!s.sv || s.ws) && s.split === true && s.polishArea === "welding", JSON.stringify(s));
   ok("V3 · the General English 'AI coach practice' history is not listed on Welding", s.hist === 0, JSON.stringify(s));
   const n0 = presence.length;
   await p.evaluate(() => { ppPub.at = 0; ppPresencePoll(true); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);

@@ -94,6 +94,64 @@ console.log("\n# everyone else is never asked");
   await ctx.close();
 }
 
+/* ---------- the other half: the native shell's FIRST RUN (11 Oct 2026) ----------
+   The TWA's storage cannot follow the app into its own WebView, so a learner who
+   never signed in sees an empty first run. restoreAsk() explains that, over
+   onboarding, once per device. */
+console.log("\n# the native shell's first run — restoreAsk()");
+async function first({ android = true, twa = false, flagOff = false, asked = false, profile = false } = {}) {
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block", userAgent: UA });
+  await ctx.addInitScript(([pro, tw, off, was]) => {
+    if (pro) localStorage.setItem("be12_v1", pro);
+    if (tw) sessionStorage.setItem("be_twa", "1");
+    if (off) localStorage.setItem("be_flags", JSON.stringify({ play_keep_progress_enabled: false }));
+    if (was) localStorage.setItem("be_restore_asked", "1");
+  }, [profile ? seed() : null, twa, flagOff, asked]);
+  if (android) await ctx.addInitScript(() => { const a = (window.Capacitor = window.Capacitor || {}); a.getPlatform = () => "android"; a.isNativePlatform = () => true; a.Plugins = a.Plugins || {}; });
+  await ctx.route(u => /be-push|be-partner|be-polish|be-events|be-entitlements|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "index.html"); await sleep(1800);
+  return { ctx, p, errs };
+}
+{
+  const { ctx, p, errs } = await first();
+  const d = await dialog(p);
+  const ob = await p.evaluate(() => !!document.getElementById("obWrap") || !!document.querySelector(".ob-wrap"));
+  ok("R1 · Android shell, first run, signed out: the prompt explains the move and offers both ways out", /Used BE Mastery before/.test(d) && /Sign in to bring it back/.test(d) && /I'm new here/.test(d), d.slice(0, 200));
+  ok("R2 · it never blocks: onboarding is already drawn underneath it", ob === true, String(ob));
+  const asked = await p.evaluate(() => localStorage.getItem("be_restore_asked"));
+  ok("R3 · the device is marked so it is asked once, and the marker is OUTSIDE S (a sync replaces S)", asked === "1" && await p.evaluate(() => { try { return !("restoreAsked" in (JSON.parse(localStorage.getItem("be12_v1") || "{}"))); } catch (e) { return true; } }), String(asked));
+  const opened = await p.evaluate(async () => { let m = null; window.fbOpenModal = x => { m = x; }; const btn = [...document.querySelectorAll(".cf-ov button,[role=dialog] button,[role=alertdialog] button")].find(x => /bring it back/i.test(x.textContent)); if (!btn) return "no-button"; btn.click(); await new Promise(r => setTimeout(r, 400)); return m; });
+  ok("R4 · 'Sign in to bring it back' opens the same sign-in sheet every other entry point uses", opened === "in", String(opened));
+  ok("R5 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await first({ asked: true });
+  ok("R6 · asked once per device: the next launch is silent", !/Used BE Mastery before/.test(await dialog(p)));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await first({ profile: true });
+  ok("R7 · a learner already set up on this device is never asked", !/Used BE Mastery before/.test(await dialog(p)));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await first({ android: false, twa: true });
+  ok("R8 · the TWA is never asked — that is keepNudge's job, before the switch", !/Used BE Mastery before/.test(await dialog(p)));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await first({ android: false, twa: false });
+  ok("R9 · a plain browser is never asked (nothing moved for it)", !/Used BE Mastery before/.test(await dialog(p)));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await first({ flagOff: true });
+  ok("R10 · the flag turns it off", !/Used BE Mastery before/.test(await dialog(p)));
+  await ctx.close();
+}
+
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

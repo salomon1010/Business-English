@@ -2,11 +2,15 @@
   "name": "be-mastery-ios",
   "private": true,
   "version": "1.1.0",
-  "description": "BE Mastery — iOS app shell (Capacitor) around the web app in the repository root. See README.md.",
+  "description": "BE Mastery \u2014 iOS app shell (Capacitor) around the web app in the repository root. See README.md.",
   "scripts": {
     "sync-web": "node scripts/sync-web.mjs",
     "sync": "node scripts/sync-web.mjs && npx cap sync ios",
+    "sync:general": "node scripts/sync-web.mjs --track general-english && npx cap sync ios",
+    "sync:welding": "node scripts/sync-web.mjs --track welding && npx cap sync ios",
     "sync:staging": "node scripts/sync-web.mjs --staging && npx cap sync ios",
+    "sync:staging:general": "node scripts/sync-web.mjs --track general-english --staging && npx cap sync ios",
+    "sync:staging:welding": "node scripts/sync-web.mjs --track welding --staging && npx cap sync ios",
     "open": "npx cap open ios"
   },
   "devDependencies": {

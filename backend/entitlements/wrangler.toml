@@ -31,7 +31,38 @@ APPLE_ENVIRONMENTS = "Production,Sandbox"
 # Apple's own root. Same value as staging, by design: it is Apple's root.
 APPLE_ROOT_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179"
 # Google Play. PLAY_PACKAGE is the production listing.
+#
+# THE TWO-APP SPLIT (12 Oct 2026, docs/APP_SPLIT.md § Premium). PLAY_PACKAGE,
+# APPLE_BUNDLE_ID and APP_PROGRAMMES are INDEX-ALIGNED allow-lists: position i
+# is the same app on Play, on the App Store and in the database. A purchase is
+# filed against the app that sold it and grants Premium in THAT app only.
+#
+# MIGRATION 0005 IS REQUIRED BY THIS CODE, not by the Welding app (verified
+# 12 Oct 2026). An earlier version of this note tied it to switching Welding on,
+# which reads as "one programme needs nothing". It does: the Worker writes
+# purchase_links.app_id and reads entitlements by (uid, app_id) on EVERY path,
+# and production D1 (ead9ecb9…) still has neither column — its tables are
+#   purchase_links  provider,ext_id,uid,plan,product,source,status,starts_at,
+#                   expires_at,will_renew,secret_ref,updated_at
+#   entitlements    uid,plan,product,status,starts_at,expires_at,source,
+#                   external_ref,updated_at,will_renew
+# so deploying this file's Worker before the migration makes every purchase
+# write fail, on one programme as much as two. Apply it first:
+#   npx wrangler d1 migrations apply be-entitlements --remote --env ""
+# The currently DEPLOYED Worker is the pre-split code, which is why production
+# works today, and why it keeps working until someone deploys from this tree.
+#
+# To switch the Welding app on, set all three together:
+#   PLAY_PACKAGE    = "com.bemastery.app,com.lomonec.bemastery.welding"
+#   APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"
+#   APP_PROGRAMMES  = "general-english,welding"
+# Extending a store list without extending APP_PROGRAMMES refuses the new app's
+# purchases (500 app_unmapped) and leaves the existing app's working — the safe
+# direction, not a guess.
 PLAY_PACKAGE = "com.bemastery.app"
+# One programme today, so every purchase is the General English app's and the
+# service behaves exactly as it did before the split.
+APP_PROGRAMMES = "general-english"
 # RTDN (10 Oct 2026): the topic Play Console names (be-mastery-play-rtdn) has a SECOND push
 # subscription, be-mastery-play-rtdn-push-prod, to THIS Worker's custom domain (Pub/Sub pushes
 # to workers.dev never reach a Worker — see the staging note). Audience blank → aud = endpoint.
@@ -85,7 +116,17 @@ workers_dev = true
 # below is unrelated (Google Play's Pub/Sub sender) and stays.
 FIREBASE_PROJECT_ID = "be-mastery-test"
 ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost,https://localhost"   # capacitor://localhost = a staging TestFlight build; https://localhost = a staging Android build
+# THE TWO-APP SPLIT: staging is where the Welding app's purchases are tested
+# first. The three lists stay index-aligned (see the production block above).
 PLAY_PACKAGE = "com.bemastery.app"
+APP_PROGRAMMES = "general-english"
+# Licence testing happens HERE, not in production (owner, 12 Oct 2026). A Play
+# licence tester's purchase carries testPurchase, and src/billing.js refuses it
+# unless this is exactly "1" — strict by default, the same rule Apple's side
+# already had through APPLE_ENVIRONMENTS. Production deliberately does not set
+# it, so a free test purchase can never become a production entitlement.
+# Tests: backend/entitlements/test/billing.mjs § "A test purchase is not revenue".
+PLAY_ALLOW_TEST_PURCHASES = "1"
 # RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
 # THIS Worker, reached through the custom domain above; the push endpoint must be
 # exactly this URL. With the push

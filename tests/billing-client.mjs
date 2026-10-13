@@ -89,14 +89,9 @@ const card = p => p.evaluate(() => { const c = document.getElementById("entPlan"
 
 console.log("\n# production defaults");
 {
-  /* `flags: null` used to mean "billing off", because that was the production
-     default. Phase C (11 Oct 2026) set billing_enabled true in FLAGS_DEFAULT, so
-     the switch is now stated explicitly — the contract worth holding is "with
-     billing OFF there is no store, no price and no button", not whatever the
-     default happens to be this month. */
-  const { ctx, p, calls, errs } = await open({ flags: { billing_enabled: false }, uid: "u0" });
+  const { ctx, p, calls, errs } = await open({ flags: { billing_enabled: false }, uid: "u0" });   /* Phase C: the production default is now ON, so OFF must be stated */
   const c = await card(p);
-  ok("B1 · with billing_enabled OFF: no store, no prices, no buttons — 'Coming soon' as before", c && /Coming soon/.test(c.text) && !c.buys.length && !c.restore && !calls.some(x => /purchases/.test(x)), JSON.stringify(c));
+  ok("B1 · billing_enabled is OFF by default: no store, no prices, no buttons — 'Coming soon' as before", c && /Coming soon/.test(c.text) && !c.buys.length && !c.restore && !calls.some(x => /purchases/.test(x)), JSON.stringify(c));
   ok("B2 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
   const o2 = await open({ stub: false, uid: "u0" });
@@ -276,11 +271,10 @@ console.log("\n# Phase 10 — the purchase flow under failure");
     const plans = [...o.querySelectorAll(".prem-plan")].map(x => x.textContent.replace(/\s+/g, " ").trim());   /* the two plan cards (tier spec, 5 Oct 2026): annual first, then monthly */
     const r = sh.getBoundingClientRect(), btns = [...o.querySelectorAll("button")].filter(b => b.offsetParent).map(b => b.getBoundingClientRect().height);
     return { text: sh.textContent.replace(/\s+/g, " "), plans, offer, ctaText: ((o.querySelector(".prem-cta") || {}).textContent || "").replace(/\s+/g, " ").trim(), radios: o.querySelectorAll('[role="radiogroup"],[role="radio"]').length, cta: !!o.querySelector(".prem-cta"), fits: r.left >= -0.5 && r.right <= innerWidth + 0.5, overflow: document.documentElement.scrollWidth > innerWidth + 1, minBtn: Math.min(...btns), rtl: getComputedStyle(sh).direction }; });
-  /* stated explicitly, for the reason given at B1 */
-  ({ ctx, p } = await open({ uid: "prq", flags: { billing_enabled: false } }));
+  ({ ctx, p } = await open({ uid: "prq", flags: { billing_enabled: false } }));   /* as above: state the off-state */
   await p.evaluate(() => go("profile")); await sleep(500);
   const off = await p.evaluate(() => ({ row: !!document.querySelector(".pf-prem"), open: (premiumOpen("test"), document.querySelector("#premOv .prem-sheet").textContent) }));
-  ok("PR1 · with billing OFF: no Premium row in Profile; the sheet, if opened, only says it cannot be bought here", !off.row && /can't be bought on this device/.test(off.open) && !/Continue|Save/.test(off.open), JSON.stringify(off));
+  ok("PR1 · billing off (production today): no Premium row in Profile; the sheet, if opened, only says it cannot be bought here", !off.row && /can't be bought on this device/.test(off.open) && !/Continue|Save/.test(off.open), JSON.stringify(off));
   await ctx.close();
   ({ ctx, p } = await open({ uid: "prr" }));
   await p.evaluate(() => go("profile")); await sleep(500);

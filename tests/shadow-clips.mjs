@@ -17,7 +17,13 @@ async function learner({ track = "general-english", plans = true, premium = fals
   await ctx.addInitScript(([track, plans]) => {
     if (!sessionStorage.getItem("s")) { sessionStorage.setItem("s", 1);
       localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "Probe", lang: "en", ts: 1 }, professionalTracks: { activeId: track, tradeId: "welder" }, fnd: { "general-english": { placed: "full", finished: true }, welding: { placed: "full", finished: true } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, backupAsked: 1, rmSeen: Date.now(), lastSeen: Date.now() }));
-      if (plans) { localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true })); localStorage.setItem("be_ent_api", "http://ent.test"); } }
+      /* Written BOTH ways. Omitting the key for plans:false fell through to
+         FLAGS_DEFAULT, which Phase C (11 Oct 2026) set to billing_enabled:true —
+         so "without plans" silently became with plans and the uncapped cases
+         asserted a state they were not in. An empty be_ent_api is what the app
+         reads as "no entitlement service" on localhost. */
+      localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: !!plans }));
+      localStorage.setItem("be_ent_api", plans ? "http://ent.test" : ""); }
     const P = function (id, o) { const me = { destroy() {}, playVideo() {}, pauseVideo() {}, seekTo(t) { window.__t = t; }, setPlaybackRate() {}, getPlaybackRate: () => 1, getPlayerState: () => 2, getCurrentTime: () => window.__t || 0, getDuration: () => 200, getVideoData: () => ({ title: "Climate summit" }), getIframe: () => null };
       setTimeout(() => { try { o && o.events && o.events.onReady && o.events.onReady({ target: me }); } catch (e) {} }, 300); return me; };
     window.YT = { Player: P, PlayerState: { PLAYING: 1, PAUSED: 2, BUFFERING: 3, ENDED: 0 } };

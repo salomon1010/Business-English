@@ -89,8 +89,7 @@ public class BEWidgetRecsService extends RemoteViewsService {
             String url;
             if (img.matches("^https://(i\\.ytimg\\.com|img\\.youtube\\.com)/vi/[A-Za-z0-9_-]{11}/[a-z]+\\.jpg$")) url = img;
             else if (img.matches("^(home-shots|rp-photos)/[A-Za-z0-9_-]{1,60}\\.jpg$")) {
-                String base = c.getString(R.string.launchUrl);
-                url = (base.endsWith("/") ? base : base + "/") + img;
+                url = BEWidgetLaunch.webBase(c) + img;
             } else return null;
             File dir = new File(c.getCacheDir(), "be_widget_thumbs");
             File f = new File(dir, hash(url) + ".jpg");

@@ -17,7 +17,16 @@
 
    Configuration (Worker secrets / vars; nothing in source):
      GOOGLE_SA_JSON        service-account key JSON (client_email, private_key)
-     PLAY_PACKAGE          com.bemastery.app
+     PLAY_PACKAGE          com.bemastery.app[,com.lomonec.bemastery.welding]
+
+   THE TWO-APP SPLIT (12 Oct 2026). BE Mastery is two Play listings now —
+   General English and Welding English — and ONE account-level entitlement, so
+   PLAY_PACKAGE is an allow-list. A purchase token names no package, so a token
+   is simply looked up against each allowed package in turn: Google answers 404
+   for the ones it does not belong to, which is the same answer it already gave
+   for a token that is not ours, so nothing is loosened. The package a token
+   DID resolve for travels with the record, because acknowledge() must use that
+   same one. A single-value PLAY_PACKAGE behaves exactly as before.
      RTDN_AUDIENCE         the push subscription's audience
      RTDN_SA_EMAIL         the push subscription's service-account email */
 import { signRs256Jwt, verifyRs256Jwt, b64d, dec } from "./crypto-util.js";
@@ -28,8 +37,11 @@ const API = "https://androidpublisher.googleapis.com/androidpublisher/v3/applica
 const GOOGLE_CERTS = "https://www.googleapis.com/oauth2/v3/certs";
 const SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
+/* the allowed Play listings, in order; a single value is the old behaviour */
+export const packages = env => String(env.PLAY_PACKAGE || "").split(",").map(x => x.trim()).filter(Boolean);
+
 export const configured = env => {
-  if (!env.PLAY_PACKAGE || !env.GOOGLE_SA_JSON) return false;
+  if (!packages(env).length || !env.GOOGLE_SA_JSON) return false;
   try { const j = JSON.parse(env.GOOGLE_SA_JSON); return !!(j.client_email && j.private_key); } catch (e) { return false; }
 };
 
@@ -49,16 +61,38 @@ async function accessToken(env, deps) {
 }
 export const _resetTokenCache = () => { tokenCache = { key: "", at: 0, token: "", exp: 0 }; };
 
-export async function getSubscription(env, purchaseToken, deps = {}) {
+/* One package. `pkg` is always an allow-listed value chosen by the caller. */
+async function getFor(env, pkg, purchaseToken, deps) {
   const f = deps.fetch || fetch, tok = await accessToken(env, deps);
-  const r = await f(API + encodeURIComponent(env.PLAY_PACKAGE) + "/purchases/subscriptionsv2/tokens/" + encodeURIComponent(purchaseToken), { headers: { authorization: "Bearer " + tok } });
-  if (r.status === 404 || r.status === 410) return null;                   /* not a purchase of this app */
+  const r = await f(API + encodeURIComponent(pkg) + "/purchases/subscriptionsv2/tokens/" + encodeURIComponent(purchaseToken), { headers: { authorization: "Bearer " + tok } });
+  if (r.status === 404 || r.status === 410) return null;                   /* not a purchase of THIS listing */
   if (!r.ok) throw Object.assign(new Error("google_api"), { code: "google_api", status: r.status });
   return r.json();
 }
-export async function acknowledge(env, productId, purchaseToken, deps = {}) {
+/* Ask every allowed listing. Returns the subscription with the package it came
+   from, or null if no listing knows the token. `prefer` (the package an RTDN
+   named) is tried first so the usual case is one request. */
+export async function getSubscriptionWithPackage(env, purchaseToken, deps = {}, prefer = null) {
+  const list = packages(env);
+  const order = prefer && list.includes(prefer) ? [prefer, ...list.filter(p => p !== prefer)] : list;
+  let apiError = null;
+  for (const pkg of order) {
+    let sub; try { sub = await getFor(env, pkg, purchaseToken, deps); } catch (e) { apiError = e; continue; }
+    if (sub) return { sub, pkg };
+  }
+  if (apiError) throw apiError;        /* every listing errored: a real outage, not "unknown token" */
+  return null;
+}
+/* Kept for callers that only need the resource (and for the existing tests). */
+export async function getSubscription(env, purchaseToken, deps = {}) {
+  const hit = await getSubscriptionWithPackage(env, purchaseToken, deps);
+  return hit ? hit.sub : null;
+}
+export async function acknowledge(env, productId, purchaseToken, deps = {}, pkg = null) {
+  const list = packages(env);
+  const use = pkg && list.includes(pkg) ? pkg : list[0];
   const f = deps.fetch || fetch, tok = await accessToken(env, deps);
-  const r = await f(API + encodeURIComponent(env.PLAY_PACKAGE) + "/purchases/subscriptions/" + encodeURIComponent(productId) + "/tokens/" + encodeURIComponent(purchaseToken) + ":acknowledge",
+  const r = await f(API + encodeURIComponent(use) + "/purchases/subscriptions/" + encodeURIComponent(productId) + "/tokens/" + encodeURIComponent(purchaseToken) + ":acknowledge",
     { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: "{}" });
   return r.ok;
 }
@@ -112,6 +146,6 @@ export async function verifyRtdn(req, env, deps = {}) {
   if (p.email !== env.RTDN_SA_EMAIL || p.email_verified !== true) throw new Error("email");
   const body = await req.json();
   const data = JSON.parse(dec.decode(b64d(body && body.message && body.message.data || "")));
-  if (data.packageName !== env.PLAY_PACKAGE) throw new Error("package");
+  if (!packages(env).includes(data.packageName)) throw new Error("package");   /* either listing, never a third */
   return { data, messageId: String((body.message && (body.message.messageId || body.message.message_id)) || "") };
 }

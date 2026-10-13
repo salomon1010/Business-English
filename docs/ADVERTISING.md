@@ -85,6 +85,55 @@ is enough for UX; it is not billing.
 A break is never spent on a protected page: it waits for the next safe one.
 A break older than 10 minutes is dropped.
 
+### 4b. A native ad is a PLATFORM view — the page must say what covers it
+
+(12 Oct 2026, from four photos of the owner's Android phone: an ad halfway
+down the Shadow transcript, an ad over the speaking report, and two ads on
+screen at once.)
+
+In the store shells a "native advanced" ad is **not** a node in the page. The
+page keeps the label, the reserved space and the Premium link; the shell draws
+the creative in a view of its own, **above the WebView**. So nothing the page
+does can cover, scroll away or hide it — only the shell can, and only if the
+page tells it to.
+
+The follower (`watch` / `syncNow` in `beNativeAdsInit`) used to ask two
+questions: is the slot still in the document, and where is it. Both can be
+true of a slot the learner cannot see. The Shadow **workspace** is a
+full-screen overlay inside `#v-shadow`, so opening a clip left the library's
+two slots (`library`, `library_top`) in the document behind it, still
+followed, and still painted on top of the lesson. None of the stray "ads" in
+those photos was the workspace's own slot.
+
+It now recomputes, on every sync, whether the learner can actually see the
+slot — the app's existing rules, not a new one:
+
+- the slot is in the document and has a real box;
+- programme and plan still allow it (as before);
+- `AdEligibility.protectedReason(place)` is null **now**, which is what
+  refuses every placement but `shadow_video` while the workspace is open;
+- nothing is full screen (`document.fullscreenElement`);
+- and its rectangle lies wholly inside the viewport.
+
+The answer rides on `showNative` / `moveNative` as `visible`; both plugins
+(`BEAdsPlugin.java`, `BEAdsPlugin.swift`) hide the view rather than remove it,
+so the creative and its impression survive and the ad comes back when the
+overlay goes — no new request, no second impression.
+
+Two more things changed with it:
+
+- the follower syncs on **scroll** (capture, passive) into one
+  `requestAnimationFrame`, with a 400 ms tick for the policy re-check. The old
+  250 ms poll left the view a quarter of a second behind the slot during a
+  scroll, which is what "the ad floats" looked like;
+- `svPlace` pins `#shAdHost` to the transcript's own previous sibling, so the
+  order is **video → ad → transcript** in Watch, Shadow and Challenge alike.
+  Watch lifts the transcript above the clip tools and used to leave the host
+  behind it — where `shLowerShow`'s sibling walk then set it to
+  `display:none`, i.e. 0×0, i.e. one wasted attempt per clip.
+
+Suite: `tests/shadow-ad-slot.mjs` (52).
+
 ## 5. Rewarded: how a reward is earned
 
 1. `POST /v1/rewards/start {kind}` (signed-in; the kind must be enabled

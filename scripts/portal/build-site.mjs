@@ -62,7 +62,10 @@ const page = readFileSync(appIndex, "utf8");
 /* the public site must carry the production Firebase project and no staging build tag */
 const project = (/window\.FB_CONFIG=\{[\s\S]*?"?projectId"?\s*:\s*"([^"]+)"/.exec(page) || [])[1];
 if (project !== "be-mastery") throw new Error("Firebase project is " + project + ", expected be-mastery");
-if (/<script[^>]+src="be-build\.js"/.test(page) || existsSync(resolve(out, APP, "be-build.js"))) throw new Error("a staging build tag reached the public site");
+/* be-build.js is a STORE bundle's file: it carries the staging environment and,
+   since the two-app split (12 Oct 2026), the one programme that bundle is for.
+   The website serves the whole app to both programmes, so neither belongs here. */
+if (/<script[^>]+src="be-build\.js"/.test(page) || existsSync(resolve(out, APP, "be-build.js"))) throw new Error("a store build tag (be-build.js: staging env / single programme) reached the public site");
 if (!existsSync(resolve(out, APP, "sw.js"))) throw new Error("sw.js missing from /" + APP + "/");
 
 /* 2. the portal at the root */

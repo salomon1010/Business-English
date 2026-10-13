@@ -8,16 +8,16 @@
 	<string>ca-app-pub-2222980379604934/2444172761</string>
 	<key>BEAdsNativeUnitId</key>
 	<string>ca-app-pub-2222980379604934/2737570820</string>
+	<key>BEAppGroup</key>
+	<string>$(BE_APP_GROUP)</string>
 	<key>BEGoogleIosClientID</key>
 	<string>847739483036-qfgi8l393orrmr8fsnhk50auq9ironjt.apps.googleusercontent.com</string>
+	<key>BEProgramme</key>
+	<string>$(BE_PROGRAMME)</string>
 	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>BEAppGroup</key>
-	<string>$(BE_APP_GROUP)</string>
-	<key>BEProgramme</key>
-	<string>$(BE_PROGRAMME)</string>
 	<key>CFBundleDisplayName</key>
 	<string>$(BE_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>

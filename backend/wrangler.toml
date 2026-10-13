@@ -78,7 +78,7 @@ dataset = "be_ai_ledger"
 PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 ANON_AI_POLICY = "enforce"
 AI_DEDUPE = "1"
-PREMIUM_ENFORCED = "0"
+PREMIUM_ENFORCED = "1"
 ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
 # J1 (1 Oct 2026). The ONE route that spends real money per call — `ytai`,
 # Gemini transcription of a pasted video — requires a verified account whatever

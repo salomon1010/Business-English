@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BEAppGroup</key>
+	<!-- THE TWO-APP SPLIT: the App Group, from the build (BE_APP_GROUP) — the
+	     widget reads the app's snapshot out of it (BEWidgetModel.group). -->
+	<string>$(BE_APP_GROUP)</string>
+	<key>BEProgramme</key>
+	<!-- which programme this build is: the widget bundle offers only its own -->
+	<string>$(BE_PROGRAMME)</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>

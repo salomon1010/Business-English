@@ -129,11 +129,46 @@ device. Works offline.
 
 ## 6. Data safety form answers
 
-- Data collected: **None** (all data stays on-device)
-- Data shared: **None**
-- Security practices: data is not transmitted; users can delete all data in-app
-- Camera: used only for on-device posture analysis, no capture/storage
-- Microphone: used for on-device recordings; transcription via the device browser engine
+**These answers were corrected on 11 Oct 2026.** The previous version said
+"Data collected: None / Data shared: None", which stopped being true once the app
+gained optional accounts, AI features and push reminders. A Data safety
+declaration that understates what leaves the device is a policy violation, so
+check this list against `privacy.html` §4 (what leaves the device), §5b
+(purchases), §7 (analytics), §7b (ads) and §8 (push) before every upload — those
+sections are the maintained source, this is the console mapping.
+
+Practice data (progress, notes, saved phrases, recordings) is stored on the
+device. What follows is everything that leaves it.
+
+**Data is encrypted in transit; the learner can delete everything in-app
+(Settings → Data), and deleting the account erases the server-side rows
+(`DELETE /v1/me` on be-entitlements, `DELETE /me` on be-partner).**
+
+| Play category | Collected | Shared | Optional? | Purpose | Notes |
+|---|---|---|---|---|---|
+| Personal info → Name | Yes | No | Optional (profile) | App functionality | the first name shown in the app; travels only inside AI practice text (below) |
+| Personal info → Email address | Yes | No | Optional (sign-in) | App functionality, Account management | only if the learner creates an account (Firebase Auth) |
+| Personal info → Other info | Yes | No | Optional | App functionality | the optional gender used for same-gender Practice Partner matching |
+| App activity → App interactions | Yes | No | No | Analytics | anonymous event counts, no device id (privacy.html §7) |
+| App activity → Other user-generated content | Yes | No | No | App functionality | text typed into Executive Polish / the Résumé coach and practice-conversation turns, sent to our Worker and on to OpenAI; may contain name and work history |
+| Audio → Voice or sound recordings | Yes | No | No | App functionality | the recording is sent to our Worker and on to OpenAI to be transcribed and scored; on Chrome/Android the browser's own speech recognition (Google) also receives the audio of a turn |
+| Files and docs | No | No | — | — | recordings stay on the device apart from the transcription request above |
+| Photos / videos | No | No | — | — | the camera (Posture Coach) never leaves the device |
+| Location | No | No | — | — | analytics stores only the country Cloudflare derives from the connection; no IP, nothing finer |
+| Device or other IDs | Yes | No | Optional (reminders) | App functionality | a random per-device push id + the push address, only if reminders are switched on (privacy.html §8). **Not an advertising id** |
+| Financial info → Purchase history | Yes | No | Optional (Premium) | App functionality, Account management | the store's own purchase/subscription state, verified server-side and tied to the account (privacy.html §5b). Card details never reach us — Google Play takes the payment |
+
+**Advertising id: NOT collected.** The Android build removes the `AD_ID`
+permission and the Privacy Sandbox ad permissions the Ads SDK adds, ads are
+non-personalised (`npa=1`), and there is no tracking prompt. Keep this answer and
+that build step in step — Play refused a release once already when the SDK
+re-added `AD_ID` (commit `8d7715d9`).
+
+**Data used for tracking across apps/sites: No.** **Data sold: No.**
+
+- Camera: used only for on-device posture analysis, no capture, no upload.
+- Microphone: recordings are kept on the device; see the Audio row for the one
+  case where audio is sent to be transcribed.
 
 ## 7. Screenshots for the listing
 

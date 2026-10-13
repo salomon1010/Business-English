@@ -112,6 +112,60 @@ const view = (planId, state, extra = {}) => {
 };
 
 /* record (or null) + the server's clock → the application-facing VIEW */
+/* ---- WHICH APP A PURCHASE BELONGS TO (owner, 12 Oct 2026) ------------------
+   BE Mastery is two store apps, and the owner's rule is that a purchase made
+   in one app grants Premium in THAT app only. The app is identified by its
+   PROGRAMME ("general-english" / "welding") so one value covers both
+   platforms, and the mapping from a store identity to a programme is
+   CONFIGURATION, never a client claim:
+
+     PLAY_PACKAGE    = "com.bemastery.app,com.lomonec.bemastery.welding"
+     APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"
+     APP_PROGRAMMES  = "general-english,welding"
+
+   The three lists are INDEX-ALIGNED: position i is the same app on Play, on
+   the App Store and in the data. programmes() refuses a misaligned
+   configuration rather than guess, because guessing would attach a purchase
+   to the wrong app.
+
+   With one programme configured (production today) every purchase resolves to
+   it and nothing behaves differently from before the split. */
+export const programmes = env => {
+  const p = String((env && env.APP_PROGRAMMES) || "").split(",").map(x => x.trim()).filter(Boolean);
+  return p.length ? p : ["general-english"];
+};
+export const defaultProgramme = env => programmes(env)[0];
+/* A programme the service is configured for, or null. Used to validate the
+   app a caller asks about — it can only ever SELECT among this account's own
+   purchases, never create an entitlement. */
+export const knownProgramme = (env, id) => {
+  const list = programmes(env);
+  return typeof id === "string" && list.includes(id) ? id : null;
+};
+/* The programme a store identity belongs to, by position in the aligned lists.
+   Returns null when the lists disagree or the identity is not one of ours, and
+   the caller then refuses the purchase rather than filing it under the wrong
+   app. */
+export function programmeOfStoreId(env, storeId) {
+  if (typeof storeId !== "string" || !storeId) return null;
+  const progs = programmes(env);
+  const split = v => String((env && v) || "").split(",").map(x => x.trim()).filter(Boolean);
+  for (const list of [split(env && env.PLAY_PACKAGE), split(env && env.APPLE_BUNDLE_ID)]) {
+    const i = list.indexOf(storeId);
+    if (i < 0) continue;
+    /* Only the position that HAS a programme maps. Adding a second package or
+       bundle id without extending APP_PROGRAMMES therefore refuses the new
+       app's purchases and leaves the existing app's untouched — the safe
+       direction for a configuration mistake, rather than taking live billing
+       down with it. */
+    return progs[i] || null;
+  }
+  return null;
+}
+/* NULL in the database means "made before the split", which can only be the
+   first configured app. */
+export const appOf = (env, stored) => stored || defaultProgramme(env);
+
 export function resolve(record, nowMs) {
   if (record == null) return view("free", "none");
   const v = validateRecord(record);
@@ -129,8 +183,13 @@ export function resolve(record, nowMs) {
 /* among an account's records, the one that should decide its entitlement:
    an in-force paid record with the latest expiry; otherwise the most recent
    record (so the view can say "expired" / "revoked" and from where) */
-export function pickRecord(records, nowMs) {
-  const valid = (records || []).filter(r => validateRecord(r).ok);
+export function pickRecord(records, nowMs, app) {
+  /* `app` (a programme id) narrows the records to the ones bought in THAT app.
+     Omit it and every record counts, which is the pre-split behaviour and what
+     a single-app configuration still does. A record with no app_id is the
+     original app's — the caller resolves that before calling. */
+  const scoped = app == null ? (records || []) : (records || []).filter(r => r.app_id === app);
+  const valid = scoped.filter(r => validateRecord(r).ok);
   if (!valid.length) return null;
   const live = valid.filter(r => resolve(r, nowMs).paid);
   const byExp = (a, b) => (b.expires_at ?? Infinity) - (a.expires_at ?? Infinity) || (b.updated_at || 0) - (a.updated_at || 0);

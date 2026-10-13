@@ -182,13 +182,16 @@ console.log("\n# Info.plist and PrivacyInfo.xcprivacy");
 console.log("\n# privacy.html");
 {
   const PRIVACY = read("privacy.html");
-  /* the only "shows no ads" left is the true one — Welding's — and the old
-     app-wide "no advertising or social-media trackers" claim is gone */
-  ok("H1 · no claim that the APP shows no ads survives anywhere in it — the one 'shows no ads' is the Welding sentence",
-    (PRIVACY.match(/shows no ads/g) || []).length === (PRIVACY.match(/Welding shows no ads on any plan/g) || []).length && (PRIVACY.match(/shows no ads/g) || []).length >= 1 && !/no advertising or social-media trackers/.test(PRIVACY));
+  /* the only "shows no ads" left is the true one — the Welding pages outside the
+     game hubs — and the old app-wide "no advertising or social-media trackers"
+     claim is gone. Wording follows the owner's 10 Oct 2026 game-hub reversal
+     (docs/ADVERTISING.md § Game hubs; GAME_AD_CONTEXTS in index.html), which
+     replaced the 5 Oct "Welding shows no ads on any plan". */
+  ok("H1 · no claim that the APP shows no ads survives anywhere in it — the one 'shows no ads' is the other-Welding-pages sentence",
+    (PRIVACY.match(/shows no ads/g) || []).length === (PRIVACY.match(/Every other Welding page shows no ads/g) || []).length && (PRIVACY.match(/shows no ads/g) || []).length >= 1 && !/no advertising or social-media trackers/.test(PRIVACY));
   ok("H2 · section 7b says ads are not switched on yet, and says so first", /Ads are not switched on/.test(PRIVACY));
-  ok("H3 · it states the product rule as it now is (the tier spec, 5 Oct 2026): the free plan, General English only; Welding shows no ads on any plan; Premium removes them completely",
-    /On the free plan, in <b>General English only<\/b>/.test(PRIVACY) && /Welding shows no ads on any plan/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && !/both programmes/.test(PRIVACY) && !/ad-free for everyone/.test(PRIVACY));
+  ok("H3 · it states the product rule as it now is (owner, 10 Oct 2026): the free plan, General English and the game hubs of BOTH programmes; every other Welding page ad-free; Premium removes them completely",
+    /On the free plan, in <b>General English<\/b>/.test(PRIVACY) && /<b>game hubs<\/b> of both programmes/.test(PRIVACY) && /Every other Welding page shows no ads/.test(PRIVACY) && /Premium removes ads completely/.test(PRIVACY) && !/ad-free for everyone/.test(PRIVACY));
   ok("H4 · it states non-personalised, no IDFA, no tracking prompt", /non-personalised/.test(PRIVACY) && /IDFA/.test(PRIVACY) && /do not ask for permission to track you/.test(PRIVACY));
   ok("H5 · it names the network and what it receives, and does not claim personalised tracking",
     /Google AdMob/.test(PRIVACY) && /coarse location/.test(PRIVACY) && !/personalised advertising profile of you/.test(PRIVACY));
@@ -236,10 +239,11 @@ const PLUGIN_SLOW = ([cfg]) => {
 /* not the App Store shell */
 const NOCAP = () => { delete window.Capacitor; };
 
-async function open({ track = "general-english", ios = PLUGIN, cfg = { available: true, formats: ["interstitial", "native"], npa: true, consent: "can_request" }, billing = true, ent = true, ads = true, premium = false } = {}) {
+async function open({ track = "general-english", ios = PLUGIN, cfg = { available: true, formats: ["interstitial", "native"], npa: true, consent: "can_request" }, billing = true, ent = true, ads = true, premium = false, entApi = true } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block", colorScheme: "light" });
   await ctx.addInitScript(([s, f, e]) => { localStorage.setItem("be12_v1", s); localStorage.setItem("be_flags", JSON.stringify(f)); if (e) window.BE_BUILD = { env: "staging" }; }, [seed(track), { ads_enabled: ads, billing_enabled: billing }, ent]);
   await ctx.addInitScript(ios, [cfg]);
+
   await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights|gstatic\.com\/firebasejs|ytimg|youtube/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
   /* the entitlement service, answering the plan this case is about */
   await ctx.route(/be-entitlements-staging/, r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
@@ -249,6 +253,14 @@ async function open({ track = "general-english", ios = PLUGIN, cfg = { available
   await p.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove());
     window.__ev = []; track = (n, pr) => { window.__ev.push([n, pr || {}]); }; AD_BOOT = Date.now() - 10 * 60e3; });
   if (premium || ent) await p.evaluate(async () => { FBUser = { uid: "u1", getIdToken: async () => "t" }; await entRefresh(); });
+  /* entApi:false — NO entitlement service configured at all. Since Phase C put a
+     real host in ENT_API that state can no longer be had by leaving BE_BUILD
+     unset, and it cannot be trapped before load either: a top-level `function`
+     declaration redefines the global property outright. So entApiBase() is
+     replaced here, after the page's scripts and BEFORE the bridge is built —
+     which is the only moment that matters, since beNativeAdsInit() is what
+     reads it. This is the state the activation guard exists for. */
+  if (!entApi) await p.evaluate(() => { window.entApiBase = () => ""; });
   await p.evaluate(() => { try { beNativeAdsInit(); } catch (e) {} });
   await sleep(500);
   return { ctx, p, errs };
@@ -269,7 +281,15 @@ console.log("\n# the activation guard: a real network only where the plan system
   await ctx.close();
 }
 {
-  const { ctx, p } = await open({ ent: false });
+  /* The guard is adsSystemLive() = entApiBase() && billing_enabled. G1 covers the
+     billing_enabled half. This is the entApiBase() half, and since Phase C
+     (11 Oct 2026) compiled a real host into ENT_API it is no longer reachable in
+     a shipped build: an App Store bundle always has an entitlement service, so
+     billing_enabled is the only switch that can turn the guard off there. The
+     invariant is still worth holding — the day ENT_API is emptied again (the
+     documented Phase C rollback) no real ad network may run — so it is asserted
+     on the value, with ads_enabled off so nothing boots before the stub lands. */
+  const { ctx, p } = await open({ ent: false, entApi: false, ads: false });
   const s = await bridge(p);
   ok("G2 · no entitlement service → adsSystemLive() is false; a learner who has paid cannot be told apart, so nobody sees an ad",
     s.live === false && s.built === "undefined" && s.calls.length === 0, JSON.stringify(s));

@@ -22,37 +22,65 @@ android {
     buildFeatures {
         buildConfig true
     }
-    // THE TWO-APP SPLIT (12 Oct 2026, docs/APP_SPLIT.md). One codebase, two Play
-    // listings. The flavor decides the applicationId, the launcher name and icon,
-    // the ad units, which widgets are declared, and BE_PROGRAMME — which the web
-    // layer reads back and pins areaId() to, so the curriculum, Home, the studio,
-    // the games and the ads gate all follow. src/main is everything they share.
+
+    // ===================== THE TWO-APP SPLIT (12 Oct 2026) =====================
+    // One project, two Play apps, built from the same sources:
+    //
+    //   general  BE Mastery            com.bemastery.app                 (the EXISTING app — identity unchanged)
+    //   welding  BE Mastery Welding    com.lomonec.bemastery.welding     (new)
+    //
+    // The programme is decided by the BUILD, not by the learner: the web bundle
+    // in assets carries be-build.js {track:"<id>"} (mobile/ios/scripts/sync-web.mjs
+    // --track <id>) and index.html reads it as BE_APP_TRACK. BE_PROGRAMME below
+    // is the same value for the native half, and verifyWebBundleProgramme makes
+    // the two agree before anything is packaged — so a Welding build can never
+    // ship the General English web app, or the reverse.
+    // docs/APP_SPLIT.md has the store-side steps that only the owner can do.
     flavorDimensions "programme"
     productFlavors {
         general {
             dimension "programme"
             applicationId "com.bemastery.app"
-            // above every code already uploaded: the Play TWA's last was 10
-            // (twa-manifest.json) and this shell's internal-test bundles ran 12-17,
-            // so the first PRODUCTION bundle of the native shell is 18. 18 was built
-            // before Phase C and cannot sell; 19 is the first bundle that can.
+            // Above every code already uploaded: the Play TWA's last was 10 (twa-manifest.json)
+            // and the staging internal-test bundles of this shell ran 12-17, so the first
+            // PRODUCTION bundle of the native shell is 18. Play only installs a higher one.
+            // 18 was built before Phase C and cannot sell (billing_enabled was false and
+            // ENT_API empty in its bundled web code); 19 is the first bundle that can.
             versionCode 19
             versionName "1.2.0"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
-            // hands the answer back on bemastery://apple. Only ONE app may claim that
-            // scheme, so it stays with the existing app (see the welding flavor).
+            // hands the answer back on bemastery://apple. Only ONE app may claim that,
+            // so it stays with the existing app (see the welding flavor).
             manifestPlaceholders = [beAppleScheme: "bemastery", beAppleHost: "apple", beWidgetScheme: "bemastery"]
         }
         welding {
             dimension "programme"
             applicationId "com.lomonec.bemastery.welding"
-            // a brand-new Play listing starts at 1; nothing has ever been uploaded
+            // A brand-new Play listing starts at 1; nothing has ever been uploaded
+            // under this package (verified against Play before the first upload —
+            // docs/APP_SPLIT.md § Store actions).
             versionCode 1
             versionName "1.0.0"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
-            // its own scheme, so the two apps never contend for a deep link
-            manifestPlaceholders = [beAppleScheme: "bemasterywelding", beAppleHost: "apple", beWidgetScheme: "bemasterywelding"]
+            // NOT bemastery://apple: auth.lomonec.com redirects there with a
+            // hard-coded scheme, and two installed apps claiming it would put a
+            // chooser between the learner and their sign-in. Until be-auth can
+            // redirect per app, this build claims its own scheme and BEAuthPlugin
+            // reports Apple as unavailable here (Google and e-mail are unaffected).
+            // beWidgetScheme stays "bemastery" in BOTH apps: a widget tap is an
+            // EXPLICIT intent (BEWidgetLaunch.setClassName), so each app's widgets
+            // always open that app and the scheme is only a label.
+            manifestPlaceholders = [beAppleScheme: "bemasterywelding", beAppleHost: "apple", beWidgetScheme: "bemastery"]
+        }
+    }
+    // The home-screen widgets and the streak countdown are the Play TWA's own sources, used
+    // where they are (one copy for both builds): playstore/android-widget/src/main. Only the
+    // debug-only preview screen there is left out. BEWidgetPlugin feeds them from the page.
+    sourceSets {
+        main {
+            java.srcDirs += '../../../../playstore/android-widget/src/main/java'
+            res.srcDirs += '../../../../playstore/android-widget/src/main/res'
         }
     }
     // The Play UPLOAD key (alias bemastery, SHA-256 3D:E6:6D…; Play App Signing re-signs for
@@ -121,22 +149,27 @@ try {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
 
-/* The web bundle and the Gradle flavor must be the same programme, or the app
-   ships one programme's shell around the other's content — correctly signed,
-   correctly named, and wrong only once a learner opens it. That exact mistake
-   was made on iOS on 13 Oct 2026, so this is a BUILD FAILURE, not a warning.
-   It reads BUNDLE_INFO.txt, which sync-web.mjs writes beside the bundle. */
+// ===== the web bundle in assets must be the one this flavor is for ============
+// mobile/ios/scripts/sync-web.mjs writes BUNDLE_INFO.txt with "programme <id>".
+// Capacitor copies ONE bundle into src/main/assets/public, shared by both
+// flavors, so the only thing standing between "I forgot to re-sync" and a
+// Welding listing full of General English lessons is this check. It runs before
+// the assets are merged, for every variant, and fails the build on a mismatch.
+// An unsplit bundle ("both (unsplit)") is refused too: a store build must be
+// one programme or the other.
 android.applicationVariants.all { variant ->
-    def want = variant.productFlavors[0].name == "welding" ? "welding" : "general-english"
+    def want = variant.productFlavors*.name.contains("welding") ? "welding" : "general-english"
     def check = tasks.register("verify${variant.name.capitalize()}WebBundleProgramme") {
         doLast {
             def info = file("src/main/assets/public/BUNDLE_INFO.txt")
             if (!info.exists()) throw new GradleException(
-                "no web bundle: run mobile/android/scripts/build.sh ${want == 'welding' ? 'welding' : ''} first".trim())
-            def got = (info.text =~ /(?m)^programme (.+)$/)
-            if (!got) throw new GradleException("BUNDLE_INFO.txt names no programme: ${info.text}")
-            if (got[0][1].trim() != want) throw new GradleException(
-                "the web bundle is '${got[0][1].trim()}' but this is the ${want} build — re-sync before building")
+                "No web bundle in src/main/assets/public. Run:  cd mobile/android && npm run sync:${want == 'welding' ? 'welding' : 'general'}")
+            def m = (info.text =~ /(?m)^programme (.+)$/)
+            def got = m ? m[0][1].trim() : "(none)"
+            if (got != want) throw new GradleException(
+                "The web bundle in assets is for '${got}' but this is the ${variant.name} build, which needs '${want}'.\n" +
+                "Run:  cd mobile/android && npm run sync:${want == 'welding' ? 'welding' : 'general'}")
+            println "web bundle programme OK: ${got}"
         }
     }
     variant.mergeAssetsProvider.configure { dependsOn check }

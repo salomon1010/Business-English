@@ -1,208 +1,469 @@
-/* THE TWO-APP SPLIT — the boundary suite.
- *
- *   cd tests && node app-split.mjs            (BASE=… PORT=… to point elsewhere)
- *
- * BE Mastery ships as two store apps from one codebase. A store bundle carries
- * be-build.js `{track:"<id>"}`; index.html reads it as BE_APP_TRACK, and that
- * ONE value pins areaId() — the single question every feature asks — so the
- * curriculum, Home, the studio, the games, the ads gate and the backend's
- * programme read all follow it.
- *
- * This suite is the guard on that boundary. It was lost with the worktree on
- * 13 Oct 2026 and is rebuilt here from the architecture and from the two
- * shipped bundles, which are the record of what each app actually contains.
- *
- * What it holds, and why each matters:
- *   §1 the pin itself — BE_APP_TRACK decides areaId(), and nothing else can
- *   §2 the router refuses the other programme's views (not merely hides them)
- *   §3 the programme cannot be switched from inside a pinned build
- *   §4 General English-only features are absent from the Welding app
- *   §5 the entitlement client asks about ITS app and accepts no other answer
- *   §6 the unpinned web build still serves both programmes
- *
- * §5 is the one with teeth: the deployed entitlement service predates the split
- * and answers without naming an app. A client that accepted such an answer as
- * its own would hand every General English subscriber Premium inside Welding.
- */
-import { chromium } from "playwright";
-import { spawn } from "node:child_process";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+/* THE TWO-APP SPLIT — one codebase, two store apps (owner, 12 Oct 2026).
+   Run: cd tests && node app-split.mjs          (PORT=… BASE=… as usual)
 
-const here = dirname(fileURLToPath(import.meta.url));
-const root = resolve(here, "..");
-const PORT = process.env.PORT || 9890;
-const BASE = process.env.BASE || `http://127.0.0.1:${PORT}`;
+   BE Mastery ships as "BE Mastery — General English" and "BE Mastery — Welding
+   English". A store bundle carries be-build.js {track:"<id>"}, index.html reads
+   it as BE_APP_TRACK, and that one value pins areaId() — the single question
+   every feature asks about the programme. This suite is the evidence that the
+   separation is real and not a hidden tab:
 
-const res = [];
-const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 300)}`); };
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+     §1 the app opens in its own programme, whatever the state says
+     §2 the other programme cannot be selected, switched to or onboarded into
+     §3 the other programme's VIEWS are refused by the router — typed hash,
+        restored view, deep link, widget tap
+     §4 tampering (localStorage, the synced state, the context, a client flag)
+        cannot move the app
+     §5 the cross-programme UI is not drawn
+     §6 the unsplit web build is unchanged — both programmes, as today
+     §7 Premium, ads and the analytics boundary still follow the programme
+     §8 the BUILT bundles carry only their own programme's content
 
-let srv = null;
-if (!process.env.BASE) {
-  srv = spawn("python3", ["-m", "http.server", String(PORT)], { cwd: root, stdio: "ignore" });
-  await sleep(1200);
-}
+   Nothing here needs a network: every Worker call is routed to a 404. */
+import { chromium } from "playwright"; import { spawn, spawnSync } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
+import { existsSync, readdirSync, readFileSync, mkdtempSync, rmSync } from "node:fs"; import { resolve } from "node:path"; import { tmpdir } from "node:os";
+
+const root = new URL("..", import.meta.url).pathname;
+const PORT = +(process.env.PORT || 8231);
+let BASE = process.env.BASE, srv = null;
+if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(900); BASE = `http://127.0.0.1:${PORT}`; }
+const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 400)}`); };
+
 const b = await chromium.launch();
+/* A learner who is well past onboarding, with BOTH programmes placed, so no
+   gate card or placement dialog stands in front of what is being checked. */
+const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr, tradeId: "welder" },
+  fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } },
+  days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 
-/* A learner who has used both programmes, so a leak would be visible rather
-   than merely absent. The track is what the BUILD pins, not what S says. */
-const seed = track => JSON.stringify({
-  profile: { name: "Alex", lang: "en", ts: Date.now() - 30 * 86400000, weldProf: "pipefitter" },
-  onboarded: true,
-  professionalTracks: { activeId: track, tradeId: "pipefitter" },
-  fnd: { "general-english": { placed: "full", finished: true }, welding: { placed: "full", finished: true } },
-  days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(),
-});
-
-/* `build` is be-build.js as a store bundle carries it; null is the website. */
-async function open({ build = null, track = "general-english", flags = null } = {}) {
+/* `build` is the programme the BUNDLE is pinned to (null = the web app).
+   `stateTrack` is what the device's saved state says — deliberately the OTHER
+   programme in most checks, because that is the tampering case. */
+async function open(build, stateTrack, { hash = "", view = null, onboard = false } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
-  await ctx.addInitScript(([s, bd, f]) => {
-    localStorage.setItem("be12_v1", s);
-    if (f) localStorage.setItem("be_flags", JSON.stringify(f));
-    if (bd) window.BE_BUILD = bd;
-  }, [seed(track), build, flags]);
-  const ent = [];
-  await ctx.route(u => /entitlements|be-entitlements/.test(u.href), r => {
-    ent.push({ method: r.request().method(), url: r.request().url() });
-    return r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
-      body: JSON.stringify({ plan: "free", paid: false, state: "none", ads: true, capabilities: {} }) });
-  });
-  await ctx.route(u => /be-polish|be-partner|be-events|be-coach|be-push|cloudflareinsights|gstatic|ytimg|youtube/.test(u.href),
-    r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }));
-  const p = await ctx.newPage();
-  const errs = []; p.on("pageerror", e => errs.push(e.message));
-  await p.goto(BASE + "/index.html");
-  await sleep(1800);
-  return { ctx, p, ent, errs };
+  await ctx.addInitScript(({ build, s, view }) => {
+    if (build) window.BE_BUILD = { track: build };
+    if (s) localStorage.setItem("be12_v1", s);
+    if (view) sessionStorage.setItem("be_view", view);
+    localStorage.setItem("be_partner_api", "http://partner.test");
+    localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: true, web_visitor_gate_enabled: false }));
+  }, { build, s: onboard ? null : seed(stateTrack), view });
+  await ctx.route(u => /be-events|be-polish|be-partner|be-push|be-coach|be-widget|cloudflareinsights|gstatic\.com\/firebasejs|ytimg|youtube|entitlements|partner\.test/.test(u.href),
+    r => r.fulfill({ status: 404, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html" + hash); await sleep(1600);
+  if (!onboard) await p.evaluate(() => document.querySelectorAll("#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
+  return { ctx, p, errs };
 }
-const g = f => `(()=>{try{return ${f}}catch(e){return "n/a:"+String(e.message).slice(0,40)}})()`;
-const probe = (p, fields) => p.evaluate(new Function("return {" + Object.entries(fields).map(([k, v]) => `${k}: ${g(v)}`).join(",") + "}"));
+/* every answer the app gives about its programme */
+const facts = p => p.evaluate(() => ({
+  appTrack: window.BE_APP_TRACK, area: areaId(), ctxTrack: ProfessionalTrackContext.active().id, ge: isGeneralEnglish(),
+  saved: S.professionalTracks && S.professionalTracks.activeId, dataTrack: document.documentElement.getAttribute("data-track"),
+  offered: ProfessionalTrackContext.all().map(x => x.id),
+  pp: typeof ppAvailable === "function" && ppAvailable(), sv: svOn(), weld: typeof weldStudioOn === "function" && weldStudioOn(),
+  wm: !!(window.WMUI && WMUI.on()), em: !!(window.EMUI && EMUI.on()), adsTrack: adsTrackAllows("home_feed"),
+  cur: (typeof cur !== "undefined" && cur) ? cur.v : null }));
+const tryGo = (p, v) => p.evaluate(v => { try { go(v) } catch (e) { return "throw:" + e.message } return cur.v }, v);
 
-console.log("\n# 1 · the pin: BE_APP_TRACK decides the programme");
+const GE = "general-english", W = "welding";
+const GE_ONLY = ["partner", "english", "roleplay"], W_ONLY = ["mastery", "simulation", "lines", "career"];
+
+console.log("\n# §1 — the app opens in its own programme, whatever the device state says");
 {
-  const w = await open({ build: { track: "welding" }, track: "general-english" });
-  const s = await probe(w.p, { track: "window.BE_APP_TRACK", area: "areaId()", ge: "isGeneralEnglish()", stored: "S.professionalTracks.activeId" });
-  ok("1 · a welding bundle pins areaId() to welding even though the saved state says general-english",
-    s.track === "welding" && s.area === "welding" && s.ge === false, JSON.stringify(s));
-  ok("2 · …and the pin is written back, so everything that reads S agrees", s.stored === "welding", JSON.stringify(s));
-  ok("3 · no JavaScript errors", !w.errs.length, w.errs.join(" | "));
-  await w.ctx.close();
-
-  const ge = await open({ build: { track: "general-english" }, track: "welding" });
-  const t = await probe(ge.p, { track: "window.BE_APP_TRACK", area: "areaId()", ge: "isGeneralEnglish()" });
-  ok("4 · a general-english bundle pins the other way, from the same code",
-    t.track === "general-english" && t.area === "general-english" && t.ge === true, JSON.stringify(t));
-  await ge.ctx.close();
+  const { ctx, p, errs } = await open(GE, W);           /* a GE app whose saved state says Welding */
+  const f = await facts(p);
+  ok("1 · a General English build reports General English everywhere", f.appTrack === GE && f.area === GE && f.ctxTrack === GE && f.ge === true, JSON.stringify(f));
+  ok("2 · …and REWRITES the saved state, which is what the backend reads as the account's programme", f.saved === GE, JSON.stringify(f));
+  ok("3 · …and the theme follows it (no Welding identity in the General English app)", f.dataTrack === "general", JSON.stringify(f));
+  ok("4 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
 }
-
-console.log("\n# 2 · the router REFUSES the other programme's views");
 {
-  const w = await open({ build: { track: "welding" } });
-  const s = await probe(w.p, {
-    refuse: `["partner","english","roleplay"].map(v=>v+":"+(viewAllowedHere(v)?"ALLOWED":"refused")).join(" ")`,
-    allow: `["mastery","simulation","lines","career"].map(v=>v+":"+(viewAllowedHere(v)?"allowed":"REFUSED")).join(" ")`,
-  });
-  ok("5 · the Welding app refuses partner, english and roleplay", !/ALLOWED/.test(s.refuse), s.refuse);
-  ok("6 · …and allows its own mastery, simulation, lines and career", !/REFUSED/.test(s.allow), s.allow);
-  /* refusing must mean LANDING somewhere safe, not a blank screen */
-  const landed = await w.p.evaluate(async () => { try { go("partner"); } catch (e) {} await new Promise(r => setTimeout(r, 600)); return cur.v; });
-  ok("7 · asking for a refused view lands on a real page rather than a blank one", landed && landed !== "partner", String(landed));
-  await w.ctx.close();
-
-  const ge = await open({ build: { track: "general-english" } });
-  const t = await probe(ge.p, { refuse: `["mastery","simulation","lines","career"].map(v=>v+":"+(viewAllowedHere(v)?"ALLOWED":"refused")).join(" ")` });
-  ok("8 · the General English app refuses the Welding views, the same way", !/ALLOWED/.test(t.refuse), t.refuse);
-  await ge.ctx.close();
+  const { ctx, p, errs } = await open(W, GE);           /* a Welding app whose saved state says GE */
+  const f = await facts(p);
+  ok("5 · a Welding build reports Welding everywhere", f.appTrack === W && f.area === W && f.ctxTrack === W && f.ge === false, JSON.stringify(f));
+  ok("6 · …and rewrites the saved state to Welding", f.saved === W, JSON.stringify(f));
+  ok("7 · …and carries the Welding identity", f.dataTrack === "welding", JSON.stringify(f));
+  ok("8 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
 }
 
-console.log("\n# 3 · a pinned build cannot be switched out of its programme");
+console.log("\n# §2 — the other programme cannot be chosen");
 {
-  const w = await open({ build: { track: "welding" } });
-  const after = await w.p.evaluate(async () => {
+  const { ctx, p } = await open(GE, GE);
+  const r = await p.evaluate(() => {
     const before = areaId();
-    try { selectProfessionalTrack("general-english"); } catch (e) {}
-    try { areaSwitch("general-english", "home"); } catch (e) {}
-    try { obTrackPick("general-english"); } catch (e) {}
-    await new Promise(r => setTimeout(r, 500));
-    return { before, after: areaId(), stored: S.professionalTracks.activeId };
+    selectProfessionalTrack("welding"); const afterSelect = areaId();
+    areaSwitch("welding", "home"); const afterSwitch = areaId();
+    ProfessionalTrackContext.setActive("welding"); const afterCtx = areaId();
+    try { obTrackPick("welding") } catch (e) {}
+    return { before, afterSelect, afterSwitch, afterCtx, ctxTrack: ProfessionalTrackContext.active().id, saved: S.professionalTracks.activeId };
   });
-  ok("9 · selectProfessionalTrack, areaSwitch and obTrackPick all refuse the other programme",
-    after.after === "welding" && after.stored === "welding", JSON.stringify(after));
-  await w.ctx.close();
+  ok("9 · selectProfessionalTrack('welding') does nothing", r.afterSelect === GE, JSON.stringify(r));
+  ok("10 · areaSwitch('welding') does nothing", r.afterSwitch === GE, JSON.stringify(r));
+  ok("11 · even ProfessionalTrackContext.setActive('welding') cannot move the app — the build is bound, not the state", r.afterCtx === GE && r.ctxTrack === GE, JSON.stringify(r));
+  ok("12 · the saved programme is still this app's", r.saved === GE, JSON.stringify(r));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(W, W);
+  const r = await p.evaluate(() => { selectProfessionalTrack("general-english"); areaSwitch("general-english", "home"); ProfessionalTrackContext.setActive("general-english"); return { area: areaId(), ctxTrack: ProfessionalTrackContext.active().id } });
+  ok("13 · the Welding app cannot be moved to General English either", r.area === W && r.ctxTrack === W, JSON.stringify(r));
+  await ctx.close();
 }
 
-console.log("\n# 4 · General English-only features are absent from the Welding app");
+console.log("\n# §3 — the router refuses the other programme's pages (hash, restored view, deep link)");
 {
-  const w = await open({ build: { track: "welding" } });
-  const s = await probe(w.p, {
-    pp: "ppAvailable()", scenes: "scnOn()", applyPartner: "svApplyPartnerOn()", applyAI: "svApplyAIOn()",
-    catalogue: "SH_CAT_FILE[areaId()]", geEvent: `GE_ONLY_EVENT.test("partner_matched")`,
+  const { ctx, p } = await open(GE, GE);
+  const out = {}; for (const v of W_ONLY) out[v] = await tryGo(p, v);
+  ok("14 · a General English app turns away every Welding-only view (mastery / simulation / lines / career)", W_ONLY.every(v => out[v] === "practice"), JSON.stringify(out));
+  const own = {}; for (const v of GE_ONLY) own[v] = await tryGo(p, v);
+  ok("15 · …and still opens its OWN pages (partner / english / roleplay)", GE_ONLY.every(v => own[v] === v), JSON.stringify(own));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(W, W);
+  const out = {}; for (const v of GE_ONLY) out[v] = await tryGo(p, v);
+  ok("16 · a Welding app turns away every General English-only view (partner / english / roleplay)", GE_ONLY.every(v => out[v] === "practice"), JSON.stringify(out));
+  const own = {}; for (const v of W_ONLY) own[v] = await tryGo(p, v);
+  ok("17 · …and still opens its OWN pages (mastery / simulation / lines / career)", W_ONLY.every(v => own[v] === v), JSON.stringify(own));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(W, W, { hash: "#partner" });
+  const f = await facts(p);
+  ok("18 · a typed #partner URL in the Welding app lands on Practice, not Practice Partner", f.cur === "practice", JSON.stringify(f));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(GE, GE, { hash: "#mastery" });
+  const f = await facts(p);
+  ok("19 · a typed #mastery URL in the General English app lands on Practice, not Welding Mastery", f.cur === "practice", JSON.stringify(f));
+  await ctx.close();
+}
+{
+  /* a relaunch restoring the page the learner was on (sessionStorage be_view —
+     the installed-app path, where start_url drops the hash) */
+  const { ctx, p } = await open(W, W, { view: "english" });
+  const f = await facts(p);
+  ok("20 · a restored be_view naming the other programme's page is refused on relaunch", f.cur === "practice", JSON.stringify(f));
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(GE, GE, { hash: "#lines" });
+  ok("21 · #lines (the Welding workplace lines) is refused in the General English app", (await facts(p)).cur === "practice");
+  await ctx.close();
+}
+
+console.log("\n# §4 — the cross-programme UI is not drawn");
+{
+  const { ctx, p } = await open(GE, GE);
+  const u = await p.evaluate(() => { go("home"); const home = document.getElementById("v-home").innerHTML;
+    return { otherCard: /ob-track-weld|tracks\.welding/.test(home), tracksRow: home.includes("go('tracks')"),
+      scope: areaScopeHTML(), note: areaNoteHTML("review"), tracksPage: (() => { const d = document.createElement("div"); rTracks(d, "home"); return (d.innerHTML.match(/track-card|trackSelectionCard/g) || []).length + "|" + /welding/i.test(d.innerHTML) })() } });
+  ok("22 · Home draws no card for the other programme and no way to the Programme page", !u.otherCard && !u.tracksRow, JSON.stringify(u));
+  ok("23 · the Progress banner and the Profile caption that offer the other area are empty", u.scope === "" && u.note === "", JSON.stringify(u));
+  ok("24 · the Programme page never names Welding in the General English app", !/true$/.test(u.tracksPage) && !u.tracksPage.endsWith("|true"), u.tracksPage);
+  await ctx.close();
+}
+{
+  const { ctx, p } = await open(W, W);
+  const u = await p.evaluate(() => { go("home"); const home = document.getElementById("v-home").innerHTML;
+    return { tracksRow: home.includes("go('tracks')"), geCard: /tracks\.general|Practice Partner/.test(home), scope: areaScopeHTML() } });
+  ok("25 · the Welding app's Home offers no General English card and no Programme row", !u.tracksRow && !u.geCard && u.scope === "", JSON.stringify(u));
+  await ctx.close();
+}
+
+console.log("\n# §5 — onboarding never asks which programme");
+{
+  const { ctx, p, errs } = await open(W, null, { onboard: true });
+  const r = await p.evaluate(async () => {
+    const wrap = document.getElementById("obWrap") || document.querySelector(".ob-wrap");
+    /* the programme question is the step whose buttons call obTrackPick — NOT any
+       step with .ob-track buttons (the Welding trade picker uses the same class) */
+    const seen = []; const snap = () => { const c = document.querySelector(".ob-card"); seen.push({ step: OB.step, ask: !!(c && /obTrackPick\(/.test(c.innerHTML)), dots: c ? c.querySelectorAll(".ob-dot").length : 0 }) };
+    snap();
+    const nm = document.getElementById("obName"); if (nm) nm.value = "Alex";
+    obNext(); snap();                      /* 0 -> 1 (language) */
+    obLangPick("en"); await new Promise(r => setTimeout(r, 120)); snap();   /* 1 -> (2 skipped) -> 3 */
+    return { onboarding: !!wrap, seen, track: OB.track, area: areaId() };
   });
-  ok("10 · Practice Partner is unavailable", s.pp === false, JSON.stringify(s));
-  ok("11 · the animated scenes are off", s.scenes === false, JSON.stringify(s));
-  ok("12 · Apply It reaches neither a human partner nor the General English coach",
-    s.applyPartner === false && s.applyAI === false, JSON.stringify(s));
-  ok("13 · the Shadow library reads the WELDING catalogue", s.catalogue === "catalogue/welding.json", String(s.catalogue));
-  ok("14 · General English-only analytics are dropped, so a Welding learner never lands in a GE funnel",
-    s.geEvent === true, JSON.stringify(s));
-  await w.ctx.close();
+  ok("26 · the onboarding reaches step 3 with no programme question in between", r.seen.length >= 3 && r.seen[r.seen.length - 1].step === 3 && !r.seen.some(x => x.ask), JSON.stringify(r.seen));
+  ok("27 · the programme is the app's, already chosen", r.track === W && r.area === W, JSON.stringify(r));
+  ok("28 · the step dots count six, not seven", r.seen[r.seen.length - 1].dots === 6, JSON.stringify(r.seen));
+  ok("29 · no JavaScript errors through onboarding", !errs.length, errs.join(" | "));
+  await ctx.close();
 }
 
-console.log("\n# 5 · the entitlement client asks about ITS app, and accepts no other answer");
+console.log("\n# §6 — the unsplit web build is unchanged");
 {
-  const w = await open({ build: { track: "welding" } });
-  const asked = await w.p.evaluate(async () => {
-    FBUser = { uid: "split-u1", getIdToken: async () => "t" };
-    try { await entRefresh(); } catch (e) {}
-    return { app: entApp(), urls: [] };
+  const { ctx, p, errs } = await open(null, GE);
+  const f = await facts(p);
+  ok("30 · no pin on the web: BE_APP_TRACK is null and the state decides, as always", f.appTrack === null && f.area === GE && f.saved === GE, JSON.stringify(f));
+  const sw = await p.evaluate(() => { areaSwitch("welding", "home"); return { area: areaId(), ctxTrack: ProfessionalTrackContext.active().id, saved: S.professionalTracks.activeId } });
+  ok("31 · switching programme still works on the web", sw.area === W && sw.ctxTrack === W && sw.saved === W, JSON.stringify(sw));
+  const views = await p.evaluate(() => { const o = {}; ["mastery", "lines", "simulation"].forEach(v => { go(v); o[v] = cur.v }); return o });
+  ok("32 · the router guard is inert on the web — a Welding learner reaches the Welding pages", views.mastery === "mastery" && views.lines === "lines" && views.simulation === "simulation", JSON.stringify(views));
+  const back = await p.evaluate(() => { areaSwitch("general-english", "home"); const o = {}; ["partner", "english", "roleplay"].forEach(v => { go(v); o[v] = cur.v }); return { area: areaId(), ...o } });
+  ok("33 · …and after switching back, the General English pages too", back.area === GE && back.partner === "partner" && back.english === "english" && back.roleplay === "roleplay", JSON.stringify(back));
+  ok("34 · the Programme page still offers both programmes on the web", (await p.evaluate(() => { const d = document.createElement("div"); rTracks(d, "home"); return /tracks\.general|General English/i.test(d.innerHTML) && /welding/i.test(d.innerHTML) })));
+  ok("35 · Home still draws the other programme's card and the Programme row on the web", (await p.evaluate(() => { go("home"); const h = document.getElementById("v-home").innerHTML; return h.includes("go('tracks')") })));
+  ok("36 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+
+console.log("\n# §7 — Premium, ads and the analytics boundary still follow the programme");
+/* The Premium contract must be IDENTICAL in both apps and on the web for the
+   same account: one subscription, one account-level entitlement, the same
+   capabilities and the same locks (THE TIERS, 5 Oct 2026 — one plan, both
+   programmes). The point of these checks is that the split neither loosened a
+   lock (a paid AI feature must not become free) nor invented a per-app plan. */
+const prem = async (build, tr) => { const { ctx, p } = await open(build, tr);
+  const r = await p.evaluate(() => ({ caps: ENT_CAPS.slice().sort().join(","), gated: entGated(), billing: flag("billing_enabled"), api: !!entApiBase(),
+    locked: ["ad_free", "ai_analysis", "advanced_progress", "ai_coach", "recommended_content"].map(c => (entLocked(c) ? 1 : 0)).join(""),
+    has: ["ad_free", "ai_analysis", "advanced_progress", "ai_coach", "recommended_content"].map(c => (hasEntitlement(c) ? 1 : 0)).join(""),
+    plan: (entView() || {}).plan || "free", ads: adsTrackAllows("home_feed"),
+    geEvent: GE_ONLY_EVENT.test("partner_matched") && GE_ONLY_EVENT.test("shadow_challenge_opened") }));
+  await ctx.close(); return r; };
+{
+  const g = await prem(GE, GE), w = await prem(W, W), web = await prem(null, GE);
+  ok("37 · the capability list is untouched by the split — the same five in both apps and on the web", g.caps === web.caps && w.caps === web.caps && g.caps.split(",").length === 5, g.caps + " | " + w.caps + " | " + web.caps);
+  ok("38 · the gate is in force in both apps exactly as on the web (plans on, no entitlement service reachable here \u2192 Free)", g.gated === web.gated && w.gated === web.gated && g.billing === web.billing, JSON.stringify({ g, w, web }));
+  ok("39 · every capability answers the SAME in the General English app, the Welding app and the web — Premium is account-level, never per app", g.locked === web.locked && w.locked === web.locked && g.has === web.has && w.has === web.has, JSON.stringify({ g: g.locked + "/" + g.has, w: w.locked + "/" + w.has, web: web.locked + "/" + web.has }));
+  ok("40 · the split did not make a paid feature free: advanced_progress and recommended_content stay locked for a Free account", g.locked[2] === "1" && g.locked[4] === "1" && w.locked[2] === "1" && w.locked[4] === "1", JSON.stringify({ g: g.locked, w: w.locked }));
+  ok("41 · neither app grants a plan a client never bought — both read Free with no entitlement service", g.plan === "free" && w.plan === "free", JSON.stringify({ g: g.plan, w: w.plan }));
+  ok("42 · ads: allowed in the General English app, refused on an ordinary Welding page \u2014 the shipped General-English-only rule survives", g.ads === true && w.ads === false && web.ads === true, JSON.stringify({ g: g.ads, w: w.ads, web: web.ads }));
+  ok("43 · the General-English-only analytics boundary is still in force in both apps", g.geEvent === true && w.geEvent === true);
+}
+
+console.log("\n# §8 — the BUILT bundles carry only their own programme's content");
+{
+  const tmp = mkdtempSync(resolve(tmpdir(), "be-split-"));
+  const run = (t, out) => spawnSync("node", [resolve(root, "mobile/ios/scripts/sync-web.mjs"), "--out", resolve(tmp, out), "--track", t, "--platform", "android"], { encoding: "utf8" });
+  const ge = run(GE, "ge"), w = run(W, "weld");
+  ok("44 · a General English bundle builds", ge.status === 0, (ge.stderr || "").slice(0, 300));
+  ok("45 · a Welding bundle builds", w.status === 0, (w.stderr || "").slice(0, 300));
+  const has = (d, f) => existsSync(resolve(tmp, d, f));
+  const caps = d => existsSync(resolve(tmp, d, "captions")) ? new Set(readdirSync(resolve(tmp, d, "captions")).map(x => x.replace(/\.json$/, ""))) : new Set();
+  const ids = f => new Set(Object.keys(JSON.parse(readFileSync(resolve(root, "catalogue", f), "utf8")).videos || {}));
+  const gIds = ids("general.json"), wIds = ids("welding.json");
+  ok("46 · the General English bundle carries its own library and NOT the Welding one", has("ge", "catalogue/general.json") && !has("ge", "catalogue/welding.json"));
+  ok("47 · the Welding bundle carries its own library and NOT the General English one", has("weld", "catalogue/welding.json") && !has("weld", "catalogue/general.json"));
+  ok("48 · no Welding curriculum in the General English bundle", !has("ge", "tracks/welding/weeks.json") && !has("ge", "tracks/welding/mastery.json"));
+  ok("49 · no General English missions or English Mastery pack in the Welding bundle", !has("weld", "tracks/general/missions.json") && !has("weld", "tracks/general/mastery.json"));
+  ok("50 · the Welding bundle KEEPS the General English curriculum sections it inherits the English machinery from", ["weeks", "shadow", "phrases", "vocabulary", "practice", "progress"].every(s => has("weld", `tracks/general/${s}.json`)));
+  ok("51 · the Welding bundle carries no General English animated scenes or role-play photos", !has("weld", "scenes/index.json") && !existsSync(resolve(tmp, "weld", "rp-photos")) && !existsSync(resolve(tmp, "weld", "scenes")));
+  ok("52 · the General English bundle carries no Welding workshop photos", !existsSync(resolve(tmp, "ge", "sim-photos")) && !existsSync(resolve(tmp, "ge", "home-photos", "welding")));
+  const cg = caps("ge"), cw = caps("weld");
+  ok("53 · no caption of a Welding video is in the General English bundle", [...wIds].every(v => !cg.has(v)), [...wIds].filter(v => cg.has(v)).slice(0, 4).join(","));
+  ok("54 · no caption of a General English video is in the Welding bundle", [...gIds].every(v => !cw.has(v)), [...gIds].filter(v => cw.has(v)).slice(0, 4).join(","));
+  ok("55 · each bundle still has the captions of its OWN videos", [...gIds].some(v => cg.has(v)) && [...wIds].some(v => cw.has(v)));
+  const bb = d => readFileSync(resolve(tmp, d, "be-build.js"), "utf8");
+  ok("56 · each bundle declares its programme and nothing of staging", /"track":"general-english"/.test(bb("ge")) && /"track":"welding"/.test(bb("weld")) && !/staging/.test(bb("ge") + bb("weld")), bb("ge") + bb("weld"));
+  ok("57 · be-build.js is loaded first in the bundled page, before the app reads BE_APP_TRACK",
+    /<head>\s*\n?\s*<script src="be-build\.js"><\/script>/.test(readFileSync(resolve(tmp, "ge", "index.html"), "utf8")));
+  ok("58 · BUNDLE_INFO names the programme and the production Firebase project", /programme general-english/.test(readFileSync(resolve(tmp, "ge", "BUNDLE_INFO.txt"), "utf8")) && /firebase be-mastery\b/.test(readFileSync(resolve(tmp, "weld", "BUNDLE_INFO.txt"), "utf8")));
+  /* an unknown --track must be refused rather than silently build the whole app */
+  const bad = spawnSync("node", [resolve(root, "mobile/ios/scripts/sync-web.mjs"), "--out", resolve(tmp, "bad"), "--track", "plumbing"], { encoding: "utf8" });
+  ok("59 · an unknown programme is refused by the build script", bad.status !== 0 && /--track must be one of/.test(bad.stderr || ""), (bad.stderr || "").slice(0, 160));
+  rmSync(tmp, { recursive: true, force: true });
+}
+
+console.log("\n# \u00a711 \u2014 deployment order cannot leak a plan across apps");
+/* The entitlement service names the app it answered about. An OLDER service
+   does not know about apps and answers about the ACCOUNT — which is the
+   pre-split contract, and right for the General English app, the only app that
+   has ever sold a subscription. For any other app it would be another app's
+   plan. If the Welding app reached a store before be-entitlements understood
+   `?app=`, every General English subscriber would silently be Premium in the
+   Welding app too. These checks are what stops that.
+
+   Verified as a real regression, not a theoretical one: with the one
+   enforcement line removed from entRefresh and nothing else changed, 77 and 79
+   both fail — 77 with {"plan":"premium","paid":true,"prem":true}, i.e. the
+   Welding app genuinely inheriting the General English plan. 78, 80 and 81 pass
+   either way, which is the point: the fix closes the leak without touching the
+   cases that were already right. */
+async function entRigRaw(build, body) {
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  await ctx.addInitScript(({ build, s }) => {
+    if (build) window.BE_BUILD = { track: build };
+    localStorage.setItem("be12_v1", s);
+    localStorage.setItem("be_ent_api", "http://ent.test");
+    localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true, web_visitor_gate_enabled: false }));
+  }, { build, s: seed(build || GE) });
+  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json",
+    headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(body) }));
+  await ctx.route(u => /be-events|be-polish|be-partner|be-push|be-coach|be-widget|cloudflareinsights|gstatic|ytimg|youtube/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html"); await sleep(1200);
+  await p.evaluate(() => { FBUser = { uid: "u-order", email: "a@b.c", getIdToken: async () => "tok" }; });
+  const v = await p.evaluate(async () => { const r = await entRefresh(); return { plan: r.plan, paid: r.paid, prem: hasEntitlement("advanced_progress") } });
+  await ctx.close(); return { v, errs };
+}
+const PREM = extra => Object.assign({ plan: "premium", paid: true, state: "active", ads: false,
+  capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true },
+  expiresAt: Date.now() + 30 * 86400e3, startedAt: Date.now() - 1e3, renews: true, source: "google_play" }, extra || {});
+{
+  /* the exact hazard: an OLD service, which names no app */
+  const r = await entRigRaw(W, PREM());
+  ok("77 \u00b7 an entitlement service too old to name the app cannot make the Welding app Premium",
+    r.v.plan === "free" && r.v.paid === false && r.v.prem === false, JSON.stringify(r.v));
+  const g = await entRigRaw(GE, PREM());
+  ok("78 \u00b7 \u2026and the General English app still trusts it \u2014 the pre-split contract, and the only app that has ever sold a plan",
+    g.v.plan === "premium" && g.v.paid === true && g.v.prem === true, JSON.stringify(g.v));
+  const w = await entRigRaw(W, PREM({ app: "general-english" }));
+  ok("79 \u00b7 a view that names the OTHER app is refused outright", w.v.plan === "free" && w.v.paid === false, JSON.stringify(w.v));
+  const own = await entRigRaw(W, PREM({ app: "welding" }));
+  ok("80 \u00b7 \u2026and a view that names THIS app is taken", own.v.plan === "premium" && own.v.paid === true, JSON.stringify(own.v));
+  ok("81 \u00b7 no JavaScript errors through any of it", !r.errs.length && !g.errs.length && !w.errs.length && !own.errs.length,
+    [].concat(r.errs, g.errs, w.errs, own.errs).join(" | "));
+}
+
+console.log("\n# \u00a79 \u2014 an existing learner loses no data");
+/* The split repoints S.professionalTracks.activeId to the app's own programme.
+   That is the ONE write it makes, and it must not touch a single record: every
+   per-area store (CLAUDE.md \u00a7 Areas) keeps both programmes' evidence, and the
+   learner's Welding history is waiting for them in the Welding app. Nothing is
+   migrated, nothing is deleted. */
+{
+  const rich = JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: "welding", tradeId: "pipefitter" },
+    fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } },
+    /* evidence in BOTH programmes */
+    dayLogA: { welding: { "2026-10-01": 3 }, "general-english": { "2026-10-02": 1 } },
+    weeklyA: { welding: { w1: { score: 7 } } }, monthlyA: { welding: { m1: { score: 6 } } },
+    troubleA: { welding: { weld: { n: 2 } } }, phMasterA: { welding: { "root gap": 1 } },
+    clipsA: { welding: [{ vid: "w1", title: "Welding clip" }] }, chHistA: { welding: [{ ts: 1, verdict: "good" }] },
+    exRepA: { welding: [{ at: 1, level: "B1" }] }, watchedA: { welding: [{ vid: "w9", title: "x", ts: 1 }] },
+    vocab: { bevel: { tk: ["welding"], state: 2 }, leverage: { tk: ["general-english"], state: 1 } },
+    fbHist: [{ tk: "welding", score: 70, at: 1 }, { tk: "general-english", score: 80, at: 2 }],
+    days: { "welding:w1-Mon": true }, dates: ["2026-10-01"], dayLog: { "2026-10-01": 3 },
+    steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  await ctx.addInitScript(s => { window.BE_BUILD = { track: "general-english" }; localStorage.setItem("be12_v1", s);
+    localStorage.setItem("be_flags", JSON.stringify({ web_visitor_gate_enabled: false })); }, rich);
+  await ctx.route(u => /be-events|be-polish|be-partner|be-push|be-coach|be-widget|cloudflareinsights|gstatic|ytimg|youtube|entitlements/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html"); await sleep(1600);
+  const r = await p.evaluate(() => { const saved = JSON.parse(localStorage.getItem("be12_v1") || "{}"); return {
+    area: areaId(), activeId: saved.professionalTracks && saved.professionalTracks.activeId,
+    weldDayLog: JSON.stringify((saved.dayLogA || {}).welding), weldWeekly: JSON.stringify((saved.weeklyA || {}).welding),
+    weldMonthly: JSON.stringify((saved.monthlyA || {}).welding), weldTrouble: JSON.stringify((saved.troubleA || {}).welding),
+    weldPhrases: JSON.stringify((saved.phMasterA || {}).welding), weldClips: ((saved.clipsA || {}).welding || []).length,
+    weldChallenge: ((saved.chHistA || {}).welding || []).length, weldPolish: ((saved.exRepA || {}).welding || []).length,
+    weldWatched: ((saved.watchedA || {}).welding || []).length, weldVocab: !!(saved.vocab || {}).bevel,
+    weldFb: (saved.fbHist || []).filter(x => x.tk === "welding").length, weldDays: !!(saved.days || {})["welding:w1-Mon"],
+    trade: saved.professionalTracks && saved.professionalTracks.tradeId,
+    dates: (saved.dates || []).length, dayLog: JSON.stringify(saved.dayLog),
+    /* and the open programme reports only ITS own evidence, as it always did */
+    ownFb: areaFbHist().length, ownVocab: Object.keys(areaVocab()).join(",") }; });
+  ok("60 \u00b7 the General English app opens in General English although the saved programme was Welding", r.area === GE && r.activeId === GE, JSON.stringify({ area: r.area, activeId: r.activeId }));
+  ok("61 \u00b7 every Welding record is still there, untouched \u2014 progress, weekly, monthly, trouble words, phrases",
+    r.weldDayLog === '{"2026-10-01":3}' && r.weldWeekly === '{"w1":{"score":7}}' && r.weldMonthly === '{"m1":{"score":6}}'
+    && r.weldTrouble === '{"weld":{"n":2}}' && r.weldPhrases === '{"root gap":1}', JSON.stringify(r));
+  ok("62 \u00b7 …and the saved clips, Challenge history, Polish reports, watched clips, vocabulary, feedback and finished days",
+    r.weldClips === 1 && r.weldChallenge === 1 && r.weldPolish === 1 && r.weldWatched === 1 && r.weldVocab === true && r.weldFb === 1 && r.weldDays === true, JSON.stringify(r));
+  ok("63 \u00b7 the trade, the account-wide activity log and the streak dates are untouched", r.trade === "pipefitter" && r.dates === 1 && r.dayLog === '{"2026-10-01":3}', JSON.stringify(r));
+  ok("64 \u00b7 the app still reports on the OPEN programme only — one General English feedback row, no Welding word",
+    r.ownFb === 1 && r.ownVocab === "leverage", JSON.stringify({ ownFb: r.ownFb, ownVocab: r.ownVocab }));
+  ok("65 \u00b7 no JavaScript errors on that learner's first launch after the update", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+
+console.log("\n# \u00a710 \u2014 Premium is per app on the client too");
+/* Owner's rule, 12 Oct 2026: each app sells its own subscription and a purchase
+   in one app does NOT unlock the other. The server enforces it (the purchase
+   link records the app the STORE says sold it — backend/entitlements, W1-W23);
+   these checks are the client half: every entitlement question names this app,
+   the cache cannot be read across apps, and a reply about the other app is
+   refused rather than drawn. */
+async function entRig(build) {
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  await ctx.addInitScript(({ build, s }) => {
+    if (build) window.BE_BUILD = { track: build };
+    localStorage.setItem("be12_v1", s);
+    localStorage.setItem("be_ent_api", "http://ent.test");       /* honoured on 127.0.0.1 only */
+    localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true, web_visitor_gate_enabled: false }));
+  }, { build, s: seed(build || GE) });
+  const asked = [];
+  await ctx.route("http://ent.test/**", r => {
+    const u = new URL(r.request().url());
+    asked.push(u.pathname + u.search);
+    /* the server answers about the app that was ASKED about: Premium only for
+       the General English app, so a Welding build must come out Free */
+    const app = u.searchParams.get("app") || "general-english";
+    const premium = app === "general-english";
+    r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
+      body: JSON.stringify({ plan: premium ? "premium" : "free", paid: premium, state: premium ? "active" : "none", app,
+        ads: !premium, capabilities: { ad_free: premium, ai_analysis: premium, advanced_progress: premium, ai_coach: premium, recommended_content: premium },
+        expiresAt: premium ? Date.now() + 30 * 86400e3 : null, startedAt: premium ? Date.now() - 86400e3 : null, renews: premium ? true : null, source: premium ? "google_play" : null }) });
   });
-  await sleep(400);
-  const urls = w.ent.filter(r => r.method === "GET").map(r => r.url);
-  ok("15 · the Welding app names itself in the request", asked.app === "welding", JSON.stringify(asked));
-  ok("16 · …and the request carries ?app=welding", urls.some(u => /[?&]app=welding\b/.test(u)), JSON.stringify(urls.slice(-2)));
-
-  /* The teeth. The deployed service predates the split and answers without an
-     `app`; a GENERAL ENGLISH client must read that as its own (it is the only
-     app that could have sold it), and a WELDING client must not. */
-  const verdicts = await w.p.evaluate(() => ({
-    weldingOnSilent: entViewIsOurs({ plan: "premium", paid: true }),
-    weldingOnWelding: entViewIsOurs({ plan: "premium", app: "welding" }),
-    weldingOnGeneral: entViewIsOurs({ plan: "premium", app: "general-english" }),
-  }));
-  ok("17 · a Welding app REFUSES an answer that names no app — the pre-split service's shape",
-    verdicts.weldingOnSilent === false, JSON.stringify(verdicts));
-  ok("18 · …refuses one that names the other app", verdicts.weldingOnGeneral === false, JSON.stringify(verdicts));
-  ok("19 · …and accepts its own", verdicts.weldingOnWelding === true, JSON.stringify(verdicts));
-  await w.ctx.close();
-
-  const ge = await open({ build: { track: "general-english" } });
-  const geV = await ge.p.evaluate(() => ({
-    silent: entViewIsOurs({ plan: "premium", paid: true }),
-    general: entViewIsOurs({ plan: "premium", app: "general-english" }),
-    welding: entViewIsOurs({ plan: "premium", app: "welding" }),
-  }));
-  ok("20 · the General English app DOES accept the silent answer, so it keeps working against the deployed service",
-    geV.silent === true && geV.general === true, JSON.stringify(geV));
-  ok("21 · …but still refuses an answer about the Welding app", geV.welding === false, JSON.stringify(geV));
-  await ge.ctx.close();
+  await ctx.route(u => /be-events|be-polish|be-partner|be-push|be-coach|be-widget|cloudflareinsights|gstatic|ytimg|youtube/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html"); await sleep(1200);
+  /* A signed-in learner, without a real Firebase round trip. FBUser is a
+     script-scope `let`, so it must be ASSIGNED — window.FBUser would create a
+     second, unread binding (which is what made these checks silently pass
+     nothing on the first run). */
+  await p.evaluate(() => { FBUser = { uid: "u-split", email: "a@b.c", getIdToken: async () => "tok" }; });
+  return { ctx, p, errs, asked };
 }
-
-console.log("\n# 6 · the website is unchanged: no build marker, both programmes");
 {
-  const web = await open({ build: null, track: "general-english" });
-  const s = await probe(web.p, { track: "window.BE_APP_TRACK", area: "areaId()", partner: "viewAllowedHere('partner')", mastery: "viewAllowedHere('mastery')" });
-  ok("22 · with no be-build.js the pin is null, so app.lomonec.com still serves both", s.track === null, JSON.stringify(s));
-  ok("23 · …and no view is refused there", s.partner === true && s.mastery === true, JSON.stringify(s));
-  const switched = await web.p.evaluate(async () => { try { areaSwitch("welding", "home"); } catch (e) {} await new Promise(r => setTimeout(r, 500)); return areaId(); });
-  ok("24 · …and the learner can still switch programme", switched === "welding", String(switched));
-  ok("25 · no JavaScript errors", !web.errs.length, web.errs.join(" | "));
-  await web.ctx.close();
+  const { ctx, p, errs, asked } = await entRig(GE);
+  const v = await p.evaluate(async () => { const r = await entRefresh(); return { plan: r.plan, paid: r.paid, app: entApp(), prem: hasEntitlement("advanced_progress") } });
+  ok("66 \u00b7 the General English app asks about itself", asked.some(u => u === "/v1/entitlement?app=general-english"), asked.join(" | "));
+  ok("67 \u00b7 …and is Premium when that app's purchase is in force", v.plan === "premium" && v.paid === true && v.prem === true, JSON.stringify(v));
+  ok("68 \u00b7 no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+{
+  const { ctx, p, errs, asked } = await entRig(W);
+  const v = await p.evaluate(async () => { const r = await entRefresh(); return { plan: r.plan, paid: r.paid, app: entApp(), prem: hasEntitlement("advanced_progress"), locked: entLocked("advanced_progress") } });
+  ok("69 \u00b7 the Welding app asks about ITSELF, never the other app", asked.some(u => u === "/v1/entitlement?app=welding") && !asked.some(u => /app=general-english/.test(u)), asked.join(" | "));
+  ok("70 \u00b7 …and the same account is Free there — a purchase in the General English app does not unlock Welding",
+    v.plan === "free" && v.paid === false && v.prem === false && v.locked === true, JSON.stringify(v));
+  ok("71 \u00b7 no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+{
+  /* the cached plan must not cross apps: a Welding build must ignore a cache
+     entry the General English app wrote for the same account */
+  const { ctx, p } = await entRig(W);
+  const r = await p.evaluate(() => {
+    const prem = { plan: "premium", paid: true, state: "active", ads: false, capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true }, expiresAt: Date.now() + 30 * 86400e3, startedAt: Date.now() - 1e3, renews: true, source: "google_play" };
+    const out = {};
+    localStorage.setItem("be_ent_view", JSON.stringify({ uid: "u-split", app: "general-english", at: Date.now(), view: prem }));
+    _entView = null; _entUid = null;
+    out.otherApp = entView().plan;
+    localStorage.setItem("be_ent_view", JSON.stringify({ uid: "u-split", at: Date.now(), view: prem }));   /* written before the split: no app */
+    _entView = null; _entUid = null;
+    out.preSplit = entView().plan;
+    localStorage.setItem("be_ent_view", JSON.stringify({ uid: "u-split", app: "welding", at: Date.now(), view: prem }));
+    _entView = null; _entUid = null;
+    out.ownApp = entView().plan;
+    return out;
+  });
+  ok("72 \u00b7 a cache entry the OTHER app wrote is ignored", r.otherApp === "free", JSON.stringify(r));
+  ok("73 \u00b7 a cache entry written before the split counts as the General English app's, so Welding ignores it too", r.preSplit === "free", JSON.stringify(r));
+  ok("74 \u00b7 …and this app's own cached plan is still used", r.ownApp === "premium", JSON.stringify(r));
+  await ctx.close();
+}
+{
+  /* a purchase route's reply names the app that SOLD it */
+  const { ctx, p } = await entRig(W);
+  const r = await p.evaluate(() => {
+    const prem = app => ({ app, plan: "premium", paid: true, state: "active", ads: false, capabilities: { ad_free: true, ai_analysis: true, advanced_progress: true, ai_coach: true, recommended_content: true }, expiresAt: Date.now() + 30 * 86400e3, startedAt: Date.now() - 1e3, renews: true, source: "app_store" });
+    _entView = null; _entUid = null; try { localStorage.removeItem("be_ent_view") } catch (e) {}
+    billingTakeView(prem("general-english"));
+    const after = entView().plan;
+    billingTakeView(prem("welding"));
+    return { afterOther: after, afterOwn: entView().plan };
+  });
+  ok("75 \u00b7 a purchase reply about the other app is refused, not drawn", r.afterOther === "free", JSON.stringify(r));
+  ok("76 \u00b7 …and a reply about this app is taken", r.afterOwn === "premium", JSON.stringify(r));
+  await ctx.close();
 }
 
-await b.close();
-if (srv) srv.kill();
+await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
-console.log(`\n${pass}/${res.length} passed`);
+console.log(`\n${pass}/${res.length} passed${BASE ? "   (" + BASE + ")" : ""}`);
 process.exit(pass === res.length ? 0 : 1);

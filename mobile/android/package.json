@@ -2,11 +2,15 @@
   "name": "be-mastery-android",
   "private": true,
   "version": "1.1.1",
-  "description": "BE Mastery — Android app shell (Capacitor) around the web app in the repository root. Replaces the Play TWA; see docs/ANDROID_NATIVE_SHELL_PLAN.md.",
+  "description": "BE Mastery \u2014 Android app shell (Capacitor) around the web app in the repository root. Replaces the Play TWA; see docs/ANDROID_NATIVE_SHELL_PLAN.md.",
   "scripts": {
     "sync-web": "node ../ios/scripts/sync-web.mjs --out www --platform android",
     "sync": "node ../ios/scripts/sync-web.mjs --out www --platform android && npx cap sync android",
+    "sync:general": "node ../ios/scripts/sync-web.mjs --out www --platform android --track general-english && npx cap sync android",
+    "sync:welding": "node ../ios/scripts/sync-web.mjs --out www --platform android --track welding && npx cap sync android",
     "sync:staging": "node ../ios/scripts/sync-web.mjs --out www --platform android --staging && npx cap sync android",
+    "sync:staging:general": "node ../ios/scripts/sync-web.mjs --out www --platform android --track general-english --staging && npx cap sync android",
+    "sync:staging:welding": "node ../ios/scripts/sync-web.mjs --out www --platform android --track welding --staging && npx cap sync android",
     "open": "npx cap open android"
   },
   "devDependencies": {

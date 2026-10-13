@@ -558,13 +558,6 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-/* THE TWO-APP SPLIT (12 Oct 2026) — one Xcode project, two App Store apps.
-   These four settings ARE the app identity. The default values below are the
-   existing app, unchanged; Welding.xcconfig overrides them, and
-   mobile/ios/scripts/build.sh passes it with -xcconfig. Every target derives
-   its bundle id from BE_APP_BUNDLE_ID (the extensions append their own
-   suffix), so one value flips the app and both extensions together and they
-   can never disagree. docs/APP_SPLIT.md has the store steps. */
 				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
 				BE_APP_GROUP = group.com.lomonec.bemastery;
 				BE_DISPLAY_NAME = "BE Mastery";
@@ -633,13 +626,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-/* THE TWO-APP SPLIT (12 Oct 2026) — one Xcode project, two App Store apps.
-   These four settings ARE the app identity. The default values below are the
-   existing app, unchanged; Welding.xcconfig overrides them, and
-   mobile/ios/scripts/build.sh passes it with -xcconfig. Every target derives
-   its bundle id from BE_APP_BUNDLE_ID (the extensions append their own
-   suffix), so one value flips the app and both extensions together and they
-   can never disagree. docs/APP_SPLIT.md has the store steps. */
 				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
 				BE_APP_GROUP = group.com.lomonec.bemastery;
 				BE_DISPLAY_NAME = "BE Mastery";
