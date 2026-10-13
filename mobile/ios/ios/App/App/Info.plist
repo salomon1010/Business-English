@@ -14,8 +14,12 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>BEAppGroup</key>
+	<string>$(BE_APP_GROUP)</string>
+	<key>BEProgramme</key>
+	<string>$(BE_PROGRAMME)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BE Mastery</string>
+	<string>$(BE_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

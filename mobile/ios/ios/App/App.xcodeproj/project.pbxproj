@@ -558,6 +558,17 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+/* THE TWO-APP SPLIT (12 Oct 2026) — one Xcode project, two App Store apps.
+   These four settings ARE the app identity. The default values below are the
+   existing app, unchanged; Welding.xcconfig overrides them, and
+   mobile/ios/scripts/build.sh passes it with -xcconfig. Every target derives
+   its bundle id from BE_APP_BUNDLE_ID (the extensions append their own
+   suffix), so one value flips the app and both extensions together and they
+   can never disagree. docs/APP_SPLIT.md has the store steps. */
+				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
+				BE_APP_GROUP = group.com.lomonec.bemastery;
+				BE_DISPLAY_NAME = "BE Mastery";
+				BE_PROGRAMME = "general-english";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -622,6 +633,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+/* THE TWO-APP SPLIT (12 Oct 2026) — one Xcode project, two App Store apps.
+   These four settings ARE the app identity. The default values below are the
+   existing app, unchanged; Welding.xcconfig overrides them, and
+   mobile/ios/scripts/build.sh passes it with -xcconfig. Every target derives
+   its bundle id from BE_APP_BUNDLE_ID (the extensions append their own
+   suffix), so one value flips the app and both extensions together and they
+   can never disagree. docs/APP_SPLIT.md has the store steps. */
+				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
+				BE_APP_GROUP = group.com.lomonec.bemastery;
+				BE_DISPLAY_NAME = "BE Mastery";
+				BE_PROGRAMME = "general-english";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -693,7 +715,7 @@
 				);
 				MARKETING_VERSION = 1.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -717,7 +739,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -865,7 +887,7 @@
 				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEPushService";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -900,7 +922,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEPushService";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -945,7 +967,7 @@
 				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -994,7 +1016,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.7;
 				MARKETING_VERSION = 1.1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
