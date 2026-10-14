@@ -285,15 +285,30 @@ Flavor overlays:
   snapshot and its tap opens `#mastery`), so in a General-English-only app they
   could only draw an empty card and lead nowhere.
 
-**Sign in with Apple on Android is not offered in the Welding build.**
-`auth.lomonec.com` redirects Apple's answer to a hard-coded `bemastery://apple`,
-which only one installed app may claim; a second claimant would put an app
-chooser between the learner and their sign-in, and the app that did not start
-the flow would silently drop it (the state would not match). The Welding flavor
-claims `bemasterywelding://` instead and `BEAuthPlugin.available()` answers
-`apple: false`. Google and e-mail are unaffected. It turns on the day be-auth
-can choose the scheme per app — a change to a **production** Worker, so it is an
-owner decision, not a build change.
+**Sign in with Apple on Android — written, NOT yet deployed (14 Oct 2026).**
+It used to be answered `apple: false` in the Welding build, because
+`auth.lomonec.com` redirected Apple's answer to a hard-coded `bemastery://apple`
+and only one installed app may claim a scheme; a second claimant would put an app
+chooser between the learner and their sign-in, and whichever app did not start
+the flow would drop it, the state not matching.
+
+The proxy now picks the scheme from the state's **prefix** — `APP_LINKS` in
+`backend/auth-proxy/auth-proxy.js`: `bea.` → `bemastery://apple`, `bew.` →
+`bemasterywelding://apple`. `bea.` keeps its exact meaning, so builds already in
+the wild are unaffected; an unknown prefix is refused rather than defaulted,
+which would otherwise hand one app's Apple token to the other. `BEAuthPlugin`
+mints the matching prefix (`appleStatePrefix()`) and `appleCanReturnHere()` now
+answers yes for both programmes. Tests: `backend/auth-proxy/test/run.mjs` 13/13,
+three of them for this.
+
+> **DEPLOY ORDER IS NOT OPTIONAL.** `be-auth` must be deployed BEFORE any Welding
+> build carrying this ships. A Welding app released against the old proxy sends
+> `bew.` states it does not recognise, so the proxy forwards them to Firebase
+> instead of back to the app and the learner never returns. Deploy is
+> `npx wrangler deploy --env ""` from `backend/auth-proxy` — a **production**
+> Worker handling live sign-in for the existing app, so it is the owner's call.
+> Until then the shipped Welding bundle (vc2) still has the old `apple: false`
+> behaviour, which is safe.
 
 ### iOS — one project, two identities
 

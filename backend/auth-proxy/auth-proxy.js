@@ -28,12 +28,27 @@ const PATHS = /^\/__\/(auth|firebase)\//;
    link, bemastery://apple, and the app signs in with Firebase exactly as the iPhone
    does (idToken + the raw nonce only the app knows — an intercepted token is useless
    without it). Every other request is forwarded unchanged. Nothing is stored or logged. */
-const APP_STATE = /^bea\.[A-Za-z0-9_-]{16,64}$/;
-const APP_LINK = "bemastery://apple";
+/* THE TWO-APP SPLIT. The state's PREFIX says which app started the flow, so the
+   answer goes back to that app's own link. Only one installed app may claim a
+   scheme: if both claimed bemastery://apple, Android would put a chooser between
+   the learner and their sign-in, and whichever app did not start the flow would
+   drop it, because the state would not match. So they get a scheme each.
+     bea.  the existing app  ->  bemastery://apple
+     bew.  Welding           ->  bemasterywelding://apple
+   "bea." keeps its exact meaning, so builds already in the wild are unaffected;
+   this only adds a second prefix. The scheme comes from a fixed table and is
+   never built from the request, so a crafted state cannot invent a new target —
+   an unknown prefix is refused rather than defaulted, which would otherwise hand
+   one app's Apple token to the other. */
+const APP_STATE = /^be[aw]\.[A-Za-z0-9_-]{16,64}$/;
+const APP_LINKS = { "bea.": "bemastery://apple", "bew.": "bemasterywelding://apple" };
 function appleBack(form) {
-  const q = new URLSearchParams({ state: form.get("state") });
+  const state = String(form.get("state") || "");
+  const link = APP_LINKS[state.slice(0, 4)];
+  if (!link) return new Response("bad state", { status: 400 });
+  const q = new URLSearchParams({ state });
   for (const k of ["id_token", "user", "error"]) { const v = form.get(k); if (v) q.set(k, String(v).slice(0, 8000)); }
-  const href = APP_LINK + "?" + q.toString();
+  const href = link + "?" + q.toString();
   const esc = s => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>BE Mastery</title>
 <body style="font:16px system-ui;background:#0f1230;color:#fff;display:grid;place-items:center;min-height:90vh;text-align:center">

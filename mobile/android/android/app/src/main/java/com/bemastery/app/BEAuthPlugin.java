@@ -68,15 +68,24 @@ public class BEAuthPlugin extends Plugin {
        instead of two buttons that can only fail: Google needs be-mastery-test's "Safelist
        client IDs from external projects" step, and Apple would need the test project's own
        Services ID and auth-staging.lomonec.com (docs/ANDROID_NATIVE_SHELL_PLAN.md). */
-    /* THE TWO-APP SPLIT (12 Oct 2026): Sign in with Apple is answered "no" in the
-       Welding build. auth.lomonec.com redirects Apple's answer to a HARD-CODED
-       bemastery://apple, which only one installed app may claim; a second claimant
-       puts an app chooser between the learner and their sign-in, and the app that
-       did not start the flow would silently drop it (the state would not match).
-       Google and e-mail are unaffected, so nothing is lost but one button. It
-       turns on the day be-auth can pick the scheme per app — docs/APP_SPLIT.md
-       § "Sign in with Apple on Android". */
-    private static boolean appleCanReturnHere() { return "general-english".equals(BuildConfig.BE_PROGRAMME); }
+    /* THE TWO-APP SPLIT. Sign in with Apple used to be answered "no" in the Welding
+       build, because auth.lomonec.com redirected Apple's answer to a HARD-CODED
+       bemastery://apple and only one installed app may claim a scheme: a second
+       claimant would put an app chooser between the learner and their sign-in, and
+       whichever app did not start the flow would drop it, the state not matching.
+       Since 14 Oct 2026 the proxy picks the scheme from the state's prefix
+       (APP_LINKS in backend/auth-proxy/auth-proxy.js), so each app gets its own
+       and both can offer the button.
+       THIS ONLY WORKS ONCE THAT WORKER IS DEPLOYED. A Welding build released
+       against the old proxy would send "bew." states that it does not recognise,
+       and it would forward them to Firebase instead of back to the app — the
+       learner would simply never return. Deploy be-auth first, then ship. */
+    private static boolean appleCanReturnHere() {
+        return "general-english".equals(BuildConfig.BE_PROGRAMME) || "welding".equals(BuildConfig.BE_PROGRAMME);
+    }
+
+    /* Must agree with APP_LINKS in the proxy and beAppleScheme in build.gradle. */
+    private static String appleStatePrefix() { return "welding".equals(BuildConfig.BE_PROGRAMME) ? "bew." : "bea."; }
 
     @PluginMethod
     public void available(PluginCall call) {
@@ -161,7 +170,12 @@ public class BEAuthPlugin extends Plugin {
         synchronized (BEAuthPlugin.class) {
             if (appleCall != null) appleCall.reject("cancelled", "cancelled");   // a second tap replaces the first
             appleRawNonce = random(32);
-            appleState = "bea." + random(32);
+            /* The prefix tells auth.lomonec.com which app to hand the answer back
+               to, because the two apps claim different schemes (only one installed
+               app may claim one). It must agree with APP_LINKS in
+               backend/auth-proxy/auth-proxy.js and with beAppleScheme in
+               build.gradle: bea. -> bemastery://, bew. -> bemasterywelding://. */
+            appleState = appleStatePrefix() + random(32);
             appleCall = call;
             appleAway = false;
         }
