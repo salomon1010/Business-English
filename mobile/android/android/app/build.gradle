@@ -57,10 +57,15 @@ android {
         welding {
             dimension "programme"
             applicationId "com.lomonec.bemastery.welding"
-            // A brand-new Play listing starts at 1; nothing has ever been uploaded
-            // under this package (verified against Play before the first upload —
-            // docs/APP_SPLIT.md § Store actions).
-            versionCode 1
+            // 1 IS GONE (14 Oct 2026). The note here used to say nothing had ever
+            // been uploaded under this package; that was true when it was written
+            // and is not now — Play holds a completed internal release,
+            // "Welding-1.0.0-internal-1", built before the Welding branding
+            // existed. Play refuses a reused code outright ("Version code 1 has
+            // already been used"), and a code is consumed the moment a bundle is
+            // accepted, whether or not the release ever ships. So 2 is the first
+            // bundle that can carry the new logo.
+            versionCode 2
             versionName "1.0.0"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: auth.lomonec.com redirects there with a

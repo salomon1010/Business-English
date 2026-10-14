@@ -25,7 +25,7 @@ FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost,https://localhost"   # https://localhost = the Android shell
 # Apple (StoreKit 2 JWS). Production AND Sandbox: Sandbox is what App Review
 # itself buys with, so a Production-only list fails review.
-APPLE_BUNDLE_ID = "com.lomonec.bemastery"
+APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"
 APPLE_ENVIRONMENTS = "Production,Sandbox"
 # SHA-256 of Apple Root CA - G3 (public). Pinned so a JWS chain must end in
 # Apple's own root. Same value as staging, by design: it is Apple's root.
@@ -59,10 +59,10 @@ APPLE_ROOT_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653
 # Extending a store list without extending APP_PROGRAMMES refuses the new app's
 # purchases (500 app_unmapped) and leaves the existing app's working — the safe
 # direction, not a guess.
-PLAY_PACKAGE = "com.bemastery.app"
+PLAY_PACKAGE = "com.bemastery.app,com.lomonec.bemastery.welding"
 # One programme today, so every purchase is the General English app's and the
 # service behaves exactly as it did before the split.
-APP_PROGRAMMES = "general-english"
+APP_PROGRAMMES = "general-english,welding"
 # RTDN (10 Oct 2026): the topic Play Console names (be-mastery-play-rtdn) has a SECOND push
 # subscription, be-mastery-play-rtdn-push-prod, to THIS Worker's custom domain (Pub/Sub pushes
 # to workers.dev never reach a Worker — see the staging note). Audience blank → aud = endpoint.
