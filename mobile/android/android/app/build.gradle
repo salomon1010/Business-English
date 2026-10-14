@@ -50,8 +50,10 @@ android {
             versionName "1.2.0"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
-            // hands the answer back on bemastery://apple. Only ONE app may claim that,
-            // so it stays with the existing app (see the welding flavor).
+            // hands the answer back on bemastery://apple. Only ONE app may claim a
+            // scheme, so this name stays with the existing app and Welding has its
+            // own; since 14 Oct 2026 the proxy picks between them from the state's
+            // prefix (bea. here), so both apps can offer the button. Unchanged here.
             manifestPlaceholders = [beAppleScheme: "bemastery", beAppleHost: "apple", beWidgetScheme: "bemastery"]
         }
         welding {
