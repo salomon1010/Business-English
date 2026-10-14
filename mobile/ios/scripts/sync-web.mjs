@@ -168,6 +168,21 @@ if (track) {
       + page.slice(close + "</svg>".length));
     branded.push("#beSplash mark");
   }
+  /* manifest.json names the Play app this bundle belongs to. Left alone, the
+     Welding bundle advertised com.bemastery.app: getInstalledRelatedApps()
+     would have answered with the OTHER app, and any installer reading the
+     manifest would have sent the learner to the wrong listing. The repository's
+     own manifest.json is untouched, so app.lomonec.com keeps naming the
+     existing app. */
+  const mf = resolve(out, "manifest.json");
+  if (track === "welding" && existsSync(mf)) {
+    const m = JSON.parse(readFileSync(mf, "utf8"));
+    const id = "com.lomonec.bemastery.welding";
+    if (!Array.isArray(m.related_applications) || !m.related_applications.length) throw new Error("manifest.json has no related_applications to re-point");
+    m.related_applications = [{ platform: "play", id, url: "https://play.google.com/store/apps/details?id=" + id }];
+    writeFileSync(mf, JSON.stringify(m, null, 2) + "\n");
+    branded.push("manifest related_applications");
+  }
 }
 
 /* The service worker cannot run inside WKWebView (no ServiceWorker in a

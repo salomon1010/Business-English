@@ -17558,7 +17558,12 @@ function susTextY(name,y){return name?y:y-90}
    docs/PORTAL.md), links and the password-reset return point there. Anywhere
    else — the root today, the store apps, staging — it is the root as before. */
 const APP_URL=(()=>{try{if(location.hostname==="app.lomonec.com"&&/^\/bemastery(\/|$)/.test(location.pathname))return "https://app.lomonec.com/bemastery/"}catch(e){}return "https://app.lomonec.com/"})();
-const PLAY_URL="https://play.google.com/store/apps/details?id=com.bemastery.app";
+/* THE TWO-APP SPLIT: share, rate and the install card must point at the listing
+   of the app the learner is actually in. The id is chosen from the build's own
+   programme (BE_APP_TRACK, written by sync-web.mjs); a plain browser has no
+   programme and keeps the existing app, so app.lomonec.com is unchanged. */
+const PLAY_PKG=(function(){try{return window.BE_APP_TRACK==="welding"?"com.lomonec.bemastery.welding":"com.bemastery.app"}catch(e){return "com.bemastery.app"}})();
+const PLAY_URL="https://play.google.com/store/apps/details?id="+PLAY_PKG;
 
 /* Share if the device supports it, otherwise download. */
 async function shShare(kind){
@@ -17665,6 +17670,13 @@ function playStandalone(){
   }catch(e){return false}
 }
 function playAskDue(){
+  /* THE STORE SHELLS (14 Oct 2026). The learner is already IN the app, so this
+     card is nonsense there — and in the Welding app it is worse than nonsense,
+     because it offers a different app. The TWA was excluded by the
+     android-app:// referrer in playStandalone(); the Capacitor shell sets no
+     referrer and reports display-mode "browser", so it fell straight through
+     and the dialog covered the whole screen, sign-in included. */
+  if(IS_NATIVE_APP)return false;
   if(!/Android/i.test(navigator.userAgent||""))return false;
   if(playStandalone())return false;
   if(window.top!==window.self)return false;

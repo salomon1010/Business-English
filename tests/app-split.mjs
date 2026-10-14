@@ -487,6 +487,31 @@ async function entRig(build) {
   ok("85 \u00b7 the app mints exactly one prefix per programme, and the proxy knows both",
     prefixes.length === 2 && prefixes.every(x => new RegExp('"' + x + '":').test(proxy)), mint);
 }
+{
+  /* WHICH APP THE APP POINTS AT (14 Oct 2026). Found by running the Welding build:
+     it covered its own screen with "Install the app from Google Play" — in the app,
+     over the sign-in sheet — and the link went to the OTHER app. Three places name a
+     Play listing and all three have to follow the build's own programme. */
+  const page = readFileSync(resolve(root, "index.html"), "utf8");
+  ok("86 \u00b7 the install card never appears inside a store shell",
+    /function playAskDue\(\)\{[\s\S]{0,700}?if\(IS_NATIVE_APP\)return false;/.test(page),
+    (page.match(/function playAskDue\(\)\{[\s\S]{0,200}/) || [""])[0].slice(0, 160));
+  ok("87 \u00b7 the Play link is built from the programme, never a single hard-coded package",
+    /PLAY_URL\s*=\s*"https:\/\/play\.google\.com\/store\/apps\/details\?id="\s*\+\s*PLAY_PKG/.test(page)
+    && /PLAY_PKG[\s\S]{0,200}BE_APP_TRACK\s*===\s*"welding"[\s\S]{0,80}com\.lomonec\.bemastery\.welding/.test(page),
+    (page.match(/const PLAY_URL[^\n]*/) || [""])[0]);
+  const tmp2 = mkdtempSync(resolve(tmpdir(), "be-split-mf-"));
+  const w2 = spawnSync("node", [resolve(root, "mobile/ios/scripts/sync-web.mjs"), "--out", resolve(tmp2, "weld"), "--track", W, "--platform", "android"], { encoding: "utf8" });
+  let mw = {}, mrepo = {};
+  try { mw = JSON.parse(readFileSync(resolve(tmp2, "weld", "manifest.json"), "utf8")); } catch (e) {}
+  try { mrepo = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8")); } catch (e) {}
+  const ids = m => (m.related_applications || []).map(a => a.id + " " + (a.url || "")).join(" ");
+  ok("88 \u00b7 the Welding bundle's manifest names the Welding app and never the other one",
+    w2.status === 0 && /com\.lomonec\.bemastery\.welding/.test(ids(mw)) && !/com\.bemastery\.app/.test(ids(mw)), ids(mw) || (w2.stderr || "").slice(0, 200));
+  ok("89 \u00b7 …and the repository's own manifest still names the existing app, so the web is unchanged",
+    /com\.bemastery\.app/.test(ids(mrepo)) && !/welding/.test(ids(mrepo)), ids(mrepo));
+  rmSync(tmp2, { recursive: true, force: true });
+}
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed${BASE ? "   (" + BASE + ")" : ""}`);

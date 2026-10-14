@@ -67,7 +67,11 @@ android {
             // bundle that can carry the new logo, and 3 the first that can offer
             // Sign in with Apple: be-auth was deployed 14 Oct 2026 (see below),
             // and a build carrying that button must never precede that deploy.
-            versionCode 3
+            // 3 IS SPENT. It reached internal testing and is not worth testing:
+            // it opened on a full-screen "install this app from Google Play"
+            // card — in the app, over the sign-in sheet, pointing at the OTHER
+            // app. 4 is the first bundle a tester should be given.
+            versionCode 4
             versionName "1.0.0"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
