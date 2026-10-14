@@ -89,7 +89,13 @@ const BRAND = {
              "icon-512.png": "branding/welding/icon-512.png",
              /* the mark index.html draws in the header, the onboarding hero,
                 the About row and the sign-in sheet */
-             "logo.svg": "branding/welding/logo.svg" },
+             "logo.svg": "branding/welding/logo.svg",
+             /* the Welding Mastery hub's own mark: a 160x100 banner that every
+                .wm-logo rule draws into a SQUARE box (40-84px), so the square
+                app mark fits it better than the banner did. The filename is
+                kept, so welding-mastery.js and tests/welding-mastery.mjs E1
+                are untouched. */
+             "welding-mastery-logo.svg": "branding/welding/logo.svg" },
 };
 
 /* Which catalogue a caption file belongs to. The two catalogues share no video
@@ -115,6 +121,7 @@ function drop(rel, kind) {
   rmSync(p, { recursive: true, force: true });
   pruned[kind]++;
 }
+const idxEarly = resolve(out, "index.html");
 if (track) {
   const plan = PRUNE[track];
   plan.dirs.forEach(d => drop(d, "dirs"));
@@ -141,6 +148,25 @@ if (track) {
     if (!existsSync(from)) throw new Error(`the ${track} bundle needs ${src}; run scripts/branding/make-welding-icons.py`);
     cpSync(from, resolve(out, dest));
     branded.push(dest);
+  }
+  /* The boot splash (#beSplash) draws its mark as an INLINE svg, so copying a
+     file over it is not enough: a Welding learner would watch the General
+     English tile animate in before the app painted. The one <svg class="bs-logo">
+     is swapped for the programme's own logo.svg here rather than branched in
+     index.html, so the shared file keeps exactly one splash and General English
+     is untouched. The tile/bar keyframes simply have nothing to animate
+     afterwards; the row still glides, which is the motion that is actually
+     visible. */
+  if (BRAND[track] && BRAND[track]["logo.svg"]) {
+    const page = readFileSync(idxEarly, "utf8");
+    const open = page.indexOf('<svg class="bs-logo"');
+    const close = open < 0 ? -1 : page.indexOf("</svg>", open);
+    if (open < 0 || close < 0) throw new Error("the #beSplash mark (svg.bs-logo) was not found — index.html changed shape");
+    if (page.indexOf('<svg class="bs-logo"', open + 1) !== -1) throw new Error("more than one svg.bs-logo in index.html");
+    writeFileSync(idxEarly, page.slice(0, open)
+      + '<img class="bs-logo" src="logo.svg" alt="" style="border-radius:22px">'
+      + page.slice(close + "</svg>".length));
+    branded.push("#beSplash mark");
   }
 }
 
