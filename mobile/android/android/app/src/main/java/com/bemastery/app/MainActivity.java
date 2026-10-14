@@ -24,7 +24,7 @@ public class MainActivity extends BridgeActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         BEPushPlugin.deliverTap(intent);         // a notification tapped while the app was running
-        BEAuthPlugin.deliverApple(intent);       // back from Sign in with Apple (bemastery://apple)
+        BEAuthPlugin.deliverApple(intent);       // back from Sign in with Apple (this app's own scheme)
         BEWidgetPlugin.deliver(intent);          // a widget tapped while the app was running
     }
 

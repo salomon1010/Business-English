@@ -51,8 +51,9 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
  * Apple: Android has no native Apple sign-in, so Apple's own page opens in a browser
  * tab (Custom Tab) for the Services ID com.lomonec.bemastery.signin, with
  * redirect_uri = https://auth.lomonec.com/__/auth/handler (already a return URL of the
- * Services ID). The proxy there (backend/auth-proxy) recognises our "bea." state and
- * hands Apple's answer back through bemastery://apple. The nonce Apple signs is the
+ * Services ID). The proxy there (backend/auth-proxy) reads our state's prefix and hands
+ * Apple's answer back through that app's own link — bea. to bemastery://apple, bew. to
+ * bemasterywelding://apple. The nonce Apple signs is the
  * SHA-256 of a raw nonce only this app knows, and Firebase checks it — exactly the
  * iPhone's rule — so a token caught on the way is useless to anyone else.
  */
@@ -86,6 +87,13 @@ public class BEAuthPlugin extends Plugin {
 
     /* Must agree with APP_LINKS in the proxy and beAppleScheme in build.gradle. */
     private static String appleStatePrefix() { return "welding".equals(BuildConfig.BE_PROGRAMME) ? "bew." : "bea."; }
+
+    /* The link Apple's answer comes back on, which is this app's OWN scheme — the
+       manifest's beAppleScheme placeholder, same rule. It is read here and not
+       hard-coded because the two apps claim different schemes: a Welding build
+       that only recognised bemastery:// would drop every answer it was sent and
+       report the sign-in as cancelled. */
+    private static String appleScheme() { return "welding".equals(BuildConfig.BE_PROGRAMME) ? "bemasterywelding" : "bemastery"; }
 
     @PluginMethod
     public void available(PluginCall call) {
@@ -196,10 +204,10 @@ public class BEAuthPlugin extends Plugin {
         }
     }
 
-    /** bemastery://apple?state=…&id_token=…[&user=…][&error=…] — from MainActivity. */
+    /** <this app's scheme>://apple?state=…&id_token=…[&user=…][&error=…] — from MainActivity. */
     static boolean deliverApple(Intent intent) {
         Uri d = intent == null ? null : intent.getData();
-        if (d == null || !"bemastery".equals(d.getScheme()) || !"apple".equals(d.getHost())) return false;
+        if (d == null || !appleScheme().equals(d.getScheme()) || !"apple".equals(d.getHost())) return false;
         intent.setData(null);                                   // a rotation must not replay it
         PluginCall call; String rawNonce;
         synchronized (BEAuthPlugin.class) {

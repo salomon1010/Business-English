@@ -463,6 +463,30 @@ async function entRig(build) {
   await ctx.close();
 }
 
+{
+  /* SIGN IN WITH APPLE ACROSS THE TWO APPS (14 Oct 2026). Apple's answer comes back on a
+     URL scheme, and only one installed app may claim a scheme — so each app has its own and
+     the proxy chooses between them from the state's prefix. Four files have to agree, and
+     nothing at build time would notice if they stopped: a Welding build that listened on the
+     wrong scheme would simply drop every answer it was handed and report "cancelled". */
+  const gradle = readFileSync(resolve(root, "mobile/android/android/app/build.gradle"), "utf8");
+  const plug = readFileSync(resolve(root, "mobile/android/android/app/src/main/java/com/bemastery/app/BEAuthPlugin.java"), "utf8");
+  const proxy = readFileSync(resolve(root, "backend/auth-proxy/auth-proxy.js"), "utf8");
+  const scheme = f => (gradle.match(new RegExp(f + "\\s*\\{[\\s\\S]*?beAppleScheme: \"([a-z]+)\"")) || [])[1];
+  const geScheme = scheme("general"), wScheme = scheme("welding");
+  ok("82 \u00b7 the two apps claim DIFFERENT Apple schemes", !!geScheme && !!wScheme && geScheme !== wScheme, geScheme + " / " + wScheme);
+  ok("83 \u00b7 the plugin listens on each app's own scheme, never a hard-coded one",
+    /appleScheme\(\)\.equals\(d\.getScheme\(\)\)/.test(plug) && plug.includes('"' + wScheme + '"') && plug.includes('"' + geScheme + '"'),
+    (plug.match(/equals\(d\.getScheme\(\)\)/g) || []).join(","));
+  ok("84 \u00b7 every scheme the plugin answers on is one the proxy can actually send to",
+    [geScheme, wScheme].every(s => new RegExp('"' + s + '://apple"').test(proxy)), proxy.match(/be[a-z]*:\/\/apple/g).join(","));
+  /* read the prefixes off the ONE line that mints them, so a prefix merely mentioned in a
+     comment cannot stand in for the code actually doing it */
+  const mint = (plug.match(/appleStatePrefix\(\)[^\n]*/) || [""])[0];
+  const prefixes = [...new Set((mint.match(/"(be[a-z]\.)"/g) || []).map(x => x.slice(1, -1)))];
+  ok("85 \u00b7 the app mints exactly one prefix per programme, and the proxy knows both",
+    prefixes.length === 2 && prefixes.every(x => new RegExp('"' + x + '":').test(proxy)), mint);
+}
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed${BASE ? "   (" + BASE + ")" : ""}`);

@@ -24,11 +24,12 @@
             </intent-filter>
 
             <!-- back from Sign in with Apple: the proxy at auth.lomonec.com hands Apple's answer here.
-                 The scheme is a flavor placeholder (the two-app split): auth.lomonec.com redirects
-                 to a HARD-CODED bemastery://apple, so only the General English app may claim it —
-                 two apps claiming one scheme put an app chooser between the learner and their
-                 sign-in. The Welding flavor claims bemasterywelding:// and BEAuthPlugin reports
-                 Apple as unavailable there until be-auth can redirect per app (docs/APP_SPLIT.md). -->
+                 The scheme is a flavor placeholder (the two-app split), because only one installed
+                 app may claim a scheme: two claimants put an app chooser between the learner and
+                 their sign-in, and whichever app did not start the flow drops it. So each app has
+                 its own — bemastery:// and bemasterywelding:// — and since 14 Oct 2026 the proxy
+                 picks between them from the state's prefix, so Apple works in both. BEAuthPlugin
+                 reads the same name back in appleScheme() (docs/APP_SPLIT.md). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

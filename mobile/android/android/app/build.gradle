@@ -64,15 +64,18 @@ android {
             // existed. Play refuses a reused code outright ("Version code 1 has
             // already been used"), and a code is consumed the moment a bundle is
             // accepted, whether or not the release ever ships. So 2 is the first
-            // bundle that can carry the new logo.
-            versionCode 2
+            // bundle that can carry the new logo, and 3 the first that can offer
+            // Sign in with Apple: be-auth was deployed 14 Oct 2026 (see below),
+            // and a build carrying that button must never precede that deploy.
+            versionCode 3
             versionName "1.0.0"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
-            // NOT bemastery://apple: auth.lomonec.com redirects there with a
-            // hard-coded scheme, and two installed apps claiming it would put a
-            // chooser between the learner and their sign-in. Until be-auth can
-            // redirect per app, this build claims its own scheme and BEAuthPlugin
-            // reports Apple as unavailable here (Google and e-mail are unaffected).
+            // NOT bemastery://apple: only one installed app may claim a scheme, and
+            // a second claimant would put a chooser between the learner and their
+            // sign-in. So this app claims its own. Since 14 Oct 2026 the proxy at
+            // auth.lomonec.com picks the scheme from the state's PREFIX (bew. ->
+            // here, bea. -> the existing app), so Apple now works in both apps —
+            // BEAuthPlugin.appleStatePrefix() must keep agreeing with this name.
             // beWidgetScheme stays "bemastery" in BOTH apps: a widget tap is an
             // EXPLICIT intent (BEWidgetLaunch.setClassName), so each app's widgets
             // always open that app and the scheme is only a label.
