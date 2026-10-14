@@ -37,6 +37,8 @@ const welding = programme === "welding";
    here, so a drift between the two is a FAIL rather than a silent pass. */
 const EXPECT = { "general-english": { bid: "com.lomonec.bemastery", group: "group.com.lomonec.bemastery", name: "BE Mastery" },
                  welding: { bid: "com.lomonec.bemastery.welding", group: "group.com.lomonec.bemastery.welding", name: "BE Welding" } }[programme];
+EXPECT.appicon = welding ? "AppIconWelding" : "AppIcon";
+EXPECT.launch = welding ? "LaunchScreenWelding" : "LaunchScreen";
 let fails = 0, warns = 0;
 const ok = (name, cond, detail = "") => { console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond || !detail ? "" : " — " + detail}`); if (!cond) fails++; };
 const warn = (name, cond, detail = "") => { if (!cond) { warns++; console.log(`  WARN  ${name}${detail ? " — " + detail : ""}`); } else console.log(`  PASS  ${name}`); };
@@ -314,14 +316,32 @@ console.log("\n== Info.plist / privacy manifest");
 
 console.log("\n== assets");
 {
-  const icon = join(ios, "ios", "App", "App", "Assets.xcassets", "AppIcon.appiconset", "AppIcon-512@2x.png");
-  ok("AppIcon-512@2x.png present", existsSync(icon));
+  /* The two apps have their own icon sets in the one catalog, chosen at build
+     time by BE_APPICON_NAME (docs/APP_SPLIT.md § Branding) — so check the one
+     THIS programme will actually ship, not whichever is listed first. */
+  const iconSet = welding ? "AppIconWelding" : "AppIcon";
+  const iconFile = welding ? "AppIconWelding-1024.png" : "AppIcon-512@2x.png";
+  const icon = join(ios, "ios", "App", "App", "Assets.xcassets", `${iconSet}.appiconset`, iconFile);
+  ok(`${iconFile} present`, existsSync(icon));
   if (existsSync(icon)) {
     const b = readFileSync(icon);
     const w = b.readUInt32BE(16), h = b.readUInt32BE(20), colour = b[25];
-    ok(`AppIcon 1024×1024 (${w}×${h})`, w === 1024 && h === 1024);
-    ok(`AppIcon has no alpha channel (colour type ${colour}, no tRNS)`, (colour === 2 || colour === 0) && !b.includes("tRNS"));
+    ok(`${iconSet} 1024×1024 (${w}×${h})`, w === 1024 && h === 1024);
+    ok(`${iconSet} has no alpha channel (colour type ${colour}, no tRNS)`, (colour === 2 || colour === 0) && !b.includes("tRNS"));
   }
+  /* and that the build really will pick it: the project names the General
+     English sets, the xcconfig overrides both for Welding. */
+  const pbx = read(join(ios, "ios", "App", "App.xcodeproj", "project.pbxproj"));
+  const xcc = read(join(ios, "ios", "App", "Welding.xcconfig"));
+  ok("the app icon follows the build (ASSETCATALOG_COMPILER_APPICON_NAME = $(BE_APPICON_NAME))",
+     /ASSETCATALOG_COMPILER_APPICON_NAME = "\$\(BE_APPICON_NAME\)"/.test(pbx) && /BE_APPICON_NAME = AppIcon;/.test(pbx));
+  ok("the launch screen follows the build (UILaunchStoryboardName = $(BE_LAUNCH_STORYBOARD))",
+     read(join(ios, "ios", "App", "App", "Info.plist")).includes("$(BE_LAUNCH_STORYBOARD)") && /BE_LAUNCH_STORYBOARD = LaunchScreen;/.test(pbx));
+  ok(`this programme's icon and launch screen: ${EXPECT.appicon} / ${EXPECT.launch}`,
+     welding ? /BE_APPICON_NAME = AppIconWelding/.test(xcc) && /BE_LAUNCH_STORYBOARD = LaunchScreenWelding/.test(xcc) : true);
+  const story = join(ios, "ios", "App", "App", welding ? "LaunchScreenWelding.storyboard" : "Base.lproj/LaunchScreen.storyboard");
+  ok(`${EXPECT.launch}.storyboard present and in the Resources phase`,
+     existsSync(story) && pbx.includes(`${EXPECT.launch}.storyboard in Resources`));
   const shots = join(ios, "appstore", "screenshots", "iphone-6.9");
   const n = existsSync(shots) ? readdirSync(shots).filter(f => f.endsWith(".png")).length : 0;
   ok(`6.9" screenshots present (${n}, App Store Connect wants 3–10)`, n >= 3 && n <= 10);

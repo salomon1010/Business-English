@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT — the Welding app's launch screen on API 31+, where the
+     platform owns the splash. See values/styles.xml for why. The icon the
+     system draws here is the adaptive launcher icon, so no separate splash
+     artwork is involved and none should be added: a windowSplashScreenAnimatedIcon
+     would only be a second copy of the same mark to keep in step. -->
+<resources>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_background</item>
+    </style>
+</resources>

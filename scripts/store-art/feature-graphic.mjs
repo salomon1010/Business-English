@@ -10,7 +10,7 @@
  *         overwritten).
  *
  * Built from the app's OWN assets and palette, so the banner, the launcher icon
- * and the app agree: the programme's mark (welding-mastery-logo.svg /
+ * and the app agree: the programme's mark (branding/welding/icon-512.png /
  * logo.svg), the programme's accent (--acc2 gold on --bg navy for Welding) and
  * one of the programme's own photographs. Nothing is invented and no third-party
  * artwork is used — the same rule the screenshot sets follow.
@@ -31,7 +31,11 @@ const BASE = process.env.BASE || "http://127.0.0.1:8767";
 const ART = {
   welding: {
     out: "playstore/welding/feature-graphic.png",
-    mark: "welding-mastery-logo.svg",
+    /* the app icon itself since 13 Oct 2026 (branding/welding/logo-master.png):
+       the banner sits beside the icon in the Play listing, so they must be the
+       same mark. welding-mastery-logo.svg is the Welding Mastery hub's mark
+       inside the app and is a different thing. */
+    mark: "branding/welding/icon-512.png",
     photo: "home-photos/welding/convo.jpg",
     bg: "#0a0e1a", bg2: "#141b30", accent: "#f6c453", sub: "#c9cfdc",
     title: "BE Mastery", tag: "Welding English",

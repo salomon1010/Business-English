@@ -9,11 +9,22 @@ See `docs/APP_SPLIT.md` § Store actions for the full owner checklist.
 | `listing-short-description.txt` | Short description | 80 characters |
 | `listing-full-description.txt` | Full description | 4,000 characters |
 | `play-icon-512.png` | App icon | 512×512 PNG |
+| `feature-graphic.png` | Feature graphic | 1024×500 PNG |
 
-The icon is generated from the app's own `welding-mastery-logo.svg`, the same
-mark the Welding Mastery hub uses, so the listing, the launcher icon and the
-app agree. The Android launcher icons live in
-`mobile/android/android/app/src/welding/res/mipmap-*`.
+The icon and the feature graphic are generated from the approved Welding logo
+(`branding/welding/logo-master.png`, owner, 13 Oct 2026) by
+
+```
+python3 scripts/branding/make-welding-icons.py
+node scripts/store-art/feature-graphic.mjs welding   # needs a local server; see its header
+```
+
+so the listing, the launcher icon on both stores and the mark inside the app all
+agree. The Android launcher icons live in
+`mobile/android/android/app/src/welding/res/mipmap-*` and the iOS one in
+`mobile/ios/ios/App/App/Assets.xcassets/AppIconWelding.appiconset`.
+`welding-mastery-logo.svg` is a different thing — the Welding Mastery hub's mark
+inside the app — and was not changed.
 
 ## Screenshots — `phone/`, done
 

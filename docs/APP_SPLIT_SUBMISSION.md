@@ -148,7 +148,7 @@ technical one.
 |---|---|---|
 | 1 | AAB built and signed | **done** — `app-welding-release.aab`, versionCode 1, 1.0.0, same upload key |
 | 2 | bundle carries the Welding app only | **done** — `be-build.js {"track":"welding"}`, 554 captions, no General English catalogue, scenes or role-play photos |
-| 3 | launcher icon + 512 listing icon | **done** — `src/welding/res/mipmap-*`, `playstore/welding/play-icon-512.png` |
+| 3 | launcher icon + 512 listing icon | **done** — redrawn from the owner's logo of 13 Oct 2026 (`branding/welding/logo-master.png`): `src/welding/res/mipmap-*`, the flavour's own `drawable*/splash.png` launch screen, and `playstore/welding/play-icon-512.png`. Regenerate with `scripts/branding/make-welding-icons.py`, check with `verify-welding-icons.py`. **The AAB in row 1 predates this and would have to be rebuilt to carry it** |
 | 4 | listing title, short and full description | **done** — `playstore/welding/listing-*.txt` (18 / 76 / 3 725 characters, all within limits) |
 | 5 | **create the app** in Play Console with this exact package | **OWNER** — the Publisher API has no create-app call (probed: `404 Package not found`). The package is fixed at the first upload and can never be changed |
 
@@ -170,6 +170,7 @@ technical one.
 | 1 | build identity in place | **done** — `ios/App/Welding.xcconfig`; a Release build for the Simulator produces `com.lomonec.bemastery.welding` / `BE Welding` / `group.com.lomonec.bemastery.welding` with both extensions correctly prefixed |
 | 2 | release checks | **done** — `check-release.mjs --programme welding` PASS, 0 failures, 0 warnings |
 | 3 | archive + Distribution IPA | **done** (13 Oct 2026) — `welding.xcarchive` and a Distribution-signed IPA exist; verified `Apple Distribution: LOMON EC LLC (8TKAAK2MG6)`, `application-identifier 8TKAAK2MG6.com.lomonec.bemastery.welding`, `aps-environment production`, `group.com.lomonec.bemastery.welding`, `get-task-allow false`, both extensions, embedded bundle "programme welding" |
+| 3b | app icon + launch screen | **done** (13 Oct 2026, later) — `AppIconWelding` and `LaunchScreenWelding`, selected by `BE_APPICON_NAME` / `BE_LAUNCH_STORYBOARD` in `Welding.xcconfig`; a Release build was checked to carry `CFBundleIconName = AppIconWelding` and `UILaunchStoryboardName = LaunchScreenWelding`. **The IPA in row 3 was archived BEFORE this and carries the old icon — re-archive before uploading** |
 
 #### Why this could not be done on 12 Oct — SUPERSEDED 13 Oct 2026
 
