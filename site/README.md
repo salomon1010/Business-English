@@ -41,6 +41,16 @@ favicon and the touch icon. `branding/welding/README.md` is the source of that
 artwork — replace it there, regenerate the icons and copy 192 across. The
 General English logo stays on `bemastery/` and `bemastery-g/`.
 
+The six shots in `bemastery/img/welding/` were taken from a tree that had not
+had the Welding branding applied, so their in-app header carried the General
+English mark. `sync-web.mjs` swaps `logo.svg` for `branding/welding/logo.svg`
+in the Welding bundle, so the shipped app does not — the pictures were stale,
+not the app. The mark in them was replaced in place (the tile is at 24,16 to
+75,68 in all six). **Re-shoot them from a Welding bundle** when the app's
+screens next change, rather than patching again; the store screenshots in
+`playstore/welding/` and `mobile/ios/appstore/welding/` still carry the old
+mark and need the same re-shoot.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 
