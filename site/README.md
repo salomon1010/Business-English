@@ -34,6 +34,13 @@ this repository — 84 sessions and 12 stages from `tracks/welding/weeks.json`,
 new page has translations yet; both reference `bemastery/css|js|img` at their
 absolute paths rather than copying the design system.
 
+The Welding page carries its own mark: `bemastery/img/welding/logo-192.png` is
+a copy of `branding/welding/icon-192.png`, the approved Welding logo (owner,
+13 Oct 2026), and stands as the brand image in the header and footer, the
+favicon and the touch icon. `branding/welding/README.md` is the source of that
+artwork — replace it there, regenerate the icons and copy 192 across. The
+General English logo stays on `bemastery/` and `bemastery-g/`.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 

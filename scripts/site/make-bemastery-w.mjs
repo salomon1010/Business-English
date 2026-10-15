@@ -118,14 +118,21 @@ cutBefore("hreflang alternates", "<!-- i18n:alternates -->", '<meta name="theme-
 cutBefore("language picker", "        <!-- Language: a real link per page", "        <a class=\"btn btn-primary btn-sm\" href=\"#download\"");
 
 /* ── 2. no store metadata, because neither listing is public yet ───────── */
-cutBefore("the app-link metadata", "<!-- App links for both stores.", "\n<script type=\"application/ld+json\">");
-sub("a note in their place", '<script type="application/ld+json">',
+cutBefore("the app-link metadata", "<!-- App links for both stores.", '<link rel="icon"');
+/* The approved Welding logo (owner, 13 Oct 2026). branding/welding/README.md
+   is the source: logo-master.png → icon-192.png, copied to the site as
+   img/welding/logo-192.png. The General English logo stays on /bemastery/. */
+sub("the icon links",
+  '<link rel="icon" type="image/svg+xml" href="img/logo.svg">\n<link rel="apple-touch-icon" href="img/icon-192.png">',
+  '<link rel="icon" type="image/png" sizes="192x192" href="/bemastery/img/welding/logo-192.png">\n<link rel="apple-touch-icon" href="/bemastery/img/welding/logo-192.png">');
+
+sub("a note in their place", '<!-- Structured data: the app is on both stores. -->',
   `<!-- No apple-itunes-app, al:ios or al:android metadata: BOTH of this app's
      listings are in review today (App Store 1.0 WAITING_FOR_REVIEW, Play
      versionCode 4 submitted 14 Oct 2026), so every store URL for it answers
      404 and Safari's "Open in the App Store" banner would lead nowhere. Add
      them the day the listings are live. -->
-<script type="application/ld+json">`);
+<!-- Structured data: this app claims no store page while both are in review. -->`);
 
 /* the structured record describes THIS app, and claims no store page */
 sub("JSON-LD name", '"name":"BE Mastery","alternateName":"Business English Mastery"',
@@ -136,6 +143,8 @@ sub("JSON-LD store urls", '"installUrl":["https://apps.apple.com/app/id681720786
 /* ── 3. one directory out: assets keep their absolute shared paths ─────── */
 sub("body attributes", "<body>", '<body data-root="/bemastery/">');
 /* the wordmark in the header names this app */
+sub("the brand mark", '<img src="img/logo.svg" alt="" width="29" height="29">',
+                     '<img src="/bemastery/img/welding/logo-192.png" alt="" width="29" height="29">', 2);  /* header and footer */
 sub("the brand wordmark", 'BE&nbsp;<span class="grad">Mastery</span></a>',
                           'BE&nbsp;<span class="grad">Mastery</span>&nbsp;Welding</a>', 2);  /* header and footer */
 const beforePaths = h;
