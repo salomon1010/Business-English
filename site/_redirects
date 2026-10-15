@@ -1,5 +1,3 @@
-/bemastery-g /bemastery/ 301
-/bemastery-g/* /bemastery/:splat 301
 /team.html /bemastery/team.html 301
 /blog /bemastery/blog/ 301
 /blog/* /bemastery/blog/:splat 301

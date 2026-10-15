@@ -9,6 +9,24 @@ there now, all paths relative). `_redirects` sends the old `/team.html` and
 `contact@lomonec.com` — never a personal name or address. To add an app: give
 it a folder and a card in the "Our apps" section of `index.html`.
 
+**One page per app (owner, 15 Oct 2026).** There are two apps now, and each
+sells itself on its own page with nothing about the other on it:
+
+| page | app | built how |
+|---|---|---|
+| `bemastery-g/` | BE Mastery (General English) | **generated** — `node scripts/site/make-bemastery-g.mjs` |
+| `bemastery-w/` | BE Mastery Welding | hand-written, self-contained |
+| `bemastery/` | both, unchanged | the original page |
+
+`bemastery/` stays exactly where it is: it is the support URL registered in
+both live store submissions and it has the sixteen translations. The General
+English page is a fork of it with the Welding half cut out, so **edit
+`bemastery/index.html` and re-run the script** rather than editing
+`bemastery-g/index.html` — the script fails loudly if a section it cuts has
+moved, and refuses to write a page that still mentions the other app. Neither
+new page has translations yet; both reference `bemastery/css|js|img` at their
+absolute paths rather than copying the design system.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 
