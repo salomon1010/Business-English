@@ -220,6 +220,13 @@ const seed = () => {
                 purge: { l: "B1", reps: 2, due: now + 3 * DAY, ts: now - 7 * DAY },
                 "root gap": { l: "B1", reps: 5, due: now + 40 * DAY, ts: now - 12 * DAY } };
   }
+  /* "Protect your progress" (cf.backup_title) opens over the FIRST screen a
+     seeded learner sees, because the fixture has sessions and no account — and
+     the first screen is the first store screenshot. Its one gate is
+     S.backupAsked (index.html: `if(!S.profile||S.backupAsked)return`), so the
+     fixture answers it in advance. Found on the Welding iPhone set, 14 Oct
+     2026: shot 01 was the road map behind a backup dialog. */
+  S.backupAsked = now - 30 * DAY;
   localStorage.setItem("be12_v1", JSON.stringify(S));
   localStorage.setItem("be_theme", "dark");
   // the cloud sign-in nudge floats over the bottom of every page ~800ms in
