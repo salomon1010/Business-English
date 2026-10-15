@@ -15,15 +15,22 @@ sells itself on its own page with nothing about the other on it:
 | page | app | built how |
 |---|---|---|
 | `bemastery-g/` | BE Mastery (General English) | **generated** — `node scripts/site/make-bemastery-g.mjs` |
-| `bemastery-w/` | BE Mastery Welding | hand-written, self-contained |
+| `bemastery-w/` | BE Mastery Welding | **generated** — `node scripts/site/make-bemastery-w.mjs` |
 | `bemastery/` | both, unchanged | the original page |
 
 `bemastery/` stays exactly where it is: it is the support URL registered in
 both live store submissions and it has the sixteen translations. The General
-English page is a fork of it with the Welding half cut out, so **edit
-`bemastery/index.html` and re-run the script** rather than editing
-`bemastery-g/index.html` — the script fails loudly if a section it cuts has
-moved, and refuses to write a page that still mentions the other app. Neither
+two app pages are forks of it — one with the Welding half cut out, one with
+the General English half cut out and the trade content put in — so they share
+its shell, its stylesheets and its scripts, and therefore its animations.
+**Edit `bemastery/index.html` and re-run both scripts** rather than editing a
+generated page: each script fails loudly if a section it cuts has moved, and
+refuses to write a page that still carries the other app. The Welding script
+also refuses any mention of a General-English-only feature (Practice Partner,
+Life Simulations, English Mastery), and every figure it prints is counted from
+this repository — 84 sessions and 12 stages from `tracks/welding/weeks.json`,
+534 clips and 10 trades from `catalogue/welding.json`, 250 terms from
+`tracks/welding/mastery.json`, 52 drawings from its `mastery-art.json`. Neither
 new page has translations yet; both reference `bemastery/css|js|img` at their
 absolute paths rather than copying the design system.
 
