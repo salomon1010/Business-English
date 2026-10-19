@@ -360,7 +360,7 @@ export default [
    `<b>वर्कप्लेस सिमुलेशन और इंटरव्यू कोच:</b> सुरक्षा वार्ता, परमिट, हैंडओवर, और भर्ती का इंटरव्यू — हर एक की रिपोर्ट आपके ट्रेड के अपने मानकों पर।`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>आपकी अपनी भाषा में बुनियाद:</b> शुरुआत से आने वालों के लिए पहले वाक्यों के पंद्रह दिन।`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>ऐप खोलते समय वेल्डिंग की अंग्रेज़ी चुनें।</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>वेल्डिंग की अंग्रेज़ी का अपना अलग ऐप है।</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">दस ट्रेड, एक प्रोग्राम</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">वेल्डर</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">पाइप फ़िटर</span>`],

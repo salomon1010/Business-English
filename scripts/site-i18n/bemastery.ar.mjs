@@ -360,7 +360,7 @@ export default [
    `<b>محاكاة بيئة العمل ومدرّبو المقابلات:</b> إحاطة السلامة، تصريح العمل، تسليم المهام، ومقابلة التوظيف، كل واحدة بتقرير وفق معايير المهنة.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>الأساسيات بلغتك:</b> خمسة عشر يومًا من أولى الجمل لمن يبدأ من الصفر.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>اختر إنجليزية اللحام عند فتح التطبيق.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>إنجليزية اللحام لها تطبيق خاص بها.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">عشر مهن، برنامج واحد</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">لحّام</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">فني تركيب الأنابيب</span>`],

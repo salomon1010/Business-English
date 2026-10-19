@@ -360,7 +360,7 @@ export default [
    `<b>현장 시뮬레이션과 면접 코치:</b> 안전 회의, 작업 허가, 인수인계, 채용 면접까지, 각각 해당 직종의 기준에 따른 리포트를 제공합니다.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>모국어로 진행되는 기초 과정:</b> 처음부터 시작하는 누구에게나 맞는 15일간의 첫 문장들.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>앱을 열 때 용접 영어를 선택하세요.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>용접 영어는 별도의 앱입니다.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">10개 직종, 하나의 프로그램</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">용접공</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">배관공</span>`],

@@ -23,8 +23,11 @@
        52 drawings          tracks/welding/mastery-art.json
        15 languages         i18n/
 
-   Both of this app's store listings are in review today, so both badges are
-   rendered as "coming soon" and no store metadata points at a page that 404s.
+   This app is LIVE on Google Play — com.lomonec.bemastery.welding, 1.0.0,
+   listing verified public 19 Oct 2026 — so the Android badge is a real link
+   and the page carries its own al:android metadata. The App Store listing is
+   still in review, so that badge stays an honest "coming soon" and no Apple
+   URL appears anywhere on the page.
    Re-run the script when /bemastery/ changes; every cut asserts that it
    matched, and the guard at the end refuses to write a page that still names
    the other app or any General-English-only feature.
@@ -32,6 +35,13 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+/* The Welding app's own store identity. It is deliberately NOT in
+   site/bemastery/js/config.js: that file is the OTHER app's config, shared
+   with /bemastery/ and its sixteen translations. This page is the only thing
+   that may name this package, so the package is named here, once. */
+const W_PKG  = "com.lomonec.bemastery.welding";
+const W_PLAY = `https://play.google.com/store/apps/details?id=${W_PKG}`;
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SRC = resolve(here, "../../site/bemastery/index.html");
@@ -117,28 +127,31 @@ sub("twitter:image", '<meta name="twitter:image" content="https://app.lomonec.co
 cutBefore("hreflang alternates", "<!-- i18n:alternates -->", '<meta name="theme-color"');
 cutBefore("language picker", "        <!-- Language: a real link per page", "        <a class=\"btn btn-primary btn-sm\" href=\"#download\"");
 
-/* ── 2. no store metadata, because neither listing is public yet ───────── */
-cutBefore("the app-link metadata", "<!-- App links for both stores.", '<link rel="icon"');
+/* ── 2. store metadata: this app's Play listing, and no Apple one ──────── */
+cutBefore("the app-link metadata", "<!-- App links for Google Play only.", '<link rel="icon"');
 /* The approved Welding logo (owner, 13 Oct 2026). branding/welding/README.md
    is the source: logo-master.png → icon-192.png, copied to the site as
    img/welding/logo-192.png. The General English logo stays on /bemastery/. */
 sub("the icon links",
   '<link rel="icon" type="image/svg+xml" href="img/logo.svg">\n<link rel="apple-touch-icon" href="img/icon-192.png">',
-  '<link rel="icon" type="image/png" sizes="192x192" href="/bemastery/img/welding/logo-192.png">\n<link rel="apple-touch-icon" href="/bemastery/img/welding/logo-192.png">');
+  `<!-- App links. Google Play only: this app's App Store listing is still in
+     review, so there is no apple-itunes-app banner and no al:ios URL to
+     follow — Safari would open a 404. Add them the day Apple approves it. -->
+<meta property="al:android:url" content="${W_PLAY}">
+<meta property="al:android:package" content="${W_PKG}">
+<meta property="al:android:app_name" content="BE Mastery Welding">
+<link rel="icon" type="image/png" sizes="192x192" href="/bemastery/img/welding/logo-192.png">
+<link rel="apple-touch-icon" href="/bemastery/img/welding/logo-192.png">`);
 
-sub("a note in their place", '<!-- Structured data: the app is on both stores. -->',
-  `<!-- No apple-itunes-app, al:ios or al:android metadata: BOTH of this app's
-     listings are in review today (App Store 1.0 WAITING_FOR_REVIEW, Play
-     versionCode 4 submitted 14 Oct 2026), so every store URL for it answers
-     404 and Safari's "Open in the App Store" banner would lead nowhere. Add
-     them the day the listings are live. -->
-<!-- Structured data: this app claims no store page while both are in review. -->`);
+sub("a note in their place", '<!-- Structured data: Google Play only, for the same reason as above. -->',
+  '<!-- Structured data: this app claims its Play listing only. The App Store\n     listing is in review, so no Apple URL is claimed. -->');
 
 /* the structured record describes THIS app, and claims no store page */
 sub("JSON-LD name", '"name":"BE Mastery","alternateName":"Business English Mastery"',
                     '"name":"BE Mastery Welding","alternateName":"BE Mastery for the refinery trades"');
 sub("JSON-LD url", '"url":"https://lomonec.com/bemastery/"', '"url":"https://lomonec.com/bemastery-w/"');
-sub("JSON-LD store urls", '"installUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],', "");
+sub("JSON-LD store urls", '"installUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],',
+  `"installUrl":"${W_PLAY}","downloadUrl":"${W_PLAY}",`);
 
 /* ── 3. one directory out: assets keep their absolute shared paths ─────── */
 sub("body attributes", "<body>", '<body data-root="/bemastery/">');
@@ -158,10 +171,10 @@ sub("nav/footer/store override", '<script src="/bemastery/js/analytics.js',
      and its sixteen translations, so it is not edited: the entries that belong
      to the other app are dropped here, after config.js has run and before the
      deferred app.js renders anything.
-     The stores: BOTH listings are in review, so both badges must read "coming
-     soon". app.js renders a badge as a link only while status === "live" and a
-     url is set, and buildStoreNote() reads the same two fields, so clearing
-     them is all it takes. -->
+     The stores: Google Play is this app's own listing, the App Store one is
+     still in review. app.js renders a badge as a link only while
+     status === "live" and a url is set, and buildStoreNote() reads the same
+     two fields, so setting them is all it takes. -->
 <script>
 (function () {
   var C = window.BEM; if (!C) return;
@@ -173,9 +186,15 @@ sub("nav/footer/store override", '<script src="/bemastery/js/analytics.js',
   };
   C.nav = keep(C.nav);
   (C.footer || []).forEach(function (g) { g.links = keep(g.links); });
-  C.play = "";
-  C.stores.android.url = ""; C.stores.android.status = "coming_soon";
-  C.stores.ios.url = "";     C.stores.ios.status = "coming_soon";
+  C.play = "${W_PLAY}";
+  C.stores.android.url = C.play; C.stores.android.status = "live";
+  C.stores.ios.url = "";         C.stores.ios.status = "coming_soon";
+  /* buildFooter() renders the Download column from each link's own href, not
+     from C.stores, so the Android row has to be re-pointed as well or the
+     footer would send a Welding reader to the other app's listing. */
+  (C.footer || []).forEach(function (g) {
+    (g.links || []).forEach(function (l) { if (l.store === "android") l.href = C.play; });
+  });
 })();
 </script>
 <script src="/bemastery/js/analytics.js`);
@@ -194,7 +213,7 @@ section("hero", s => {
     "English for welders, pipefitters, boilermakers and the eight other refinery trades — the words you actually use on the floor, in the toolbox talk and in the interview.");
   s = one(s, "hero kicker", "<p class=\"cta-kicker\">Download BE Mastery</p>", "<p class=\"cta-kicker\">BE Mastery Welding</p>");
   s = one(s, "hero fine print", "Free on Android, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.",
-    "Both store listings are in review · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.");
+    "Free on Google Play, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.");
   s = one(s, "hero chips", `<span class="chip"><b>84</b> guided sessions</span>
         <span class="chip"><b>12</b> weeks</span>
         <span class="chip"><b>152</b> phrases</span>
@@ -392,7 +411,7 @@ section("faq", s => {
   s = one(s, "faq: level", "If you can read English but freeze when you speak, you are the learner it was built for.",
     "If you know the trade but freeze when you have to say it in English, you are the learner it was built for.");
   s = one(s, "faq: stores", "Yes. BE Mastery is on Google Play now, and the iPhone app is with Apple for review.",
-    "Both listings are in review — Google Play and the App Store — and this page will carry the links the day they are approved.");
+    "BE Mastery Welding is on Google Play now — the button at the top of this page opens it. The iPhone app is with Apple for review, and this page will carry that link the day it is approved.");
   s = one(s, "faq: recordings", "Practice Partner live calls are never recorded.", "Nothing you record leaves the phone unless a take is being scored.");
   /* the two Practice Partner questions, and the trade question that pointed here */
   const dropOne = (needle, what) => {

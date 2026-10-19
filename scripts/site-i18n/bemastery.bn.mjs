@@ -363,7 +363,7 @@ export default [
    `<b>কর্মক্ষেত্রের সিমুলেশন ও ইন্টারভিউ কোচ:</b> নিরাপত্তা আলোচনা, পারমিট, হস্তান্তর এবং নিয়োগ ইন্টারভিউ — প্রতিটির সঙ্গে পেশার নিজস্ব মানের বিপরীতে একটি রিপোর্ট।`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>আপনার নিজের ভাষায় ভিত্তি:</b> যারা একেবারে শুরু থেকে আরম্ভ করছেন, তাদের জন্য প্রথম বাক্যগুলোর পনেরো দিন।`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>অ্যাপ খুললে ওয়েল্ডিংয়ের ইংরেজি বেছে নিন।</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>ওয়েল্ডিংয়ের ইংরেজির নিজের আলাদা অ্যাপ আছে।</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">দশটি পেশা, একটি প্রোগ্রাম</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Welder</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Pipefitter</span>`],

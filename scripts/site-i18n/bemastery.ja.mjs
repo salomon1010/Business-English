@@ -359,7 +359,7 @@ export default [
    `<b>職場シミュレーションと面接コーチ：</b>安全確認の集まり、許可証、引き継ぎ、採用面接。それぞれ職種ごとの基準に基づくレポートがつきます。`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>あなたの言語による基礎：</b>ゼロから始める方のための、15日間の最初の文章です。`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>アプリを開いたら、溶接の英語を選んでください。</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>溶接の英語は専用アプリです。</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">10の職種、1つのプログラム</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">溶接工</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">配管工</span>`],

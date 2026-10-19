@@ -359,7 +359,7 @@ export default [
    `<b>Simulasi tempat kerja dan pelatih wawancara:</b> pengarahan singkat sebelum kerja, izin kerja, penyerahan tugas, dan wawancara perekrutan, masing-masing dengan laporan sesuai standar bidang kerja itu sendiri.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Dasar dalam bahasa Anda sendiri:</b> lima belas hari kalimat pertama bagi siapa saja yang mulai dari nol.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Pilih Bahasa Inggris pengelasan saat Anda membuka aplikasi.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Bahasa Inggris pengelasan punya aplikasinya sendiri.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Sepuluh bidang kerja, satu program</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Tukang las</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Tukang pipa (pipefitter)</span>`],

@@ -361,7 +361,7 @@ export default [
    `<b>Рабочие симуляции и тренеры по собеседованиям:</b> инструктаж по безопасности, наряд-допуск, передача смены и собеседование при приёме на работу — каждое с отчётом по стандартам профессии.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Основы на родном языке:</b> пятнадцать дней первых фраз для тех, кто начинает с нуля.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Выберите Английский для сварки при открытии приложения.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Английский для сварки — отдельное приложение.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Десять профессий, одна программа</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Сварщик</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Трубопроводчик</span>`],

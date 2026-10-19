@@ -80,23 +80,13 @@ sub("title", "<title>BE Mastery — AI English Speaking Practice</title>",
 cut("hreflang alternates", "<!-- i18n:alternates -->", "<!-- /i18n:alternates -->");
 cut("language picker", "<!-- i18n:lang -->", "<!-- /i18n:lang -->");
 
-/* ── 3. the App Store listing is not live (both apps are WAITING_FOR_REVIEW
-       on 15 Oct 2026), and id6817207864 answers 404. A smart app banner
-       pointing at a 404 is worse than no banner, so the Apple deep-link
-       metadata goes; the Play metadata stays, because that listing is live. */
-cut("apple-itunes-app + al:ios", '<!-- App links for both stores.', '<meta property="al:ios:app_name" content="BE Mastery">\n');
-sub("a note in their place", '<meta property="al:android:url"',
-  `<!-- App links for Google Play only. There is deliberately no
-     apple-itunes-app or al:ios metadata here: the iPhone listing is still in
-     review and its app id answers 404, so Safari's "Open in the App Store"
-     banner would send an iPhone visitor to a dead page. Add them back the day
-     the listing is approved. -->
-<meta property="al:android:url"`);
+/* ── 3. nothing to strip from the store metadata any more: /bemastery/ now
+       carries Google Play alone, because the iPhone listing is still in review
+       and app id 6817207864 answers 404 (19 Oct 2026). This page inherits that
+       as it stands, and only its own address changes. The assertion below is
+       what tells us if an Apple URL is ever put back upstream. */
+if (/apps\.apple\.com/.test(h)) throw new Error("the source page carries an Apple URL again — check that the listing is live before letting it through");
 sub("JSON-LD url", '"url":"https://lomonec.com/bemastery/"', '"url":"https://lomonec.com/bemastery-g/"');
-sub("JSON-LD installUrl", '"installUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"]',
-                          '"installUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"]');
-sub("JSON-LD downloadUrl", '"downloadUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"]',
-                           '"downloadUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"]');
 
 /* ── 4. the page is one directory further out, so relative asset paths are
        re-pointed at the shared folder, and data-root sends the links app.js

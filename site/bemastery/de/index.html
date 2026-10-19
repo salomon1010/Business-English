@@ -43,12 +43,13 @@
 <meta name="twitter:title" content="BE Mastery — Englisch-Sprechtraining mit KI">
 <meta name="twitter:description" content="Übe mit KI. Mach Shadowing mit echten Sprechern. Übe mit echten Menschen. Kostenlos auf Google Play, bald im App Store.">
 <meta name="twitter:image" content="https://app.lomonec.com/og.png">
-<!-- App links for both stores. Safari shows its own "Open in the App Store"
-     banner from apple-itunes-app (app id 6817207864). -->
-<meta name="apple-itunes-app" content="app-id=6817207864">
-<meta property="al:ios:url" content="https://apps.apple.com/app/id6817207864">
-<meta property="al:ios:app_store_id" content="6817207864">
-<meta property="al:ios:app_name" content="BE Mastery">
+<!-- App links for Google Play only. There is deliberately no
+     apple-itunes-app or al:ios metadata: the iPhone listing is still in
+     review and app id 6817207864 answers 404, so Safari's "Open in the App
+     Store" banner would send an iPhone visitor to a dead page. Add them back
+     the day Apple approves the listing — js/config.js IOS_LIVE at the same
+     time. (Checked 19 Oct 2026: that app id still answers 404. The generator
+     of bemastery-g/ asserts this page holds no Apple host at all.) -->
 <meta property="al:android:url" content="https://play.google.com/store/apps/details?id=com.bemastery.app">
 <meta property="al:android:package" content="com.bemastery.app">
 <meta property="al:android:app_name" content="BE Mastery">
@@ -57,9 +58,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Structured data: the app is on both stores. -->
+<!-- Structured data: Google Play only, for the same reason as above. -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"MobileApplication","name":"BE Mastery","alternateName":"Business English Mastery","applicationCategory":"EducationalApplication","operatingSystem":"iOS 15 or later, Android 6 or later","url":"https://lomonec.com/bemastery/de/","installUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","fr","es","pt","ar","de","it","ru","hi","bn","ur","id","vi","zh","ja","ko"],"publisher":{"@type":"Organization","name":"LOMON EC LLC","url":"https://lomonec.com/","email":"contact@lomonec.com"},"description":"Übe Englisch sprechen mit KI, mach Shadowing mit echten Sprechern und übe mit echten Lernenden. Ein geführtes 12-Wochen-Programm mit 25-minütigen Sprechsitzungen."}
+{"@context":"https://schema.org","@type":"MobileApplication","name":"BE Mastery","alternateName":"Business English Mastery","applicationCategory":"EducationalApplication","operatingSystem":"iOS 15 or later, Android 6 or later","url":"https://lomonec.com/bemastery/de/","installUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","fr","es","pt","ar","de","it","ru","hi","bn","ur","id","vi","zh","ja","ko"],"publisher":{"@type":"Organization","name":"LOMON EC LLC","url":"https://lomonec.com/","email":"contact@lomonec.com"},"description":"Übe Englisch sprechen mit KI, mach Shadowing mit echten Sprechern und übe mit echten Lernenden. Ein geführtes 12-Wochen-Programm mit 25-minütigen Sprechsitzungen."}
 </script>
 <link rel="stylesheet" href="../css/tokens.css?v=20261007f">
 <link rel="stylesheet" href="../css/base.css?v=20261007k">
@@ -714,8 +715,8 @@
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Grundlagen in deiner eigenen Sprache:</b> fünfzehn Tage mit ersten Sätzen für alle, die ganz von vorn anfangen.</span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Welding Mastery:</b> acht Spiele mit 250 Fachwörtern, echten Fotos der Werkzeuge, einer Tagesaufgabe und Fähigkeitsabzeichen.</span></li>
       </ul>
-      <p class="mini-cta"><span>Wähle Schweiß-Englisch, wenn du die App öffnest.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="welding">App herunterladen
+      <p class="mini-cta"><span>Schweiß-Englisch hat seine eigene App.</span>
+        <a href="/bemastery-w/" data-ev="hero_cta_clicked" data-ev-source="welding">App herunterladen
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
         </a>
       </p>

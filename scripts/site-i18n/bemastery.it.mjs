@@ -359,7 +359,7 @@ export default [
    `<b>Simulazioni di lavoro e coach di colloquio:</b> il quarto d'ora sicurezza, il permesso di lavoro, il passaggio di consegne e il colloquio di assunzione, ciascuno con un resoconto secondo gli standard del mestiere.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Le basi nella tua lingua:</b> quindici giorni di prime frasi per chi parte da zero.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Scegli Inglese della saldatura quando apri l'app.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Inglese della saldatura ha la sua app.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Dieci mestieri, un programma</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Saldatore</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Tubista</span>`],

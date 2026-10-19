@@ -18,6 +18,18 @@ sells itself on its own page with nothing about the other on it:
 | `bemastery-w/` | BE Mastery Welding | **generated** — `node scripts/site/make-bemastery-w.mjs` |
 | `bemastery/` | both, unchanged | the original page |
 
+**Store links (19 Oct 2026).** Both Android apps are live on Google Play, so
+each page links its own and only its own: `bemastery-g/` the General English
+package and `bemastery-w/` `com.lomonec.bemastery.welding`. That package is
+named ONCE, in `make-bemastery-w.mjs` — never in `bemastery/js/config.js`,
+which is the other app's config and is shared with the sixteen translations.
+The Welding page also carries its own `al:android` metadata and claims that
+listing in its JSON-LD. Neither iPhone build is on the App Store yet, so both
+pages keep the honest "Coming soon" badge and no page anywhere holds an
+apps.apple.com URL that would answer 404. `bemastery/` describes both
+programmes, so its Welding section routes the reader to `bemastery-w/` rather
+than to a store: a Play listing serves one app, and these are two apps.
+
 `bemastery/` stays exactly where it is: it is the support URL registered in
 both live store submissions and it has the sixteen translations. The General
 two app pages are forks of it — one with the Welding half cut out, one with

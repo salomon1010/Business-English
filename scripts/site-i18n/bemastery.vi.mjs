@@ -359,7 +359,7 @@ export default [
    `<b>Mô phỏng công việc và huấn luyện viên phỏng vấn:</b> họp an toàn đầu ca, giấy phép làm việc, bàn giao công việc và buổi phỏng vấn tuyển dụng, mỗi phần đều có báo cáo theo tiêu chuẩn riêng của ngành nghề.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Nền tảng bằng ngôn ngữ của bạn:</b> mười lăm ngày với những câu đầu tiên cho bất kỳ ai bắt đầu từ con số không.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Chọn Tiếng Anh hàn khi mở ứng dụng.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Tiếng Anh hàn có ứng dụng riêng.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Mười ngành nghề, một chương trình</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Thợ hàn</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Thợ lắp ống</span>`],

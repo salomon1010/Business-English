@@ -361,7 +361,7 @@ export default [
    `<b>Arbeitsplatzsimulationen und Interview-Coaches:</b> die Sicherheitseinweisung, der Arbeitsschein, die Übergabe und das Vorstellungsgespräch, jede mit einem Bericht nach den eigenen Standards des Berufs.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Grundlagen in deiner eigenen Sprache:</b> fünfzehn Tage mit ersten Sätzen für alle, die ganz von vorn anfangen.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Wähle Schweiß-Englisch, wenn du die App öffnest.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Schweiß-Englisch hat seine eigene App.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Zehn Berufe, ein Programm</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Schweißer</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Rohrschlosser</span>`],

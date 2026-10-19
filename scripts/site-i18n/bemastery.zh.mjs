@@ -359,7 +359,7 @@ export default [
    `<b>工作场景模拟与面试教练：</b>班前安全会、作业许可、交接班和求职面试，每一项都会按这个工种自身的标准生成报告。`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>母语基础课程：</b>十五天的入门句子，适合完全从零开始的人。`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>打开应用时选择焊接英语即可。</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>焊接英语有自己的应用。</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">10 种工种，一个项目</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">焊工</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">管道工</span>`],

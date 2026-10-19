@@ -365,7 +365,7 @@ export default [
    `<b>کام کی جگہ کی سمولیشنز اور انٹرویو کوچز:</b> حفاظتی مختصر بریفنگ، پرمٹ، حوالگی اور بھرتی کا انٹرویو، ہر ایک پیشے کے اپنے معیار کے مطابق رپورٹ کے ساتھ۔`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>آپ کی اپنی زبان میں بنیادیں:</b> شروع سے آغاز کرنے والوں کے لیے پہلے جملوں کے پندرہ دن۔`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>ایپ کھولتے وقت ویلڈنگ کی انگریزی چنیں۔</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>ویلڈنگ کی انگریزی کی اپنی الگ ایپ ہے۔</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">دس پیشے، ایک پروگرام</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Welder</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Pipefitter</span>`],

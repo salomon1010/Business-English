@@ -359,7 +359,7 @@ export default [
    `<b>Simulações de trabalho e coaches de entrevista:</b> o diálogo de segurança, a autorização de trabalho, a passagem de turno e a entrevista de contratação, cada uma com um relatório segundo os padrões da própria profissão.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Fundamentos no seu próprio idioma:</b> quinze dias de primeiras frases para quem está começando do zero.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Escolha Inglês de soldadura ao abrir o app.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Inglês de soldadura tem a sua própria app.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Dez profissões, um programa</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Soldador</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Encanador industrial</span>`],

@@ -360,7 +360,7 @@ export default [
    `<b>Simulations de travail et coachs d'entretien${NB}:</b> le quart d'heure sécurité, le permis de travail, la passation et l'entretien d'embauche, chacun avec un rapport selon les normes du métier.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Fondations dans votre langue${NB}:</b> quinze jours de premières phrases pour celles et ceux qui partent de zéro.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Choisissez Anglais du soudage à l'ouverture de l'app.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Anglais du soudage a sa propre app.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Dix métiers, un programme</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Soudeur</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Tuyauteur</span>`],
