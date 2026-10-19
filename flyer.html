@@ -657,7 +657,14 @@ var PLAY_ASK={
  ja:["アプリを Google Play で入手","同じアプリ、同じ無料の進捗——でもホーム画面にあり、オフラインでも起動し、あなたが選んだ時刻に知らせてくれます。Play ストアからワンタップでインストールできます。","Google Play からインストール","ブラウザで続ける"],
  ko:["Google Play에서 앱 받기","같은 앱, 같은 무료 진행 기록 — 다만 홈 화면에 있고, 오프라인에서도 열리며, 원하는 시간에 알려 줍니다. Play 스토어에서 한 번의 탭으로 설치됩니다.","Google Play에서 설치","브라우저에서 계속하기"]
 };
-var PLAY_URL="https://play.google.com/store/apps/details?id=com.bemastery.app";
+/* Two Android apps since 19 Oct 2026, one listing each. A plain visitor to
+   this page has no programme, so General English is the default; the app's
+   About panel passes ?track= and the buttons follow it. */
+var PLAY_PKGS={"general-english":"com.bemastery.app","welding":"com.lomonec.bemastery.welding"};
+var PLAY_PKG=(function(){try{var t=new URLSearchParams(location.search).get("track");return PLAY_PKGS[t]||PLAY_PKGS["general-english"]}catch(e){return PLAY_PKGS["general-english"]}})();
+var PLAY_URL="https://play.google.com/store/apps/details?id="+PLAY_PKG;
+/* the two buttons are written inline so a crawler and a no-JS visitor see them */
+try{document.querySelectorAll('a[href*="play.google.com/store/apps/details"]').forEach(function(a){a.href=PLAY_URL})}catch(e){}
 var PLAY_KEY="be_play_ask", PLAY_SNOOZE=14*864e5, PLAY_BIP=null;
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();PLAY_BIP=e});
 function playAskDue(){

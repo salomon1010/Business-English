@@ -8,7 +8,8 @@
   "start_url": "./",
   "scope": "./",
   "related_applications": [
-    { "platform": "play", "id": "com.bemastery.app", "url": "https://play.google.com/store/apps/details?id=com.bemastery.app" }
+    { "platform": "play", "id": "com.bemastery.app", "url": "https://play.google.com/store/apps/details?id=com.bemastery.app" },
+    { "platform": "play", "id": "com.lomonec.bemastery.welding", "url": "https://play.google.com/store/apps/details?id=com.lomonec.bemastery.welding" }
   ],
   "prefer_related_applications": true,
   "display": "standalone",

@@ -28,5 +28,5 @@ Free. No account needed. Instructions in 15 languages.
 
 _Executive Polish needs internet; the rest of the app works offline on site. Only the sentence you write is sent — your recordings never leave your phone. Language practice only — not a welding qualification._
 
-👉 https://app.lomonec.com
-Android: https://play.google.com/store/apps/details?id=com.bemastery.app
+👉 https://lomonec.com/bemastery-w/
+Android: https://play.google.com/store/apps/details?id=com.lomonec.bemastery.welding

@@ -6650,7 +6650,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
     <p style="color:#9fb0cc;line-height:1.6;margin-top:14px"><b>BE Mastery needs JavaScript.</b> Turn it on and reload, or read more below.</p>
     <p style="margin-top:18px"><a href="https://lomonec.com/bemastery/" style="color:#22d3ee">About BE Mastery</a> ·
        <a href="manual/en.html" style="color:#22d3ee">User guide</a> ·
-       <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" style="color:#22d3ee">Google Play</a></p>
+       <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" data-play-link style="color:#22d3ee">Google Play</a></p>
   </div>
 </noscript>
 
@@ -6725,7 +6725,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
          one of the few crawlable links out of the app shell). With JS, the
          delegated footer handler opens it in the in-app document viewer. -->
     <a href="manual/en.html" data-i18n="footer.guide_link">User guide</a> ·
-    <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" target="_blank" rel="noopener" data-i18n="footer.play_link">Google Play</a>
+    <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" target="_blank" rel="noopener" data-play-link data-i18n="footer.play_link">Google Play</a>
   </div>
 </main>
 <div class="toast" id="toast"></div>
@@ -6966,6 +6966,10 @@ function applyTrackIdentity(){
     }catch(e){}
     dest.textContent=line;
   }
+  /* The two programmes are two Play apps, so the shell's store link belongs to
+     whichever one is open. Guarded by typeof: this function also runs at boot,
+     from the line below, before that script block has been parsed. */
+  if(typeof playLinkSync==="function")playLinkSync();
 }
 applyTrackIdentity();
 function defState(){
@@ -11626,7 +11630,9 @@ function beSiteUrl(){const c=String((S.profile&&S.profile.lang)||"en");return BE
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=84&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+(IS_IOS_APP?"&ios=1":""),
+  /* track= so the flyer's Google Play buttons open the listing for the
+     programme this learner is in — there are two Android apps now. */
+  openDoc("flyer.html?v=85&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+"&track="+encodeURIComponent(areaId())+(IS_IOS_APP?"&ios=1":""),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -17416,7 +17422,21 @@ function susTextY(name,y){return name?y:y-90}
    docs/PORTAL.md), links and the password-reset return point there. Anywhere
    else — the root today, the store apps, staging — it is the root as before. */
 const APP_URL=(()=>{try{if(location.hostname==="app.lomonec.com"&&/^\/bemastery(\/|$)/.test(location.pathname))return "https://app.lomonec.com/bemastery/"}catch(e){}return "https://app.lomonec.com/"})();
-const PLAY_URL="https://play.google.com/store/apps/details?id=com.bemastery.app";
+/* TWO Android apps since 19 Oct 2026 — General English (com.bemastery.app)
+   and Welding (com.lomonec.bemastery.welding) — each with its own Play
+   listing. So the store address is a QUESTION, not a constant: Rate, Share
+   and the install prompt must open the listing for the programme the learner
+   is actually in, and an area switch is one tap away. A programme with no app
+   of its own falls back to the General English listing rather than guessing. */
+const PLAY_PKGS={[AREA_GEN]:"com.bemastery.app","welding":"com.lomonec.bemastery.welding"};
+function playPkg(){try{return PLAY_PKGS[areaId()]||PLAY_PKGS[AREA_GEN]}catch(e){return PLAY_PKGS[AREA_GEN]}}
+function playUrl(){return "https://play.google.com/store/apps/details?id="+playPkg()}
+/* The shell's crawlable store links (the footer row and the noscript summary)
+   are real hrefs so a crawler and a no-JS visitor reach a listing; with JS
+   they follow the open programme. applyTrackIdentity() is the existing
+   per-programme chrome hook, so this hangs off that one. */
+function playLinkSync(){try{document.querySelectorAll("a[data-play-link]").forEach(a=>{a.href=playUrl()})}catch(e){}}
+window.playUrl=playUrl;window.playLinkSync=playLinkSync;
 
 /* Share if the device supports it, otherwise download. */
 async function shShare(kind){
@@ -17494,7 +17514,7 @@ function rateHTML(){                             // the Home card: earned — ev
   </div>`;
 }
 function rateHide(){const el=document.getElementById("homeRate");if(el)el.remove()}
-window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(PLAY_URL,"_blank","noopener")};
+window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(playUrl(),"_blank","noopener")};
 window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};   /* the card returns on the next visit to Home */
 
 /* ===== "GET IT ON GOOGLE PLAY" (Android browsers only) =====
@@ -17571,7 +17591,7 @@ async function playGo(){
     const ev=PLAY_BIP;PLAY_BIP=null;
     try{ev.prompt();const c=await ev.userChoice;if(c&&c.outcome==="accepted")return}catch(e){}
   }
-  window.open(PLAY_URL,"_blank","noopener");
+  window.open(playUrl(),"_blank","noopener");
 }
 window.playAsk=playAsk;
 
@@ -22739,7 +22759,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v688";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v689";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -35622,7 +35642,7 @@ function webGateRender(){
      <div class="wv-list">${card("chat",esc(t("tracks.general")),esc(t("ob.track_general_sub")))}${card("briefcase",esc(t("tracks.welding")),esc(t("ob.track_welding_sub")))}</div>
      <h2 class="wv-h">${esc(t(prem?"land.plans_h":"land.free_only_h"))}</h2>
      <div class="wv-list">${card("check",esc(t("land.free_t")),esc(t("land.free_b")))}${prem?card("star",esc(t("land.prem_t")),esc(t("land.prem_b"))):""}</div>
-     <p class="wv-foot"><a href="${esc(PLAY_URL)}" target="_blank" rel="noopener">${esc(t("land.play"))}</a> · <a href="flyer.html">${esc(t("land.more"))}</a> · <a href="privacy.html">${esc(t("land.privacy"))}</a></p>
+     <p class="wv-foot"><a href="${esc(playUrl())}" target="_blank" rel="noopener">${esc(t("land.play"))}</a> · <a href="flyer.html">${esc(t("land.more"))}</a> · <a href="privacy.html">${esc(t("land.privacy"))}</a></p>
    </div>`;
 }
 /* the visitor's browser language, when the app speaks it — the gate is the first thing they read */
