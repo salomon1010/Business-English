@@ -58,7 +58,18 @@ console.log("\n# the server decides; the client only displays");
   v = await view(p);
   ok("7 · signed in, server says free → Free", v.v.plan === "free" && !v.prem);
   const rq = reqs[reqs.length - 1];
-  ok("8 · the request carries only the Firebase token: GET, no body, no query, no plan hint", rq.method === "GET" && !rq.body && !/\?/.test(rq.url) && rq.headers.authorization === "Bearer test-token-u1" && !Object.keys(rq.headers).some(h => /plan|premium/i.test(h)));
+  /* THE TWO-APP SPLIT (12 Oct 2026): the request now carries ?app=<programme>,
+     because each store app has its own subscription and the server must answer
+     about ONE of them. That is not a plan hint — it can only select among the
+     account's own real purchases, never create one — so the rule being checked
+     here is unchanged: the token, the app, and nothing that could suggest an
+     answer. */
+  const qs = new URL(rq.url, "http://x").searchParams;
+  ok("8 · the request carries only the Firebase token and the app it is about: GET, no body, no plan hint",
+    rq.method === "GET" && !rq.body && rq.headers.authorization === "Bearer test-token-u1"
+    && [...qs.keys()].join() === "app" && /^(general-english|welding)$/.test(qs.get("app"))
+    && !Object.keys(rq.headers).some(h => /plan|premium/i.test(h)),
+    JSON.stringify({ url: rq.url, keys: [...qs.keys()] }));
   set({ status: 200, body: PREMIUM }); await p.evaluate(() => entRefresh());
   v = await view(p);
   ok("9 · server says premium → Premium is displayed", v.v.plan === "premium" && v.prem && v.v.ads === false);
@@ -162,7 +173,9 @@ console.log("\n# track isolation");
   const { ctx, p, set } = await page("welding");
   await signIn(p); set({ status: 200, body: PREMIUM }); await p.evaluate(() => entRefresh());
   const w = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null }));
-  ok("40 · Welding + Premium: Premium applies, but General-English-only features stay off (Practice Partner, Shadow V2)", w.prem && !w.ge && !w.pp && w.sv === false, JSON.stringify(w));
+  /* Shadow V2 is no longer General English only: Welding has the same studio (owner rule,
+     8 Oct 2026: "Welding must match General English"). Practice Partner stays GE only. */
+  ok("40 · Welding + Premium: Premium applies; Practice Partner stays General English only, and Welding has the same Shadow studio", w.prem && !w.ge && !w.pp && w.sv === true, JSON.stringify(w));
   await p.evaluate(() => areaSwitch("general-english", "home")); await sleep(300);
   const g = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), pp: ppAvailable() }));
   ok("41 · the same account in General English: same plan, Practice Partner as before", g.prem && g.pp === true, JSON.stringify(g));

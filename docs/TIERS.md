@@ -24,7 +24,7 @@ stores; the app shows what the store says and never a number of its own.
 | Cloud backup & sync, multi-device | ❌ | ✅ | ✅ |
 | Practice Partner + live calls (General English, 18+) | ❌ | ✅ unrationed | ✅ unrationed |
 | **AI verdicts** — speaking reports / pronunciation / AI coach | ❌ | **3 a day** | **120 a day** (fair use) |
-| **Your own YouTube videos** transcribed | ❌ | **30 min a day** | **240 min a day** (fair use) |
+| **Your own YouTube videos** transcribed | ❌ | **30 min a day** | **60 min a day** (fair use) |
 | 30- and 90-day analytics | ❌ | ❌ | ✅ |
 | Personalised Home recommendations | ❌ | ❌ | ✅ |
 | Ads (General English only) | Yes | Yes | None |
@@ -61,7 +61,7 @@ stays, the cards go, one offer bar replaces them).
 
 ## 4. Tier 3 — Premium
 
-Everything, with no ads anywhere, plus **120 AI verdicts a day** and **240
+Everything, with no ads anywhere, plus **120 AI verdicts a day** and **60
 video minutes a day** — fair-use ceilings against a compromised account, not
 feature limits, and never called "unlimited" in any copy; 100 saved Shadow
 videos · 20 YouTube imports · 50 Polish reports · 30 saved clips; the 30- and
@@ -73,7 +73,7 @@ Home; the AI coach (its replies count within the 120).
 | Rule | Where |
 |---|---|
 | Verdicts metered, not locked | `backend/polish-worker.js` — `VERDICT_CAPS`, `verdictAllowance`, the changed `premiumGate` (402 no longer occurs for `ai_analysis` / `ai_coach`); bucket `verdict:<UTC day>` in the RateLimiter DO; 429 `{error:"allowance", scope:"verdicts", limit, used, resetAt, plan}`; header `X-BE-Allowance` on every metered answer |
-| Video minutes | same file, the ytai per-account block: bucket `ytaisec:<UTC day>` with `cost` = seconds (whole video 1800, a window its length), 1800 / 14400 a day; 429 `scope:"video"`; header `X-BE-Video-Allowance` |
+| Video minutes | same file, the ytai per-account block: bucket `ytaisec:<UTC day>` with `cost` = seconds (whole video 1800, a window its length), 1800 / 3600 a day (`YTAI_FREE_SEC_PER_DAY` / `YTAI_PREMIUM_SEC_PER_DAY` — the constants are the contract; this table follows them); 429 `scope:"video"`; header `X-BE-Video-Allowance` |
 | The tier | `capabilities()` returns `premium` from the entitlement view (`plan:"premium"`, `paid:true`, `ad_free:true`); anything else is Free |
 | Client gates | `index.html` — `ENT_METERED`, `entLocked()` false for metered caps, `aiAllowance / aiAllowOut / aiAllowNote / ytAllowNote`, `aiAllowTap` in the one fetch wrapper beside `POLISH_API`; `aiOff()` adds "allowance spent"; `premLockHTML` draws the allowance card only when spent (no offer for a paying learner); `ppAiStart` tells and offers; `localStorage.be_ai_allow` / `be_yt_allow` (display only, never the gate) |
 | Two plans | `premOffers / premOffer / premSaving / premPick / premOfferHTML` — annual first with the saving computed from the store's two prices |

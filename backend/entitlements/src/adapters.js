@@ -26,8 +26,15 @@ const manual = {
     const product = b.product == null ? null : String(b.product);
     const plan = product ? PRODUCTS[product] : String(b.plan || "");
     const source = b.source == null ? "manual" : String(b.source);
+    /* WHICH app (migration 0005: an entitlement is per account AND programme).
+       Without this a grant could only ever land on the first programme, so the
+       Welding app could not be granted at all — which is how a tester with a
+       granted plan still saw Free there. An unknown programme is kept as given
+       and refused by validateRecord rather than silently redirected. */
+    const app = b.app == null && b.app_id == null ? null : String(b.app_id || b.app);
     return {
       uid: String(b.uid || ""),
+      app_id: app === null ? null : app,
       plan,
       product,
       status: String(b.status || "active"),

@@ -12,6 +12,7 @@
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
+		BE0000000000000000000040 /* LaunchScreenWelding.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000041 /* LaunchScreenWelding.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		A80562E43072AB9A00A48E0C /* BEMasteryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E33072AB9A00A48E0C /* BEMasteryApp.swift */; };
 		A80562E63072AB9D00A48E0C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80562E53072AB9D00A48E0C /* ContentView.swift */; };
@@ -71,6 +72,7 @@
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		BE0000000000000000000041 /* LaunchScreenWelding.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreenWelding.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -204,6 +206,7 @@
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				BE0000000000000000000001 /* PrivacyInfo.xcprivacy */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
+				BE0000000000000000000041 /* LaunchScreenWelding.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
 				BE0000000000000000000012 /* App.entitlements */,
 				BE0000000000000000000008 /* InfoPlist.strings */,
@@ -429,6 +432,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
+				BE0000000000000000000040 /* LaunchScreenWelding.storyboard in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
 				BE0000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */,
@@ -558,6 +562,12 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BE_APPICON_NAME = AppIcon;
+				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
+				BE_APP_GROUP = group.com.lomonec.bemastery;
+				BE_DISPLAY_NAME = "BE Mastery";
+				BE_LAUNCH_STORYBOARD = LaunchScreen;
+				BE_PROGRAMME = "general-english";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -622,6 +632,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BE_APPICON_NAME = AppIcon;
+				BE_APP_BUNDLE_ID = com.lomonec.bemastery;
+				BE_APP_GROUP = group.com.lomonec.bemastery;
+				BE_DISPLAY_NAME = "BE Mastery";
+				BE_LAUNCH_STORYBOARD = LaunchScreen;
+				BE_PROGRAMME = "general-english";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -680,7 +696,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(BE_APPICON_NAME)";
 				BE_ADS_APP_ID = "ca-app-pub-3940256099942544~1458002511";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -693,7 +709,7 @@
 				);
 				MARKETING_VERSION = 1.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -705,7 +721,7 @@
 		504EC3181FED79650016851F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(BE_APPICON_NAME)";
 				BE_ADS_APP_ID = "ca-app-pub-REPLACE~REPLACE";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -717,7 +733,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -865,7 +881,7 @@
 				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEPushService";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -900,7 +916,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEPushService;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEPushService";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -945,7 +961,7 @@
 				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -994,7 +1010,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.7;
 				MARKETING_VERSION = 1.1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lomonec.bemastery.BEWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BE_APP_BUNDLE_ID).BEWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;

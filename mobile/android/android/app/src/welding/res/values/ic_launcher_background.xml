@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT — the Welding app's adaptive-icon background. The app's own
+     Welding navy (the welding theme's page background), so the launcher icon reads
+     as the Welding product and not as a second copy of BE Mastery. The foreground
+     PNGs beside this are padded in the same colour, so the two meet seamlessly
+     under any launcher mask. -->
+<resources>
+    <color name="ic_launcher_background">#0A0E1A</color>
+</resources>

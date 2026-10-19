@@ -115,6 +115,51 @@ not JS, and `new Function` chokes on it. Check it separately with
   the mission report to the attempt row for the Speaking History and the
   conversation sheet, which still draw that report. Test:
   `tests/mission-coach-report.mjs` (16).
+- **TWO STORE APPS, ONE CODEBASE (owner, 12 Oct 2026) — `docs/APP_SPLIT.md`.**
+  BE Mastery ships as **BE Mastery** (General English; Play `com.bemastery.app`,
+  App Store `com.lomonec.bemastery` — unchanged) and **BE Mastery Welding**
+  (Play/App Store `com.lomonec.bemastery.welding` — new). A store bundle carries
+  `be-build.js` `{track:"<id>"}`, written by `mobile/ios/scripts/sync-web.mjs
+  --track <id>`; index.html reads it as **`BE_APP_TRACK`**, and that one value
+  pins `areaId()` — the single question every feature asks — so the curriculum,
+  Home, the studio, the games, the ads gate, the analytics boundary and the
+  backend's own programme read all follow. `selectProfessionalTrack` /
+  `areaSwitch` / `obTrackPick` refuse the other id, `go()` refuses the other
+  programme's views (`VIEW_TRACK`: partner/english/roleplay are GE,
+  mastery/simulation/lines/career are Welding), the onboarding programme step is
+  skipped, and sync-web REMOVES the other programme's content from the bundle —
+  except `tracks/general/*`'s SECTION files, which the Welding curriculum
+  inherits the English-language machinery from (missions.json and the mastery
+  packs ARE removed). **`BE_APP_TRACK` is null on the web and in any bundle built
+  without `--track`, so app.lomonec.com is unchanged and still serves both
+  programmes.** Android = Gradle flavors `general` / `welding` (+
+  `verify<Variant>WebBundleProgramme`, which fails a build whose web bundle is
+  the other programme's); iOS = `ios/App/Welding.xcconfig` overriding
+  `BE_APP_BUNDLE_ID` / `BE_APP_GROUP` / `BE_DISPLAY_NAME` / `BE_PROGRAMME`, with
+  every target deriving its bundle id from the first. **Premium is PER APP (owner,
+  12 Oct 2026 — this REVERSED the same morning's shared-entitlement design):
+  each app sells its own subscription at the SAME price points
+  (`premium_monthly` P1M US$2.99 grace P3D, `premium_annual` P1Y US$19.99 grace
+  P14D, a `trial3d` 3-day free offer on each — read back from the live Play
+  console, not assumed), and a purchase in one app does NOT unlock the other.**
+  `purchase_links.app_id` + a per-app `entitlements` row (migration 0005) record
+  which app sold a purchase, taken from the Play listing Google verified the
+  token against or the `bundleId` in Apple's JWS — never from the client.
+  `PLAY_PACKAGE` / `APPLE_BUNDLE_ID` / `APP_PROGRAMMES` are INDEX-ALIGNED lists
+  (position i = the same app); `GET /v1/entitlement?app=<programme>` answers
+  about one app and the view carries `app`; the client asks with `entApp()` =
+  `BE_APP_TRACK || AREA_GEN` and keys its cache by (uid, app). Two deliberate
+  failure modes: a store list extended without `APP_PROGRAMMES` refuses the NEW
+  app's purchases and leaves the existing app's working, and an app the service
+  does not know is answered **Free**, never the other app's plan. To restore one
+  shared subscription, set `APP_PROGRAMMES = "general-english,general-english"` —
+  configuration, not code. Build:
+  `mobile/android/scripts/{build,release}.sh [general|welding]`,
+  `mobile/ios/scripts/build.sh [general|welding]`,
+  `check-release.mjs --programme <id>`. Tests: `tests/app-split.mjs` (76),
+  `backend/entitlements/test/billing.mjs` W1-W23 (138). **Nothing is uploaded or
+  submitted**; every store/Firebase/AdMob/Worker step only the owner can do is in
+  `docs/APP_SPLIT.md` § Store actions.
 - **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
   programmes share one engine but must never share evidence: the Progress/Review
   page reports on the OPEN area only. `areaId()` is the area (`S.professionalTracks
@@ -374,9 +419,14 @@ not JS, and `new Function` chokes on it. Check it separately with
   `BEMastery_*` set was reverted the same day before any product existed in App
   Store Connect; Play ids must be lowercase, so the Play ids are the only ones both
   stores can share). `BILLING_PRODUCTS`, `BEStoreKitPlugin.allowed`,
-  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Confirmed annual
-  price is $24.99/yr (owner, 2 Oct 2026); the consoles still hold $19.99 and must
-  be changed there — the app always shows the store's own `displayPrice`.**
+  `BEMastery.storekit` and the server's `PRODUCTS` all carry them. **Pricing — the
+  2 Oct 2026 "$24.99/yr" note is SUPERSEDED. Verified live in App Store Connect
+  on 13 Oct 2026 (read-only API): `premium_annual` 6819570241 is USA
+  customerPrice 19.99 (proceeds 16.99) and `premium_monthly` 6819570240 is 2.99
+  (proceeds 2.54), both READY_TO_SUBMIT in group 22444441, 175 territory prices
+  and a 3-day free trial each. US$19.99/yr and US$2.99/mo are the owner's
+  decision of 5-6 Oct 2026 and what the store actually holds. Do NOT change the
+  consoles to $24.99. The app always shows the store's own `displayPrice`.**
   Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
@@ -396,8 +446,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   secrets + the two RTDN values are missing — see the file's header), so `ENT_API`
   stays empty. Do NOT drop `capacitor://localhost` from `ALLOWED_ORIGINS`: it is
   the App Store shell's own origin. The annual price in `BEMastery.storekit` is
-  **24.99** (Xcode's local store only; the app always draws the store's own
-  `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
+  **19.99**, matching the live store record (Xcode's local store only; the app
+  always draws the store's own `displayPrice`). The real provider is `BEAdsPlugin.swift` (`window.BENativeAds`
   via `beNativeAdsInit()`): Google Mobile Ads **12.x** + UMP **3.x**, added as ONE
   remote SPM package (UMP is a *product of* the ads package — a second package
   breaks the build), registered in `BEBridgeViewController`. **Interstitial and
@@ -457,7 +507,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   (`VERDICT_CAPS`, `verdictAllowance`, bucket `verdict:<day>`, 429
   `{error:"allowance",scope:"verdicts"}`, header `X-BE-Allowance`); the
   learner's own YouTube video is metered in seconds (`ytaisec:<day>`, 1800 /
-  14400 a day, `scope:"video"`, `X-BE-Video-Allowance`). Client: `ENT_METERED`
+  **3600** a day — 30 min Free, **60 min** Premium; the spec text said 14400/240
+  min but `YTAI_PREMIUM_SEC_PER_DAY` has always been `60 * 60` and the constants
+  are the contract, corrected 13 Oct 2026. The published App Store description
+  names no number, so nothing was mis-sold, `scope:"video"`,
+  `X-BE-Video-Allowance`). Client: `ENT_METERED`
   makes `entLocked()` false for those two caps; `aiAllowance / aiAllowOut /
   aiAllowNote / ytAllowNote`, `aiAllowTap` in the one fetch wrapper,
   `localStorage.be_ai_allow` / `be_yt_allow` (display only); `premLockHTML`
@@ -888,13 +942,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   and `portal/root-sw.js` as `/sw.js` (retires the old root worker). The portal's head
   forwards legacy launches (TWA `/`, standalone, `?wid/widget/nudge/flags`, `#view`, an
   existing `be12_v1` learner) to `/bemastery/` with query + hash; `?portal=1` stays.
-  `.github/workflows/pages-portal.yml` is DORMANT until the owner sets Pages source → Actions
-  and `PORTAL_PAGES=on`. `APP_URL` follows `/bemastery/` on app.lomonec.com only. **Web
-  visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, OFF everywhere): plain
+  `.github/workflows/pages-portal.yml` publishes every push to `main` (Pages source = Actions,
+  `PORTAL_PAGES=on`). `APP_URL` follows `/bemastery/` on app.lomonec.com only. **Web
+  visitor landing** `webGateRender` (flag `web_visitor_gate_enabled`, ON in production since
+  be12-v686; `webGateFlag()` keeps it off on local/LAN test hosts unless `be_flags` names it,
+  and smoke opts out explicitly): plain
   browser tab + no account + no local profile only — never the iOS/Play apps, an installed
   PWA or an existing anonymous learner (owner); `webGateLift` after sign-in, back after
   sign-out/deletion. Keys `land.*` (fr translated). Test: `tests/portal.mjs` (33).
-- **AI cost control (10 Oct 2026, `staging`, NOT deployed) — `docs/AI-COST-CONTROL.md`.**
+- **AI cost control (10 Oct 2026; staging be-polish full controls; PRODUCTION be-polish = wrapper with `ANON_AI_POLICY=enforce`, version 8051b272, ledger `be_ai_ledger`) — `docs/AI-COST-CONTROL.md`.**
   `backend/ai-guard.js`, shared by `polish-worker.js` and `polish-prod/entry.js`: anonymous
   policy `ANON_AI_POLICY` off (default) / report / enforce (verified-token check, per-IP
   daily allowance per class + a global anonymous pool in estimated USD; 429
@@ -1461,6 +1517,21 @@ Fixes / infra
   - **Code is committed but the Worker is NOT deployed** — no KV id, no VAPID
     pair yet, so `/key` fails and `pushSync()` silently no-ops. Harmless: the
     old setTimeout path is untouched. See the README for the setup commands.
+- **TWO Play apps since 19 Oct 2026, so a store link is never a constant.**
+  General English is `com.bemastery.app`; Welding is
+  `com.lomonec.bemastery.welding` — a separate listing, a separate app. In
+  index.html the address is `playUrl()` (table `PLAY_PKGS`, keyed by
+  `areaId()`, falling back to the General English listing for a programme with
+  no app of its own); `playLinkSync()`, called from `applyTrackIdentity()`,
+  points the shell's two crawlable links (the footer row and the noscript
+  summary, both marked `data-play-link`) at the open programme; `openAbout()`
+  passes `?track=` so flyer.html's buttons follow it. `manifest.json` lists
+  both under `related_applications`, and `portal/index.html` offers one button
+  per app. On lomonec.com each app has its own page and links only its own
+  listing — see `site/README.md` § Store links. Two places stay pinned to
+  `com.bemastery.app` on purpose: `Billing.manage` (only that app sells a
+  subscription, and a plan can be managed only under the app that sold it) and
+  `backend/mail/mail-worker.js` (a welcome email has no programme to read).
 - **Google Play**: **LIVE** — `com.bemastery.app`, publisher "Lomonec", listing at
   play.google.com/store/apps/details?id=com.bemastery.app (verified 2026-08-01,
   store page shows "Updated on Jul 31, 2026"). `.well-known/assetlinks.json` carries

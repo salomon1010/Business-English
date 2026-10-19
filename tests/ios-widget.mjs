@@ -159,13 +159,23 @@ console.log("\n# who may use which widget, and the Recommendations list (owner, 
     s && s.gate && s.gate.signedIn === false && s.week === undefined && s.steps === undefined && s.streak === undefined && s.today === undefined && Array.isArray(s.recs) && s.recs.length === 0
     && s.labels && s.labels.lsign === "Sign in to use this widget" && s.labels.lprem === "Go Premium to unlock this widget", JSON.stringify(s));
   await ctx.close(); }
-{ /* signed in, no plan in force (production today): every widget open, and Home's recommendations travel */
+{ /* signed in and ENTITLED: every widget open, and Home's recommendations travel.
+     This used to rely on no plan being in force at all, which was production
+     until Phase C (11 Oct 2026) set billing_enabled + ENT_API. With a plan in
+     force a Free account is correctly locked — that is L4 — so the entitled
+     path is now stated the same way L4 states the locked one, by holding
+     hasEntitlement. The check is then about the widget, not the flag. */
   const { p, ctx, errs } = await open({ flags: { home_v2_enabled: true } });
+  await p.evaluate(() => { window.hasEntitlement = () => true; _wgRecs.at = 0; widgetSync(true); }); await sleep(200);
   const s = await last(p);
   const recs = (s && s.recs) || [];
+  /* the places a recommendation may open are the app's own WG_REC_VIEWS, read from the page so
+     this check cannot go stale when a new hub is added, plus "home" — widgetRecs' own fallback,
+     which widgetOpenRoute deliberately lands on Home */
+  const routable = (await p.evaluate(() => WG_REC_VIEWS)).concat("home");
   ok("L2 · signed in with no plan in force: small, medium/large and Recommendations are all open", s && s.gate && s.gate.signedIn === true && s.gate.full === true && s.gate.recs === true, JSON.stringify(s && s.gate));
   ok("L3 · the Recommendations list is Home's own (≤12), each with a title, a kind and a nudgeGo place; pictures only from YouTube's thumbnail host or the app's own screenshots",
-    recs.length > 0 && recs.length <= 12 && recs.every(r => r.t && r.k && r.go && ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "home"].includes(r.go.view)
+    recs.length > 0 && recs.length <= 12 && recs.every(r => r.t && r.k && r.go && routable.includes(r.go.view)
       && (!r.img || /^(https:\/\/i\.ytimg\.com\/vi\/[A-Za-z0-9_-]{11}\/mqdefault\.jpg|(home-shots|rp-photos)\/[A-Za-z0-9_-]+\.jpg)$/.test(r.img))), JSON.stringify(recs.slice(0, 3)));
   /* a plan in force, without Premium: medium/large and Recommendations lock, and the picks do not travel */
   await p.evaluate(() => { window.hasEntitlement = () => false; _wgRecs.at = 0; widgetSync(true); }); await sleep(200);

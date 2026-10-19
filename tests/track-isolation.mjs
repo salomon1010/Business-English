@@ -79,7 +79,14 @@ console.log("\n# the reverse: a General English device adopts a Welding account 
   await adoptCloud(p, "welding"); await sleep(400);
   s = await state(p);
   ok("V1 · after adopting a Welding account copy: every part agrees on Welding", s.area === "welding" && agree(s), JSON.stringify(s));
-  ok("V2 · Practice Partner, Shadow Studio V2 and the Premium Shadow/YouTube limits are off; Polish writes to the Welding bucket", !s.pp && (!s.sv || s.ws) && !s.split && s.polishArea === "welding", JSON.stringify(s));
+  /* The Premium saved-clip / import limits are NOT a track boundary: one
+     subscription covers both programmes (shOwnSplit() is planOn(), and
+     PLAN_LIMITS_TRACK is empty by the owner's 5 Oct tier spec), so since Phase C
+     turned billing on they apply on Welding too. That is the decided product
+     rule, not a leak. What must stay General-English-only is Practice Partner,
+     and what must stay per-area is where Polish files its minute. */
+  ok("V2 · Practice Partner stays General English only and Polish writes to the Welding bucket; the Shadow studio and the Premium limits are shared on purpose (one subscription, both programmes)",
+    !s.pp && (!s.sv || s.ws) && s.split === true && s.polishArea === "welding", JSON.stringify(s));
   ok("V3 · the General English 'AI coach practice' history is not listed on Welding", s.hist === 0, JSON.stringify(s));
   const n0 = presence.length;
   await p.evaluate(() => { ppPub.at = 0; ppPresencePoll(true); document.dispatchEvent(new Event("visibilitychange")); }); await sleep(800);

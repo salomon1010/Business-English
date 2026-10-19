@@ -1,8 +1,15 @@
 /* Pre-archive checks for the App Store build. Deterministic, read-only, no
    network unless --live. Exit code 1 on any FAIL; WARN never fails.
 
-   node scripts/check-release.mjs          # repo + project checks
+   node scripts/check-release.mjs                        # the General English app
+   node scripts/check-release.mjs --programme welding    # the Welding English app
    node scripts/check-release.mjs --live   # + the three production Workers accept capacitor://localhost
+
+   THE TWO-APP SPLIT (12 Oct 2026): one project builds both App Store apps, so
+   the identity checks are run FOR a programme. The project's own settings are
+   the General English app; ios/App/Welding.xcconfig overrides BE_APP_BUNDLE_ID,
+   BE_APP_GROUP, BE_DISPLAY_NAME and BE_PROGRAMME for the other one, and every
+   target derives its bundle id from BE_APP_BUNDLE_ID. docs/APP_SPLIT.md.
 
    What it proves: the web app parses, the 15 translations are complete, the
    Xcode project carries the identity/permissions the review needs, no signing
@@ -19,6 +26,19 @@ const here = dirname(fileURLToPath(import.meta.url));
 const ios = resolve(here, "..");
 const root = resolve(ios, "..", "..");
 const live = process.argv.includes("--live");
+/* which of the two apps is being checked */
+const PROGRAMMES = ["general-english", "welding"];
+const progArg = (() => { const i = process.argv.indexOf("--programme"); return i > 0 ? process.argv[i + 1] : null; })();
+if (progArg !== null && !PROGRAMMES.includes(progArg)) { console.error(`--programme must be one of ${PROGRAMMES.join(" / ")}`); process.exit(2); }
+const programme = progArg || "general-english";
+const welding = programme === "welding";
+/* The identity the build will actually produce: the project defaults, overridden
+   by Welding.xcconfig for the Welding app. Read from the files, never hard-coded
+   here, so a drift between the two is a FAIL rather than a silent pass. */
+const EXPECT = { "general-english": { bid: "com.lomonec.bemastery", group: "group.com.lomonec.bemastery", name: "BE Mastery" },
+                 welding: { bid: "com.lomonec.bemastery.welding", group: "group.com.lomonec.bemastery.welding", name: "BE Welding" } }[programme];
+EXPECT.appicon = welding ? "AppIconWelding" : "AppIcon";
+EXPECT.launch = welding ? "LaunchScreenWelding" : "LaunchScreen";
 let fails = 0, warns = 0;
 const ok = (name, cond, detail = "") => { console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond || !detail ? "" : " — " + detail}`); if (!cond) fails++; };
 const warn = (name, cond, detail = "") => { if (!cond) { warns++; console.log(`  WARN  ${name}${detail ? " — " + detail : ""}`); } else console.log(`  PASS  ${name}`); };
@@ -74,17 +94,47 @@ console.log("\n== Xcode project");
   /* the App target's two configurations carry the store bundle id; the two
      test bundles (BEMasteryTests, BEMasteryUITests) have their own ids under
      the same organisation and are never uploaded */
-  const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g);
-  /* an app extension's id must be PREFIXED by the app's (Apple's signing rule),
-     so the notification service's own id is expected beside it (5 Oct 2026) */
-  const appBid = bid.filter(b => !/Tests$/.test(b) && !/^com\.lomonec\.bemastery\./.test(b)), testBid = bid.filter(b => /Tests$/.test(b));
-  const extBid = bid.filter(b => /^com\.lomonec\.bemastery\./.test(b));
-  ok("bundle id com.lomonec.bemastery in every App configuration", same(appBid) && appBid[0] === "com.lomonec.bemastery", bid.join(", "));
-  ok("every extension id is prefixed by the app's, as Apple requires",
-    extBid.every(b => b.startsWith("com.lomonec.bemastery.")), extBid.join(", ") || "none");
+  const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = "?([^";]+)"?;/g);
+  /* THE TWO-APP SPLIT: the shipped targets no longer carry a literal id — they
+     derive it from BE_APP_BUNDLE_ID, which is what makes one project two apps.
+     An app extension's id must be PREFIXED by the app's (Apple's signing rule),
+     and deriving it is exactly what guarantees that. */
+  const appBid = bid.filter(b => b === "$(BE_APP_BUNDLE_ID)"), testBid = bid.filter(b => /Tests$/.test(b));
+  const extBid = bid.filter(b => b.startsWith("$(BE_APP_BUNDLE_ID)."));
+  ok("the App target derives its bundle id from BE_APP_BUNDLE_ID in every configuration", appBid.length >= 2 && same(appBid), bid.join(", "));
+  ok("every extension id is prefixed by the app's, as Apple requires (derived, so it cannot drift)",
+    extBid.length >= 2 && extBid.every(b => /^\$\(BE_APP_BUNDLE_ID\)\.[A-Za-z]+$/.test(b)), extBid.join(", ") || "none");
+  ok("no shipped target carries a hard-coded bundle id", !bid.some(b => /^com\.lomonec\.bemastery/.test(b)), bid.filter(b => /^com\.lomonec\.bemastery/.test(b)).join(", "));
+  /* what the chosen programme will actually build */
+  const defBid = (pbx.match(/BE_APP_BUNDLE_ID = ([^;]+);/g) || []).map(x => x.replace(/.*= |;/g, ""));
+  ok("the project's own BE_APP_BUNDLE_ID is the existing app, in both configurations",
+    defBid.length === 2 && same(defBid) && defBid[0] === "com.lomonec.bemastery", defBid.join(", "));
+  const xccPath = join(ios, "ios", "App", "Welding.xcconfig");
+  ok("ios/App/Welding.xcconfig exists — the Welding app's identity", existsSync(xccPath));
+  const xcc = existsSync(xccPath) ? read(xccPath) : "";
+  const xset = k => ((xcc.match(new RegExp(`^${k} = (.+)$`, "m")) || [])[1] || "").trim();
+  ok(`Welding.xcconfig: ${EXPECT.bid === "com.lomonec.bemastery.welding" ? "the Welding ids" : "the Welding ids (checked even on a General English run)"}`,
+    xset("BE_APP_BUNDLE_ID") === "com.lomonec.bemastery.welding" && xset("BE_APP_GROUP") === "group.com.lomonec.bemastery.welding" && xset("BE_PROGRAMME") === "welding",
+    `${xset("BE_APP_BUNDLE_ID")} / ${xset("BE_APP_GROUP")} / ${xset("BE_PROGRAMME")}`);
+  ok("the two apps' identities do not collide",
+    xset("BE_APP_BUNDLE_ID") !== "com.lomonec.bemastery" && xset("BE_APP_GROUP") !== "group.com.lomonec.bemastery");
+  ok(`this run checks the ${programme} app: ${EXPECT.bid}`, true);
   ok("test bundles under com.lomonec.* only", testBid.length > 0 && testBid.every(b => b.startsWith("com.lomonec.")), testBid.join(", "));
-  const ver = all(/MARKETING_VERSION = ([\d.]+);/g), bld = all(/CURRENT_PROJECT_VERSION = (\d+);/g);
-  ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
+  const ver = all(/MARKETING_VERSION = ([\d.]+);/g);
+  /* CURRENT_PROJECT_VERSION is read per CONFIGURATION BLOCK and only for the
+     targets that are UPLOADED — the app and its extensions. Apple rejects an
+     archive whose extension build number differs from the app's, which is what
+     this guards; the two test bundles are never uploaded and carry their own
+     numbering, so counting them reported a mismatch that could not be fixed
+     without bumping bundles Apple never sees (11 Oct 2026). Same exclusion the
+     bundle-id checks above already make. */
+  const shipped = [...pbx.matchAll(/isa = XCBuildConfiguration;([\s\S]*?)\n\t+\};/g)]
+    .map(m => m[1])
+    .filter(b => /CURRENT_PROJECT_VERSION = \d+;/.test(b))
+    .filter(b => { const id = /PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/.exec(b); return !id || !/Tests$/.test(id[1]); });
+  const bld = shipped.map(b => /CURRENT_PROJECT_VERSION = (\d+);/.exec(b)[1]);
+  ok(`version ${ver[0]} build ${bld[0]} consistent across the app and its extensions (${bld.length} configurations; test bundles excluded)`,
+    same(ver) && same(bld), `versions ${ver.join(",")} · builds ${bld.join(",")}`);
   const pkgv = JSON.parse(read(join(ios, "package.json"))).version;
   ok(`package.json version ${pkgv} = MARKETING_VERSION`, pkgv === ver[0]);
   /* per build-configuration block: the App target's blocks carry the store
@@ -113,7 +163,14 @@ console.log("\n== Info.plist / privacy manifest");
 {
   const plist = read(join(ios, "ios", "App", "App", "Info.plist"));
   const has = (k) => new RegExp(`<key>${k}</key>`).test(plist);
-  ok("CFBundleDisplayName BE Mastery", /<key>CFBundleDisplayName<\/key>\s*<string>BE Mastery<\/string>/.test(plist));
+  /* THE TWO-APP SPLIT: the name on the home screen comes from the build, so one
+     Info.plist serves both apps. BEAppGroup and BEProgramme travel the same way
+     and are what the widget and the page read. */
+  ok(`CFBundleDisplayName from the build (this programme: "${EXPECT.name}")`,
+    /<key>CFBundleDisplayName<\/key>\s*<string>\$\(BE_DISPLAY_NAME\)<\/string>/.test(plist));
+  ok("Info.plist carries BEAppGroup and BEProgramme from the build",
+    /<key>BEAppGroup<\/key>\s*(?:<!--[\s\S]*?-->\s*)?<string>\$\(BE_APP_GROUP\)<\/string>/.test(plist)
+    && /<key>BEProgramme<\/key>\s*(?:<!--[\s\S]*?-->\s*)?<string>\$\(BE_PROGRAMME\)<\/string>/.test(plist));
   ok("NSMicrophoneUsageDescription", has("NSMicrophoneUsageDescription"));
   ok("NSCameraUsageDescription (Posture Coach)", has("NSCameraUsageDescription"));
   /* WKWebView's webkitSpeechRecognition runs on Apple's Speech framework: without
@@ -157,9 +214,13 @@ console.log("\n== Info.plist / privacy manifest");
       /<key>aps-environment<\/key>\s*<string>(development|production)<\/string>/.test(e));
     /* The App Group (5 Oct 2026) is how the home-screen widget reads what the
        app publishes — docs/IOS_WIDGET.md. One group, the project's own id. */
-    const GROUP = "group.com.lomonec.bemastery";
-    ok("entitlements: the widget's App Group, and only that group",
-      new RegExp(`<key>com\\.apple\\.security\\.application-groups</key>\\s*<array>\\s*<string>${GROUP.replace(/\./g, "\\.")}</string>\\s*</array>`).test(e));
+    /* THE TWO-APP SPLIT: the entitlement names the group through $(BE_APP_GROUP),
+       so each app signs for its own container and the Welding widget can never
+       read the General English app's snapshot. EXPECT.group is what this
+       programme resolves to. */
+    const GROUP = "$(BE_APP_GROUP)";
+    ok("entitlements: the App Group comes from the build, and only that group",
+      /<key>com\.apple\.security\.application-groups<\/key>\s*<array>\s*<string>\$\(BE_APP_GROUP\)<\/string>\s*<\/array>/.test(e));
     const allowed = new Set(["com.apple.developer.applesignin", "aps-environment", "com.apple.security.application-groups"]);
     const extra = [...e.matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).filter(k => !allowed.has(k));
     ok(`entitlements: nothing else requested (${extra.length ? extra.join(", ") : "none"})`, extra.length === 0);
@@ -168,7 +229,7 @@ console.log("\n== Info.plist / privacy manifest");
       sign.filter(v => v === "App/App.entitlements").length === 2 && sign.filter(v => v === "BEWidgetExtension.entitlements").length === 2 && sign.length === 4, sign.join(", "));
     const went = join(ios, "ios", "App", "BEWidgetExtension.entitlements");
     ok("the widget extension carries the same App Group and nothing else",
-      existsSync(went) && read(went).includes(`<string>${GROUP}</string>`) && [...read(went).matchAll(/<key>([^<]+)<\/key>/g)].every(m => m[1] === "com.apple.security.application-groups"));
+      existsSync(went) && read(went).includes("<string>$(BE_APP_GROUP)</string>") && [...read(went).matchAll(/<key>([^<]+)<\/key>/g)].every(m => m[1] === "com.apple.security.application-groups"));
     ok("BEAuthPlugin.swift compiled into the app target", /BEAuthPlugin\.swift in Sources/.test(pbx));
     ok("BEPushPlugin.swift + BEAppDelegate.swift compiled into the app target", /BEPushPlugin\.swift in Sources/.test(pbx) && /BEAppDelegate\.swift in Sources/.test(pbx));
     const vc = read(join(ios, "ios", "App", "App", "Lifecycle", "BEBridgeViewController.swift"));
@@ -216,9 +277,18 @@ console.log("\n== Info.plist / privacy manifest");
     const wmodel = read(join(ios, "ios", "App", "BEWidget", "BEWidgetModel.swift"));
     const wview = read(join(ios, "ios", "App", "BEWidget", "BEWidget.swift"));
     const c = (src, name) => (src.match(new RegExp(`static let ${name} = "([^"]+)"`)) || [])[1];
-    ok("the app writes and the widget reads the SAME App Group and key",
-      c(wplug, "group") === GROUP && c(wmodel, "group") === GROUP && !!c(wplug, "key") && c(wplug, "key") === c(wmodel, "key"),
-      `${c(wplug, "group")}/${c(wplug, "key")} vs ${c(wmodel, "group")}/${c(wmodel, "key")}`);
+    /* Both sides take the group from Info.plist (BEAppGroup = $(BE_APP_GROUP)) and
+       fall back to the same literal, which is the existing app's group — so the
+       two halves of a split build agree by construction, and an unsplit build is
+       unchanged. */
+    const fromPlist = src => /forInfoDictionaryKey: "BEAppGroup"/.test(src) && /: groupDefault$/m.test(src.replace(/\s+$/gm, ""));
+    ok("the app writes and the widget read the SAME App Group and key, both from the build",
+      fromPlist(wplug) && fromPlist(wmodel) && c(wplug, "groupDefault") === "group.com.lomonec.bemastery" && c(wmodel, "groupDefault") === c(wplug, "groupDefault")
+      && !!c(wplug, "key") && c(wplug, "key") === c(wmodel, "key"),
+      `${c(wplug, "groupDefault")}/${c(wplug, "key")} vs ${c(wmodel, "groupDefault")}/${c(wmodel, "key")}`);
+    { const wb = read(join(ios, "ios", "App", "BEWidget", "BEWidgetBundle.swift"));
+      ok("the widget gallery is chosen at compile time, so each app offers only its own programme",
+        /#if BE_WELDING/.test(wb) && /#elseif BE_GENERAL/.test(wb) && /#else/.test(wb) && /#endif/.test(wb)); }
     /* the widget EXTENSION never fetches or logs: it draws what the App Group holds. Since
        6 Oct 2026 the APP's plugin fetches the Recommendations widget's pictures — only
        inside BEWidgetThumbCache, only from YouTube's thumbnail hosts, nothing logged. */
@@ -246,14 +316,32 @@ console.log("\n== Info.plist / privacy manifest");
 
 console.log("\n== assets");
 {
-  const icon = join(ios, "ios", "App", "App", "Assets.xcassets", "AppIcon.appiconset", "AppIcon-512@2x.png");
-  ok("AppIcon-512@2x.png present", existsSync(icon));
+  /* The two apps have their own icon sets in the one catalog, chosen at build
+     time by BE_APPICON_NAME (docs/APP_SPLIT.md § Branding) — so check the one
+     THIS programme will actually ship, not whichever is listed first. */
+  const iconSet = welding ? "AppIconWelding" : "AppIcon";
+  const iconFile = welding ? "AppIconWelding-1024.png" : "AppIcon-512@2x.png";
+  const icon = join(ios, "ios", "App", "App", "Assets.xcassets", `${iconSet}.appiconset`, iconFile);
+  ok(`${iconFile} present`, existsSync(icon));
   if (existsSync(icon)) {
     const b = readFileSync(icon);
     const w = b.readUInt32BE(16), h = b.readUInt32BE(20), colour = b[25];
-    ok(`AppIcon 1024×1024 (${w}×${h})`, w === 1024 && h === 1024);
-    ok(`AppIcon has no alpha channel (colour type ${colour}, no tRNS)`, (colour === 2 || colour === 0) && !b.includes("tRNS"));
+    ok(`${iconSet} 1024×1024 (${w}×${h})`, w === 1024 && h === 1024);
+    ok(`${iconSet} has no alpha channel (colour type ${colour}, no tRNS)`, (colour === 2 || colour === 0) && !b.includes("tRNS"));
   }
+  /* and that the build really will pick it: the project names the General
+     English sets, the xcconfig overrides both for Welding. */
+  const pbx = read(join(ios, "ios", "App", "App.xcodeproj", "project.pbxproj"));
+  const xcc = read(join(ios, "ios", "App", "Welding.xcconfig"));
+  ok("the app icon follows the build (ASSETCATALOG_COMPILER_APPICON_NAME = $(BE_APPICON_NAME))",
+     /ASSETCATALOG_COMPILER_APPICON_NAME = "\$\(BE_APPICON_NAME\)"/.test(pbx) && /BE_APPICON_NAME = AppIcon;/.test(pbx));
+  ok("the launch screen follows the build (UILaunchStoryboardName = $(BE_LAUNCH_STORYBOARD))",
+     read(join(ios, "ios", "App", "App", "Info.plist")).includes("$(BE_LAUNCH_STORYBOARD)") && /BE_LAUNCH_STORYBOARD = LaunchScreen;/.test(pbx));
+  ok(`this programme's icon and launch screen: ${EXPECT.appicon} / ${EXPECT.launch}`,
+     welding ? /BE_APPICON_NAME = AppIconWelding/.test(xcc) && /BE_LAUNCH_STORYBOARD = LaunchScreenWelding/.test(xcc) : true);
+  const story = join(ios, "ios", "App", "App", welding ? "LaunchScreenWelding.storyboard" : "Base.lproj/LaunchScreen.storyboard");
+  ok(`${EXPECT.launch}.storyboard present and in the Resources phase`,
+     existsSync(story) && pbx.includes(`${EXPECT.launch}.storyboard in Resources`));
   const shots = join(ios, "appstore", "screenshots", "iphone-6.9");
   const n = existsSync(shots) ? readdirSync(shots).filter(f => f.endsWith(".png")).length : 0;
   ok(`6.9" screenshots present (${n}, App Store Connect wants 3–10)`, n >= 3 && n <= 10);
@@ -269,18 +357,77 @@ console.log("\n== nothing secret tracked");
 
 console.log("\n== web bundle freshness");
 {
+  /* THE TWO-APP SPLIT: a bundled index.html is no longer byte-identical to the
+     repo root — sync-web.mjs inserts the one-line be-build.js tag that names the
+     programme. So freshness is checked with that line removed, and the bundle's
+     declared programme has to be the one being checked. */
   const www = join(ios, "www", "index.html"), pub = join(ios, "ios", "App", "App", "public", "index.html");
-  const src = sha(join(root, "index.html"));
-  warn(`www/index.html ${existsSync(www) ? (sha(www) === src ? "matches the repo root" : "is STALE — run npm run sync") : "absent — run npm run sync"}`, existsSync(www) && sha(www) === src);
-  warn(`ios/App/App/public/index.html ${existsSync(pub) ? (sha(pub) === src ? "matches the repo root" : "is STALE — run npm run sync") : "absent — run npm run sync"}`, existsSync(pub) && sha(pub) === src);
+  const strip = p => read(p).replace(/\n?<script src="be-build\.js"><\/script>/, "");
+  const srcTxt = read(join(root, "index.html"));
+  const fresh = p => existsSync(p) && strip(p) === srcTxt;
+  warn(`www/index.html ${existsSync(www) ? (fresh(www) ? "matches the repo root" : "is STALE — run npm run sync:" + (welding ? "welding" : "general")) : "absent — run npm run sync:" + (welding ? "welding" : "general")}`, fresh(www));
+  warn(`ios/App/App/public/index.html ${existsSync(pub) ? (fresh(pub) ? "matches the repo root" : "is STALE — run npm run sync:" + (welding ? "welding" : "general")) : "absent — run npm run sync:" + (welding ? "welding" : "general")}`, fresh(pub));
+  const info = join(ios, "ios", "App", "App", "public", "BUNDLE_INFO.txt");
+  const bprog = existsSync(info) ? ((read(info).match(/^programme (.+)$/m) || [])[1] || "").trim() : "(no bundle)";
+  ok(`the bundled web app is the ${programme} one`, bprog === programme, bprog);
+  const bb = join(ios, "ios", "App", "App", "public", "be-build.js");
+  ok("be-build.js in the bundle names that programme and nothing of staging",
+    existsSync(bb) && read(bb).includes(`"track":"${programme}"`) && !/staging/.test(read(bb)), existsSync(bb) ? read(bb).trim() : "absent");
 }
 
 console.log("\n== this Mac");
 {
   let xc = ""; try { xc = execSync("xcode-select -p", { encoding: "utf8" }).trim(); } catch (e) {}
-  warn(`Xcode: ${/Xcode\.app/.test(xc) ? xc : "NOT AVAILABLE (" + (xc || "no developer dir") + ") — archive/upload need a Mac with Xcode 26+"}`, /Xcode\.app/.test(xc));
+  /* xcode-select may still point at the Command Line Tools while Xcode is
+     installed — switching it needs sudo. mobile/ios/scripts/build.sh sets
+     DEVELOPER_DIR instead, so an installed Xcode.app is what actually matters. */
+  const xcApp = existsSync("/Applications/Xcode.app/Contents/Developer");
+  warn(`Xcode: ${/Xcode\.app/.test(xc) ? xc : xcApp ? "/Applications/Xcode.app (xcode-select points at " + (xc || "nothing") + "; scripts/build.sh sets DEVELOPER_DIR)" : "NOT AVAILABLE (" + (xc || "no developer dir") + ") — archive/upload need a Mac with Xcode 26+"}`,
+    /Xcode\.app/.test(xc) || xcApp);
   let ids = 0; try { ids = Number((/(\d+) valid identities found/.exec(execSync("security find-identity -v -p codesigning 2>&1", { encoding: "utf8" })) || [0, 0])[1]); } catch (e) {}
   warn(`signing identities in the keychain: ${ids}`, ids > 0);
+}
+
+/* ---------------------------------------------------------------------------
+   Premium must never be a client-side flag alone (12 Oct 2026).
+
+   `planOn()` = billing_enabled && ENT_API. When it is true the app LOCKS
+   features, shows an offer and sells a subscription. None of that is worth
+   anything — and selling it is a disclosure problem — unless the Worker that
+   spends the money also asks be-entitlements, which is `PREMIUM_ENFORCED` in
+   backend/wrangler.toml. The two halves are one release: backend/wrangler.toml
+   states the order (deploy the Worker first, then ship the bundle), and this
+   check is what stops a bundle being archived with only one of them set.
+
+   It reads the repository, not the deployment: it cannot know what is live, so
+   it holds the two files to each other and the release notes carry the rest. */
+console.log("\n== Premium: client gate and server enforcement move together");
+{
+  const idx = read(join(root, "index.html"));
+  const flags = (/FLAGS_DEFAULT\s*=\s*\{([\s\S]*?)\n\s*\}\s*;/.exec(idx) || [, ""])[1];
+  const billing = /billing_enabled\s*:\s*true/.test(flags);
+  const entApi = (/const ENT_API\s*=\s*"([^"]*)"/.exec(idx) || [, ""])[1];
+  const planOn = billing && !!entApi;
+
+  const bw = join(root, "backend", "wrangler.toml");
+  let enforced = null, entUrl = null;
+  if (existsSync(bw)) {
+    /* only the TOP-LEVEL [vars] block: production. A later [env.staging] table
+       sets its own, and staging enforcing proves nothing about production. */
+    const top = read(bw).split(/^\s*\[env\./m)[0];
+    const m = /^\s*PREMIUM_ENFORCED\s*=\s*"([^"]*)"/m.exec(top);
+    enforced = m ? m[1] : null;
+    const u = /^\s*ENTITLEMENTS_URL\s*=\s*"([^"]*)"/m.exec(top);
+    entUrl = u ? u[1] : null;
+  }
+  ok(`index.html planOn() would be ${planOn} (billing_enabled ${billing}, ENT_API ${entApi ? "set" : "empty"})`, true);
+  ok(`backend/wrangler.toml production PREMIUM_ENFORCED = ${enforced === null ? "unset/commented" : '"' + enforced + '"'}`, true);
+  ok("the client gate and the server boundary agree — Premium is not sold on a client flag alone",
+    planOn === (enforced === "1"),
+    planOn
+      ? 'the app would sell and lock Premium while the production Worker enforces nothing: set PREMIUM_ENFORCED = "1" in backend/wrangler.toml AND deploy be-polish before archiving, or turn billing_enabled off'
+      : 'the production Worker would demand entitlements the app never sells: a Free learner would be refused with no way to pay. Turn PREMIUM_ENFORCED back to "0", or set billing_enabled + ENT_API');
+  if (planOn) ok("…and the enforcing Worker is pointed at an entitlement service", !!entUrl, "ENTITLEMENTS_URL is not set in the production [vars]");
 }
 
 if (live) {

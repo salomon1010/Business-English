@@ -10,6 +10,8 @@ const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 const GET = `Obtenir l'app`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `Ou <a href="https://app.lomonec.com/bemastery/">utilisez-le dans le navigateur</a> — rien à installer, et la connexion emporte votre progression dans l'app.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — Pratique de l'anglais oral avec l'IA`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
@@ -360,7 +362,7 @@ export default [
    `<b>Simulations de travail et coachs d'entretien${NB}:</b> le quart d'heure sécurité, le permis de travail, la passation et l'entretien d'embauche, chacun avec un rapport selon les normes du métier.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Fondations dans votre langue${NB}:</b> quinze jours de premières phrases pour celles et ceux qui partent de zéro.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Choisissez Anglais du soudage à l'ouverture de l'app.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Anglais du soudage a sa propre app.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Dix métiers, un programme</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Soudeur</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Tuyauteur</span>`],

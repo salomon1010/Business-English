@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 /* be-polish — the server-side entitlement boundary (Phase 8, 30 Sep 2026).
    Run: node backend/test-premium-gate.mjs
    The Worker module in Node. be-entitlements and OpenAI are stand-ins: no key,
@@ -431,6 +432,52 @@ ok("V4 · a Premium answer with extra fields is still Premium — the reader is 
 ent.reply = () => view(FREE);
 r = await ask({ chat: { purpose: "verbal", system: "s", messages: [{ role: "user", content: "hi" }] } }, { token: tok() });
 ok("V5 · an unknown chat purpose is refused as a bad request, never silently treated as free", r.status === 400 && r.j.error === "bad_request", JSON.stringify(r.j));
+
+/* ============================================================================
+   W · EVERY PAID ROUTE IS GATED — a contract, not a spot check (13 Oct 2026)
+
+   The checks above exercise the gate's BEHAVIOUR on the routes they name. What
+   nothing held was COVERAGE: add a tenth paid route tomorrow, forget the
+   premiumGate call, and every test here still passes while the route spends
+   money for anyone who asks. These read the Worker's own source and fail when
+   the declaration and the call sites drift apart.
+
+   ROUTE_CAP is the declaration (route -> capability, null = free but still
+   account-bound). `chat` is deliberately absent from it: its capability depends
+   on the purpose, so it is gated through CHAT_PURPOSE_CAP instead. */
+{
+  const src = readFileSync(new URL("./polish-worker.js", import.meta.url), "utf8");
+
+  const block = name => {           /* the object literal after `name = {`, brace-matched */
+    const i = src.indexOf(name + " = {"); if (i < 0) return null;
+    let d = 0; for (let j = i + name.length + 3; j < src.length; j++) {
+      if (src[j] === "{") d++; else if (src[j] === "}") { d--; if (!d) return src.slice(i + name.length + 3, j); } }
+    return null;
+  };
+  const keysOf = b => [...String(b).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")
+    .matchAll(/(^|[\s,{])([a-z_]+)\s*:/g)].map(m => m[2]);
+
+  const declared = keysOf(block("ROUTE_CAP"));
+  const gated = new Set([...src.matchAll(/premiumGate\((?:request|req), env, "([a-z]+)"/g)].map(m => m[1]));
+
+  ok("W1 · ROUTE_CAP is non-empty and was parsed", declared.length >= 5, declared.join(","));
+  const ungated = declared.filter(k => !gated.has(k));
+  ok("W2 · every route declared in ROUTE_CAP has a premiumGate call site",
+    ungated.length === 0, "declared but never gated: " + ungated.join(", "));
+  const undeclared = [...gated].filter(k => k !== "chat" && !declared.includes(k));
+  ok("W3 · every gated call site is declared in ROUTE_CAP (except chat, gated per purpose)",
+    undeclared.length === 0, "gated but undeclared: " + undeclared.join(", "));
+  ok("W4 · chat is gated, and through its purpose map rather than ROUTE_CAP",
+    gated.has("chat") && !declared.includes("chat") && keysOf(block("CHAT_PURPOSE_CAP")).length >= 2);
+
+  /* A tripwire, deliberately coarse: pfetch is the ONE wrapper every paid
+     provider call goes through (docs/AI-COST-CONTROL.md). If the count moves,
+     a paid call was added or removed and someone must confirm it is gated —
+     this cannot prove the new one is, which is why it asks rather than asserts. */
+  const paid = (src.match(/\bpfetch\(/g) || []).length;
+  ok(`W5 · the number of paid provider calls is unchanged (${paid}); if this fails, confirm the new call sits behind premiumGate and update the count`,
+    paid === 10, `pfetch call sites: ${paid}, expected 10`);
+}
 
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

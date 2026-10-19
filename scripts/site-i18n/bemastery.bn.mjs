@@ -12,6 +12,8 @@
 const GET = `অ্যাপ পান`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `বা <a href="https://app.lomonec.com/bemastery/">ব্রাউজারেই ব্যবহার করুন</a> — ইনস্টল করার কিছু নেই, আর সাইন ইন করলে আপনার অগ্রগতি অ্যাপে চলে যায়।`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — AI দিয়ে ইংরেজি বলার অনুশীলন`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
@@ -363,7 +365,7 @@ export default [
    `<b>কর্মক্ষেত্রের সিমুলেশন ও ইন্টারভিউ কোচ:</b> নিরাপত্তা আলোচনা, পারমিট, হস্তান্তর এবং নিয়োগ ইন্টারভিউ — প্রতিটির সঙ্গে পেশার নিজস্ব মানের বিপরীতে একটি রিপোর্ট।`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>আপনার নিজের ভাষায় ভিত্তি:</b> যারা একেবারে শুরু থেকে আরম্ভ করছেন, তাদের জন্য প্রথম বাক্যগুলোর পনেরো দিন।`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>অ্যাপ খুললে ওয়েল্ডিংয়ের ইংরেজি বেছে নিন।</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>ওয়েল্ডিংয়ের ইংরেজির নিজের আলাদা অ্যাপ আছে।</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">দশটি পেশা, একটি প্রোগ্রাম</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Welder</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Pipefitter</span>`],

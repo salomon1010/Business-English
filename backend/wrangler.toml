@@ -65,9 +65,21 @@ new_sqlite_classes = ["RateLimiter"]
 #
 # PREMIUM_ENFORCED = "1"
 # ENTITLEMENTS_URL = "https://entitlements.lomonec.com"
+# the cost ledger (no content; caller = HMAC under the LEDGER_SALT secret), as the production wrapper had it
+[[analytics_engine_datasets]]
+binding = "AI_LEDGER"
+dataset = "be_ai_ledger"
+
 [vars]
-PREMIUM_ENFORCED = "0"
-ENTITLEMENTS_URL = ""
+# PRODUCTION (launch Phase B9a, 10 Oct 2026): the full polish-worker.js with the Premium gate
+# OFF — learners see today's behaviour (anonymous AI policy enforce, games, no metering).
+# Phase C turns PREMIUM_ENFORCED to "1" in the SAME release as billing_enabled + ENT_API,
+# never before: with the gate on and nothing for sale, Free would be capped with no way out.
+PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
+ANON_AI_POLICY = "enforce"
+AI_DEDUPE = "1"
+PREMIUM_ENFORCED = "1"
+ENTITLEMENTS_URL = "https://be-entitlements.nore-ngou.workers.dev"
 # J1 (1 Oct 2026). The ONE route that spends real money per call — `ytai`,
 # Gemini transcription of a pasted video — requires a verified account whatever
 # PREMIUM_ENFORCED says, and with enforcement off there is no entitlement

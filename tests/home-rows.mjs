@@ -43,9 +43,18 @@ const open = async (o, desktop) => {
   await p.evaluate(() => { window.__ev = []; window.track = (n, pr) => __ev.push([n, pr || {}]); try { homeRecImpress._seen = {} } catch (e) {} document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#syncNudge").forEach(e => e.remove()); go("home"); }); await sleep(2500);
   return { ctx, p };
 };
-const rows = p => p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => ({ id: r.dataset.row, v: r.dataset.variant, lead: r.classList.contains("hx-row-lead"), h: r.querySelector("h3").textContent, cards: [...r.querySelectorAll(".hx-rcard")].map(c => ({ type: c.dataset.type, cid: c.dataset.cid, vid: c.dataset.vid || null, title: c.querySelector("b").textContent, line: c.querySelector("small").textContent, w: c.getBoundingClientRect().width, h: c.getBoundingClientRect().height })), scroll: (() => { const s = r.querySelector(".hx-row-scroll"); return { w: s.scrollWidth > s.clientWidth, display: getComputedStyle(s).display }; })() })));
+/* Since 12 Oct 2026 only ONE row is open at a time (the accordion section at the
+   foot of this file is its own subject). Everything above is about what each row
+   CONTAINS and how it lays out when it is shown, so the panels are un-hidden for
+   the measurement and put back exactly as they were — the accordion's own state
+   is never touched by reading it. */
+const rows = p => p.evaluate(() => { const was = [...document.querySelectorAll(".hx-row-p")].map(e => [e, e.hidden]); was.forEach(([e]) => e.hidden = false);
+  const out = [...document.querySelectorAll(".hx-row")].map(r => ({ id: r.dataset.row, v: r.dataset.variant, lead: r.classList.contains("hx-row-lead"), h: r.querySelector("h3").textContent, cards: [...r.querySelectorAll(".hx-rcard")].map(c => ({ type: c.dataset.type, cid: c.dataset.cid, vid: c.dataset.vid || null, title: c.querySelector("b").textContent, line: c.querySelector("small").textContent, w: c.getBoundingClientRect().width, h: c.getBoundingClientRect().height })), scroll: (() => { const s = r.querySelector(".hx-row-scroll"); return { w: s.scrollWidth > s.clientWidth, display: getComputedStyle(s).display }; })() }));
+  was.forEach(([e, h]) => e.hidden = h); return out; });
 const home = async p => { await p.evaluate(() => { try { shCloseWork() } catch (e) {} go("home"); }); await sleep(1500); };
-const tap = async (p, row, type) => { await p.evaluate(([row, type]) => { const c = document.querySelector(`.hx-row[data-row="${row}"] .hx-rcard[data-type="${type}"]`); if (!c) throw new Error("no card " + row + "/" + type); c.click(); }, [row, type]); await sleep(2500); };
+/* a learner opens the row before tapping a card in it, so the test does too */
+const tap = async (p, row, type) => { await p.evaluate(([row, type]) => { const r = document.querySelector(`.hx-row[data-row="${row}"]`); if (r && !r.classList.contains("open") && typeof homeRowToggle === "function") homeRowToggle(row);
+  const c = document.querySelector(`.hx-row[data-row="${row}"] .hx-rcard[data-type="${type}"]`); if (!c) throw new Error("no card " + row + "/" + type); c.click(); }, [row, type]); await sleep(2500); };
 const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: cur && cur.arg2, clip: typeof shClip !== "undefined" && shClip ? shClip.vid : null, mode: typeof svMode !== "undefined" ? svMode : null, tab: typeof _shTab !== "undefined" ? _shTab : null, prac: typeof _pracTab !== "undefined" ? _pracTab : null }));
 
 /* ---------- an active learner: every evidence type but inactivity ---------- */
@@ -106,7 +115,10 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   ok("17 · verified watching: loading a clip records nothing; 40 s of playing records ≥ 35 s; paused time adds nothing", !wt.opened && wt.secs >= 35 && wt.secs <= 41 && wt.first, JSON.stringify(wt));
   /* the header is two single lines, and there is no "Not now" (owner, 27 Sep 2026) */
   await home(p); const hd = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => { const h = r.querySelector(".hx-row-h h3"), q = r.querySelector(".hx-row-h p"), lh = e => parseFloat(getComputedStyle(e).lineHeight);
-    return { id: r.dataset.row, hide: !!r.querySelector(".hx-row-hide,button:not(.hx-rcard)"), h1: h.getBoundingClientRect().height <= lh(h) + 1, p1: q.getBoundingClientRect().height <= lh(q) + 1, hs: parseFloat(getComputedStyle(h).fontSize), ps: parseFloat(getComputedStyle(q).fontSize), fits: r.querySelector(".hx-row-h").scrollWidth <= r.querySelector(".hx-row-h").clientWidth + 1 }; }));
+    /* `button:not(.hx-rcard)` used to stand in for "no dismiss control". The header now
+       carries the accordion's own toggle (owner, 12 Oct 2026), so the rule is named
+       directly: no "Not now", and no button in the header but that toggle. */
+    return { id: r.dataset.row, hide: !!r.querySelector(".hx-row-hide") || [...r.querySelectorAll("button:not(.hx-rcard)")].some(b => !b.classList.contains("hx-row-tog") && !b.classList.contains("hx-row-prem")), h1: h.getBoundingClientRect().height <= lh(h) + 1, p1: q.getBoundingClientRect().height <= lh(q) + 1, hs: parseFloat(getComputedStyle(h).fontSize), ps: parseFloat(getComputedStyle(q).fontSize), fits: r.querySelector(".hx-row-h").scrollWidth <= r.querySelector(".hx-row-h").clientWidth + 1 }; }));
   ok("18 · every row header is one heading line + one small line, no 'Not now', nothing wider than the screen", hd.length >= 2 && hd.every(x => !x.hide && x.h1 && x.p1 && x.hs <= 16 && x.ps < x.hs && x.fits), JSON.stringify(hd));
   ok("19 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
@@ -139,6 +151,115 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   const R = await rows(p);
   ok("28 · desktop: the same rows as three-up grids (no sideways scroller), no sideways page scroll", R.length === 7 && R.every(r => r.scroll.display === "grid" && !r.scroll.w) && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify(R.map(r => r.scroll)));
   ok("29 · desktop: no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  await ctx.close(); }
+/* ---------- ONE ROW OPEN AT A TIME (owner, 12 Oct 2026) ----------
+   Eight rows, each with its own swipe strip, filled the whole page. The rows and
+   the engine are untouched; only one strip is open at a time, the strongest
+   signal first. Everything below is about that control and nothing else. */
+{ const { ctx, p } = await open({ history: true });
+  /* what the learner can actually see, row by row */
+  const acc = () => p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => {
+    const b = r.querySelector(".hx-row-tog"), pa = r.querySelector(".hx-row-p"),
+      h = r.querySelector(".hx-row-h h3"), q = r.querySelector(".hx-row-h p"), cards = [...r.querySelectorAll(".hx-rcard")];
+    return { id: r.dataset.row, open: r.classList.contains("open"), expanded: b && b.getAttribute("aria-expanded"),
+      shown: !!pa && !pa.hidden && pa.getBoundingClientRect().height > 0,
+      head: !!h && h.getBoundingClientRect().height > 0, sub: !!q && q.getBoundingClientRect().height > 0,
+      chev: (() => { const c = r.querySelector(".hx-row-chev"); return !!c && c.getBoundingClientRect().height > 0; })(),
+      cardsSeen: cards.filter(c => c.getBoundingClientRect().height > 0).length, cardsIn: cards.length,
+      items: (_homeRows.find(x => x.id === r.dataset.row) || { items: [] }).items.length };
+  }));
+  const toggle = async id => { await p.evaluate(i => homeRowToggle(i), id); await sleep(260); };
+  const openIds = a => a.filter(x => x.open).map(x => x.id);
+
+  const a0 = await acc();
+  ok("30 · on load the FIRST recommendation group is expanded — its heading, its reason and its cards",
+    a0.length >= 3 && a0[0].open && a0[0].expanded === "true" && a0[0].shown && a0[0].cardsSeen === a0[0].items && a0[0].items >= 2, JSON.stringify(a0[0]));
+  ok("31 · every group after it is collapsed: no cards, and its heading, reason and chevron still there to tap",
+    a0.slice(1).every(x => !x.open && x.expanded === "false" && !x.shown && x.cardsSeen === 0 && x.head && x.sub && x.chev), JSON.stringify(a0.slice(1)));
+  ok("32 · the collapsed rows KEEP their cards in the page — nothing was filtered out of the engine",
+    a0.slice(1).every(x => x.cardsIn === x.items && x.items >= 1), JSON.stringify(a0.slice(1).map(x => [x.id, x.cardsIn, x.items])));
+
+  await toggle(a0[1].id); const a1 = await acc();
+  ok("33 · opening the second group closes the first", openIds(a1).join() === a0[1].id && a1[0].expanded === "false" && !a1[0].shown && a1[1].shown, JSON.stringify(openIds(a1)));
+  await toggle(a0[2].id); const a2 = await acc();
+  ok("34 · opening a third closes the second", openIds(a2).join() === a0[2].id && !a2[1].shown && a2[2].shown, JSON.stringify(openIds(a2)));
+  ok("35 · only ONE group is ever expanded", [a0, a1, a2].every(a => a.filter(x => x.open).length === 1), JSON.stringify([a0, a1, a2].map(openIds)));
+
+  await toggle(a0[2].id); const a3 = await acc();
+  ok("36 · closing the open group leaves them ALL collapsed — nothing reopens by itself",
+    a3.every(x => !x.open && x.expanded === "false" && !x.shown) && a3.every(x => x.head), JSON.stringify(openIds(a3)));
+
+  /* each group's own cards, never another's */
+  await toggle(a0[1].id);
+  const mine = await p.evaluate(id => { const r = document.querySelector(`.hx-row[data-row="${id}"]`);
+    const shown = [...document.querySelectorAll(".hx-rcard")].filter(c => c.getBoundingClientRect().height > 0);
+    const eng = (_homeRows.find(x => x.id === id) || { items: [] }).items;
+    return { onlyMine: shown.every(c => r.contains(c)), n: shown.length,
+      same: shown.map(c => c.dataset.cid || c.dataset.vid || c.dataset.type).join() === eng.map(i => i.cid || i.vid || i.type).join() }; }, a0[1].id);
+  ok("37 · the open group shows ITS OWN cards, in the engine's order, and no other group's", mine.onlyMine && mine.same && mine.n >= 1, JSON.stringify(mine));
+
+  /* a re-render: the library index landing, the role-play photos, a trip to Home and back */
+  await p.evaluate(() => { go("profile"); }); await sleep(900); await home(p);
+  const a4 = await acc();
+  ok("38 · leaving Home and coming back keeps the learner's choice, and exactly one group open",
+    a4.filter(x => x.open).length === 1 && a4.find(x => x.open).id === a0[1].id, JSON.stringify(openIds(a4)));
+  await p.evaluate(() => { const el = document.getElementById("v-home"); rHomeV2(el); }); await sleep(900);
+  const a5 = await acc();
+  ok("39 · a full re-render never leaves two groups expanded", a5.filter(x => x.open).length === 1, JSON.stringify(openIds(a5)));
+
+  /* the control itself */
+  const aria = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => { const b = r.querySelector(".hx-row-tog"), pa = r.querySelector(".hx-row-p");
+    return { tag: b && b.tagName, type: b && b.getAttribute("type"), controls: !!(b && pa && b.getAttribute("aria-controls") === pa.id && pa.id),
+      labelled: !!(b && document.getElementById(b.getAttribute("aria-labelledby"))), region: pa && pa.getAttribute("role"),
+      wide: b && r.querySelector(".hx-row-h") ? b.getBoundingClientRect().width >= r.querySelector(".hx-row-h").getBoundingClientRect().width - 1 : false }; }));
+  ok("40 · each control is a real button with aria-expanded, aria-controls on its own panel, a name from its heading, and it covers the whole header row",
+    aria.every(x => x.tag === "BUTTON" && x.type === "button" && x.controls && x.labelled && x.region === "region" && x.wide), JSON.stringify(aria[1]));
+  const kb = await p.evaluate(async () => { const r = document.querySelectorAll(".hx-row")[2], b = r.querySelector(".hx-row-tog");
+    b.focus(); const focused = document.activeElement === b; b.click();            /* Enter/Space on a <button> is a click */
+    await new Promise(x => setTimeout(x, 250));
+    return { focused, open: r.classList.contains("open"), exp: b.getAttribute("aria-expanded") }; });
+  ok("41 · the control takes keyboard focus and opens on activation", kb.focused && kb.open && kb.exp === "true", JSON.stringify(kb));
+
+  /* a card tap must open the recommendation, never the accordion */
+  const before = await acc();
+  const openRow = before.find(x => x.open).id;
+  await tap(p, openRow, (await p.evaluate(id => (_homeRows.find(x => x.id === id).items[0] || {}).type, openRow)));
+  const went = await here(p);
+  ok("42 · tapping a card inside the open group navigates and does not collapse anything", went.v !== "home", JSON.stringify(went));
+  await home(p);
+  const a6 = await acc();
+  ok("43 · …and coming back the same group is still the open one", a6.filter(x => x.open).length === 1 && a6.find(x => x.open).id === openRow, JSON.stringify(openIds(a6)));
+
+  /* the carousel inside an open group, and the page itself */
+  const car = await p.evaluate(id => { const s = document.querySelector(`.hx-row[data-row="${id}"] .hx-row-scroll`);
+    const can = s.scrollWidth > s.clientWidth; s.scrollLeft = 120;
+    return { can, moved: s.scrollLeft > 0, overflowX: getComputedStyle(s).overflowX, page: document.documentElement.scrollWidth <= innerWidth + 1 }; }, openRow);
+  ok("44 · the open group's carousel still scrolls sideways, and the page does not", car.can && car.moved && car.overflowX === "auto" && car.page, JSON.stringify(car));
+  const line = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => { const h = r.querySelector(".hx-row-h h3"), q = r.querySelector(".hx-row-h p"), hd = r.querySelector(".hx-row-h"), lh = e => parseFloat(getComputedStyle(e).lineHeight);
+    return h.getBoundingClientRect().height <= lh(h) + 1 && q.getBoundingClientRect().height <= lh(q) + 1 && hd.scrollWidth <= hd.clientWidth + 1; }));
+  ok("45 · the chevron did not cost the header its two single lines", line.every(Boolean), JSON.stringify(line));
+  /* the motion is restrained, and it is off when the learner asked for that */
+  const mo = await p.evaluate(() => { const pa = document.querySelector(".hx-row.open .hx-row-p"); const c = getComputedStyle(pa);
+    return { name: c.animationName, dur: parseFloat(c.animationDuration) || 0 }; });
+  ok("46 · opening a group animates, briefly", mo.name === "hxRowIn" && mo.dur > 0 && mo.dur <= 0.3, JSON.stringify(mo));
+  await p.emulateMedia({ reducedMotion: "reduce" }); await sleep(200);
+  const mr = await p.evaluate(() => { const pa = document.querySelector(".hx-row.open .hx-row-p"), ch = document.querySelector(".hx-row.open .hx-row-chev");
+    return { name: getComputedStyle(pa).animationName, chev: getComputedStyle(ch).transitionDuration }; });
+  /* the app's own global reduced-motion rule clamps every transition to .01ms
+     (index.html ~5839), so "no sweep" is that clamp or a flat 0, never the .18s */
+  ok("47 · reduced motion: no animation on the panel and no sweep on the chevron", mr.name === "none" && parseFloat(mr.chev) <= 0.001, JSON.stringify(mr));
+  await p.emulateMedia({ reducedMotion: "no-preference" });
+  ok("48 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  await ctx.close(); }
+/* ---------- desktop: the same one-at-a-time rule ---------- */
+{ const { ctx, p } = await open({ history: true }, true);
+  const d = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => ({ id: r.dataset.row, open: r.classList.contains("open"),
+    shown: (() => { const pa = r.querySelector(".hx-row-p"); return !!pa && !pa.hidden; })(),
+    grid: (() => { const s = r.querySelector(".hx-row-scroll"); const pa = r.querySelector(".hx-row-p"); const was = pa.hidden; pa.hidden = false; const g = getComputedStyle(s).display; pa.hidden = was; return g; })() })));
+  ok("49 · desktop: the first group open, the rest collapsed, and an open group is still a three-up grid",
+    d.length >= 3 && d[0].open && d[0].shown && d.slice(1).every(x => !x.open && !x.shown) && d.every(x => x.grid === "grid"), JSON.stringify(d));
+  ok("50 · desktop: no sideways page scroll", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  ok("51 · desktop: no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);

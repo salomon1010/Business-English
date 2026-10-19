@@ -18,4 +18,29 @@ r = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { metho
 ok("5 · other methods are refused", r.status === 405 && seen.length === n);
 r = await handle(new Request("https://auth.lomonec.com/__/auth/handler"), { FIREBASE_HOST: "evil.example.com" });
 ok("6 · only a *.firebaseapp.com target is ever used", r.status === 503 && seen.length === n);
+{ /* the Android app's Apple answer goes back to the app, never to Firebase */
+  const m = seen.length, st = "bea." + "a1B2c3D4e5F6g7H8i9J0";
+  const body = new URLSearchParams({ state: st, code: "c0de", id_token: "eyJ.apple.token", user: JSON.stringify({ name: { firstName: "Muna" } }) }).toString();
+  const a = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body, headers: { "content-type": "application/x-www-form-urlencoded" } }), env);
+  const html = await a.text(), href = a.headers.get("location") || "";
+  const q = new URL(href.replace("bemastery://", "https://x/")).searchParams;
+  ok("7 · an Apple answer with the app's state is handed to bemastery://apple, and Firebase is never called", a.status === 303 && href.startsWith("bemastery://apple?") && html.includes("Open BE Mastery") && q.get("state") === st && q.get("id_token") === "eyJ.apple.token" && /Muna/.test(q.get("user")) && seen.length === m, href);
+  ok("8 · the one-time code is NOT passed on, and the page is never cached", !q.get("code") && a.headers.get("cache-control") === "no-store");
+  const w = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body: "code=abc&state=firebase-own-state", headers: { "content-type": "application/x-www-form-urlencoded" } }), env);
+  ok("9 · any other state (the website's Apple sign-in) is still forwarded to Firebase", seen.length === m + 1 && new TextDecoder().decode(seen[m].init.body) === "code=abc&state=firebase-own-state");
+  const bad = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body: "state=bea.x&id_token=t", headers: { "content-type": "application/x-www-form-urlencoded" } }), env);
+  ok("10 · a malformed app state is not treated as the app's (it is forwarded)", seen.length === m + 2);
+  /* THE TWO-APP SPLIT: the state's prefix picks the app's own scheme, because only
+     one installed app may claim one. The point of these three is that the two apps
+     can never be handed each other's Apple token. */
+  const k = seen.length, sw = "bew." + "a1B2c3D4e5F6g7H8i9J0";
+  const wb = new URLSearchParams({ state: sw, code: "c0de", id_token: "eyJ.welding.token" }).toString();
+  const wr = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body: wb, headers: { "content-type": "application/x-www-form-urlencoded" } }), env);
+  const wh = wr.headers.get("location") || "";
+  const wq = new URL(wh.replace("bemasterywelding://", "https://x/")).searchParams;
+  ok("11 · a Welding state goes back to bemasterywelding://apple, not the other app", wr.status === 303 && wh.startsWith("bemasterywelding://apple?") && wq.get("state") === sw && wq.get("id_token") === "eyJ.welding.token" && seen.length === k, wh);
+  ok("12 · …and the one-time code is withheld there too", !wq.get("code") && wr.headers.get("cache-control") === "no-store");
+  const unk = await handle(new Request("https://auth.lomonec.com/__/auth/handler", { method: "POST", body: "state=bez.a1B2c3D4e5F6g7H8i9J0&id_token=t", headers: { "content-type": "application/x-www-form-urlencoded" } }), env);
+  ok("13 · an unknown app prefix is not defaulted to either app (it is forwarded)", seen.length === k + 1);
+}
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);

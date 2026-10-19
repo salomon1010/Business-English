@@ -268,8 +268,23 @@ const wt = await A.page.evaluate(async () => {
 });
 ok("WATCH carries the same two switches (same preference, both on) and applies them to the paragraph being spoken only: its translation under it, IPA under each of its words, nothing on the other paragraphs — and they move with the speech", wt.tr === "true" && wt.ipa === "true" && /Traduction \[French\]/.test(wt.trBox || "") && wt.trOnly === 1 && wt.ipaIn === wt.wIn && wt.wIn > 0 && wt.ipaElsewhere === 0 && wt.first === await expIpa(A.page, wt.firstWord) && wt.moved && wt.trMoved && wt.ipaMoved, JSON.stringify(wt));
 if (process.env.SHOTS) await A.page.screenshot({ path: "/tmp/shwatch.png" });
-const wtIcons = await A.page.evaluate(() => [...document.querySelectorAll(".sv-wt-tg .sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "" }; }));
-ok("The Watch row's helper buttons are icons only too: no visible text, 44 px, each named for assistive tech", wtIcons.length >= 2 && wtIcons.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2), JSON.stringify(wtIcons));
+/* The >=44 px rule (owner, 4 Oct 2026) is about the row as it sits IN the page.
+   Since 9 Oct the row also lifts out as a compact floating COLUMN once it
+   scrolls under the pinned video (svWtFloatSync, .sv-wt-tg.float), and that
+   state is deliberately 30 px so the column stays out of the way. Measuring
+   whichever state the scroll happened to leave behind made this check report a
+   44 px failure against a size the owner chose, so each state is now measured
+   as itself. */
+const wtMeasure = async floated => A.page.evaluate(f => {
+  const row = document.querySelector("#shWork .sv-wt-tg"); if (!row) return null;
+  row.classList.toggle("float", f);
+  return [...row.querySelectorAll(".sv-sh-t")].map(b => { const r = b.getBoundingClientRect(); const words = [...b.querySelectorAll("span")].filter(s => !s.closest(".lang-ic") && getComputedStyle(s).display !== "none").map(s => s.innerText.trim()).join(""); return { id: b.id, text: words, h: Math.round(r.height), w: Math.round(r.width), lbl: b.getAttribute("aria-label") || "" }; });
+}, floated);
+const wtIcons = await wtMeasure(false);
+ok("The Watch row's helper buttons are icons only too: no visible text, >=44 px in the page, each named for assistive tech", wtIcons && wtIcons.length >= 2 && wtIcons.every(b => b.text === "" && b.h >= 44 && b.w >= 44 && b.lbl.length > 2), JSON.stringify(wtIcons));
+const wtFloat = await wtMeasure(true);
+ok("…and as the floating column (owner, 9 Oct 2026) the same buttons are the compact 30 px, still icons only and still named", wtFloat && wtFloat.length >= 2 && wtFloat.every(b => b.text === "" && b.h >= 30 && b.h < 44 && b.lbl.length > 2), JSON.stringify(wtFloat));
+await A.page.evaluate(() => { try { svWtFloatSync(); } catch (e) {} });
 
 /* ---------- homographs: the reading THIS sentence gave, kept apart ---------- */
 const hg = await A.page.evaluate(async () => {
@@ -300,7 +315,14 @@ const iso = await A.page.evaluate(() => {
   r.back = svShTrOn() && svShIpaOn(); r.ge = S.svPrefA["general-english"];
   return r;
 });
-ok("Switched to Welding on the same device: both helpers read OFF, the switches refuse and write nothing under welding; back on General English they are still on", !iso.on && !iso.trOn && !iso.ipaOn && iso.tr === false && iso.ipa === false && iso.weld === undefined && iso.back && iso.ge.tr === true && iso.ge.ipa === true, JSON.stringify(iso));
+/* Welding gets the SAME video Shadow Studio as General English since the owner's
+   29 Sep 2026 decision (flag welding_studio_enabled, svOn() = GE || weldStudioOn()),
+   so the helpers are offered there too. What must still hold — and is the whole
+   point of svPrefA — is that the two programmes keep SEPARATE preferences: a
+   switch flipped on Welding must not move General English's, and General
+   English's must still be on when the learner comes back. */
+ok("Switched to Welding on the same device: the helpers are offered there too (the Welding studio), but the preference is its OWN — General English's is untouched and still on when we return",
+  iso.on === true && iso.weld && iso.weld.tr === true && iso.weld.ipa === true && iso.back && iso.ge.tr === true && iso.ge.ipa === true, JSON.stringify(iso));
 
 /* ---------- a Welding learner ---------- */
 const nW = chat.length;
@@ -309,7 +331,11 @@ await W.page.evaluate(() => go("shadow")); await W.page.waitForSelector("#shPlay
 await W.page.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0, title: "clip" }, true); }, VID); await sleep(2500);
 await W.page.evaluate(() => shOpenWork()); await sleep(300);
 const w = await W.page.evaluate(() => ({ v2: !!(document.getElementById("shV2") && document.getElementById("shV2").style.display !== "none" && document.getElementById("shV2").innerHTML.trim()), card: !!document.getElementById("svSh"), on: svOn(), tr: svShTrToggle(), ipa: svShIpaToggle(), pref: S.svPrefA, trCache: localStorage.getItem("be_sv_tr"), ipaCache: localStorage.getItem("be_sv_ipa") }));
-ok("Welding (French native language): no V2 panel, no card, no switches; the switch functions refuse; nothing written to S or to the device caches; nothing asked of the Worker", !w.v2 && !w.card && !w.on && w.tr === false && w.ipa === false && w.pref === undefined && w.trCache === null && w.ipaCache === null && chat.length === nW, JSON.stringify(w));
+/* Same 29 Sep 2026 rule, from a Welding learner's own device: the studio and its
+   helpers ARE there. The boundary that remains is the DATA — the preference is
+   filed under welding and nowhere else. */
+ok("Welding (French native language): the V2 studio renders with its switches, and what it writes is filed under welding alone — never under general-english",
+  w.v2 === true && w.on === true && w.tr === true && w.ipa === true && w.pref && w.pref.welding && w.pref.welding.tr === true && !w.pref["general-english"], JSON.stringify(w));
 
 /* ---------- an English-app learner ---------- */
 const E = await learner("ed", "general-english", "en");

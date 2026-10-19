@@ -1,5 +1,12 @@
 # BE Mastery — iOS app (App Store build)
 
+> **Two apps from one project (12 Oct 2026).** This shell builds BOTH App Store
+> apps: BE Mastery (`com.lomonec.bemastery`) and BE Mastery Welding
+> (`com.lomonec.bemastery.welding`). Use `scripts/build.sh [general|welding]`
+> and `scripts/check-release.mjs --programme <id>`; the identity lives in
+> `ios/App/Welding.xcconfig`. See **`docs/APP_SPLIT.md`**.
+
+
 The App Store app is the web app in the repository root, bundled inside a
 Capacitor shell. Nothing is rewritten: `scripts/sync-web.mjs` copies the web
 files into `www/`, `npx cap sync ios` copies them into the Xcode project, and

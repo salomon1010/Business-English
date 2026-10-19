@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT (12 Oct 2026) — the General English app's manifest overlay.
+     Everything is in src/main; this file only REMOVES the home-screen widgets that
+     can only ever be about Welding, because this app no longer carries Welding:
+       BEWidgetProviderPro    the "Welding English" road map
+       BEWidgetMasteryProvider the Welding Mastery game widget (it reads the "pro"
+                              snapshot and its tap opens #mastery, which go() now
+                              refuses here)
+     Leaving them would put two entries in the widget gallery that draw an empty
+     card and lead nowhere — the one thing §2 of the brief rules out. Both live on
+     in the Welding app. Noted in docs/APP_SPLIT.md as a deliberate removal. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <receiver android:name=".widget.BEWidgetProviderPro" tools:node="remove" />
+        <receiver android:name=".widget.BEWidgetMasteryProvider" tools:node="remove" />
+    </application>
+</manifest>

@@ -34,16 +34,49 @@ public final class BEWidgetLaunch {
         }
     }
 
-    /** {@code https://host/?widget=<act>#<hash>} */
+    /* THE NATIVE SHELL (mobile/android, 11 Oct 2026) builds these same sources, but it has
+       no LauncherActivity and no launchUrl: the page lives inside the app. There a tap opens
+       MainActivity with the iPhone's own deep link, bemastery://open?view=…, which
+       BEWidgetPlugin hands to the page (widgetOpenRoute). Decided at run time from the
+       resources, so one set of sources serves both builds. */
+    static String launchUrl(Context c) {
+        int id = c.getResources().getIdentifier("launchUrl", "string", c.getPackageName());
+        return id == 0 ? null : c.getString(id);
+    }
+
+    public static boolean shell(Context c) { return launchUrl(c) == null; }
+
+    /** Where the app's own pictures (home-shots/, rp-photos/) can be fetched. */
+    public static String webBase(Context c) {
+        String base = launchUrl(c);
+        if (base == null) base = "https://app.lomonec.com/bemastery/";
+        return base.endsWith("/") ? base : base + "/";
+    }
+
+    private static String activity(Context c) { return c.getPackageName() + (shell(c) ? ".MainActivity" : ".LauncherActivity"); }
+
+    /** The TWA's (act, hash) as the shell's {@code bemastery://open?view=&w=&d=&act=}. */
+    static Uri shellTarget(String act, String hash) {
+        String[] p = (hash == null ? "" : hash).split("/");
+        String view = p.length > 0 && !p[0].isEmpty() ? p[0] : "home";
+        Uri.Builder u = new Uri.Builder().scheme("bemastery").authority("open").appendQueryParameter("view", view);
+        if (p.length > 1) u.appendQueryParameter("w", p[1]);
+        if (p.length > 2) u.appendQueryParameter("d", p[2]);
+        if (act != null && !act.isEmpty() && !"1".equals(act)) u.appendQueryParameter("act", act);
+        return u.build();
+    }
+
+    /** {@code https://host/?widget=<act>#<hash>} (TWA) or {@code bemastery://open?…} (shell) */
     public static Uri target(Context c, String act, String hash) {
-        String base = c.getString(R.string.launchUrl);
+        String base = launchUrl(c);
+        if (base == null) return shellTarget(act, hash);
         if (!base.endsWith("/")) base = base + "/";
         return Uri.parse(base + "?widget=" + act + (hash == null || hash.isEmpty() ? "" : "#" + hash));
     }
 
     public static PendingIntent open(Context c, int requestCode, String act, String hash) {
         Intent i = new Intent(Intent.ACTION_VIEW, target(c, act, hash));
-        i.setClassName(c.getPackageName(), c.getPackageName() + ".LauncherActivity");
+        i.setClassName(c.getPackageName(), activity(c));
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
@@ -73,7 +106,7 @@ public final class BEWidgetLaunch {
     /** The Recommendations list's tap template: each row fills in its own address (rec()). Mutable, so the fill-in can set the data. */
     public static PendingIntent recTemplate(Context c) {
         Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setClassName(c.getPackageName(), c.getPackageName() + ".LauncherActivity");
+        i.setClassName(c.getPackageName(), activity(c));
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= 31) flags |= PendingIntent.FLAG_MUTABLE;
@@ -82,9 +115,14 @@ public final class BEWidgetLaunch {
 
     /** One recommendation: {@code https://host/?widget=rec&wv=shadow&wa=clip&w0=<vid>&wch=1}. */
     public static Intent rec(Context c, BEWidgetSnapshot.Rec r) {
-        String base = c.getString(R.string.launchUrl);
-        if (!base.endsWith("/")) base = base + "/";
-        Uri.Builder u = Uri.parse(base).buildUpon().appendQueryParameter("widget", "rec").appendQueryParameter("wv", r.view);
+        if (shell(c)) {   /* the iPhone's form: bemastery://open?rec=1&view=&act=&a0=&ch=1 */
+            Uri.Builder u = new Uri.Builder().scheme("bemastery").authority("open").appendQueryParameter("rec", "1").appendQueryParameter("view", r.view);
+            if (!r.act.isEmpty()) u.appendQueryParameter("act", r.act);
+            for (int i = 0; i < r.a.size() && i < 3; i++) u.appendQueryParameter("a" + i, r.a.get(i));
+            if (r.ch) u.appendQueryParameter("ch", "1");
+            return new Intent().setData(u.build());
+        }
+        Uri.Builder u = Uri.parse(webBase(c)).buildUpon().appendQueryParameter("widget", "rec").appendQueryParameter("wv", r.view);
         if (!r.act.isEmpty()) u.appendQueryParameter("wa", r.act);
         for (int i = 0; i < r.a.size() && i < 3; i++) u.appendQueryParameter("w" + i, r.a.get(i));
         if (r.ch) u.appendQueryParameter("wch", "1");

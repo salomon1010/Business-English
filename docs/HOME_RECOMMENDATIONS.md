@@ -99,6 +99,48 @@ real event is about 230 bytes. The older `rec_*` names stay allowed so old clien
 still land. The app sends nothing outside General English, and the engine returns no
 rows there.
 
+## One row open at a time (owner, 12 Oct 2026)
+
+Eight rows, each with its own swipe strip of cards, filled the whole of Home and
+pushed Explore and everything under it off the screen. The rows and the engine
+are untouched — nothing is filtered, nothing stops being generated. Only one
+strip is **shown** at a time:
+
+- on the first draw, the **lead row** (the strongest signal) is open;
+- every other row is its heading, its reason, its icon and a chevron;
+- opening one closes the one that was open; closing it leaves them all closed
+  and nothing reopens by itself.
+
+The whole state is `_hxOpen`, module-level beside `_homeRows`, with three
+values that must not be confused:
+
+| value | meaning | what opens |
+|---|---|---|
+| `undefined` | nothing chosen yet | the first row |
+| `null` | the learner closed it | nothing |
+| `"<row id>"` | the learner opened that one | that row, while it still exists |
+
+It survives the re-draws (`shCatLoad`, `rpLoadPhotos`) and a trip into a
+recommendation and back; a reload starts again at the strongest signal. A
+remembered row that the engine no longer produces falls back to the first.
+Because the markup is built from **one** id (`homeRowOpenId`), two rows open at
+once is not a state the page can reach however often it re-renders.
+
+The control is a transparent `<button class="hx-row-tog">` stretched over the
+whole header, so the heading and its reason stay a real `<h3>`/`<p>` (a heading
+inside a button stops being a heading for a screen reader) while the whole strip
+is one tap target. It carries `aria-expanded`, `aria-controls` on its own panel
+and `aria-labelledby` on the heading; the panel is a `role="region"` labelled by
+the same heading, and collapsed means the `hidden` attribute, so the cards leave
+the layout and the accessibility tree together. Toggling pins the row's own top
+to where it was (`scrollBy` by the delta), so opening a row further down does not
+throw the learner's place away. Opening fades the panel in over .18 s; both that
+and the chevron's sweep are off under `prefers-reduced-motion`.
+
+Premium-locked rows collapse the same way — the offer bar is that row's panel.
+The accordion is presentation only: it is the same on both programmes and
+changes no eligibility, analytics or track rule.
+
 ## Not in the product
 
 - **"What Is Shadowing?"** is not a clip in the catalogue (searched on 27 Sep 2026).
@@ -112,7 +154,28 @@ rows there.
 - `tests/nudge-engine.test.mjs`: 48 checks. Rows are R6 to R27: every row type, the
   ranking, exact links, verified watching, the hero exclusion, stale evidence, the
   offline first paint, and determinism.
-- `tests/home-rows.mjs`: 29 checks in Chromium on an iPhone 13 profile and a desktop.
+- `tests/home-rows.mjs`: 51 checks in Chromium on an iPhone 13 profile and a desktop.
   Seven rows for an active learner and eight after five days away. One tap per card
   type lands on its exact destination. Also covered: all five analytics events,
   verified watching, the new learner, Welding, the flag off and the desktop grid.
+  Checks 30-51 are the accordion: the first row open and the rest collapsed, the
+  cards still in the page, one open at a time, closing the last one, each row's
+  own cards in the engine's order, a re-render and a trip away and back, the
+  button semantics and keyboard, a card tap that navigates without collapsing
+  anything, the carousel inside an open row, the two single header lines, the
+  motion and reduced motion, and the same rule on the desktop grid.
+- `tests/home-accordion.mjs`: 28 checks — the OPERATION of the accordion, which
+  home-rows.mjs does not cover. Real keyboard (focus, Enter, Space, never a
+  synthetic click); a collapsed group's cards cannot be focused, hit or reached
+  by Tab; what Chromium's own accessibility tree exposes (each control a button
+  named by its heading, one reporting itself expanded, and no card that exists
+  only in a collapsed group anywhere in the tree); navigating away and back
+  keeps the learner's choice while a page RELOAD goes back to the strongest
+  signal; a data refresh never leaves two open; the Premium-locked rendering;
+  and Welding with and without its studio.
+- `tests/home-accordion-touch.mjs`: 16 checks, in Chromium **and WebKit** at
+  iPhone 13 size against a served tree. Taps at real coordinates rather than
+  `.click()`, Apple's 44 pt tap target on every control, no clipping or
+  sideways scroll at iPhone width, a card tap that opens its activity, and a
+  reload returning to the strongest signal. `RIG=http://<lan ip>:8188` points
+  it at the rig a real phone is using.

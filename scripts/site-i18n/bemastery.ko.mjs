@@ -10,6 +10,8 @@
 const GET = `앱 받기`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `또는 <a href="https://app.lomonec.com/bemastery/">브라우저에서 사용하세요</a> — 설치할 것이 없고, 로그인하면 진행 기록이 앱으로 이어집니다.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — AI와 함께하는 영어 말하기 연습`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
@@ -360,7 +362,7 @@ export default [
    `<b>현장 시뮬레이션과 면접 코치:</b> 안전 회의, 작업 허가, 인수인계, 채용 면접까지, 각각 해당 직종의 기준에 따른 리포트를 제공합니다.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>모국어로 진행되는 기초 과정:</b> 처음부터 시작하는 누구에게나 맞는 15일간의 첫 문장들.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>앱을 열 때 용접 영어를 선택하세요.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>용접 영어는 별도의 앱입니다.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">10개 직종, 하나의 프로그램</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">용접공</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">배관공</span>`],

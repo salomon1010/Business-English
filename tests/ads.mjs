@@ -179,12 +179,22 @@ console.log("\n# native / banner");
      the library ad used to block the Shadow one). Progress is its own
      placement (progress_foot), so right after Home's ad it still carries one
      ad; what the gap forbids is Home repeating ITS ad within the minute. */
-  const pf = await p.evaluate(() => ({ review: document.querySelectorAll("#v-review [data-ad-slot]").length, home: document.querySelectorAll("#v-home [data-ad-slot]").length, gap: AdEligibility.decide("native", "home_feed").reason }));
-  ok("N2b · the native gap is per placement: Progress right after Home's ad gets its own one ad, while Home itself is held by the 60 s gap (cap:gap)", pf.review === 1 && pf.home === 1 && pf.gap === "cap:gap", JSON.stringify(pf));
+  /* Home's own slot is NOT counted here: the router empties every inactive view
+     on each navigation ("clear inactive views so duplicate element ids never
+     shadow the active one", index.html go()), so `#v-home [data-ad-slot]` is 0
+     by design once Progress is open. What survives is the AD, not its node:
+     _adNative["home_feed"] keeps it for AD_NATIVE_KEEP_MS and placeNative puts
+     the SAME element back with no new impression — which is what N2 checks. */
+  const pf = await p.evaluate(() => ({ review: document.querySelectorAll("#v-review [data-ad-slot]").length, kept: !!(_adNative.home_feed && _adNative.home_feed.el), gap: AdEligibility.decide("native", "home_feed").reason }));
+  ok("N2b · the native gap is per placement: Progress right after Home's ad gets its own one ad, while Home's own placement is held by the 60 s gap (cap:gap) and its ad is kept for the way back", pf.review === 1 && pf.kept === true && pf.gap === "cap:gap", JSON.stringify(pf));
   for (const [v, js] of [["session", "go('session',1,'Mon')"], ["phrases", "go('phrases')"], ["roleplay", "go('roleplay')"], ["partner", "go('partner')"]]) { await p.evaluate(js); await sleep(700); }
   ok("N3 · never on a learning screen: session, Phrase Lab (Polish recorder), roleplay, partner carry no ad", await p.evaluate(() => !document.querySelector("#v-session [data-ad-slot],#v-phrases [data-ad-slot],#v-roleplay [data-ad-slot],#v-partner [data-ad-slot],#v-journey [data-ad-slot]")));
   await fresh(); await p.evaluate(() => go("review")); await sleep(900);
-  const pr = await p.evaluate(() => { const s = document.querySelector("#v-review [data-ad-slot]"); if (!s) return null; const r = s.getBoundingClientRect(); const btns = [...document.querySelectorAll("#v-review button, .bnav button, .bnav a")].filter(bn => { const q = bn.getBoundingClientRect(); return q.width && !(q.bottom <= r.top || q.top >= r.bottom || q.right <= r.left || q.left >= r.right); }); return { overlap: btns.length, overflow: document.documentElement.scrollWidth > innerWidth + 1 }; });
+  const pr = await p.evaluate(() => { const s = document.querySelector("#v-review [data-ad-slot]"); if (!s) return null; const r = s.getBoundingClientRect(); /* the slot's OWN controls are not an overlap: since Phase C turned billing on,
+     premRemoveAdsHTML puts a "Remove ads with Premium" button INSIDE the slot, and
+     a child necessarily intersects its parent's rect. What this check is for is the
+     ad sitting on top of the PAGE's controls. */
+    const btns = [...document.querySelectorAll("#v-review button, .bnav button, .bnav a")].filter(bn => !s.contains(bn)).filter(bn => { const q = bn.getBoundingClientRect(); return q.width && !(q.bottom <= r.top || q.top >= r.bottom || q.right <= r.left || q.left >= r.right); }); return { overlap: btns.length, overflow: document.documentElement.scrollWidth > innerWidth + 1 }; });
   ok("N4 · Progress: the slot overlaps no control and adds no horizontal overflow", pr && pr.overlap === 0 && !pr.overflow, JSON.stringify(pr));
   await fresh(); await p.evaluate(() => { go("shadow"); }); await sleep(900);
   ok("N5 · the Shadow LIBRARY (browsing) may carry one", await p.evaluate(() => !!document.querySelector("#v-shadow [data-ad-slot]")));
@@ -241,9 +251,11 @@ console.log("\n# native / banner");
 console.log("\n# Premium offer beside an ad");
 {
   WENV = workerEnv();
-  let { ctx, p } = await open();
+  /* Phase C (11 Oct 2026) made billing_enabled:true the production default, so
+     "billing off" is now something a test must ASK for. */
+  let { ctx, p } = await open("general-english", { flags: { ads_enabled: true, ads_mock_provider: true, billing_enabled: false } });
   await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); _adNative = {}; go("home"); }); await sleep(900);
-  ok("NP1 · billing off (production today): the native slot carries no Premium link", await p.evaluate(() => { const s = document.querySelector("#v-home [data-ad-slot]"); return !!s && !s.querySelector(".ad-remove"); }));
+  ok("NP1 · billing off (the rollback state): the native slot carries no Premium link", await p.evaluate(() => { const s = document.querySelector("#v-home [data-ad-slot]"); return !!s && !s.querySelector(".ad-remove"); }));
   await ctx.close();
   ({ ctx, p } = await open("general-english", { flags: { ads_enabled: true, ads_mock_provider: true, billing_enabled: true } }));
   await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); _adNative = {}; go("home"); }); await sleep(900);

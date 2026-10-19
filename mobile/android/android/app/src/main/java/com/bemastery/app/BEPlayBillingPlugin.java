@@ -147,9 +147,13 @@ public class BEPlayBillingPlugin extends Plugin implements PurchasesUpdatedListe
             if (pd == null) { call.reject("products_not_loaded"); return; }
             String token = offerToken(pd);
             if (token == null) { call.reject("no_offer"); return; }
-            BillingFlowParams params = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(List.of(BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(pd).setOfferToken(token).build()))
-                .build();
+            BillingFlowParams.Builder pb = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(List.of(BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(pd).setOfferToken(token).build()));
+            /* our server's account token (HMAC of the uid, the one StoreKit carries): the
+               server then binds this purchase to THIS account only. A UUID, never the uid. */
+            String acct = call.getString("accountId", "");
+            if (acct != null && acct.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")) pb.setObfuscatedAccountId(acct);
+            BillingFlowParams params = pb.build();
             call.setKeepAlive(true);
             buying = call;
             act.runOnUiThread(() -> {
@@ -189,7 +193,13 @@ public class BEPlayBillingPlugin extends Plugin implements PurchasesUpdatedListe
 
     private void answer(JSObject o) {
         PluginCall c = buying; buying = null;
-        if (c == null) return;
+        if (c == null) {
+            /* an update with no purchase call open — a pending payment that cleared, a
+               purchase finished after the app was backgrounded: hand it to the page, which
+               sends it to our server like a Restore (index.html BillingProviders.play.listen) */
+            if (o.has("purchaseToken")) notifyListeners("purchase", o, true);
+            return;
+        }
         c.resolve(o);
         c.setKeepAlive(false);
         getBridge().releaseCall(c);

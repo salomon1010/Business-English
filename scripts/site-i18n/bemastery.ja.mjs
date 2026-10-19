@@ -9,6 +9,8 @@
 const GET = `アプリを入手`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `または <a href="https://app.lomonec.com/bemastery/">ブラウザで使う</a> — インストールは不要で、サインインすれば進捗はアプリにも引き継がれます。`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — AIで学ぶ英語スピーキング練習`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
@@ -359,7 +361,7 @@ export default [
    `<b>職場シミュレーションと面接コーチ：</b>安全確認の集まり、許可証、引き継ぎ、採用面接。それぞれ職種ごとの基準に基づくレポートがつきます。`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>あなたの言語による基礎：</b>ゼロから始める方のための、15日間の最初の文章です。`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>アプリを開いたら、溶接の英語を選んでください。</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>溶接の英語は専用アプリです。</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">10の職種、1つのプログラム</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">溶接工</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">配管工</span>`],

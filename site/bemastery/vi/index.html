@@ -43,12 +43,13 @@
 <meta name="twitter:title" content="BE Mastery — Luyện nói tiếng Anh với AI">
 <meta name="twitter:description" content="Luyện tập với AI. Shadow những người nói thật. Luyện tập với người thật. Miễn phí trên Google Play, và sắp có trên App Store.">
 <meta name="twitter:image" content="https://app.lomonec.com/og.png">
-<!-- App links for both stores. Safari shows its own "Open in the App Store"
-     banner from apple-itunes-app (app id 6817207864). -->
-<meta name="apple-itunes-app" content="app-id=6817207864">
-<meta property="al:ios:url" content="https://apps.apple.com/app/id6817207864">
-<meta property="al:ios:app_store_id" content="6817207864">
-<meta property="al:ios:app_name" content="BE Mastery">
+<!-- App links for Google Play only. There is deliberately no
+     apple-itunes-app or al:ios metadata: the iPhone listing is still in
+     review and app id 6817207864 answers 404, so Safari's "Open in the App
+     Store" banner would send an iPhone visitor to a dead page. Add them back
+     the day Apple approves the listing — js/config.js IOS_LIVE at the same
+     time. (Checked 19 Oct 2026: that app id still answers 404. The generator
+     of bemastery-g/ asserts this page holds no Apple host at all.) -->
 <meta property="al:android:url" content="https://play.google.com/store/apps/details?id=com.bemastery.app">
 <meta property="al:android:package" content="com.bemastery.app">
 <meta property="al:android:app_name" content="BE Mastery">
@@ -57,9 +58,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Structured data: the app is on both stores. -->
+<!-- Structured data: Google Play only, for the same reason as above. -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"MobileApplication","name":"BE Mastery","alternateName":"Business English Mastery","applicationCategory":"EducationalApplication","operatingSystem":"iOS 15 or later, Android 6 or later","url":"https://lomonec.com/bemastery/vi/","installUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://apps.apple.com/app/id6817207864","https://play.google.com/store/apps/details?id=com.bemastery.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","fr","es","pt","ar","de","it","ru","hi","bn","ur","id","vi","zh","ja","ko"],"publisher":{"@type":"Organization","name":"LOMON EC LLC","url":"https://lomonec.com/","email":"contact@lomonec.com"},"description":"Luyện nói tiếng Anh với AI, shadow những người nói thật và luyện tập cùng những người học thật. Một chương trình hướng dẫn 12 tuần gồm các buổi nói 25 phút."}
+{"@context":"https://schema.org","@type":"MobileApplication","name":"BE Mastery","alternateName":"Business English Mastery","applicationCategory":"EducationalApplication","operatingSystem":"iOS 15 or later, Android 6 or later","url":"https://lomonec.com/bemastery/vi/","installUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["en","fr","es","pt","ar","de","it","ru","hi","bn","ur","id","vi","zh","ja","ko"],"publisher":{"@type":"Organization","name":"LOMON EC LLC","url":"https://lomonec.com/","email":"contact@lomonec.com"},"description":"Luyện nói tiếng Anh với AI, shadow những người nói thật và luyện tập cùng những người học thật. Một chương trình hướng dẫn 12 tuần gồm các buổi nói 25 phút."}
 </script>
 <link rel="stylesheet" href="../css/tokens.css?v=20261007f">
 <link rel="stylesheet" href="../css/base.css?v=20261007k">
@@ -714,8 +715,8 @@
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Nền tảng bằng ngôn ngữ của bạn:</b> mười lăm ngày với những câu đầu tiên cho bất kỳ ai bắt đầu từ con số không.</span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg><span><b>Welding Mastery:</b> tám trò chơi với 250 từ chuyên ngành, ảnh thật của dụng cụ, thử thách hằng ngày và huy hiệu kỹ năng.</span></li>
       </ul>
-      <p class="mini-cta"><span>Chọn Tiếng Anh hàn khi mở ứng dụng.</span>
-        <a href="#download" data-ev="hero_cta_clicked" data-ev-source="welding">Tải ứng dụng
+      <p class="mini-cta"><span>Tiếng Anh hàn có ứng dụng riêng.</span>
+        <a href="/bemastery-w/" data-ev="hero_cta_clicked" data-ev-source="welding">Tải ứng dụng
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
         </a>
       </p>
@@ -838,6 +839,12 @@
       <div class="stores center" data-stores="download" data-store-size="lg"></div>
 
       <p class="store-note" data-store-note hidden></p>
+
+      <!-- The browser is offered again (owner, 19 Oct 2026), under the stores
+           rather than beside them: the stores still lead. It was taken off this
+           site on 7 Oct; the two single-programme web apps are the reason it is
+           back, and each app page links its own. -->
+      <p class="hero-fine webapp" style="margin-top:16px">Hoặc <a href="https://app.lomonec.com/bemastery/">dùng ngay trên trình duyệt</a> — không cần cài gì, và khi đăng nhập thì tiến trình của bạn theo sang ứng dụng.</p>
 
       <ul class="dl-facts">
         <li><b>iPhone và Android</b><span>Một tài khoản, cả hai điện thoại</span></li>

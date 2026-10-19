@@ -9,6 +9,8 @@
 const GET = `Tải ứng dụng`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `Hoặc <a href="https://app.lomonec.com/bemastery/">dùng ngay trên trình duyệt</a> — không cần cài gì, và khi đăng nhập thì tiến trình của bạn theo sang ứng dụng.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — Luyện nói tiếng Anh với AI`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,
@@ -359,7 +361,7 @@ export default [
    `<b>Mô phỏng công việc và huấn luyện viên phỏng vấn:</b> họp an toàn đầu ca, giấy phép làm việc, bàn giao công việc và buổi phỏng vấn tuyển dụng, mỗi phần đều có báo cáo theo tiêu chuẩn riêng của ngành nghề.`],
   [`<b>Foundations in your own language:</b> fifteen days of first sentences for anyone starting from the beginning.`,
    `<b>Nền tảng bằng ngôn ngữ của bạn:</b> mười lăm ngày với những câu đầu tiên cho bất kỳ ai bắt đầu từ con số không.`],
-  [`<span>Choose Welding English when you open the app.</span>`, `<span>Chọn Tiếng Anh hàn khi mở ứng dụng.</span>`],
+  [`<span>Welding English has its own app.</span>`, `<span>Tiếng Anh hàn có ứng dụng riêng.</span>`],
   [`<div class="wd-k">Ten trades, one programme</div>`, `<div class="wd-k">Mười ngành nghề, một chương trình</div>`],
   [`style="--i:0">Welder</span>`, `style="--i:0">Thợ hàn</span>`],
   [`style="--i:1">Pipefitter</span>`, `style="--i:1">Thợ lắp ống</span>`],

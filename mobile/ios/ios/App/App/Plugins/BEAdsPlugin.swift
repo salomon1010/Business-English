@@ -374,15 +374,26 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         #endif
     }
 
-    /// The page scrolled or re-laid out: follow the slot. No new request, no
-    /// new impression.
+    /// The page scrolled, re-laid out, or put something over the slot: follow
+    /// it. No new request, no new impression.
+    ///
+    /// `visible` is the web layer's answer to "can the learner actually see
+    /// this slot right now" (12 Oct 2026). A native ad is a view in OUR
+    /// hierarchy, drawn above the WebView, so nothing the page does can cover
+    /// it: when the Shadow workspace — a full-screen overlay inside the same
+    /// page — opened over the library, the library's two ads went on being
+    /// drawn on top of the transcript and the recorder. The page is the only
+    /// thing that knows what covers what, so it says, and the view is hidden
+    /// rather than removed: the creative and its impression stay, and it
+    /// reappears when the overlay goes.
     @objc func moveNative(_ call: CAPPluginCall) {
         let placement = call.getString("placement") ?? ""
+        let visible = call.getBool("visible") ?? true
         let rect = BEAdsPlugin.rect(call)
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let v = self.nativeViews[placement] else { call.resolve(); return }
-            // Off-screen or collapsed: hide rather than draw a sliver over the app.
-            v.isHidden = rect.height < 20 || rect.width < 40
+            // Covered, off-screen or collapsed: hide rather than draw over the app.
+            v.isHidden = !visible || rect.height < 20 || rect.width < 40
             v.frame = rect
             call.resolve()
         }

@@ -123,7 +123,7 @@ function validEndpoint(u, env){
 /* A row is reachable if it has somewhere to send to: a web push endpoint or
    an APNs device token. Every "has this phone a route?" test goes through it,
    so the iPhone app is never mistaken for an unregistered device. */
-function hasRoute(rec){ return !!(rec && (rec.endpoint || (rec.apns && rec.apns.token))); }
+function hasRoute(rec){ return !!(rec && (rec.endpoint || (rec.apns && rec.apns.token) || (rec.fcm && rec.fcm.token))); }
 
 function cleanId(v){
   return typeof v === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(v) ? v : null;
@@ -293,12 +293,79 @@ async function sendApns(env, rec, what){
   return "fail:" + res.status + (reason ? ":" + reason : "");
 }
 
+/* ---------------------------------------------------------------- FCM -- */
+/* The Android app (10 Oct 2026, docs/ANDROID_NATIVE_SHELL_PLAN.md phase 6). The
+   native Android shell runs the web app in a WebView, which has no web push, so
+   it registers a Firebase Cloud Messaging token instead, in the SAME /subscribe
+   (`fcm:{token}` beside `apns`). The wording is the device's own translated
+   templates, exactly as for APNs (apnsAlert), sent as a DATA message: the app
+   draws the notification itself and routes the tap with the same `view` / `tag`
+   / `rid` / `nkind` / `call` keys the iPhone app reads.
+   Auth is the FCM HTTP v1 API: a service-account JWT (RS256) exchanged for an
+   OAuth access token, cached per isolate. Needs the secret FCM_SA_JSON (the
+   service account's JSON key) and optionally FCM_PROJECT_ID; unconfigured =
+   off, exactly like APNs: /subscribe still takes the token, a send reports
+   "fail:fcm_off". */
+const FCM_TOKEN_TTL = 50 * 60_000;   // Google's access tokens last 60 minutes
+function fcmReady(env){ return !!(env && env.FCM_SA_JSON); }
+let _fcmSa = null, _fcmKey = null, _fcmTok = null;
+function fcmSa(env){
+  if (!_fcmSa) _fcmSa = JSON.parse(String(env.FCM_SA_JSON));
+  return _fcmSa;
+}
+async function fcmAccessToken(env, force){
+  if (!force && _fcmTok && Date.now() - _fcmTok.at < FCM_TOKEN_TTL) return _fcmTok.tok;
+  const sa = fcmSa(env);
+  if (!_fcmKey) {
+    const der = Uint8Array.from(atob(String(sa.private_key).replace(/-----[^-]+-----|\s+/g, "")), c => c.charCodeAt(0));
+    _fcmKey = await crypto.subtle.importKey("pkcs8", der, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const head = b64url(enc.encode(JSON.stringify({ alg: "RS256", typ: "JWT" })));
+  const claim = b64url(enc.encode(JSON.stringify({ iss: sa.client_email, scope: "https://www.googleapis.com/auth/firebase.messaging",
+    aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600 })));
+  const sig = await crypto.subtle.sign({ name: "RSASSA-PKCS1-v1_5" }, _fcmKey, enc.encode(head + "." + claim));
+  const r = await fetch("https://oauth2.googleapis.com/token", { method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: "grant_type=" + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer") + "&assertion=" + head + "." + claim + "." + b64url(sig) });
+  if (!r.ok) throw new Error("fcm_auth_" + r.status);
+  const j = await r.json();
+  _fcmTok = { tok: j.access_token, at: Date.now() };
+  return _fcmTok.tok;
+}
+/* One notification to one Android phone; the same "sent" / "gone" / "fail:…" words as sendOne. */
+async function sendFcm(env, rec, what){
+  if (!fcmReady(env)) return "fail:fcm_off";
+  const a = apnsAlert(rec, what);
+  if (!a) return "fail:no_text";
+  let project;
+  try { project = env.FCM_PROJECT_ID || fcmSa(env).project_id; } catch (e) { return "fail:fcm_config"; }
+  const data = { title: a.title, body: a.body, view: a.view, tag: a.tag, urgent: a.urgent ? "1" : "0" };
+  if (a.image) data.image = a.image;
+  for (const [k, v] of Object.entries(a.extra || {})) if (v != null && v !== "") data[k] = String(v);
+  const body = JSON.stringify({ message: { token: rec.fcm.token, data,
+    android: { priority: a.urgent ? "HIGH" : "NORMAL", ttl: (a.urgent ? WAKE_WHY_TTL : 3600) + "s", collapse_key: a.tag } } });
+  const post = tok => fetch(`https://fcm.googleapis.com/v1/projects/${encodeURIComponent(project)}/messages:send`,
+    { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body });
+  let res;
+  try { res = await post(await fcmAccessToken(env)); } catch (e) { return "fail:fcm_auth"; }
+  if (res.status === 401) { try { res = await post(await fcmAccessToken(env, true)); } catch (e) { return "fail:fcm_auth"; } }
+  if (res.ok) return "sent";
+  let err = {}; try { err = ((await res.json()) || {}).error || {}; } catch (e) {}
+  const code = ((err.details || []).find(d => d && d.errorCode) || {}).errorCode || "";
+  /* UNREGISTERED (404) = the app was removed or the token rotated; an INVALID_ARGUMENT
+     naming the token = it can never be delivered. Either way, drop the row. */
+  if (res.status === 404 || code === "UNREGISTERED" || (res.status === 400 && /registration token/i.test(err.message || ""))) return "gone";
+  return "fail:" + res.status + (code || err.status ? ":" + (code || err.status) : "");
+}
+
 /* A 410/404 from the push service means the browser threw the subscription
    away (app uninstalled, permission revoked). Drop the row rather than retry
    it every minute forever. The iPhone app has no subscription at all — its
    row carries an APNs token instead, and goes to Apple. */
 async function sendOne(env, rec, audCache, urgent, what){
   if (rec && rec.apns && rec.apns.token) return sendApns(env, rec, what || { kind: "reminder" });
+  if (rec && rec.fcm && rec.fcm.token) return sendFcm(env, rec, what || { kind: "reminder" });
   const origin = new URL(rec.endpoint).origin;
   if (!audCache[origin]) audCache[origin] = await vapidHeader(env, origin);
   const res = await fetch(rec.endpoint, {
@@ -608,6 +675,12 @@ function cleanApns(a){
   if (!token) return null;
   return { token, env: a.env === "sandbox" ? "sandbox" : "production" };
 }
+/* An FCM registration token: opaque, URL-safe base64 plus ':' — length varies (~150+). */
+function cleanFcm(f){
+  if (!f || typeof f !== "object") return null;
+  const token = typeof f.token === "string" && /^[A-Za-z0-9:_-]{100,4096}$/.test(f.token) ? f.token : null;
+  return token ? { token } : null;
+}
 /* The wording an APNs alert needs, in the learner's language, exactly as the
    phone would have shown it. Only these fields, each capped: this is the one
    place where notification TEXT is stored server-side, so it holds no name,
@@ -638,8 +711,9 @@ async function subscribe(req, env, origin){
   /* Two kinds of phone, one row: a browser sends a push endpoint, the App
      Store shell sends an APNs device token and the words to show. */
   const apns = cleanApns(b.apns);
-  if (!apns && (!b.endpoint || !validEndpoint(b.endpoint, env))) {
-    return json({ error: b.apns ? "bad apns token" : "bad endpoint" }, 400, origin);
+  const fcm = apns ? null : cleanFcm(b.fcm);            // the Android app (10 Oct 2026)
+  if (!apns && !fcm && (!b.endpoint || !validEndpoint(b.endpoint, env))) {
+    return json({ error: b.apns ? "bad apns token" : b.fcm ? "bad fcm token" : "bad endpoint" }, 400, origin);
   }
 
   // Moving the reminder time leaves a row in the old minute; clear it first or
@@ -649,8 +723,9 @@ async function subscribe(req, env, origin){
     await env.SUBS.delete(`slot:${prev.slot}:${id}`);
   }
 
-  const rec = { id, slot, endpoint: apns ? null : b.endpoint, presence, calls, nudges, tz };
+  const rec = { id, slot, endpoint: (apns || fcm) ? null : b.endpoint, presence, calls, nudges, tz };
   if (apns) { rec.apns = apns; rec.text = cleanText(b.text); }
+  if (fcm) { rec.fcm = fcm; rec.text = cleanText(b.text); }
   if (slot) await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
   if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
   else await env.SUBS.delete(`pres:${id}`);
@@ -815,5 +890,5 @@ export default {
 /* only functions: the Workers runtime treats every named export of the entry
    module as a handler, and a plain constant stops the Worker from starting */
 function marksConfig(){ return { MARK_REFRESH, MARK_GRACE, MARK_PAGE, MIG_KEY }; }
-export { runNudges, nudgeHold, cleanNudge, cleanImage, nudgeLimits, runCron, runPresence, marksConfig,
+export { cleanFcm, sendFcm, runNudges, nudgeHold, cleanNudge, cleanImage, nudgeLimits, runCron, runPresence, marksConfig,
          apnsAlert, apnsJwt, apnsReady, cleanApns, cleanText, hasRoute, sendApns };

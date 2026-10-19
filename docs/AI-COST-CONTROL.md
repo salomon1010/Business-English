@@ -3,9 +3,10 @@
 Written 10 Oct 2026 on `staging`, from the code (not from earlier reports).
 Code: `backend/ai-guard.js`, `backend/rate-limit.js`, `backend/polish-worker.js`,
 `backend/polish-prod/entry.js`. Tests: `backend/test-ai-guard.mjs` (51),
-`tests/ai-anon-client.mjs` (7). **Deployment state (10 Oct 2026): staging runs
-the full controls; production runs the wrapper in REPORT-ONLY mode (P1, §11).**
-Nothing anywhere refuses an anonymous request yet.
+`tests/ai-anon-client.mjs` (7). **Deployment state (10 Oct 2026, evening): staging
+runs the full controls; production runs the wrapper with `ANON_AI_POLICY=enforce`
+(P1 report-only §11, then P2 enforce §12, version 8051b272).** Anonymous callers past
+their daily allowance are refused with 429 `scope:"anon"`.
 
 ## 1. Baseline inventory of billable AI calls
 
@@ -387,4 +388,61 @@ All rows carry `cost_method: request-estimate` and a 16-hex caller HMAC.
 4. Check `ytai` (pasted-video transcription) still answers with a signed-in account.
 
 **Not done:** none of these steps — they await approval.
+
+## 12. P2 — ENFORCE in production (10 Oct 2026, ~16:40 UTC, owner: "update everything, deploy")
+
+**Evidence at the decision.** The report-only window was about 90 minutes. The ledger showed
+only 10 billable requests, all the verification and test traffic of this release; no real learner
+AI traffic was seen. Enforcement therefore rests on the proposed defaults, not on a week of
+evidence. The owner chose to proceed.
+
+**Executed:**
+1. **The stray credential-shaped secret was deleted** from production `be-polish`. Its name was
+   read from wrangler and passed straight to `secret delete`, never printed. The resulting version
+   is `135cc71a-2100-4551-a21f-bdadbb2dca09` (same code, without that secret). Production secrets
+   are now `GEMINI_KEY`, `LEDGER_SALT` and `OPENAI_KEY`. **Still to do by the owner: rotate the key
+   at Google** (Cloud Console / AI Studio → API keys). Deleting the secret name does not revoke
+   the key.
+2. **`ANON_AI_POLICY = "enforce"`** (`backend/polish-prod/wrangler.toml`, commit `6f413a64`),
+   deployed with `build.sh --deploy` as **version `8051b272-b4ad-4b25-9785-b318eccae7fa`**.
+
+**Limits in force for a caller without a verified account** (per IP per UTC day, the code
+defaults):
+
+| Kind of request | Daily limit |
+|---|---|
+| Transcriptions | 40 |
+| Chats | 40 |
+| Polish requests | 15 |
+| Voice clips | 150 |
+| AI verdicts | 3 |
+
+All of these sit inside one shared pool of $10 a day (estimated) for every visitor together.
+
+**Not held by the policy:**
+- signed-in learners;
+- Shadow's reading helpers;
+- pasted-video transcription;
+- the games.
+
+**Verified live:**
+
+| Check | Result |
+|---|---|
+| Visitor verdict past the allowance | 429 `{error:"allowance", scope:"anon", reason:"ip", signIn:true}` |
+| Forged token | Same refusal |
+| Shadow helper | 200 |
+| Voice clip within allowance | 200 |
+| Game route with no account | 401 |
+| CORS preflight | 200 |
+
+The app turns the refusal into its existing "Sign in to use the AI features" note (live since v685).
+
+**Rollback** (from `backend/polish-prod`):
+- `npx wrangler rollback 135cc71a-2100-4551-a21f-bdadbb2dca09` → report-only, stray secret still deleted;
+- or set `ANON_AI_POLICY = "report"` and redeploy.
+
+**Watch** (sampling-weighted SQL in §5): `anon_refused_*` by route and caller. Many different
+callers refused on the same route points to a legitimate anonymous app pattern; raise that
+route's `ANON_AI_*_PER_DAY`.
 

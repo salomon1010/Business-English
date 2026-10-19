@@ -2175,6 +2175,7 @@
  "rem.push_body": "٢٥ دقيقة اليوم تحفظ تتابعك.",
  "rem.note_ios_push": "تنبيه في الوقت الذي تختاره، حتى عندما يكون التطبيق مغلقًا. يمكنك إيقافه في أي وقت.",
  "rem.blocked_ios": "الإشعارات معطّلة لتطبيق BE Mastery، لذلك ستظهر التذكيرات داخل التطبيق. يمكنك تمكينها من الإعدادات ← الإشعارات ← BE Mastery.",
+ "rem.blocked_android": "Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Apps → BE Mastery → Notifications.",
  "rem.online_sub_ios": "إشعارات المتعلمين المتصلين غير متاحة بعد في تطبيق iPhone. افتح Practice Partner لترى من هو متصل الآن.",
  "nudge.lesson_t": "الأسبوع {{w}} جاهز",
  "nudge.lesson_b": "🎤 {{topic}} — {{min}} دقيقة اليوم تدفعك إلى الأمام.",

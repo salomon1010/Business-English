@@ -63,6 +63,8 @@ public class BEAdsPlugin extends Plugin {
 
     static final String[] FORMATS = {"interstitial", "native"};
     /** Google's own always-fill Android test units */
+    /* Google's sample APP id: a build still carrying it has no AdMob app of its own */
+    static final String TEST_APP_ID = "ca-app-pub-3940256099942544~3347511713";
     static final String TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712";
     static final String TEST_NATIVE = "ca-app-pub-3940256099942544/2247696110";
     static final Pattern UNIT_ID = Pattern.compile("^ca-app-pub-[0-9]{16}/[0-9]{10}$");
@@ -76,6 +78,8 @@ public class BEAdsPlugin extends Plugin {
 
     static boolean validUnitId(String s) { return s != null && UNIT_ID.matcher(s).matches(); }
     static boolean testUnitsAllowed() { return BuildConfig.DEBUG || BuildConfig.BE_TEST_ADS; }
+    /* the AdMob app id the manifest declares (res/values/ads.xml, per flavor) */
+    private String adsAppId() { try { return getContext().getString(R.string.be_ads_app_id).trim(); } catch (Exception e) { return ""; } }
 
     private static JSObject unavailable(String reason) {
         JSObject o = new JSObject();
@@ -104,6 +108,14 @@ public class BEAdsPlugin extends Plugin {
         String nat = getContext().getString(R.string.be_ads_native_unit);
         if (testUnitsAllowed()) { inter = TEST_INTERSTITIAL; nat = TEST_NATIVE; }
         if (!validUnitId(inter) || !validUnitId(nat)) { call.resolve(unavailable("not_configured")); return; }
+        /* THE TWO-APP SPLIT (12 Oct 2026): an AdMob app belongs to ONE store
+           listing, so a new listing needs its own app id. A build that still
+           carries Google's SAMPLE app id has not been given one, and must not
+           start the SDK in a build that could reach a learner — the same rule
+           the iOS plugin applies to its placeholder ids. In a debug or staging
+           build the sample id is exactly what is wanted, so it is allowed
+           there. docs/APP_SPLIT.md § Store actions, step 13. */
+        if (!testUnitsAllowed() && TEST_APP_ID.equals(adsAppId())) { call.resolve(unavailable("not_configured")); return; }
         interstitialUnit = inter; nativeUnit = nat;
 
         if (started && consentResolved) { call.resolve(state()); return; }
@@ -233,6 +245,8 @@ public class BEAdsPlugin extends Plugin {
                     done[0] = true;
                     View v = buildNativeView(nativeAd);
                     place(v, r);
+                    // born hidden if the slot was already covered or off screen (see moveNative)
+                    v.setVisibility(Boolean.FALSE.equals(call.getBoolean("visible", Boolean.TRUE)) ? View.INVISIBLE : View.VISIBLE);
                     View old = nativeViews.put(placement, v);
                     if (old != null) host.removeView(old);
                     NativeAd oldAd = nativeAds.put(placement, nativeAd);
@@ -248,15 +262,29 @@ public class BEAdsPlugin extends Plugin {
         });
     }
 
+    /**
+     * The page scrolled, re-laid out, or put something over the slot: follow it.
+     * No new request and no new impression.
+     *
+     * `visible` is the web layer's answer to "can the learner actually see this
+     * slot right now" (12 Oct 2026). A native ad is a view in OUR hierarchy,
+     * drawn above the WebView, so nothing the page does can cover it: when the
+     * Shadow workspace — a full-screen overlay inside the same page — opened
+     * over the library, the library's two ads went on being drawn on top of the
+     * transcript and the recorder. The page is the only thing that knows what
+     * covers what, so it says, and the view is hidden rather than removed: the
+     * creative and its impression stay, and it reappears when the overlay goes.
+     */
     @PluginMethod
     public void moveNative(PluginCall call) {
         String placement = call.getString("placement", "");
+        boolean visible = !Boolean.FALSE.equals(call.getBoolean("visible", Boolean.TRUE));
         int[] r = rect(call);
         getActivity().runOnUiThread(() -> {
             View v = nativeViews.get(placement);
             if (v != null) {
-                // off-screen or collapsed: hide rather than draw a sliver over the app
-                v.setVisibility(r[5] < 20 || r[4] < 40 ? View.INVISIBLE : View.VISIBLE);
+                // covered, off-screen or collapsed: hide rather than draw over the app
+                v.setVisibility(!visible || r[5] < 20 || r[4] < 40 ? View.INVISIBLE : View.VISIBLE);
                 place(v, r);
             }
             call.resolve();

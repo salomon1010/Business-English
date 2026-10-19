@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT (12 Oct 2026) — the Welding English app's manifest overlay.
+     The two per-programme road-map widgets exist only because one app used to
+     carry both programmes. Here BEWidgetProvider IS the Welding road map (the
+     label comes from src/welding/res/values/strings.xml), so:
+       BEWidgetProviderGE   removed — there is no General English in this app
+       BEWidgetProviderPro  removed — it would be a second, identical entry
+     The recommendations widget, the Welding Mastery widget and the streak
+     countdown are kept: all three are about this programme. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <receiver android:name=".widget.BEWidgetProviderGE" tools:node="remove" />
+        <receiver android:name=".widget.BEWidgetProviderPro" tools:node="remove" />
+    </application>
+</manifest>

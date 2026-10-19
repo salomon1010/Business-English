@@ -205,3 +205,27 @@ payload is exactly what it was before.
 
 Setup, the device checklist and the two Apple steps only the owner can do:
 **docs/IOS_NOTIFICATIONS.md**. Tests: `node test/apns.mjs`.
+
+## Android notifications (10 October 2026)
+
+The native Android shell (`mobile/android`, replacing the TWA) has no Web Push
+either. It registers an **FCM registration token** in the same `POST /subscribe`:
+`fcm:{token}` in place of `endpoint`, plus the same translated `text`. `sendOne`
+branches to `sendFcm`, which uses FCM HTTP v1 and sends a **data message only**
+(`title`, `body`, `view`, `tag`, `urgent` "1"/"0", optional `image`, and the
+routing fields `rid` / `nkind` / `call` / `coach`, all strings). The app's
+`BEMessagingService` draws every notification itself, so it behaves the same
+whether the app is open, in the background or closed. A call is HIGH priority
+with be-push's short invitation life; everything else is NORMAL, one hour.
+
+Auth is a Google service account: the secret **`FCM_SA_JSON`** (the JSON key
+file, with the "Firebase Cloud Messaging API Admin" role on the Firebase
+project); `FCM_PROJECT_ID` is optional and defaults to the key's `project_id`.
+One access token is minted per 50 minutes (RS256 JWT → oauth2.googleapis.com).
+**No secret = sending is off**: a phone still registers, and a send reports
+`fail:fcm_off`. A 401 re-mints the token once; `UNREGISTERED` / 404 (app removed,
+token rotated) drops the row like a browser's 410; a 5xx keeps it.
+
+Nothing here is deployed. Remember the cron limit before any `wrangler deploy`
+of this Worker (see the project memory / `wrangler.toml`). Tests:
+`node test/fcm.mjs` (20).

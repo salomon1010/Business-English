@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT — the Welding app's launch screen.
+     A style declared in a flavour REPLACES the one in src/main rather than
+     merging with it, so AppTheme.NoActionBarLaunch is repeated here in full;
+     the only addition is the background colour.
+
+     Why it is needed (measured on an Android 15 emulator, 13 Oct 2026): from
+     API 31 the system draws the splash itself — the launcher icon on
+     windowSplashScreenBackground — and ignores the drawable in
+     android:background, which is what src/main sets and all that older devices
+     use. Without this the Welding app opened on the platform default, a light
+     grey, under a dark navy icon. Both halves are set: the androidx attribute
+     below covers pre-31 compat, values-v31 sets the platform one. src/main is
+     untouched, so the General English app keeps the launch screen it has. -->
+<resources>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+    </style>
+</resources>

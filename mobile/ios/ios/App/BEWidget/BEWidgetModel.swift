@@ -16,7 +16,17 @@ import CryptoKit
 /// (`new Date().toISOString().slice(0,10)`), so "practised today" agrees with
 /// the app's own streak.
 enum BEWidgetShared {
-    static let group = "group.com.lomonec.bemastery"
+    /* THE TWO-APP SPLIT (12 Oct 2026): the App Group comes from the BUILD
+       (Info.plist BEAppGroup = $(BE_APP_GROUP)), because the two apps must not
+       share one container — the Welding app's widget would otherwise draw the
+       General English app's snapshot. groupDefault is the existing app's group
+       and the value any build without the key falls back to, so nothing changes
+       for it. See docs/APP_SPLIT.md. */
+    static let groupDefault = "group.com.lomonec.bemastery"
+    static let group: String = {
+        let v = Bundle.main.object(forInfoDictionaryKey: "BEAppGroup") as? String
+        return (v?.hasPrefix("group.") == true) ? v! : groupDefault
+    }()
     static let key = "be_widget_snapshot"
     static let scheme = "bemastery"
     static let kind = "BEWidget"

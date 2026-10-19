@@ -18,7 +18,13 @@
    account, and the Worker keeps token → uid to route notifications.
 
    Configuration (Worker secrets / vars):
-     APPLE_BUNDLE_ID       com.lomonec.bemastery
+     APPLE_BUNDLE_ID       com.lomonec.bemastery[,com.lomonec.bemastery.welding]
+
+   THE TWO-APP SPLIT (12 Oct 2026): BE Mastery is two App Store apps — General
+   English and Welding English — sharing ONE account-level entitlement, so the
+   bundle id is an allow-list. A transaction is still pinned to a bundle id we
+   published and to the buying ACCOUNT (appAccountToken), so nothing is
+   loosened; a single value behaves exactly as before.
      APPLE_ROOT_SHA256     comma-separated SHA-256 fingerprints of the Apple
                            root(s) to trust — Apple Root CA - G3 in production.
                            Deliberately NOT hard-coded: the owner copies it from
@@ -31,7 +37,10 @@ import { PRODUCTS } from "./entitlement-core.js";
 const APPLE_INTERMEDIATE_OID = "1.2.840.113635.100.6.2.1";
 const APPLE_LEAF_OID = "1.2.840.113635.100.6.11.1";
 
-export const configured = env => !!(env.APPLE_BUNDLE_ID && env.APPLE_ROOT_SHA256 && typeof env.APP_ACCOUNT_SECRET === "string" && env.APP_ACCOUNT_SECRET.length >= 32);
+/* the allowed app bundle ids, in order; one value is the old behaviour */
+export const bundleIds = env => String(env.APPLE_BUNDLE_ID || "").split(",").map(x => x.trim()).filter(Boolean);
+
+export const configured = env => !!(bundleIds(env).length && env.APPLE_ROOT_SHA256 && typeof env.APP_ACCOUNT_SECRET === "string" && env.APP_ACCOUNT_SECRET.length >= 32);
 
 /* verify an Apple-signed JWS; returns its decoded payload or throws */
 export async function verifyJws(jws, env, nowMs) {
@@ -72,7 +81,7 @@ export const environments = env => String(env.APPLE_ENVIRONMENTS || "Production"
                  originalTransactionId, so applying the old one would undo it. */
 export function toRecord(tx, renewal, env, nowMs) {
   if (!tx || typeof tx !== "object") return null;
-  if (tx.bundleId !== env.APPLE_BUNDLE_ID) return null;
+  if (!bundleIds(env).includes(tx.bundleId)) return null;   /* not one of our apps */
   if (!environments(env).includes(tx.environment)) return null;
   if (tx.isUpgraded === true) return { ignore: "upgraded" };
   if (!Object.prototype.hasOwnProperty.call(PRODUCTS, tx.productId)) return null;

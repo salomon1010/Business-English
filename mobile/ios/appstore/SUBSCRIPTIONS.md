@@ -11,6 +11,19 @@
 > Premium was excluded from version 1.1.0. For the release that turns it on,
 > everything below must be entered in App Store Connect first.
 
+> **VERIFIED AGAINST THE LIVE RECORDS, 13 October 2026** (read-only App Store
+> Connect API query). What is actually entered differs from the table below in
+> one way, and in the app's favour: the live en-US descriptions are generic —
+> `premium_annual` reads "All of Premium, billed once a year." and
+> `premium_monthly` "The same Premium, billed monthly." **Neither names a
+> number, so the 240-minute figure this file used to record was never published
+> and there is no listing to correct.** The table now matches the live text.
+> Everything else checks out exactly: group 22444441, `premium_annual`
+> 6819570241 and `premium_monthly` 6819570240, both READY_TO_SUBMIT, USA
+> customerPrice 19.99 (proceeds 16.99) and 2.99 (proceeds 2.54), 175 territory
+> prices each and 175 introductory offers each, all THREE_DAYS / FREE_TRIAL with
+> no end date.
+
 Prepared 2026-09-26. **Entered in App Store Connect on 6 October 2026**
 through the App Store Connect API (team key A88M365B2K, App Manager): group
 `BE Mastery Premium` (22444441) with an en-US display name; `premium_monthly`
@@ -84,11 +97,11 @@ it follows them too.
 ## Localisations (English shown; add French first for the audience)
 | Product | Display name | Description |
 |---|---|---|
-| premium_annual | Annual Premium | 120 AI verdicts a day, 240 minutes of your own videos, 30- and 90-day analytics, personalised recommendations and no ads. Billed once a year. |
+| premium_annual | Annual Premium | All of Premium, billed once a year. |
 | premium_monthly | Premium (monthly) | The same Premium, billed monthly. |
 
 What Premium adds (the full contract is `docs/TIERS.md`): **120 AI verdicts a
-day** and **240 minutes a day** of your own pasted YouTube video transcribed —
+day** and **60 minutes a day** of your own pasted YouTube video transcribed —
 fair-use ceilings, **never described as "unlimited"**; the 30- and 90-day
 analytics and long-term record; personalised recommendations; the AI coach
 (within the 120); larger storage (100 saved Shadow videos, 20 YouTube imports,

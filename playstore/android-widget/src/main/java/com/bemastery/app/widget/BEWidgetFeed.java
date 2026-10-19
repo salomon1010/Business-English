@@ -25,7 +25,10 @@ public final class BEWidgetFeed {
 
     /** True when the stored snapshot changed (fetched or cleared). */
     public static boolean refresh(Context c) {
-        String api = c.getString(R.string.be_widget_api);
+        /* the native shell has no feed: BEWidgetPlugin stores what the page hands it */
+        int res = c.getResources().getIdentifier("be_widget_api", "string", c.getPackageName());
+        if (res == 0) return false;
+        String api = c.getString(res);
         if (api == null || api.isEmpty() || !api.startsWith("https://")) return false;
         String wid = BEWidgetStore.wid(c);
         HttpURLConnection conn = null;

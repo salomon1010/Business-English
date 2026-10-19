@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THE TWO-APP SPLIT (12 Oct 2026) — the Welding app's AdMob ids.
+     An AdMob app is tied to ONE store listing, so this app cannot use the
+     General English app's ids (ca-app-pub-2222980379604934~8875603763): they
+     belong to com.bemastery.app and Google would reject or mis-attribute the
+     requests. A new AdMob app and its two ad units are an owner action in the
+     AdMob console — docs/APP_SPLIT.md § Store actions, step 13.
+
+     Until then these are GOOGLE'S OWN SAMPLE IDS. They can only ever serve
+     Google's test creatives, so no learner can be shown a real ad by accident
+     and no revenue can be misattributed. BEAdsPlugin refuses to start the SDK
+     when it finds the sample APP id in a non-test build, so this placeholder
+     cannot quietly become production configuration — the app simply reports
+     "not_configured" and shows nothing, which is also what `ads_enabled:false`
+     already does today. Replace all three values with the real ones. -->
+<resources>
+    <string name="be_ads_app_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="be_ads_interstitial_unit" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="be_ads_native_unit" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+</resources>

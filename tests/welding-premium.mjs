@@ -256,8 +256,8 @@ console.log("\n# the paywall promises only what the OPEN track can actually reac
      feedback spoken back to you" stays gone (D5 in the capability matrix).
      Welding still gets every row General English gets except the coach, which
      it has no door to, plus the saved-video headroom. */
-  ok("41 · the same shared benefits are still sold on Welding — one subscription, not a lesser plan: 120 AI verdicts a day (fair use), 240 video minutes a day, advanced progress, analytics; no 'spoken back', no 'unlimited' on either track",
-    ["120 AI verdicts a day (fair use)", "240 minutes a day", "Advanced progress", "analytics"].every(x => wd.rows.join(" ").includes(x)) && !/spoken back|unlimited/i.test(wd.rows.join(" ")) && !/spoken back|unlimited/i.test(ge.rows.join(" ")), JSON.stringify(wd.rows));
+  ok("41 · the same shared benefits are still sold on Welding — one subscription, not a lesser plan: 120 AI verdicts a day (fair use), 60 video minutes a day (cut from 240 on 6 Oct 2026, server YTAI_PREMIUM_SEC_PER_DAY), advanced progress, analytics; no 'spoken back', no 'unlimited' on either track",
+    ["120 AI verdicts a day (fair use)", "60 minutes a day", "Advanced progress", "analytics"].every(x => wd.rows.join(" ").includes(x)) && !/spoken back|unlimited/i.test(wd.rows.join(" ")) && !/spoken back|unlimited/i.test(ge.rows.join(" ")), JSON.stringify(wd.rows));
   ok("42 · App Setup's plan card says the same as the paywall — never two descriptions of Premium",
     !/AI Coach/.test(wd.plan) && /Save up to 100 Shadow videos/.test(wd.plan), wd.plan.slice(0, 200));
   await w.ctx.close();

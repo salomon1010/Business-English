@@ -116,6 +116,31 @@ const PARTNER_SHOTS = [
 ];
 if (process.env.PARTNER === "1") SHOTS.push(...PARTNER_SHOTS);
 
+/* PROGRAMME=welding — the Welding English app's own set (the two-app split,
+   12 Oct 2026). Play requires screenshots of the app being listed, and the
+   General English set shows General English screens, so it cannot be reused.
+   The iframe is given window.BE_BUILD={track:"welding"} exactly as the store
+   bundle carries it, so the app under the camera IS the Welding app: its
+   router refuses the General English pages, and Home draws no programme card.
+   Life Simulations and Practice Partner are absent for the same reason —
+   they are General English only. */
+const WELDING_SHOTS = [
+  { file: "01-journey",    go: ["journey"], settle: 900 },          // the Welding road map, stage by stage
+  { file: "02-practice",   go: ["practice"], settle: 4500 },        // the five Welding practice tools
+  /* Welding Mastery is deliberately absent, for the same reason Shadow is
+     absent from the General English set: its headline numbers (XP, level,
+     streak, words mastered) are account-bound, so without a signed-in account
+     the hub draws "Sign in to play" over 0 XP and 0 of 250 — an honest screen,
+     and a poor first impression in a listing. Revisit if the rig ever gets a
+     signed-in fixture. */
+  { file: "03-simulation", go: ["simulation"], settle: 1200 },      // the workshop conversation
+  { file: "04-lines",      go: ["lines"], expect: "v-shadow", settle: 1200 },   // the workplace lines
+  { file: "05-progress",   go: ["review"], settle: 2600 },   /* Progress assembles the per-area maps and the plan card; 900 ms caught it mid-render */
+  { file: "06-phrasebank", go: ["phrasebank", 1], settle: 900 },
+];
+const WELDING = process.env.PROGRAMME === "welding";
+if (WELDING) { SHOTS.length = 0; SHOTS.push(...WELDING_SHOTS); }
+
 const seed = () => {
   const DAY = 86400000, now = Date.now();
   const iso = d => new Date(d).toISOString().slice(0, 10);
@@ -166,6 +191,42 @@ const seed = () => {
     pp: { nudgeDone: true },
     rmSeen: now,   // the one-time "your road map lives here" announcement, already seen
   };
+  /* PROGRAMME=welding: the same committed learner, in the Welding programme.
+     The trade decides the codes, vocabulary and model answers the screens show,
+     so it has to be set or the workshop and the road map render generically. */
+  if (window.__programme === "welding") {
+    S.professionalTracks = { activeId: "welding", tradeId: "pipefitter" };
+    S.fnd.welding = { placed: "full", finished: true, day: 15, done: {} };
+    S.profile = Object.assign({}, S.profile, { role: "", goal: "", weldProf: "pipefitter" });
+    /* Welding session progress is keyed "welding:w<N><Day>" (dayKey() prefixes
+       the track for every programme but General English), so the General
+       English day keys above leave the Welding road map reading 0%. Give the
+       same committed learner two finished stages and part of a third. */
+    S.days = {};
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(d => { S.days["welding:w1" + d] = true; S.days["welding:w2" + d] = true; });
+    ["Mon", "Tue", "Wed"].forEach(d => { S.days["welding:w3" + d] = true; });
+    S.dayLogA = { welding: dayLog };
+    /* The weekly record's real shape is { scores: {axis: n}, wins, weak, corr, top5 }
+       — what the Review page writes. A fabricated { score: n } left wr.scores
+       undefined and rReview threw on the first axis ("clarity"), so Progress
+       rendered its "could not be drawn" card and the shot shipped broken.
+       The axes are the Welding curriculum's own (tracks/welding/progress.json). */
+    const wk = (c, f, pr, bn, cf) => ({ scores: { clarity: c, fluency: f, pronunciation: pr, "business naturalness": bn, confidence: cf }, wins: "", weak: "", corr: "", top5: "" });
+    S.weeklyA = { welding: { 1: wk(6, 5, 5, 6, 6), 2: wk(7, 7, 6, 7, 7) } };
+    S.trouble = { porosity: 3, undercut: 2, bevel: 2 };
+    S.vocab = { bevel: { l: "B1", reps: 1, due: now - DAY, ts: now - 4 * DAY },
+                porosity: { l: "B2", reps: 1, due: now - 2 * DAY, ts: now - 5 * DAY },
+                undercut: { l: "B2", reps: 2, due: now + 2 * DAY, ts: now - 6 * DAY },
+                purge: { l: "B1", reps: 2, due: now + 3 * DAY, ts: now - 7 * DAY },
+                "root gap": { l: "B1", reps: 5, due: now + 40 * DAY, ts: now - 12 * DAY } };
+  }
+  /* "Protect your progress" (cf.backup_title) opens over the FIRST screen a
+     seeded learner sees, because the fixture has sessions and no account — and
+     the first screen is the first store screenshot. Its one gate is
+     S.backupAsked (index.html: `if(!S.profile||S.backupAsked)return`), so the
+     fixture answers it in advance. Found on the Welding iPhone set, 14 Oct
+     2026: shot 01 was the road map behind a backup dialog. */
+  S.backupAsked = now - 30 * DAY;
   localStorage.setItem("be12_v1", JSON.stringify(S));
   localStorage.setItem("be_theme", "dark");
   // the cloud sign-in nudge floats over the bottom of every page ~800ms in
@@ -205,6 +266,12 @@ const seed = () => {
     };
     window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true, Plugins: P, PluginHeaders: Object.keys(P).map(name => ({ name })) };
   });
+  /* PROGRAMME=welding: the iframe gets the store bundle's own build marker, so
+     index.html reads BE_APP_TRACK="welding" and behaves as the Welding app. */
+  if (WELDING) await page.addInitScript(() => {
+    if (window === window.top) return;
+    window.BE_BUILD = Object.assign({}, window.BE_BUILD, { track: "welding" });
+  });
   await page.goto(BASE + "/scripts/store-art/frame.html?u=about:blank");
   if (process.env.PARTNER === "1") {
     const api = (u, p, b) => fetch(PARTNER_API + p, { method: "POST", headers: { "x-dev-user": u, "content-type": "application/json" }, body: JSON.stringify(b) });
@@ -215,6 +282,7 @@ const seed = () => {
     await api("sam", "/interest", { track: "general-english", band: "w1-4", lang: "en", promptWeek: 1 });
     await page.evaluate(api => { window.__partnerApi = api; }, PARTNER_API);
   }
+  if (WELDING) await page.evaluate(() => { window.__programme = "welding"; });
   await page.evaluate(seed);
 
   const url = `${BASE}/scripts/store-art/frame.html?w=${P.w}&h=${P.h}&s=${P.s}&u=${encodeURIComponent("../../index.html")}`;
@@ -250,10 +318,26 @@ const seed = () => {
       await page.waitForTimeout(350);
     }
 
+    /* The view id alone is not proof the page DREW. go() catches a render that
+       throws and puts an error card in the view, which keeps the right id — so
+       a broken frame was reported "ok" and shipped (the Welding Progress shot,
+       12 Oct 2026, came out as "This page could not be drawn"). A store listing
+       is the one place that must never happen, so the card is a hard failure. */
+    const broke = await page.evaluate(() => {
+      const d = document.getElementById("fr").contentWindow.document;
+      const v = d.querySelector(".view.on");
+      if (!v) return "no active view";
+      const t = (v.innerText || "").trim();
+      if (/could not be drawn|Try again\s*$/i.test(t.slice(0, 200))) return t.split("\n")[0].slice(0, 80);
+      if (t.length < 40) return "view is empty (" + t.length + " chars)";
+      return null;
+    });
+
     const file = path.join(outDir, shot.file + ".png");
     await page.screenshot({ path: file });
     const want = shot.expect || "v-" + shot.go[0];
     if (active !== want) { console.error(`  ${shot.file}.png  MISMATCH: wanted ${want}, got ${active}`); process.exitCode = 1; }
+    else if (broke) { console.error(`  ${shot.file}.png  DID NOT DRAW: ${broke}`); process.exitCode = 1; }
     else console.log(`  ${shot.file}.png  ok`);
   }
 

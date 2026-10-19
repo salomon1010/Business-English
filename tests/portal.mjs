@@ -47,12 +47,30 @@ try {
   for (const [label, opts] of [["laptop", DESKTOP], ["phone", MOBILE]]) {
     const { ctx, page, errors } = await fresh(opts);
     await page.goto(BASE + "/", { waitUntil: "load" });
-    const r = await page.evaluate(() => ({ h1: document.querySelector("h1")?.textContent, apps: [...document.querySelectorAll(".app a.btn-p")].map(a => a.getAttribute("href")) }));
-    ok(`Portal (${label}): renders, one app, BE Mastery → /bemastery/`, path(page) === "/" && r.h1 === "Lomonec apps" && r.apps.length === 1 && r.apps[0] === "/bemastery/", JSON.stringify(r));
+    /* Three app roots since 19 Oct 2026 (docs/WEB-STANDALONE.md): a programme
+       each, pinned, plus the combined app that carries both. The portal leads
+       with the two programmes — that is the choice a learner actually has —
+       and offers the combined one beside them. */
+    const r = await page.evaluate(() => ({ h1: document.querySelector("h1")?.textContent,
+      apps: [...document.querySelectorAll(".app a.btn-p")].map(a => a.getAttribute("href")),
+      both: [...document.querySelectorAll(".app a.btn-s")].map(a => a.getAttribute("href")) }));
+    ok(`Portal (${label}): renders, and offers a programme each`, path(page) === "/" && r.h1 === "Lomonec apps"
+      && r.apps.length === 2 && r.apps[0] === "/general-english/" && r.apps[1] === "/welding-english/", JSON.stringify(r));
+    ok(`Portal (${label}): …and the combined app beside them`, r.both.includes("/bemastery/"), JSON.stringify(r.both));
     ok(`Portal (${label}): no sideways scroll, no script errors`, await noOverflow(page) && !errors.length, errors.join(" | "));
     if (label === "laptop") {
-      await page.click(".app a.btn-p"); await page.waitForLoadState("load"); await sleep(1200);
-      ok("Portal → Open BE Mastery loads the app at /bemastery/ (first run: onboarding, as today)", path(page) === "/bemastery/" && !!(await page.$("#obWrap")) && !errors.length, path(page) + " " + errors.join(" | "));
+      /* each button opens the app it names, and the pinned ones open PINNED:
+         a web address for one programme must not be the whole app */
+      for (const [sel, want, track] of [[".app a[href='/general-english/']", "/general-english/", "general-english"],
+                                        [".app a[href='/welding-english/']", "/welding-english/", "welding"],
+                                        [".app a[href='/bemastery/']", "/bemastery/", null]]) {
+        await page.goto(BASE + "/", { waitUntil: "load" });
+        await page.click(sel); await page.waitForLoadState("load"); await sleep(1400);
+        const f = await page.evaluate(() => ({ track: window.BE_APP_TRACK, ob: !!document.getElementById("obWrap") || !!document.getElementById("webGate") }));
+        ok(`Portal → ${want} opens that app${track ? " pinned to " + track : " with both programmes"}`,
+          path(page) === want && f.track === track && f.ob && !errors.length,
+          path(page) + " " + JSON.stringify(f) + " " + errors.join(" | "));
+      }
     }
     await ctx.close();
   }

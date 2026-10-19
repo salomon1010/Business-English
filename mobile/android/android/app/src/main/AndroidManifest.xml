@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -22,13 +23,93 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- back from Sign in with Apple: the proxy at auth.lomonec.com hands Apple's answer here.
+                 The scheme is a flavor placeholder (the two-app split), because only one installed
+                 app may claim a scheme: two claimants put an app chooser between the learner and
+                 their sign-in, and whichever app did not start the flow drops it. So each app has
+                 its own — bemastery:// and bemasterywelding:// — and since 14 Oct 2026 the proxy
+                 picks between them from the state's prefix, so Apple works in both. BEAuthPlugin
+                 reads the same name back in appleScheme() (docs/APP_SPLIT.md). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${beAppleScheme}" android:host="${beAppleHost}" />
+            </intent-filter>
+
+            <!-- a tap on a home-screen widget (BEWidgetLaunch in shell mode → BEWidgetPlugin).
+                 Always an EXPLICIT intent (setClassName with the app's own package), so each
+                 app's widgets open that app however many are installed; the filter only has to
+                 let the data through. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="${beWidgetScheme}" android:host="open" />
+            </intent-filter>
+
         </activity>
+
+        <!-- Home-screen widgets: the Play TWA's own (playstore/android-widget, docs/ANDROID_WIDGET.md),
+             built in through build.gradle's sourceSets. The page feeds them through BEWidgetPlugin. -->
+        <receiver android:name=".widget.BEWidgetProvider" android:exported="true" android:label="@string/be_widget_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetProviderGE" android:exported="true" android:label="@string/be_widget_name_ge">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_ge" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetProviderPro" android:exported="true" android:label="@string/be_widget_name_pro">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_pro" />
+        </receiver>
+        <receiver android:name=".widget.BEWidgetRecsProvider" android:exported="true" android:label="@string/be_widget_name_recs">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_recs" />
+        </receiver>
+        <service
+            android:name=".widget.BEWidgetRecsService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <receiver android:name=".widget.BEWidgetMasteryProvider" android:exported="true" android:label="@string/be_widget_name_mastery">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <intent-filter><action android:name="com.bemastery.app.widget.REFRESH" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/be_widget_info_mastery" />
+        </receiver>
+        <!-- the game streak countdown (BEStreakCountdown, docs/ANDROID_LIVE_COUNTDOWN.md) -->
+        <receiver android:name=".widget.BEStreakReceiver" android:exported="false">
+            <intent-filter><action android:name="com.bemastery.app.live.TICK" /></intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <!-- AdMob reads its app id from here (res/values/ads.xml). Real in every build, as
              Google recommends; only the ad UNITS are swapped for test units in debug/staging. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/be_ads_app_id" />
+
+        <!-- notifications (BEPushPlugin + BEMessagingService): be-push sends data messages,
+             the app draws them; the defaults below cover anything FCM ever draws itself -->
+        <service
+            android:name=".BEMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_be" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="be_daily" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -44,12 +125,24 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- NO advertising ID, as on iOS (npa=1, no IDFA): the Google Mobile Ads SDK adds AD_ID
+         by itself; remove it so the app matches its Play declaration ("no advertising ID").
+         Ads still load — non-personalised only, which is the rule anyway. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />
+    <!-- and Android's Privacy Sandbox ad signals (ad id, topics, attribution) the same SDK adds -->
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" tools:node="remove" />
     <!-- the learner's own voice: every recorder (sessions, Shadow, Polish, Foundations, Partner).
          Capacitor's WebChromeClient turns the page's getUserMedia into the runtime prompt. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Posture Coach (the same reason NSCameraUsageDescription gives on iOS) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Android 13+: the reminder / invitation prompt, asked from the Settings switch, never at launch -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- the streak countdown re-arms its alarms after a restart (BEStreakReceiver) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 </manifest>

@@ -2175,6 +2175,7 @@
  "rem.push_body": "25 minutos hoy mantienen tu racha viva.",
  "rem.note_ios_push": "Un aviso a la hora que elijas, incluso con la aplicación cerrada. Puedes desactivarlo cuando quieras.",
  "rem.blocked_ios": "Las notificaciones están desactivadas para BE Mastery, así que los recordatorios aparecerán dentro de la aplicación. Puedes activarlas en Ajustes → Notificaciones → BE Mastery.",
+ "rem.blocked_android": "Notifications are turned off for BE Mastery, so reminders will appear inside the app instead. You can turn them on in Settings → Apps → BE Mastery → Notifications.",
  "rem.online_sub_ios": "Las notificaciones sobre estudiantes conectados aún no están disponibles en la app de iPhone. Abre Practice Partner para ver quién está conectado.",
  "nudge.lesson_t": "La semana {{w}} te espera",
  "nudge.lesson_b": "🎤 {{topic}} — {{min}} minutos hoy para avanzar.",

@@ -1,6 +1,51 @@
 # Android native shell — plan (8 Oct 2026)
 
-**Status: PLAN ONLY. Nothing below is built.** Owner decision 8 Oct 2026: replace
+**Status (10 Oct 2026): phases 1–6 BUILT on `staging`, NOT released.** The Play
+listing still serves the TWA. Built: the shell (1), the web layer's platform check
+(2), the Workers' allow-lists, deployed (3), AdMob (4), Play Billing (5), signed
+release bundles, and notifications (6 — `BEPushPlugin.java` + `BEMessagingService.java`,
+be-push's FCM sender, `tests/android-push.mjs`, `backend/push/test/fcm.mjs`). The
+§6 data risk has its step too: today's Play app asks a signed-out learner with
+progress to sign in (`keepNudge`, flag `play_keep_progress_enabled`,
+`tests/keep-progress.mjs`) — it reaches learners with the next merge to `main`,
+so ship it well before the switch.
+
+**Notifications set-up (done 10 Oct 2026):** Android app `com.bemastery.app` registered in
+`be-mastery` (1:847739483036:android:e341d8aa18ae00d44ece59) and `be-mastery-test`
+(1:724002405539:android:c0740eda3b9de789fd5316); their `google-services.json` files live in
+`~/.config/be-mastery/firebase/` and `scripts/build.sh` / `release.sh` copy the matching one
+in (never committed). FCM API enabled; service account `fcm-sender@<project>` with
+`roles/firebasecloudmessaging.admin` only, one key each, stored only as `FCM_SA_JSON` on
+`be-push-staging` and `be-push`. be-push-staging DEPLOYED (b4601bbc) and proven against
+Google (a made-up token was refused and its row dropped — no auth error). **Production be-push DEPLOYED in full (owner, 10 Oct 2026): version 0fc0eb02**, from the
+repo (it had run 29 Sep code): FCM, APNs (still off — `APNS_KEY_ID` is empty and there is no
+`APNS_KEY_P8`), nudge pictures, the `https://localhost` origin, KV marks. Crons unchanged
+(`* * * * *`, `*/10 * * * *`). Verified: `/key`, CORS for the web / Android / iOS origins, a
+made-up FCM token refused by Google and dropped, cron runs without exceptions. Rollback:
+`npx wrangler rollback 2b335aa2-1d8d-4bb0-a8ee-9c7b4465f6f8 --name be-push` (the old code
+with the FCM secret).
+**Google sign-in (phase 7, 10 Oct 2026, vc 14 on internal testing):** `BEAuthPlugin.java`
+(Credential Manager, the iOS `BEAuth` contract; Apple answers `apple:false`). The four
+signing fingerprints (Play signing SHA-1 `cd:32:bf…`, upload SHA-1 `75:a1:fa…`, both
+SHA-256s) are on the Firebase Android app in **be-mastery** — Google allows one Android
+OAuth client per package + certificate across ALL projects, so be-mastery-test cannot hold
+them. The server client id is be-mastery's web client (`be_google_web_client_id`). A
+STAGING build therefore needs be-mastery-test → Authentication → Google → "Safelist client
+IDs from external projects" = that client id (console only; no API found). Apple on
+Android: BUILT the same day (vc 16, production build): Apple's page in a Custom Tab
+(Services ID `com.lomonec.bemastery.signin`, redirect_uri `https://auth.lomonec.com/__/auth/handler`);
+be-auth hands an answer whose state starts with `bea.` back through `bemastery://apple`
+(303, never the code) instead of forwarding it; the app returns idToken + raw nonce.
+be-auth production 2c3f16e6 (rollback `wrangler rollback d8b9896a-2e00-4e20-8464-bc90b8892716`).
+Production builds only: a staging build would need the test project's Services ID and
+auth-staging.lomonec.com. Since 11 Oct 2026 a staging build (`-PbeStaging=true`,
+`BuildConfig.BE_STAGING`) answers `available()` with `apple:false, google:false`, so its
+sign-in sheet shows e-mail only instead of two buttons that can only fail.
+
+**Still to build:** native Google sign-in (7), the widget port (7), device tests and
+the staged release (8).
+
+Original plan (8 Oct 2026) follows. Owner decision 8 Oct 2026: replace
 the Play app's Trusted Web Activity (TWA) with a native Capacitor Android shell,
 like the iOS app, so Android can show AdMob ads (option A; option B — web ads in
 the page — was rejected as the less reliable route). This reverses ADR-9.1 in

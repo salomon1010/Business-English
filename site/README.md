@@ -9,6 +9,60 @@ there now, all paths relative). `_redirects` sends the old `/team.html` and
 `contact@lomonec.com` — never a personal name or address. To add an app: give
 it a folder and a card in the "Our apps" section of `index.html`.
 
+**One page per app (owner, 15 Oct 2026).** There are two apps now, and each
+sells itself on its own page with nothing about the other on it:
+
+| page | app | built how |
+|---|---|---|
+| `bemastery-g/` | BE Mastery (General English) | **generated** — `node scripts/site/make-bemastery-g.mjs` |
+| `bemastery-w/` | BE Mastery Welding | **generated** — `node scripts/site/make-bemastery-w.mjs` |
+| `bemastery/` | both, unchanged | the original page |
+
+**Store links (19 Oct 2026).** Both Android apps are live on Google Play, so
+each page links its own and only its own: `bemastery-g/` the General English
+package and `bemastery-w/` `com.lomonec.bemastery.welding`. That package is
+named ONCE, in `make-bemastery-w.mjs` — never in `bemastery/js/config.js`,
+which is the other app's config and is shared with the sixteen translations.
+The Welding page also carries its own `al:android` metadata and claims that
+listing in its JSON-LD. Neither iPhone build is on the App Store yet, so both
+pages keep the honest "Coming soon" badge and no page anywhere holds an
+apps.apple.com URL that would answer 404. `bemastery/` describes both
+programmes, so its Welding section routes the reader to `bemastery-w/` rather
+than to a store: a Play listing serves one app, and these are two apps.
+
+`bemastery/` stays exactly where it is: it is the support URL registered in
+both live store submissions and it has the sixteen translations. The General
+two app pages are forks of it — one with the Welding half cut out, one with
+the General English half cut out and the trade content put in — so they share
+its shell, its stylesheets and its scripts, and therefore its animations.
+**Edit `bemastery/index.html` and re-run both scripts** rather than editing a
+generated page: each script fails loudly if a section it cuts has moved, and
+refuses to write a page that still carries the other app. The Welding script
+also refuses any mention of a General-English-only feature (Practice Partner,
+Life Simulations, English Mastery), and every figure it prints is counted from
+this repository — 84 sessions and 12 stages from `tracks/welding/weeks.json`,
+534 clips and 10 trades from `catalogue/welding.json`, 250 terms from
+`tracks/welding/mastery.json`, 52 drawings from its `mastery-art.json`. Neither
+new page has translations yet; both reference `bemastery/css|js|img` at their
+absolute paths rather than copying the design system.
+
+The Welding page carries its own mark: `bemastery/img/welding/logo-192.png` is
+a copy of `branding/welding/icon-192.png`, the approved Welding logo (owner,
+13 Oct 2026), and stands as the brand image in the header and footer, the
+favicon and the touch icon. `branding/welding/README.md` is the source of that
+artwork — replace it there, regenerate the icons and copy 192 across. The
+General English logo stays on `bemastery/` and `bemastery-g/`.
+
+The six shots in `bemastery/img/welding/` were taken from a tree that had not
+had the Welding branding applied, so their in-app header carried the General
+English mark. `sync-web.mjs` swaps `logo.svg` for `branding/welding/logo.svg`
+in the Welding bundle, so the shipped app does not — the pictures were stale,
+not the app. The mark in them was replaced in place (the tile is at 24,16 to
+75,68 in all six). **Re-shoot them from a Welding bundle** when the app's
+screens next change, rather than patching again; the store screenshots in
+`playstore/welding/` and `mobile/ios/appstore/welding/` still carry the old
+mark and need the same re-shoot.
+
 The public marketing site for **lomonec.com**. No framework, no build step —
 plain HTML, four stylesheets and three scripts, served as files.
 

@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v688";
+const CACHE = "be12-v690";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
@@ -35,8 +35,20 @@ const REM_MAP_KEY = "./__reminder_map__.png";
 const CAP_CACHE = "be-captions";
 const isCaption = u => /\/captions\/[A-Za-z0-9_-]{6,20}\.json$/.test(u.pathname);
 
+/* ONE file per request, not addAll (19 Oct 2026). cache.addAll rejects the
+   WHOLE batch if a single entry 404s, so one missing or renamed file meant no
+   offline shell at all — the worker simply never installed, and the app went on
+   looking fine until the connection went. Two things make that a real case
+   rather than a theoretical one: a single-programme bundle (the two store apps
+   and the two standalone web apps, scripts/web/build-standalone.mjs) does not
+   carry the OTHER programme's catalogue or tracks, and a ?v= bump that misses a
+   file here is a typo away. So each entry is cached on its own and a miss is
+   skipped: a shell with one hole still works offline, and nothing above
+   silently depends on a whole batch. */
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE)
+    .then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => null))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(
