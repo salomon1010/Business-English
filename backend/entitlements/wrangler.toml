@@ -118,8 +118,12 @@ FIREBASE_PROJECT_ID = "be-mastery-test"
 ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost,https://localhost"   # capacitor://localhost = a staging TestFlight build; https://localhost = a staging Android build
 # THE TWO-APP SPLIT: staging is where the Welding app's purchases are tested
 # first. The three lists stay index-aligned (see the production block above).
-PLAY_PACKAGE = "com.bemastery.app"
-APP_PROGRAMMES = "general-english"
+# Both programmes since 19 Oct 2026: the two standalone web apps
+# (docs/WEB-STANDALONE.md) each ask about their own programme, and with only
+# the first one configured the Welding app was told "unknown app → Free" and a
+# manual grant for it was refused — there was no way to see Premium there.
+PLAY_PACKAGE = "com.bemastery.app,com.lomonec.bemastery.welding"
+APP_PROGRAMMES = "general-english,welding"
 # Licence testing happens HERE, not in production (owner, 12 Oct 2026). A Play
 # licence tester's purchase carries testPurchase, and src/billing.js refuses it
 # unless this is exactly "1" — strict by default, the same rule Apple's side
@@ -135,7 +139,7 @@ PLAY_ALLOW_TEST_PURCHASES = "1"
 # RTDN_SA_EMAIL = the push subscription's service account (the token's email).
 RTDN_AUDIENCE = "https://entitlements-staging.lomonec.com/v1/billing/google_play"
 RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
-APPLE_BUNDLE_ID = "com.lomonec.bemastery"
+APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"
 APPLE_ENVIRONMENTS = "Sandbox"
 # SHA-256 of Apple Root CA - G3 (public; downloaded from
 # https://www.apple.com/certificateauthority/AppleRootCA-G3.cer and hashed,

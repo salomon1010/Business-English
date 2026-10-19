@@ -683,6 +683,31 @@ console.log("\n# Two apps, separate entitlements");
   ok("W17 · no ?app= at all is the first configured app — what every pre-split client sends",
     (await view("sp5")).app === GE);
 
+  /* ---- the owner's manual grant is per app too (19 Oct 2026) -------------
+     It is how a tester, a promotion or a support case gets Premium, and until
+     now it could only ever reach the FIRST programme: bindLink reads app_id
+     from the link and the admin route passed none, so a granted tester opened
+     the Welding app and still saw Free. */
+  env = envFor(BOTH);
+  const adminGrant = (b) => call("POST", "/v1/admin/grant", { headers: { authorization: "Bearer " + "o".repeat(40) }, body: b });
+  let gr = await adminGrant({ uid: "gw1", plan: "premium", status: "active", expiresAt: T0 + 30 * DAY, source: "promo", app: WE });
+  ok("GR1 · a grant naming the Welding app makes THAT app Premium",
+    gr.status === 200 && (await view("gw1", WE)).paid === true, JSON.stringify(gr.json));
+  ok("GR2 · …and leaves the same account Free in the General English app", (await view("gw1", GE)).paid === false);
+  gr = await adminGrant({ uid: "gw2", plan: "premium", status: "active", expiresAt: T0 + 30 * DAY, source: "promo" });
+  ok("GR3 · a grant with no app is the first programme — what every existing grant did",
+    gr.status === 200 && (await view("gw2", GE)).paid === true && (await view("gw2", WE)).paid === false, JSON.stringify(gr.json));
+  await adminGrant({ uid: "gw2", plan: "premium", status: "active", expiresAt: T0 + 30 * DAY, source: "promo", app: WE });
+  ok("GR4 · granting both apps for one account is two rows, one per app",
+    (await view("gw2", GE)).paid === true && (await view("gw2", WE)).paid === true);
+  await adminGrant({ uid: "gw2", plan: "premium", status: "expired", expiresAt: T0 + 30 * DAY, source: "promo", app: WE });
+  ok("GR5 · withdrawing the Welding grant leaves the General English one standing — the two keys do not collide",
+    (await view("gw2", WE)).paid === false && (await view("gw2", GE)).paid === true,
+    JSON.stringify({ we: (await view("gw2", WE)).state, ge: (await view("gw2", GE)).state }));
+  gr = await adminGrant({ uid: "gw3", plan: "premium", status: "active", expiresAt: T0 + 30 * DAY, source: "promo", app: "plumbing" });
+  ok("GR6 · a grant for an app this service is not configured for is refused, and writes nothing",
+    gr.status === 400 && (await view("gw3", GE)).paid === false && (await view("gw3", "plumbing")).paid === false, JSON.stringify(gr.json));
+
   /* ---- a configuration mistake must fail in the SAFE direction ---- */
   env = envFor({ PLAY_PACKAGE: "com.bemastery.app," + WPKG });     /* no APP_PROGRAMMES */
   G.subs.set(tok(127), gsub());

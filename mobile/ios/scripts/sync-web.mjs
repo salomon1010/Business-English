@@ -4,6 +4,9 @@
    Android project, this folder. Run before `npx cap sync ios`.
    Shared by the Android shell (8 Oct 2026): mobile/android runs this script with
    `--out <its www> --platform android`; without them it is the iOS bundle, as before.
+   `--platform web` is the same bundle served by a web server instead of copied
+   into a shell: it is what scripts/web/build-standalone.mjs uses to build the
+   two standalone WEB apps (docs/WEB-STANDALONE.md).
 
    THE TWO-APP SPLIT (12 Oct 2026, docs/APP_SPLIT.md). `--track general-english`
    or `--track welding` builds the bundle for ONE of the two store apps:
@@ -22,7 +25,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..", "..");
 const argAfter = name => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
 const out = argAfter("--out") ? resolve(process.cwd(), argAfter("--out")) : resolve(here, "..", "www");
+const PLATFORMS = ["ios", "android", "web"];
 const platform = argAfter("--platform") || "ios";
+if (!PLATFORMS.includes(platform)) throw new Error(`--platform must be one of ${PLATFORMS.join(" / ")}, got ${platform}`);
 /* `site` is the lomonec.com company website (deployed on its own, 7 Oct 2026); the app never loads it */
 const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "branding", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store"]);
 
@@ -180,9 +185,37 @@ if (track) {
     const id = "com.lomonec.bemastery.welding";
     if (!Array.isArray(m.related_applications) || !m.related_applications.length) throw new Error("manifest.json has no related_applications to re-point");
     m.related_applications = [{ platform: "play", id, url: "https://play.google.com/store/apps/details?id=" + id }];
+    /* The name is what an installed web app shows under its icon, so the
+       Welding bundle must not be installed as "Business English Mastery".
+       Done here rather than in a second manifest file so the repository keeps
+       exactly one manifest.json and app.lomonec.com is untouched. */
+    m.name = "BE Mastery Welding — English for the trades";
+    m.short_name = "BE Welding";
     writeFileSync(mf, JSON.stringify(m, null, 2) + "\n");
     branded.push("manifest related_applications");
   }
+}
+
+/* The service worker precaches the app shell, and the shell list in the
+   repository names BOTH programmes' catalogues and curricula. A pruned bundle
+   does not carry the other one, so every entry that is no longer here is taken
+   out of the list: the worker then asks only for files this bundle has. sw.js
+   caches entry by entry and skips a miss, so this is not what makes the
+   install work — it is what stops it making requests we know will 404, on a
+   learner's mobile data, on every version bump. */
+if (track) {
+  const swp = resolve(out, "sw.js");
+  const txt = readFileSync(swp, "utf8");
+  const m = txt.match(/const SHELL = \[([\s\S]*?)\];/);
+  if (!m) throw new Error("sw.js: the SHELL list was not found — sw.js changed shape");
+  const items = m[1].match(/"[^"]+"/g).map(s => s.slice(1, -1));
+  const kept = items.filter(u => u === "./" || existsSync(resolve(out, u.split("?")[0])));
+  const dropped = items.filter(u => !kept.includes(u));
+  if (!dropped.length) throw new Error("sw.js: nothing was dropped from SHELL, yet this bundle is pruned — check the prune plan");
+  writeFileSync(swp, txt.replace(m[0],
+    "const SHELL = [" + kept.map(u => JSON.stringify(u)).join(", ") + "];   /* " +
+    dropped.length + " entries the " + track + " bundle does not carry were removed by sync-web.mjs */"));
+  console.log(`sw.js SHELL: kept ${kept.length}, dropped ${dropped.length} (${dropped.join(", ")})`);
 }
 
 /* The service worker cannot run inside WKWebView (no ServiceWorker in a
@@ -269,7 +302,7 @@ if (!staging) {
   }
 }
 writeFileSync(resolve(out, "BUNDLE_INFO.txt"),
-  `BE Mastery web bundle for ${platform === "android" ? "Android" : "iOS"} (${staging ? "STAGING — not for store submission" : "production"})\n` +
+  `BE Mastery web bundle for ${{ android: "Android", web: "the web", ios: "iOS" }[platform]} (${staging ? "STAGING — not for store submission" : "production"})\n` +
   `programme ${track || "both (unsplit)"}\nfirebase ${project}\n` +
   (noBilling ? "billing DISABLED in this bundle (--no-billing): Premium cannot be purchased\n" : "") +
   (branded.length ? `branding ${branded.join(", ")} replaced from branding/${track}/\n` : "") +

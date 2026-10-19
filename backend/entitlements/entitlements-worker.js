@@ -298,9 +298,21 @@ export async function handle(req, env, deps = {}) {
     const rec = ADAPTERS.manual.normalize(body, now);
     const v = validateRecord(rec);
     if (!v.ok) return json({ error: "invalid", why: v.why }, 400);
-    await bindLink(env, rec.uid, { provider: "manual", ext_id: "grant:" + rec.uid, record: rec });
+    /* WHICH app this grant is for (migration 0005). bindLink reads app_id from
+       the LINK, not from the record, so without passing it here every grant
+       bound to the first programme and the Welding app could not be granted at
+       all. An app this deployment is not configured for is refused rather than
+       redirected: the row would be one no read can find. */
+    const app = knownProgramme(env, rec.app_id || defaultProgramme(env));
+    if (!app) return err(400, "app");
+    /* The ext_id of a grant for the DEFAULT programme is unchanged, so an
+       existing grant is still updated in place (re-granting with status
+       "expired" is how one is withdrawn, and that has to keep working). Only
+       another programme needs a key of its own. */
+    const ext = app === defaultProgramme(env) ? "grant:" + rec.uid : "grant:" + app + ":" + rec.uid;
+    await bindLink(env, rec.uid, { provider: "manual", ext_id: ext, app_id: app, record: rec });
     await audit(env, now, rec.uid, "admin", "grant", rec);
-    return json({ ok: true, view: await recompute(env, rec.uid, now, rec.app_id || defaultProgramme(env)) });
+    return json({ ok: true, view: await recompute(env, rec.uid, now, app) });
   }
 
   /* ---------------------------------------------------------- rewards */

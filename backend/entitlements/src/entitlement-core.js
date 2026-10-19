@@ -93,6 +93,11 @@ export function validateRecord(r) {
   if (r.source != null && !SOURCES.includes(r.source)) return { ok: false, why: "source" };
   if (r.product != null && PRODUCTS[r.product] !== r.plan) return { ok: false, why: "product" };
   if (r.will_renew != null && r.will_renew !== 0 && r.will_renew !== 1) return { ok: false, why: "will_renew" };
+  /* app_id is optional (a store adapter fills it, a pre-split row has none and
+     reads as the first programme), but a value that is not a programme this
+     deployment knows is a mistake, not a default: it would write a row no read
+     can ever find. */
+  if (r.app_id != null && typeof r.app_id !== "string") return { ok: false, why: "app_id" };
   return { ok: true };
 }
 

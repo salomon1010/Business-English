@@ -5062,6 +5062,10 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .wv-kicker{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0 0 8px}
 .wv-actions{display:flex;flex-direction:column;align-items:center;gap:10px}
 .wv-in{min-height:44px;min-width:180px;justify-content:center;background:transparent;border:1px solid var(--line2);color:var(--txt)}
+/* the third door is deliberately the quietest of the three: an account is the
+   thing worth choosing, and this one costs the learner their progress if the
+   browser is cleared. Still a 44px target. */
+.wv-try{min-height:44px;min-width:180px;justify-content:center;background:transparent;border:0;color:var(--mut);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .wv-why{font-size:13px;color:var(--mut);max-width:420px;margin:14px auto 0}
 .wv-h{font-size:15px;font-weight:700;margin:26px 0 10px;text-align:left}
 .wv-list{display:flex;flex-direction:column;gap:10px;text-align:left}
@@ -7512,6 +7516,12 @@ const I18N_EN={
  "land.tracks_h":"Two programmes",
  "land.plans_h":"Free and Premium",
  "land.free_only_h":"Free",
+ "land.levels_h":"Three ways in",
+ "land.prog_h":"Your programme",
+ "land.try":"Start without an account",
+ "land.basic_t":"Without an account",
+ "land.basic_b":"The whole course on this device: the plan, the shadowing, the recordings and your progress. No AI feedback on what you said, and nothing is kept if the browser clears its data.",
+ "land.free_b1":"The whole course, your progress saved to your account and waiting on your phone, and AI feedback on what you said each day.",
  "land.free_t":"Free account",
  "land.free_b":"The full course in both programmes, with your progress saved to your account.",
  "land.prem_t":"Premium",
@@ -26531,8 +26541,14 @@ function premMainHTML(){
     try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":isPlayApp()?"google_play":"none",reason:String(why).slice(0,24)})}catch(e){}
     /* the code is shown, small, under the message: a learner can read it back
        to us and it is the difference between a guess and an answer */
+    /* A plain browser is not a broken store, it is the web: Premium is bought
+       in the app, and prem.unavailable already says so, so give the learner
+       the way there. PLAY_URL is this build's own listing, so the standalone
+       Welding web app points at the Welding app. */
+    const web=!IS_IOS_APP&&!isPlayApp();
+    const get=web?`<a class="btn btn-g prem-wide" href="${esc(PLAY_URL)}" target="_blank" rel="noopener">${esc(t("land.play"))}</a>`:"";
     return premUnavailHTML(t(IS_IOS_APP||isPlayApp()?"prem.unavailable_ios":"prem.unavailable"),"",false)   /* inside either store app: "close and reopen", never "get it from Google Play" */
-      +`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
+      +get+`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
   }
   /* A purchase needs an account, so every REAL store asks to sign in first and
      the foot carries that button. The staging preview is not a purchase — it
@@ -35967,8 +35983,26 @@ function webGateFlag(){
 }
 function webGateOn(){
   let u=null;try{u=FBUser}catch(e){}   /* FBUser is declared further down this script: read it safely at boot */
-  return webGateFlag()&&!S.profile&&!u&&webPlainTab();
+  return webGateFlag()&&!S.profile&&!u&&!webTried()&&webPlainTab();
 }
+/* "Start without an account" — the first of the three levels (Basic / account
+   / Premium). It is not a bypass of a boundary: an anonymous learner on the
+   web reaches exactly what an anonymous learner in the store apps already
+   has, which is the course and progress held on their own device. Every AI
+   route needs an account (owner, 1 Oct 2026) and the Workers enforce that, so
+   nothing here opens anything the server would not.
+
+   The marker lives OUTSIDE S, like RESTORE_ASK_KEY: S is replaced wholesale by
+   a cloud sync, and a device that has already said "not now" must not be asked
+   again because of something another device wrote. */
+const WEB_TRY_KEY="be_web_try";
+function webTried(){try{return localStorage.getItem(WEB_TRY_KEY)==="1"}catch(e){return false}}
+function webGateSkip(){
+  try{localStorage.setItem(WEB_TRY_KEY,"1")}catch(e){}
+  const el=document.getElementById("webGate");if(el)el.remove();
+  obRender();
+}
+window.webGateSkip=webGateSkip;
 function webGateRender(){
   let el=document.getElementById("webGate");
   if(!el){el=document.createElement("div");el.id="webGate";el.className="ob-wrap";
@@ -35977,6 +36011,14 @@ function webGateRender(){
   /* Premium is described only where it can actually be had (plans on: billing + the entitlement service) */
   let prem=false;try{prem=planOn()}catch(e){}
   const card=(icon,h,b)=>`<div class="wv-item"><span class="wv-ic">${ic(icon)}</span><span><b>${h}</b><small>${b}</small></span></div>`;
+  /* A standalone web app (scripts/web/build-standalone.mjs) is pinned to ONE
+     programme, exactly as the two store apps are, so the landing must not
+     offer the other one — there is no way to reach it from here. The combined
+     app at app.lomonec.com/bemastery/ has no pin and still shows both. */
+  const pinned=BE_APP_TRACK;
+  const gen=card("chat",esc(t("tracks.general")),esc(t("ob.track_general_sub")));
+  const weld=card("briefcase",esc(t("tracks.welding")),esc(t("ob.track_welding_sub")));
+  const progCards=pinned?(pinned==="welding"?weld:gen):(gen+weld);
   el.innerHTML=`<div class="ob-card wv-card">
      <div class="ob-logo ob-logo-img" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
      <p class="wv-kicker">${esc(t("land.kicker"))}</p>
@@ -35985,12 +36027,13 @@ function webGateRender(){
      <div class="wv-actions">
        <button class="btn-primary ob-go" onclick="fbOpenModal('up')">${esc(t("land.create"))}</button>
        <button class="btn wv-in" onclick="fbOpenModal('in')">${esc(t("land.signin"))}</button>
+       <button class="btn wv-try" onclick="webGateSkip()">${esc(t("land.try"))}</button>
      </div>
      <p class="wv-why">${esc(t("land.why"))}</p>
-     <h2 class="wv-h">${esc(t("land.tracks_h"))}</h2>
-     <div class="wv-list">${card("chat",esc(t("tracks.general")),esc(t("ob.track_general_sub")))}${card("briefcase",esc(t("tracks.welding")),esc(t("ob.track_welding_sub")))}</div>
-     <h2 class="wv-h">${esc(t(prem?"land.plans_h":"land.free_only_h"))}</h2>
-     <div class="wv-list">${card("check",esc(t("land.free_t")),esc(t("land.free_b")))}${prem?card("star",esc(t("land.prem_t")),esc(t("land.prem_b"))):""}</div>
+     <h2 class="wv-h">${esc(t(pinned?"land.prog_h":"land.tracks_h"))}</h2>
+     <div class="wv-list">${progCards}</div>
+     <h2 class="wv-h">${esc(t("land.levels_h"))}</h2>
+     <div class="wv-list">${card("phone",esc(t("land.basic_t")),esc(t("land.basic_b")))}${card("check",esc(t("land.free_t")),esc(t(pinned?"land.free_b1":"land.free_b")))}${prem?card("star",esc(t("land.prem_t")),esc(t("land.prem_b"))):""}</div>
      <p class="wv-foot"><a href="${esc(PLAY_URL)}" target="_blank" rel="noopener">${esc(t("land.play"))}</a> · <a href="flyer.html">${esc(t("land.more"))}</a> · <a href="privacy.html">${esc(t("land.privacy"))}</a></p>
    </div>`;
 }
