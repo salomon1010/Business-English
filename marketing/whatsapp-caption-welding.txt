@@ -18,5 +18,5 @@ Free to start. No ads. Instructions in 15 languages. It opens in your browser �
 
 _Language practice only — not a welding qualification._
 
-👉 https://app.lomonec.com
-Android: https://play.google.com/store/apps/details?id=com.bemastery.app
+👉 https://lomonec.com/bemastery-w/
+Android: https://play.google.com/store/apps/details?id=com.lomonec.bemastery.welding

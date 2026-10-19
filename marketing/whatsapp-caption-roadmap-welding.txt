@@ -12,5 +12,5 @@ Your daily reminder carries a picture of your progress and opens straight onto t
 
 Free. Works offline. Instructions in 15 languages. Welder, pipefitter or boilermaker — the sentences are your trade's.
 
-👉 https://app.lomonec.com
-Android: https://play.google.com/store/apps/details?id=com.bemastery.app
+👉 https://lomonec.com/bemastery-w/
+Android: https://play.google.com/store/apps/details?id=com.lomonec.bemastery.welding

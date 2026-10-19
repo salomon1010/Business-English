@@ -1517,6 +1517,21 @@ Fixes / infra
   - **Code is committed but the Worker is NOT deployed** — no KV id, no VAPID
     pair yet, so `/key` fails and `pushSync()` silently no-ops. Harmless: the
     old setTimeout path is untouched. See the README for the setup commands.
+- **TWO Play apps since 19 Oct 2026, so a store link is never a constant.**
+  General English is `com.bemastery.app`; Welding is
+  `com.lomonec.bemastery.welding` — a separate listing, a separate app. In
+  index.html the address is `playUrl()` (table `PLAY_PKGS`, keyed by
+  `areaId()`, falling back to the General English listing for a programme with
+  no app of its own); `playLinkSync()`, called from `applyTrackIdentity()`,
+  points the shell's two crawlable links (the footer row and the noscript
+  summary, both marked `data-play-link`) at the open programme; `openAbout()`
+  passes `?track=` so flyer.html's buttons follow it. `manifest.json` lists
+  both under `related_applications`, and `portal/index.html` offers one button
+  per app. On lomonec.com each app has its own page and links only its own
+  listing — see `site/README.md` § Store links. Two places stay pinned to
+  `com.bemastery.app` on purpose: `Billing.manage` (only that app sells a
+  subscription, and a plan can be managed only under the app that sold it) and
+  `backend/mail/mail-worker.js` (a welcome email has no programme to read).
 - **Google Play**: **LIVE** — `com.bemastery.app`, publisher "Lomonec", listing at
   play.google.com/store/apps/details?id=com.bemastery.app (verified 2026-08-01,
   store page shows "Updated on Jul 31, 2026"). `.well-known/assetlinks.json` carries
