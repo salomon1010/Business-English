@@ -14,10 +14,16 @@ stays exactly as it is — nothing in this work changes it.
 Beside it there are now **two web apps, one per programme**, pinned the same way
 the two store apps are pinned:
 
-| | programme | store app it mirrors |
-|---|---|---|
-| `/general-english/` | General English | `com.bemastery.app` |
-| `/welding-english/` | Welding English | `com.lomonec.bemastery.welding` |
+| address | programme | store app it mirrors | linked from |
+|---|---|---|---|
+| `app.lomonec.com/general-english/` | General English | `com.bemastery.app` | `lomonec.com/bemastery-g/` |
+| `app.lomonec.com/welding-english/` | Welding English | `com.lomonec.bemastery.welding` | `lomonec.com/bemastery-w/` |
+
+They are published by `scripts/portal/build-site.mjs` — the same build that
+publishes `/bemastery/` — so a push to `main` deploys all three. The build
+asserts the opposite rules for each: `/bemastery/` must carry **no** build tag,
+and each pinned root must carry one, with no staging environment and no build
+flags in it.
 
 Pinned means `be-build.js` carries `{track:"<id>"}`, which `index.html` reads as
 `BE_APP_TRACK`: `areaId()` is fixed, the programme-selection screens are
@@ -153,7 +159,8 @@ The uid is the signed-in account's Firebase uid (`be-mastery-test`). The app
 picks the change up on the next sign-in, or within the 12-hour display cache —
 `entRefresh()` runs on every auth change.
 
-Staging state as of 19 Oct 2026: D1 migrated through `0005`, `ADMIN_TOKEN` set,
+Staging state as of 19 Oct 2026 (the staging rig is unchanged by the
+production deploy): D1 migrated through `0005`, `ADMIN_TOKEN` set,
 `APP_PROGRAMMES = "general-english,welding"` (it was the first programme only,
 which is why the Welding app was told "unknown app → Free"), Worker version
 `db037138-b907-4dc9-a9fe-761792b2ed9a`.
@@ -186,15 +193,35 @@ service worker, own push subscription, own install. It needs DNS, the host added
 to the Firebase authorised domains, and the origin added to every Worker's
 `ALLOWED_ORIGINS` — four Workers, each a deploy.
 
-**This is the owner's call and nothing here assumes it.** The staging rig is one
-host, because the existing tunnel offers one.
+**One host is what production does today** (owner, 19 Oct 2026: "deploy them").
+The deciding reason is not the storage: it is that `app.lomonec.com` is already
+in every Worker's `ALLOWED_ORIGINS` and in Firebase's authorised domains, so
+publishing there changed **no server configuration at all**. A new origin would
+need the host added to Firebase and to five Workers — including the production
+AI Worker, whose origin list is in code — for a gain the learning data does not
+need.
 
-## 7. Not done, and deliberately
+## 7. What the production deploy changed beyond the two apps
 
-- **Nothing is deployed to production.** The two web apps exist on staging only;
-  `app.lomonec.com` is untouched by this work. Putting them on the public site
-  means a `build-site.mjs` that emits all three roots, and a decision about
-  whether `/bemastery/` keeps the both-programmes app or forwards.
+Publishing these required the website to run the same codebase the two store
+apps run, which it had not. Besides the two new addresses, that brings:
+
+- **`billing_enabled` is true on the website and `ENT_API` is set.** This is
+  what level 3 *is*: without it `planOn()` is false and every learner is Free.
+  Nothing can be bought on the web; what the website now does is **read** the
+  plan an account already has. Production be-entitlements is deployed with all
+  four secrets and both programmes configured, so a Play purchase in either app
+  is verified and answers Premium here.
+- `smart_coach_enabled` and `android_push_enabled` become true on the website,
+  as they already are in both store apps. The production `be-coach` Worker is
+  deployed.
+- The website moves from `be12-v688` to `be12-v690`.
+- `/bemastery/` is unchanged and stays: it is the support URL registered in both
+  store listings and the `start_url` of every installed copy.
+
+Still not done, deliberately:
+
+- **Two hosts** (§6) — one host was chosen for the reason given there.
 - **The new landing copy is English.** The 15 `i18n/*.json` files fall back to
   English for `land.levels_h`, `land.prog_h`, `land.try`, `land.basic_t`,
   `land.basic_b` and `land.free_b1` until they are cut.

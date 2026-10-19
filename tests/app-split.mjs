@@ -488,6 +488,19 @@ async function entRig(build) {
     prefixes.length === 2 && prefixes.every(x => new RegExp('"' + x + '":').test(proxy)), mint);
 }
 {
+  /* …and the same thing proved by RUNNING each build rather than by reading it:
+     the address a tap actually produces. A pinned build must answer with its
+     own listing wherever the saved state says otherwise. */
+  for (const [build, pkg, other] of [[GE, "com.bemastery.app", "com.lomonec.bemastery.welding"],
+                                     [W, "com.lomonec.bemastery.welding", "com.bemastery.app"]]) {
+    const { ctx, p } = await open(build, build === GE ? W : GE);   /* state says the OTHER programme */
+    const url = await p.evaluate(() => playUrl());
+    ok(`86a \u00b7 a ${build} build's Play link is its own listing, whatever the saved state says`,
+      url.includes(pkg) && !url.includes(other), url);
+    await ctx.close();
+  }
+}
+{
   /* WHICH APP THE APP POINTS AT (14 Oct 2026). Found by running the Welding build:
      it covered its own screen with "Install the app from Google Play" — in the app,
      over the sign-in sheet — and the link went to the OTHER app. Three places name a
@@ -496,10 +509,16 @@ async function entRig(build) {
   ok("86 \u00b7 the install card never appears inside a store shell",
     /function playAskDue\(\)\{[\s\S]{0,700}?if\(IS_NATIVE_APP\)return false;/.test(page),
     (page.match(/function playAskDue\(\)\{[\s\S]{0,200}/) || [""])[0].slice(0, 160));
-  ok("87 \u00b7 the Play link is built from the programme, never a single hard-coded package",
-    /PLAY_URL\s*=\s*"https:\/\/play\.google\.com\/store\/apps\/details\?id="\s*\+\s*PLAY_PKG/.test(page)
-    && /PLAY_PKG[\s\S]{0,200}BE_APP_TRACK\s*===\s*"welding"[\s\S]{0,80}com\.lomonec\.bemastery\.welding/.test(page),
-    (page.match(/const PLAY_URL[^\n]*/) || [""])[0]);
+  /* 19 Oct 2026: the address stopped being a const. It is playUrl(), read from
+     a table keyed by PROGRAMME — areaId(), which returns the pin in a pinned
+     build and the open programme in the combined web app. So this is checked
+     by BEHAVIOUR in the browser (below) and only the table is read here: a
+     hard-coded package would be a literal in the call, not a lookup. */
+  ok("87 \u00b7 the Play link is a lookup by programme, never a single hard-coded package",
+    /const PLAY_PKGS=\{[^}]*com\.bemastery\.app[^}]*com\.lomonec\.bemastery\.welding[^}]*\}/.test(page)
+    && /function playPkg\(\)\{[\s\S]{0,120}PLAY_PKGS\[areaId\(\)\]/.test(page)
+    && !/window\.open\("https:\/\/play\.google\.com\/store\/apps\/details/.test(page),
+    (page.match(/const PLAY_PKGS[^\n]*/) || [""])[0]);
   const tmp2 = mkdtempSync(resolve(tmpdir(), "be-split-mf-"));
   const w2 = spawnSync("node", [resolve(root, "mobile/ios/scripts/sync-web.mjs"), "--out", resolve(tmp2, "weld"), "--track", W, "--platform", "android"], { encoding: "utf8" });
   let mw = {}, mrepo = {};
@@ -508,8 +527,18 @@ async function entRig(build) {
   const ids = m => (m.related_applications || []).map(a => a.id + " " + (a.url || "")).join(" ");
   ok("88 \u00b7 the Welding bundle's manifest names the Welding app and never the other one",
     w2.status === 0 && /com\.lomonec\.bemastery\.welding/.test(ids(mw)) && !/com\.bemastery\.app/.test(ids(mw)), ids(mw) || (w2.stderr || "").slice(0, 200));
-  ok("89 \u00b7 …and the repository's own manifest still names the existing app, so the web is unchanged",
-    /com\.bemastery\.app/.test(ids(mrepo)) && !/welding/.test(ids(mrepo)), ids(mrepo));
+  /* The repository's manifest lists BOTH apps (19 Oct 2026): app.lomonec.com
+     serves both programmes, so getInstalledRelatedApps() there may answer with
+     either. What must stay true is that a BUNDLE never carries both — check 88
+     for Welding, and this one for the General English bundle, which used to
+     need no re-pointing and now does. */
+  ok("89 \u00b7 the repository's own manifest names both apps, because the website serves both",
+    /com\.bemastery\.app/.test(ids(mrepo)) && /com\.lomonec\.bemastery\.welding/.test(ids(mrepo)), ids(mrepo));
+  const g2 = spawnSync("node", [resolve(root, "mobile/ios/scripts/sync-web.mjs"), "--out", resolve(tmp2, "gen"), "--track", GE, "--platform", "android"], { encoding: "utf8" });
+  let mg = {};
+  try { mg = JSON.parse(readFileSync(resolve(tmp2, "gen", "manifest.json"), "utf8")); } catch (e) {}
+  ok("90 \u00b7 …and the General English bundle names only its own app either",
+    g2.status === 0 && /com\.bemastery\.app/.test(ids(mg)) && !/welding/.test(ids(mg)), ids(mg) || (g2.stderr || "").slice(0, 200));
   rmSync(tmp2, { recursive: true, force: true });
 }
 await b.close(); if (srv) srv.kill();

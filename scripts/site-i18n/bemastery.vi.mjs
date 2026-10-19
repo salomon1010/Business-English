@@ -9,6 +9,8 @@
 const GET = `Tải ứng dụng`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `Hoặc <a href="https://app.lomonec.com/bemastery/">dùng ngay trên trình duyệt</a> — không cần cài gì, và khi đăng nhập thì tiến trình của bạn theo sang ứng dụng.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — Luyện nói tiếng Anh với AI`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,

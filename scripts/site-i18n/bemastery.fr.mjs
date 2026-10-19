@@ -10,6 +10,8 @@ const NB = "\u00a0"; // French spacing before : ; ? ! and inside « »
 const GET = `Obtenir l'app`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `Ou <a href="https://app.lomonec.com/bemastery/">utilisez-le dans le navigateur</a> — rien à installer, et la connexion emporte votre progression dans l'app.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — Pratique de l'anglais oral avec l'IA`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,

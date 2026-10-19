@@ -10,6 +10,8 @@
 const GET = `앱 받기`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `또는 <a href="https://app.lomonec.com/bemastery/">브라우저에서 사용하세요</a> — 설치할 것이 없고, 로그인하면 진행 기록이 앱으로 이어집니다.`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — AI와 함께하는 영어 말하기 연습`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,

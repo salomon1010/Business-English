@@ -29,7 +29,12 @@ const PLATFORMS = ["ios", "android", "web"];
 const platform = argAfter("--platform") || "ios";
 if (!PLATFORMS.includes(platform)) throw new Error(`--platform must be one of ${PLATFORMS.join(" / ")}, got ${platform}`);
 /* `site` is the lomonec.com company website (deployed on its own, 7 Oct 2026); the app never loads it */
-const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "branding", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store"]);
+const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "branding", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store",
+  /* _site is scripts/portal/build-site.mjs's output. It was not listed here,
+     so a bundle built after a portal build copied the whole website into the
+     app — and when build-site calls THIS script to produce the two pinned web
+     apps, it tried to copy _site into a folder inside _site. */
+  "_site", ".nojekyll"]);
 
 const TRACKS = ["general-english", "welding"];
 const track = argAfter("--track");
@@ -180,17 +185,28 @@ if (track) {
      own manifest.json is untouched, so app.lomonec.com keeps naming the
      existing app. */
   const mf = resolve(out, "manifest.json");
-  if (track === "welding" && existsSync(mf)) {
+  if (existsSync(mf)) {
+    /* The repository's manifest lists BOTH Play apps under
+       related_applications, because app.lomonec.com serves both programmes
+       (19 Oct 2026). A single-programme bundle must name exactly one: left
+       alone, getInstalledRelatedApps() would answer with the other app and any
+       installer reading the manifest would send the learner to the wrong
+       listing. The repository's own file is untouched. */
+    const PKG = { "general-english": "com.bemastery.app", welding: "com.lomonec.bemastery.welding" };
     const m = JSON.parse(readFileSync(mf, "utf8"));
-    const id = "com.lomonec.bemastery.welding";
+    const id = PKG[track];
+    if (!id) throw new Error(`no Play package is known for the ${track} bundle`);
     if (!Array.isArray(m.related_applications) || !m.related_applications.length) throw new Error("manifest.json has no related_applications to re-point");
+    if (!m.related_applications.some((r) => r.id === id)) throw new Error(`manifest.json does not list ${id}, so this bundle cannot claim it`);
     m.related_applications = [{ platform: "play", id, url: "https://play.google.com/store/apps/details?id=" + id }];
     /* The name is what an installed web app shows under its icon, so the
        Welding bundle must not be installed as "Business English Mastery".
        Done here rather than in a second manifest file so the repository keeps
-       exactly one manifest.json and app.lomonec.com is untouched. */
-    m.name = "BE Mastery Welding — English for the trades";
-    m.short_name = "BE Welding";
+       exactly one manifest.json. */
+    if (track === "welding") {
+      m.name = "BE Mastery Welding — English for the trades";
+      m.short_name = "BE Welding";
+    }
     writeFileSync(mf, JSON.stringify(m, null, 2) + "\n");
     branded.push("manifest related_applications");
   }

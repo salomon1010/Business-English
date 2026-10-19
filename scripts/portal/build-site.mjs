@@ -23,6 +23,7 @@
    Used by .github/workflows/pages-portal.yml; tests/portal.mjs serves the
    output and checks it. */
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync, statSync, copyFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { resolve, dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -67,6 +68,23 @@ if (project !== "be-mastery") throw new Error("Firebase project is " + project +
    The website serves the whole app to both programmes, so neither belongs here. */
 if (/<script[^>]+src="be-build\.js"/.test(page) || existsSync(resolve(out, APP, "be-build.js"))) throw new Error("a store build tag (be-build.js: staging env / single programme) reached the public site");
 if (!existsSync(resolve(out, APP, "sw.js"))) throw new Error("sw.js missing from /" + APP + "/");
+
+/* 1b. the two single-programme apps, beside the combined one
+      (docs/WEB-STANDALONE.md). /bemastery/ carries both programmes and asks
+      which; these two are pinned, one each, by the same build the two store
+      apps use. They are PRODUCTION builds: no staging environment, no build
+      flags — build-standalone.mjs asserts both, and refuses to write a bundle
+      that still holds the other programme's content. */
+execFileSync(process.execPath, [resolve(root, "scripts/web/build-standalone.mjs"), "--into", out, "--production"],
+  { cwd: root, stdio: "inherit" });
+for (const dir of ["general-english", "welding-english"]) {
+  if (!existsSync(resolve(out, dir, "index.html"))) throw new Error(dir + "/index.html missing");
+  /* the opposite of the rule for /bemastery/: a pinned app MUST carry its
+     build tag, or it is the whole app served at a single-programme address */
+  if (!existsSync(resolve(out, dir, "be-build.js"))) throw new Error(dir + " has no be-build.js — the programme is not pinned");
+  const b = readFileSync(resolve(out, dir, "be-build.js"), "utf8");
+  if (/"env"/.test(b) || /"flags"/.test(b)) throw new Error(dir + " carries a staging environment or build flags: " + b.trim());
+}
 
 /* 2. the portal at the root */
 for (const f of ["index.html", "404.html", "favicon.svg"]) copyFileSync(resolve(root, "portal", f), resolve(out, f));
@@ -116,7 +134,7 @@ if (existsSync(resolve(root, "manual"))) {
 
 /* 5. robots + sitemap for the new layout */
 writeFileSync(resolve(out, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${HOST}/sitemap.xml\n`);
-const urls = ["/", "/" + APP + "/", "/" + APP + "/flyer.html", "/" + APP + "/manual/en.html", "/privacy.html", "/delete-account.html"];
+const urls = ["/", "/" + APP + "/", "/general-english/", "/welding-english/", "/" + APP + "/flyer.html", "/" + APP + "/manual/en.html", "/privacy.html", "/delete-account.html"];
 writeFileSync(resolve(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${HOST}${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 
 /* size report — a Pages artifact must stay well under 1 GB */

@@ -26568,10 +26568,10 @@ function premMainHTML(){
        to us and it is the difference between a guess and an answer */
     /* A plain browser is not a broken store, it is the web: Premium is bought
        in the app, and prem.unavailable already says so, so give the learner
-       the way there. PLAY_URL is this build's own listing, so the standalone
-       Welding web app points at the Welding app. */
+       the way there. playUrl() is the listing for the programme this app is
+       in, so the standalone Welding web app points at the Welding app. */
     const web=!IS_IOS_APP&&!isPlayApp();
-    const get=web?`<a class="btn btn-g prem-wide" href="${esc(PLAY_URL)}" target="_blank" rel="noopener">${esc(t("land.play"))}</a>`:"";
+    const get=web?`<a class="btn btn-g prem-wide" href="${esc(playUrl())}" target="_blank" rel="noopener">${esc(t("land.play"))}</a>`:"";
     return premUnavailHTML(t(IS_IOS_APP||isPlayApp()?"prem.unavailable_ios":"prem.unavailable"),"",false)   /* inside either store app: "close and reopen", never "get it from Google Play" */
       +get+`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
   }

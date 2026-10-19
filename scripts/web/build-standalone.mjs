@@ -3,6 +3,12 @@
 
        node scripts/web/build-standalone.mjs --out <dir>            staging
        node scripts/web/build-standalone.mjs --out <dir> --production
+       node scripts/web/build-standalone.mjs --into <dir> --production   (the website)
+
+   --out owns the directory: it is emptied first and gets a chooser page at its
+   root. --into writes the two app folders into a directory that already has
+   other things in it and leaves everything else alone — that is how
+   scripts/portal/build-site.mjs publishes them beside /bemastery/.
 
    app.lomonec.com/bemastery/ is ONE web app that carries both programmes and
    asks the learner to choose. These are the other shape: one web app per
@@ -40,14 +46,21 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
 const argAfter = (n) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : null; };
 const production = process.argv.includes("--production");
+const intoArg = argAfter("--into");
 const outArg = argAfter("--out");
-if (!outArg) throw new Error("--out <dir> is required (e.g. --out ~/Developer/be-staging-site/snapshots/web-1)");
-const out = resolve(process.cwd(), outArg.replace(/^~(?=\/)/, process.env.HOME || "~"));
+if (!!intoArg === !!outArg) throw new Error("pass exactly one of --out <dir> (owns it) or --into <dir> (writes into it)");
+const out = resolve(process.cwd(), (intoArg || outArg).replace(/^~(?=\/)/, process.env.HOME || "~"));
+const into = !!intoArg;
 
-/* never write into the repository: a bundle is 100+ MB of copies and the
-   pruning step deletes files inside its own output */
+/* --out OWNS its directory: it is emptied first, so it must never be inside
+   the repository — a bundle is 100+ MB of copies and the pruning step deletes
+   files inside its own output. --into deletes nothing and writes only the two
+   app folders, so the one place inside the repository it may write is _site,
+   which is what scripts/portal/build-site.mjs owns and .gitignore excludes. */
 const rel = resolve(root);
-if (out === rel || out.startsWith(rel + "/")) throw new Error("refusing to build inside the repository — choose an --out outside " + rel);
+const inside = out === rel || out.startsWith(rel + "/");
+if (inside && !(into && out === resolve(rel, "_site")))
+  throw new Error(`refusing to build inside the repository${into ? " (only _site is allowed with --into)" : ""} — ${out}`);
 
 const APPS = [
   { dir: "general-english", track: "general-english", name: "General English",
@@ -61,7 +74,7 @@ const APPS = [
 /* one stamp for this build, used for the staging service-worker URL below */
 const STAMP = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 13);
 
-rmSync(out, { recursive: true, force: true });
+if (!into) rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 for (const app of APPS) {
@@ -106,8 +119,11 @@ for (const app of APPS) {
     throw new Error(`${app.dir}: manifest related_applications is ${JSON.stringify(ids)}, expected only ${app.pkg}`);
 }
 
-/* The chooser. Plain, self-contained, no script: whoever lands on the root of
-   this host is choosing between two apps, not learning yet. */
+/* The chooser, for a host whose root is these two apps and nothing else.
+   --into means the root belongs to something else (the portal), so there is
+   none. Plain and self-contained: whoever lands here is choosing between two
+   apps, not learning yet. */
+if (!into) {
 const card = (a) => `      <a class="app" href="./${a.dir}/">
         <img src="./${a.dir}/logo.svg" alt="" width="54" height="54">
         <span><b>${a.name}</b><small>${a.blurb}</small></span>
@@ -147,5 +163,7 @@ ${APPS.map(card).join("\n")}
 </div></body></html>
 `);
 
+}
+
 console.log(`\n✓ two standalone web apps in ${out}`);
-console.log(`  ${production ? "PRODUCTION" : "STAGING"} build · ${APPS.map(a => "/" + a.dir + "/").join(" and ")} · chooser at /`);
+console.log(`  ${production ? "PRODUCTION" : "STAGING"} build · ${APPS.map(a => "/" + a.dir + "/").join(" and ")}${into ? "" : " · chooser at /"}`);

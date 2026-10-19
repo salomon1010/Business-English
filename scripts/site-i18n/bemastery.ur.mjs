@@ -15,6 +15,8 @@
 const GET = `ایپ حاصل کریں`;
 
 export default [
+  [`Or <a href="https://app.lomonec.com/bemastery/">use it in your browser</a> — nothing to install, and signing in carries your progress to the app.`,
+   `یا <a href="https://app.lomonec.com/bemastery/">اسے براؤزر میں استعمال کریں</a> — انسٹال کرنے کی ضرورت نہیں، اور سائن اِن کرنے سے آپ کی پیش رفت ایپ میں پہنچ جاتی ہے۔`],
   // head
   [`BE Mastery — AI English Speaking Practice`, `BE Mastery — AI کے ساتھ انگریزی بولنے کی مشق`],
   [`Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.`,

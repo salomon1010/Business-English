@@ -86,6 +86,10 @@ cut("language picker", "<!-- i18n:lang -->", "<!-- /i18n:lang -->");
        as it stands, and only its own address changes. The assertion below is
        what tells us if an Apple URL is ever put back upstream. */
 if (/apps\.apple\.com/.test(h)) throw new Error("the source page carries an Apple URL again — check that the listing is live before letting it through");
+/* the browser link under the stores points at THIS app's own web app
+   (docs/WEB-STANDALONE.md): one programme per address, like the store app. */
+sub("the web app link", 'href="https://app.lomonec.com/bemastery/">use it in your browser',
+                        'href="https://app.lomonec.com/general-english/">use it in your browser');
 sub("JSON-LD url", '"url":"https://lomonec.com/bemastery/"', '"url":"https://lomonec.com/bemastery-g/"');
 
 /* ── 4. the page is one directory further out, so relative asset paths are

@@ -149,6 +149,10 @@ sub("a note in their place", '<!-- Structured data: Google Play only, for the sa
 /* the structured record describes THIS app, and claims no store page */
 sub("JSON-LD name", '"name":"BE Mastery","alternateName":"Business English Mastery"',
                     '"name":"BE Mastery Welding","alternateName":"BE Mastery for the refinery trades"');
+/* the browser link under the stores points at THIS app's own web app
+   (docs/WEB-STANDALONE.md): one programme per address, like the store app. */
+sub("the web app link", 'href="https://app.lomonec.com/bemastery/">use it in your browser',
+                        'href="https://app.lomonec.com/welding-english/">use it in your browser');
 sub("JSON-LD url", '"url":"https://lomonec.com/bemastery/"', '"url":"https://lomonec.com/bemastery-w/"');
 sub("JSON-LD store urls", '"installUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],"downloadUrl":["https://play.google.com/store/apps/details?id=com.bemastery.app"],',
   `"installUrl":"${W_PLAY}","downloadUrl":"${W_PLAY}",`);
