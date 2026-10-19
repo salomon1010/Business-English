@@ -285,7 +285,7 @@ Flavor overlays:
   snapshot and its tap opens `#mastery`), so in a General-English-only app they
   could only draw an empty card and lead nowhere.
 
-**Sign in with Apple on Android — written, NOT yet deployed (14 Oct 2026).**
+**Sign in with Apple on Android — DEPLOYED and verified live (19 Oct 2026).**
 It used to be answered `apple: false` in the Welding build, because
 `auth.lomonec.com` redirected Apple's answer to a hard-coded `bemastery://apple`
 and only one installed app may claim a scheme; a second claimant would put an app
@@ -304,11 +304,21 @@ three of them for this.
 > **DEPLOY ORDER IS NOT OPTIONAL.** `be-auth` must be deployed BEFORE any Welding
 > build carrying this ships. A Welding app released against the old proxy sends
 > `bew.` states it does not recognise, so the proxy forwards them to Firebase
-> instead of back to the app and the learner never returns. Deploy is
-> `npx wrangler deploy --env ""` from `backend/auth-proxy` — a **production**
-> Worker handling live sign-in for the existing app, so it is the owner's call.
-> Until then the shipped Welding bundle (vc2) still has the old `apple: false`
-> behaviour, which is safe.
+> instead of back to the app and the learner never returns.
+>
+> **That order was kept.** be-auth was deployed 14 Oct 2026 (version
+> `07d4c6f3-c623-44a1-b4c2-48d9c2ea5b5c`), before vc 3, and the live proxy was
+> checked again on 19 Oct by posting each prefix to
+> `https://auth.lomonec.com/__/auth/handler`:
+>
+> ```
+> state=bea.…  ->  303  location: bemastery://apple?state=bea.…
+> state=bew.…  ->  303  location: bemasterywelding://apple?state=bew.…
+> ```
+>
+> So Apple's return path is correct for both apps in production. The Gmail
+> failure reported on 19 Oct was Google's side only — step 11 under § Store
+> actions.
 
 ### iOS — one project, two identities
 
@@ -457,12 +467,33 @@ id that is not on this machine.
 
 **Firebase**
 
-11. Add `com.lomonec.bemastery.welding` as a second **Android** app in project
-    `be-mastery`, with the upload and Play App Signing SHA-1s, and put the
-    `google-services.json` at
-    `~/.config/be-mastery/firebase/google-services.welding.production.json`.
-    Until it exists the Welding Android build simply has no notifications
-    (`BEPush.available()` is false). **No Worker change is needed**: be-push
+11. **DONE, 19 Oct 2026.** `com.lomonec.bemastery.welding` is a second
+    **Android** app in project `be-mastery`, app id
+    `1:847739483036:android:728ad3394e52e5284ece59`, and the config file is at
+    `~/.config/be-mastery/firebase/google-services.welding.production.json`
+    (never committed). Both certificates are registered:
+
+    | SHA-1 | which key | what it covers |
+    |---|---|---|
+    | `ea:90:6c:cf:ab:4d:48:fd:85:c3:13:03:6d:d0:76:5d:b3:b7:b7:3a` | Play App Signing (this app's own, minted by Play) | every install from the store |
+    | `75:a1:fa:6d:38:3d:a3:18:bb:45:d2:68:4c:4a:d2:89:26:53:37:e4` | upload key, shared with the existing app | a build installed by hand |
+
+    **This was not only about notifications.** It is what Sign in with Google
+    needs, and until 19 Oct it was missing, so Gmail sign-in failed in the
+    Welding app in production. Credential Manager hands Google the calling
+    package and its signing certificate, and Google answers only if an Android
+    OAuth client exists for that pair in the project that owns the server client
+    id (`be_google_web_client_id`, the web client of `be-mastery`). The existing
+    app had two such clients; the Welding package had none, so there was nothing
+    to match and the sheet could not return a token. Registering the app with
+    both SHA-1s creates the two Android OAuth clients, which is the whole fix —
+    **no code change and no new build**: the shipped vc 4 already asks for the
+    right thing. Read the Play signing SHA-1 without the Console by downloading
+    a generated APK (`androidpublisher generatedApks`) and running `apksigner
+    verify --print-certs` on it; Play signs those with the app signing key.
+
+    Notifications still need a rebuild, because `google-services.json` is
+    compiled in. **No Worker change is needed**: be-push
     sends FCM `messages:send` with a registration token, which identifies the
     app by itself, and the same `FCM_SA_JSON` service account covers every app
     in the project.
