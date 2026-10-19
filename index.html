@@ -10365,6 +10365,14 @@ const I18N_EN={
  "auth.signout_confirm_clean":"Sign out and clear this device? Your progress stays safe in your account and comes back when you log in. Recordings saved here are deleted — they were never in your account.",
  "auth.welcome_back_named_toast":"☁️ Welcome back, {{name}} — your progress is synced",
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
+ "keep.title":"Keep your progress",
+ "keep.body":"Your {{n}} completed sessions are saved on this phone only. Sign in (it's free) and your progress is kept in your account — through app updates, a new phone or a reinstall.",
+ "keep.ok":"Sign in to keep it",
+ "keep.later":"Not now",
+ "keep.restore_t":"Used BE Mastery before?",
+ "keep.restore_b":"This update moves BE Mastery into its own app, so practice saved only in your browser does not come across. Nothing is lost: sign in and your progress comes back from your account. If you never signed in, it is still in Chrome on this phone.",
+ "keep.restore_ok":"Sign in to bring it back",
+ "keep.restore_new":"I'm new here",
  "cf.backup_title":"Protect your progress",
  "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
  "cf.backup_ok":"Back it up",
@@ -11356,7 +11364,7 @@ function go(v,arg1,arg2){
   try{navBadges()}catch(e){}
   jumpTop();
   try{AdManager.afterNav(v)}catch(e){}   /* a pending natural break, and this page's native slot (Phase 8) */
-  if(v==="home")setTimeout(()=>whenIdle(backupNudge),1200);   // only on the dashboard, never mid-task, never under a thumb
+  if(v==="home")setTimeout(()=>whenIdle(()=>{if(!keepNudge())backupNudge()}),1200);   // only on the dashboard, never mid-task, never under a thumb
 }
 
 /* Put App Setup on the Profile page eyebrow. That row is sticky, so unlike the
@@ -16770,6 +16778,71 @@ function srText(results){
    data, "clear browsing data" wipes it, uninstalling takes it along). So once
    someone has built up real progress with no account and no export, ask once.
    Shown a single time; declining is remembered. */
+/* KEEP YOUR PROGRESS (10 Oct 2026, docs/ANDROID_NATIVE_SHELL_PLAN.md §6). The Play app
+   is about to become a native app that carries the web app inside it. Today's Play app
+   (a Trusted Web Activity) keeps a signed-out learner's progress in Chrome's storage for
+   app.lomonec.com; the new app starts with an empty store, so only an ACCOUNT carries
+   progress across the update (fbFirstSync merges the device copy into it). So the Play
+   app asks a signed-out learner with any progress to sign in — true advice today, vital
+   at the switch. Every 3 days at most, 4 times in all; returns true when it asked, so the
+   backup nudge does not stack on top of it. */
+/* ---- THE WEBVIEW-ORIGIN MIGRATION (11 Oct 2026) ----
+   The Play app was a Trusted Web Activity: Chrome drew app.lomonec.com and the
+   learner's practice lived in Chrome's storage for that site. The native shell
+   draws the same page in its OWN WebView, whose origin is https://localhost, so
+   none of that storage is reachable here. That is the browser's design, not a
+   defect, and nothing in the app can cross it — which is exactly why it matters:
+   a learner who never signed in opens the updated app to an empty first run, and
+   it looks like everything is gone.
+
+   It is not gone. It is still in Chrome under the old origin, and for anyone who
+   signed in it is in Firestore. So on the FIRST run of the Android shell, with no
+   profile here and no account, the app says what happened and offers sign-in.
+
+   Deliberately NOT a gate: onboarding is already drawn underneath, "I'm new here"
+   just closes it, and it is asked once per device. The marker lives in
+   localStorage rather than S because a cloud sync replaces S wholesale. No new
+   credential path — it opens the same sign-in sheet every other entry point uses.
+   keepNudge (below) is the other half, on the TWA, asking learners to sign in
+   BEFORE the switch; this is the safety net for everyone who never saw it. */
+const RESTORE_ASK_KEY="be_restore_asked";
+function restoreAsk(){
+  try{
+    if(!flag("play_keep_progress_enabled"))return false;   /* one flag covers both halves of the migration */
+    if(!IS_ANDROID_APP)return false;                       /* the TWA has keepNudge; iOS never had a TWA to migrate from */
+    if(S.profile)return false;                             /* a learner is already set up here: nothing to restore */
+    let u=null;try{u=FBUser}catch(e){}
+    if(u)return false;                                     /* signed in: the sync brings the profile by itself */
+    let asked=null;try{asked=localStorage.getItem(RESTORE_ASK_KEY)}catch(e){}
+    if(asked)return false;
+    try{localStorage.setItem(RESTORE_ASK_KEY,"1")}catch(e){}
+    askConfirm({icon:"user",danger:false,title:t("keep.restore_t"),body:t("keep.restore_b"),
+      confirmLabel:t("keep.restore_ok"),cancelLabel:t("keep.restore_new")})
+      .then(yes=>{if(yes)try{fbOpenModal("in")}catch(e){}});
+    return true;
+  }catch(e){return false}
+}
+const KEEP_EVERY_MS=3*86_400_000,KEEP_MAX=4;
+function keepNudge(){
+  try{
+    if(!flag("play_keep_progress_enabled"))return false;
+    if(!S.profile||(typeof FBUser!=="undefined"&&FBUser))return false;   // FBUser is a top-level let, not on window
+    if(IS_NATIVE_APP||!isPlayApp())return false;          // only today's Play app (the TWA)
+    const done=Object.keys(S.days||{}).length;
+    if(done<1)return false;                               // nothing to lose yet
+    const k=S.keepAsk||{n:0,at:0};
+    if(k.n>=KEEP_MAX||Date.now()-k.at<KEEP_EVERY_MS)return false;
+    S.keepAsk={n:k.n+1,at:Date.now()};save();
+    askConfirm({
+      icon:"user",danger:false,
+      title:t("keep.title"),
+      body:t("keep.body",{n:done}),
+      confirmLabel:t("keep.ok"),
+      cancelLabel:t("keep.later")
+    }).then(yes=>{if(yes)fbOpenModal("up")});
+    return true;
+  }catch(e){return false}
+}
 function backupNudge(){
   try{
     if(!S.profile||S.backupAsked)return;
@@ -22666,7 +22739,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v686";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v688";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24471,6 +24544,7 @@ const FLAGS_DEFAULT={
   ios_widget_enabled:true,             // the iOS home-screen widget: the app publishes its progress snapshot through the shell's BEWidget plugin (docs/IOS_WIDGET.md). Nothing on the web.
   android_widget_enabled:true,         // the Android home-screen widget: the page publishes the same snapshot to be-widget for the id the Play app handed it (?wid=). Does nothing without WIDGET_API or that id (docs/ANDROID_WIDGET.md).
   social_signin_web_enabled:true,      // Google + Apple sign-in on the web and in the Play app (owner, 7 Oct 2026: providers configured, both verified on production through auth.lomonec.com)
+  play_keep_progress_enabled:true,     // the Play app (TWA) asks a signed-out learner with progress to sign in before the switch to the native shell (keepNudge)
   auth_proxy_enabled:true,             // Firebase's helper on auth.lomonec.com (be-auth, deployed d8b9896a 7 Oct 2026): what lets the installed Play app finish a Google / Apple sign-in
   billing_preview_provider:false,      // review the Premium offer in a browser; honoured on localhost / staging only, and it can never buy (BillingProviders.preview)
   web_visitor_gate_enabled:true        // the web visitor landing (owner, 10 Oct 2026; docs/ACCESS-MATRIX.md): a plain browser tab with no account and no learner on the device signs up or in before learning. ON since be12-v686 (owner: "update everything, deploy"); never on a local/LAN test host without an explicit be_flags entry (webGateFlag); never in the store apps, an installed app or for an existing learner (webPlainTab)
@@ -24507,6 +24581,7 @@ const FLAGS_STAGING={
   ios_widget_enabled:true,
   android_widget_enabled:true,
   social_signin_web_enabled:true,      // the web sheet on staging.lomonec.com offers Apple + Google (popup); needs both providers ON in the staging (validation) Firebase project's console
+  play_keep_progress_enabled:true,     // the Play app (TWA) asks a signed-out learner with progress to sign in before the switch to the native shell (keepNudge)
   auth_proxy_enabled:true,             // staging: Google + Apple through auth-staging.lomonec.com (verified 7 Oct 2026: both providers' own sign-in pages open)
   /* Ads ON for staging only (owner, 2 October 2026), so the device scenarios in
      docs/ADS-IOS-RELEASE.md §4 can actually run. The creatives are GOOGLE'S OWN
@@ -35569,7 +35644,7 @@ function webGateLift(){
   obRender();
   try{const n=document.getElementById("obName");if(n&&OB.name)n.value=OB.name}catch(e){}
 }
-if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else obRender()}
+if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else{obRender();try{restoreAsk()}catch(e){}}}   /* the Android shell's first run explains the move and offers sign-in, over onboarding */
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
 else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}try{widgetFeedBoot()}catch(e){}}
