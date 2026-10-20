@@ -72,18 +72,31 @@ console.log("\n# the StoreKit fixture (Xcode's local store for testing)");
     (INDEX.match(/.{0,40}(?:24\.99|19\.99).{0,40}/) || [""])[0]);
   ok("S5 · the price the app draws comes from the product the store returned (displayPrice)",
     /displayPrice/.test(INDEX) && /BILLING_PRODUCTS=Object\.freeze\(\["premium_monthly","premium_annual"\]\)/.test(INDEX));
-  /* one list in three places: the Swift allow-list, the web layer's product
-     list and this fixture. A mismatch is an empty Premium sheet on the iPhone. */
+  /* ONE list per app, in three places each: the Swift allow-list, the web
+     layer's Apple list and the fixture. A mismatch is an empty Premium sheet on
+     the iPhone — which is exactly what Welding 1.0.0 (2) shipped, because every
+     list named the General English ids (20 Oct 2026). */
   const SK = read(IOS + "Plugins/BEStoreKitPlugin.swift");
-  const swiftIds = ((SK.match(/static let allowed: Set<String> = \[([^\]]*)\]/) || [])[1] || "").match(/"[^"]+"/g) || [];
-  const webIds = ((INDEX.match(/BILLING_PRODUCTS=Object\.freeze\(\[([^\]]*)\]\)/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const swiftW = ((SK.match(/case "com\.lomonec\.bemastery\.welding":\s*return \[([^\]]*)\]/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const swiftGE = ((SK.match(/default:\s*return \[([^\]]*)\]/) || [])[1] || "").match(/"[^"]+"/g) || [];
+  const appleWeb = INDEX.match(/APPLE_BILLING_PRODUCTS=Object\.freeze\([\s\S]{0,120}?\?\[([^\]]*)\][\s\S]{0,20}?:\[([^\]]*)\]\)/) || [];
+  const webW = (appleWeb[1] || "").match(/"[^"]+"/g) || [], webGE = (appleWeb[2] || "").match(/"[^"]+"/g) || [];
+  const playIds = ((INDEX.match(/BILLING_PRODUCTS=Object\.freeze\(\[([^\]]*)\]\)/) || [])[1] || "").match(/"[^"]+"/g) || [];
   const fxIds = subs.map(s => JSON.stringify(s.productID));
+  const fxW = JSON.parse(read(IOS + "BEMasteryWelding.storekit")).subscriptionGroups[0].subscriptions.map(s => JSON.stringify(s.productID));
   const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
-  ok("S6 · BEStoreKitPlugin.allowed, BILLING_PRODUCTS and the StoreKit fixture name the same two ids (one set for both stores)",
-    swiftIds.length === 2 && same(swiftIds, webIds) && same(swiftIds, fxIds) && same(swiftIds, ['"premium_monthly"', '"premium_annual"']),
-    JSON.stringify({ swiftIds, webIds, fxIds }));
-  ok("S7 · the StoreKit provider asks for the same product list as Google Play, and no second list exists",
-    /BENativeBilling\.getProducts\(BILLING_PRODUCTS\.slice\(\)\)/.test(INDEX) && !/APP_STORE_PRODUCTS|BEMastery_(Premium|Annual)/.test(INDEX));
+  ok("S6 · the General English app's three lists agree on its two ids",
+    swiftGE.length === 2 && same(swiftGE, webGE) && same(swiftGE, fxIds) && same(swiftGE, ['"premium_monthly"', '"premium_annual"']),
+    JSON.stringify({ swiftGE, webGE, fxIds }));
+  ok("S6b · the Welding app's three lists agree on ITS two ids — Apple would not let it reuse the others",
+    swiftW.length === 2 && same(swiftW, webW) && same(swiftW, fxW) && same(swiftW, ['"welding_premium_monthly"', '"welding_premium_annual"']),
+    JSON.stringify({ swiftW, webW, fxW }));
+  ok("S6c · the two apps share no product id, in any of the three places",
+    [[swiftGE, swiftW], [webGE, webW], [fxIds, fxW]].every(([a, b]) => !a.some(x => b.includes(x))));
+  ok("S6d · GOOGLE PLAY still has one pair for both packages — a Play id is scoped to its package, so nothing moved there",
+    same(playIds, ['"premium_monthly"', '"premium_annual"']), JSON.stringify(playIds));
+  ok("S7 · the StoreKit provider asks for THIS app's Apple list, and no third list exists",
+    /BENativeBilling\.getProducts\(APPLE_BILLING_PRODUCTS\.slice\(\)\)/.test(INDEX) && !/APP_STORE_PRODUCTS|BEMastery_(Premium|Annual)/.test(INDEX));
 }
 
 /* ============================================================ 2. the Swift plugin, as written */

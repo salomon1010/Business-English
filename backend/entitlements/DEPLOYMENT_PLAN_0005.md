@@ -36,20 +36,59 @@ refuses a duplicate pair; and re-running 0005 **fails loudly** rather than
 silently emptying the table. 10/10 of my own checks, independent of
 `test/migration.mjs`, which passes 13/13.
 
-## 2. Current production state
+## 2. Current production state — RE-READ 20 OCTOBER 2026
 
-- `be-entitlements` is **deployed and answering**. **[verified]** An
-  unauthenticated `GET /v1/entitlement` returns `HTTP 401 {"error":"auth"}`,
-  for both no `?app` and `?app=welding`. No credentials were sent.
-- `APP_PROGRAMMES = "general-english"`, `APPLE_BUNDLE_ID = "com.lomonec.bemastery"`,
-  `PLAY_PACKAGE = "com.bemastery.app"` — all single-valued, the safe
-  configuration. **[verified]** read from `wrangler.toml`.
-- Migrations 0001-0004 applied 2026-10-03; 0005 not applied; `purchase_links`
-  0 rows, `entitlements` 0 rows, `processed_notifications` 18.
-  **[reported]** by the `be-staging` session; I have not queried production D1
-  and deliberately did not. If the row counts still hold, there is no live
-  entitlement data to migrate, which makes this the cheapest moment the change
-  will ever have. **Confirm the counts before applying.**
+**This section was wrong and is now corrected from the live account, not from
+`wrangler.toml` and not from report.** Steps 1-5 in § 3 have, in substance,
+already been carried out. Do **not** run them again.
+
+Queried read-only on 20 Oct 2026 (`wrangler d1 execute … --remote` with SELECTs
+only, `wrangler versions view`, `wrangler secret list`; no value of any secret
+was printed and nothing was written):
+
+- **Migration 0005 IS applied.** `d1_migrations` lists 0001-0005, and the live
+  `entitlements` table carries `app_id` with `PRIMARY KEY (uid, app_id)`.
+  **[verified]** The earlier line here — "0001-0004 applied; 0005 not applied" —
+  was marked `[reported]` and was never checked against the database. It is
+  false.
+- **The deployed Worker already has both apps configured**, and the three lists
+  are extended **together**, which is the aligned, safe shape:
+  `APP_PROGRAMMES = "general-english,welding"`,
+  `APPLE_BUNDLE_ID = "com.lomonec.bemastery,com.lomonec.bemastery.welding"`,
+  `PLAY_PACKAGE = "com.bemastery.app,com.lomonec.bemastery.welding"`.
+  **[verified]** from the deployed version's own bindings, not from the repo.
+- Deployed version `4e4d86ba`, created **2026-10-16**. The app-scoping code
+  (`programmeOfStoreId`, `purchase_links.app_id`) landed on 13 Oct in
+  `effe9de0`, three days earlier, and the pre-split configuration had no
+  `APP_PROGRAMMES` variable at all. `/health` answers `{"ok":true,"dev":false}`,
+  the current code's shape. **[verified]** — though see the caveat below.
+- Other deployed bindings: `FIREBASE_PROJECT_ID = "be-mastery"`,
+  `APPLE_ENVIRONMENTS = "Production,Sandbox"`, `APPLE_ROOT_SHA256`,
+  `ALLOWED_ORIGINS`, `RTDN_AUDIENCE`, `RTDN_SA_EMAIL`, D1 bound to
+  `ead9ecb9…`. Secrets present by **name only**: `APP_ACCOUNT_SECRET`,
+  `GOOGLE_SA_JSON`, `PLAY_TOKEN_KEY`, `ADMIN_TOKEN`. **[verified]**
+- `purchase_links` **0 rows**, `entitlements` **0 rows**,
+  `processed_notifications` **21**. **[verified]** No account has ever held a
+  store entitlement in production, so there is still nothing to migrate or to
+  lose.
+
+> **THE ONE THING NOT PROVEN.** The deployed *configuration* is post-split
+> beyond doubt. The deployed *code* is inferred — from the 16 Oct deploy date
+> against the 13 Oct commit, from variables that only exist post-split, and
+> from the `/health` shape. An unauthenticated probe cannot distinguish the two
+> code paths, because the auth check runs before app resolution, so every probe
+> answers 401.
+>
+> This matters because **widened lists in front of pre-split code is the one
+> combination that leaks Premium across the two apps** (§ 6). The evidence is
+> strong that this is not the live state, but if certainty is wanted before the
+> first real purchase, redeploy from `main` (`npx wrangler deploy --env ""`),
+> which is idempotent here and makes the deployed code a known quantity.
+
+**What this means for the plan below.** § 3 steps 1-5 describe work that is
+already done. They are kept as the record of how it was meant to be sequenced
+and as the procedure for any future environment. § 6's rollback ordering still
+applies in full and is the part to read if anything has to be undone.
 
 ## 3. Order of operations
 
@@ -93,39 +132,52 @@ start until the blocker in §5 is cleared.
 - Before step 5 and after, an app the service does not know answers Free for
   that app, never another app's plan (W16).
 
-## 5. Blocker — step 5 cannot be reached yet
+## 5. Step 5's old blocker is CLEARED; a different one remains
 
-**There is no App Store Connect app record for the Welding app.**
-**[verified]** read-only via the App Store Connect API on 13 Oct 2026: the
-account holds exactly one app, `com.lomonec.bemastery` (id 6817207864).
+**Superseded 20 October 2026.** This section used to say there was no App Store
+Connect app record for the Welding app, so the subscription group could not be
+created and the id-reuse question could not be tested. Both are now settled.
+Read-only App Store Connect API, 20 Oct 2026, no credentials printed:
 
-The Developer-portal side is complete: `com.lomonec.bemastery.welding`,
-`.welding.BEPushService` and `.welding.BEWidget` are registered, all four App
-Store profiles are ACTIVE to 2027-09-29, and the Welding bundle id carries
-`APPLE_ID_AUTH`, `APP_GROUPS`, `IN_APP_PURCHASE`, `PUSH_NOTIFICATIONS` —
-identical to the General English app. **[verified]**
+- The account holds **two** apps: `com.lomonec.bemastery` (6817207864) and
+  **`com.lomonec.bemastery.welding` (6822527532)**. **[verified]**
+- Welding subscription group **22484497** "BE Mastery Welding Premium" exists,
+  holding `welding_premium_annual` (6823575232, ONE_YEAR) and
+  `welding_premium_monthly` (6823574822, ONE_MONTH), both **READY_TO_SUBMIT**,
+  USA 19.99 / 2.99, 175 territory prices each and 175 FREE_TRIAL / THREE_DAYS
+  introductory offers each. **[verified]**
+- **The ids could NOT be reused.** Apple refused the Welding app the ids the
+  General English app already holds, so it carries `welding_premium_*`. The
+  question this section left open is answered, and answered the other way.
+  Google Play is unaffected: a Play product id is scoped to its package, and
+  **both** packages sell `premium_annual` / `premium_monthly`, ACTIVE, with a
+  `trial3d` P3D offer on each. **[verified]** read-only Play Developer API.
+- As §5 predicted, the code was agnostic: `PRODUCTS` in `entitlement-core.js`
+  and `APPLE_BILLING_PRODUCTS` in `index.html` took different strings and the
+  app scoping did not move, because the app is derived from the store identity
+  Apple and Google signed, never from the product id.
 
-Consequences:
-- The Welding subscription group cannot be created until the app record exists,
-  so the Welding app has nothing to sell and step 5 would configure a programme
-  with no products behind it.
-- Whether `premium_annual` / `premium_monthly` can be **reused** on a second app
-  cannot be tested until then. Apple's help documentation says an id cannot be
-  reused within an app and that in-app purchases are not shareable between apps,
-  but does not state the account-level rule; developer reports describe the
-  error "The Product ID you entered is already being used by another
-  subscription" for an id used only in a different app on the same account.
-  **This is unresolved.** Product ids cannot be renamed once created, so test it
-  before anything depends on it.
-- The code is agnostic either way: the app is derived from the store identity
-  Apple and Google signed, never from the product id. If the ids must differ,
-  `PRODUCTS` in `entitlement-core.js` and `BILLING_PRODUCTS` in `index.html`
-  take different strings and nothing else moves.
+**What still blocks a working Welding purchase — corrected 20 Oct 2026.**
+The first two items that stood here (0005 unapplied; the three lists still
+single-valued) were **both false**, and the backend is not the blocker at all.
+Re-read from the live account, the backend is ready: 0005 applied, both apps
+configured, Apple and Play credentials present, 0 rows of live data.
 
-The app record must be created in the App Store Connect web UI. The API appears
-to offer no app-creation endpoint — a developer report shows `POST /v1/apps`
-returning allowed operations `GET_COLLECTION`, `GET_INSTANCE`, `UPDATE` with no
-create — so this is an owner action, not an automatable one.
+What actually blocks it is **on the app side, and only there**:
+
+1. **Welding build 2 is the build attached to version 1.0**, and build 2 is the
+   one that asks the App Store for `premium_monthly` / `premium_annual` — ids
+   the Welding app record does not hold. StoreKit answers with an EMPTY product
+   list, so the paywall has nothing on it and nothing can be bought. Build 3
+   carries the fix; it must be uploaded **and attached to the version**.
+2. Nothing else. Once a build that asks for `welding_premium_*` is in front of
+   a learner, the products exist (READY_TO_SUBMIT, 175 territories, 3-day
+   trial) and the server can file the purchase per-app.
+
+So a Welding purchase has never been *possible*, but not for the reason this
+document gave. A passing local suite still does not prove a production
+purchase: the suites run against an in-memory database, and no real purchase
+has been made on either store in either app.
 
 ## 6. Rollback
 
@@ -168,3 +220,47 @@ create — so this is an owner action, not an automatable one.
   the published App Store descriptions name no number, so nothing obliges a
   change. **[verified]** the live en-US descriptions are "All of Premium, billed
   once a year." and "The same Premium, billed monthly."
+
+---
+
+## 8. Forward checklist — from here to the first real Welding purchase
+
+Written 20 Oct 2026, after re-reading production. **Nothing in it has been
+executed.** Steps 1-3 are owner-only store actions; 4 is optional belt-and-
+braces; 5 is the only thing that proves the chain.
+
+| # | Step | Who | Done when |
+|---|---|---|---|
+| 1 | Upload the verified IPA (`1.0.0 (3)`, SHA-256 `2ce4ab0f…`) with `bash scripts/upload.sh welding` | owner | App Store Connect shows build 3 and finishes processing |
+| 2 | **Attach build 3 to version 1.0**, replacing build 2 | owner | the version's build reads 3, not 2 |
+| 3 | Resubmit (submission `d0a067bd` is `UNRESOLVED_ISSUES`; read the Resolution Center message first — the API does not expose it) | owner | state leaves `UNRESOLVED_ISSUES` |
+| 4 | *Optional:* redeploy the Worker from `main` so the deployed code is a known quantity rather than an inference (§ 2 caveat) | owner | `wrangler deployments list` shows a fresh version |
+| 5 | One sandbox purchase in each app, then read `purchase_links` and `entitlements` back | owner | one row per app, each with the right `app_id`; the other app still reads Free |
+
+Step 5 is the only evidence that the chain works end to end. Until it is done,
+"configured" is all that can honestly be claimed: no real purchase has been
+made on either store, in either app.
+
+### Rollback, and the one ordering that must never be used
+
+The backend is already in the wide configuration, so a rollback means
+**narrowing** it. That is where the leak lives.
+
+| Undo | Order | Why |
+|---|---|---|
+| Stop selling in Welding only | Narrow the three lists **together** (`APP_PROGRAMMES`, `APPLE_BUNDLE_ID`, `PLAY_PACKAGE`) and redeploy | `programmeOfStoreId` then returns `null` for the Welding identity, so Welding purchases are refused with `app_unmapped` and General English is untouched. No data change. |
+| Roll the Worker back to pre-split code | **Narrow the lists FIRST. Confirm the narrow config is live. Only then roll the code back.** | See below. |
+| Undo 0005 | Restore from a D1 export | There is no down-migration and 0005 recreates `entitlements`. Today this costs nothing (0 rows) — it will not stay that way after step 5. |
+
+> **NEVER: widened lists in front of pre-split code.** The pre-split Worker has
+> no app dimension — it writes one entitlement row per account. With both
+> bundle ids still on the allow-list it will *accept* a Welding transaction and
+> write it as that account's only entitlement, and **General English will then
+> read Premium from a Welding purchase.** The allow-list decides only *whether*
+> to accept; only the app scoping decides *what it grants*.
+>
+> This is why the code rollback is second and the configuration rollback is
+> first, and why the two must never be reordered "to save a deploy" — not even
+> for the minutes between two commands. If a rollback is ever started and
+> interrupted, the safe resting state is **narrow lists**, whichever code is
+> running.

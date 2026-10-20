@@ -29,7 +29,7 @@ const PLATFORMS = ["ios", "android", "web"];
 const platform = argAfter("--platform") || "ios";
 if (!PLATFORMS.includes(platform)) throw new Error(`--platform must be one of ${PLATFORMS.join(" / ")}, got ${platform}`);
 /* `site` is the lomonec.com company website (deployed on its own, 7 Oct 2026); the app never loads it */
-const skip = new Set([".git", ".github", ".claude", ".agents", ".playwright-mcp", ".wrangler", "node_modules", "backend", "branding", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store",
+const skip = new Set([".git", ".github", ".claude", ".agents", ".codex", ".playwright-mcp", ".wrangler", "node_modules", "backend", "branding", "marketing", "docs", "tests", "playstore", "scripts", "mobile", "review", "services", "skills", "site", ".well-known", "CNAME", "TESTING.md", "0703eea26ef786413e910ec4d620b6a0.txt", "robots.txt", "sitemap.xml", "CLAUDE.md", "README.md", "CONTRIBUTING.md", ".gitignore", ".DS_Store",
   /* _site is scripts/portal/build-site.mjs's output. It was not listed here,
      so a bundle built after a portal build copied the whole website into the
      app — and when build-site calls THIS script to produce the two pinned web

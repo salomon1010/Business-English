@@ -59,10 +59,24 @@ export const PLANS = Object.freeze({
 
 /* products are what a store sells; plans are what the app understands.
    Several products can map to one plan (monthly and annual are both Premium).
-   The App Store and Google Play sell the SAME two ids (owner, 6 Oct 2026). */
+
+   Google Play sells the SAME two ids on both packages (owner, 6 Oct 2026); the
+   APP STORE does not — Apple would not give the Welding app record the ids the
+   General English one already uses, so it carries welding_premium_* (20 Oct
+   2026). A product id cannot be renamed once created.
+
+   WHICH APP A PURCHASE BELONGS TO IS NOT READ FROM THIS TABLE. The scope comes
+   from the store identity Apple or Google signed — app-store.js checks
+   tx.bundleId against APPLE_BUNDLE_ID and billing.js derives app_id with
+   programmeOfStoreId(env, tx.bundleId) — so listing a Welding id here cannot
+   let it unlock the other app, and a General English id signed by the Welding
+   bundle still scopes to Welding. The table only says which PLAN a product is.
+   An id that is not here is refused outright (toRecord returns null). */
 export const PRODUCTS = Object.freeze({
-  premium_monthly: "premium",   // 1 month, both stores
-  premium_annual: "premium",    // 1 year, both stores
+  premium_monthly: "premium",           // 1 month — Play (both packages) + App Store (General English)
+  premium_annual: "premium",            // 1 year  — Play (both packages) + App Store (General English)
+  welding_premium_monthly: "premium",   // 1 month — App Store, Welding app record only
+  welding_premium_annual: "premium",    // 1 year  — App Store, Welding app record only
   premium_promo: "premium",
 });
 
