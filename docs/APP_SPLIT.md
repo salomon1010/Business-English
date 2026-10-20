@@ -256,8 +256,37 @@ entitlements" (W1–W23) — 138/138; `tests/app-split.mjs` § 10 (66–76) — 
 
 | flavor | applicationId | versionCode | label |
 |---|---|---|---|
-| `general` | `com.bemastery.app` | 19 | BE Mastery |
-| `welding` | `com.lomonec.bemastery.welding` | 1 | BE Welding |
+| `general` | `com.bemastery.app` | 20 | BE Mastery |
+| `welding` | `com.lomonec.bemastery.welding` | 5 | BE Welding |
+
+**versionCode 20 / 5 (19 Oct 2026) is the offline-shell fix, and it is the first
+thing either app has shipped that has a service worker at all.** Every bundle up
+to 19 and 4 installed none: `sw.js` precached with `cache.addAll(SHELL)`, which
+rejects the whole batch when one entry 404s, and a single-programme bundle does
+not carry the other programme's catalogue or tracks — so the install always
+failed, the worker never activated, and the app looked perfectly well until the
+connection went. The worker now adds each entry on its own, and `sync-web.mjs`
+prunes `SHELL` to the files the bundle actually carries (44 of 55 for General
+English, 51 for Welding). `tests/offline-shell.mjs` installs the worker from each
+built bundle in a real browser and counts what reaches the cache; its last check
+runs the old `addAll` code against the same bundle and shows it caching nothing.
+
+**Uploading is not releasing.** `scripts/upload.mjs <app> --track <track>` puts
+the bundle on a track as a **draft** and stops there, on purpose. The rollout is a
+second, separate step: a `PUT` of that track's `releases` with the draft's status
+changed — `completed` (everyone) or `inProgress` with a `userFraction` (staged).
+Two things about that PUT are worth knowing before writing one:
+
+* It **replaces the whole `releases` array**. Pass the other releases back
+  unchanged or they are dropped. Adding a draft leaves the live `completed`
+  release alone; a full rollout deliberately drops it, because the new release
+  supersedes it — that is what the console does too.
+* `edits.commit` is what sends the changes for review. If the account ever turns
+  **managed publishing** on, the commit queues them instead, and someone still has
+  to press *Send changes for review* on the Publishing overview page.
+
+versionCode 20 and 5 were rolled out to 100% this way on 19 Oct 2026, replacing 19
+and 4. Google reviews an update before it reaches a device.
 
 ```
 cd mobile/android

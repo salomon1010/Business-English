@@ -46,8 +46,15 @@ android {
             // PRODUCTION bundle of the native shell is 18. Play only installs a higher one.
             // 18 was built before Phase C and cannot sell (billing_enabled was false and
             // ENT_API empty in its bundled web code); 19 is the first bundle that can.
-            versionCode 19
-            versionName "1.2.0"
+            // 20 (19 Oct 2026) is the OFFLINE SHELL fix: every bundle up to 19
+            // installed no service worker at all. sw.js precached with
+            // cache.addAll(SHELL), which rejects wholesale on a single 404, and a
+            // single-programme bundle does not carry the other programme's files —
+            // so the install always failed and the app had no offline shell. It
+            // looks fine until the connection goes. sw.js now adds each entry on
+            // its own and sync-web prunes SHELL to the files the bundle carries.
+            versionCode 20
+            versionName "1.2.1"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -73,8 +80,10 @@ android {
             // it opened on a full-screen "install this app from Google Play"
             // card — in the app, over the sign-in sheet, pointing at the OTHER
             // app. 4 is the first bundle a tester should be given.
-            versionCode 4
-            versionName "1.0.0"
+            // 5 (19 Oct 2026): the offline-shell fix, as for the other app —
+            // 4 installed no service worker. See the note on versionCode 20 above.
+            versionCode 5
+            versionName "1.0.1"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
