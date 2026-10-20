@@ -358,12 +358,32 @@ console.log("\n== nothing secret tracked");
 console.log("\n== web bundle freshness");
 {
   /* THE TWO-APP SPLIT: a bundled index.html is no longer byte-identical to the
-     repo root — sync-web.mjs inserts the one-line be-build.js tag that names the
-     programme. So freshness is checked with that line removed, and the bundle's
-     declared programme has to be the one being checked. */
+     repo root. sync-web.mjs makes exactly two changes to the page in a
+     production bundle, so freshness is checked against what IT would produce
+     for THIS programme rather than against the raw root:
+       1. it inserts the one-line be-build.js tag that names the programme;
+       2. for a programme that has its own logo.svg (BRAND in sync-web.mjs —
+          today only Welding) it swaps the inline #beSplash mark,
+          <svg class="bs-logo"> … </svg>, for that logo, so a Welding learner
+          does not watch the General English tile animate in before the app
+          paints.
+     Comparing a Welding bundle with the raw root reported STALE for every
+     CORRECT bundle: the comparison was wrong, not the bundle (20 Oct 2026).
+     General English has no branded logo, so its comparison is byte-for-byte
+     what it has always been. The transform below mirrors sync-web.mjs; if the
+     page ever changes shape sync-web throws there, and here the substitution
+     simply does not happen, so this check fails loudly rather than passing by
+     accident. */
   const www = join(ios, "www", "index.html"), pub = join(ios, "ios", "App", "App", "public", "index.html");
   const strip = p => read(p).replace(/\n?<script src="be-build\.js"><\/script>/, "");
-  const srcTxt = read(join(root, "index.html"));
+  const SPLASH_IMG = '<img class="bs-logo" src="logo.svg" alt="" style="border-radius:22px">';
+  const branded = existsSync(join(root, "branding", programme, "logo.svg"));
+  const srcTxt = (() => {
+    const s = read(join(root, "index.html"));
+    if (!branded) return s;
+    const open = s.indexOf('<svg class="bs-logo"'), close = open < 0 ? -1 : s.indexOf("</svg>", open);
+    return open < 0 || close < 0 ? s : s.slice(0, open) + SPLASH_IMG + s.slice(close + "</svg>".length);
+  })();
   const fresh = p => existsSync(p) && strip(p) === srcTxt;
   warn(`www/index.html ${existsSync(www) ? (fresh(www) ? "matches the repo root" : "is STALE — run npm run sync:" + (welding ? "welding" : "general")) : "absent — run npm run sync:" + (welding ? "welding" : "general")}`, fresh(www));
   warn(`ios/App/App/public/index.html ${existsSync(pub) ? (fresh(pub) ? "matches the repo root" : "is STALE — run npm run sync:" + (welding ? "welding" : "general")) : "absent — run npm run sync:" + (welding ? "welding" : "general")}`, fresh(pub));
@@ -373,6 +393,12 @@ console.log("\n== web bundle freshness");
   const bb = join(ios, "ios", "App", "App", "public", "be-build.js");
   ok("be-build.js in the bundle names that programme and nothing of staging",
     existsSync(bb) && read(bb).includes(`"track":"${programme}"`) && !/staging/.test(read(bb)), existsSync(bb) ? read(bb).trim() : "absent");
+  /* The swap above is what lets a branded bundle match, so assert the bundle
+     really carries its own mark instead of assuming it: a General English
+     splash inside the Welding app is the thing this is here to catch. */
+  if (branded) ok(`the #beSplash mark is ${programme}'s own logo.svg, not the General English tile`,
+    existsSync(pub) && read(pub).includes(SPLASH_IMG) && !read(pub).includes('<svg class="bs-logo"'),
+    !existsSync(pub) ? "no bundle" : "the bundle still carries the inline svg.bs-logo");
 }
 
 console.log("\n== this Mac");

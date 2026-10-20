@@ -1,0 +1,74 @@
+{
+  "identifier": "BE0W3LD1",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "22000001",
+      "localizations": [],
+      "name": "Welding Premium",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "2.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "22000002",
+          "localizations": [
+            {
+              "description": "Welding Premium, billed monthly.",
+              "displayName": "Welding Premium (monthly)",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "welding_premium_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Welding Premium monthly",
+          "subscriptionGroupID": "22000001",
+          "type": "RecurringSubscription",
+          "introductoryOffer": {
+            "internalID": "22000005",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D"
+          }
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "19.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "22000003",
+          "localizations": [
+            {
+              "description": "All of Welding Premium, billed once a year.",
+              "displayName": "Annual Welding Premium",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "welding_premium_annual",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Welding Premium annual",
+          "subscriptionGroupID": "22000001",
+          "type": "RecurringSubscription",
+          "introductoryOffer": {
+            "internalID": "22000004",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D"
+          }
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

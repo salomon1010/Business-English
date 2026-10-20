@@ -12,8 +12,10 @@ import UIKit
 /// web layer, which posts them to be-entitlements (`/v1/purchases/verify`,
 /// `/v1/purchases/restore`). Nothing here decides whether a learner is Premium.
 ///
-/// - Products: only `premium_monthly` and `premium_annual` are ever loaded —
-///   the same ids on the App Store and Google Play.
+/// - Products: only this app record's own two subscriptions are ever loaded —
+///   `premium_monthly` / `premium_annual` in the General English app,
+///   `welding_premium_monthly` / `welding_premium_annual` in the Welding one
+///   (Apple would not let the second app reuse the first's ids). See `allowed`.
 /// - Purchases carry the account's `appAccountToken` (from the server), so a
 ///   transaction can only be claimed by the BE Mastery account that bought it.
 /// - A transaction is finished only when the web layer says the server has
@@ -37,11 +39,41 @@ public class BEStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "manageSubscriptions", returnType: CAPPluginReturnPromise),
     ]
 
-    /// The only products this app sells: `premium_monthly` = 1 month,
-    /// `premium_annual` = 1 year — the same ids on the App Store and Google
-    /// Play. Keep in step with `BILLING_PRODUCTS` in index.html and `PRODUCTS`
+    /// The products THIS app record holds: `..._monthly` = 1 month,
+    /// `..._annual` = 1 year.
+    ///
+    /// The two App Store apps do NOT share ids (20 Oct 2026). Apple would not
+    /// give the Welding app record the ids the General English one already
+    /// uses, so it carries `welding_premium_*`; Google Play is unaffected,
+    /// because a Play product id is scoped to its package and both packages
+    /// sell the shared ids. A product id cannot be renamed once created.
+    ///
+    /// Asking StoreKit for an id this app record does not hold returns an
+    /// EMPTY product list rather than an error — a crossed list is a paywall
+    /// with no plans on it, which is exactly what shipped in 1.0.0 (2) and why
+    /// the Welding app could not be bought.
+    ///
+    /// Derived from the BUNDLE ID, not from a build flag: the bundle id is the
+    /// store identity itself, so it cannot disagree with the app record the way
+    /// a forgotten `SWIFT_ACTIVE_COMPILATION_CONDITIONS` could. Anything else
+    /// (the General English app, a test host, a simulator build of the project's
+    /// own settings) keeps the ids it has always had.
+    ///
+    /// Keep in step with `APPLE_BILLING_PRODUCTS` in index.html and `PRODUCTS`
     /// in backend/entitlements/src/entitlement-core.js.
-    static let allowed: Set<String> = ["premium_monthly", "premium_annual"]
+    static func products(for bundleId: String?) -> Set<String> {
+        switch bundleId {
+        case "com.lomonec.bemastery.welding":
+            return ["welding_premium_monthly", "welding_premium_annual"]
+        default:
+            return ["premium_monthly", "premium_annual"]
+        }
+    }
+
+    /// What this build is allowed to load, buy and finish. Every entry point
+    /// filters through it, so an id from the other app is refused here even if
+    /// it ever reached the device.
+    static let allowed: Set<String> = products(for: Bundle.main.bundleIdentifier)
 
     private var updates: Task<Void, Never>?
 

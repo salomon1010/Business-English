@@ -672,6 +672,29 @@ console.log("\n# Two apps, separate entitlements");
   r = await averify("sa2", atx({ bundleId: "com.someone.else", originalTransactionId: "ot-w2", appAccountToken: atk }));
   ok("W14 · a transaction from an app that is not ours is refused", r.status === 422 && r.json.error === "not_our_product", JSON.stringify(r.json));
 
+  /* ---- the PRODUCT ID says which PLAN, never which APP (20 Oct 2026) -------
+     Apple would not let the Welding app reuse premium_monthly / premium_annual,
+     so its record holds welding_premium_*. Those ids are in PRODUCTS now, but
+     the scope still comes from the bundle id Apple SIGNED — so neither app's
+     ids can unlock the other, whatever a client sends. */
+  atk = await aToken("sa3");
+  r = await averify("sa3", atx({ bundleId: WBID, productId: "welding_premium_annual", originalTransactionId: "ot-w3", appAccountToken: atk }));
+  ok("W14a · the Welding app's own product id grants Premium in the Welding app",
+    r.status === 200 && (await view("sa3", WE)).paid === true, JSON.stringify(r.json));
+  ok("W14b · …and leaves the same account Free in the General English app", (await view("sa3", GE)).paid === false);
+  atk = await aToken("sa4");
+  r = await averify("sa4", atx({ bundleId: "com.lomonec.bemastery", productId: "welding_premium_annual", originalTransactionId: "ot-w4", appAccountToken: atk }));
+  ok("W14c · a WELDING id signed by the General English bundle scopes to General English — the signed app decides, never the id",
+    r.status === 200 && (await view("sa4", GE)).paid === true && (await view("sa4", WE)).paid === false, JSON.stringify(r.json));
+  atk = await aToken("sa5");
+  r = await averify("sa5", atx({ bundleId: WBID, productId: "premium_annual", originalTransactionId: "ot-w5", appAccountToken: atk }));
+  ok("W14d · …and the other way round: a shared id signed by the Welding bundle is Welding's alone",
+    r.status === 200 && (await view("sa5", WE)).paid === true && (await view("sa5", GE)).paid === false, JSON.stringify(r.json));
+  atk = await aToken("sa6");
+  r = await averify("sa6", atx({ bundleId: WBID, productId: "welding_premium_lifetime", originalTransactionId: "ot-w6", appAccountToken: atk }));
+  ok("W14e · an id that is not in PRODUCTS fails closed, however plausible it looks",
+    r.status === 422 && r.json.error === "not_our_product", JSON.stringify(r.json));
+
   /* ---- a client cannot talk itself into Premium ---- */
   env = envFor(BOTH);
   G.subs.set(tok(126), gsub()); G.tokenPkg.set(tok(126), WPKG);

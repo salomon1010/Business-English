@@ -26131,10 +26131,26 @@ function beNativeBilling(){
   };
   return window.BENativeBilling;
 }
-/* ONE id per plan on BOTH stores (owner, 6 Oct 2026): Google Play and App
-   Store Connect each sell premium_monthly (1 month) and premium_annual (1 year).
-   Same ids as BEStoreKitPlugin.allowed and the server's PRODUCTS. */
+/* ONE id per plan on GOOGLE PLAY, on both packages (owner, 6 Oct 2026):
+   premium_monthly (1 month) and premium_annual (1 year) — com.bemastery.app
+   and com.lomonec.bemastery.welding each sell those same two ids, because a
+   Play product id is scoped to its package.
+   THE APP STORE IS NOT THE SAME (20 Oct 2026). Apple would not give the second
+   app the ids the first already uses — docs/APP_SPLIT_SUBMISSION.md § A7 flagged
+   that reuse as unverified — so the Welding app record carries
+   welding_premium_monthly / welding_premium_annual instead. A product id cannot
+   be renamed or reused once created, so the code follows the store, not the
+   other way round. BILLING_PRODUCTS stays the PLAY list (unchanged, both
+   packages); APPLE_BILLING_PRODUCTS is what StoreKit is asked for, chosen by
+   the app this build IS. Asking StoreKit for ids the app record does not hold
+   returns an EMPTY list rather than an error, so a crossed list shows a paywall
+   with no plans on it — which is what shipped and why the Welding app could not
+   be bought. Keep all three in step: BEStoreKitPlugin.allowed (iOS) and
+   PRODUCTS in backend/entitlements/src/entitlement-core.js (server). */
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
+const APPLE_BILLING_PRODUCTS=Object.freeze(window.BE_APP_TRACK==="welding"
+  ?["welding_premium_monthly","welding_premium_annual"]
+  :["premium_monthly","premium_annual"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
 /* The Android shell's Play Billing (BEPlayBillingPlugin.java, 9 Oct 2026). It answers
    in the Digital Goods shapes below, so the evidence sent to our server is the same
@@ -26200,7 +26216,7 @@ const BillingProviders={
     async available(){const N=beNativeBilling();return IS_IOS_APP&&!!(N&&typeof N.purchase==="function")},
     /* the store's own facts, as the Play provider gives them: period and trial
        are ISO 8601; the trial is present only for an eligible Apple ID */
-    async products(){const p=await window.BENativeBilling.getProducts(BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice,
+    async products(){const p=await window.BENativeBilling.getProducts(APPLE_BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice,
       amount:Number(x.price),currency:x.currencyCode||"",period:x.period||"",trial:x.trial||""}))},
     async purchase(id){
       const tok=await billingApi("GET","/v1/purchases/account-token");
@@ -26476,8 +26492,8 @@ function premOffers(){
   const L=Billing.products||[];
   const per=(x,u)=>{const i=premIso(x.period);return i?i.u===u&&i.n===1:false};
   const mk=(p,kind)=>p?{p,kind,trial:premTrialDays(p.trial)}:null;
-  const annual=mk(L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&x.id==="premium_annual"),"annual");
-  const monthly=mk(L.find(x=>per(x,"M"))||L.find(x=>!x.period&&x.id==="premium_monthly"),"monthly");
+  const annual=mk(L.find(x=>per(x,"Y"))||L.find(x=>!x.period&&/(^|_)premium_annual$/.test(x.id)),"annual");
+  const monthly=mk(L.find(x=>per(x,"M"))||L.find(x=>!x.period&&/(^|_)premium_monthly$/.test(x.id)),"monthly");
   const list=[annual,monthly].filter(Boolean);
   if(!list.length&&L[0])list.push(mk(L[0],"other"));
   return {annual,monthly,list};
@@ -26754,7 +26770,7 @@ function subPlanInfo(){
   let B=null;try{B=Billing}catch(e){}
   const id=B&&B.ownedIds&&B.ownedIds[0];if(!id)return null;
   const p=(B.products||[]).find(x=>x.id===id),x=p?premIso(p.period):null;
-  const kind=(x&&x.n===1&&x.u==="Y")||(!x&&id==="premium_annual")?"annual":(x&&x.n===1&&x.u==="M")||(!x&&id==="premium_monthly")?"monthly":"";
+  const kind=(x&&x.n===1&&x.u==="Y")||(!x&&/(^|_)premium_annual$/.test(id))?"annual":(x&&x.n===1&&x.u==="M")||(!x&&/(^|_)premium_monthly$/.test(id))?"monthly":"";
   return {id,kind,price:p?p.price:"",per:kind==="annual"?t("prem.per_year"):kind==="monthly"?t("prem.per_month"):""};
 }
 function subStoreName(src){return src==="app_store"?"App Store":src==="google_play"?"Google Play":""}
