@@ -69,7 +69,34 @@ cd mobile/ios && bash scripts/export.sh welding             # distribution IPA �
 An archive from this pipeline is **development-signed by design** — the
 preserved 13 Oct archive is identical in that respect, and `export.sh`
 re-signs with `Apple Distribution: LOMON EC LLC` at export. A development-signed
-archive is **not** distribution-ready on its own.
+archive is **not** distribution-ready on its own. Its embedded profile is the
+**Team Provisioning Profile** (1 device, `aps-environment: development`,
+`get-task-allow: true`), which is what the export replaces.
+
+> **THE EXPORT FAILED on 20 Oct 2026 — there is no distribution IPA.** It chose
+> the right identity (`Apple Distribution: LOMON EC LLC (8TKAAK2MG6)`, hash
+> `6336…`) and then stopped on the first framework:
+>
+> ```
+> error: exportArchive codesign command failed
+>   …/App.app/Frameworks/GoogleMobileAds.framework: replacing existing signature
+>   …/App.app/Frameworks/GoogleMobileAds.framework: errSecInternalComponent
+> ** EXPORT FAILED **
+> ```
+>
+> `errSecInternalComponent` from codesign means it could not use the private
+> key. A SecurityAgent authorisation dialog was open for the whole run (the
+> keychain itself was unlocked, `no-timeout`), so this is the **per-key access
+> control** on the distribution key, not a locked keychain and not a
+> provisioning problem. Nothing in the archive, the project or the signing
+> configuration is at fault, and the archive is intact.
+>
+> **Fix, owner only:** open **Keychain Access → login → My Certificates →
+> `Apple Distribution: LOMON EC LLC`**, expand it, double-click the **private
+> key → Access Control**, and either add `/usr/bin/codesign` to the allowed
+> list or choose *Allow all applications to access this item*. Then re-run
+> `bash scripts/export.sh welding`. Running the export from a terminal you are
+> attending and clicking **Always Allow** on the prompt does the same thing.
 
 The 13 Oct build-1 archive lives in a different worktree
 (`~/Developer/be-welding-tf/mobile/ios/build/welding.xcarchive`) and was not
