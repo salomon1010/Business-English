@@ -155,6 +155,30 @@ Android side needed changing.
 | categories | EDUCATION, BUSINESS |
 | submissions | `d0a067bd` **UNRESOLVED_ISSUES** (the 3.1.2 rejection) · `421ae512` COMPLETE |
 
+**What is actually inside submission `d0a067bd` — proven, 20 Oct 2026.** The
+submission holds **four items, all `READY_FOR_REVIEW`**. The item ids are base64
+of `<submissionId>|<typeCode>|<resourceId>`, and the resource ids are *version*
+ids, which is why they resolve against no subscription or group endpoint
+directly:
+
+| type | resource id | what it is |
+|---|---|---|
+| 6 | `893107345` | the app version 1.0 |
+| 18 | `a2861973-a70b-42d8-a0fa-6cabbedc6469` | **`welding_premium_annual`** version 1 (`/v1/subscriptions/6823575232/versions`) |
+| 18 | `19f4a7b6-6540-4713-8e64-3b8a6a9496ef` | **`welding_premium_monthly`** version 1 (`/v1/subscriptions/6823574822/versions`) |
+| 19 | `4f9a49c2-1dae-404a-b33d-5b4f8761c3d7` | subscription **group 22484497** version 1 (`/v1/subscriptionGroups/22484497/versions`) |
+
+So **both Welding subscriptions and their group are attached to the submission**.
+This is read back from the API, not inferred from the products' `READY_TO_SUBMIT`
+state — which says nothing about attachment.
+
+The route matters, because the obvious one does not work: `reviewSubmissionItems`
+forbids `GET_INSTANCE`, exposes no relationships on the collection, and accepts
+only `appStoreVersion`, `appCustomProductPageVersion`, `appEvent`,
+`appStoreVersionExperiment` and `appStoreVersionExperimentV2` as `include` names
+— there is **no subscription relationship**. The `versions` sub-resource on each
+subscription and on the group is what ties them together.
+
 The shipped IPA's product ids and these product records agree. **A configured
 subscription is not a working purchase** — see the production gate below.
 
