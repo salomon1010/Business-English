@@ -107,8 +107,21 @@ Offline-first. The lessons, the recorder, the transcripts and the games run with
 PREMIUM
 Free gives you the whole loop: the curriculum, the studio, the Challenge, your recordings, the games and the feedback your phone can compute. Premium adds the AI speaking reports in full, the per-word pronunciation score, 30- and 90-day analytics, the AI coach and the personalised recommendations.
 
+SUBSCRIPTION TERMS
+Welding Premium is an auto-renewable monthly or yearly subscription. The price is shown in the app before you buy. It renews automatically unless you turn renewal off at least 24 hours before the period ends; manage or cancel it in your Apple account settings.
+Privacy policy: https://app.lomonec.com/privacy.html
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
 Lomonec LLC · contact@lomonec.com
 ```
+
+**The last four lines are not decoration — 1.0.0 (2) was REJECTED without them**
+(16 Oct 2026, guideline 3.1.2, submission `d0a067bd-f294-4639-8103-4bb0ccb9e104`):
+an app that offers auto-renewable subscriptions must carry a **functional link to
+the Terms of Use (EULA)** in the description of EVERY localisation on the product
+page. The privacy-policy URL field being set is not enough; Apple reads the
+description. The block above is 3,984 of the 4,000 characters allowed, so
+anything added later has to come out of it.
 
 ## Keywords (100)
 
