@@ -271,6 +271,23 @@ English, 51 for Welding). `tests/offline-shell.mjs` installs the worker from eac
 built bundle in a real browser and counts what reaches the cache; its last check
 runs the old `addAll` code against the same bundle and shows it caching nothing.
 
+**Uploading is not releasing.** `scripts/upload.mjs <app> --track <track>` puts
+the bundle on a track as a **draft** and stops there, on purpose. The rollout is a
+second, separate step: a `PUT` of that track's `releases` with the draft's status
+changed — `completed` (everyone) or `inProgress` with a `userFraction` (staged).
+Two things about that PUT are worth knowing before writing one:
+
+* It **replaces the whole `releases` array**. Pass the other releases back
+  unchanged or they are dropped. Adding a draft leaves the live `completed`
+  release alone; a full rollout deliberately drops it, because the new release
+  supersedes it — that is what the console does too.
+* `edits.commit` is what sends the changes for review. If the account ever turns
+  **managed publishing** on, the commit queues them instead, and someone still has
+  to press *Send changes for review* on the Publishing overview page.
+
+versionCode 20 and 5 were rolled out to 100% this way on 19 Oct 2026, replacing 19
+and 4. Google reviews an update before it reaches a device.
+
 ```
 cd mobile/android
 bash scripts/build.sh            # General English debug APK
