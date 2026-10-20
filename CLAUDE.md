@@ -13,7 +13,13 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
 - **`index.html`** — the *entire* app (HTML + CSS in `<style>` + all JS inline). No
   build step, no framework, no bundler. Everything lives here.
 - **`sw.js`** — service worker, network-first. `const CACHE = "be12-vNN"`. **Bump
-  this integer on every deploy** or clients keep the old cache.
+  this integer on every deploy** or clients keep the old cache. **Never precache
+  with `cache.addAll`** (19 Oct 2026): it rejects the WHOLE batch on one 404, so a
+  single missing file means the worker never installs and there is no offline shell
+  at all — which is exactly what the two store apps shipped up to versionCode 19
+  and 4, because a single-programme bundle does not carry the other programme's
+  files. Each entry is added on its own and a miss is skipped; `sync-web.mjs`
+  prunes `SHELL` per bundle. Guard: `tests/offline-shell.mjs` (25).
 - **`flyer.html`** — self-contained marketing / **About** page, loaded in an iframe
   from Profile → About (`openAbout()` passes `?lang=&theme=&v=`). Has its *own*
   data-driven i18n dictionary `FL = {en:{…}, es:{…}, …}` + `EXTRA` (do not confuse

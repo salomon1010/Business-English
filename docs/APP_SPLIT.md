@@ -256,8 +256,20 @@ entitlements" (W1–W23) — 138/138; `tests/app-split.mjs` § 10 (66–76) — 
 
 | flavor | applicationId | versionCode | label |
 |---|---|---|---|
-| `general` | `com.bemastery.app` | 19 | BE Mastery |
-| `welding` | `com.lomonec.bemastery.welding` | 1 | BE Welding |
+| `general` | `com.bemastery.app` | 20 | BE Mastery |
+| `welding` | `com.lomonec.bemastery.welding` | 5 | BE Welding |
+
+**versionCode 20 / 5 (19 Oct 2026) is the offline-shell fix, and it is the first
+thing either app has shipped that has a service worker at all.** Every bundle up
+to 19 and 4 installed none: `sw.js` precached with `cache.addAll(SHELL)`, which
+rejects the whole batch when one entry 404s, and a single-programme bundle does
+not carry the other programme's catalogue or tracks — so the install always
+failed, the worker never activated, and the app looked perfectly well until the
+connection went. The worker now adds each entry on its own, and `sync-web.mjs`
+prunes `SHELL` to the files the bundle actually carries (44 of 55 for General
+English, 51 for Welding). `tests/offline-shell.mjs` installs the worker from each
+built bundle in a real browser and counts what reaches the cache; its last check
+runs the old `addAll` code against the same bundle and shows it caching nothing.
 
 ```
 cd mobile/android
