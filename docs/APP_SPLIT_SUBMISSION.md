@@ -73,34 +73,35 @@ archive is **not** distribution-ready on its own. Its embedded profile is the
 **Team Provisioning Profile** (1 device, `aps-environment: development`,
 `get-task-allow: true`), which is what the export replaces.
 
-> **THE EXPORT FAILED on 20 Oct 2026 — there is no distribution IPA.** It chose
-> the right identity (`Apple Distribution: LOMON EC LLC (8TKAAK2MG6)`, hash
-> `6336…`) and then stopped on the first framework:
+> **The export failed on the first attempt and then succeeded.** The first run
+> stopped on `errSecInternalComponent` while re-signing
+> `GoogleMobileAds.framework` — codesign could not use the distribution private
+> key, because its per-key access control had not been granted (a SecurityAgent
+> dialog was open for the whole run; the keychain itself was unlocked). Once
+> the key was authorised the export completed unchanged. Nothing in the
+> archive, the project or the signing configuration was at fault.
 >
-> ```
-> error: exportArchive codesign command failed
->   …/App.app/Frameworks/GoogleMobileAds.framework: replacing existing signature
->   …/App.app/Frameworks/GoogleMobileAds.framework: errSecInternalComponent
-> ** EXPORT FAILED **
-> ```
->
-> `errSecInternalComponent` from codesign means it could not use the private
-> key. A SecurityAgent authorisation dialog was open for the whole run (the
-> keychain itself was unlocked, `no-timeout`), so this is the **per-key access
-> control** on the distribution key, not a locked keychain and not a
-> provisioning problem. Nothing in the archive, the project or the signing
-> configuration is at fault, and the archive is intact.
->
-> **Fix, owner only:** open **Keychain Access → login → My Certificates →
-> `Apple Distribution: LOMON EC LLC`**, expand it, double-click the **private
-> key → Access Control**, and either add `/usr/bin/codesign` to the allowed
-> list or choose *Allow all applications to access this item*. Then re-run
-> `bash scripts/export.sh welding`. Running the export from a terminal you are
-> attending and clicking **Always Allow** on the prompt does the same thing.
+> If it recurs: Keychain Access → login → My Certificates →
+> `Apple Distribution: LOMON EC LLC` → private key → **Access Control** → allow
+> `/usr/bin/codesign`, then re-run `bash scripts/export.sh welding`.
 
-The 13 Oct build-1 archive lives in a different worktree
-(`~/Developer/be-welding-tf/mobile/ios/build/welding.xcarchive`) and was not
-touched; the two paths never collide.
+### The distribution IPA — verified 20 Oct 2026
+
+| | |
+|---|---|
+| path | `mobile/ios/build/export-welding/App.ipa` |
+| size | **21,576,970 bytes** |
+| **SHA-256** | **`2ce4ab0ffce0a359718727eabaeb932863f94903934467f50dfd9ba4162a22c8`** |
+| app / extensions | `com.lomonec.bemastery.welding`, `…welding.BEPushService`, `…welding.BEWidget` — all **1.0.0 (3)** |
+| signature | `Apple Distribution: LOMON EC LLC (8TKAAK2MG6)` → Apple WWDR CA → Apple Root CA, on the app **and both extensions** |
+| entitlements | `get-task-allow false`, `aps-environment production`, app group `group.com.lomonec.bemastery.welding`, Sign in with Apple, `beta-reports-active` |
+| profiles | all three are **Store** profiles, **0 provisioned devices**, expiring 2027-09-29 (the archive's development Team profile is gone) |
+| integrity | `codesign --verify --deep --strict` → valid, satisfies its Designated Requirement |
+| product path | executing the shipped page with the shipped `be-build.js` yields `APPLE_BILLING_PRODUCTS = ["welding_premium_annual","welding_premium_monthly"]`; no General English id reaches StoreKit |
+| preflight | `bash scripts/upload.sh welding --dry-run` → passed; it returns before any credential or `altool` call, so it cannot upload |
+
+**Not uploaded and not Apple-validated.** No `--validate` and no upload has
+run, so no Apple-side verdict exists for this build.
 
 ### Android artifacts
 
@@ -161,20 +162,36 @@ subscription is not a working purchase** — see the production gate below.
 (1.0.1)**; alpha and internal at vc 4. Both products ACTIVE with a `trial3d`
 P3D free phase.
 
-### Production billing gate — purchases are BLOCKED
+### Production backend — RE-READ 20 Oct 2026, and the earlier entry was wrong
 
-Verified by reading `backend/entitlements/wrangler.toml` and the migrations:
+This section previously said purchases were blocked because `0005_app_scope.sql`
+was unapplied and the deployed Worker was still pre-split. **Both claims were
+false.** They were taken from `backend/entitlements/DEPLOYMENT_PLAN_0005.md`,
+which carried them as `[reported]`, and were never checked against the live
+account. Read-only from Cloudflare on 20 Oct 2026 (SELECTs only; no secret
+value printed; nothing written):
 
-1. `0005_app_scope.sql` is **not applied** to production D1, and the deployed
-   Worker is still the **pre-split** code, which has no app dimension at all.
-2. `PLAY_PACKAGE`, `APPLE_BUNDLE_ID` and `APP_PROGRAMMES` are still
-   single-valued in production.
+| | |
+|---|---|
+| migrations | `d1_migrations` lists **0001-0005** — 0005 **is applied** |
+| schema | `entitlements` has `app_id`, `PRIMARY KEY (uid, app_id)` |
+| deployed vars | `APP_PROGRAMMES = "general-english,welding"`, `APPLE_BUNDLE_ID` and `PLAY_PACKAGE` both naming **both** apps — extended together, the aligned safe shape |
+| other bindings | `FIREBASE_PROJECT_ID`, `APPLE_ENVIRONMENTS = "Production,Sandbox"`, `APPLE_ROOT_SHA256`, `ALLOWED_ORIGINS`, RTDN audience and SA email, D1 `ead9ecb9…` |
+| secrets (names only) | `APP_ACCOUNT_SECRET`, `GOOGLE_SA_JSON`, `PLAY_TOKEN_KEY`, `ADMIN_TOKEN` |
+| live data | `purchase_links` **0 rows**, `entitlements` **0 rows**, `processed_notifications` 21 |
+| deployed version | `4e4d86ba`, 2026-10-16 — three days after the app-scoping code landed (`effe9de0`, 13 Oct) |
 
-So **no Welding purchase can be verified in production today**, in either app,
-however complete the store records are. The ordered rollout, the verification
-after each step, and the rollback — including the one ordering that could leak
-Premium across the two apps — are in
-`backend/entitlements/DEPLOYMENT_PLAN_0005.md`. Nothing in it has been executed.
+So the backend is **ready for both apps**, not blocking.
+
+**What is still true:** no real purchase has been made on either store, in
+either app, so nothing proves the chain end to end. And the deployed *code* is
+inferred rather than proven — the configuration is unambiguously post-split,
+but an unauthenticated probe cannot tell the two code paths apart because auth
+runs before app resolution. See § 2 and § 8 of the deployment plan.
+
+**The real blocker is the app, not the server:** Welding version 1.0 still has
+**build 2** attached, and build 2 asks for the General English ids, so StoreKit
+returns an empty product list and the paywall has nothing on it.
 
 ### Automated tests — actually run, in this worktree
 
