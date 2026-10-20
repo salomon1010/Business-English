@@ -93,39 +93,47 @@ start until the blocker in §5 is cleared.
 - Before step 5 and after, an app the service does not know answers Free for
   that app, never another app's plan (W16).
 
-## 5. Blocker — step 5 cannot be reached yet
+## 5. Step 5's old blocker is CLEARED; a different one remains
 
-**There is no App Store Connect app record for the Welding app.**
-**[verified]** read-only via the App Store Connect API on 13 Oct 2026: the
-account holds exactly one app, `com.lomonec.bemastery` (id 6817207864).
+**Superseded 20 October 2026.** This section used to say there was no App Store
+Connect app record for the Welding app, so the subscription group could not be
+created and the id-reuse question could not be tested. Both are now settled.
+Read-only App Store Connect API, 20 Oct 2026, no credentials printed:
 
-The Developer-portal side is complete: `com.lomonec.bemastery.welding`,
-`.welding.BEPushService` and `.welding.BEWidget` are registered, all four App
-Store profiles are ACTIVE to 2027-09-29, and the Welding bundle id carries
-`APPLE_ID_AUTH`, `APP_GROUPS`, `IN_APP_PURCHASE`, `PUSH_NOTIFICATIONS` —
-identical to the General English app. **[verified]**
+- The account holds **two** apps: `com.lomonec.bemastery` (6817207864) and
+  **`com.lomonec.bemastery.welding` (6822527532)**. **[verified]**
+- Welding subscription group **22484497** "BE Mastery Welding Premium" exists,
+  holding `welding_premium_annual` (6823575232, ONE_YEAR) and
+  `welding_premium_monthly` (6823574822, ONE_MONTH), both **READY_TO_SUBMIT**,
+  USA 19.99 / 2.99, 175 territory prices each and 175 FREE_TRIAL / THREE_DAYS
+  introductory offers each. **[verified]**
+- **The ids could NOT be reused.** Apple refused the Welding app the ids the
+  General English app already holds, so it carries `welding_premium_*`. The
+  question this section left open is answered, and answered the other way.
+  Google Play is unaffected: a Play product id is scoped to its package, and
+  **both** packages sell `premium_annual` / `premium_monthly`, ACTIVE, with a
+  `trial3d` P3D offer on each. **[verified]** read-only Play Developer API.
+- As §5 predicted, the code was agnostic: `PRODUCTS` in `entitlement-core.js`
+  and `APPLE_BILLING_PRODUCTS` in `index.html` took different strings and the
+  app scoping did not move, because the app is derived from the store identity
+  Apple and Google signed, never from the product id.
 
-Consequences:
-- The Welding subscription group cannot be created until the app record exists,
-  so the Welding app has nothing to sell and step 5 would configure a programme
-  with no products behind it.
-- Whether `premium_annual` / `premium_monthly` can be **reused** on a second app
-  cannot be tested until then. Apple's help documentation says an id cannot be
-  reused within an app and that in-app purchases are not shareable between apps,
-  but does not state the account-level rule; developer reports describe the
-  error "The Product ID you entered is already being used by another
-  subscription" for an id used only in a different app on the same account.
-  **This is unresolved.** Product ids cannot be renamed once created, so test it
-  before anything depends on it.
-- The code is agnostic either way: the app is derived from the store identity
-  Apple and Google signed, never from the product id. If the ids must differ,
-  `PRODUCTS` in `entitlement-core.js` and `BILLING_PRODUCTS` in `index.html`
-  take different strings and nothing else moves.
+**What still blocks a working Welding purchase in production**, in order:
 
-The app record must be created in the App Store Connect web UI. The API appears
-to offer no app-creation endpoint — a developer report shows `POST /v1/apps`
-returning allowed operations `GET_COLLECTION`, `GET_INSTANCE`, `UPDATE` with no
-create — so this is an owner action, not an automatable one.
+1. **0005 is not applied to production D1** and the **deployed Worker is still
+   the pre-split code**. Until both are done, the Worker has no app dimension,
+   so no purchase in either app can be filed per-app. Steps 1-4 above are the
+   procedure; nothing about them has changed.
+2. **The three lists are still single-valued in production.** Step 5 can now
+   actually be reached once 1 is done — the products it would configure exist.
+3. **Welding build 2 is the build attached to version 1.0**, and build 2 is the
+   one that asked for the wrong product ids. A build carrying the fix (3) has
+   to be uploaded and attached before the app can sell anything at all.
+
+Until 1 and 2 are done, a Welding purchase cannot be verified in production
+even though the store records are complete. A passing local suite does not
+change that: the suites run against an in-memory database with the two-app
+configuration already set.
 
 ## 6. Rollback
 

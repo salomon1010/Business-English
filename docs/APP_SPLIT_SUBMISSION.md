@@ -9,6 +9,187 @@ from the live Play console, not assumed.
 
 ---
 
+## 0 · Verified release state — Welding, 20 October 2026
+
+Everything in this section was executed and read back. **Nothing was uploaded,
+submitted, merged or deployed, and no production migration or billing flag was
+touched.**
+
+### Repository
+
+| | |
+|---|---|
+| worktree | `~/Developer/be-welding-ids` (isolated; the main repo's dirty files, the other session's stash and all 9 worktrees untouched) |
+| branch | `fix/welding-product-ids` |
+| commits | `d1b34a4c` the product-id fix + checker · `0dcd94ec` the i18n parity fix |
+| PR | [#16](https://github.com/salomon1010/Business-English/pull/16) — OPEN, MERGEABLE, **not merged** |
+
+### Release checker
+
+```
+cd mobile/ios && node scripts/check-release.mjs --programme welding          # PASS 0 failures 0 warnings
+cd mobile/ios && node scripts/check-release.mjs --programme general-english  # PASS 0 failures 0 warnings
+```
+
+Both clean. Two defects were fixed to get there, and neither check was weakened:
+
+- **i18n parity.** `land.levels_h`, `land.prog_h`, `land.try`, `land.basic_t`,
+  `land.basic_b` and `land.free_b1` went into `I18N_EN` with the web visitor
+  gate and were never cut into `i18n/*.json`, so all 15 files sat at 3506 of
+  3512 keys. Fixed to the convention already in those files: French translated,
+  the other fourteen carry the English text. Additive; no existing translation
+  touched.
+- **Bundle freshness.** The checker compared a bundled `index.html` with the raw
+  repo root, so it reported STALE for every *correct* Welding bundle —
+  `sync-web.mjs` also swaps the `#beSplash` mark for the programme's own logo.
+  The comparison now mirrors `sync-web.mjs`, and a **new positive check**
+  asserts a branded bundle really carries its own mark. General English has no
+  branded logo, so its comparison is byte-for-byte what it always was.
+
+### iOS artifacts
+
+```
+cd mobile/ios && bash scripts/build.sh welding --archive    # ** ARCHIVE SUCCEEDED **
+cd mobile/ios && bash scripts/export.sh welding             # distribution IPA — see the blocker below
+```
+
+| | |
+|---|---|
+| archive | `mobile/ios/build/welding.xcarchive` — 61 MB |
+| bundle id | `com.lomonec.bemastery.welding` |
+| version | **1.0.0 (3)** — app and both extensions |
+| next build number | 3 is correct: App Store Connect holds builds **1 and 2**, both VALID (read-only, 20 Oct) |
+| signing | `Apple Development: Salomon Nore Ngoucheme`, team 8TKAAK2MG6 |
+| entitlements | Welding App Group, Sign in with Apple `[Default]`; widget: app group only; push service: neither (it only downloads images) |
+| extensions | `…welding.BEPushService`, `…welding.BEWidget`, both 1.0.0 (3) |
+| web bundle | `programme welding`, `be-build.js {"track":"welding"}`, Welding splash mark, **zero** General English inline `svg.bs-logo` |
+| product ids | the page holds `welding_premium_monthly` / `welding_premium_annual`; the binary carries the Welding bundle-id case, so `products(for:)` selects that pair at run time |
+| icon / launch | `AppIconWelding` / `LaunchScreenWelding` |
+
+An archive from this pipeline is **development-signed by design** — the
+preserved 13 Oct archive is identical in that respect, and `export.sh`
+re-signs with `Apple Distribution: LOMON EC LLC` at export. A development-signed
+archive is **not** distribution-ready on its own.
+
+The 13 Oct build-1 archive lives in a different worktree
+(`~/Developer/be-welding-tf/mobile/ios/build/welding.xcarchive`) and was not
+touched; the two paths never collide.
+
+### Android artifacts
+
+```
+cd mobile/android && npm ci                       # the worktree had no @capacitor/android
+cd mobile/android && bash scripts/release.sh welding
+```
+
+| | |
+|---|---|
+| AAB | `mobile/android/android/app/build/outputs/bundle/weldingRelease/app-welding-release.aab` |
+| size | 25,766,320 bytes (24.6 MB) |
+| SHA-256 | `55abbeb0feebc2c3cf0a45935de9368c473bf860172cddb49aa45f61cead962e` |
+| package | `com.lomonec.bemastery.welding` (read from the AAB's own manifest) |
+| version | versionCode **5**, versionName 1.0.1 |
+| upload key | `3D:E6:6D:FE:51:6D:73:6A:59:16:A9:6A:DF:34:3A:DC:39:C8:36:1C:B2:EF:3F:5F:46:0D:8B:A3:D1:3A:07:52`, CN=Salomon N, O=BE Mastery |
+| billing | `com.android.vending.BILLING` present (merged from Billing Library 8.0.0); `BEPlayBillingPlugin.ALLOWED` = the shared Play pair, correct for both packages |
+| widgets | only `BEWidgetProvider` — `BEWidgetProviderGE` and `…Pro` are absent from the artifact, not just from the overlay |
+| web bundle | `programme welding`, Welding splash, no General English catalogue or logo |
+| secrets | none found in the bundle |
+
+**This AAB is a verification artifact and cannot be uploaded.** versionCode 5 is
+**already live in production** on Play (1.0.1 — read-only, 20 Oct), so Play
+would refuse it. The next free code is **6**, and changing it is an owner
+decision; no committed version number was altered to build this.
+
+The Welding Android app does **not** carry the defect this branch fixes: Play
+ids are scoped per package, both packages sell `premium_annual` /
+`premium_monthly`, and the plugin's allow-list is already right. Nothing on the
+Android side needed changing.
+
+### Store records — read-only, 20 October 2026
+
+**App Store Connect** — app `6822527532`, `com.lomonec.bemastery.welding`:
+
+| | |
+|---|---|
+| version | 1.0 — `READY_FOR_REVIEW` (prepared, **not** submitted) |
+| build attached | **build 2** — the one that asked for the wrong ids |
+| builds held | 1 (14 Oct) and 2 (16 Oct), both VALID, neither expired |
+| subscription group | 22484497 "BE Mastery Welding Premium" |
+| products | `welding_premium_annual` 6823575232 ONE_YEAR · `welding_premium_monthly` 6823574822 ONE_MONTH — both **READY_TO_SUBMIT** |
+| prices | USA 19.99 (proceeds 16.99) / 2.99 (proceeds 2.54), 175 territories each |
+| intro offers | 175 rows each, all FREE_TRIAL / THREE_DAYS |
+| description | 3,984 chars, carries the **Terms of Use (EULA)** link, the privacy line and the renewal terms — 3.1.2 satisfied |
+| privacy policy | `https://app.lomonec.com/privacy.html` |
+| support / marketing | `https://www.lomonec.com/bemastery` |
+| screenshots | 6 × `APP_IPHONE_67` |
+| age rating | declared, nothing objectionable |
+| review notes | 1,735 chars; names the embedded third-party YouTube content |
+| categories | EDUCATION, BUSINESS |
+| submissions | `d0a067bd` **UNRESOLVED_ISSUES** (the 3.1.2 rejection) · `421ae512` COMPLETE |
+
+The shipped IPA's product ids and these product records agree. **A configured
+subscription is not a working purchase** — see the production gate below.
+
+**Google Play** — `com.lomonec.bemastery.welding`: production **completed, vc 5
+(1.0.1)**; alpha and internal at vc 4. Both products ACTIVE with a `trial3d`
+P3D free phase.
+
+### Production billing gate — purchases are BLOCKED
+
+Verified by reading `backend/entitlements/wrangler.toml` and the migrations:
+
+1. `0005_app_scope.sql` is **not applied** to production D1, and the deployed
+   Worker is still the **pre-split** code, which has no app dimension at all.
+2. `PLAY_PACKAGE`, `APPLE_BUNDLE_ID` and `APP_PROGRAMMES` are still
+   single-valued in production.
+
+So **no Welding purchase can be verified in production today**, in either app,
+however complete the store records are. The ordered rollout, the verification
+after each step, and the rollback — including the one ordering that could leak
+Premium across the two apps — are in
+`backend/entitlements/DEPLOYMENT_PLAN_0005.md`. Nothing in it has been executed.
+
+### Automated tests — actually run, in this worktree
+
+| suite | result |
+|---|---|
+| `backend/entitlements/test/billing.mjs` | 170/170 |
+| `tests/welding-premium.mjs` | 53/53 |
+| `tests/ios-storekit.mjs` | 32/32 |
+| `tests/ios-ads.mjs` | 96/96 |
+| `tests/premium-boundary.mjs` | 53/53 |
+| `tests/billing-client.mjs` | 50/50 |
+| `tests/portal.mjs` | 38/38 |
+| index.html JS parse | 5 scripts, 0 errors |
+
+W1-W27 in the billing suite are the two-app contract: a purchase in one app
+grants Premium in that app only, in both directions; **restore cannot cross
+apps** (W24-W27); an unknown product id fails closed (W14e); an app the service
+does not know answers Free for that app rather than handing over another app's
+plan (W16); a pre-split row with no `app_id` still counts as the original app's
+(W20). W14a-W14e add the case this branch created: the signed bundle id decides
+the scope, never the client-supplied product id.
+
+### Known limitations, verified
+
+- **`.codex/skills/*.md` ships inside the iOS bundle** (6 files, ~20 KB, no
+  secrets, already public in the repo). The skip list at
+  `mobile/ios/scripts/sync-web.mjs:32` excludes `.claude`, `.agents` and
+  `skills` but was never updated for `.codex`. The **Android** bundle does not
+  carry it. Cosmetic; pre-existing and identical on `main`.
+- **`BEAdsAllowTestUnits` is `true` on `main`**, though CLAUDE.md says it should
+  be false there. Still double-locked by the Sandbox-receipt check with
+  `ads_enabled:false`, so no test creative can reach a learner — but the flag
+  and the documentation disagree.
+- **`BEMasteryWelding.storekit` is not registered in `project.pbxproj`**, so it
+  cannot yet be selected as a scheme's StoreKit configuration. It has no bearing
+  on an archive.
+- **No device or emulator run.** No physical iPhone is connected and this Mac
+  has no Android emulator binary. Nothing below the artifact level was verified
+  at run time.
+
+---
+
 ## A · BE Mastery — General English (the existing app)
 
 The identity, listings, users and subscriptions are unchanged. What is new is
@@ -352,35 +533,44 @@ Subscriptions → Create**. A subscription group belongs to one app, so this
 cannot be shared with the existing app — which is the point of the split.
 Reference name: `BE Mastery Welding Premium`.
 
-**A7 · the two products**, matching the existing app exactly (figures verified
-against both consoles — `docs/APP_SPLIT.md` § 3, and
-`mobile/ios/appstore/SUBSCRIPTIONS.md` for the Apple side):
+**A7 · the two products — DONE, with DIFFERENT ids from the other app.**
+Verified read-only against App Store Connect on 20 Oct 2026: group **22484497**
+"BE Mastery Welding Premium", both products **READY_TO_SUBMIT**, 175 territory
+prices and 175 FREE_TRIAL / THREE_DAYS introductory offers each.
 
-| product id | reference name | duration | price | level |
-|---|---|---|---|---|
-| `premium_annual` | Premium annual | 1 year | **US$19.99** | 1 |
-| `premium_monthly` | Premium monthly | 1 month | **US$2.99** | 1 |
+| product id | ASC id | reference name | duration | USA price | level | state |
+|---|---|---|---|---|---|---|
+| `welding_premium_annual` | 6823575232 | Welding Premium annual | 1 year | **US$19.99** (proceeds 16.99) | 1 | READY_TO_SUBMIT |
+| `welding_premium_monthly` | 6823574822 | Welding Premium monthly | 1 month | **US$2.99** (proceeds 2.54) | 1 | READY_TO_SUBMIT |
 
-Both at level 1 — the two plans give the same features.
+Both at level 1 — the two plans give the same features. The prices match the
+other app's exactly; only the identifiers differ.
 
-> **REUSING THE IDS IS UNVERIFIED — try it and report what App Store Connect
-> says.** An earlier version of this section asserted that "App Store product
-> ids are scoped to the app" as settled fact. It is not. Apple's help
-> documentation says an id cannot be reused *within* an app and that in-app
-> purchases are not shareable between apps, but it does not state the
-> account-level rule; developer reports describe the error "The Product ID you
-> entered is already being used by another subscription" for an id used only in
-> a *different* app on the same account. It could not be tested from here,
-> because the test needs the Welding app record to exist first (A5).
+> **THE IDS COULD NOT BE REUSED — this is now settled (20 Oct 2026).** The
+> paragraph that stood here warned that reuse was unverified and said to pick
+> distinct ids if App Store Connect refused. It did refuse: the Welding app
+> record could not take `premium_annual` / `premium_monthly`, which the General
+> English app already holds. So the Welding app carries `welding_premium_*`.
 >
-> Product ids cannot be renamed or reused once created, so this is the one step
-> to do deliberately. If App Store Connect refuses `premium_annual` /
-> `premium_monthly`, **do not force it** — pick distinct ids (for example
-> `welding_premium_annual` / `welding_premium_monthly`), tell the engineers, and
-> they change two lists: `PRODUCTS` in
-> `backend/entitlements/src/entitlement-core.js` and `BILLING_PRODUCTS` in
-> `index.html`. Nothing else moves, because the app a purchase belongs to is
-> derived from the store identity Apple signed, never from the product id.
+> **Google Play is unaffected.** A Play product id is scoped to its package, so
+> **both** packages sell `premium_annual` / `premium_monthly` — verified ACTIVE
+> on both, with a `trial3d` P3D free phase on each (read-only Play Developer
+> API, 20 Oct 2026). `BILLING_PRODUCTS` in `index.html` is that Play list and
+> did not move.
+>
+> **Four places carry the Apple ids, not two** — the old note undercounted:
+> `APPLE_BILLING_PRODUCTS` in `index.html` (new, chosen by `window.BE_APP_TRACK`),
+> `BEStoreKitPlugin.products(for:)` (keyed on the bundle id), `PRODUCTS` in
+> `backend/entitlements/src/entitlement-core.js`, and
+> `mobile/ios/ios/App/App/BEMasteryWelding.storekit` (Xcode's local store).
+> The app a purchase belongs to is still derived from the store identity Apple
+> or Google signed, never from the product id — `billing.js` resolves it with
+> `programmeOfStoreId(env, tx.bundleId)`, and `test/billing.mjs` W14a-W14e prove
+> neither app's ids can unlock the other and that an unknown id fails closed.
+>
+> **Why it mattered.** Asking StoreKit for an id the app record does not hold
+> returns an EMPTY product list, not an error. Welding 1.0.0 (2) therefore
+> shipped a paywall with no plans on it and could not be bought. Nothing logged.
 
 **A8 · the trial.** On each product → **Introductory Offers → +** → Free trial,
 **3 days**, new subscribers, all territories. Apple allows one introductory
