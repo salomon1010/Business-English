@@ -6274,6 +6274,18 @@ h1.big{letter-spacing:-.025em}
 .prem-plan-save{font-size:11px;font-weight:700;color:var(--green)}
 .prem-plan-trial{font-size:11px;font-weight:600;color:var(--acc2)}
 .ai-allow{margin:6px 0 0}.ai-allow.out{color:var(--gold)}
+/* Usage meter — the allowance card (22 Oct 2026, docs/USAGE-LIMITS-ANDROID.md).
+   Reuses .bar / .bar>i, so it can never drift from every other progress bar in
+   the app, and .btn-g / .btn-p for its actions. No new colour, no new radius. */
+.meter{margin:10px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
+.meter-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px}
+.meter-name{font-size:13px;font-weight:700;color:var(--txt)}
+.meter-count{font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap}
+.meter.out .meter-count{color:var(--gold)}
+.meter-fine{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--mut)}
+.meter-prem{font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--accent-text,var(--acc))}
+.meter-acts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.meter-stale{color:var(--gold)}
 @media (max-width:360px){.prem-plans{grid-template-columns:1fr}}
 .prem-offer-trial{margin:0;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
 .prem-offer-name{margin:0;font-size:16px;font-weight:700;color:var(--txt)}
@@ -7897,6 +7909,20 @@ const I18N_EN={
  "sh.cap_trial_t":"Your free trial is used",
  "sh.cap_trial_b":"Free includes {{n}} minutes of your own videos, once. Premium transcribes {{top}} minutes a day.",
  "sh.cap_trial_left":"{{n}} of {{total}} free trial minutes left.",
+ "meter.verdicts":"AI speaking assessments",
+ "meter.video":"YouTube transcription",
+ "meter.left_n":"{{n}} of {{total}} remaining today",
+ "meter.used_min":"{{used}} of {{total}} minutes used",
+ "meter.premium":"Premium access",
+ "meter.fine":"Resets at {{time}}.",
+ "meter.fine_out":"Limit reached — resets at {{time}}.",
+ "meter.fine_prem":"Fair-use ceiling, not a feature limit. Resets at {{time}}.",
+ "meter.trial_fine":"This is your one free trial, not a daily allowance.",
+ "meter.why_verdicts":"An assessment asks our AI to listen and judge, so it is counted.",
+ "meter.why_video":"Transcribing your own video is the one thing here that costs per minute.",
+ "meter.alt_curriculum":"Practise from the road map",
+ "meter.unconfirmed":"We couldn't confirm your plan just now, so this count may be out of date.",
+ "meter.offline":"You're offline — this is the last count we were given.",
  "sh.cap_fail_t":"We couldn't make the transcript",
  "sh.cap_fail_b":"The problem is on our side, not with the video. Try again in a moment.",
  "sh.cap_prem_s":"See Premium",
@@ -14391,6 +14417,7 @@ function rSession(el,w,d){
         <textarea rows="5" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||sessScaffold(dd,weekPhrases))}</textarea>
       </details>`}
       ${aiAcctNoticeHTML("session")}
+      ${meterHTML("verdicts")}
       <div class="rec-panel">
         <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
@@ -14821,6 +14848,7 @@ ${(()=>{
       <button class="btn-primary" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
       <button class="btn btn-g sh-in-clear" onclick="shClearInputs()" title="${esc(t("sh.clear_inputs"))}" aria-label="${esc(t("sh.clear_inputs"))}">${ic("trash")}</button>
     </div>
+    ${meterHTML("video")}
     <div class="hr"></div>
     </div>
     ${shLibOn()?"":shResumeHTML()}
@@ -14965,6 +14993,7 @@ ${(()=>{
          only control left is the fallback for a clip you recorded earlier —
          re-analysing a stored take. */""}
     <div class="card" style="margin-top:16px">
+      ${meterHTML("verdicts")}
       <div class="fb-head">
         <button class="btn btn-g btn-sm" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
         <button class="btn btn-g btn-sm sv-ic fb-fold" id="fbFold" onclick="fbFoldToggle()" aria-expanded="true" aria-controls="fbOut" aria-label="${esc(t("sh.report_fold"))}" title="${esc(t("sh.report_fold"))}" hidden>${ic("chevron")}</button>
@@ -22950,7 +22979,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v690";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v691";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23148,6 +23177,7 @@ function exIdleHTML(){
   const txt=ex.draft||"";
   return `${exPromptHTML()}
     ${aiAcctNoticeHTML("polish")}
+    ${meterHTML("verdicts")}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
       <button class="btn-primary ex-mic ex-mic-wide" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span class="ex-mic-l">${esc(t("ex.rec_wide"))}</span><span id="exTimer" class="ex-timer"></span></button>
@@ -25068,6 +25098,18 @@ window.hasEntitlement=hasEntitlement;window.entLocked=entLocked;
    Worker refuses on its own whatever this says. Kept outside S (never synced,
    per device). */
 const AI_ALLOW_KEY="be_ai_allow",YT_ALLOW_KEY="be_yt_allow";
+/* THE PLAN COULD NOT BE ESTABLISHED. be-polish answers 503
+   entitlement_unavailable (the entitlement service is unreachable) or
+   auth_unavailable (it cannot verify tokens at all) rather than guessing a
+   plan — so the card must not guess either. The figures it still holds may
+   belong to a plan the learner no longer has, so while this is set they are
+   shown labelled unconfirmed and with NO offer: selling against an unknown
+   plan is the one thing worse than showing nothing. Session-scoped and
+   short-lived; the next good allowance header clears it. */
+const ENT_UNCONF_KEY="be_ent_unconfirmed",ENT_UNCONF_MS=5*60000;
+function entUnconfirmed(){try{return (+sessionStorage.getItem(ENT_UNCONF_KEY)||0)>Date.now()}catch(e){return false}}
+function entUnconfSet(on){try{if(on)sessionStorage.setItem(ENT_UNCONF_KEY,String(Date.now()+ENT_UNCONF_MS));else sessionStorage.removeItem(ENT_UNCONF_KEY)}catch(e){}}
+window.entUnconfirmed=entUnconfirmed;
 /* YT_MIN_FREE is the Free TRIAL — once, in total, not a day (owner, 6 Oct 2026):
    your own YouTube video, transcribed, is a Premium feature */
 const VERDICTS_FREE=3,VERDICTS_PREMIUM=120,YT_MIN_FREE=10,YT_MIN_PREMIUM=60;   /* for copy only; the Worker holds the numbers */
@@ -25095,6 +25137,10 @@ function aiAllowTap(res){
   try{
     const h=res.headers.get("x-be-allowance");if(h)allowWrite(AI_ALLOW_KEY,JSON.parse(h));
     const v=res.headers.get("x-be-video-allowance");if(v)allowWrite(YT_ALLOW_KEY,JSON.parse(v));
+    /* a figure straight from the server means the plan IS established again */
+    if(h||v)entUnconfSet(false);
+    /* 503 from the gate: the plan is unknown, and saying so is the honest answer */
+    if(res.status===503)res.clone().json().then(j=>{const e=j&&j.error;if(e==="entitlement_unavailable"||e==="auth_unavailable")entUnconfSet(true)}).catch(()=>{});
     /* scope "anon" (backend/ai-guard.js, only under ANON_AI_POLICY=enforce): the visitor's
        allowance for today is spent — not a Free account's. Remembered until its reset so
        aiNoAccount() routes every AI call site to the sign-in note it already shows. */
@@ -25106,6 +25152,71 @@ function aiAllowTap(res){
    server has not spoken yet, or when no gate is in force) */
 function aiAllowHTML(){try{if(!entGated())return "";const a=aiAllowance();if(!a)return "";return `<p class="pp-fine ai-allow${a.used>=a.limit?" out":""}">${esc(aiAllowNote())}</p>`}catch(e){return ""}}
 window.aiAllowance=aiAllowance;window.aiAllowOut=aiAllowOut;window.aiAllowNote=aiAllowNote;window.ytAllowance=ytAllowance;
+/* ---- Usage meters: the allowance shown BEFORE the expensive activity ----
+   docs/USAGE-LIMITS-ANDROID.md. aiAllowHTML() above is the one-line note that
+   already existed and stays exactly where it is; this is the fuller card that
+   brief asks for — feature name, used against the allowance, a progress bar,
+   the reset in the learner's OWN time zone, one plain sentence of why, and the
+   action that follows.
+
+   It carries NO limit numbers. Every figure is the server's own, read from the
+   X-BE-Allowance / X-BE-Video-Allowance headers by aiAllowTap() above. METERS
+   is metadata only: which allowance a feature reads, its unit, and its copy.
+   A second copy of a quota on the client would be a lie waiting to happen —
+   be-polish refuses on its own count whatever this card draws, and a learner
+   who edits localStorage changes the picture, never the entitlement.
+
+   Nothing renders unless entGated(), so with billing off the app is unchanged,
+   like every other plan surface in this file. Nothing renders before the
+   server has answered once either: an invented "3 of 3" would be a guess. */
+const METERS=Object.freeze({
+  verdicts:Object.freeze({name:"meter.verdicts",unit:"count",why:"meter.why_verdicts",read:()=>aiAllowance()}),
+  video:Object.freeze({name:"meter.video",unit:"seconds",why:"meter.why_video",read:()=>ytAllowance()}),
+});
+/* the server's {used,limit} in the unit the learner is shown. Seconds become
+   whole minutes; `used` is clamped because a 429 reports used === limit, and a
+   seconds refusal can arrive with minutes still unspent (see allowanceRefused
+   in backend/polish-worker.js) — so the bar may read full slightly early, which
+   is the honest direction to round. */
+function meterFigures(a,unit){
+  const div=unit==="seconds"?60:1,lim=Math.max(0,+a.limit||0),used=Math.min(lim,Math.max(0,+a.used||0));
+  const r=n=>Math.max(0,Math.round(n/div));
+  return {used:r(used),limit:r(lim),left:r(lim-used),pct:lim?Math.min(100,Math.round(used/lim*100)):0,out:used>=lim};
+}
+/* a count reads as what is LEFT ("2 of 3 remaining today"), a duration as what
+   is SPENT ("12 of 30 minutes used") — the two shapes the brief asks for. */
+function meterCount(f,unit){return unit==="seconds"?t("meter.used_min",{used:f.used,total:f.limit}):t("meter.left_n",{n:f.left,total:f.limit})}
+function meterHTML(id){
+  try{
+    if(!entGated())return "";
+    const m=METERS[id];if(!m)return "";
+    const a=m.read();if(!a)return "";
+    const f=meterFigures(a,m.unit),prem=a.plan==="premium",trial=a.trial===true,reset=allowResetText(a);
+    const fine=trial?t("meter.trial_fine"):prem?t("meter.fine_prem",{time:reset}):t(f.out?"meter.fine_out":"meter.fine",{time:reset});
+    /* Two states the figure cannot speak for itself in. Neither invents a
+       number and neither claims a reset has happened — a lapsed window makes
+       allowRead() return null above, so the card simply stops rather than
+       announcing a reset it has not been told about. */
+    const unconf=entUnconfirmed(),off=!unconf&&!navigator.onLine;
+    const state=unconf?t("meter.unconfirmed"):off?t("meter.offline"):"";
+    const acts=[];
+    /* The alternative comes first and is offered whether or not Premium is for
+       sale: the curriculum is never gated, so "practise from the road map" is
+       always a real answer rather than a consolation. A subscriber at the
+       fair-use ceiling is shown no offer — they have already bought it. */
+    if(f.out)acts.push(`<button type="button" class="btn btn-g btn-sm" onclick="go('journey')">${esc(t("meter.alt_curriculum"))}</button>`);
+    if(f.out&&!prem&&!unconf&&premOffered())acts.push(`<button type="button" class="btn btn-p btn-sm" onclick="premiumOpen('meter_${esc(id)}')">${esc(t("prem.compare"))}</button>`);
+    return `<div class="meter${f.out?" out":""}" data-meter="${esc(id)}">`
+      +`<div class="meter-top"><span class="meter-name">${esc(t(m.name))}</span><span class="meter-count">${esc(meterCount(f,m.unit))}</span></div>`
+      +`<div class="bar" role="progressbar" aria-valuenow="${f.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(t(m.name))}"><i style="width:${f.pct}%"></i></div>`
+      +(prem?`<p class="meter-fine"><span class="meter-prem">${esc(t("meter.premium"))}</span></p>`:"")
+      +`<p class="meter-fine">${esc(fine)} ${esc(t(m.why))}</p>`
+      +(state?`<p class="meter-fine meter-stale">${esc(state)}</p>`:"")
+      +(acts.length?`<div class="meter-acts">${acts.join("")}</div>`:"")
+      +`</div>`;
+  }catch(e){return ""}
+}
+window.meterHTML=meterHTML;window.meterFigures=meterFigures;window.METERS=METERS;
 /* ---- the AI gate, in the shape every AI call site already used ----
    Every paid AI path in this file guarded itself with
    `!POLISH_API||!navigator.onLine`. aiOff(capability) is that same question

@@ -64,6 +64,16 @@ const WD2_TEXT="Second welding take the root pass needs a tighter gap and a slow
 const browser=await chromium.launch();
 const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:"Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36"});
 const page=await ctx.newPage();
+/* Phase C (11 Oct 2026) made billing_enabled:true and ENT_API the PRODUCTION
+   defaults, so a signed-out learner has aiNoAccount() === true and exRun()
+   returns before the fixture Worker is called — every report below then read
+   empty and the area-isolation checks proved nothing. "" is the documented
+   localhost escape hatch (entApiBase() returns it whenever the key is present),
+   so planOn() is false and the Polish pipeline runs as this suite was written
+   for. Not an assertion change — the premise it always assumed, now stated.
+   The three Worker-SHAPE checks above are a separate matter and still fail;
+   see docs/USAGE-LIMITS-ANDROID.md. */
+await page.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});
 const errors=[];page.on("pageerror",e=>errors.push(String(e.message)));
 await page.goto(BASE+"/index.html?t="+Date.now(),{waitUntil:"load"});
 await page.evaluate(()=>{OB.name="Check";obFinish()});await sleep(700);

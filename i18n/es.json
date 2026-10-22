@@ -3510,5 +3510,19 @@
  "keep.restore_t": "¿Ya usabas BE Mastery?",
  "keep.restore_b": "Esta actualización traslada BE Mastery a su propia aplicación, así que la práctica guardada solo en el navegador no se traslada. No se pierde nada: inicia sesión y tu progreso vuelve desde tu cuenta. Si nunca iniciaste sesión, sigue estando en Chrome en este teléfono.",
  "keep.restore_ok": "Inicia sesión para recuperarlo",
- "keep.restore_new": "Soy nuevo aquí"
+ "keep.restore_new": "Soy nuevo aquí",
+ "meter.verdicts": "Evaluaciones orales con IA",
+ "meter.video": "Transcripción de YouTube",
+ "meter.left_n": "{{n}} de {{total}} restantes hoy",
+ "meter.used_min": "{{used}} de {{total}} minutos usados",
+ "meter.premium": "Acceso Premium",
+ "meter.fine": "Se reinicia a las {{time}}.",
+ "meter.fine_out": "Límite alcanzado: se reinicia a las {{time}}.",
+ "meter.fine_prem": "Límite de uso razonable, no un límite de la función. Se reinicia a las {{time}}.",
+ "meter.trial_fine": "Esta es tu única prueba gratuita, no un límite diario.",
+ "meter.why_verdicts": "Una evaluación pide a nuestra IA escuchar y valorar, por eso se cuenta.",
+ "meter.why_video": "Transcribir tu propio vídeo es lo único aquí que cuesta por minuto.",
+ "meter.alt_curriculum": "Practicar desde la hoja de ruta",
+ "meter.unconfirmed": "No hemos podido confirmar tu plan ahora mismo, así que este recuento puede estar desactualizado.",
+ "meter.offline": "Estás sin conexión: este es el último recuento que recibimos."
 }

@@ -3510,5 +3510,19 @@
  "keep.restore_t": "هل استخدمت BE Mastery من قبل؟",
  "keep.restore_b": "ينقل هذا التحديث BE Mastery إلى تطبيق خاص به، لذلك لا ينتقل معه التدريب المحفوظ في المتصفح وحده. لا شيء يُفقد: سجّل الدخول ويعود تقدمك من حسابك. وإن لم تسجّل الدخول من قبل، فهو ما زال في Chrome على هذا الهاتف.",
  "keep.restore_ok": "سجّل الدخول لاستعادته",
- "keep.restore_new": "أنا مستخدم جديد"
+ "keep.restore_new": "أنا مستخدم جديد",
+ "meter.verdicts": "AI speaking assessments",
+ "meter.video": "YouTube transcription",
+ "meter.left_n": "{{n}} of {{total}} remaining today",
+ "meter.used_min": "{{used}} of {{total}} minutes used",
+ "meter.premium": "Premium access",
+ "meter.fine": "Resets at {{time}}.",
+ "meter.fine_out": "Limit reached — resets at {{time}}.",
+ "meter.fine_prem": "Fair-use ceiling, not a feature limit. Resets at {{time}}.",
+ "meter.trial_fine": "This is your one free trial, not a daily allowance.",
+ "meter.why_verdicts": "An assessment asks our AI to listen and judge, so it is counted.",
+ "meter.why_video": "Transcribing your own video is the one thing here that costs per minute.",
+ "meter.alt_curriculum": "Practise from the road map",
+ "meter.unconfirmed": "We couldn't confirm your plan just now, so this count may be out of date.",
+ "meter.offline": "You're offline — this is the last count we were given."
 }

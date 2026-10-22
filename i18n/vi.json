@@ -3510,5 +3510,19 @@
  "keep.restore_t": "Used BE Mastery before?",
  "keep.restore_b": "This update moves BE Mastery into its own app, so practice saved only in your browser does not come across. Nothing is lost: sign in and your progress comes back from your account. If you never signed in, it is still in Chrome on this phone.",
  "keep.restore_ok": "Sign in to bring it back",
- "keep.restore_new": "I'm new here"
+ "keep.restore_new": "I'm new here",
+ "meter.verdicts": "AI speaking assessments",
+ "meter.video": "YouTube transcription",
+ "meter.left_n": "{{n}} of {{total}} remaining today",
+ "meter.used_min": "{{used}} of {{total}} minutes used",
+ "meter.premium": "Premium access",
+ "meter.fine": "Resets at {{time}}.",
+ "meter.fine_out": "Limit reached — resets at {{time}}.",
+ "meter.fine_prem": "Fair-use ceiling, not a feature limit. Resets at {{time}}.",
+ "meter.trial_fine": "This is your one free trial, not a daily allowance.",
+ "meter.why_verdicts": "An assessment asks our AI to listen and judge, so it is counted.",
+ "meter.why_video": "Transcribing your own video is the one thing here that costs per minute.",
+ "meter.alt_curriculum": "Practise from the road map",
+ "meter.unconfirmed": "We couldn't confirm your plan just now, so this count may be out of date.",
+ "meter.offline": "You're offline — this is the last count we were given."
 }
