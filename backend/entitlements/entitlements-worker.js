@@ -393,7 +393,16 @@ export async function handle(req, env, deps = {}) {
     let soldApp = null;
     for (const it of items) {
       const v = await p.verifyPurchase(it || {}, ctx);
-      if (!v.ok) { results.push({ ok: false, why: v.why, status: v.status }); continue; }
+      /* SAY WHY, IN THE LOG (23 Oct 2026). A refusal was recorded in the reply
+         and nowhere else, and a restore answers 200 whatever happens — so a
+         tester whose every purchase was refused as `test_purchase` saw only
+         "No purchases found", and `wrangler tail` showed a cheerful Ok. The
+         reason, the provider and the route are enough to diagnose it; no token,
+         no uid and no account token are logged. */
+      if (!v.ok) {
+        try { console.warn(JSON.stringify({ at: "purchase_refused", provider: p.id, route: restore ? "restore" : "verify", why: v.why, status: v.status })); } catch (e) {}
+        results.push({ ok: false, why: v.why, status: v.status }); continue;
+      }
       if (!soldApp && v.links && v.links[0] && v.links[0].app_id) soldApp = v.links[0].app_id;
       for (const r of await applyLinks(env, uid, v.links, p, ctx, now, "provider:" + p.id, restore ? "restore" : "verify")) results.push(r);
     }

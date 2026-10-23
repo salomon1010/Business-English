@@ -7960,6 +7960,8 @@ const I18N_EN={
  "acc.prem_payment_pending":"Your payment is still being processed. Premium starts as soon as the store confirms it — you don't need to buy again.",
  "acc.prem_bound":"This purchase belongs to another BE Mastery account.",
  "acc.prem_unavailable":"Purchases are not available right now.",
+ "acc.prem_need_acct":"Sign in first, so your subscription is linked to your account. Google cancels a subscription that was never linked.",
+ "acc.prem_test_purchase":"That was a Google Play test purchase, so it cannot unlock Premium here. Test purchases only count on the staging service.",
  "acc.prem_pending_verify":"Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
  "acc.prem_manage_elsewhere":"Your subscription is managed in {{store}}.",
  "acc.prem_terms":"The subscription renews automatically until you cancel it in {{store}}. Payment is taken by {{store}}.",
@@ -22979,7 +22981,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v691";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v692";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -26433,6 +26435,26 @@ async function billingApi(method,path,body){
   if(!r.ok)throw Object.assign(new Error(j.error||String(r.status)),{code:j.error||"http",status:r.status,view:j.view});
   return j;
 }
+/* THE SERVER'S REFUSAL, SAID OUT LOUD (23 Oct 2026, found the hard way).
+   /v1/purchases/verify and /restore both name the reason an item was refused —
+   results[].why on a restore, the `error` field on a buy — and the app threw it
+   away. A restore in which EVERY item was refused fell through to
+   "No purchases found for this account", which is exactly what a licence tester
+   sees seconds after Google says "Subscribed": the one message guaranteed to
+   send them looking at the device instead of at the answer the server already
+   gave. The server knew it was refusing a test purchase every single time.
+   `test_purchase` is backend/entitlements/src/billing.js: a licence-test
+   purchase must never become a production entitlement, so it is refused unless
+   PLAY_ALLOW_TEST_PURCHASES is set — which is staging only, by design. */
+function billingWhyText(why){
+  /* `unknown_purchase` is deliberately NOT mapped: after a BUY it means the
+     token Google just issued is one it does not know, which is a failure, not
+     "you own nothing" — billing-client B7 holds that line. The default is the
+     honest one for every reason without a better sentence. */
+  const K={test_purchase:"acc.prem_test_purchase",bound_elsewhere:"acc.prem_bound",account_mismatch:"acc.prem_bound",
+           app_unmapped:"acc.prem_unavailable",not_configured:"acc.prem_unavailable"};
+  return t(K[String(why||"")]||"acc.prem_failed");
+}
 /* the answer from the server replaces what the screen shows (display only) */
 /* The view a purchase route answered with. The server names the app that SOLD
    the purchase, so a reply about the other app is ignored rather than drawn —
@@ -26510,6 +26532,16 @@ const Billing={
   },
   async buy(id){
     if(!this.provider||this.state==="purchasing"||this.state==="restoring")return;
+    /* NEVER START A PURCHASE WE CANNOT BIND (23 Oct 2026, found on a real device).
+       A purchase becomes Premium only when POST /v1/purchases/verify binds it to
+       an account, and billingApi() throws "off" BEFORE it sends anything while
+       FBUser is null. So a signed-out learner could reach Google's sheet, pay,
+       and leave the store holding a subscription this app could never claim:
+       nothing bound, so nothing was ever acknowledged, so Play sent "Action
+       needed for your subscription" and then cancelled and refunded it — while
+       the learner just saw the price page again, with no idea why.
+       The account is asked for FIRST, and the store is never opened without one. */
+    if(!entUid()){this.note=t("acc.prem_need_acct");this.state="ready";this._draw();try{fbOpenModal("in")}catch(e){}return}
     this.state="purchasing";this.note="";this._draw();
     const ev={provider:this.provider.id,product:String(id)};   /* release analytics: enums only, never a token */
     track("purchase_started",ev);
@@ -26532,7 +26564,7 @@ const Billing={
       const transient=!e.status||e.status>=500||e.status===429;
       track("purchase_failed",{...ev,reason:transient?"unconfirmed":e.code==="bound_elsewhere"||e.code==="account_mismatch"?"bound":"rejected"});
       r.finish(transient?"unknown":false);this.state="failed";
-      this.note=transient?t("acc.prem_pending_verify"):e.code==="bound_elsewhere"||e.code==="account_mismatch"?t("acc.prem_bound"):t("acc.prem_failed");
+      this.note=transient?t("acc.prem_pending_verify"):billingWhyText(e.code);
       if(transient)this._reconciled=null;
       if(e.view)billingTakeView(e.view);
     }
@@ -26549,8 +26581,10 @@ const Billing={
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
       billingTakeView(j.view);
       const n=(j.results||[]).filter(x=>x.ok).length,b=(j.results||[]).some(x=>x.why==="bound_elsewhere"||x.why==="account_mismatch");
+      /* nothing bound: say WHY, in the server's own words, rather than "none found" */
+      const why=((j.results||[]).find(x=>!x.ok)||{}).why;
       track("purchase_restore",{...rv,result:n?"restored":b?"bound":"none"});
-      this.state="ready";this.note=n?t("acc.prem_restored",{n}):b?t("acc.prem_bound"):t("acc.prem_none_restored");
+      this.state="ready";this.note=n?t("acc.prem_restored",{n}):b?t("acc.prem_bound"):why?billingWhyText(why):t("acc.prem_none_restored");
     }catch(e){track("purchase_restore",{provider:this.provider&&this.provider.id,source:"tap",result:"failed"});this.state="failed";this.note=t("acc.prem_failed")}
     this._draw();
   },

@@ -3524,5 +3524,7 @@
  "meter.why_video": "Transcribing your own video is the one thing here that costs per minute.",
  "meter.alt_curriculum": "Practise from the road map",
  "meter.unconfirmed": "We couldn't confirm your plan just now, so this count may be out of date.",
- "meter.offline": "You're offline — this is the last count we were given."
+ "meter.offline": "You're offline — this is the last count we were given.",
+ "acc.prem_need_acct": "Sign in first, so your subscription is linked to your account. Google cancels a subscription that was never linked.",
+ "acc.prem_test_purchase": "That was a Google Play test purchase, so it cannot unlock Premium here. Test purchases only count on the staging service."
 }

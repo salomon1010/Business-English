@@ -3524,5 +3524,7 @@
  "meter.why_video": "Transcrire votre propre vidéo est la seule chose ici qui coûte à la minute.",
  "meter.alt_curriculum": "S'entraîner depuis la feuille de route",
  "meter.unconfirmed": "Nous n'avons pas pu confirmer votre offre à l'instant : ce décompte peut être obsolète.",
- "meter.offline": "Vous êtes hors ligne — voici le dernier décompte reçu."
+ "meter.offline": "Vous êtes hors ligne — voici le dernier décompte reçu.",
+ "acc.prem_need_acct": "Connectez-vous d'abord, afin que votre abonnement soit lié à votre compte. Google annule un abonnement qui n'a jamais été lié.",
+ "acc.prem_test_purchase": "Il s'agissait d'un achat de test Google Play : il ne peut pas activer Premium ici. Les achats de test ne comptent que sur le service de préproduction."
 }

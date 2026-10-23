@@ -3524,5 +3524,7 @@
  "meter.why_video": "Transcrever o seu próprio vídeo é a única coisa aqui que custa por minuto.",
  "meter.alt_curriculum": "Praticar a partir do roteiro",
  "meter.unconfirmed": "Não conseguimos confirmar o seu plano agora, por isso esta contagem pode estar desatualizada.",
- "meter.offline": "Está offline — esta é a última contagem que recebemos."
+ "meter.offline": "Está offline — esta é a última contagem que recebemos.",
+ "acc.prem_need_acct": "Inicie sessão primeiro, para que a sua subscrição fique associada à sua conta. A Google cancela uma subscrição que nunca foi associada.",
+ "acc.prem_test_purchase": "Foi uma compra de teste do Google Play, por isso não pode ativar o Premium aqui. As compras de teste só contam no serviço de staging."
 }
