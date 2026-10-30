@@ -65,8 +65,10 @@ android {
             // ever reached production: it carried the usage meters but not the
             // purchase-message fixes below, so promoting it would have shipped the
             // misleading "No purchases found for this account" to real learners.
-            versionCode 22
-            versionName "1.2.3"
+            // 23 (30 Oct 2026): web be12-v695 — Premium per app, no offer over a paying
+            // learner, the widget and account-deletion fixes. Play held 22 in production.
+            versionCode 23
+            versionName "1.2.4"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -100,8 +102,9 @@ android {
             // uploaded, and carries the same usage meters as the other app's 21.
             // 6 went to the internal track on 22 Oct and is superseded for the same
             // reason as the other app's 21 — see the note there.
-            versionCode 7
-            versionName "1.0.3"
+            // 8 (30 Oct 2026): web be12-v695, as the other app's 23. Play held 7 in production.
+            versionCode 8
+            versionName "1.0.4"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
