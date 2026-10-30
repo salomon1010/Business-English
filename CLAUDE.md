@@ -495,9 +495,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   games' server side in production is "games only, everyone Free":
   - **be-entitlements production is DEPLOYED** with no store secrets (every account Free;
     the store routes answer 501).
-  - **Production be-polish = its own 1 Oct code + only the game route**
-    (`backend/polish-prod/`, README there; rollback version id in it). Never `wrangler deploy`
-    `backend/` to production: that releases the metering, the YouTube trial and the tiers.
+  - **Production be-polish = the full `backend/polish-worker.js` with `PREMIUM_ENFORCED="0"`**
+    (verified 30 Oct 2026 with `wrangler versions view`; `backend/polish-prod/` is NOT what
+    runs). `backend/wrangler.toml` sets `"1"`, so never a plain `wrangler deploy` from
+    `backend/` to production — it would switch on the metering and the tiers. Deploy with a
+    copy whose top-level `PREMIUM_ENFORCED` is `"0"` (`-c <copy> --env ""`) and compare the
+    bindings with the previous version. Rollback ids are in `backend/wrangler.toml`.
   - `ENT_API` stays empty and ads / billing / Smart Coach stay OFF.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`

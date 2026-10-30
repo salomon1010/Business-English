@@ -50,19 +50,15 @@ tag = "v1-rate-limiter"
 new_sqlite_classes = ["RateLimiter"]
 
 # ---- Premium enforcement (Phase 8; Phase C) ----
-# THIS FILE IS NOT WHAT PRODUCTION RUNS. Production be-polish is deployed from
-# backend/polish-prod/ (main = entry.js, its own wrangler.toml, NO
-# PREMIUM_ENFORCED). This file builds the FULL polish-worker.js, and the vars
-# below have enforcement ON — so `npx wrangler deploy` from this directory
-# would overwrite the live Worker, because `name` is the same "be-polish", and
-# would switch on the verdict metering and the tiers in one step. That is the
-# Phase C switch, not a routine deploy. Verified 22 Oct 2026 by probing the
-# live Workers and reading backend/polish-prod/deployed.js, which contains no
-# premiumGate, no VERDICT_CAPS and no X-BE-Allowance at all.
-#
-# The earlier version of this comment said "OFF here, deliberately" while the
-# vars below set it ON, which read as a contradiction inside one file. It was
-# neither: the comment described production, the vars describe this build.
+# WHAT PRODUCTION RUNS (checked 30 Oct 2026 with `wrangler versions view`): THIS
+# file's polish-worker.js, with PREMIUM_ENFORCED = "0" — not backend/polish-prod/
+# (an earlier note here said it was; the live bindings say otherwise: AI_DEDUPE,
+# GEMINI_KEY, PREMIUM_ENFORCED "0"). The vars below say "1", so a plain
+# `npx wrangler deploy` from here WOULD switch on the verdict metering and the
+# tiers. A routine production deploy uses a copy of this file with only the
+# top-level PREMIUM_ENFORCED set to "0" (`-c <copy> --env ""`), then compares
+# `wrangler versions view` with the previous version's bindings.
+#   30 Oct 2026: 81b39e19 (per-app programme + plan); rollback f6429592.
 #
 # Both vars must be set for the Worker to check an entitlement, and together
 # they mirror the client's planOn() (billing_enabled + an entitlement service).
