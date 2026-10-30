@@ -31,7 +31,42 @@ const b64u = b => Buffer.from(b).toString("base64url");
 function d1() {
   const db = new DatabaseSync(":memory:");
   for (const m of readdirSync(new URL("../migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
-  return { raw: db, prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
+  const api = {
+    raw: db,
+    /* test hook: a RegExp. The next statement whose SQL matches throws on run(),
+       which is how a transient D1 write failure is reached (K19-K22). */
+    failOn: null,
+    prepare(sql) {
+      const st = db.prepare(sql); let a = [];
+      const o = {
+        sql,
+        bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; },
+        first: async () => st.get(...a) ?? null,
+        run: async () => {
+          if (api.failOn && api.failOn.test(sql)) throw new Error("D1_ERROR: simulated write failure");
+          return { meta: { changes: Number(st.run(...a).changes) } };
+        },
+        all: async () => ({ results: st.all(...a) }),
+      };
+      return o;
+    },
+    /* D1 runs a batch as ONE transaction: every statement commits, or none does.
+       The Worker relies on that to claim a notification and record why it was
+       refused without a window between them. */
+    async batch(list) {
+      db.exec("BEGIN");
+      try {
+        const out = [];
+        for (const s of list) out.push(await s.run());
+        db.exec("COMMIT");
+        return out;
+      } catch (e) {
+        try { db.exec("ROLLBACK"); } catch (_) {}
+        throw e;
+      }
+    },
+  };
+  return api;
 }
 
 /* ---------------- Firebase (learner identity) ---------------- */
@@ -127,7 +162,17 @@ const deps = { now: () => clock, fetch: fakeFetch, googleKeys: [GJWK], admobKeys
 async function call(method, path, { uid, body, headers = {} } = {}) {
   deps.auth.now = clock;
   const h = { ...headers }; if (uid) h.authorization = "Bearer " + idTok(uid); if (body !== undefined) h["content-type"] = "application/json";
-  const r = await handle(new Request("https://ent.test" + path, { method, headers: h, body: body === undefined ? undefined : (typeof body === "string" ? body : JSON.stringify(body)) }), env, deps);
+  /* The production entry point is `export default.fetch`, which catches
+     anything handle() throws and answers err(500,"server") — a 5xx the store
+     reads as "send it again". Calling handle() bare would let the throw escape
+     the suite instead, so a thrown D1 failure could not be tested at all
+     (K19-K22). This mirrors that boundary exactly, nothing more. */
+  let r;
+  try {
+    r = await handle(new Request("https://ent.test" + path, { method, headers: h, body: body === undefined ? undefined : (typeof body === "string" ? body : JSON.stringify(body)) }), env, deps);
+  } catch (e) {
+    r = new Response(JSON.stringify({ error: "server" }), { status: 500, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  }
   const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (e) {}
   return { status: r.status, json: j, text: t };
 }
@@ -312,6 +357,31 @@ console.log("\n# Google Play RTDN — ACK OR RETRY: every notification outcome")
   await gverify("lee", tok(66));
   await rtdn({ voidedPurchaseNotification: { purchaseToken: tok(66), orderId: "GPA.9", productType: 1, refundType: 1 } }, "k10");
   ok("K18 · a refund still revokes at once — the rule did not turn real notifications into no-ops", (await view("lee", "general-english")).state === "revoked");
+
+  /* ---- the claim and the record are one transaction (30 Oct 2026) ----
+     The acknowledgement must never outlive the reason for it. When the claim
+     and the rejection row were two statements, a failed second INSERT answered
+     500 with the claim already standing, and the REDELIVERY then read that
+     claim as a duplicate and acknowledged 200 — accepted, reason recorded
+     nowhere, store told never to send it again. These four hold the batch. */
+  const rc0 = rejCount();
+  G.subs.set(tok(67), gsub({ testPurchase: true }));
+  env.DB.failOn = /rejected_notifications/;
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(67) } }, "k11");
+  ok("K19 · the rejection record failing is NOT acknowledged — the store must send it again",
+    r.status >= 500 && r.json.ok !== true && r.json.rejected === undefined, JSON.stringify({ s: r.status, j: r.json }));
+  ok("K20 · …and the transaction rolled back: no claim left behind, and no half-written reason",
+    !proc("k11") && !rej("k11") && rejCount() === rc0, JSON.stringify({ proc: !!proc("k11"), rej: !!rej("k11"), n: rejCount() - rc0 }));
+
+  env.DB.failOn = null;
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(67) } }, "k11");
+  ok("K21 · the redelivery is processed in full — acknowledged, and the reason recorded this time",
+    r.status === 200 && r.json.rejected === "test_purchase" && !!proc("k11") && rej("k11").why === "test_purchase" && rejCount() === rc0 + 1, JSON.stringify({ s: r.status, j: r.json }));
+  ok("K22 · …and it is still idempotent: a third delivery is a duplicate, recorded once, granting nothing",
+    (await (async () => {
+      const again = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(67) } }, "k11");
+      return again.status === 200 && again.json.duplicate === true && rejCount() === rc0 + 1;
+    })()) && (await view("ana", "general-english")).paid === false);
 
   G.tokenPkg.delete(tok(63));
   env = saved;
