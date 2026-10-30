@@ -413,6 +413,20 @@ export async function handle(req, env, deps = {}) {
     /* at-most-once per notification: the store retries, and may deliver twice */
     const first = await q(env, "INSERT OR IGNORE INTO processed_notifications(id,provider,received_at) VALUES(?,?,?)", n.id, p.id, now).run();
     if (!changes(first)) return json({ ok: true, duplicate: true });
+    /* ACCEPTED AND DECLINED — a notification a business rule refuses for good
+       (see "ACK OR RETRY" in src/billing.js). It is claimed above like any
+       other, so a redelivery is the `duplicate` line and is recorded once; it
+       is recorded here rather than argued with, because answering 4xx made
+       Google repeat it ~120,000 times a day. Nothing is granted or revoked —
+       `updates` is empty, so no uid is ever looked up.
+       The claim is AFTER the store check, so a redelivery still costs one
+       store call before it is deduped. Deliberate; test K6 and the "Known
+       cost" section of docs/RTDN-ACK-CONTRACT.md say why. */
+    if (n.rejected) {
+      await q(env, "INSERT OR IGNORE INTO rejected_notifications(id,provider,status,why,received_at) VALUES(?,?,?,?,?)", n.id, p.id, Number(n.rejected.status) || 0, String(n.rejected.why || "refused"), now).run();
+      try { console.warn(JSON.stringify({ at: "notification_refused", provider: p.id, why: n.rejected.why, status: n.rejected.status })); } catch (e) {}
+      return json({ ok: true, rejected: n.rejected.why });
+    }
     try {
       const touched = new Set();
       for (const u of n.updates) {

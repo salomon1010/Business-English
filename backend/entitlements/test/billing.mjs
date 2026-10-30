@@ -47,7 +47,7 @@ const SA = { client_email: "be-billing@test.iam.gserviceaccount.com", private_ke
    with both. `tokenPkg` says which listing a token really belongs to (default
    the original app), and the fake answers 404 for any other — exactly as Google
    does, which is what lets the Worker find the right one by asking each. */
-const G = { subs: new Map(), acks: [], tokenCalls: 0, apiCalls: 0, tokenPkg: new Map(), ackPkg: [] };
+const G = { subs: new Map(), acks: [], tokenCalls: 0, apiCalls: 0, tokenPkg: new Map(), ackPkg: [], outage: false };
 const iso = ms => new Date(ms).toISOString();
 const gsub = (o = {}) => ({ kind: "androidpublisher#subscriptionPurchaseV2", subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", startTime: iso(T0 - DAY),
   acknowledgementState: "ACKNOWLEDGEMENT_STATE_PENDING", lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 30 * DAY) }], ...o });
@@ -64,6 +64,8 @@ async function fakeFetch(url, init = {}) {
   const m = /androidpublisher\/v3\/applications\/([^/]+)\/purchases\/(subscriptionsv2\/tokens|subscriptions)\/([^/:]+)(?:\/tokens\/([^:]+))?(:acknowledge)?$/.exec(u);
   if (m) {
     G.apiCalls++;
+    /* a real Play outage — a 5xx, which is NOT "this token is unknown" */
+    if (G.outage) return new Response("{}", { status: 503 });
     if ((init.headers || {}).authorization !== "Bearer g-access") return new Response("{}", { status: 401 });
     const askedPkg = decodeURIComponent(m[1]);
     if (m[5]) { const t = decodeURIComponent(m[4]);
@@ -208,6 +210,111 @@ console.log("\n# Google Play — Real-time Developer Notifications");
   await gverify("fay", tok(8));
   const links = env.DB.raw.prepare("SELECT status FROM purchase_links WHERE uid='fay' ORDER BY expires_at").all().map(x => x.status);
   ok("N11 · an upgrade (linkedPurchaseToken) supersedes the old token: old link expired, the annual one decides", (await view("fay")).expiresAt === T0 + 365 * DAY && links.includes("expired"), JSON.stringify(links));
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   ACK OR RETRY (29 Oct 2026) — what the STORE is told, for every outcome.
+
+   Pub/Sub reads any non-2xx as "not delivered" and sends the same message
+   again, for days. Between 15 and 29 Oct 2026 a permanently refused Play
+   notification was redelivered ~120,000 times a day: 84.9% of every Worker
+   request on the account, ~1.38M Play Developer API calls, and zero errors in
+   Cloudflare's metrics, because a deliberate 422 is a successful response.
+
+   The rule these checks hold: a 4xx from the purchase check is PERMANENT —
+   acknowledge (2xx), record why, change nothing. A 5xx is TRANSIENT — refuse,
+   so the store tries again. Authentication is not covered by it and still
+   refuses. If one of these fails, the storm can come back.
+   ─────────────────────────────────────────────────────────────────────────── */
+console.log("\n# Google Play RTDN — ACK OR RETRY: every notification outcome");
+{
+  const saved = env;
+  /* two Play packages, ONE programme: the welding package maps to no
+     programme, which is how app_unmapped (a 500, our own misconfiguration) is
+     reached without inventing a code path. */
+  env = envFor({ PLAY_PACKAGE: "com.bemastery.app,com.lomonec.bemastery.welding", APP_PROGRAMMES: "general-english" });
+  clock = T0; _resetTokenCache(); G.outage = false;
+  const rej = id => env.DB.raw.prepare("SELECT * FROM rejected_notifications WHERE id=?").get("gp:" + id);
+  const proc = id => env.DB.raw.prepare("SELECT * FROM processed_notifications WHERE id=?").get("gp:" + id);
+  const rejCount = () => env.DB.raw.prepare("SELECT count(*) n FROM rejected_notifications").get().n;
+
+  /* ---- permanent: a licence-test purchase, the production default ---- */
+  G.subs.set(tok(60), gsub({ testPurchase: true }));
+  let r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(60) } }, "k1");
+  ok("K1 · a licence-test purchase in production is ACKNOWLEDGED, not refused (200) — Pub/Sub stops redelivering",
+    r.status === 200 && r.json.ok === true && r.json.rejected === "test_purchase", JSON.stringify({ s: r.status, j: r.json }));
+  ok("K2 · …the reason is recorded durably", !!rej("k1") && rej("k1").why === "test_purchase" && rej("k1").status === 422 && rej("k1").provider === "google_play");
+  ok("K3 · …and it granted nothing", (await view("ana", "general-english")).paid === false);
+  ok("K4 · …the record keeps no purchase token", !JSON.stringify(rej("k1")).includes(tok(60)));
+
+  /* ---- idempotency: a redelivery must be free and must not double-record ---- */
+  const callsBefore = G.apiCalls;
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(60) } }, "k1");
+  ok("K5 · the same refused message delivered again → duplicate, recorded once", r.status === 200 && r.json.duplicate === true && rejCount() === 1);
+  /* The claim happens AFTER the purchase check, so a redelivery still costs
+     one Google call before it is deduped. Deliberate: claiming the id first
+     would need a release path on every transient failure, and a release that
+     is ever missed loses a real purchase notification for good — far worse
+     than one extra call on a double delivery, which is rare once messages are
+     acknowledged. Pinned here so changing it is a decision, not a drift. */
+  ok("K6 · …the duplicate costs exactly one store call and no entitlement work", G.apiCalls === callsBefore + 1);
+
+  /* ---- permanent: a product that is not ours ---- */
+  G.subs.set(tok(61), gsub({ lineItems: [{ productId: "coins_500", expiryTime: iso(T0 + DAY) }] }));
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(61) } }, "k2");
+  ok("K7 · a product that is not a BE Mastery plan → acknowledged and recorded", r.status === 200 && r.json.rejected === "not_our_product" && rej("k2").status === 422);
+
+  /* ---- permanent: a token Google does not know ---- */
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(62) } }, "k3");
+  ok("K8 · a token Google does not know → acknowledged and recorded (404 is permanent too)", r.status === 200 && rej("k3") && rej("k3").status === 404);
+
+  /* ---- TRANSIENT: our own misconfiguration. The store MUST try again ---- */
+  G.subs.set(tok(63), gsub()); G.tokenPkg.set(tok(63), "com.lomonec.bemastery.welding");
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(63) } }, "k4", { pkg: "com.lomonec.bemastery.welding" });
+  ok("K9 · a package that maps to no programme is a 5xx, NOT acknowledged — a redeploy can fix it, so the notification must survive", r.status >= 500);
+  ok("K10 · …and nothing was claimed or recorded, so the redelivery is applied in full", !proc("k4") && !rej("k4"));
+
+  /* ---- TRANSIENT: Google unreachable ---- */
+  G.outage = true;
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(60) } }, "k5");
+  G.outage = false;
+  ok("K11 · Google unreachable → refused (5xx), so Pub/Sub retries", r.status >= 500);
+  ok("K12 · …and the message is not consumed", !proc("k5") && !rej("k5"));
+
+  /* ---- authentication is NOT acknowledged: the one deliberate exception ---- */
+  r = await rtdn({ subscriptionNotification: { notificationType: 4, purchaseToken: tok(60) } }, "k6", { email: "attacker@evil.test" });
+  ok("K13 · a wrongly signed notification is still refused (401) — acknowledging it would let anyone silence a store", r.status === 401 && !rej("k6"));
+
+  /* ---- a refusal is about ONE message, never sticky ---- */
+  G.subs.set(tok(64), gsub({ testPurchase: true }));
+  await gverify("kim", tok(64));
+  ok("K14 · the test purchase is refused on the verify route too — the rule changed what the STORE is told, not who gets Premium", (await view("kim", "general-english")).paid === false);
+  G.subs.get(tok(64)).testPurchase = false;
+  await gverify("kim", tok(64));
+  G.subs.get(tok(64)).lineItems[0].expiryTime = iso(T0 + 120 * DAY);
+  r = await rtdn({ subscriptionNotification: { notificationType: 2, purchaseToken: tok(64) } }, "k7");
+  ok("K15 · once the same token is a real purchase, a LATER notification applies normally — the earlier rejection is not sticky",
+    r.status === 200 && !r.json.rejected && (await view("kim", "general-english")).expiresAt === T0 + 120 * DAY, JSON.stringify(r.json));
+
+  /* ---- a refused notification cannot move anyone else's plan ---- */
+  const before = await view("kim", "general-english");
+  G.subs.set(tok(65), gsub({ testPurchase: true }));
+  await rtdn({ subscriptionNotification: { notificationType: 13, purchaseToken: tok(65) } }, "k8");
+  const after = await view("kim", "general-english");
+  ok("K16 · a refused notification grants and revokes nothing for anyone", after.paid === before.paid && after.expiresAt === before.expiresAt && after.state === before.state);
+
+  /* ---- the Play Console's own test notification is unchanged ---- */
+  r = await rtdn({ testNotification: { version: "1.0" } }, "k9");
+  ok("K17 · a Play Console test notification is still a plain 200 with no rejection row", r.status === 200 && !r.json.rejected && !rej("k9"));
+
+  /* ---- a real refund still revokes: acknowledging must not mean ignoring ---- */
+  G.subs.set(tok(66), gsub());
+  await gverify("lee", tok(66));
+  await rtdn({ voidedPurchaseNotification: { purchaseToken: tok(66), orderId: "GPA.9", productType: 1, refundType: 1 } }, "k10");
+  ok("K18 · a refund still revokes at once — the rule did not turn real notifications into no-ops", (await view("lee", "general-english")).state === "revoked");
+
+  G.tokenPkg.delete(tok(63));
+  env = saved;
 }
 
 console.log("\n# Apple — signed transactions, appAccountToken, notifications");
