@@ -25,20 +25,23 @@ function tokenSub(tok) {
   try { const p = String(tok).split("."); if (p.length !== 3) return null; let b = p[1].replace(/-/g, "+").replace(/_/g, "/"); while (b.length % 4) b += "=";
     const sub = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b), c => c.charCodeAt(0)))).sub; return typeof sub === "string" && sub ? sub : null; } catch (e) { return null; }
 }
-/* the account and its plan, from be-entitlements (which verifies the Firebase token) */
+/* the account and its plan, from be-entitlements (which verifies the Firebase token).
+   `app` (30 Oct 2026): Premium is sold per app — the game route asks about its own
+   programme's app (?app=), and an answer about another app is never this one's plan. */
 const cache = new Map();
-async function capabilities(req, env) {
+async function capabilities(req, env, app) {
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
-  const tok = auth.slice(7), hit = cache.get(tok);
+  const tok = auth.slice(7), ck = (app || "") + "|" + tok, hit = cache.get(ck);
   if (hit && Date.now() - hit.at < 60_000) return hit.v;
-  let r; try { r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } }); } catch (e) { return { status: 503 }; }
+  let r; try { r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement" + (app ? "?app=" + encodeURIComponent(app) : ""), { headers: { authorization: auth } }); } catch (e) { return { status: 503 }; }
   if (r.status === 401 || r.status === 403) return { status: 401 };
   if (!r.ok) return { status: 503 };
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
-  const caps = (j && j.capabilities) || {};
-  const v = { uid: tokenSub(tok), caps, premium: !!(j && j.plan === "premium" && j.paid === true && caps.ad_free === true) };
-  if (cache.size > 5000) cache.clear(); cache.set(tok, { at: Date.now(), v });
+  const other = !!(app && j && typeof j.app === "string" && j.app && j.app !== app);
+  const caps = (!other && j && j.capabilities) || {};
+  const v = { uid: tokenSub(tok), caps, premium: !other && !!(j && j.plan === "premium" && j.paid === true && caps.ad_free === true) };
+  if (cache.size > 5000) cache.clear(); cache.set(ck, { at: Date.now(), v });
   return v;
 }
 async function perAccount(a, env, cors) {

@@ -12,7 +12,7 @@ const realNow = Date.now; Date.now = () => NOW;
 /* a token is header.payload.sig with the uid in `sub`; the stand-ins read the plan and track from it */
 const tok = (uid) => "h." + Buffer.from(JSON.stringify({ sub: uid })).toString("base64url") + ".s";
 const ACCOUNTS = {};   // uid -> { plan, track }
-const calls = { ent: 0, prog: 0 };
+const calls = { ent: 0, prog: 0, apps: new Set(), progSaid: new Set() };
 globalThis.fetch = async (url, init) => {
   const u = String(url), auth = (init && init.headers && (init.headers.authorization || init.headers.Authorization)) || "";
   const uid = auth.startsWith("Bearer ") ? JSON.parse(Buffer.from(auth.slice(7).split(".")[1], "base64url").toString()).sub : null;
@@ -20,12 +20,17 @@ globalThis.fetch = async (url, init) => {
   if (u.includes("/v1/entitlement")) {
     calls.ent++;
     if (!acc) return new Response("{}", { status: 401 });
-    const prem = acc.plan === "premium";
-    return new Response(JSON.stringify({ plan: acc.plan, paid: prem, capabilities: { ad_free: prem, ai_analysis: prem, advanced_progress: prem, ai_coach: prem, recommended_content: prem } }), { status: 200 });
+    /* per app (30 Oct 2026): an account with `plans` answers per ?app=, as be-entitlements does */
+    const app = new URL(u).searchParams.get("app"); if (app) calls.apps.add(app);
+    const plan = acc.plans ? (acc.plans[app || "general-english"] || "free") : acc.plan, prem = plan === "premium";
+    return new Response(JSON.stringify({ plan, paid: prem, ...(acc.plans ? { app: app || "general-english" } : {}), capabilities: { ad_free: prem, ai_analysis: prem, advanced_progress: prem, ai_coach: prem, recommended_content: prem } }), { status: 200 });
   }
   if (u.includes("/programme")) {
     calls.prog++;
     if (!acc) return new Response("{}", { status: 401 });
+    /* the updated be-partner answers the programme the request names (?prog=) */
+    const said = new URL(u).searchParams.get("prog"); if (said) calls.progSaid.add(said);
+    if (acc.plans && said) return new Response(JSON.stringify({ track: said }), { status: 200 });
     if (!acc.track) return new Response(JSON.stringify({ error: "track_unverified" }), { status: 403 });
     return new Response(JSON.stringify({ track: acc.track }), { status: 200 });
   }
@@ -227,6 +232,29 @@ console.log("\n# isolation from the rest of be-polish");
   const before = calls.ent;
   await W.fetch(new Request("https://be-polish.test/", { method: "POST", headers: { origin: "https://app.lomonec.com", "content-type": "application/json" }, body: JSON.stringify({ captions: "" }) }), { OPENAI_KEY: "k" });
   ok("I2 · a request without `wm` never reaches the game code (no account lookup for other routes when enforcement is off)", calls.ent === before);
+}
+
+console.log("\n# per app (owner, 30 Oct 2026): ONE account in BOTH store apps, a plan per app");
+{
+  /* the synced record says General English (that app saved last); Premium was bought in the
+     General English app only */
+  ACCOUNTS.both = { plan: "free", track: "general-english", plans: { "general-english": "premium", welding: "free" } };
+  const w1 = await wm("status", {}, { uid: "both" });
+  ok("P1 · the Welding app's games open for an account whose synced record says General English", w1.status === 200, JSON.stringify(w1));
+  ok("P2 · …on the Welding app's OWN plan (Free, 5 energy), not the General English subscription", w1.j && w1.j.plan === "free" && w1.j.energy.limit === WM_FREE_ENERGY, JSON.stringify(w1.j));
+  const g1 = await wm("status", { prog: "general-english" }, { uid: "both" });
+  ok("P3 · English Mastery for the same account: open, and Premium from the General English app", g1.status === 200 && g1.j.plan === "premium", JSON.stringify(g1.j));
+  ok("P4 · the plan is asked per app (?app=welding and ?app=general-english)", calls.apps.has("welding") && calls.apps.has("general-english"), JSON.stringify([...calls.apps]));
+  ok("P5 · the programme asked for is the one forwarded to /programme (?prog=)", calls.progSaid.has("welding") && calls.progSaid.has("general-english"), JSON.stringify([...calls.progSaid]));
+  ok("P6 · a General English subscription does not open the Welding Advanced pack (402)", (await wm("pack", {}, { uid: "both" })).status === 402);
+  ok("P7 · …and does open the General English one", (await wm("pack", { prog: "general-english" }, { uid: "both" })).status === 200);
+  /* an entitlement answer about another app is never this one's plan */
+  ACCOUNTS.liar = { plan: "free", track: "welding", plans: { "general-english": "premium" } };
+  globalThis.__realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => { const r = await globalThis.__realFetch(url, init); if (String(url).includes("/v1/entitlement")) { const j = await r.json(); j.app = "general-english"; j.plan = "premium"; j.paid = true; for (const k in j.capabilities) j.capabilities[k] = true; return new Response(JSON.stringify(j), { status: 200 }); } return r; };
+  const l = await wm("status", {}, { uid: "liar" });
+  globalThis.fetch = globalThis.__realFetch;
+  ok("P8 · an entitlement answer that names ANOTHER app is read as Free for this one", l.status === 200 && l.j.plan === "free", JSON.stringify(l.j));
 }
 
 Date.now = realNow; _wmReset();

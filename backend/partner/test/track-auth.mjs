@@ -213,6 +213,29 @@ console.log("\n# /programme — the account's programme, for be-push's nudge gat
   ok("G6 · answers even with Practice Partner switched off (nudges do not depend on it)", off.status === 200);
 }
 
+console.log("\n# per app (owner, 30 Oct 2026): one account in BOTH store apps — the app names its programme");
+{
+  /* the synced record holds ONE activeId: whichever app saved last */
+  setTrack("pa1", "welding"); setTrack("pa2", "general-english");
+  let r = await call("GET", "/programme?prog=general-english", { uid: "pa1" });
+  ok("PA1 · /programme answers the programme the app names (?prog=), whatever the record's last app was", r.status === 200 && r.json.track === "general-english", JSON.stringify(r));
+  r = await call("GET", "/programme?prog=welding", { uid: "pa2" });
+  ok("PA2 · …in both directions (the Welding app on a record last saved by General English)", r.status === 200 && r.json.track === "welding", JSON.stringify(r));
+  r = await call("GET", "/programme?prog=pottery", { uid: "pa1" });
+  ok("PA3 · an unknown programme is ignored: the record decides, as before", r.status === 200 && r.json.track === "welding", JSON.stringify(r));
+  r = await call("GET", "/programme?prog=general-english");
+  ok("PA4 · naming a programme never replaces the token: no token → 401", r.status === 401);
+  const other = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  r = await call("GET", "/programme?prog=general-english", { token: idToken("pa1", { key: other.privateKey }) });
+  ok("PA5 · …and a forged token → 401", r.status === 401);
+  r = await call("GET", "/me?prog=general-english", { uid: "pa1" });
+  ok("PA6 · Practice Partner opens in the General English app for an account whose record says Welding", r.status !== 403, JSON.stringify(r));
+  r = await call("GET", "/me?prog=welding", { uid: "pa2" });
+  ok("PA7 · the Welding app still never reaches Practice Partner (403 track)", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+  r = await call("GET", "/me", { uid: "pa1" });
+  ok("PA8 · a page older than this (no ?prog=) keeps the old rule: the record decides", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+}
+
 console.log("\n# the local-development switch cannot reach production");
 {
   const raw = (e, h) => worker.fetch(new Request("https://partner.test/me", { headers: { "cf-connecting-ip": "10.8.0." + (ipn++ % 250), ...h } }), e, { waitUntil() {} });

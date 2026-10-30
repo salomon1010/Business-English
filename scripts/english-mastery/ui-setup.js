@@ -86,7 +86,7 @@
     }
   }
   function premiumAsk(from) {
-    let offer = false; try { offer = premOffered(); } catch (e) {}
+    const offer = offerPremium();
     sheet(`<div class="wm-en-sheet"><span class="wm-en-big prem">${wi("crown")}</span><h2>${h(w("pr_h"))}</h2><p>${h(w("pr_b"))}</p>
       <ul class="wm-list"><li>${wi("bolt")} ${h(w("pr_1"))}</li><li>${wi("chat")} ${h(w("pr_2"))}</li><li>${wi("chart")} ${h(w("pr_3"))}</li><li>${wi("spark")} ${h(w("pr_4"))}</li></ul>
       ${offer ? `<button class="btn btn-p wm-wide wm-prem-btn" data-em="premium" data-a="${h(from)}">${wi("crown")} ${h(w("pr_btn"))}</button>` : `<p class="wm-mut small">${h(w("pr_soon"))}</p>`}</div>`);

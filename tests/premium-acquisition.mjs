@@ -184,6 +184,44 @@ console.log("\n# G · the launch offer: X hidden, then available, then closes");
   ok("G5 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
+/* 30 Oct 2026 (owner: "the page with $19.99 and $2.99 popped up while the logo was already green") */
+{ /* the renewal gap: the server says Free for a moment, but this account was Premium in this app a minute ago */
+  const { ctx, p } = await open({ uid: "g6", keepLaunch: true, stub: true });
+  await p.evaluate(async () => { localStorage.setItem("be_ent_paid", JSON.stringify({ uid: "g6", app: entApp(), at: Date.now() - 60e3 })); sessionStorage.removeItem("be_prem_launch"); _premLaunchOn = false; premLaunchMaybe(); });
+  await sleep(2600);
+  ok("G6 · around a renewal (server says Free, the account was Premium here moments ago) the launch offer does NOT open", !(await sheet(p)), "");
+  await ctx.close();
+}
+{ /* the store says this phone holds a subscription, whatever the server answered first */
+  const { ctx, p } = await open({ uid: "g7", keepLaunch: true, owned: [{ itemId: "premium_monthly", purchaseToken: "tok_g7_" + "g".repeat(20) }] }); await sleep(2600);
+  const r = await p.evaluate(() => ({ owned: (Billing.ownedIds || []).length, prem: entIsPremiumForDisplay(), open: !!document.getElementById("premOv") }));
+  ok("G7 · while the store holds a subscription on this device the launch offer never opens", r.owned > 0 && !r.open, JSON.stringify(r));
+  await ctx.close();
+}
+{ /* the launch offer waits for the store's own answer about this device */
+  const { ctx, p } = await open({ uid: "g8", keepLaunch: true }); await sleep(300);
+  const r = await p.evaluate(() => { const was = Billing._reconDone; Billing._reconDone = null; const ready = premLaunchReady(); Billing._reconDone = was; return { ready, after: premLaunchReady() || !!document.getElementById("premOv") }; });
+  ok("G8 · the launch offer is not ready until the store has said what this device owns (reconcile done)", r.ready === false && r.after === true, JSON.stringify(r));
+  await ctx.close();
+}
+{ /* a Premium learner: the widget's lock tap and the game hub never offer Premium */
+  grant("g9"); const { ctx, p, errs } = await open({ uid: "g9", owned: [{ itemId: "premium_annual", purchaseToken: "tok_g9_" + "g".repeat(20) }] }); await sleep(800);
+  const w = await p.evaluate(async () => { const prem = entIsPremiumForDisplay(); widgetOpenRoute({ act: "premium" }); await new Promise(r => setTimeout(r, 700)); return { prem, open: !!document.getElementById("premOv") }; });
+  ok("G9 · Premium: a tap on a widget still drawn locked lands on Home and does not open the offer", w.prem && !w.open, JSON.stringify(w));
+  const h = await p.evaluate(async () => {
+    const H = window.EMUI || window.WMUI; if (!H || !H.on || !H.on()) return { skip: true };
+    go(window.EMUI && EMUI.on() ? "english" : "mastery"); await new Promise(r => setTimeout(r, 900));
+    const em = !!(window.EMUI && EMUI.on()), root = document.getElementById(em ? "v-english" : "v-mastery");
+    /* English Mastery delegates on data-em, Welding Mastery on data-wm */
+    const b = document.createElement("button"); b.dataset[em ? "em" : "wm"] = "energy"; root.appendChild(b); b.click(); await new Promise(r => setTimeout(r, 400));
+    const sh = document.getElementById(em ? "emSheet" : "wmSheet");
+    const out = { hub: em ? "english" : "mastery", sheet: !!sh, offer: !!(sh && sh.querySelector(".wm-prem-btn")) };
+    if (sh) sh.remove(); b.remove();
+    return out; });
+  ok("G10 · Premium: the game hub's energy sheet opens and carries no Go Premium button", h.skip || (h.sheet === true && h.offer === false), JSON.stringify(h));
+  ok("G11 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
 
 console.log("\n# H · phones: 320 px, dark / light, Arabic RTL, long translations, reduced motion");
 for (const [lab, o] of [["dark-320", { theme: "dark", vp: { width: 320, height: 568 } }], ["light-320", { theme: "light", vp: { width: 320, height: 568 } }], ["light-390", { theme: "light" }], ["dark-412", { theme: "dark", vp: { width: 412, height: 915 } }], ["ar-360", { lang: "ar", vp: { width: 360, height: 740 } }], ["fr-320", { lang: "fr", vp: { width: 320, height: 568 } }], ["de-320", { lang: "de", vp: { width: 320, height: 568 } }], ["reduced", { motion: "reduce" }]]) {

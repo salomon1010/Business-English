@@ -37,9 +37,13 @@
    TWO PROGRAMMES (10 Oct 2026). The same rules serve Welding Mastery and
    English Mastery (General English). The request names the programme
    (`prog`: "welding" — the default, so an older Welding client is unchanged —
-   or "general-english"); the server serves it only when the ACCOUNT's own
-   programme is that one, so a Welding account can never start, finish or earn
-   in English Mastery and the reverse. Each programme has its own games, its own
+   or "general-english"). PER APP since 30 Oct 2026 (owner): one account may use
+   BOTH store apps, so the programme is the one the request names (forwarded to
+   be-partner's /programme as ?prog=, which still verifies the token) and the
+   plan is THAT app's (?app= to be-entitlements) — a General English
+   subscription never opens Welding Premium, and the reverse. The old rule read
+   the account record's single activeId, which flips to whichever app saved
+   last, and refused the other app's games. Each programme has its own games, its own
    buckets (Welding keeps its original names; General English is prefixed
    "em"), its own energy (5 a day each for Free) and its own Premium pack key.
    ============================================================================ */
@@ -98,21 +102,26 @@ async function ticketOk(env, uid, sid, mode, ticket, now, prog) {
 /* ---- the programme, from the account ---- */
 const trackCache = new Map();               // uid -> { track, at }
 const TRACK_TTL = 10 * 60_000;
+/* PER-APP PROGRAMME (owner, 30 Oct 2026). One account may use both store apps; the synced
+   record holds ONE activeId (whichever app saved last), so the Welding app's games were
+   refused after the General English app had been opened. The programme asked for is
+   forwarded (?prog=) and be-partner — which still verifies the token — answers it. What
+   protects money is the plan, asked per programme below (deps.capabilities(…, app)). */
 async function programme(req, env, uid, want) {
-  const hit = uid && trackCache.get(uid);
+  const ck = uid && uid + "|" + (want || ""), hit = ck && trackCache.get(ck);
   /* only a cached answer that MATCHES is trusted: a learner who has just switched
      programme is asked about again at once, not refused for the cache's ten minutes */
   if (hit && Date.now() - hit.at < TRACK_TTL && (!want || hit.track === want)) return { track: hit.track };
   if (!env.PARTNER_API) return { status: 503 };
   let r;
-  try { r = await fetch(String(env.PARTNER_API).replace(/\/+$/, "") + "/programme", { headers: { authorization: req.headers.get("Authorization") || "" } }); }
+  try { r = await fetch(String(env.PARTNER_API).replace(/\/+$/, "") + "/programme" + (want ? "?prog=" + encodeURIComponent(want) : ""), { headers: { authorization: req.headers.get("Authorization") || "" } }); }
   catch (e) { return { status: 503 }; }
   if (r.status === 401) return { status: 401 };
   if (r.status === 403) return { track: null };                  // track_unverified: no programme on the account
   if (!r.ok) return { status: 503 };
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
   const track = j && typeof j.track === "string" ? j.track : null;
-  if (uid) { if (trackCache.size > 5000) trackCache.clear(); trackCache.set(uid, { track, at: Date.now() }); }
+  if (ck) { if (trackCache.size > 5000) trackCache.clear(); trackCache.set(ck, { track, at: Date.now() }); }
   return { track };
 }
 
@@ -159,7 +168,8 @@ export async function wmHandle(body, req, env, cors, deps) {
   const B = buckets(P.pre);
   if (!env.ENTITLEMENTS_URL) return json({ error: "wm_unavailable" }, 503, cors);   // no account service here (production today)
 
-  const a = await deps.capabilities(req, env);
+  /* the plan of THIS programme's app: Premium is bought per app (owner, 30 Oct 2026) */
+  const a = await deps.capabilities(req, env, P.track);
   if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
   if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
   if (!a.uid) return json({ error: "auth_required" }, 401, cors);

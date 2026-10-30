@@ -18689,7 +18689,9 @@ function widgetOpenRoute(d){
   if(!d||typeof d!=="object")return false;
   /* a locked widget: the sign-in sheet, or the Premium offer where it exists */
   if(d.act==="signin"){try{go("home");setTimeout(()=>{try{fbOpenModal("in")}catch(e){}},300)}catch(e){}return true}
-  if(d.act==="premium"){try{go("home");setTimeout(()=>{try{if(premOffered())premiumOpen("widget")}catch(e){}},300)}catch(e){}return true}
+  /* a widget drawn before the plan was known can still show its lock: a learner who is
+     Premium by now lands on Home and the widget is redrawn, never offered Premium */
+  if(d.act==="premium"){try{go("home");setTimeout(()=>{try{if(entIsPremiumForDisplay()){_wgRecs.at=0;widgetSync(true)}else if(premOffered())premiumOpen("widget")}catch(e){}},300)}catch(e){}return true}
   /* a recommendation: exactly what the Home card would have done */
   if(d.rec&&typeof d.rec==="object"){const r=d.rec,v=String(r.view||"");
     if(WG_REC_VIEWS.includes(v)){try{return nudgeGo({view:v,act:String(r.act||""),args:Array.isArray(r.a)?r.a.map(String):[],kind:r.ch?"challenge":"",challenge:!!r.ch})}catch(e){return false}}
@@ -19020,7 +19022,7 @@ async function nudgeSchedule(why,opts){
     const now=Date.now(),sendAfter=opts&&opts.now?now:nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
     const tx=nudgeText(r),tok=await FBUser.getIdToken();
     const res=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},
-      body:JSON.stringify({id:pushId(),tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,image:nudgeImage(r),reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
+      body:JSON.stringify({id:pushId(),prog:areaId(),tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,image:nudgeImage(r),reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
     const j=await res.json().catch(()=>({}));
     if(j&&j.previous&&j.previous.kind)try{track("nudge_expired",{kind:j.previous.kind,result:j.previous.status})}catch(e){}
     if(res.ok){
@@ -19182,7 +19184,7 @@ window.nudgeTestServer=async()=>{
   try{
     const now=Date.now(),id=pushId(),rid="stagingcheck-"+now;
     const r=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+await FBUser.getIdToken()},
-      body:JSON.stringify({id,tz:-new Date().getTimezoneOffset(),rec:{rid,kind:"lesson",view:"session",args:[1,"Mon"],title:"Staging server check",body:"Server boundary check",reason:"staging_check",priority:1,sendAfter:now+3600000,expiresAt:now+7200000}})});
+      body:JSON.stringify({id,prog:areaId(),tz:-new Date().getTimezoneOffset(),rec:{rid,kind:"lesson",view:"session",args:[1,"Mon"],title:"Staging server check",body:"Server boundary check",reason:"staging_check",priority:1,sendAfter:now+3600000,expiresAt:now+7200000}})});
     const j=await r.json().catch(()=>({}));
     if(r.ok){fetch(PUSH_API+"/nudge/cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,rid})}).catch(()=>{});return toast("Server: accepted — this account is General English (test nudge cancelled)")}
     toast("Server: refused ("+r.status+" "+(j.error||"")+")"+(j.error==="track"?" — correct for a non-General-English account":""));
@@ -22985,7 +22987,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v694";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v695";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25051,6 +25053,13 @@ function entView(){
   return entCacheRead(uid)||ENT_FREE;
 }
 function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v.paid===true}
+/* when this account was last seen PAID in this app (30 Oct 2026). Kept apart from the
+   plan cache, which a Free answer overwrites: around a renewal the server can say Free
+   for a moment, and the launch offer must not open in front of a paying learner then.
+   Keyed by uid + app, display only; ENT_PAID_KEEP covers a renewal that is late. */
+const ENT_PAID_KEY="be_ent_paid",ENT_PAID_KEEP=3*86400e3;
+function entPaidNote(uid,v){try{if(uid&&v&&v.paid===true)localStorage.setItem(ENT_PAID_KEY,JSON.stringify({uid,app:entApp(),at:Date.now()}))}catch(e){}}
+function entWasPaid(uid){try{const c=JSON.parse(localStorage.getItem(ENT_PAID_KEY)||"null");return !!(c&&uid&&c.uid===uid&&c.app===entApp()&&Date.now()-c.at<ENT_PAID_KEEP)}catch(e){return false}}
 /* ---- THE ONE GATE: hasEntitlement(capability) ----
    Every Premium boundary in this file asks this and nothing else — there is no
    second `if premium` rule anywhere.
@@ -25435,7 +25444,7 @@ async function entRefresh(){
          is not this app's plan: Free, and nothing cached */
       if(!entViewIsOurs(j)){entWipe();_entView=ENT_FREE;_entUid=uid;return ENT_FREE}
       const v=entSanitize(j);
-      entNoteChange(uid,v);
+      entNoteChange(uid,v);entPaidNote(uid,v);
       _entView=v;_entUid=uid;
       try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,app:entApp(),at:Date.now(),view:v}))}catch(e){}
       return v;
@@ -26465,7 +26474,7 @@ function billingWhyText(why){
    it cannot be this app's plan. */
 function billingTakeView(v){if(!v)return;
   try{if(typeof v.app==="string"&&v.app&&v.app!==entApp())return}catch(e){}
-  const s=entSanitize(v);entNoteChange(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,app:entApp(),at:Date.now(),view:s}))}catch(e){}entApply()}
+  const s=entSanitize(v);entNoteChange(entUid(),s);entPaidNote(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,app:entApp(),at:Date.now(),view:s}))}catch(e){}entApply()}
 
 /* WHY THE STORE IS NOT THERE (3 Oct 2026). "Premium can't be bought on this
    device" was one message for five different causes, so a physical failure
@@ -26528,11 +26537,13 @@ const Billing={
     try{
       const items=this.provider.owned?await this.provider.owned():[];
       this.ownedIds=items.map(x=>x&&x.productId).filter(Boolean);   /* which plan this store sold here (the server's view carries no product) */
-      if(!items.length)return;
+      if(!items.length){this._reconDone=uid;return}
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
       track("purchase_restore",{provider:this.provider.id,source:"launch",result:(j.results||[]).some(x=>x.ok)?"restored":"none"});
       if(FBUser&&FBUser.uid===uid){billingTakeView(j.view);this._draw()}
+      this._reconDone=uid;
     }catch(e){this._reconciled=null;track("purchase_restore",{provider:this.provider.id,source:"launch",result:"failed"})}   /* try again on the next sign-in / launch */
+    finally{try{premLaunchMaybe()}catch(e){}}   /* the launch offer waits for this answer (premLaunchReady) */
   },
   async buy(id){
     if(!this.provider||this.state==="purchasing"||this.state==="restoring")return;
@@ -26890,6 +26901,16 @@ function premLaunchReady(){
     /* the offer is the same on both tracks now, so no track test here */
     if(!(_entView&&_entUid===FBUser.uid))return false;
     if(entIsPremiumForDisplay())return false;
+    /* NEVER OVER A PAYING LEARNER (owner, 30 Oct 2026: "the page with $19.99 and $2.99
+       popped up while the logo was already green"). Around a renewal the first answer of
+       a launch can still say Free — the plan ran past its end and the store's renewal
+       reaches the server only with the reconcile below — and the offer used to open in
+       that gap. So it waits for the store's own answer about this device (reconcile done),
+       and never opens while the store holds a subscription here, or while this account
+       was last known to be Premium in this app (the raw cache, even past its end). */
+    if(Billing._reconDone!==FBUser.uid)return false;
+    if((Billing.ownedIds||[]).length)return false;
+    if(entWasPaid(FBUser.uid))return false;
     if(sessionStorage.getItem(PREM_LAUNCH_SS))return false;
     return true;
   }catch(e){return false}
@@ -29727,6 +29748,12 @@ const PP_MAX_MS=60000, PP_POLL_MS=60000;
 let ppMe=null,ppRec=null,ppBusy=false,ppPollH=null,ppLastFetch=0,ppCands=null,ppCandsToasted=null,ppAutoAvail=0,ppPairSeen=null,ppLiveWant=false;
 const ppAudioUrls=new Map();
 function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=null)return o.replace(/\/+$/,"")}catch(e){}try{const env=beEnv();if(env)return env.partner}catch(e){}return PARTNER_API}
+/* PER-APP PROGRAMME (owner, 30 Oct 2026): every request names the programme of the app
+   that sends it. One account may use both store apps, and the account's synced record holds
+   ONE active programme — whichever app saved last — so the Worker used to refuse Practice
+   Partner in the General English app after the Welding app had been opened. A query
+   parameter, not a header: no new preflight, and an older Worker ignores it. */
+function ppUrl(path){return ppApiBase()+path+(path.includes("?")?"&":"?")+"prog="+encodeURIComponent(areaId())}
 function ppDevUser(){try{if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(ppApiBase()))return null;return localStorage.getItem("be_partner_dev_user")||null}catch(e){return null}}
 function ppSignedIn(){return !!(FBUser||ppDevUser())}
 function ppState(){S.pp=S.pp||{};return S.pp}
@@ -29763,7 +29790,7 @@ async function ppApi(method,path,body){
      so an invitation can wake THIS phone through be-push with the app closed */
   if(path==="/me"&&S.pushId)path+="?push="+encodeURIComponent(S.pushId);
   let r;
-  try{r=await fetch(ppApiBase()+path,{method,headers:h,body:b})}
+  try{r=await fetch(ppUrl(path),{method,headers:h,body:b})}
   catch(e){throw Object.assign(new Error("network"),{code:"network"})}
   const ct=r.headers.get("content-type")||"";
   const j=ct.includes("json")?await r.json().catch(()=>({})):null;
@@ -30957,7 +30984,7 @@ window.ppPlay=async(id,btn)=>{
     let url=ppAudioUrls.get(id);
     if(!url){
       if(btn)btn.disabled=true;
-      const h=await ppHeaders();const r=await fetch(ppApiBase()+"/turns/"+id+"/audio",{headers:h});
+      const h=await ppHeaders();const r=await fetch(ppUrl("/turns/"+id+"/audio"),{headers:h});
       if(!r.ok)throw new Error(String(r.status));
       url=URL.createObjectURL(await r.blob());ppAudioUrls.set(id,url);
       try{track("partner_turn_received",{})}catch(e){}
@@ -31330,7 +31357,7 @@ function ppLiveTeardown(keep){
 }
 window.ppLiveClose=()=>{ppLiveTeardown(false);ppRefresh(true).then(()=>{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)})};
 /* a page unload during a live call: tell the server so the partner is not left waiting */
-window.addEventListener("pagehide",()=>{const L=ppLive;if(!L||L.ended||L.status==="invited")return;try{ppHeaders().then(h=>{h["content-type"]="application/json";fetch(ppApiBase()+"/live/"+L.id+"/end",{method:"POST",headers:h,body:JSON.stringify({reason:"left"}),keepalive:true})})}catch(e){}});
+window.addEventListener("pagehide",()=>{const L=ppLive;if(!L||L.ended||L.status==="invited")return;try{ppHeaders().then(h=>{h["content-type"]="application/json";fetch(ppUrl("/live/"+L.id+"/end"),{method:"POST",headers:h,body:JSON.stringify({reason:"left"}),keepalive:true})})}catch(e){}});
 /* ---- AI on the side: three phrases for the current task, text only, tagged ---- */
 window.ppLiveHelp=async()=>{
   const L=ppLive;if(!L||L.helpBusy)return;L.helpBusy=true;ppLiveRender();
@@ -31689,7 +31716,7 @@ function ppPresencePoll(force){
   if(!ppSignedIn()){if(ppPub.online||ppPub.waiting){ppPub.online=0;ppPub.waiting=0;ppOnlineSync()}return}
   if(ppPub.busy||(!force&&Date.now()-ppPub.at<60000))return;
   ppPub.busy=true;
-  ppHeaders().then(h=>fetch(ppApiBase()+"/presence",{headers:h})).then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}else{ppPub.online=0;ppPub.waiting=0}ppOnlineSync()}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
+  ppHeaders().then(h=>fetch(ppUrl("/presence"),{headers:h})).then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}else{ppPub.online=0;ppPub.waiting=0}ppOnlineSync()}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
 }
 /* paint the count everywhere it lives, and say so once when people appear */
 function ppOnlineSync(){

@@ -456,24 +456,28 @@ async function tokenKey(tok) {
 }
 /* the account's capabilities, or a reason it could not be established.
    { caps } | { status: 401|503 } */
-async function capabilities(req, env) {
+/* `app` (30 Oct 2026): Premium is sold per app, so a caller that knows its programme
+   (the game route) asks about THAT app's plan (?app=); an answer about another app is
+   never this one's plan. Without it, the service's default app answers, as before. */
+async function capabilities(req, env, app) {
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
   const tok = auth.slice(7);
-  const key = await tokenKey(tok);
+  const key = await tokenKey(tok) + (app ? "|" + app : "");
   const uid = tokenSub(tok);
   const hit = entCache.get(key);
   if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps, key, uid, premium: hit.premium === true };
   let r;
   try {
-    r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } });
+    r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement" + (app ? "?app=" + encodeURIComponent(app) : ""), { headers: { authorization: auth } });
   } catch (e) {
     return { status: 503 };                       // the service is unreachable: say so, never guess
   }
   if (r.status === 401 || r.status === 403) return { status: 401 };
   if (!r.ok) return { status: 503 };
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
-  const src = (j && j.capabilities && typeof j.capabilities === "object") ? j.capabilities : {};
+  const other = !!(app && j && typeof j.app === "string" && j.app && j.app !== app);
+  const src = !other && (j && j.capabilities && typeof j.capabilities === "object") ? j.capabilities : {};
   const caps = {};
   /* ai_verbal_feedback was removed on 1 October 2026: it was advertised on the
      paywall and checked at ZERO call sites, while `tts` is free because the
@@ -485,7 +489,7 @@ async function capabilities(req, env) {
   /* the TIER, for the daily allowance: the view's own plan when it is paid and
      in force; ad_free as the fallback for an older entitlements Worker that
      sends capabilities only. A promo that grants part of Premium stays Free. */
-  const premium = (j && j.plan === "premium" && j.paid === true && caps.ad_free === true) || (caps.ad_free === true && !(j && j.plan));
+  const premium = !other && ((j && j.plan === "premium" && j.paid === true && caps.ad_free === true) || (caps.ad_free === true && !(j && j.plan)));
   if (entCache.size > 5000) entCache.clear();
   entCache.set(key, { at: Date.now(), caps, uid, premium });
   return { caps, key, uid, premium };

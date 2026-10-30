@@ -1003,7 +1003,13 @@
   }
   function xpShown() { const s = st(); return s && s.sx ? s.sx.total || 0 : 0; }
   function dailyDone() { const s = st(); return !!(s && s.sx && s.sx.day === E.dayOf(Date.now()) && s.sx.daily); }
-  function isPremium() { return !!(_srv && _srv.plan === "premium") || !!(st() && st().sx && st().sx.plan === "premium"); }
+  /* the app's own plan for THIS programme (30 Oct 2026): the hub used to read only the game
+     server's answer, so a learner the app shows as Premium (green crown) could be offered
+     Premium here. Display only — the server still decides energy and the pack. */
+  function appPremium() { try { return entApp() === AREA && entIsPremiumForDisplay(); } catch (e) { return false; } }
+  function isPremium() { return appPremium() || !!(_srv && _srv.plan === "premium") || !!(st() && st().sx && st().sx.plan === "premium"); }
+  /* the offer only where Premium is sold AND this learner does not already have it */
+  function offerPremium() { try { return premOffered() && !isPremium(); } catch (e) { return false; } }
   function energyLeft() { if (!_srv || !_srv.energy || _srv.day !== E.dayOf(Date.now())) return null; return _srv.energy.limit == null ? Infinity : Math.max(0, _srv.energy.limit - _srv.energy.used); }
   async function srvRefresh() {
     if (!on() || !signedIn()) return;
@@ -1028,7 +1034,7 @@
   }
   function energySheet(j) {
     const ms = Math.max(0, ((j && j.resetAt) || 0) - Date.now()), hh = Math.floor(ms / 3600_000), mm = Math.round((ms % 3600_000) / 60_000);
-    let offer = false; try { offer = premOffered(); } catch (e) {}
+    const offer = offerPremium();
     sheet(`<div class="wm-en-sheet"><span class="wm-en-big">${wi("bolt")}</span><h2>${h(w("en_out_h"))}</h2>
       <p>${h(w("en_out_b", { h: hh, m: mm }))}</p>
       <ul class="wm-list"><li>${wi("check")} ${h(w("en_keep1"))}</li><li>${wi("check")} ${h(w("en_keep2"))}</li><li>${wi("check")} ${h(w("en_keep3"))}</li></ul>
@@ -1125,7 +1131,7 @@
     }
   }
   function premiumAsk(from) {
-    let offer = false; try { offer = premOffered(); } catch (e) {}
+    const offer = offerPremium();
     sheet(`<div class="wm-en-sheet"><span class="wm-en-big prem">${wi("crown")}</span><h2>${h(w("pr_h"))}</h2><p>${h(w("pr_b"))}</p>
       <ul class="wm-list"><li>${wi("bolt")} ${h(w("pr_1"))}</li><li>${wi("chat")} ${h(w("pr_2"))}</li><li>${wi("chart")} ${h(w("pr_3"))}</li><li>${wi("spark")} ${h(w("pr_4"))}</li></ul>
       ${offer ? `<button class="btn btn-p wm-wide wm-prem-btn" data-em="premium" data-a="${h(from)}">${wi("crown")} ${h(w("pr_btn"))}</button>` : `<p class="wm-mut small">${h(w("pr_soon"))}</p>`}</div>`);

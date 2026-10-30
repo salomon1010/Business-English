@@ -246,6 +246,19 @@ async function fsGet(url, token) {
   try { const r = await fetch(url, { headers: { authorization: "Bearer " + token } }); return r.ok ? await r.json() : null; } catch (e) { return null; }
 }
 async function accountTrack(req, env, uid) {
+  /* PER-APP PROGRAMME (owner, 30 Oct 2026). One account may use BOTH store apps
+     (General English and Welding), and the synced record holds ONE activeId —
+     whichever app saved last. Read as "the account's programme", it refused
+     Practice Partner in the General English app after the Welding app had been
+     opened, and the Welding games after the General English app had. So the
+     app names its own programme (?prog=, its fixed store programme) and that is
+     the answer. What protects money is the entitlement, which is per app; a
+     programme named here unlocks only that programme's free features, which
+     the other store app already gives anyone. A request without ?prog= (a page
+     older than this) still reads the account record, exactly as before. The
+     caller's token has been verified before this is reached. */
+  const said = new URL(req.url).searchParams.get("prog");
+  if (said && KNOWN_TRACKS.has(said)) return said;
   /* DEV_AUTH (local wrangler only — never staging or production): the dev
      identity has no Firebase account, so a test names its programme */
   if (env.DEV_AUTH === "1" && uid.startsWith("dev:")) {
