@@ -37296,6 +37296,35 @@ window.fbSignOut=async function(){
    deletion, because the alternative is telling the learner their account is
    gone while Apple still believes they are signed in. */
 function fbHasApple(u){try{return ((u||FBUser||{}).providerData||[]).some(p=>p&&p.providerId==="apple.com")}catch(e){return false}}
+/* Firebase refuses to delete an account whose sign-in is not recent
+   (auth/requires-recent-login, about five minutes). Deletion erases the
+   partner data, the plan record and the cloud copy BEFORE it deletes the
+   account — it needs the account's token to do so — so it must know the
+   sign-in is fresh before the first of those, or a stale session ends with the
+   data gone and the account still there (reproduced 30 Oct 2026). auth_time in
+   the ID token is the sign-in time, and a reauthentication renews it; reading
+   it needs no network. A margin under Firebase's window, because the steps
+   take time. Unknown (an SDK without the call) reads as fresh, and the
+   requires-recent-login catch in fbDeleteAccount stays as the backstop. */
+const FB_RECENT_LOGIN_MS=4*60*1000;
+async function fbRecentLogin(){
+  try{
+    const u=(FBauth&&FBauth.currentUser)||FBUser;
+    if(!u||typeof u.getIdTokenResult!=="function")return true;
+    const r=await u.getIdTokenResult();
+    const at=Date.parse(r&&r.authTime);
+    return !isFinite(at)||Date.now()-at<FB_RECENT_LOGIN_MS;
+  }catch(e){return true}
+}
+/* A stale session stops deletion BEFORE anything is erased or revoked, so
+   "sign in again then delete" is true: nothing was deleted, and a fresh
+   sign-in lets the same button finish the job. */
+async function fbDeleteNeedsLogin(){
+  toast(t("auth.reauth_toast"));
+  try{await FBauth.signOut()}catch(e){}
+  fbWipeDevice();
+  setTimeout(()=>{try{if(webGateOn())webGateRender()}catch(e){}},600);
+}
 async function fbAppleRevoke(){
   if(!fbHasApple())return true;                      // email/password or Google only: nothing to revoke
   const P=beNativeAuth();
@@ -37314,10 +37343,13 @@ async function fbAppleRevoke(){
     return false;                                     // cancelled: no message, nothing deleted
   }
   if(!r||!r.authorizationCode||!r.idToken){toast(t("auth.delete_apple_fail"));return false}
-  /* the same confirmation is the recent login Firebase wants; a failure here is
-     not fatal on its own — the delete below will ask again if it needs to */
+  /* the same confirmation is the recent login Firebase wants. A failed
+     reauthentication is not fatal on its own, but the sign-in must be fresh
+     BEFORE Apple is asked to revoke: revoking and then failing the delete
+     would leave the account alive with its Apple grant already gone. */
   try{const cred=new firebase.auth.OAuthProvider("apple.com").credential({idToken:r.idToken,rawNonce:r.rawNonce});
     await FBUser.reauthenticateWithCredential(cred)}catch(e){}
+  if(!await fbRecentLogin()){await fbDeleteNeedsLogin();return false}
   try{
     const tok=await FBauth.currentUser.getIdToken(true);
     const res=await fetch(MAIL_API+"/apple/revoke",{method:"POST",
@@ -37346,6 +37378,11 @@ window.fbDeleteAccount=async function(){
   let _subNote="";try{const v=entView();if(entIsPremiumForDisplay()&&(v.source==="google_play"||v.source==="app_store"))_subNote="\n\n"+t("auth.delete_sub_note",{store:storeInText(v.source)})}catch(e){}
   if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm")+_subNote,confirmLabel:t("cf.delete")}))return;
   try{
+    /* A password or Google account has no confirmation step that renews the
+       sign-in, so it is checked here, before anything is erased. An Apple
+       account is checked inside fbAppleRevoke, after Apple's sheet has
+       renewed it and before anything is revoked. */
+    if(!fbHasApple()&&!await fbRecentLogin()){await fbDeleteNeedsLogin();return}
     /* Sign in with Apple goes FIRST, before anything is erased anywhere: it is
        the only step that needs the account to be fully alive and the learner
        present, and if it cannot be confirmed nothing else should have happened
@@ -37372,7 +37409,8 @@ window.fbDeleteAccount=async function(){
     toast(t("auth.deleted_toast"));go("home");
     setTimeout(()=>{try{if(webGateOn())webGateRender()}catch(e){}},600);   /* FBUser clears with Firebase's own callback */
   }catch(e){
-    if(e&&e.code==="auth/requires-recent-login"){toast(t("auth.reauth_toast"));await FBauth.signOut();fbWipeDevice();setTimeout(()=>{try{if(webGateOn())webGateRender()}catch(e){}},600)}
+    /* the backstop: fbRecentLogin() could not tell, or the window closed mid-way */
+    if(e&&e.code==="auth/requires-recent-login")await fbDeleteNeedsLogin();
     else toast("⚠️ "+fbErr(e));
   }
 };
