@@ -146,6 +146,10 @@ async function open({ ios = true, caps = { apple: true, google: true }, track = 
   /* the SDK the app loads on demand, replaced by the stand-in */
   await ctx.route(/gstatic\.com\/firebasejs/, r => r.fulfill({ status: 200, contentType: "application/javascript", body: FAKE_SDK }));
   const net = [];
+  /* ENT_API is the production entitlement service and a sign-in refreshes the
+     plan from it: answer it here so a test never reaches production. */
+  await ctx.route(/entitlements\.lomonec\.com/, r => r.fulfill({ status: 200, contentType: "application/json",
+    headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" }, body: "{}" }));
   await ctx.route(/be-polish|be-partner|be-events|be-push|be-mail|cloudflareinsights|ytimg|youtube|googleapis|accounts\.google/, r => {
     const q = r.request(); net.push({ url: q.url(), auth: (q.headers().authorization || "") });
     r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify({ ok: true }) });
@@ -278,9 +282,11 @@ console.log("\n# the shell offers both providers, the web offers neither");
     /C\.Plugins&&C\.Plugins\[name\]/.test(html), "capPlugin must read Capacitor.Plugins");
 }
 {
-  const { p, ctx } = await open({ ios: false });
+  /* social_signin_web_enabled is ON in FLAGS_DEFAULT since 7 Oct 2026 (providers
+     configured), so the OFF case is set explicitly — it is still the kill switch */
+  const { p, ctx } = await open({ ios: false, pre: () => { localStorage.setItem("be_flags", JSON.stringify({ social_signin_web_enabled: false })); } });
   const s = await sheet(p);
-  ok("A6 · on the web with the web flag OFF (the production default until the console providers are on) NO social button is drawn", s.soc.length === 0 && !s.sep);
+  ok("A6 · on the web with the web flag switched OFF, NO social button is drawn", s.soc.length === 0 && !s.sep);
   ok("A7 · the web sheet still has email and password", s.email && s.pw);
   await ctx.close();
 }
@@ -692,7 +698,9 @@ console.log("\n# track isolation — Welding gains sign-in, nothing else");
 console.log("\n# Premium, ytai and the rest are untouched by this change");
 {
   const { p, ctx } = await open();
-  ok("J1 · billing is still off and ENT_API is still empty", await p.evaluate(() => !flag("billing_enabled") && ENT_API === ""));
+  /* Premium went on sale 11 Oct 2026 (billing_enabled ON, ENT_API set). The claim
+     is that sign-in code does not move it, so it is checked against the defaults. */
+  ok("J1 · billing is as FLAGS_DEFAULT declares it and ENT_API is the production service", await p.evaluate(() => flag("billing_enabled") === !!FLAGS_DEFAULT.billing_enabled && ENT_API === ENT_API_PROD));
   ok("J2 · the ytai client gate is still in place", await p.evaluate(() => typeof ytaiNoAccount === "function"));
   ok("J3 · the POLISH_API signing wrapper is still the one used", await p.evaluate(() => /be-polish/.test(POLISH_API)));
   await ctx.close();
@@ -772,14 +780,23 @@ console.log("\n# the committed iOS project and this repository");
   const plist = readFileSync(f("mobile/ios/ios/App/App/Info.plist"), "utf8");
   const pbx = readFileSync(f("mobile/ios/ios/App/App.xcodeproj/project.pbxproj"), "utf8");
   const vc = readFileSync(f("mobile/ios/ios/App/App/Lifecycle/BEBridgeViewController.swift"), "utf8");
-  ok("K1 · App.entitlements asks for Sign in with Apple and nothing else", existsSync(ent) && /applesignin/.test(readFileSync(ent, "utf8")) && (readFileSync(ent, "utf8").match(/<key>/g) || []).length === 1);
+  /* Sign in with Apple, plus push (4 Oct 2026) and the widget's App Group
+     (5 Oct 2026) — exactly those three, so anything new is a deliberate edit here */
+  const entKeys = existsSync(ent) ? [...readFileSync(ent, "utf8").matchAll(/<key>([^<]+)<\/key>/g)].map(m => m[1]).sort() : [];
+  ok("K1 · App.entitlements asks for Sign in with Apple, push and the App Group — nothing else",
+    entKeys.join(",") === ["aps-environment", "com.apple.developer.applesignin", "com.apple.security.application-groups"].sort().join(","), entKeys.join(","));
   ok("K2 · both build configurations sign with it", (pbx.match(/CODE_SIGN_ENTITLEMENTS = App\/App\.entitlements;/g) || []).length === 2);
-  ok("K3 · no push, no associated domains, no iCloud were added", !/aps-environment|associated-domains|com\.apple\.developer\.icloud/.test(readFileSync(ent, "utf8")));
+  ok("K3 · no associated domains and no iCloud were added", !/associated-domains|com\.apple\.developer\.icloud/.test(readFileSync(ent, "utf8")));
   ok("K4 · BEAuthPlugin is in the Sources phase and registered on the bridge", /BEAuthPlugin\.swift in Sources/.test(pbx) && /registerPluginInstance\(BEAuthPlugin\(\)\)/.test(vc));
   ok("K5 · the plugin holds no secret and logs nothing", !/client_secret|BEGIN PRIVATE KEY/.test(sw) && !/\bprint\(|NSLog|os_log/.test(sw));
   ok("K6 · Apple's request is bound to a SHA-256 nonce", /request\.nonce = Self\.sha256\(raw\)/.test(sw));
   ok("K7 · Google is PKCE with state checked, and the access token is dropped", /code_challenge_method/.test(sw) && /value\("state"\) == state/.test(sw) && /deliberately dropped/.test(sw));
-  ok("K8 · no CFBundleURLTypes was needed (ASWebAuthenticationSession owns the callback)", !/CFBundleURLTypes/.test(plist));
+  /* CFBundleURLTypes exists since 5 Oct 2026 for the widget's bemastery:// taps.
+     Sign-in still needs none: ASWebAuthenticationSession owns the callback, so no
+     Google reversed-client scheme may appear. */
+  const schemes = [...plist.matchAll(/<key>CFBundleURLSchemes<\/key>\s*<array>([\s\S]*?)<\/array>/g)].flatMap(m => [...m[1].matchAll(/<string>([^<]+)<\/string>/g)].map(x => x[1]));
+  ok("K8 · the only URL scheme is the widget's bemastery — sign-in registers none (ASWebAuthenticationSession owns the callback)",
+    schemes.join(",") === "bemastery" && !/com\.googleusercontent\.apps/.test(plist), schemes.join(","));
   /* The client id IS configured now (2 Oct 2026). It is public by design — an
      iOS OAuth client has no secret — but it must be a real one and it must
      belong to THIS Firebase project, so the check is format + project number
@@ -794,7 +811,11 @@ console.log("\n# the committed iOS project and this repository");
     && /^\d+-[a-z0-9]{16,}\.apps\.googleusercontent\.com$/.test(gid)
     && !/client_secret|BEGIN PRIVATE KEY|AuthKey_/.test(plist),
     `len=${gid.length} project=${gproj || "?"}`);
-  ok("K10 · the bundle id is unchanged", (pbx.match(/PRODUCT_BUNDLE_IDENTIFIER = com\.lomonec\.bemastery;/g) || []).length === 2);
+  /* since the two-app split (12 Oct 2026) the app's id is "$(BE_APP_BUNDLE_ID)",
+     set to the General English id in both configurations of the project */
+  ok("K10 · the bundle id is unchanged: com.lomonec.bemastery in both configurations, through BE_APP_BUNDLE_ID",
+    (pbx.match(/BE_APP_BUNDLE_ID = com\.lomonec\.bemastery;/g) || []).length === 2
+    && (pbx.match(/PRODUCT_BUNDLE_IDENTIFIER = "\$\(BE_APP_BUNDLE_ID\)";/g) || []).length === 2);
   const html = readFileSync(f("index.html"), "utf8");
   ok("K11 · no key, token or client id is committed in the web app", !/apps\.googleusercontent\.com|client_secret|BEGIN PRIVATE KEY|AuthKey_/.test(html));
   const keys = new Set([...html.split("const I18N_EN")[1].split("\n};")[0].matchAll(/"([A-Za-z0-9_.\-]+)"\s*:/g)].map(x => x[1]));

@@ -52,7 +52,7 @@ async function open({ ios = true, pending = null, state = {}, flags = null, sign
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   await ctx.addInitScript(([s, f]) => { localStorage.setItem("be12_v1", s); if (f) localStorage.setItem("be_flags", f); }, [seed(state), flags ? JSON.stringify(flags) : null]);
   if (ios) await ctx.addInitScript(BRIDGE, [pending]);
-  await ctx.route(u => /be-push|be-partner|be-polish|be-events|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
+  await ctx.route(u => /be-push|be-partner|be-polish|be-events|entitlements\.lomonec\.com|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(3200);   // the boot publish, then the one after the curriculum is in
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#ppFab").forEach(e => e.remove()));
