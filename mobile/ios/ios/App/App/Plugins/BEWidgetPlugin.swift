@@ -177,9 +177,13 @@ final class BEWidgetBox {
     static let acts: Set<String> = ["words", "today", "roadmap", "signin", "premium", "shift", "daily"]
     /// A recommendation's destination: the places a Home card can open, and the
     /// actions those places take (index.html `nudgeGo`).
-    static let recViews: Set<String> = ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "mastery"]
-    /// "mastery": today's shift or one of the Welding Mastery games.
-    static let recActs: Set<String> = ["clip", "trouble", "study-due", "ai", "shift", "cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop"]
+    /// Must match index.html `WG_REC_VIEWS` (tests/ios-widget.mjs checks it).
+    static let recViews: Set<String> = ["session", "practice", "shadow", "partner", "phrases", "phrasebank", "roleplay", "mastery", "english"]
+    /// "mastery" / "english": today's shift, the daily, or one of the Welding
+    /// Mastery / English Mastery games (each engine's MODES).
+    static let recActs: Set<String> = ["clip", "trouble", "study-due", "ai", "shift", "daily",
+                                       "cards", "quiz", "crossword", "visual", "listen", "builder", "match", "workshop",
+                                       "sentence", "speak", "puzzle", "missions"]
 
     /// True when the URL was ours (and has been routed); false hands it on.
     @discardableResult

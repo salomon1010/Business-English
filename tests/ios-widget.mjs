@@ -192,6 +192,18 @@ console.log("\n# who may use which widget, and the Recommendations list (owner, 
   ok("L6 · a recommendation tap opens its place (nudgeGo), exactly as the Home card would", r2.ok === true && r2.v === "practice", JSON.stringify(r2));
   const r3 = await p.evaluate(() => widgetOpenRoute({ rec: { view: "settings", act: "wipe" } }) && cur.v);
   ok("L7 · …and an unknown place lands on Home, never anywhere else", r3 === "home", String(r3));
+  /* 30 Oct 2026: the games row has no home.bc_ key, and the widget printed "home.bc_games" */
+  ok("L7b · every recommendation's reason line is words, never a translation key", recs.every(r => !/^[a-z]+\.[A-Za-z0-9_.]+$/.test(r.why || "")), JSON.stringify(recs.map(r => r.why)));
+  /* 30 Oct 2026: BEWidgetPlugin.swift's recViews had no "english" and recActs only Welding's
+     games, so every English Mastery card was dropped by the app before the page saw it */
+  { const sw = readFileSync(root + "mobile/ios/ios/App/App/Plugins/BEWidgetPlugin.swift", "utf8");
+    const set = n => { const m = new RegExp("static let " + n + ": Set<String> = \\[([^\\]]*)\\]").exec(sw); return m ? [...m[1].matchAll(/"([^"]+)"/g)].map(x => x[1]) : []; };
+    const sv = set("recViews"), sa = set("recActs");
+    const want = await p.evaluate(() => ({ views: WG_REC_VIEWS, acts: [...new Set(["clip", "trouble", "study-due", "ai", "shift", "daily",
+      ...((window.WMEngine && WMEngine.MODES) || []), ...((window.EMEngine && EMEngine.MODES) || [])])] }));
+    const mv = want.views.filter(v => !sv.includes(v)), ma = want.acts.filter(a => !sa.includes(a)), mr = recs.filter(r => r.go.act && !sa.includes(r.go.act)).map(r => r.go.act);
+    ok("L7c · the app's Swift allow-list (BEWidgetPlugin recViews / recActs) passes every place and game the page can recommend",
+      sv.length && want.acts.length > 8 && !mv.length && !ma.length && !mr.length, JSON.stringify({ missingViews: mv, missingActs: ma, recActs: mr, modes: want.acts })); }
   ok("L8 · no JavaScript errors", errs.length === 0, errs.join(" | "));
   await ctx.close(); }
 
