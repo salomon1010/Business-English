@@ -37,8 +37,11 @@ const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1, 
   steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 
 let answer = FREE;
-async function open(track) {
+async function open(track, opts = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  /* a STORE bundle carries be-build.js with {track}, which is what BE_APP_TRACK
+     reads; the plain web app has none, so it stays null (opts.bundle omitted) */
+  if (opts.bundle) await ctx.addInitScript(tr => { window.BE_BUILD = { track: tr }; }, opts.bundle);
   await ctx.addInitScript(s => { localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://ent.test");
     localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true, home_v2_enabled: true, welding_studio_enabled: true }));
     try { sessionStorage.setItem("be_prem_launch", "1"); } catch (e) {} }, seed(track));
@@ -104,19 +107,62 @@ console.log("\n# switching tracks never changes the entitlement");
   await ctx.close();
 }
 
-console.log("\n# ONE StoreKit product — nothing Welding-specific was invented");
+console.log("\n# ONE subscription, but each app record has its own product ids (Apple refused the reuse)");
 {
   const { ctx, p } = await open("welding");
   const src = await p.evaluate(() => [...document.scripts].map(s => s.textContent).join("\n"));
-  ok("13 · BILLING_PRODUCTS is exactly the two shared ids — no welding product", /BILLING_PRODUCTS=Object\.freeze\(\["premium_monthly","premium_annual"\]\)/.test(src), (src.match(/BILLING_PRODUCTS=Object\.freeze\(\[[^\]]*\]\)/) || [])[0]);
-  const flagLike = src.match(/\b(weldingPremium|weldingHasPremium|generalEnglishPremium|generalEnglishHasPremium|weldingEntitlement)\b|["']welding_premium["']|["']general_english_premium["']/g) || [];
-  ok("14 · no welding-specific Premium flag, boolean or entitlement identifier exists", flagLike.length === 0, flagLike.join(","));
+  /* GOOGLE PLAY reuses the two ids on both packages, so BILLING_PRODUCTS — the
+     PLAY list — is unchanged. The APP STORE could not: Apple refused the second
+     app the first's ids, so the Welding app record carries welding_premium_*
+     (20 Oct 2026). Asking StoreKit for ids an app record does not hold returns
+     NOTHING, which is why 1.0.0 (2) showed a paywall with no plans. */
+  ok("13 · the PLAY list is still exactly the two shared ids — both packages sell them", /BILLING_PRODUCTS=Object\.freeze\(\["premium_monthly","premium_annual"\]\)/.test(src), (src.match(/BILLING_PRODUCTS=Object\.freeze\(\[[^\]]*\]\)/) || [])[0]);
+  ok("13b · on the plain web (no store bundle) StoreKit's list is the shared pair, exactly as before",
+    JSON.stringify(await p.evaluate(() => APPLE_BILLING_PRODUCTS.slice().sort())) === JSON.stringify(["premium_annual", "premium_monthly"]));
+  /* a welding-specific PRODUCT ID is now correct; a welding-specific PLAN,
+     flag or entitlement is still the thing that must never exist */
+  const flagLike = src.match(/\b(weldingPremium|weldingHasPremium|generalEnglishPremium|generalEnglishHasPremium|weldingEntitlement)\b|["']general_english_premium["']/g) || [];
+  ok("14 · no welding-specific Premium flag, boolean or entitlement identifier exists — the product id is NOT one of those", flagLike.length === 0, flagLike.join(","));
   ok("15 · one paywall: premiumOpen is the only entry and there is no welding variant", typeof (await p.evaluate(() => typeof premiumOpen)) === "string" && !/premiumOpenWelding|weldPaywall|premWelding/i.test(src));
   const sk = await (await fetch(BASE + "mobile/ios/ios/App/App/BEMastery.storekit")).json();
   const ids = sk.subscriptionGroups.flatMap(g => g.subscriptions.map(x => x.productID)).sort();
-  ok("16 · the StoreKit configuration still has exactly the two shared products", JSON.stringify(ids) === JSON.stringify(["premium_annual", "premium_monthly"]), JSON.stringify(ids));
-  ok("17 · one subscription group, so one trial per Apple ID across both tracks", sk.subscriptionGroups.length === 1);
+  ok("16 · the General English StoreKit configuration still has exactly the two shared products", JSON.stringify(ids) === JSON.stringify(["premium_annual", "premium_monthly"]), JSON.stringify(ids));
+  const skw = await (await fetch(BASE + "mobile/ios/ios/App/App/BEMasteryWelding.storekit")).json();
+  const widsAll = skw.subscriptionGroups.flatMap(g => g.subscriptions.map(x => x.productID)).sort();
+  ok("16b · the Welding StoreKit configuration holds the Welding app record's own two products",
+    JSON.stringify(widsAll) === JSON.stringify(["welding_premium_annual", "welding_premium_monthly"]), JSON.stringify(widsAll));
+  ok("16c · …at the same prices and the same 3-day trial — a different id, not a different offer",
+    JSON.stringify(skw.subscriptionGroups[0].subscriptions.map(x => [x.displayPrice, x.recurringSubscriptionPeriod, x.introductoryOffer.subscriptionPeriod]).sort())
+    === JSON.stringify(sk.subscriptionGroups[0].subscriptions.map(x => [x.displayPrice, x.recurringSubscriptionPeriod, x.introductoryOffer.subscriptionPeriod]).sort()));
+  ok("17 · one subscription group in each configuration, so one trial per Apple ID per app", sk.subscriptionGroups.length === 1 && skw.subscriptionGroups.length === 1);
   await ctx.close();
+}
+
+/* ===== THE STORE BUNDLE ASKS FOR ITS OWN APP'S IDS (20 Oct 2026) =====
+   1.0.0 (2) shipped the General English ids inside the Welding app, so
+   StoreKit returned no products and the paywall had nothing to sell. These
+   checks run the real page with be-build.js's {track}, the way a store bundle
+   carries it, and read the list StoreKit would actually be asked for. */
+console.log("\n# Each store bundle asks the App Store for its OWN app record's products");
+{
+  const APPLE = p => p.evaluate(() => APPLE_BILLING_PRODUCTS.slice().sort());
+  const PLAY = p => p.evaluate(() => BILLING_PRODUCTS.slice().sort());
+  const SHARED = ["premium_annual", "premium_monthly"], WELD = ["welding_premium_annual", "welding_premium_monthly"];
+
+  const w = await open("welding", { bundle: "welding" });
+  const g = await open("general-english", { bundle: "general-english" });
+  const wa = await APPLE(w.p), ga = await APPLE(g.p);
+
+  ok("17a · the WELDING bundle asks the App Store for the Welding app record's ids", JSON.stringify(wa) === JSON.stringify(WELD), JSON.stringify(wa));
+  ok("17b · the GENERAL ENGLISH bundle is untouched — still the shared ids", JSON.stringify(ga) === JSON.stringify(SHARED), JSON.stringify(ga));
+  ok("17c · a General English id can never be offered inside the Welding app", !wa.some(x => SHARED.includes(x)), JSON.stringify(wa));
+  ok("17d · …and a Welding id can never be offered inside the General English app", !ga.some(x => WELD.includes(x)), JSON.stringify(ga));
+  ok("17e · GOOGLE PLAY is unaffected on both bundles: one pair of ids, because a Play id is scoped to its package",
+    JSON.stringify(await PLAY(w.p)) === JSON.stringify(SHARED) && JSON.stringify(await PLAY(g.p)) === JSON.stringify(SHARED));
+  ok("17f · the bundle really is pinned to its programme (so these lists are the ones the store app uses)",
+    await w.p.evaluate(() => window.BE_APP_TRACK) === "welding" && await g.p.evaluate(() => window.BE_APP_TRACK) === "general-english");
+  ok("17g · no page error on either bundle", w.errs.length === 0 && g.errs.length === 0, (w.errs[0] || "") + (g.errs[0] || ""));
+  await w.ctx.close(); await g.ctx.close();
 }
 
 console.log("\n# Welding Free keeps the practice — only the AI's verdicts are counted");

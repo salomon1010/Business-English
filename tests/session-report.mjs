@@ -19,6 +19,16 @@ const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:tru
 const page=await ctx.newPage();
 const errors=[];page.on("pageerror",e=>errors.push(String(e.message)));
 await page.addInitScript(()=>{try{navigator.serviceWorker.register=()=>new Promise(()=>{})}catch(e){}});
+/* Phase C (11 Oct 2026) made billing_enabled:true and ENT_API the PRODUCTION
+   defaults, so a signed-out learner now has aiNoAccount() === true and the whole
+   AI pipeline is correctly withheld — the owner's 1 Oct rule that an AI route
+   needs an account. This suite exercises sessReport(), which is that pipeline,
+   and it never signs in; without this line sessReport() returned before the
+   fixture Worker was ever called and every report assertion read empty. "" is
+   the documented localhost escape hatch (entApiBase() returns it whenever the
+   key is present), so planOn() is false and the pipeline runs as written.
+   Not an assertion change — the premise the suite always assumed, now stated. */
+await page.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});
 
 const AI={key_message:"I check the joint before I weld it.",clarity:"clear",
  sharper:"Before every weld I check the fit-up, the gap and the bevel, then I start.",

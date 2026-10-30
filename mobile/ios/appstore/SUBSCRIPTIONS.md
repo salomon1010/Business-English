@@ -24,6 +24,35 @@
 > prices each and 175 introductory offers each, all THREE_DAYS / FREE_TRIAL with
 > no end date.
 
+> **TWO APPS, TWO SETS OF APPLE IDS (20 October 2026).** Everything below is
+> the **General English** app (`com.lomonec.bemastery`, 6817207864). The Welding
+> app record (`com.lomonec.bemastery.welding`, **6822527532**) could **not**
+> reuse these identifiers — Apple refused them to a second app on the same
+> account — so it has its own group and its own two products. Verified read-only
+> against App Store Connect, 20 Oct 2026:
+>
+> | | General English | Welding |
+> |---|---|---|
+> | app id | 6817207864 | **6822527532** |
+> | group | 22444441 | **22484497** "BE Mastery Welding Premium" |
+> | annual | `premium_annual` (6819570241) | **`welding_premium_annual`** (6823575232) |
+> | monthly | `premium_monthly` (6819570240) | **`welding_premium_monthly`** (6823574822) |
+> | USA price | 19.99 / 2.99 | 19.99 / 2.99 — identical |
+> | territories | 175 each | 175 each |
+> | intro offer | THREE_DAYS FREE_TRIAL, 175 rows | THREE_DAYS FREE_TRIAL, 175 rows |
+> | state | READY_TO_SUBMIT | READY_TO_SUBMIT |
+>
+> **Google Play is NOT split this way.** A Play product id is scoped to its
+> package, so both packages sell `premium_annual` / `premium_monthly` (both
+> ACTIVE, `trial3d` P3D on each — verified read-only, 20 Oct 2026).
+> `BILLING_PRODUCTS` in `index.html` is that Play list;
+> `APPLE_BILLING_PRODUCTS` beside it is the Apple one and is chosen by
+> `window.BE_APP_TRACK`. `APPLE_BUNDLE_ID` in the table at the end of this file
+> is single-valued because that is what production still carries; it becomes
+> `com.lomonec.bemastery,com.lomonec.bemastery.welding` only in step 5 of
+> `backend/entitlements/DEPLOYMENT_PLAN_0005.md`, with the other two lists in
+> the same change.
+
 Prepared 2026-09-26. **Entered in App Store Connect on 6 October 2026**
 through the App Store Connect API (team key A88M365B2K, App Manager): group
 `BE Mastery Premium` (22444441) with an en-US display name; `premium_monthly`

@@ -393,7 +393,16 @@ export async function handle(req, env, deps = {}) {
     let soldApp = null;
     for (const it of items) {
       const v = await p.verifyPurchase(it || {}, ctx);
-      if (!v.ok) { results.push({ ok: false, why: v.why, status: v.status }); continue; }
+      /* SAY WHY, IN THE LOG (23 Oct 2026). A refusal was recorded in the reply
+         and nowhere else, and a restore answers 200 whatever happens — so a
+         tester whose every purchase was refused as `test_purchase` saw only
+         "No purchases found", and `wrangler tail` showed a cheerful Ok. The
+         reason, the provider and the route are enough to diagnose it; no token,
+         no uid and no account token are logged. */
+      if (!v.ok) {
+        try { console.warn(JSON.stringify({ at: "purchase_refused", provider: p.id, route: restore ? "restore" : "verify", why: v.why, status: v.status })); } catch (e) {}
+        results.push({ ok: false, why: v.why, status: v.status }); continue;
+      }
       if (!soldApp && v.links && v.links[0] && v.links[0].app_id) soldApp = v.links[0].app_id;
       for (const r of await applyLinks(env, uid, v.links, p, ctx, now, "provider:" + p.id, restore ? "restore" : "verify")) results.push(r);
     }
@@ -410,8 +419,34 @@ export async function handle(req, env, deps = {}) {
     if (!p.configured(env)) return err(501, "not_configured");
     const n = await p.notification(req, { env, deps, now });
     if (!n.ok) return err(n.status || 400, n.why || "invalid");
-    /* at-most-once per notification: the store retries, and may deliver twice */
-    const first = await q(env, "INSERT OR IGNORE INTO processed_notifications(id,provider,received_at) VALUES(?,?,?)", n.id, p.id, now).run();
+    /* at-most-once per notification: the store retries, and may deliver twice.
+       The claim is AFTER the store check, so a redelivery still costs one
+       store call before it is deduped. Deliberate; test K6 and the "Known
+       cost" section of docs/RTDN-ACK-CONTRACT.md say why. */
+    const claim = q(env, "INSERT OR IGNORE INTO processed_notifications(id,provider,received_at) VALUES(?,?,?)", n.id, p.id, now);
+    /* ACCEPTED AND DECLINED — a notification a business rule refuses for good
+       (see "ACK OR RETRY" in src/billing.js). It is recorded rather than argued
+       with, because answering 4xx made Google repeat it ~120,000 times a day.
+       Nothing is granted or revoked — `updates` is empty, so no uid is ever
+       looked up.
+       THE CLAIM AND THE RECORD ARE ONE BATCH (30 Oct 2026), because D1 runs a
+       batch as a single transaction. The acknowledgement must never outlive the
+       reason for it: when these were two statements, a failed second INSERT
+       answered 500 with the claim already standing, and the redelivery then
+       read that claim as a `duplicate` and acknowledged 200 — the notification
+       accepted, the reason recorded NOWHERE, and the store told never to send
+       it again. Now the failure rolls the claim back with it and the
+       redelivery is processed in full. Tests K19-K22. */
+    if (n.rejected) {
+      const [claimed] = await env.DB.batch([
+        claim,
+        q(env, "INSERT OR IGNORE INTO rejected_notifications(id,provider,status,why,received_at) VALUES(?,?,?,?,?)", n.id, p.id, Number(n.rejected.status) || 0, String(n.rejected.why || "refused"), now),
+      ]);
+      if (!changes(claimed)) return json({ ok: true, duplicate: true });
+      try { console.warn(JSON.stringify({ at: "notification_refused", provider: p.id, why: n.rejected.why, status: n.rejected.status })); } catch (e) {}
+      return json({ ok: true, rejected: n.rejected.why });
+    }
+    const first = await claim.run();
     if (!changes(first)) return json({ ok: true, duplicate: true });
     try {
       const touched = new Set();

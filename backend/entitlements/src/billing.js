@@ -31,6 +31,37 @@ import { programmeOfStoreId } from "./entitlement-core.js";
 const TOKEN_RE = /^[A-Za-z0-9._-]{16,512}$/;
 const fail = (status, why) => ({ ok: false, status, why });
 
+/* ACK OR RETRY — the one rule for a store → server notification.
+   (29 Oct 2026. Read this before changing any notification() return.)
+
+   Google Pub/Sub and the App Store Server both read ANY non-2xx reply as "not
+   delivered" and send the SAME message again, with backoff, for as long as the
+   subscription retains it. So the status code on this path is not a report of
+   what happened — it is an INSTRUCTION, and there are only two:
+     2xx  done, never send this again
+     else send it again
+   A business rule that refuses a purchase — not our product, a licence-test
+   purchase, another app's bundle — cannot be changed by redelivery. Answering
+   it with 4xx asks Google to repeat, forever, a question whose answer is
+   fixed. That is a refusal to ACCEPT the notification, which is not the same
+   as accepting it and declining to act, and only the second is true.
+
+   This was not academic. A permanently refused Play notification was
+   redelivered roughly 120,000 times a day from 15 to 29 October 2026 — 84.9%
+   of every Worker request on the account, and about 1.38M calls to the Play
+   Developer API, some 60% of its daily quota — while Cloudflare recorded ZERO
+   errors, because a deliberate 422 is a successful response. See
+   docs/RTDN-ACK-CONTRACT.md.
+
+   So: 4xx from a purchase check is PERMANENT — acknowledge it, record why, and
+   change nothing. Only 5xx (Google unreachable, our own misconfiguration) is
+   worth another delivery, and the dead-letter queue bounds even that.
+   Authentication is deliberately NOT covered here: an unsigned or wrongly
+   signed notification is refused with 401 before any id is known, because
+   acknowledging unauthenticated callers would let anyone silence a store. */
+const permanent = status => Number(status) >= 400 && Number(status) < 500;
+const refused = (id, v) => ({ ok: true, id, updates: [], rejected: { status: v.status, why: v.why } });
+
 const google_play = {
   id: "google_play",
   configured: env => gp.configured(env),
@@ -96,7 +127,10 @@ const google_play = {
     const sn = d.subscriptionNotification; if (!sn) return { ok: true, id, updates: [] };
     /* the notification says only "this token changed": ask Google for the truth */
     const v = await this.verifyPurchase({ purchaseToken: sn.purchaseToken, packageName: d.packageName }, ctx);
-    if (!v.ok) return v.status === 404 ? { ok: true, id, updates: [] } : v;
+    /* 404 unknown_purchase was already acknowledged here; every other refusal
+       was handed back as an error and asked Google to try again. The rule
+       above decides it now: 4xx is accepted and recorded, 5xx is retried. */
+    if (!v.ok) return permanent(v.status) ? refused(id, v) : v;
     return { ok: true, id, updates: v.links };
   },
   async afterBind(link, { env, deps }) {
@@ -158,14 +192,16 @@ const app_store = {
     if (!p.notificationUUID) return fail(400, "uuid");
     const id = "as:" + p.notificationUUID, d = p.data || {};
     if (p.notificationType === "TEST") return { ok: true, id, updates: [] };
-    if (!as.bundleIds(ctx.env).includes(d.bundleId)) return fail(422, "bundle");   /* either app, never a third */
+    /* either app, never a third. Acknowledged, not refused: Apple would retry a
+       4xx for days and the bundle id will never become ours (see ACK OR RETRY). */
+    if (!as.bundleIds(ctx.env).includes(d.bundleId)) return refused(id, fail(422, "bundle"));
     /* a notification for the other environment (Sandbox at the production URL,
        or the reverse) is acknowledged and changes nothing — answering an error
        would only make Apple retry it for days */
     if (d.environment && !as.environments(ctx.env).includes(d.environment)) return { ok: true, id, updates: [] };
     if (!d.signedTransactionInfo) return { ok: true, id, updates: [] };
     const r = await this._link(d.signedTransactionInfo, d.signedRenewalInfo, ctx);
-    if (!r.ok) return r;
+    if (!r.ok) return permanent(r.status) ? refused(id, r) : r;
     if (r.ignore) return { ok: true, id, updates: [] };
     if (p.notificationType === "REFUND" || p.notificationType === "REVOKE") r.link.record.status = "revoked";
     /* out of order, or a refund of an EARLIER period: acknowledged, nothing changes */

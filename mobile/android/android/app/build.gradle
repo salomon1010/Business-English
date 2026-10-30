@@ -53,8 +53,20 @@ android {
             // so the install always failed and the app had no offline shell. It
             // looks fine until the connection goes. sw.js now adds each entry on
             // its own and sync-web prunes SHELL to the files the bundle carries.
-            versionCode 20
-            versionName "1.2.1"
+            // 20 IS SPENT — it is the LIVE production release (name 1.2.1),
+            // confirmed against the Play Developer API on 22 Oct 2026, which
+            // also showed 5, 8, 14-17 and 19 consumed. Play refuses a reused
+            // code outright, so 21 is the first bundle that can be uploaded.
+            // 21 carries the usage meters (docs/USAGE-LIMITS-ANDROID.md): a
+            // usage-indicator card on four surfaces. It changes no quota and is
+            // INERT in production today, because the deployed Worker sends no
+            // X-BE-Allowance header for it to read.
+            // 21 went to the internal track on 22 Oct and is superseded before it
+            // ever reached production: it carried the usage meters but not the
+            // purchase-message fixes below, so promoting it would have shipped the
+            // misleading "No purchases found for this account" to real learners.
+            versionCode 22
+            versionName "1.2.3"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -82,8 +94,14 @@ android {
             // app. 4 is the first bundle a tester should be given.
             // 5 (19 Oct 2026): the offline-shell fix, as for the other app —
             // 4 installed no service worker. See the note on versionCode 20 above.
-            versionCode 5
-            versionName "1.0.1"
+            // 5 IS SPENT — it is the LIVE production release (name 1.0.1),
+            // confirmed against the Play Developer API on 22 Oct 2026, which
+            // also showed 1-4 consumed. 6 is the first bundle that can be
+            // uploaded, and carries the same usage meters as the other app's 21.
+            // 6 went to the internal track on 22 Oct and is superseded for the same
+            // reason as the other app's 21 — see the note there.
+            versionCode 7
+            versionName "1.0.3"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their

@@ -51,6 +51,17 @@ async function learner(id, track) {
     window.SpeechRecognition = FakeSR; window.webkitSpeechRecognition = FakeSR;
     localStorage.setItem("be_flags", JSON.stringify(FLAGS));
     localStorage.setItem("be_events_api", "");          // no beacon leaves the test; track() is captured after load
+    /* Phase C (11 Oct 2026) made billing_enabled:true and ENT_API the PRODUCTION
+       defaults, so a signed-out learner now has aiNoAccount() === true and every
+       AI route is correctly withheld — the owner's 1 Oct rule that an AI route
+       needs an account. This suite is about the COACH REPORT, which needs the
+       assess route to answer, and it never signs in; without this line it was
+       testing the signed-out path and reading "Pronunciation: Not available"
+       as a regression. "" is the documented localhost escape hatch: entApiBase()
+       returns it whenever the key is present, so planOn() is false and the AI
+       runs exactly as this suite was written for. Not an assertion change —
+       the premise the suite always assumed, now stated. */
+    localStorage.setItem("be_ent_api", "");
     if (!localStorage.getItem("be12_v1")) {
       const st = { profile: { name: "Test", role: "", goal: "Speak with confidence in meetings", slot: "", lang: "en", ts: Date.now() }, professionalTracks: { activeId: track },
         fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: Date.now() }, "welding": { placed: "full", finished: true, day: 15, done: {}, checkedAt: Date.now() } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now() };
