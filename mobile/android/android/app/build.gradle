@@ -65,8 +65,21 @@ android {
             // ever reached production: it carried the usage meters but not the
             // purchase-message fixes below, so promoting it would have shipped the
             // misleading "No purchases found for this account" to real learners.
-            versionCode 22
-            versionName "1.2.3"
+            // 22 IS SPENT — it is the LIVE production release (name 1.2.3),
+            // confirmed against the Play Developer API on 30 Oct 2026 (production
+            // track, status completed; internal still holds 21). The note above
+            // about 20 being live was true on 22 Oct and is now history.
+            // 23 carries the ALREADY OWNED fix. A purchase this service refuses
+            // (a licence test, a purchase bound to another account) leaves a LIVE
+            // subscription at the store, so every further tap was answered
+            // ITEM_ALREADY_OWNED — Play's own error over a sheet with no action
+            // that resolved it, because Billing.manage() is gated on an
+            // entitlement a refused account does not have. Billing.storeOwned +
+            // manageStore() add the way out. REACHABLE ONLY IN THIS SHELL: the
+            // web has no Play Billing, so only BEPlayBillingPlugin can report
+            // ALREADY OWNED, and only a bundle carries the fix to a phone.
+            versionCode 23
+            versionName "1.2.4"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
