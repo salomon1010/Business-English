@@ -43,7 +43,14 @@ if(server){
    again — which is the point. */
 {
   const w=readFileSync(ROOT+"backend/polish-worker.js","utf8"),toml=readFileSync(ROOT+"backend/wrangler.toml","utf8"),rl=readFileSync(ROOT+"backend/rate-limit.js","utf8");
-  const bindings=/kv_namespaces|d1_databases|r2_buckets|queues/.test(toml);
+  /* WM_PACK is the ONE binding this check tolerates (30 Oct 2026). It is a
+     STAGING-ONLY KV namespace holding Welding Mastery's Premium pack — the
+     advanced workshop scenarios, i.e. CURRICULUM, never a learner's words —
+     read by backend/wm-game.js and never by polish-worker.js, and production
+     has no binding at all (the route answers 503 pack_unavailable there). It
+     is stripped BY NAME, so any other kv/d1/r2/queue binding still fails. */
+  const tomlNoPack=toml.replace(/\[\[env\.\w+\.kv_namespaces\]\][^[]*?binding = "WM_PACK"[^[]*/g,"");
+  const bindings=/kv_namespaces|d1_databases|r2_buckets|queues/.test(tomlNoPack);
   const stores=/caches\.(default|open)\(|env\.[A-Z_]*(KV|DB|BUCKET|STORE)\b/.test(w);
   ok("The Polish Worker holds no content store — nothing server-side can carry one area's minute to the other",!bindings&&!stores,JSON.stringify({bindings,stores}));
   /* the one binding, and what it is allowed to contain */
@@ -52,8 +59,28 @@ if(server){
   ok("The only Durable Object bound is the rate limiter, in both environments",dos===2&&classes.every(c=>c==="RateLimiter"),JSON.stringify({dos,classes}));
   /* it is handed buckets only — never a body, a transcript or a track */
   const callers=[...w.matchAll(/consume\(env,[^)]*\)/g)].map(m=>m[0]);
-  ok("the limiter is only ever handed a subject and bucket sizes",callers.length>0&&callers.every(c=>/consume\(env, subject, buckets\)|consume\(env, "/.test(c)||/consume\(env, subject/.test(c)),JSON.stringify(callers));
-  ok("…and what it persists is a count and a reset time, nothing else",/put\[r\.k\] = \{ count: r\.count \+ 1, resetAt: r\.resetAt \}/.test(rl)&&!/transcript|text|said|phrase|track|body\./.test(rl.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\bbody\.buckets\b/g,"").replace(/\bbody\.now\b/g,"")),"rate-limit.js persists more than counters");
+  /* THE PROPERTY, NOT THE SPELLING (30 Oct 2026). This asserted the literal
+     identifier `subject`, so it broke the moment the ytai path passed its own
+     account subject as `a` (polish-worker.js: `const a = acct.subject || await
+     acctSubject(request, env)`). What must hold is that the 2nd argument is a
+     plain identifier or a "prefix:" + id expression — never anything read off
+     the request — and that no call mentions a body at all. */
+  const subjOk=c=>/^consume\(env, (?:"[a-z]+:" \+ \w+|\w+),/.test(c)&&!/\bbody\b/.test(c);
+  ok("the limiter is only ever handed a subject and bucket sizes",callers.length>0&&callers.every(subjOk),JSON.stringify(callers.filter(c=>!subjOk(c))));
+  /* Also the property, not the spelling. The literal `{ count: r.count + 1,
+     resetAt: r.resetAt }` stopped matching when metering gained a `cost` (a
+     ytai second costs more than 1), and `body.peek` — an array of bucket
+     NAMES — was added after the whitelist was written. Every object written
+     into the store must still carry exactly count and resetAt and nothing
+     else, whatever the arithmetic around it.
+     The body fields are an ALLOW-LIST on purpose: buckets / now / peek /
+     release are each verified to carry bucket descriptors only (release is
+     validated to {name: string <= 64, cost?: number} at rate-limit.js:83-84),
+     so a NEW body field fails this check until someone has looked at it. */
+  const puts=[...rl.matchAll(/put\[[^\]]+\] = \{([^}]*)\}/g)].map(m=>m[1].split(",").map(x=>x.split(":")[0].trim()).filter(Boolean).sort().join());
+  const putsOk=puts.length>0&&puts.every(k=>k==="count,resetAt");
+  const rlBody=rl.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\/\/[^\n]*/g,"").replace(/\bbody\.(buckets|now|peek|release)\b/g,"");
+  ok("…and what it persists is a count and a reset time, nothing else",putsOk&&!/transcript|text|said|phrase|track|body\./.test(rlBody),JSON.stringify({puts}));
   ok("the subject is an IP or a uid, both prefixed here and never taken from the request body",/"ip:" \+ ip/.test(w)&&/"acct:" \+ id/.test(w)&&!/subject = .*body/.test(rl));
 }
 

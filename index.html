@@ -7963,6 +7963,7 @@ const I18N_EN={
  "acc.prem_need_acct":"Sign in first, so your subscription is linked to your account. Google cancels a subscription that was never linked.",
  "acc.prem_test_purchase":"That was a Google Play test purchase, so it cannot unlock Premium here. Test purchases only count on the staging service.",
  "acc.prem_pending_verify":"Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
+ "acc.prem_owned_store":"{{store}} says this account already has a subscription, but this app could not use it. Open {{store}} to check or cancel it.",
  "acc.prem_manage_elsewhere":"Your subscription is managed in {{store}}.",
  "acc.prem_terms":"The subscription renews automatically until you cancel it in {{store}}. Payment is taken by {{store}}.",
  "prem.store_in_app_store":"the App Store",
@@ -22981,7 +22982,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v692";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v693";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25499,6 +25500,9 @@ function entPlanCardHTML(){
   }
   if(live&&prem&&v.source===B.provider.id)store=`<button type="button" class="btn btn-g" style="margin-top:12px;min-height:44px" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`;
   else if(live&&prem&&(v.source==="google_play"||v.source==="app_store"))store=`<p class="sub" style="margin-top:10px">${esc(t("acc.prem_manage_elsewhere",{store:storeInText(v.source)}))}</p>`;
+  /* not Premium, but the store says this account already bought something this
+     service refused: offer the store, not another purchase that will be refused too */
+  else if(live&&!prem&&B.storeOwned&&B.provider&&B.provider.manage)store+=`<button type="button" class="btn btn-g ent-manage-store" style="margin-top:8px;min-height:44px;width:100%" onclick="Billing.manageStore()">${esc(t("acc.prem_manage"))}</button>`;
   const note=B&&B.note?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(B.state==="purchasing"?t("acc.prem_buying"):B.state==="restoring"?t("acc.prem_restoring"):B.note)}</p>`:(B&&(B.state==="purchasing"||B.state==="restoring")?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"))}</p>`:"");
   return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
@@ -26490,12 +26494,12 @@ function billingWhy(){
 }
 window.billingWhy=billingWhy;
 const Billing={
-  state:"idle",products:[],provider:null,note:"",_uid:null,_reconciled:null,
+  state:"idle",products:[],provider:null,note:"",storeOwned:false,_uid:null,_reconciled:null,
   async init(){
     this._ran=true;   /* premiumOpen asks this: a sheet opened before any init must start one */
     /* a different account (or none) never sees the last one's purchase message */
     const uid=FBUser?FBUser.uid:null;
-    if(uid!==this._uid){this._uid=uid;this.state="idle";this.note=""}
+    if(uid!==this._uid){this._uid=uid;this.state="idle";this.note="";this.storeOwned=false}   /* …nor the last one's "you already own one" button */
     if(!flag("billing_enabled")||!entApiBase()){this.provider=null;return}
     if(!this.provider)for(const p of [BillingProviders.storekit,BillingProviders.play,BillingProviders.preview])if(await p.available()){this.provider=p;break}
     /* a real store is only asked once there is an account to attach a purchase
@@ -26542,20 +26546,28 @@ const Billing={
        the learner just saw the price page again, with no idea why.
        The account is asked for FIRST, and the store is never opened without one. */
     if(!entUid()){this.note=t("acc.prem_need_acct");this.state="ready";this._draw();try{fbOpenModal("in")}catch(e){}return}
-    this.state="purchasing";this.note="";this._draw();
+    this.state="purchasing";this.note="";this.storeOwned=false;this._draw();
     const ev={provider:this.provider.id,product:String(id)};   /* release analytics: enums only, never a token */
     track("purchase_started",ev);
     let r;try{r=await this.provider.purchase(id)}catch(e){r={error:e}}
     if(!r||r.cancelled){track("purchase_failed",{...ev,reason:"cancelled"});this.state="ready";this._draw();return}
     if(r.pending){track("purchase_pending",ev);this.state="ready";this.note=t("acc.prem_payment_pending");this._draw();return}   /* Ask to Buy: the approval arrives through the store's updates */
-    if(r.owned){this.state="ready";return this.restore()}   /* Play: this Google account already has it — bring it back instead of saying "failed" */
+    /* ALREADY OWNED (30 Oct 2026). The store refuses a second purchase, and
+       restore() then says WHY in the server's words — but a learner whose
+       purchase our service cannot use (a licence test, a purchase bound to
+       another account) was left with Play's own red error and no way out:
+       Billing.manage() is gated on an entitlement this account does not have,
+       so it was a no-op exactly when it was needed. storeOwned records the
+       state; premMainHTML and entPlanCardHTML offer manageStore() while it
+       is set. Test: tests/billing-client.mjs "already owned". */
+    if(r.owned){this.storeOwned=true;this.state="ready";return this.restore()}   /* Play: this Google account already has it — bring it back instead of saying "failed" */
     if(r.error){track("purchase_failed",{...ev,reason:"store"});this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
       /* the SERVER's answer decides the message: a slow payment (Play "pending")
          or a purchase the store reports as not in force is not "Premium is on" */
       r.finish(true);billingTakeView(j.view);const paid=!!(j.view&&j.view.paid);
-      if(paid)this.ownedIds=[String(id)];                  /* the plan just bought is the plan this device owns */
+      if(paid){this.ownedIds=[String(id)];this.storeOwned=false}   /* the plan just bought is the plan this device owns */
       this.state=paid?"success":"ready";this.note=paid?t("acc.prem_success"):j.view&&j.view.state==="payment_pending"?t("acc.prem_payment_pending"):t("acc.prem_failed");
       if(paid)track("purchase_confirmed",ev);else if(j.view&&j.view.state==="payment_pending")track("purchase_pending",ev);else track("purchase_failed",{...ev,reason:"not_paid"});
     }catch(e){
@@ -26584,12 +26596,18 @@ const Billing={
       /* nothing bound: say WHY, in the server's own words, rather than "none found" */
       const why=((j.results||[]).find(x=>!x.ok)||{}).why;
       track("purchase_restore",{...rv,result:n?"restored":b?"bound":"none"});
+      if(n)this.storeOwned=false;
       this.state="ready";this.note=n?t("acc.prem_restored",{n}):b?t("acc.prem_bound"):why?billingWhyText(why):t("acc.prem_none_restored");
     }catch(e){track("purchase_restore",{provider:this.provider&&this.provider.id,source:"tap",result:"failed"});this.state="failed";this.note=t("acc.prem_failed")}
     this._draw();
   },
   /* Manage opens the store that SOLD the plan; a plan from the other store is named, not opened */
   manage(){const v=entView();if(this.provider&&v.source===this.provider.id)this.provider.manage(v.product||(this.ownedIds||[])[0])},
+  /* manage() deliberately requires the entitlement to come from THIS store.
+     manageStore() does not: it is the escape hatch for a device the store says
+     already owns a subscription that this service refused, where there is no
+     entitlement to read a source from. */
+  manageStore(){if(this.provider&&this.provider.manage)this.provider.manage((this.ownedIds||[])[0]||"")},
   _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML();try{subDraw()}catch(e){}try{premDraw()}catch(e){}try{premLaunchMaybe()}catch(e){}},
 };
 
@@ -26747,7 +26765,19 @@ function premMainHTML(){
   _premSel=o.p.id;
   /* on staging the offer is a preview, and says so before it is tapped */
   const prev=B.provider&&B.provider.id==="preview"?`<p class="prem-preview" role="status">${ic("alert")}<span>${esc(t("prem.preview"))}</span></p>`:"";
-  return `${prev}${premOfferHTML(o)}${note}${premMoreHTML()}${premLegalHTML(busy)}`;
+  return `${prev}${premOfferHTML(o)}${note}${premOwnedHTML()}${premMoreHTML()}${premLegalHTML(busy)}`;
+}
+/* THE STORE SAYS THIS ACCOUNT ALREADY OWNS ONE (30 Oct 2026). The refusal note
+   above already says WHY our service could not use it — a licence test, a
+   purchase bound to another account — so the sentence here is drawn only when
+   there is no more specific one. The BUTTON is always drawn: it is the only
+   action that resolves the state, and Billing.manage() cannot be used because
+   this account has no entitlement to read a store from. */
+function premOwnedHTML(){
+  const B=Billing;
+  if(!B.storeOwned||entIsPremiumForDisplay()||!B.provider||!B.provider.manage)return "";
+  const line=B.note?"":`<p class="sub ent-note prem-note" role="status">${esc(t("acc.prem_owned_store",{store:premStore()}))}</p>`;
+  return `${line}<button type="button" class="btn btn-g prem-wide prem-manage-store" onclick="Billing.manageStore()">${esc(t("acc.prem_manage"))}</button>`;
 }
 /* the pinned foot: one primary action for the state, and the cancel line under a purchase CTA */
 function premFootHTML(){

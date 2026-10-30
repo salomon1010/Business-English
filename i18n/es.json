@@ -3114,6 +3114,7 @@
  "acc.prem_bound": "Esta compra pertenece a otra cuenta de BE Mastery.",
  "acc.prem_unavailable": "Las compras no están disponibles en este momento.",
  "acc.prem_pending_verify": "Tu pago se ha realizado, pero aún no hemos podido confirmarlo. Se comprobará de nuevo la próxima vez que abras la app, o toca Restaurar compras.",
+ "acc.prem_owned_store": "{{store}} indica que esta cuenta ya tiene una suscripción, pero esta app no ha podido usarla. Abre {{store}} para comprobarla o cancelarla.",
  "acc.prem_manage_elsewhere": "Tu suscripción se gestiona en {{store}}.",
  "acc.prem_terms": "La suscripción se renueva automáticamente hasta que la canceles en {{store}}. El pago lo cobra {{store}}.",
  "prem.store_in_app_store": "la App Store",

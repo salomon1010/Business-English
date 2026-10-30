@@ -85,7 +85,7 @@ async function open({ track = "general-english", flags = { billing_enabled: true
   await p.evaluate(() => { go("data"); const d = document.querySelector("details.set-plan"); if (d) d.open = true; }); await sleep(400);
   return { ctx, p, calls, errs };
 }
-const card = p => p.evaluate(() => { const c = document.getElementById("entPlan"); return c ? { text: c.textContent.replace(/\s+/g, " "), buys: [...c.querySelectorAll(".ent-buy")].map(x => x.textContent.replace(/\s+/g, " ")), open: !!(c.closest("details") && c.closest("details").open), signin: !!c.querySelector("[onclick^='fbOpenModal']"), restore: !!c.querySelector("[onclick='Billing.restore()']"), manage: !!c.querySelector("[onclick='Billing.manage()']"), state: Billing.state } : null; });
+const card = p => p.evaluate(() => { const c = document.getElementById("entPlan"); return c ? { text: c.textContent.replace(/\s+/g, " "), buys: [...c.querySelectorAll(".ent-buy")].map(x => x.textContent.replace(/\s+/g, " ")), open: !!(c.closest("details") && c.closest("details").open), signin: !!c.querySelector("[onclick^='fbOpenModal']"), restore: !!c.querySelector("[onclick='Billing.restore()']"), manage: !!c.querySelector("[onclick='Billing.manage()']"), manageStore: !!c.querySelector("[onclick='Billing.manageStore()']"), state: Billing.state } : null; });
 
 console.log("\n# production defaults");
 {
@@ -378,6 +378,56 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   await p.evaluate(() => Billing.manage());
   const opened = await p.evaluate(() => window.__opened);
   ok("C8 · a Play plan in the Android app: Manage opens Play's subscription page for this package", opened.length === 1 && /play\.google\.com\/store\/account\/subscriptions\?package=com\.bemastery\.app/.test(opened[0]), opened.join());
+  await ctx.close();
+}
+
+console.log("\n# the store says this account already owns one");
+/* A purchase our service refuses (a licence test, a purchase bound to another
+   account) still leaves a LIVE subscription at the store, so every further tap
+   is answered ITEM_ALREADY_OWNED and the learner is stuck: Billing.manage() is
+   gated on an entitlement this account does not have. These drive the real
+   Billing object with a minimal provider, because `owned` is reported only by
+   the Android shell's plugin (bePlayNative), which a browser cannot host.
+   Not covered here: the plugin itself, and Play's own error dialog. */
+{
+  /* a REAL licence-test purchase: Google answers testPurchase, so production
+     refuses it 422 test_purchase — the exact state the owner hit on 30 Oct 2026 */
+  SUBS.set("tok_own_" + "o".repeat(20), gsub({ testPurchase: true }));
+  const { ctx, p } = await open({ uid: "own" });
+  await p.evaluate(() => {
+    window.__mg = [];
+    Billing.provider = { id: "google_play", _native: null,
+      purchase: async () => ({ owned: true }),
+      restore: async () => [{ purchaseToken: "tok_own_" + "o".repeat(20), productId: "premium_monthly" }],
+      owned: async () => [{ purchaseToken: "tok_own_" + "o".repeat(20), productId: "premium_monthly" }],
+      manage: product => window.__mg.push(product || "") };
+    Billing.products = [{ id: "premium_monthly", title: "Premium (monthly)", price: "€4.49", period: "P1M" }];
+    Billing.state = "ready";
+  });
+  await p.evaluate(() => Billing.buy("premium_monthly"));
+  await sleep(400);
+  const c = await card(p);
+  ok("B-own1 · a store that says ALREADY OWNED leaves Billing.storeOwned set",
+     await p.evaluate(() => Billing.storeOwned === true), String(await p.evaluate(() => Billing.storeOwned)));
+  ok("B-own2 · …and the plan card offers Manage subscription, not another purchase",
+     c && c.manageStore, JSON.stringify(c));
+  ok("B-own3 · …the server's reason is still what the card says (a test purchase is named)",
+     c && /test purchase/i.test(c.text), c && c.text.slice(0, 160));
+  await p.evaluate(() => { document.querySelector("[onclick='Billing.manageStore()']").click(); });
+  ok("B-own4 · Manage opens the store for the product the device owns",
+     await p.evaluate(() => __mg.length === 1 && __mg[0] === "premium_monthly"), JSON.stringify(await p.evaluate(() => __mg)));
+  ok("B-own5 · nothing was granted — still Free",
+     await p.evaluate(() => !entIsPremiumForDisplay()));
+  /* a purchase that DOES land clears the state, so the button goes */
+  await p.evaluate(() => { Billing.provider.purchase = async () => ({ cancelled: true }); });
+  await p.evaluate(() => Billing.buy("premium_monthly"));
+  await sleep(200);
+  ok("B-own6 · a fresh attempt clears storeOwned, so the button does not linger",
+     await p.evaluate(() => Billing.storeOwned === false) && !(await card(p)).manageStore);
+  /* and a DIFFERENT account must not inherit it — the same rule as the note (C3) */
+  await p.evaluate(async () => { Billing.storeOwned = true; FBUser = { uid: "someone-else", getIdToken: async () => "t" }; await Billing.init(); });
+  ok("B-own7 · another account does not inherit 'you already own one'",
+     await p.evaluate(() => Billing.storeOwned === false));
   await ctx.close();
 }
 
