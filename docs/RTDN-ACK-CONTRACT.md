@@ -109,9 +109,9 @@ from the real migrations, genuinely signed RS256/ES256 tokens, no network.
 | Suite | Before | After |
 |---|---|---|
 | `run.mjs` | 61/61 | 61/61 |
-| `billing.mjs` | 165/165 | **183/183** (+18, K1–K18) |
+| `billing.mjs` | 165/165 | **192/192** (+27: K1–K18 here, K19–K22 with the atomic batch, +5 from `feature/android-usage-limits`) |
 | `migration.mjs` | 13/13 | 13/13 |
-| **Total** | 239 | **257, 0 failing** |
+| **Total** | 239 | **266, 0 failing** |
 
 ## Expected reduction
 
@@ -152,7 +152,9 @@ Nothing below has been done. Each line is an owner action.
 
 **Before**
 - [ ] Record the current version id: `npx wrangler deployments list --name be-entitlements`
-- [ ] Confirm the three suites pass on this branch (257/257)
+- [ ] Confirm the three suites pass on the MERGED tree (266/266). This branch
+      alone is 261/261; the extra 5 come from `feature/android-usage-limits`,
+      so the number to check is the one for the tree actually being released.
 - [ ] Apply the dead-letter queue first — `RTDN-PUBSUB-RUNBOOK.md` §1–§5
 - [ ] Decide the merge order against `feature/android-usage-limits`, which also
       touches `backend/entitlements` (refusal logging + `welding_premium_*`
