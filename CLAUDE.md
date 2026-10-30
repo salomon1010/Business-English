@@ -166,6 +166,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   `backend/entitlements/test/billing.mjs` W1-W23 (138). **Nothing is uploaded or
   submitted**; every store/Firebase/AdMob/Worker step only the owner can do is in
   `docs/APP_SPLIT.md` § Store actions.
+- **THE PROGRAMME IS PER APP, NOT PER ACCOUNT (owner, 30 Oct 2026).** One email may
+  use BOTH store apps; Premium is bought separately in each. The synced record's
+  `professionalTracks.activeId` flips to whichever app saved last, so it must never
+  be read as "the account's programme" by a server. Requests name their programme:
+  partner calls carry `?prog=` (`ppUrl`), nudges `prog` in the body, the games `prog`,
+  the coach `track`; be-partner `accountTrack` answers a known `?prog=` (token still
+  verified; no `?prog=` = the record, for older pages) and every other Worker forwards
+  it to `/programme`. Every Premium check asks be-entitlements `?app=<programme>` and
+  treats an answer naming another app as Free (wm-game via `capabilities(req, env,
+  app)` in both `polish-worker.js` and `polish-prod/entry.js`, be-coach `account`).
+  OPEN: the AI allowance routes in the full `polish-worker.js` still ask without
+  `?app=` (not live — production has no metering); fix before Phase C.
+  Tests: `test-wm-game.mjs` P1-P8, `partner/test/track-auth.mjs` PA1-PA8.
 - **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
   programmes share one engine but must never share evidence: the Progress/Review
   page reports on the OPEN area only. `areaId()` is the area (`S.professionalTracks

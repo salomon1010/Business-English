@@ -547,11 +547,15 @@ function cleanImage(v){
   return u.protocol === "https:" && IMG_HOSTS.has(u.hostname) ? u.href : "";
 }
 
-async function programmeOf(req, env){
+/* PER-APP PROGRAMME (30 Oct 2026): the app names its own programme (b.prog) and it is
+   forwarded to /programme, which still verifies the token; without one (an older page)
+   the partner Worker reads the account record as before */
+async function programmeOf(req, env, prog){
   if (!env.PARTNER_API) return null;
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer\s+\S+/.test(auth)) return null;
-  try { const r = await fetch(env.PARTNER_API + "/programme", { headers: { authorization: auth } }); if (!r.ok) return null; const j = await r.json(); return j && typeof j.track === "string" ? j.track : null; }
+  const q = typeof prog === "string" && /^[a-z-]{1,40}$/.test(prog) ? "?prog=" + prog : "";
+  try { const r = await fetch(env.PARTNER_API + "/programme" + q, { headers: { authorization: auth } }); if (!r.ok) return null; const j = await r.json(); return j && typeof j.track === "string" ? j.track : null; }
   catch (e) { return null; }
 }
 async function nudgePut(req, env, origin){
@@ -561,7 +565,7 @@ async function nudgePut(req, env, origin){
   const now = Date.now();
   const prev = await env.SUBS.get(`nudge:${id}`, "json");
   const previous = prev ? { rid: prev.rid, kind: prev.kind, status: now > prev.expiresAt ? "expired" : "replaced" } : null;
-  const track = await programmeOf(req, env);
+  const track = await programmeOf(req, env, b.prog);
   if (track !== "general-english") {                                     // Welding, unverifiable, or no token: nothing is kept
     await env.SUBS.delete(`nudge:${id}`);
     return json({ error: track ? "track" : "unverified", previous }, 403, origin);

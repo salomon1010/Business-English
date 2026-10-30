@@ -56,33 +56,38 @@ function tokenSub(tok) {
   } catch (e) { return null; }
 }
 const entCache = new Map(), trackCache = new Map();
-async function account(req, env) {
+/* PER-APP (30 Oct 2026): Premium is sold per app, so the plan asked about is the
+   programme's own (?app=). An answer about another app is never this one's plan. */
+async function account(req, env, app) {
   const auth = req.headers.get("Authorization") || "";
   if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
-  const tok = auth.slice(7), hit = entCache.get(tok);
+  const tok = auth.slice(7), ck = app + "|" + tok, hit = entCache.get(ck);
   if (hit && Date.now() - hit.at < 60_000) return hit.a;
-  let r; try { r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } }); } catch (e) { return { status: 503 }; }
+  let r; try { r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement?app=" + encodeURIComponent(app), { headers: { authorization: auth } }); } catch (e) { return { status: 503 }; }
   if (r.status === 401 || r.status === 403) return { status: 401 };
   if (!r.ok) return { status: 503 };
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
   const caps = j && j.capabilities && typeof j.capabilities === "object" ? j.capabilities : {};
   const uid = tokenSub(tok); if (!uid) return { status: 401 };
-  const a = { uid, premium: (j && j.plan === "premium" && j.paid === true && caps.ad_free === true) || (caps.ad_free === true && !(j && j.plan)) };
+  const other = !!(j && typeof j.app === "string" && j.app && j.app !== app);
+  const a = { uid, premium: !other && ((j && j.plan === "premium" && j.paid === true && caps.ad_free === true) || (caps.ad_free === true && !(j && j.plan))) };
   if (entCache.size > 2000) entCache.clear();
-  entCache.set(tok, { at: Date.now(), a });
+  entCache.set(ck, { at: Date.now(), a });
   return a;
 }
-async function programme(req, env, uid) {
-  const hit = trackCache.get(uid);
+/* PER-APP PROGRAMME (30 Oct 2026): the request's own programme is forwarded (?prog=);
+   be-partner still verifies the token, and answers it for a known programme */
+async function programme(req, env, uid, prog) {
+  const ck = uid + "|" + prog, hit = trackCache.get(ck);
   if (hit && Date.now() - hit.at < 60_000) return { track: hit.track };
-  let r; try { r = await fetch(String(env.PARTNER_API).replace(/\/+$/, "") + "/programme", { headers: { authorization: req.headers.get("Authorization") || "" } }); } catch (e) { return { status: 503 }; }
+  let r; try { r = await fetch(String(env.PARTNER_API).replace(/\/+$/, "") + "/programme?prog=" + encodeURIComponent(prog), { headers: { authorization: req.headers.get("Authorization") || "" } }); } catch (e) { return { status: 503 }; }
   if (r.status === 401) return { status: 401 };
   if (r.status === 403) return { track: null };
   if (!r.ok) return { status: 503 };
   let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
   const track = j && typeof j.track === "string" ? j.track : null;
   if (trackCache.size > 2000) trackCache.clear();
-  trackCache.set(uid, { track, at: Date.now() });
+  trackCache.set(ck, { track, at: Date.now() });
   return { track };
 }
 
@@ -101,10 +106,10 @@ export default {
     const ip = req.headers.get("CF-Connecting-IP") || "0";
     { const l = await consume(env, "ip:" + ip, [{ name: "coach:ip", limit: 60, windowMs: 60_000 }]); if (!l.ok) return json({ error: "rate", retryAfter: l.retryAfter }, 429, cors); }
 
-    const a = await account(req, env);
+    const a = await account(req, env, track);
     if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
     if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
-    const t = await programme(req, env, a.uid);
+    const t = await programme(req, env, a.uid, track);
     if (t.status === 401) return json({ error: "auth_required" }, 401, cors);
     if (t.status === 503) return json({ error: "track_unavailable" }, 503, cors);
     if (t.track !== track) return json({ error: "track", track: t.track || null }, 403, cors);
