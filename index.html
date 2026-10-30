@@ -481,6 +481,9 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 .hdr-prem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
 @keyframes hdrPremTurn{0%,70%{transform:rotateY(0) translateY(0);animation-timing-function:cubic-bezier(.5,0,1,1)}75%{transform:rotateY(90deg) translateY(-2px) scale(1.06);animation-timing-function:step-end}75.01%{transform:rotateY(-90deg) translateY(-2px) scale(1.06);animation-timing-function:cubic-bezier(0,0,.3,1)}81%{transform:rotateY(0) translateY(0)}84%{transform:translateY(-1.5px)}87%,100%{transform:translateY(0)}}
 @keyframes hdrPremShine{0%,86%{background-position:150% 0;opacity:0}88%{opacity:1}97%{background-position:-50% 0;opacity:1}100%{background-position:-50% 0;opacity:0}}
+/* Premium active (owner, 30 Oct 2026): the same crown, turned green — the art is a PNG, so it is re-hued, not redrawn */
+.hdr-prem.is-active img{filter:hue-rotate(-95deg) saturate(1.15) drop-shadow(0 1px 4px rgba(52,211,153,.4))}
+.hdr-prem.is-active::after{background-image:linear-gradient(115deg,transparent 35%,rgba(220,255,236,.85) 50%,transparent 65%)}
 @media (prefers-reduced-motion:reduce){.hdr-prem img,.hdr-prem::after{animation:none}}
 /* Professional tracks only: their header also carries the trade chip, so the
    running timer is the fourth item in a row built for three. data-track is
@@ -18543,7 +18546,8 @@ function widgetRecs(){
   const out=[],seen=new Set();
   try{
     for(const r of homeRows("")||[]){
-      let why="";try{why=t(homeRowKey(r),r.vars||{})}catch(e){}
+      /* the games row has no home.bc_ key: its heading is the hub's own, as on Home */
+      let why="";try{why=r.id==="games"&&wmHub()?wmHub().rowHead(r).h:t(homeRowKey(r),r.vars||{})}catch(e){}
       for(const it of r.items||[]){
         const id=(it.vid||"")+"|"+it.type+"|"+(it.title||"")+"|"+(it.args||[]).join(",");if(seen.has(id))continue;seen.add(id);
         let img="";
@@ -22981,7 +22985,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v692";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v693";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -26859,7 +26863,9 @@ window.premiumOpen=(from)=>{
    still General English only: selling Premium on Welding is a separate decision. */
 function hdrPremSync(){const b=document.getElementById("hdrPrem");if(!b)return;let on=false;
   try{on=premOffered()||!!beEnv()}catch(e){}
-  b.hidden=!on;const l=t("prem.cmp_prem");b.setAttribute("aria-label",l);b.title=l}
+  let act=false;try{act=entIsPremiumForDisplay()}catch(e){}
+  b.classList.toggle("is-active",act);
+  b.hidden=!on;const l=t("prem.cmp_prem")+(act?" · "+t("acc.prem_active"):"");b.setAttribute("aria-label",l);b.title=l}
 setTimeout(()=>{try{hdrPremSync()}catch(e){}},0);
 /* ---- the launch offer (owner, 25 Sep 2026) ----
    Once per app session (sessionStorage), for a signed-in learner the SERVER has
