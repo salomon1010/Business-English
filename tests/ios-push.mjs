@@ -71,7 +71,7 @@ async function open({ ios = true, perm = "granted", token = "a".repeat(64), fail
     const out = u.pathname === "/key" ? { key: "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c" } : { ok: true };
     await r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(out) });
   });
-  await ctx.route(u => /be-partner|be-polish|be-events|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
+  await ctx.route(u => /be-partner|be-polish|be-events|entitlements\.lomonec\.com|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(1400);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#ppFab").forEach(e => e.remove()));
@@ -194,7 +194,7 @@ console.log("\n# a tap: the destinations the service worker reaches on the web")
   await ctx.addInitScript(s => { localStorage.setItem("be12_v1", s); }, seed());
   await ctx.addInitScript(BRIDGE, ["granted", "a".repeat(64), null]);
   await ctx.addInitScript(() => { const t = setInterval(() => { if (window.__push) { window.__push.pending = { view: "partner", tag: "be-partner-call", call: "live" }; clearInterval(t); } }, 5); });
-  await ctx.route(/be-push|be-partner|be-polish|be-events|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/, r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }));
+  await ctx.route(/be-push|be-partner|be-polish|be-events|entitlements\.lomonec\.com|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/, r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }));
   const p = await ctx.newPage(); await p.goto(BASE + "index.html"); await sleep(1800);
   ok("22 · a cold launch from a notification still lands on the right page", (await p.evaluate(() => cur && cur.v)) === "partner", await p.evaluate(() => cur && cur.v));
   await ctx.close();

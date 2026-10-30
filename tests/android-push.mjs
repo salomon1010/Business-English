@@ -77,7 +77,7 @@ async function open({ ios = true, perm = "granted", token = FCM, failCode = null
     const out = u.pathname === "/key" ? { key: "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c" } : { ok: true };
     await r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(out) });
   });
-  await ctx.route(u => /be-partner|be-polish|be-events|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
+  await ctx.route(u => /be-partner|be-polish|be-events|entitlements\.lomonec\.com|gstatic\.com\/firebasejs|ytimg|youtube|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(1400);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#ppFab").forEach(e => e.remove()));

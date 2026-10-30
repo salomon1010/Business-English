@@ -212,7 +212,9 @@ const FAKE_SDK = `
   const log=window.__fb={calls:[],deleted:0,docDeleted:0,reauth:0,signedOut:0};
   function user(uid,email,providers){return {uid,email,providerData:providers.map(p=>({providerId:p})),
     getIdToken:async()=>"ID_TOKEN_"+uid,
-    reauthenticateWithCredential:async c=>{log.reauth++;if(window.__fb.reauthFails)throw {code:window.__fb.reauthFails};return {user:{uid}}},
+    /* auth_time = now - __fb.authAgeMs, so a test can make the sign-in stale */
+    getIdTokenResult:async()=>({authTime:new Date(Date.now()-(window.__fb.authAgeMs||0)).toUTCString()}),
+    reauthenticateWithCredential:async c=>{log.reauth++;if(window.__fb.reauthFails)throw {code:window.__fb.reauthFails};window.__fb.authAgeMs=0;return {user:{uid}}},
     delete:async()=>{log.deleted++;if(window.__fb.deleteFails)throw {code:window.__fb.deleteFails}}}}
   const auth={currentUser:null,_cbs:[],
     onAuthStateChanged(cb){this._cbs.push(cb);setTimeout(()=>cb(this.currentUser),0);return ()=>{}},
@@ -259,6 +261,13 @@ async function open({ ios = true, revokeStatus = 200, revokeBody = { ok: true, r
     const q = r.request(); net.push({ path: new URL(q.url()).pathname, auth: q.headers().authorization || "", body: q.postData() || "" });
     if (/\/apple\/revoke/.test(q.url())) return r.fulfill({ status: revokeStatus, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(revokeBody) });
     r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" });
+  });
+  /* index.html's ENT_API is the PRODUCTION entitlement service; deletion erases
+     the plan record there. Answer it here, so a test never reaches production
+     (it used to: CORS refused 127.0.0.1 and every deletion stopped). */
+  await ctx.route(/entitlements\.lomonec\.com/, r => {
+    const q = r.request(); net.push({ path: "ent:" + q.method() + " " + new URL(q.url()).pathname, auth: q.headers().authorization || "", body: "" });
+    r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" }, body: "{}" });
   });
   await ctx.route(/be-polish|be-partner|be-events|be-push|cloudflareinsights|ytimg|youtube|googleapis/, r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }));
   const p = await ctx.newPage(); const logs = []; p.on("console", m => logs.push(m.text())); const errs = []; p.on("pageerror", e => errs.push(e.message));
@@ -427,6 +436,64 @@ console.log("\n# deletion of accounts that have no Apple identity");
   await ctx.close();
 }
 
+console.log("\n# a stale sign-in stops deletion BEFORE anything is erased or revoked");
+const entDeletes = net => net.filter(x => x.path === "ent:DELETE /v1/me").length;
+const STALE = 10 * 60 * 1000;
+{
+  const { p, ctx, net } = await open({ ios: false });
+  await signIn(p, "uid-pw", "pw@example.com", ["password"]);
+  await p.evaluate(ms => { window.__fb.authAgeMs = ms; }, STALE);
+  const r = await del(p);
+  const out = await p.evaluate(() => window.__fb.signedOut);
+  ok("C40 · a password account signed in 10 minutes ago: nothing is erased — not the cloud copy, not the plan record, not the account",
+    r.doc === 0 && r.deleted === 0 && entDeletes(net) === 0, JSON.stringify({ doc: r.doc, deleted: r.deleted, ent: entDeletes(net) }));
+  ok("C41 · …the learner is told to sign in again and is signed out, so the next sign-in is fresh", r.toasts.some(x => /sign in again/i.test(x)) && out >= 1, JSON.stringify(r.toasts));
+  await ctx.close();
+}
+{
+  const { p, ctx, net } = await open({ ios: false });
+  await signIn(p, "uid-g", "g@example.com", ["google.com"]);
+  await p.evaluate(ms => { window.__fb.authAgeMs = ms; }, STALE);
+  const r = await del(p);
+  ok("C42 · a stale Google account: nothing is erased either", r.doc === 0 && r.deleted === 0 && entDeletes(net) === 0, JSON.stringify({ doc: r.doc, deleted: r.deleted, ent: entDeletes(net) }));
+  await ctx.close();
+}
+{
+  const { p, ctx, net } = await open({ ios: false });
+  await signIn(p, "uid-pw", "pw@example.com", ["password"]);
+  await p.evaluate(() => { window.__fb.authAgeMs = 60 * 1000; });
+  const r = await del(p);
+  ok("C43 · a password account signed in a minute ago is deleted completely: plan record, cloud copy, then the account", r.doc === 1 && r.deleted === 1 && entDeletes(net) === 1, JSON.stringify({ doc: r.doc, deleted: r.deleted, ent: entDeletes(net) }));
+  await ctx.close();
+}
+{
+  const { p, ctx, net } = await open();
+  await signIn(p, "uid-apple", "ada@example.com", ["apple.com"]);
+  await p.evaluate(ms => { window.__fb.authAgeMs = ms; window.__fb.reauthFails = "auth/invalid-credential"; }, STALE);
+  const r = await del(p);
+  ok("C44 · a stale Apple account whose reauthentication fails: Apple is NOT asked to revoke, and nothing is erased",
+    r.apple === 1 && !net.some(x => x.path === "/apple/revoke") && r.doc === 0 && r.deleted === 0 && entDeletes(net) === 0,
+    JSON.stringify({ apple: r.apple, revoke: net.filter(x => x.path === "/apple/revoke").length, doc: r.doc, deleted: r.deleted }));
+  await ctx.close();
+}
+{
+  const { p, ctx, net } = await open();
+  await signIn(p, "uid-apple", "ada@example.com", ["apple.com"]);
+  await p.evaluate(ms => { window.__fb.authAgeMs = ms; }, STALE);
+  const r = await del(p);
+  ok("C45 · a stale Apple account is renewed by Apple's own sheet, then revoked and deleted in full",
+    r.reauth >= 1 && net.some(x => x.path === "/apple/revoke") && r.doc === 1 && r.deleted === 1, JSON.stringify({ reauth: r.reauth, doc: r.doc, deleted: r.deleted }));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await open({ ios: false });
+  await signIn(p, "uid-pw", "pw@example.com", ["password"]);
+  await p.evaluate(() => { window.__fb.deleteFails = "auth/requires-recent-login"; });
+  const r = await del(p);
+  ok("C46 · the backstop stays: if Firebase still asks for a recent login, the learner is told to sign in again", r.toasts.some(x => /sign in again/i.test(x)), JSON.stringify(r.toasts));
+  await ctx.close();
+}
+
 console.log("\n# nothing else moved");
 {
   const { p, ctx, logs } = await open();
@@ -435,7 +502,10 @@ console.log("\n# nothing else moved");
   ok("C18 · no code, ID token or nonce reached the console", !logs.some(l => /FRESHC0DE|ID_TOKEN_|APPLE_ID_TOKEN/.test(l)), logs.filter(l => /TOKEN|C0DE/.test(l)).join(" | "));
   const html = readFileSync(root + "index.html", "utf8");
   ok("C19 · the app holds no Apple private key, .p8 or client secret", !/BEGIN PRIVATE KEY|AuthKey_|client_secret|\.p8\b/.test(html));
-  ok("C20 · Premium is untouched: billing off, ENT_API empty, StoreKit products unchanged", await p.evaluate(() => !flag("billing_enabled") && ENT_API === "" && BILLING_PRODUCTS.join(",") === "premium_monthly,premium_annual"));
+  /* Premium went on sale 11 Oct 2026 (billing_enabled ON, ENT_API set): the claim
+     is that this code does not move it, so it is checked against what the
+     defaults declare, not against September's "off". */
+  ok("C20 · Premium is untouched: billing as FLAGS_DEFAULT declares it, ENT_API the production service, StoreKit products unchanged", await p.evaluate(() => flag("billing_enabled") === !!FLAGS_DEFAULT.billing_enabled && ENT_API === ENT_API_PROD && BILLING_PRODUCTS.join(",") === "premium_monthly,premium_annual"));
   ok("C21 · the ytai account gate and the signing wrapper still stand", await p.evaluate(() => typeof ytaiNoAccount === "function" && /be-polish/.test(POLISH_API)));
   ok("C22 · track isolation is unchanged (this is account-level code, with no track term)", !/fbAppleRevoke[\s\S]{0,400}(areaId|isGeneralEnglish)/.test(html));
   await ctx.close();
