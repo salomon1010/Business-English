@@ -3536,5 +3536,8 @@
  "rem.ask_title": "Domani alla stessa ora?",
  "rem.ask_body": "Hai appena finito la sessione di oggi. Un breve promemoria ogni giorno ti aiuta ad andare avanti — scegli tu l’orario e puoi disattivarlo nelle Impostazioni.",
  "rem.ask_time": "Ricordamelo alle",
- "rem.ask_go": "Ricordamelo"
+ "rem.ask_go": "Ricordamelo",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

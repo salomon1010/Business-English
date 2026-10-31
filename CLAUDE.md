@@ -176,8 +176,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   it to `/programme`. Every Premium check asks be-entitlements `?app=<programme>` and
   treats an answer naming another app as Free (wm-game via `capabilities(req, env,
   app)` in both `polish-worker.js` and `polish-prod/entry.js`, be-coach `account`).
-  OPEN: the AI allowance routes in the full `polish-worker.js` still ask without
-  `?app=` (not live — production has no metering); fix before Phase C.
+  The AI allowance routes ask too (31 Oct 2026, be12-v697): the page adds
+  `?app=<programme>` to every be-polish call and `reqApp(req)` passes it to
+  `capabilities()`; `backend/test-ai-app.mjs` (8).
   Tests: `test-wm-game.mjs` P1-P8, `partner/test/track-auth.mjs` PA1-PA8.
 - **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
   programmes share one engine but must never share evidence: the Progress/Review

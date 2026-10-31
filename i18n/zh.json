@@ -3536,5 +3536,8 @@
  "rem.ask_title": "明天同一时间？",
  "rem.ask_body": "你刚刚完成了今天的练习。每天一个简短的提醒能帮你坚持下去——时间由你选择，也可以在设置中关闭。",
  "rem.ask_time": "提醒时间",
- "rem.ask_go": "提醒我"
+ "rem.ask_go": "提醒我",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

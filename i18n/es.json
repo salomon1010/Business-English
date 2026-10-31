@@ -3536,5 +3536,8 @@
  "rem.ask_title": "¿A la misma hora mañana?",
  "rem.ask_body": "Acabas de terminar la sesión de hoy. Un breve recordatorio cada día te ayuda a seguir — tú eliges la hora y puedes desactivarlo en Ajustes.",
  "rem.ask_time": "Recordármelo a las",
- "rem.ask_go": "Recordármelo"
+ "rem.ask_go": "Recordármelo",
+ "ai.ask_h": "Recibe tu informe oral",
+ "ai.ask_b": "Acabas de hablar. Con una cuenta gratuita, el coach de IA te da un informe: cómo te has expresado, qué corregir y la frase que podrías haber dicho. La cuenta no cuesta nada; Premium es otra cosa. Tu grabación se guarda.",
+ "ai.ask_go": "Crear una cuenta gratuita"
 }

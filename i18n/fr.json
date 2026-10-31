@@ -3536,5 +3536,8 @@
  "rem.ask_title": "Même heure demain ?",
  "rem.ask_body": "Vous venez de terminer la séance du jour. Un petit rappel chaque jour vous aide à continuer — vous choisissez l’heure, et vous pouvez le désactiver dans les Réglages.",
  "rem.ask_time": "Me le rappeler à",
- "rem.ask_go": "Me le rappeler"
+ "rem.ask_go": "Me le rappeler",
+ "ai.ask_h": "Recevez votre bilan oral",
+ "ai.ask_b": "Vous venez de parler. Avec un compte gratuit, le coach IA vous fait un bilan : comment vous êtes perçu, ce qu'il faut corriger et la phrase que vous auriez pu dire. Le compte ne coûte rien ; Premium est autre chose. Votre enregistrement est conservé.",
+ "ai.ask_go": "Créer un compte gratuit"
 }

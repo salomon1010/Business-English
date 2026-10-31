@@ -3536,5 +3536,8 @@
  "rem.ask_title": "내일 같은 시간에?",
  "rem.ask_body": "방금 오늘의 세션을 마쳤어요. 매일 짧은 알림이 꾸준히 이어가도록 도와줍니다 — 시간은 직접 고르고, 설정에서 언제든 끌 수 있어요.",
  "rem.ask_time": "알림 시간",
- "rem.ask_go": "알려 주세요"
+ "rem.ask_go": "알려 주세요",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

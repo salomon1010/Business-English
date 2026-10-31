@@ -8294,6 +8294,9 @@ const I18N_EN={
  "ai.acct_link_ai":"Create your account to unlock AI feedback.",
  "ai.acct_link_convo":"Create your account to unlock the AI conversation.",
  "ai.need_acct":"Sign in to use the AI features. Your recording is saved, and your practice still counts.",
+ "ai.ask_h":"Get your speaking report",
+ "ai.ask_b":"You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go":"Create a free account",
  "sess.report_stt":"Could not write down what you said — check the connection and try again.",
  "sess.report_newer":"A newer recording is waiting for its report.",
  "sess.tap_to_record":"Tap to start recording",
@@ -20435,7 +20438,7 @@ async function fbFixGrade(d,blob){
   /* D3: this said "needs a connection" to a Free learner who had one. The
      graded drill IS the AI's judgement, so it stays Premium — what changes is
      that the refusal names its real reason. */
-  if(aiOff("ai_analysis")){d.phase="ready";d.err=(entLocked("ai_analysis")||aiAllowOut())?"premium":aiNoAccount()?"acct":"net";fbFixDraw();return}
+  if(aiOff("ai_analysis")){d.phase="ready";d.err=(entLocked("ai_analysis")||aiAllowOut())?"premium":aiNoAccount()?(acctAsk("shadow"),"acct"):"net";fbFixDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,d.word).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -22923,7 +22926,7 @@ function fbTranscribe(blob){
        are no account and no connection. "premium" survives below only for a
        Worker that still answers 402 — an older deployment, or the capability
        being restored — because a wrong message is worse than an unexpected one. */
-    if(sttOff()){_fbTxWhy=aiNoAccount()?"account":"offline";return ""}
+    if(sttOff()){_fbTxWhy=aiNoAccount()?(acctAsk("shadow"),"account"):"offline";return ""}
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
       if(!r.ok){_fbTxWhy=r.status===401?"account":r.status===402?"premium":r.status===429?"busy":"server";return ""}
@@ -23080,7 +23083,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v697";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v698";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25383,8 +25386,8 @@ function sttOn(){return !sttOff()}
    sign-in fixes — the learner is online and taps Try again forever. Each caller
    keeps its own wording for the GENUINE cases (offline, rate-limited, Premium)
    and passes it as the fallback; only the signed-out case is overridden. */
-function aiErrText(key){try{return aiNoAccount()?t("ai.need_acct"):aiAllowOut()?aiAllowNote():t(key)}catch(e){return t(key)}}
-function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):(ENT_METERED[cap]&&aiAllowOut())?aiAllowNote():entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
+function aiErrText(key){try{return aiNoAccount()?(acctAsk("report"),t("ai.need_acct")):aiAllowOut()?aiAllowNote():t(key)}catch(e){return t(key)}}
+function aiOffNote(cap){try{return aiNoAccount()?(acctAsk("report"),t("ai.need_acct")):(ENT_METERED[cap]&&aiAllowOut())?aiAllowNote():entLocked(cap)?t("sess.report_prem"):t("sess.report_off")}catch(e){return t("sess.report_off")}}
 /* ---- F7: say an account is needed BEFORE the activity, not after a turn fails ----
    The owner's model (1 Oct 2026): AI needs an AUTHENTICATED ACCOUNT, and a Free
    account is enough. Anonymous learners get no AI. Premium is a separate thing
@@ -25420,6 +25423,52 @@ function aiOffNote(cap){try{return aiNoAccount()?t("ai.need_acct"):(ENT_METERED[
    server's own capability checks carry no track term, so Welding already had
    exactly the Premium setup General English has. */
 function aiAcctNeeded(){try{return aiNoAccount()}catch(e){return false}}
+/* ---- THE ACCOUNT ASK AT THE FIRST AI MOMENT (owner, 31 Oct 2026) ----
+   The AI reports are what Premium sells, and they need an account, so a learner
+   who never signs in never sees the product. The one-line notice above sits on
+   three pages and is easy to miss; this asks at the moment it is true — right
+   after the learner has spoken and the report was withheld for want of an
+   account (every such moment already goes through aiOffNote / aiErrText or sets
+   an "acct" error, and those call acctAsk). Same rules as the notice: NOT a
+   paywall (no price, no lock, it says the account is free and Premium separate),
+   never blocks anything (the take is already saved). At most ACCT_ASK_MAX times,
+   ACCT_ASK_GAP apart, once per app session, never over another dialog or the
+   sign-in sheet itself. */
+const ACCT_ASK_KEY="be_acct_ask",ACCT_ASK_MAX=3,ACCT_ASK_GAP=2*864e5;
+let _acctAskOn=false;
+function acctAskDue(){
+  try{
+    if(!aiNoAccount())return false;
+    if(sessionStorage.getItem(ACCT_ASK_KEY))return false;
+    const a=JSON.parse(localStorage.getItem(ACCT_ASK_KEY)||"{}")||{};
+    if((a.n||0)>=ACCT_ASK_MAX)return false;
+    if(a.at&&Date.now()-a.at<ACCT_ASK_GAP)return false;
+    return true;
+  }catch(e){return false}
+}
+function acctAsk(from){
+  if(_acctAskOn||!acctAskDue())return;
+  _acctAskOn=true;let k=0;
+  const busy=()=>document.querySelector(RM_BUSY+",.auth-ov,#premOv,#obWrap,#fndCheckOv,#webGate,.lang-modal-ov");
+  const go_=()=>{if(!acctAskDue()){_acctAskOn=false;return}
+    if(busy()){if(++k<60)return void setTimeout(go_,1000);_acctAskOn=false;return}
+    acctAskShow(from)};
+  setTimeout(go_,1200);
+}
+function acctAskShow(from){
+  try{const a=JSON.parse(localStorage.getItem(ACCT_ASK_KEY)||"{}")||{};localStorage.setItem(ACCT_ASK_KEY,JSON.stringify({n:(a.n||0)+1,at:Date.now()}));sessionStorage.setItem(ACCT_ASK_KEY,"1")}catch(e){}
+  const ov=document.createElement("div");ov.className="cf-ov acct-ask-ov";ov.dataset.from=String(from||"ai");
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="aaT">
+    <div class="cf-ic">${ic("mic")}</div>
+    <h3 id="aaT">${esc(t("ai.ask_h"))}</h3>
+    <p>${esc(t("ai.ask_b"))}</p>
+    <div class="cf-actions"><button class="btn btn-g" data-aa="0">${esc(t("rate.later"))}</button><button class="btn btn-p" data-aa="1">${esc(t("ai.ask_go"))}</button></div></div>`;
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180);_acctAskOn=false};
+  const key=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
+  ov.addEventListener("click",e=>{if(e.target===ov)return close();const b=e.target.closest("[data-aa]");if(!b)return;close();if(b.dataset.aa==="1")setTimeout(()=>{try{fbOpenModal("up")}catch(err){}},200)});
+  document.body.appendChild(ov);document.addEventListener("keydown",key);requestAnimationFrame(()=>ov.classList.add("show"));
+  setTimeout(()=>{const g=ov.querySelector('[data-aa="1"]');if(g)g.focus({preventScroll:true})},60);
+}
 function aiAcctNoticeHTML(from){
   if(!aiAcctNeeded())return "";
   const f=String(from||"ai");
@@ -28804,7 +28853,7 @@ async function svChRetellGrade(c,blob){
      the gate stays — but BELOW the free part, not above it. A Free learner
      records, is heard, sees what they said, and is still caught by the two
      local guards; what Premium adds is the judgement and the tip. */
-  if(sttOff()){r.phase="error";c.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){r.phase="error";c.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   try{
     const heard=await fbTranscribe(blob).catch(()=>"");
     if(svCh!==c||c.retell!==r)return;
@@ -28921,7 +28970,7 @@ async function svChChorusGrade(c,ch,blob){
   /* free: ShadowSync.drillState(null, heard, text) returns the asr mode — the
      word was heard or it was not — and says which mode it used. The scored
      "ai" mode needs fbAssess, which is where the gate is. */
-  if(sttOff()){ch.phase="ready";ch.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){ch.phase="ready";ch.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,ch.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -29002,7 +29051,7 @@ async function svChBuildGrade(c,b,blob){
   /* this rung never asked for a paid capability in the first place: transcript
      in, ShadowSync.challenge on the device, out. The gate here withheld a
      feature that costs nothing to give. */
-  if(sttOff()){b.phase="ready";b.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){b.phase="ready";b.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   try{
     const words=await Promise.race([fbWords(blob).catch(()=>null),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(words==="timeout")throw new Error("timeout");
@@ -29102,7 +29151,7 @@ async function svChGrade(blob){
      null — a shape ShadowSync.challenge has always accepted (`assess: null`)
      and svChDimsHTML already reports honestly. The microphone and the
      transcript are held by sttOff() (an account, not a plan). */
-  if(sttOff()){c.phase="error";c.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){c.phase="error";c.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   /* the clip's own word times (real or estimated — the engine knows which) give
      the speaker's spans and, when real, the rhythm comparison */
   const tw=s.words&&s.words.length?s.words:null,twEst=!tw||!!(svAsset&&svAsset.estimated)||tw.some(w=>w.estimated);
@@ -29469,7 +29518,7 @@ async function svChDrillGrade(d,blob){
   if(!svChOn()||!svCh||svCh.drill!==d)return;
   d.phase="grading";d.err=null;svChDraw();
   /* same as the chorus: heard-or-not is free, the SCORE is Premium */
-  if(sttOff()){d.phase="ready";d.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){d.phase="ready";d.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   try{
     const res=await Promise.race([Promise.all([fbAssess(blob,d.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
     if(res==="timeout")throw new Error("timeout");
@@ -29672,7 +29721,7 @@ async function svChUseGrade(blob){
   u.phase="grading";u.err=null;svChDraw();
   /* ShadowSync.usedExpression is a local token check — no AI judges this rung,
      so there was nothing for a capability gate to protect */
-  if(sttOff()){u.phase="error";u.err=aiNoAccount()?"acct":"net";svChDraw();return}
+  if(sttOff()){u.phase="error";u.err=aiNoAccount()?(acctAsk("shadow"),"acct"):"net";svChDraw();return}
   try{
     const words=await Promise.race([fbWords(blob).catch(()=>null),new Promise(r=>setTimeout(()=>r("timeout"),30000))]);
     if(words==="timeout")throw new Error("timeout");

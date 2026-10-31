@@ -3536,5 +3536,8 @@
  "rem.ask_title": "कल इसी समय?",
  "rem.ask_body": "आपने अभी आज का सत्र पूरा किया है। हर दिन एक छोटा रिमाइंडर आपको आगे बढ़ते रहने में मदद करता है — समय आप चुनें, और इसे सेटिंग्स में बंद कर सकते हैं।",
  "rem.ask_time": "मुझे याद दिलाएँ",
- "rem.ask_go": "याद दिलाएँ"
+ "rem.ask_go": "याद दिलाएँ",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }
