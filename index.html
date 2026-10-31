@@ -4100,6 +4100,9 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .rem-row input{width:22px;height:22px;min-height:0;accent-color:var(--acc);flex:none;margin:0}
 .rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}   /* 16px on touch devices via the iOS rule above */
 .rem-box input[type=time]:disabled{opacity:.45}
+.rem-ask-box{margin:4px 0 14px;text-align:start}   /* the time row inside the "same time tomorrow?" dialog */
+.rem-ask-box{flex-wrap:nowrap}
+.rem-ask-box .rem-row{cursor:default;min-width:0}
 .rem-note{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:6px}
 .fb-sync{font-size:12px;line-height:1.5;margin:10px 0 0}
 .fb-sync:empty{display:none}
@@ -10597,6 +10600,10 @@ const I18N_EN={
  "rem.missed":"Today\u2019s Week {{n}} session is still open \u2014 twenty-five minutes is all it takes.",
  "rem.on_toast":"Reminder set for {{time}}",
  "rem.off_toast":"Daily reminder off",
+ "rem.ask_title":"Same time tomorrow?",
+ "rem.ask_body":"You have just finished today’s session. A short reminder each day helps you keep going — you choose the time, and you can turn it off in Settings.",
+ "rem.ask_time":"Remind me at",
+ "rem.ask_go":"Remind me",
  "pc.dismiss":"Close the posture coach",
  "cf.title":"Are you sure?",
  "cf.cancel":"Cancel",
@@ -14544,10 +14551,15 @@ function sessDayDone(key,w,d,fromMission){
   markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key,quiet:!!fromMission});trackLearning("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
   /* Finishing a day is the moment the app has earned an opinion — ask then.
      Finishing the LAST day is the certificate's moment instead. */
+  /* The reminder ask goes first when it is due (it is the bigger lever and is
+     asked at most twice); the rating waits for another session, never stacked
+     on top, and the progress strip follows once the ask is answered. */
+  const remDue=totalDone()<trackSessionCount()&&remAskDue();
   if(totalDone()>=trackSessionCount()){certStamp();setTimeout(certAuto,1200)}
+  else if(remDue)setTimeout(()=>whenIdle(()=>remAsk(fromMission?null:rmCelebrate)),1600);
   else setTimeout(()=>whenIdle(rateAsk),1600);
   save();
-  if(!fromMission)setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
+  if(!fromMission&&!remDue)setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
 }
 window.toggleDay=(key,w,d)=>{
   if(!S.days[key]){sessDayDone(key,w,d);go("session",w,d);return}
@@ -18229,6 +18241,81 @@ function remNoteHTML(){
   return esc(t("rem.note"));
 }
 window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pushSync();toast(t("rem.on_toast",{time:c.time}));};
+/* ---- THE REMINDER ASK (30 Oct 2026) ----
+   The reminder was only ever a switch in Settings, so almost nobody turned it
+   on, and the learning nudges ride on the same permission. The learner is now
+   asked once a session is finished — the moment they have just proved the
+   habit — with the time they practised as the default ("same time tomorrow").
+   At most REM_ASK_MAX times, REM_ASK_GAP_MS apart, never while the reminder is
+   on, and never where a notification cannot arrive (an iPhone Safari tab, or
+   notifications blocked) — asking there would promise something we cannot do.
+   The tap on "Remind me" is the user gesture the permission prompt needs. */
+const REM_ASK_MAX=2,REM_ASK_GAP_MS=3*864e5;
+function remAskDue(){
+  try{
+    if(remCfg().on)return false;
+    const a=S.remAsk||{};
+    if((a.n||0)>=REM_ASK_MAX)return false;
+    if(a.at&&Date.now()-a.at<REM_ASK_GAP_MS)return false;
+    if(iosPushOn())return _pushPerm!=="denied";
+    if(IS_NATIVE_APP||!window.Notification)return false;
+    return Notification.permission!=="denied";
+  }catch(e){return false}
+}
+/* the time just practised, to the quarter hour; a late-night or dawn session
+   falls back to the usual evening slot rather than waking anyone */
+function remAskTime(now){
+  const d=now||new Date();let m=Math.round((d.getHours()*60+d.getMinutes())/15)*15;
+  if(m<6*60||m>22*60)return remCfg().time||"19:00";
+  m%=1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+}
+/* Waits for the coach summary / any dialog to close, like the progress strip,
+   then asks; `after` runs once the ask is answered (or was not shown). */
+function remAsk(after){
+  const done=()=>{if(typeof after==="function")try{after()}catch(e){}};
+  const t0=Date.now();
+  (function tick(){
+    if(!remAskDue())return done();
+    if(document.querySelector(RM_BUSY)){if(Date.now()-t0<60000)return void setTimeout(tick,400);return done()}
+    remAskShow(done);
+  })();
+}
+function remAskShow(after){
+  const a=S.remAsk||(S.remAsk={n:0,at:0});a.n=(a.n||0)+1;a.at=Date.now();save();
+  const ov=document.createElement("div");
+  ov.className="cf-ov pi-ov ra-ov rem-ask-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="remAskT">
+    <img class="pi-logo" src="icon-192.png" alt="">
+    <h3 id="remAskT">${esc(t("rem.ask_title"))}</h3>
+    <p>${esc(t("rem.ask_body"))}</p>
+    <div class="rem-box rem-ask-box">
+      <label class="rem-row" for="remAskTime">${esc(t("rem.ask_time"))}</label>
+      <input type="time" id="remAskTime" value="${esc(remAskTime())}">
+    </div>
+    <div class="cf-actions">
+      <button class="btn btn-p" data-ra="1">${ic("clock")}${esc(t("rem.ask_go"))}</button>
+      <button class="btn btn-g" data-ra="0">${esc(t("rate.later"))}</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  let closed=false;
+  const close=()=>{if(closed)return;closed=true;document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>{ov.remove();if(after)after()},180)};
+  function key(e){if(e.key==="Escape")close()}
+  ov.addEventListener("click",e=>{
+    const b=e.target.closest("[data-ra]");
+    if(b){
+      if(b.dataset.ra==="1"){
+        const v=(ov.querySelector("#remAskTime")||{}).value;
+        if(/^\d{2}:\d{2}$/.test(v||""))remCfg().time=v;
+        window.remToggle(true);
+      }
+      return close();
+    }
+    if(e.target===ov)close();
+  });
+  document.addEventListener("keydown",key);
+}
+window.remAsk=remAsk;
 
 /* ===== WEB PUSH — the half of the reminder that works with the app closed =====
    remSchedule() above is a setTimeout: it cannot fire unless the app is already
@@ -22993,7 +23080,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v696";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v697";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -23046,6 +23133,11 @@ const POLISH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.polish)return e
     let h;try{h=new Headers((o.headers)||(input&&typeof input==="object"&&input.headers)||{})}catch(e){h=new Headers()}
     h.set("authorization","Bearer "+tok);
     o.headers=h;
+    /* Premium is per app: the Worker asks be-entitlements about the app named
+       here (reqApp in polish-worker.js), so a Welding buyer is metered on the
+       Welding plan. A query, not a header — no new preflight; an older Worker
+       ignores it. A Request object is left as it is (no call site sends one). */
+    if(typeof input==="string"&&!/[?&]app=/.test(input))try{input+=(input.indexOf("?")<0?"?":"&")+"app="+encodeURIComponent(entApp())}catch(e){}
     /* every be-polish answer passes through aiAllowTap: the day's allowance
        rides on its headers (the tier spec, 5 Oct 2026) */
     return aiAllowTap(await nat(input,o));

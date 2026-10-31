@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "Besok di jam yang sama?",
+ "rem.ask_body": "Anda baru saja menyelesaikan sesi hari ini. Pengingat singkat setiap hari membantu Anda terus berlatih — Anda yang memilih waktunya, dan bisa mematikannya di Pengaturan.",
+ "rem.ask_time": "Ingatkan saya pukul",
+ "rem.ask_go": "Ingatkan saya"
 }

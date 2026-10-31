@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "कल इसी समय?",
+ "rem.ask_body": "आपने अभी आज का सत्र पूरा किया है। हर दिन एक छोटा रिमाइंडर आपको आगे बढ़ते रहने में मदद करता है — समय आप चुनें, और इसे सेटिंग्स में बंद कर सकते हैं।",
+ "rem.ask_time": "मुझे याद दिलाएँ",
+ "rem.ask_go": "याद दिलाएँ"
 }

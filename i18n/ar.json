@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "بعد ذلك يستمر Premium بسعر {{price}}{{per}} عبر {{store}}، دون أن تحتاج إلى فعل أي شيء.",
  "trial.rem_renew_np": "بعد ذلك يستمر Premium عبر {{store}}، دون أن تحتاج إلى فعل أي شيء.",
  "trial.rem_cancel": "لإيقافه، ألغِ الاشتراك في {{store}} قبل {{date}}.",
- "trial.rem_keep": "الاحتفاظ بـ Premium"
+ "trial.rem_keep": "الاحتفاظ بـ Premium",
+ "rem.ask_title": "في الوقت نفسه غدًا؟",
+ "rem.ask_body": "لقد أنهيت جلسة اليوم للتو. تذكير قصير كل يوم يساعدك على الاستمرار — أنت تختار الوقت، ويمكنك إيقافه من الإعدادات.",
+ "rem.ask_time": "ذكّرني الساعة",
+ "rem.ask_go": "ذكّرني"
 }

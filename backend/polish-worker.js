@@ -494,6 +494,19 @@ async function capabilities(req, env, app) {
   entCache.set(key, { at: Date.now(), caps, uid, premium });
   return { caps, key, uid, premium };
 }
+/* The app an AI request comes from (30 Oct 2026, the open item before Phase C).
+   Premium is sold per app, so the allowance must be asked about the app the
+   learner is in: without it be-entitlements answers about its default app and a
+   learner who bought Premium in the Welding app was metered as Free. The page
+   adds `?app=<programme>` (entApp()) to every be-polish call — a query, not a
+   header, so an older Worker ignores it instead of failing the preflight.
+   Anything not on this list is ignored (the service's default answers, exactly
+   as before), and an answer naming another app is Free in capabilities(). The
+   caller can only choose which of ITS OWN account's plans is read. */
+const AI_APPS = new Set(["general-english", "welding"]);
+function reqApp(req) {
+  try { const a = new URL(req.url).searchParams.get("app"); return a && AI_APPS.has(a) ? a : null; } catch (e) { return null; }
+}
 /* Returns a Response to send instead, or null to carry on. */
 /* ============================================================================
    J1 — ytai REQUIRES AN ACCOUNT, WHATEVER THE PLAN OR THE ENFORCEMENT STATE
@@ -556,7 +569,7 @@ async function ytaiAccount(req, env, cors) {
        only part of Premium therefore stays on the free allowance, which is the
        safe direction to be wrong in. */
     let tier = "free";
-    try { const a = await capabilities(req, env); if (a && a.caps && a.caps.ad_free === true) tier = "premium"; } catch (e) {}
+    try { const a = await capabilities(req, env, reqApp(req)); if (a && a.caps && a.caps.ad_free === true) tier = "premium"; } catch (e) {}
     return { ok: true, subject: await acctSubject(req, env), tier };
   }
   if (!env.FIREBASE_PROJECT_ID) return { res: json({ error: "auth_unavailable" }, 503, cors) };
@@ -584,7 +597,7 @@ async function ytaiAccount(req, env, cors) {
 async function acctSubject(req, env) {
   if (!premiumOn(env)) return null;
   try {
-    const a = await capabilities(req, env);
+    const a = await capabilities(req, env, reqApp(req));
     if (a.status) return null;
     return a.uid ? "acct:u:" + a.uid : (a.key ? "acct:t:" + a.key : null);
   } catch (e) { return null; }
@@ -599,12 +612,12 @@ async function premiumGate(req, env, route, cors, purpose) {
   if (cap === null) {
     /* a free route still needs a verified account while enforcement is on, so
        every call is attributable and can be limited per account */
-    const a = await capabilities(req, env);
+    const a = await capabilities(req, env, reqApp(req));
     if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
     if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
     return await perAccount(a, env, cors);
   }
-  const a = await capabilities(req, env);
+  const a = await capabilities(req, env, reqApp(req));
   if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
   /* the service is down: a paying learner must not be told they are Free, and
      no paid work is done on a guess. 503 is retriable and honest. */
