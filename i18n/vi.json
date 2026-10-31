@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "Ngày mai cùng giờ nhé?",
+ "rem.ask_body": "Bạn vừa hoàn thành buổi học hôm nay. Một lời nhắc ngắn mỗi ngày giúp bạn duy trì — bạn chọn giờ và có thể tắt trong Cài đặt.",
+ "rem.ask_time": "Nhắc tôi lúc",
+ "rem.ask_go": "Nhắc tôi"
 }

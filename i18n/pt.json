@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Depois, o Premium continua por {{price}}{{per}} através da {{store}}, sem ter de fazer nada.",
  "trial.rem_renew_np": "Depois, o Premium continua através da {{store}}, sem ter de fazer nada.",
  "trial.rem_cancel": "Para o parar, cancele na {{store}} antes de {{date}}.",
- "trial.rem_keep": "Manter o Premium"
+ "trial.rem_keep": "Manter o Premium",
+ "rem.ask_title": "Amanhã à mesma hora?",
+ "rem.ask_body": "Você acabou de concluir a sessão de hoje. Um breve lembrete diário ajuda você a continuar — você escolhe o horário e pode desativá-lo nas Configurações.",
+ "rem.ask_time": "Lembrar-me às",
+ "rem.ask_go": "Lembrar-me"
 }

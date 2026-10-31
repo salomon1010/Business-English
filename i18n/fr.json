@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium continue ensuite à {{price}}{{per}} via {{store}}, sans rien à faire pour le garder.",
  "trial.rem_renew_np": "Premium continue ensuite via {{store}}, sans rien à faire pour le garder.",
  "trial.rem_cancel": "Pour l'arrêter, annulez dans {{store}} avant le {{date}}.",
- "trial.rem_keep": "Garder Premium"
+ "trial.rem_keep": "Garder Premium",
+ "rem.ask_title": "Même heure demain ?",
+ "rem.ask_body": "Vous venez de terminer la séance du jour. Un petit rappel chaque jour vous aide à continuer — vous choisissez l’heure, et vous pouvez le désactiver dans les Réglages.",
+ "rem.ask_time": "Me le rappeler à",
+ "rem.ask_go": "Me le rappeler"
 }

@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "Morgen um dieselbe Zeit?",
+ "rem.ask_body": "Du hast die heutige Einheit gerade abgeschlossen. Eine kurze tägliche Erinnerung hilft dir dranzubleiben — du wählst die Uhrzeit und kannst sie in den Einstellungen ausschalten.",
+ "rem.ask_time": "Erinnere mich um",
+ "rem.ask_go": "Erinnere mich"
 }

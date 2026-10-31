@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "明日も同じ時間に？",
+ "rem.ask_body": "今日のセッションを終えたところです。毎日の短いリマインダーが続ける助けになります。時間はあなたが選べて、設定でいつでもオフにできます。",
+ "rem.ask_time": "通知する時刻",
+ "rem.ask_go": "リマインドする"
 }

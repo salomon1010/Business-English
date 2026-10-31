@@ -3532,5 +3532,9 @@
  "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
  "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
  "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
- "trial.rem_keep": "Keep Premium"
+ "trial.rem_keep": "Keep Premium",
+ "rem.ask_title": "明天同一时间？",
+ "rem.ask_body": "你刚刚完成了今天的练习。每天一个简短的提醒能帮你坚持下去——时间由你选择，也可以在设置中关闭。",
+ "rem.ask_time": "提醒时间",
+ "rem.ask_go": "提醒我"
 }
