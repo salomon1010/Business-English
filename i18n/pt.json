@@ -3536,5 +3536,8 @@
  "rem.ask_title": "Amanhã à mesma hora?",
  "rem.ask_body": "Você acabou de concluir a sessão de hoje. Um breve lembrete diário ajuda você a continuar — você escolhe o horário e pode desativá-lo nas Configurações.",
  "rem.ask_time": "Lembrar-me às",
- "rem.ask_go": "Lembrar-me"
+ "rem.ask_go": "Lembrar-me",
+ "ai.ask_h": "Receba o seu relatório de fala",
+ "ai.ask_b": "Acabou de falar. Com uma conta gratuita, o coach de IA faz um relatório: como se exprimiu, o que corrigir e a frase que podia ter dito. A conta não custa nada; o Premium é outra coisa. A sua gravação fica guardada.",
+ "ai.ask_go": "Criar uma conta gratuita"
 }

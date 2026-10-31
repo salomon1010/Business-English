@@ -3536,5 +3536,8 @@
  "rem.ask_title": "Ngày mai cùng giờ nhé?",
  "rem.ask_body": "Bạn vừa hoàn thành buổi học hôm nay. Một lời nhắc ngắn mỗi ngày giúp bạn duy trì — bạn chọn giờ và có thể tắt trong Cài đặt.",
  "rem.ask_time": "Nhắc tôi lúc",
- "rem.ask_go": "Nhắc tôi"
+ "rem.ask_go": "Nhắc tôi",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

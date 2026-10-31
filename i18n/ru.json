@@ -3536,5 +3536,8 @@
  "rem.ask_title": "Завтра в то же время?",
  "rem.ask_body": "Вы только что завершили сегодняшнее занятие. Короткое ежедневное напоминание поможет не останавливаться — время выбираете вы, а отключить его можно в настройках.",
  "rem.ask_time": "Напомнить в",
- "rem.ask_go": "Напомнить мне"
+ "rem.ask_go": "Напомнить мне",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

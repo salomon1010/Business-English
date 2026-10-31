@@ -3536,5 +3536,8 @@
  "rem.ask_title": "کل اسی وقت؟",
  "rem.ask_body": "آپ نے ابھی آج کا سیشن مکمل کیا ہے۔ روزانہ ایک مختصر یاد دہانی آپ کو جاری رکھنے میں مدد دیتی ہے — وقت آپ چنیں، اور اسے ترتیبات میں بند کر سکتے ہیں۔",
  "rem.ask_time": "مجھے یاد دلائیں",
- "rem.ask_go": "یاد دلائیں"
+ "rem.ask_go": "یاد دلائیں",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }

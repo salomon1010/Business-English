@@ -3536,5 +3536,8 @@
  "rem.ask_title": "কাল একই সময়ে?",
  "rem.ask_body": "আপনি এইমাত্র আজকের সেশন শেষ করেছেন। প্রতিদিন একটি ছোট রিমাইন্ডার আপনাকে চালিয়ে যেতে সাহায্য করে — সময় আপনি বেছে নিন, আর সেটিংসে এটি বন্ধ করতে পারবেন।",
  "rem.ask_time": "মনে করিয়ে দিন এই সময়ে",
- "rem.ask_go": "মনে করিয়ে দিন"
+ "rem.ask_go": "মনে করিয়ে দিন",
+ "ai.ask_h": "Get your speaking report",
+ "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
+ "ai.ask_go": "Create a free account"
 }
