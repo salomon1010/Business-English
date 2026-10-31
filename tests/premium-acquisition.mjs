@@ -45,6 +45,10 @@ const PLAY_STUB = ({ trial, products, owned }) => {
 };
 const seed = (tr, extra = {}) => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1, ...extra });
 async function open({ track = "general-english", uid = null, flags = { billing_enabled: true }, trial = true, products = true, owned = null, stub = true, vp = { width: 390, height: 844 }, theme = null, motion = null, keepLaunch = false, lang = null } = {}) {
+  /* ads_enabled is ON by default since 31 Oct 2026. These checks are about the sheet's
+     layout without ads (five benefit rows), so ads are off here unless a check says
+     otherwise; `__defaults` runs the true production defaults (L2's first case). */
+  flags = flags && flags.__defaults ? null : { ads_enabled: false, ...(flags || {}) };
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block", reducedMotion: motion || "no-preference" });
   await ctx.addInitScript(([s, f, theme]) => { localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://ent.test"); if (f) localStorage.setItem("be_flags", JSON.stringify(f)); if (theme) localStorage.setItem("be_theme", theme); }, [seed(track), flags, theme]);
   if (stub) await ctx.addInitScript(PLAY_STUB, { trial, products, owned });
@@ -323,7 +327,7 @@ console.log("\n# L · ad-free is promised only while ads are on");
 
 /* the Settings "Free plan" card (29 Sep 2026): its Premium list said "Ad-free learning" in a
    release with no ads anywhere — the benefit is listed only while ads_enabled is on */
-for (const [lab, flags, want] of [["production defaults (ads off, billing off)", {}, false], ["billing on, ads off", { billing_enabled: true }, false], ["billing and ads on", { billing_enabled: true, ads_enabled: true }, true]]) {
+for (const [lab, flags, want] of [["production defaults (ads and billing on since 31 Oct 2026)", { __defaults: true }, true], ["billing on, ads off", { billing_enabled: true, ads_enabled: false }, false], ["billing and ads on", { billing_enabled: true, ads_enabled: true }, true]]) {
   const { ctx, p } = await open({ uid: "l2" + want, flags });
   const r = await p.evaluate(async () => { go("data"); await new Promise(r => setTimeout(r, 500)); const d = document.querySelector("details.set-plan"); if (d) d.open = true; const c = document.getElementById("entPlan"); return c ? c.textContent.replace(/\s+/g, " ") : null; });
   ok(`L2 · Settings Premium card, ${lab}: 'Ad-free learning' ${want ? "listed" : "absent"}`, r !== null && /Ad-free learning/.test(r) === want, r);

@@ -17733,14 +17733,37 @@ window.shApp=async()=>{
    posted, the Home card is there every visit, and the five-star dialog comes
    back three days after "Not now" — it used to sleep for thirty. Nothing here
    gates by score or rewards a rating; Play's policy allows asking, not steering. */
-const RATE_MIN=7, RATE_SNOOZE=3*864e5;           // sessions before asking · 3 days after "not now" (dialog only)
+/* 31 Oct 2026 (owner: "add reminder for rating the app"): asked from the 3rd finished
+   session, not the 7th — with ~8 learners a day, few ever reached seven — and in BOTH
+   store apps, not only on Android. In a store app the post-session ask is the store's
+   OWN sheet (rateNative: Play's in-app review card / Apple's requestReview), with no
+   dialog of ours in front of it: Apple 5.6.1 allows only the system prompt, and Play
+   forbids any question before its card. The OS rations it (Apple: 3 a year) and never
+   says whether it showed or what was given, so it is asked at most every
+   RATE_NATIVE_GAP and never marks the learner as rated. */
+const RATE_MIN=3, RATE_SNOOZE=3*864e5;           // sessions before asking · 3 days after "not now" (dialog only)
+const RATE_NATIVE_GAP=30*864e5;                  // the store's sheet: at most once a month from our side
 function rateEarned(){return !S.rated&&totalDone()>=RATE_MIN}
 function rateDue(){                              // the dialog: earned, and not put off in the last 3 days
   if(!rateEarned())return false;
   return !S.rateSnoozed||Date.now()-S.rateSnoozed>RATE_SNOOZE;
 }
+function rateNative(){
+  try{if(!IS_NATIVE_APP)return null;const p=capPlugin("BEReview");return p&&typeof p.request==="function"?p:null}catch(e){return null}
+}
+function rateNativeDue(){return !!rateNative()&&rateEarned()&&(!S.rateNativeAt||Date.now()-S.rateNativeAt>RATE_NATIVE_GAP)}
+function rateNativeAsk(){
+  const p=rateNative();if(!p)return;
+  S.rateNativeAt=Date.now();save();
+  try{Promise.resolve(p.request()).catch(()=>{})}catch(e){}
+}
+/* where "Rate the app" sends someone: the store that holds this app's listing */
+function rateStoreUrl(){
+  if(IS_IOS_APP){const u=appStoreUrl();return u?u+"?action=write-review":""}
+  return playUrl();
+}
 function rateHTML(){                             // the Home card: earned — every visit, until rated
-  if(!rateEarned()||!/Android/i.test(navigator.userAgent||""))return "";
+  if(!rateEarned()||!(IS_IOS_APP?rateStoreUrl():/Android/i.test(navigator.userAgent||"")))return "";
   return `<div class="card home-rate" id="homeRate">
     <span class="home-due-ic" style="background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)">${ic("star")}</span>
     <span class="home-due-t">
@@ -17754,7 +17777,7 @@ function rateHTML(){                             // the Home card: earned — ev
   </div>`;
 }
 function rateHide(){const el=document.getElementById("homeRate");if(el)el.remove()}
-window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(playUrl(),"_blank","noopener")};
+window.rateGo=()=>{const u=rateStoreUrl();S.rated=true;save();track("rate_click");rateHide();if(u)window.open(u,"_blank","noopener")};
 window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};   /* the card returns on the next visit to Home */
 
 /* ===== "GET IT ON GOOGLE PLAY" (Android browsers only) =====
@@ -17861,6 +17884,8 @@ function rateStarsPaint(ov){
   ov.querySelectorAll("[data-st]").forEach(b=>b.classList.toggle("on",+b.dataset.st<=RA_STARS));
 }
 function rateAsk(){
+  /* a store app: the store's own sheet, never our five-star dialog (see RATE_MIN) */
+  if(rateNative()){if(rateNativeDue())rateNativeAsk();return}
   if(!rateAskDue())return;
   if(document.querySelector(".ra-ov")||document.querySelector(".pi-ov"))return;   // never two dialogs deep
   RA_STARS=5;
@@ -23108,7 +23133,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v699";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v700";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -24909,7 +24934,7 @@ const FLAGS_DEFAULT={
   home_v2_enabled:true,                // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; production ON since be12-v653, owner 8 Oct 2026)
   smart_coach_enabled:true,            // Smart Coach — the Smart Practice Planner in the Daily reminder sheet (both programmes, 10 Oct 2026). ON (Phase C, 11 Oct 2026): be-coach production is deployed (9c8da359) and the client carries its URL, so the page has a Worker to talk to.
   learning_nudges_enabled:true,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it  [production ON, owner 10 Oct 2026]
-  ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
+  ads_enabled:true,                    // Phase 8: the ad system (AdManager). ON in production (owner, 31 Oct 2026). Real ads need a native provider, so the web shows none; the store apps show them from the build that carries this bundle. adsTrackAllows (General English + the game hubs), adsSystemLive (billing + ENT_API), consent and Premium still decide every ad. Rollback = false + a store build.
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:true,                // Phase 9: store purchases (Play Billing in the Android shell, StoreKit in the iOS shell). ON (Phase C, 11 Oct 2026) — with ENT_API set this makes planOn() true, so gates are in force and Premium is on sale. Turning it back off is the one-step rollback.
   social_signin_enabled:true,          // Google + Apple sign-in in the App Store shell (native plugin). A kill switch for the shell only.

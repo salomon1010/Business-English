@@ -50,15 +50,19 @@ tag = "v1-rate-limiter"
 new_sqlite_classes = ["RateLimiter"]
 
 # ---- Premium enforcement (Phase 8; Phase C) ----
-# WHAT PRODUCTION RUNS (checked 30 Oct 2026 with `wrangler versions view`): THIS
-# file's polish-worker.js, with PREMIUM_ENFORCED = "0" — not backend/polish-prod/
-# (an earlier note here said it was; the live bindings say otherwise: AI_DEDUPE,
-# GEMINI_KEY, PREMIUM_ENFORCED "0"). The vars below say "1", so a plain
-# `npx wrangler deploy` from here WOULD switch on the verdict metering and the
-# tiers. A routine production deploy uses a copy of this file with only the
-# top-level PREMIUM_ENFORCED set to "0" (`-c <copy> --env ""`), then compares
-# `wrangler versions view` with the previous version's bindings.
+# WHAT PRODUCTION RUNS: THIS file's polish-worker.js, deployed as it stands —
+# PREMIUM_ENFORCED = "1" since 31 Oct 2026 (owner: "yes", Phase C step 3). The
+# verdict metering and the tiers are LIVE: Free 3 verdicts a day, Premium 120,
+# an account required on every AI route except the Shadow helpers. A routine
+# production deploy is now a plain `npx wrangler deploy --env ""` from here;
+# compare `wrangler versions view` with the previous version's bindings after.
+#   31 Oct 2026: 80b3c1c0 (PREMIUM_ENFORCED "1" + reqApp, the per-app allowance);
+#                rollback 8f0294a8 (same code, PREMIUM_ENFORCED "0").
+#                Checked live: an unauthenticated `analyse` answers 401
+#                auth_required (it answered 400 before); preflight 200.
 #   30 Oct 2026: 81b39e19 (per-app programme + plan); rollback f6429592.
+# To switch the metering OFF again: `wrangler rollback 8f0294a8-b4cf-4f2f-818a-6c768d4a7b8e
+# --name be-polish`, then set PREMIUM_ENFORCED = "0" below so the next deploy agrees.
 #
 # Both vars must be set for the Worker to check an entitlement, and together
 # they mirror the client's planOn() (billing_enabled + an entitlement service).
@@ -70,19 +74,16 @@ new_sqlite_classes = ["RateLimiter"]
 #   2. confirm GET /v1/entitlement answers for a real signed-in account
 #   3. set PREMIUM_ENFORCED + ENTITLEMENTS_URL and deploy be-polish
 #   4. set billing_enabled + ENT_API in index.html and ship the web bundle
-# Steps 2 and 4 are already true in production; 3 is the one outstanding step,
-# and it is the one that caps every existing Free learner at 3 verdicts a day.
-# See docs/USAGE-LIMITS-ANDROID.md §5 before taking it.
+# All four are true in production since 31 Oct 2026 (step 3 = version 80b3c1c0).
+# be-entitlements held 6 active/trialing store purchases at the time, read per app.
 # the cost ledger (no content; caller = HMAC under the LEDGER_SALT secret), as the production wrapper had it
 [[analytics_engine_datasets]]
 binding = "AI_LEDGER"
 dataset = "be_ai_ledger"
 
 [vars]
-# PRODUCTION (launch Phase B9a, 10 Oct 2026): the full polish-worker.js with the Premium gate
-# OFF — learners see today's behaviour (anonymous AI policy enforce, games, no metering).
-# Phase C turns PREMIUM_ENFORCED to "1" in the SAME release as billing_enabled + ENT_API,
-# never before: with the gate on and nothing for sale, Free would be capped with no way out.
+# PRODUCTION: the full polish-worker.js with the Premium gate ON since 31 Oct 2026
+# (Phase C; billing_enabled + ENT_API were already live, so Free has a way out).
 PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 ANON_AI_POLICY = "enforce"
 AI_DEDUPE = "1"

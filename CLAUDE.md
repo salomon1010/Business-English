@@ -503,15 +503,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   `ios_live_activity_enabled`, `android_live_countdown_enabled` are ON in FLAGS_DEFAULT —
   wherever a bullet below says one of them is "production OFF", that is now history. The
   games' server side in production is "games only, everyone Free":
-  - **be-entitlements production is DEPLOYED** with no store secrets (every account Free;
-    the store routes answer 501).
-  - **Production be-polish = the full `backend/polish-worker.js` with `PREMIUM_ENFORCED="0"`**
-    (verified 30 Oct 2026 with `wrangler versions view`; `backend/polish-prod/` is NOT what
-    runs). `backend/wrangler.toml` sets `"1"`, so never a plain `wrangler deploy` from
-    `backend/` to production — it would switch on the metering and the tiers. Deploy with a
-    copy whose top-level `PREMIUM_ENFORCED` is `"0"` (`-c <copy> --env ""`) and compare the
-    bindings with the previous version. Rollback ids are in `backend/wrangler.toml`.
-  - `ENT_API` stays empty and ads / billing / Smart Coach stay OFF.
+  - **be-entitlements production is DEPLOYED** and, since then, carries `GOOGLE_SA_JSON`,
+    `PLAY_TOKEN_KEY` and `APP_ACCOUNT_SECRET`: it verifies Play purchases (6 active /
+    trialing links across both apps on 31 Oct 2026).
+  - **THE AI METERING IS LIVE (owner, 31 Oct 2026 — Phase C step 3).** Production be-polish
+    = the full `backend/polish-worker.js` with `PREMIUM_ENFORCED="1"`, version 80b3c1c0
+    (rollback 8f0294a8, identical but `"0"`). Free 3 verdicts a day, Premium 120, per app
+    (`reqApp`), and an account on every AI route except the Shadow helpers. A production
+    deploy is now a plain `npx wrangler deploy --env ""` from `backend/`; compare the
+    bindings with the previous version after. Rollback ids are in `backend/wrangler.toml`.
+  - `ENT_API` and `billing_enabled` are ON (Premium is on sale since Phase C, 11 Oct).
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
@@ -1243,9 +1244,22 @@ not JS, and `new Function` chokes on it. Check it separately with
 - **Share/invite/rate:** `APP_URL` and `PLAY_URL` consts near `shShare`. Share text
   gets the URL appended **in code**, so the 15 translation files never need
   re-cutting when the address changes. `shApp()` is the plain "share the app"
-  action (Profile). `rateHTML()`/`rateGo()`/`rateLater()` put a Play-rating card on
-  Home after **7** sessions; "not now" snoozes it 30 days (`S.rateSnoozed`),
-  rating sets `S.rated`.
+  action (Profile). `rateHTML()`/`rateGo()`/`rateLater()` put a rating card on
+  Home from **3** sessions (`RATE_MIN`, was 7 until 31 Oct 2026); "not now" snoozes
+  the dialog 3 days (`S.rateSnoozed`), rating sets `S.rated`. **In the store apps
+  (31 Oct 2026)** the post-session ask is the store's OWN sheet — native plugin
+  `BEReview` (`BEReviewPlugin.java`: Play in-app review; `BEReviewPlugin.swift`:
+  `AppStore.requestReview`) via `rateNative()` / `rateNativeAsk()`, at most every
+  `RATE_NATIVE_GAP` (30 days, `S.rateNativeAt`), never marking `S.rated` — with NO
+  dialog of ours in front (Apple 5.6.1; Play forbids any question before its card).
+  Do not put the five-star dialog back in front of it. The Home card's button opens
+  the listing (`rateStoreUrl()`: Play, or App Store `?action=write-review`), and the
+  card now shows on the iPhone app too. Android browsers keep the dialog. Test:
+  `tests/rate-ask.mjs` (15).
+- **Ads are ON (owner, 31 Oct 2026, be12-v700)** — `ads_enabled:true`. The web has no
+  provider (shows none); store builds from 1.2.7 (26) / 1.0.7 (11) and iOS 1.1.2 (7) /
+  1.0.1 (4) carry real AdMob ads. See `docs/ADVERTISING.md` §9b for the console
+  declarations the owner must make before those builds reach production.
 - **`manifest.json`** carries `screenshots` (narrow form factor) so Chrome shows
   the richer install prompt.
 - **Play listing text** lives in `playstore/listing-full-description.txt` and is
