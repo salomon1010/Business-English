@@ -447,6 +447,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   and a 3-day free trial each. US$19.99/yr and US$2.99/mo are the owner's
   decision of 5-6 Oct 2026 and what the store actually holds. Do NOT change the
   consoles to $24.99. The app always shows the store's own `displayPrice`.**
+  **REGIONAL PRICE TEST (owner, 31 Oct 2026): Cameroon and Kenya at HALF price, both apps,
+  both stores; every other country unchanged.** Play: monthly 1000 XAF / 250 KES, annual
+  6500 XAF / 1500 KES (regions version 2026/01). App Store (USD there): monthly US$2.00,
+  annual US$11.49 — Welding at once (not yet approved), General English from 1 Nov 2026.
+  Existing subscribers keep their old price. Before: Play GE 2100 XAF / 500 KES and
+  13700 XAF / 3000 KES, Play Welding 2100 XAF / 400 KES and 14000 XAF / 3000 KES (per-app
+  rollback file: `~/.config/be-mastery/play-price-rollback-2026-10-31.json`); App Store
+  US$3.99 / US$22.99 in both. Review the result about a month later (trials and sales in
+  CM / KE against before). Do not "restore" these prices without the owner.
   Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
