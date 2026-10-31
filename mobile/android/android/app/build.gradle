@@ -68,8 +68,9 @@ android {
             // 23 (30 Oct 2026): web be12-v695 — Premium per app, no offer over a paying
             // learner, the widget and account-deletion fixes. Play held 22 in production.
             // 24 (31 Oct 2026): web be12-v696 — adds the trial reminder. Supersedes 23 (a draft, never released).
-            versionCode 24
-            versionName "1.2.5"
+            // 25 (31 Oct 2026): web be12-v697 — adds the "same time tomorrow?" prompt and the per-app AI allowance. The production release.
+            versionCode 25
+            versionName "1.2.6"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -105,8 +106,9 @@ android {
             // reason as the other app's 21 — see the note there.
             // 8 (30 Oct 2026): web be12-v695, as the other app's 23. Play held 7 in production.
             // 9 (31 Oct 2026): web be12-v696, as the other app's 24. Supersedes 8 (a draft, never released).
-            versionCode 9
-            versionName "1.0.5"
+            // 10 (31 Oct 2026): web be12-v697, as the other app's 25. The production release.
+            versionCode 10
+            versionName "1.0.6"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
