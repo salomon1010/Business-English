@@ -1622,6 +1622,13 @@ Fixes / infra
   All 13 `track()` names and every prop key are verified against the Worker's
   allow-list. Adding an event still means the Worker first, then index.html.
   **The dataset cannot backfill** — nothing before 2026-08-14 exists anywhere.
+  **be-events was redeployed on 31 Oct 2026 (4b2ad18e; rollback dd7d17c9).** The live
+  Worker was from 9 Oct and did NOT carry the purchase_* / entitlement_*, nudge_*,
+  coach_*, rec_* / recommendation_*, ad_* and shadow_scene_* names, so every one of
+  those events was dropped with 204 until then — there is no purchase funnel before
+  31 Oct. Before trusting a count, compare the live code with the repo:
+  `node mobile/android/scripts/fetch-deployed.mjs be-events /tmp/x`. The token for
+  `query.sh` is saved in `~/.config/be-mastery/events.env`.
 - **"How many users?" has no answer in this repo.** Events are counts, not
   people (no device ID, by design). `app_open` carries `installed`
   (display-mode standalone) which splits the installed app from the open web,
