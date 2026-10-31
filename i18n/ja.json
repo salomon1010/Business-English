@@ -3526,5 +3526,11 @@
  "meter.unconfirmed": "We couldn't confirm your plan just now, so this count may be out of date.",
  "meter.offline": "You're offline — this is the last count we were given.",
  "acc.prem_need_acct": "Sign in first, so your subscription is linked to your account. Google cancels a subscription that was never linked.",
- "acc.prem_test_purchase": "That was a Google Play test purchase, so it cannot unlock Premium here. Test purchases only count on the staging service."
+ "acc.prem_test_purchase": "That was a Google Play test purchase, so it cannot unlock Premium here. Test purchases only count on the staging service.",
+ "trial.rem_h": "Your free trial ends on {{date}}",
+ "trial.rem_gives": "Premium gives you the full AI speaking reports, the per-word pronunciation score, 30- and 90-day progress and the AI coach.",
+ "trial.rem_renew": "Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
+ "trial.rem_renew_np": "Premium then continues through {{store}}, with nothing to do to keep it.",
+ "trial.rem_cancel": "To stop it, cancel in {{store}} before {{date}}.",
+ "trial.rem_keep": "Keep Premium"
 }

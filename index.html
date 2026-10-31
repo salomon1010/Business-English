@@ -7949,6 +7949,12 @@ const I18N_EN={
  "acc.prem_get":"Get Premium",
  "acc.prem_restore":"Restore purchases",
  "acc.prem_manage":"Manage subscription",
+ "trial.rem_h":"Your free trial ends on {{date}}",
+ "trial.rem_gives":"Premium gives you the full AI speaking reports, the per-word pronunciation score, 30- and 90-day progress and the AI coach.",
+ "trial.rem_renew":"Premium then continues at {{price}}{{per}} through {{store}}, with nothing to do to keep it.",
+ "trial.rem_renew_np":"Premium then continues through {{store}}, with nothing to do to keep it.",
+ "trial.rem_cancel":"To stop it, cancel in {{store}} before {{date}}.",
+ "trial.rem_keep":"Keep Premium",
  "acc.prem_signin":"Sign in to get Premium",
  "acc.prem_loading":"Loading prices from the store…",
  "acc.prem_buying":"Waiting for the store…",
@@ -22987,7 +22993,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v695";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v696";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25477,6 +25483,7 @@ function entApply(){
   try{premDraw()}catch(e){}
   try{premLaunchMaybe()}catch(e){}
   try{hdrPremSync()}catch(e){}
+  try{trialRemMaybe()}catch(e){}
 }
 
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
@@ -26927,6 +26934,56 @@ function premLaunchMaybe(){
   const go_=()=>{if(!premLaunchReady())return;if(premLaunchBusy()){if(++k<30)setTimeout(go_,1000);return}
     try{sessionStorage.setItem(PREM_LAUNCH_SS,"1")}catch(e){}premiumOpen("launch")};
   setTimeout(go_,1200);
+}
+/* ---- THE TRIAL REMINDER (owner, 31 Oct 2026) ----
+   A free trial converts or lapses on its last day. Once, inside the trial's last
+   48 hours, the learner is told plainly what Premium gives, the date it carries
+   on, the STORE's own price and where to stop it — the stores ask for clear
+   trial terms, and a charge nobody expected becomes a refund. Only for a trial
+   that WILL renew (a cancelled one is not pressed), never over a session or
+   another dialog, once per trial (uid + app + end date). Display only: the plan
+   is the server's (state "trialing", from Apple's offerType / Play's offerPhase). */
+const TRIAL_REM_KEY="be_trial_rem",TRIAL_REM_WINDOW=48*3600e3,TRIAL_REM_MIN=2*3600e3;
+let _trialRemOn=false;
+function trialRemDue(){
+  try{
+    if(!FBUser||!planOn())return null;
+    const v=entView();
+    if(!(v.plan==="premium"&&v.paid===true&&v.state==="trialing"&&v.renews!==false&&v.expiresAt))return null;
+    const left=v.expiresAt-Date.now();
+    if(left>TRIAL_REM_WINDOW||left<TRIAL_REM_MIN)return null;
+    const id=FBUser.uid+"|"+entApp()+"|"+v.expiresAt;
+    if(localStorage.getItem(TRIAL_REM_KEY)===id)return null;
+    return {v,id};
+  }catch(e){return null}
+}
+function trialRemMaybe(){
+  if(_trialRemOn||!trialRemDue())return;
+  _trialRemOn=true;let k=0;
+  const go_=()=>{const d=trialRemDue();if(!d){_trialRemOn=false;return}
+    if(premLaunchBusy()){if(++k<60)setTimeout(go_,1000);else _trialRemOn=false;return}
+    trialRemShow(d)};
+  setTimeout(go_,1500);
+}
+function trialRemShow(d){
+  try{localStorage.setItem(TRIAL_REM_KEY,d.id)}catch(e){}
+  const v=d.v,date=new Date(v.expiresAt).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  let own=false;try{own=!!(Billing.provider&&v.source===Billing.provider.id)}catch(e){}
+  const store=subStoreName(v.source)||premStore();
+  const i=own?subPlanInfo():null;
+  const renew=i&&i.price?t("trial.rem_renew",{price:i.price,per:i.per?" "+i.per:"",store}):t("trial.rem_renew_np",{store});
+  const ov=document.createElement("div");ov.className="cf-ov trial-rem-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="trT">
+    <div class="cf-ic">${ic("star")}</div>
+    <h3 id="trT">${esc(t("trial.rem_h",{date}))}</h3>
+    <p>${esc(t("trial.rem_gives"))}</p>
+    <p>${esc(renew)} ${esc(t("trial.rem_cancel",{store,date}))}</p>
+    <div class="cf-actions">${own?`<button class="btn btn-g" data-tr="manage">${esc(t("acc.prem_manage"))}</button>`:""}<button class="btn btn-p" data-tr="keep">${esc(t("trial.rem_keep"))}</button></div></div>`;
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180);_trialRemOn=false};
+  const key=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
+  ov.addEventListener("click",e=>{if(e.target===ov)return close();const b=e.target.closest("[data-tr]");if(!b)return;close();if(b.dataset.tr==="manage")try{Billing.manage()}catch(err){}});
+  document.body.appendChild(ov);document.addEventListener("keydown",key);requestAnimationFrame(()=>ov.classList.add("show"));
+  setTimeout(()=>{const k=ov.querySelector('[data-tr="keep"]');if(k)k.focus({preventScroll:true})},60);
 }
 /* ---- SUBSCRIPTION (App Setup) — the plan in force and the store's own management ----
    Free: the plan, one line on what Premium adds, "See Premium plans", and

@@ -3526,5 +3526,11 @@
  "meter.unconfirmed": "Nous n'avons pas pu confirmer votre offre à l'instant : ce décompte peut être obsolète.",
  "meter.offline": "Vous êtes hors ligne — voici le dernier décompte reçu.",
  "acc.prem_need_acct": "Connectez-vous d'abord, afin que votre abonnement soit lié à votre compte. Google annule un abonnement qui n'a jamais été lié.",
- "acc.prem_test_purchase": "Il s'agissait d'un achat de test Google Play : il ne peut pas activer Premium ici. Les achats de test ne comptent que sur le service de préproduction."
+ "acc.prem_test_purchase": "Il s'agissait d'un achat de test Google Play : il ne peut pas activer Premium ici. Les achats de test ne comptent que sur le service de préproduction.",
+ "trial.rem_h": "Votre essai gratuit se termine le {{date}}",
+ "trial.rem_gives": "Premium vous donne les bilans oraux complets par l'IA, la note de prononciation mot par mot, la progression sur 30 et 90 jours et le coach IA.",
+ "trial.rem_renew": "Premium continue ensuite à {{price}}{{per}} via {{store}}, sans rien à faire pour le garder.",
+ "trial.rem_renew_np": "Premium continue ensuite via {{store}}, sans rien à faire pour le garder.",
+ "trial.rem_cancel": "Pour l'arrêter, annulez dans {{store}} avant le {{date}}.",
+ "trial.rem_keep": "Garder Premium"
 }

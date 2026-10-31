@@ -3526,5 +3526,11 @@
  "meter.unconfirmed": "Não conseguimos confirmar o seu plano agora, por isso esta contagem pode estar desatualizada.",
  "meter.offline": "Está offline — esta é a última contagem que recebemos.",
  "acc.prem_need_acct": "Inicie sessão primeiro, para que a sua subscrição fique associada à sua conta. A Google cancela uma subscrição que nunca foi associada.",
- "acc.prem_test_purchase": "Foi uma compra de teste do Google Play, por isso não pode ativar o Premium aqui. As compras de teste só contam no serviço de staging."
+ "acc.prem_test_purchase": "Foi uma compra de teste do Google Play, por isso não pode ativar o Premium aqui. As compras de teste só contam no serviço de staging.",
+ "trial.rem_h": "O seu teste gratuito termina a {{date}}",
+ "trial.rem_gives": "O Premium dá-lhe os relatórios de fala completos da IA, a nota de pronúncia palavra a palavra, o progresso de 30 e 90 dias e o coach de IA.",
+ "trial.rem_renew": "Depois, o Premium continua por {{price}}{{per}} através da {{store}}, sem ter de fazer nada.",
+ "trial.rem_renew_np": "Depois, o Premium continua através da {{store}}, sem ter de fazer nada.",
+ "trial.rem_cancel": "Para o parar, cancele na {{store}} antes de {{date}}.",
+ "trial.rem_keep": "Manter o Premium"
 }
