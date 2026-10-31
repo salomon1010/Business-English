@@ -3539,5 +3539,13 @@
  "rem.ask_go": "알려 주세요",
  "ai.ask_h": "Get your speaking report",
  "ai.ask_b": "You have just spoken. With a free account, the AI coach reports on it: how you came across, what to fix and the sentence you could have said. The account costs nothing; Premium is separate. Your recording is saved.",
- "ai.ask_go": "Create a free account"
+ "ai.ask_go": "Create a free account",
+ "prem.web_h": "Premium comes from the app",
+ "prem.web_1": "Get BE Mastery on your iPhone or Android phone.",
+ "prem.web_2": "Subscribe there: Apple or Google takes the payment, and your free trial starts.",
+ "prem.web_3": "Sign in here with the same account. Your Premium is on the web too.",
+ "prem.web_3_in": "You are signed in: once you subscribe in the app, your Premium is here too.",
+ "prem.web_ios_k": "On iPhone",
+ "prem.web_play_k": "On Android",
+ "prem.web_soon": "Coming soon"
 }

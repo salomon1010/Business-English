@@ -90,6 +90,8 @@ if (/apps\.apple\.com/.test(h)) throw new Error("the source page carries an Appl
    (docs/WEB-STANDALONE.md): one programme per address, like the store app. */
 sub("the web app link", 'href="https://app.lomonec.com/bemastery/">use it in your browser',
                         'href="https://app.lomonec.com/general-english/">use it in your browser');
+sub("the three-ways web link", 'href="https://app.lomonec.com/" rel="noopener">Open on the web',
+                               'href="https://app.lomonec.com/general-english/" rel="noopener">Open on the web');
 sub("JSON-LD url", '"url":"https://lomonec.com/bemastery/"', '"url":"https://lomonec.com/bemastery-g/"');
 
 /* ── 4. the page is one directory further out, so relative asset paths are

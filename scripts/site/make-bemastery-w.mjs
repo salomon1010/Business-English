@@ -102,13 +102,13 @@ sub("og:url", '<meta property="og:url" content="https://lomonec.com/bemastery/">
               '<meta property="og:url" content="https://lomonec.com/bemastery-w/">');
 sub("title", "<title>BE Mastery — AI English Speaking Practice</title>",
              "<title>BE Mastery Welding — English for the refinery trades</title>");
-sub("description", '<meta name="description" content="Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on Google Play, and soon on the App Store.">',
+sub("description", '<meta name="description" content="Practise English speaking with AI, shadow real speakers and practise with real learners. BE Mastery is a 25-minutes-a-day speaking app — free on the App Store and Google Play, and on the web.">',
   '<meta name="description" content="English for welders, pipefitters, boilermakers and the eight other refinery trades: shadow real workshop video, rehearse the toolbox talk and sit the interview before it counts. Twenty-five minutes a day.">');
 sub("og:site_name", '<meta property="og:site_name" content="BE Mastery">',
                     '<meta property="og:site_name" content="BE Mastery Welding">');
 sub("og:title", '<meta property="og:title" content="BE Mastery — AI English Speaking Practice">',
                 '<meta property="og:title" content="BE Mastery Welding — English for the refinery trades">');
-sub("og:description", '<meta property="og:description" content="Practise with AI. Shadow real speakers. Practise with real people. Download the BE Mastery speaking app — free on Google Play, and soon on the App Store.">',
+sub("og:description", '<meta property="og:description" content="Practise with AI. Shadow real speakers. Practise with real people. Download the BE Mastery speaking app — free on the App Store and Google Play, and on the web.">',
   '<meta property="og:description" content="You already know the work. This is where you learn to say it: the floor, the toolbox talk and the interview, in English.">');
 sub("og:image", '<meta property="og:image" content="https://app.lomonec.com/og.png">',
                 '<meta property="og:image" content="https://lomonec.com/bemastery/img/welding/01-roadmap.webp">');
@@ -118,7 +118,7 @@ sub("og:image:alt", '<meta property="og:image:alt" content="BE Mastery — a spe
                     '<meta property="og:image:alt" content="BE Mastery Welding — the twelve-stage road map shown on a phone">');
 sub("twitter:title", '<meta name="twitter:title" content="BE Mastery — AI English Speaking Practice">',
                      '<meta name="twitter:title" content="BE Mastery Welding — English for the refinery trades">');
-sub("twitter:description", '<meta name="twitter:description" content="Practise with AI. Shadow real speakers. Practise with real people. Free on Google Play, and soon on the App Store.">',
+sub("twitter:description", '<meta name="twitter:description" content="Practise with AI. Shadow real speakers. Practise with real people. Free on the App Store and Google Play, and on the web.">',
   '<meta name="twitter:description" content="English for welders, pipefitters, boilermakers and the eight other refinery trades. Twenty-five minutes a day.">');
 sub("twitter:image", '<meta name="twitter:image" content="https://app.lomonec.com/og.png">',
                      '<meta name="twitter:image" content="https://lomonec.com/bemastery/img/welding/01-roadmap.webp">');
@@ -216,8 +216,8 @@ section("hero", s => {
   s = one(s, "hero lede", "Practise with AI. Shadow real speakers. Practise with real people. Build the confidence for real conversations.",
     "English for welders, pipefitters, boilermakers and the eight other refinery trades — the words you actually use on the floor, in the toolbox talk and in the interview.");
   s = one(s, "hero kicker", "<p class=\"cta-kicker\">Download BE Mastery</p>", "<p class=\"cta-kicker\">BE Mastery Welding</p>");
-  s = one(s, "hero fine print", "Free on Android, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.",
-    "Free on Google Play, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you between phones · Guidance in 15 languages.");
+  s = one(s, "hero fine print", "Free on iPhone and Android, and on the web · Sign in with Apple, Google or email · Your progress follows you everywhere · Guidance in 15 languages.",
+    "Free on Google Play and on the web, iPhone coming soon · Sign in with Apple, Google or email · Your progress follows you everywhere · Guidance in 15 languages.");
   s = one(s, "hero chips", `<span class="chip"><b>84</b> guided sessions</span>
         <span class="chip"><b>12</b> weeks</span>
         <span class="chip"><b>152</b> phrases</span>
@@ -403,8 +403,21 @@ section("pricing", s => {
   const start = s.lastIndexOf("<li>", pp), end = s.indexOf("</li>", pp) + "</li>".length;
   if (start < i - 1) throw new Error("pricing: could not find the bullet around it");
   s = s.slice(0, start) + "<li><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 13 4 4L19 7\"/></svg><span>Welding Mastery: 250 trade terms, 52 drawings and eight games</span></li>" + s.slice(end);
-  s = one(s, "pricing: the subscription line", "One subscription for both programmes, for learners who practise every day.",
-    "One subscription, for learners who practise every day.");
+  s = one(s, "pricing: the subscription line", "Its own plan in each app, for learners who practise every day.",
+    "Its own plan, for learners who practise every day.");
+  /* the Welding iPhone app is still with Apple (31 Oct 2026): Premium is bought on Google Play for now */
+  s = one(s, "pricing: where Premium is bought", "Bought through Apple or Google, and yours on the web too.",
+    "Bought through Google Play today (the App Store once the iPhone app is released), and yours on the web too.");
+  return s;
+});
+
+/* ── 16b. three ways in, two ways to subscribe — the iPhone app is still in review ── */
+section("ways", s => {
+  s = one(s, "ways: the iPhone card", "Download BE Mastery on your iPhone. Subscribe there with your Apple account.",
+    "BE Mastery Welding is with Apple for review. The day it is released, it is listed here and you can subscribe with your Apple account.");
+  s = one(s, "ways: who takes the payment", "<strong>Premium is bought in the iPhone or Android app.</strong> Apple or Google takes the payment, and your free trial starts there.",
+    "<strong>Premium is bought in the Android app today</strong> (and in the iPhone app once it is released). Google takes the payment, and your free trial starts there.");
+  s = one(s, "ways: the web link", 'href="https://app.lomonec.com/" rel="noopener">Open on the web', 'href="https://app.lomonec.com/welding-english/" rel="noopener">Open on the web');
   return s;
 });
 
@@ -414,8 +427,8 @@ section("faq", s => {
     "Yes. The full twelve-stage programme, the Shadowing Studio, the AI coach, Welding Mastery and your progress are free today, with no card needed.");
   s = one(s, "faq: level", "If you can read English but freeze when you speak, you are the learner it was built for.",
     "If you know the trade but freeze when you have to say it in English, you are the learner it was built for.");
-  s = one(s, "faq: stores", "Yes. BE Mastery is on Google Play now, and the iPhone app is with Apple for review.",
-    "BE Mastery Welding is on Google Play now — the button at the top of this page opens it. The iPhone app is with Apple for review, and this page will carry that link the day it is approved.");
+  s = one(s, "faq: stores", "Yes. BE Mastery is on the App Store and Google Play, and it runs in your browser too.",
+    "BE Mastery Welding is on Google Play now and runs in your browser too — the button at the top of this page opens it. The iPhone app is with Apple for review, and this page will carry that link the day it is released.");
   s = one(s, "faq: recordings", "Practice Partner live calls are never recorded.", "Nothing you record leaves the phone unless a take is being scored.");
   /* the two Practice Partner questions, and the trade question that pointed here */
   const dropOne = (needle, what) => {

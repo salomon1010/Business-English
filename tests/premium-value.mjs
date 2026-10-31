@@ -30,13 +30,13 @@ const wv = i => "w" + String(i).padStart(10, "0");
 const db = new DatabaseSync(":memory:");
 for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
-const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app", APP_PROGRAMMES: "general-english" };
-const grant = (uid, { status = "active", expires = NOW + 30 * DAY } = {}) =>
+const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app,com.lomonec.bemastery.welding", APP_PROGRAMMES: "general-english,welding" };
+const grant = (uid, { status = "active", expires = NOW + 30 * DAY, app = "general-english" } = {}) =>
   /* PER-APP ENTITLEMENT (migration 0005): the derived row is per (account, app).
      These suites exercise the General English app — the web build, and what every
      pre-split purchase is. */
   db.prepare("INSERT OR REPLACE INTO entitlements(uid,app_id,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)")
-    .run("dev:" + uid, "general-english", "premium", "premium_annual", status, NOW - DAY, expires, "google_play", "test", Date.now());   /* DEV_AUTH identities are "dev:<name>" */
+    .run("dev:" + uid, app, "premium", "premium_annual", status, NOW - DAY, expires, "google_play", "test", Date.now());   /* DEV_AUTH identities are "dev:<name>" */
 
 const PLAY_STUB = trial => {
   window.__play = { shows: [], lists: 0 };
@@ -294,7 +294,8 @@ const histSheet = p => p.evaluate(() => { exHistSheet(); const o = document.getE
    list per track and classifies a saved video on the fly. */
 console.log("\n# E/H · Welding gets the SAME Premium headroom — one subscription, both tracks");
 {
-  grant("wp");
+  /* per app (owner, 31 Oct 2026): a PREMIUM Welding learner is one with the Welding subscription */
+  grant("wp", { app: "welding" });
   const { ctx, p, errs, polish } = await open({ track: "welding", uid: "wp" });
   const capYt = await p.evaluate(() => planLimit("youtubeImports", "premium"));
   const r = []; for (let i = 1; i <= 6; i++) r.push(await paste(p, wv(i)));

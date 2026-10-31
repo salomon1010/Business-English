@@ -26,7 +26,7 @@ function d1() {
       all: async () => ({ results: st.all(...a) }) }; return o; } };
 }
 let WENV = null;
-const workerEnv = () => ({ DB: d1(), FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", ADMIN_TOKEN: "x".repeat(40) });
+const workerEnv = () => ({ DB: d1(), FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", ADMIN_TOKEN: "x".repeat(40), PLAY_PACKAGE: "com.bemastery.app,com.lomonec.bemastery.welding", APP_PROGRAMMES: "general-english,welding" });
 const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr },
   fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } },
   days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
@@ -71,7 +71,7 @@ async function open(track = "general-english", { ios = PLUGIN, cfg = { available
   return { ctx, p, errs };
 }
 const signIn = (p, uid) => p.evaluate(u => { FBUser = { uid: u, getIdToken: async () => "test-token-" + u }; return entRefresh(); }, uid);
-const grantPremium = async uid => { await handle(new Request("https://x/v1/admin/grant", { method: "POST", headers: { authorization: "Bearer " + "x".repeat(40), "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:" + uid, plan: "premium", status: "active", expiresAt: Date.now() + 30 * 864e5, source: "promo" }) }), WENV, {}); };
+const grantPremium = async (uid, app = "general-english") => { await handle(new Request("https://x/v1/admin/grant", { method: "POST", headers: { authorization: "Bearer " + "x".repeat(40), "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:" + uid, plan: "premium", status: "active", expiresAt: Date.now() + 30 * 864e5, source: "promo", app_id: app }) }), WENV, {}); };
 
 /* the real lifecycle: the page really hid `ms` ago, then one foregrounding.
    `_hiddenAt` is set alongside it because a genuine hide writes both. */
@@ -134,7 +134,8 @@ console.log("\n# who never gets one");
   await ctx.close();
 }
 {
-  WENV = workerEnv(); await grantPremium("wprem");
+  /* per app (owner, 31 Oct 2026): a Premium WELDING learner holds the Welding subscription */
+  WENV = workerEnv(); await grantPremium("wprem", "welding");
   const { ctx, p, errs } = await open("welding"); await signIn(p, "wprem");
   ok("R12b · (control) Welding learner really is Premium", await p.evaluate(() => entIsPremiumForDisplay() === true));
   await clearCaps(p); await resume(p, 60e3);

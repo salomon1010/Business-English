@@ -176,7 +176,8 @@ console.log("\n# iOS boundary, tracks, layout");
   await p.evaluate(() => { __play.next = { token: "tok_ivo_" + "i".repeat(20), cancel: false }; }); await p.evaluate(() => Billing.buy("premium_monthly"));
   /* Shadow V2 on Welding comes from the Welding studio (production ON since be12-v654), never from Premium */
   const w = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), ge: isGeneralEnglish(), pp: ppAvailable(), sv: typeof svOn === "function" ? svOn() : null, studio: typeof weldStudioOn === "function" ? weldStudioOn() : null }));
-  ok("B17 · Welding: Premium applies to the account; no General-English feature appears (no Practice Partner; Shadow V2 only through the Welding studio)", w.prem && !w.ge && !w.pp && w.sv === w.studio, JSON.stringify(w));
+  /* per app (owner, 31 Oct 2026): this purchase is the General English app's (the Play listing it was verified against), so on the web's WELDING programme it is not Welding Premium */
+  ok("B17 · Welding: a General English purchase does not make Welding Premium (Premium is per app); no General-English feature appears (no Practice Partner; Shadow V2 only through the Welding studio)", !w.prem && !w.ge && !w.pp && w.sv === w.studio, JSON.stringify(w));
   await ctx.close();
   for (const [theme, vp] of [["dark", { width: 375, height: 667 }], ["light", { width: 390, height: 844 }]]) {
     ({ ctx, p } = await open({ uid: "jo" + theme, vp }));
@@ -274,7 +275,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ({ ctx, p } = await open({ uid: "prq", flags: { billing_enabled: false } }));   /* as above: state the off-state */
   await p.evaluate(() => go("profile")); await sleep(500);
   const off = await p.evaluate(() => ({ row: !!document.querySelector(".pf-prem"), open: (premiumOpen("test"), document.querySelector("#premOv .prem-sheet").textContent) }));
-  ok("PR1 · billing off (production today): no Premium row in Profile; the sheet, if opened, only says it cannot be bought here", !off.row && /can't be bought on this device/.test(off.open) && !/Continue|Save/.test(off.open), JSON.stringify(off));
+  ok("PR1 · billing off: no Premium row in Profile; the sheet, if opened on the web, says Premium comes from the store app (three ways in, two ways to subscribe)", !off.row && /Premium comes from the app/.test(off.open) && !/Continue|Save/.test(off.open), JSON.stringify(off));
   await ctx.close();
   ({ ctx, p } = await open({ uid: "prr" }));
   await p.evaluate(() => go("profile")); await sleep(500);

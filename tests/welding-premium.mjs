@@ -48,7 +48,8 @@ async function open(track, opts = {}) {
   const ai = [];
   await ctx.route(u => /be-polish/.test(u.href), r => { ai.push(r.request().url()); r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "{}" }); });
   await ctx.route(u => /be-events|be-partner|cloudflareinsights|youtube|ytimg/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
-  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(answer) }));
+  /* like the real service, the answer names the app it is about (per app, owner 31 Oct 2026): this suite's Premium learner holds the WELDING subscription */
+  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: (() => { const app = new URL(r.request().url()).searchParams.get("app") || "general-english"; const v = typeof answer === "function" ? answer(app) : answer; return JSON.stringify(v && typeof v === "object" ? { ...v, app } : v); })() }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(1700);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#premOv").forEach(e => e.remove()));
@@ -92,17 +93,19 @@ answer = PREMIUM;
   await g.ctx.close(); await w.ctx.close();
 }
 
-console.log("\n# switching tracks never changes the entitlement");
+console.log("\n# switching programmes asks each programme's own plan (Premium is per app, owner 31 Oct 2026)");
 {
-  answer = PREMIUM;
+  /* this learner holds the WELDING subscription only */
+  answer = app => app === "welding" ? PREMIUM : FREE;
   const { ctx, p, errs } = await open("general-english");
   const seen = [];
   for (const id of ["welding", "general-english", "welding"]) {
     await p.evaluate(async a => { S.professionalTracks.activeId = a; save(); if (typeof trackStateReloaded === "function") trackStateReloaded(); }, id);
-    seen.push(await p.evaluate(() => ({ area: areaId(), prem: entIsPremiumForDisplay(), ai: hasEntitlement("ai_analysis") })));
+    await new Promise(r => setTimeout(r, 700));   /* the switch re-asks the server about the new programme's app */
+    seen.push(await p.evaluate(() => ({ area: areaId(), app: entApp(), prem: entIsPremiumForDisplay(), ai: hasEntitlement("ai_analysis") })));
   }
-  ok("10 · Premium survives every switch, in both directions, with no re-purchase", seen.every(x => x.prem === true && x.ai === true) && seen.map(x => x.area).join(",") === "welding,general-english,welding", JSON.stringify(seen));
-  ok("11 · the entitlement was never re-fetched per track (it is account-level)", await p.evaluate(() => entView().plan === "premium"));
+  ok("10 · Welding's subscription is Premium in Welding and only there: Welding Premium, General English Free, Welding Premium again — no re-purchase", seen.map(x => x.prem).join(",") === "true,false,true" && seen.map(x => x.area).join(",") === "welding,general-english,welding", JSON.stringify(seen));
+  ok("11 · each answer is about the open programme's own app (entApp follows the area on the web)", seen.every(x => x.app === x.area), JSON.stringify(seen));
   ok("12 · no JS errors across the switches", !errs.length, errs.join(" | "));
   await ctx.close();
 }
