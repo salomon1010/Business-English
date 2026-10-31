@@ -116,7 +116,12 @@ export function toRecord(sub, nowMs) {
   const li = (sub.lineItems || []).slice().sort((a, b) => Date.parse(b.expiryTime || 0) - Date.parse(a.expiryTime || 0))[0];
   if (!li || !Object.prototype.hasOwnProperty.call(PRODUCTS, li.productId)) return null;
   const exp = Date.parse(li.expiryTime); if (!Number.isFinite(exp)) return null;
-  const status = STATE[sub.subscriptionState] || "expired";
+  let status = STATE[sub.subscriptionState] || "expired";
+  /* the free trial (30 Oct 2026): Play names the line item's CURRENT phase in
+     offerPhase (basePrice | freeTrial | introductoryPrice | prorationPeriod), so a
+     subscription inside its trial is "trialing" — as Apple's introductory offer
+     already is — and the app can say when the trial ends. Premium either way. */
+  if (status === "active" && li.offerPhase && li.offerPhase.freeTrial) status = "trialing";
   const start = Date.parse(sub.startTime);
   return {
     plan: PRODUCTS[li.productId], product: li.productId, status,

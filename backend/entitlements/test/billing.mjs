@@ -222,6 +222,17 @@ console.log("\n# Google Play — purchase verification and account binding");
   G.subs.set(tok(6), gsub({ subscriptionState: "SUBSCRIPTION_STATE_ON_HOLD", lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 - DAY) }] }));
   await gverify("gus", tok(6));
   ok("G12 · account hold / pending / paused → no Premium", (await view("gus")).plan === "free");
+  /* the free trial (30 Oct 2026): Play names the current phase in offerPhase */
+  G.subs.set(tok(961), gsub({ lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 3 * DAY), offerPhase: { freeTrial: {} } }] }));
+  await gverify("trial1", tok(961)); e = await view("trial1");
+  ok("G13 · inside its free trial → Premium, state trialing, renews:true, the trial's end as expiresAt", e.plan === "premium" && e.paid === true && e.state === "trialing" && e.renews === true && e.expiresAt === T0 + 3 * DAY, JSON.stringify(e));
+  ok("G14 · …and a trial is acknowledged like any paid purchase (Play refunds an unacknowledged one)", G.acks.includes(tok(961)));
+  G.subs.set(tok(962), gsub({ subscriptionState: "SUBSCRIPTION_STATE_CANCELED", lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 3 * DAY), offerPhase: { freeTrial: {} } }] }));
+  await gverify("trial2", tok(962)); e = await view("trial2");
+  ok("G15 · a trial cancelled before it ends → still Premium to the end, renews:false", e.plan === "premium" && e.renews === false, JSON.stringify(e));
+  G.subs.set(tok(963), gsub({ lineItems: [{ productId: "premium_monthly", expiryTime: iso(T0 + 30 * DAY), offerPhase: { basePrice: {} } }] }));
+  await gverify("trial3", tok(963)); e = await view("trial3");
+  ok("G16 · after the trial (offerPhase basePrice) → state active", e.state === "active", JSON.stringify(e));
 }
 
 console.log("\n# Google Play — Real-time Developer Notifications");

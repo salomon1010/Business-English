@@ -12,7 +12,7 @@ Pick your profession and the whole app changes with you: the scenarios, the voca
 Over five hundred hand-checked clips from the trade, each with a synchronised transcript. Watch it, shadow one paragraph at a time, then take the Challenge: speak the line from memory and get it scored word by word. Speed control, looping and a translation under every line in your language.
 
 🗣️ INSTANT SPEAKING FEEDBACK
-Record yourself and get a word-by-word pronunciation score, grammar corrections ("I am agree" → "I agree"), your pace against the native 140–160 wpm zone and a filler-word count. Every missed word comes with example audio and a say-it-again drill.
+Record yourself and get grammar corrections ("I am agree" → "I agree"), your pace against the native 140–160 wpm zone and a filler-word count; Premium adds a word-by-word pronunciation score. Every missed word comes with example audio and a say-it-again drill.
 
 🔧 THE WORKPLACE LINES
 The sentences the job actually needs — the pre-job brief, the hot-work permit, the hand-over, the near-miss report. Play them, shadow them, record them, use them tomorrow.

@@ -102,7 +102,7 @@ const google_play = {
     if (rec.accountId && ctx.uid && env.APP_ACCOUNT_SECRET && rec.accountId !== (await as.appAccountToken(ctx.uid, env)).toLowerCase()) return fail(403, "account_mismatch");
     const link = { provider: "google_play", ext_id: await sha256Hex(enc.encode(token)), secret_ref: token,
       record: { plan: rec.plan, product: rec.product, status: rec.status, starts_at: rec.starts_at, expires_at: rec.expires_at,
-        will_renew: sub.subscriptionState === "SUBSCRIPTION_STATE_CANCELED" ? 0 : (rec.status === "active" || rec.status === "grace" ? 1 : null),
+        will_renew: sub.subscriptionState === "SUBSCRIPTION_STATE_CANCELED" ? 0 : (rec.status === "active" || rec.status === "trialing" || rec.status === "grace" ? 1 : null),
         source: "google_play", updated_at: now },
       needsAck: !rec.acknowledged, productId: rec.product, packageName: hit.pkg,   /* acknowledge() must use the listing the token belongs to */
       /* PER-APP ENTITLEMENT (12 Oct 2026): which of our apps sold this, taken

@@ -223,6 +223,46 @@ console.log("\n# G · the launch offer: X hidden, then available, then closes");
   await ctx.close();
 }
 
+console.log("\n# T · the trial reminder (owner, 31 Oct 2026): once, in a renewing trial's last 48 hours");
+{
+  const trialSheet = p => p.evaluate(() => { const o = document.querySelector(".trial-rem-ov"); if (!o) return null;
+    return { h: (o.querySelector("h3") || {}).innerText || "", text: o.innerText.replace(/\s+/g, " "), manage: !!o.querySelector('[data-tr="manage"]'), keep: !!o.querySelector('[data-tr="keep"]'), focus: document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.tr : "" }; });
+  const own = id => [{ itemId: id, purchaseToken: "tok_" + id + "_" + "t".repeat(20) }];
+  grant("t1", { status: "trialing", expires: NOW + 30 * 3600e3, product: "premium_monthly" });
+  let o = await open({ uid: "t1", owned: own("premium_monthly") }); await sleep(3200);
+  let s = await trialSheet(o.p); await shot(o.p, "trial-reminder");
+  ok("T1 · a renewing trial with 30 h left: the reminder opens by itself, names the end date and what Premium gives", s && /free trial ends on/i.test(s.h) && /pronunciation score/.test(s.text), JSON.stringify(s));
+  ok("T2 · …it states the store's own price and the store, and where to cancel (store trial-terms rules)", s && /\$2\.99 \/ month/.test(s.text) && /Google Play/.test(s.text) && /cancel in Google Play before/i.test(s.text), s && s.text);
+  ok("T3 · …Keep Premium is the focused, primary action; Manage subscription sits beside it", s && s.keep && s.manage && s.focus === "keep", JSON.stringify(s));
+  const managed = await o.p.evaluate(async () => { let called = 0; Billing.manage = () => { called++; }; document.querySelector('[data-tr="manage"]').click(); await new Promise(r => setTimeout(r, 300)); return { called, open: !!document.querySelector(".trial-rem-ov") }; });
+  ok("T4 · Manage subscription opens the store's own page and closes the reminder", managed.called === 1 && !managed.open, JSON.stringify(managed));
+  await o.p.reload(); await sleep(1500);
+  await o.p.evaluate(async uid => { FBUser = { uid, email: uid + "@test", getIdToken: async () => "test-token-" + uid }; await entRefresh(); await Billing.init(); }, "t1"); await sleep(3200);
+  ok("T5 · once per trial: after a relaunch it does not open again", !(await trialSheet(o.p)));
+  const esc = await o.p.evaluate(async () => { localStorage.removeItem("be_trial_rem"); _trialRemOn = false; trialRemMaybe(); await new Promise(r => setTimeout(r, 2200)); const was = !!document.querySelector(".trial-rem-ov"); document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await new Promise(r => setTimeout(r, 300)); return { was, after: !!document.querySelector(".trial-rem-ov"), premOv: !!document.getElementById("premOv") }; });
+  ok("T6 · Escape closes it and never opens the store or the offer", esc.was && !esc.after && !esc.premOv, JSON.stringify(esc));
+  ok("T7 · no JavaScript errors", !o.errs.length, o.errs.join(" | "));
+  await o.ctx.close();
+  /* the cases where it must stay quiet */
+  grant("t2", { status: "trialing", expires: NOW + 70 * 3600e3, product: "premium_monthly" });
+  o = await open({ uid: "t2", owned: own("premium_monthly") }); await sleep(3200);
+  ok("T8 · more than 48 h left (trial day 1) → no reminder yet", !(await trialSheet(o.p))); await o.ctx.close();
+  grant("t3", { status: "trialing", expires: NOW + 30 * 3600e3, product: "premium_monthly" });
+  db.prepare("UPDATE entitlements SET will_renew=0 WHERE uid='dev:t3'").run();
+  o = await open({ uid: "t3", owned: own("premium_monthly") }); await sleep(3200);
+  ok("T9 · a trial the learner already cancelled → no reminder (never pressed to come back)", !(await trialSheet(o.p))); await o.ctx.close();
+  grant("t4", { status: "active", expires: NOW + 30 * 3600e3, product: "premium_monthly" });
+  o = await open({ uid: "t4", owned: own("premium_monthly") }); await sleep(3200);
+  ok("T10 · a paid plan near its renewal (not a trial) → no reminder", !(await trialSheet(o.p))); await o.ctx.close();
+  grant("t5", { status: "trialing", expires: NOW + 30 * 3600e3, product: "premium_monthly" });
+  o = await open({ uid: "t5", owned: own("premium_monthly") });
+  await o.p.evaluate(() => { const d = document.createElement("div"); d.className = "cf-ov"; d.id = "busyDlg"; document.body.appendChild(d); }); await sleep(3200);
+  const waited = await trialSheet(o.p);
+  await o.p.evaluate(() => document.getElementById("busyDlg").remove()); await sleep(1600);
+  ok("T11 · never over another dialog: it waits, then opens once the dialog is gone", !waited && !!(await trialSheet(o.p)));
+  await o.ctx.close();
+}
+
 console.log("\n# H · phones: 320 px, dark / light, Arabic RTL, long translations, reduced motion");
 for (const [lab, o] of [["dark-320", { theme: "dark", vp: { width: 320, height: 568 } }], ["light-320", { theme: "light", vp: { width: 320, height: 568 } }], ["light-390", { theme: "light" }], ["dark-412", { theme: "dark", vp: { width: 412, height: 915 } }], ["ar-360", { lang: "ar", vp: { width: 360, height: 740 } }], ["fr-320", { lang: "fr", vp: { width: 320, height: 568 } }], ["de-320", { lang: "de", vp: { width: 320, height: 568 } }], ["reduced", { motion: "reduce" }]]) {
   const { ctx, p, errs } = await open({ uid: "h-" + lab, ...o });
