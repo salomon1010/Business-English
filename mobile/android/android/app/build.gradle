@@ -67,8 +67,9 @@ android {
             // misleading "No purchases found for this account" to real learners.
             // 23 (30 Oct 2026): web be12-v695 — Premium per app, no offer over a paying
             // learner, the widget and account-deletion fixes. Play held 22 in production.
-            versionCode 23
-            versionName "1.2.4"
+            // 24 (31 Oct 2026): web be12-v696 — adds the trial reminder. Supersedes 23 (a draft, never released).
+            versionCode 24
+            versionName "1.2.5"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -103,8 +104,9 @@ android {
             // 6 went to the internal track on 22 Oct and is superseded for the same
             // reason as the other app's 21 — see the note there.
             // 8 (30 Oct 2026): web be12-v695, as the other app's 23. Play held 7 in production.
-            versionCode 8
-            versionName "1.0.4"
+            // 9 (31 Oct 2026): web be12-v696, as the other app's 24. Supersedes 8 (a draft, never released).
+            versionCode 9
+            versionName "1.0.5"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
