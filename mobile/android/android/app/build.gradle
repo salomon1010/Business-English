@@ -69,8 +69,10 @@ android {
             // learner, the widget and account-deletion fixes. Play held 22 in production.
             // 24 (31 Oct 2026): web be12-v696 — adds the trial reminder. Supersedes 23 (a draft, never released).
             // 25 (31 Oct 2026): web be12-v697 — adds the "same time tomorrow?" prompt and the per-app AI allowance. The production release.
-            versionCode 25
-            versionName "1.2.6"
+            // 26 (31 Oct 2026): web be12-v700 — REAL ADS on (ads_enabled) and Play's in-app review card (BEReviewPlugin).
+            //    Needs "Contains ads: Yes" + the Data safety update in Play Console before it reaches production.
+            versionCode 26
+            versionName "1.2.7"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -107,8 +109,9 @@ android {
             // 8 (30 Oct 2026): web be12-v695, as the other app's 23. Play held 7 in production.
             // 9 (31 Oct 2026): web be12-v696, as the other app's 24. Supersedes 8 (a draft, never released).
             // 10 (31 Oct 2026): web be12-v697, as the other app's 25. The production release.
-            versionCode 10
-            versionName "1.0.6"
+            // 11 (31 Oct 2026): web be12-v700, as the other app's 26 (ads only in the game hubs on Welding).
+            versionCode 11
+            versionName "1.0.7"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
@@ -170,6 +173,8 @@ dependencies {
     implementation "com.google.android.ump:user-messaging-platform:3.2.0"
     // Play Billing Library 8 (required for app updates from 31 Aug 2026), as the TWA used through androidbrowserhelper
     implementation "com.android.billingclient:billing:8.0.0"
+    // Google Play's in-app review card (BEReviewPlugin): rating without leaving the app
+    implementation "com.google.android.play:review:2.0.2"
     // notifications: FCM data messages from be-push (BEMessagingService). Without google-services.json
     // Firebase stays uninitialised and BEPush.available() answers false.
     implementation platform("com.google.firebase:firebase-bom:34.0.0")

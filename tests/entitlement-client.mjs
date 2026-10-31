@@ -42,7 +42,12 @@ console.log("\n# production defaults (nothing deployed)");
   const v = await view(p);
   ok("1 · ENT_API is empty in the shipped build: every learner is Free and no entitlement request is made", v.v.plan === "free" && !v.prem && reqs.length === 0);
   const d = await p.evaluate(() => AdEligibility.decide("interstitial", "lesson_complete", { now: Date.now() + 10 * 60e3 }));
-  ok("2 · ads_enabled is off by default: the policy refuses every ad (flag_off)", d.show === false && d.reason === "flag_off");
+  /* ads_enabled is ON in production since 31 Oct 2026 (owner). The policy may
+     say yes, but a web page has no ad provider (native = the store shells'
+     window.BENativeAds, mock = localhost/staging + its own flag), so nothing
+     is drawn — check 3 below proves no slot exists */
+  const ads = await p.evaluate(() => ({ flag: flag("ads_enabled"), prov: adProvider() === AdProviders.none }));
+  ok("2 · ads_enabled is on by default, and a web page has no ad provider (none)", ads.flag === true && ads.prov === true, JSON.stringify({ d, ads }));
   ok("3 · no ad slot exists anywhere in the page", await p.evaluate(() => !document.querySelector("[data-ad-slot]")));
   ok("4 · dark by default is untouched (fresh page, device appearance Light)", await p.evaluate(() => document.documentElement.getAttribute("data-theme") === "dark"));
   ok("5 · no JavaScript errors", !errs.length, errs.join(" | "));

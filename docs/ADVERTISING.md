@@ -214,7 +214,16 @@ units for Google's test units (`BEAdsPlugin.testUnitsAllowed`).
 | App | App ID | Interstitial | Native advanced | Wired in |
 |---|---|---|---|---|
 | iOS | `ca-app-pub-2222980379604934~5854778049` | `ca-app-pub-2222980379604934/2444172761` | `ca-app-pub-2222980379604934/2737570820` | `mobile/ios/ios/App/App/Info.plist` |
-| Android | `ca-app-pub-2222980379604934~8875603763` | `ca-app-pub-2222980379604934/7191910447` | `ca-app-pub-2222980379604934/1935625045` | **nowhere yet** — the Play app is a TWA with no native ad bridge |
+| Android | `ca-app-pub-2222980379604934~8875603763` | `ca-app-pub-2222980379604934/7191910447` | `ca-app-pub-2222980379604934/1935625045` | `mobile/android/android/app/src/main/res/values/ads.xml` (the Capacitor shell's `BEAdsPlugin.java`; the Play app is no longer a TWA) |
+
+**ON IN PRODUCTION (owner, 31 Oct 2026, be12-v700).** `ads_enabled` is true in
+`FLAGS_DEFAULT`. The web has no provider, so app.lomonec.com shows no ad; the
+store apps show them from the build that carries this bundle (Android General
+English 1.2.7 (26) / Welding 1.0.7 (11); iPhone 1.1.2 (7) / Welding 1.0.1 (4)).
+Before any of those reaches production the owner must: declare **Contains ads:
+Yes** and update **Data safety** in Play Console (both apps — Welding shows ads in
+the game hubs), update the App Store **privacy answers** (advertising data), and
+finish the AdMob **payment profile**. Rollback = `ads_enabled:false` + a store build.
 
 `app-ads.txt` on lomonec.com authorises the publisher. Still open on the
 owner's side: the AdMob payment profile, and linking the App Store listing
