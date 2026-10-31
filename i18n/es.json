@@ -3539,5 +3539,13 @@
  "rem.ask_go": "Recordármelo",
  "ai.ask_h": "Recibe tu informe oral",
  "ai.ask_b": "Acabas de hablar. Con una cuenta gratuita, el coach de IA te da un informe: cómo te has expresado, qué corregir y la frase que podrías haber dicho. La cuenta no cuesta nada; Premium es otra cosa. Tu grabación se guarda.",
- "ai.ask_go": "Crear una cuenta gratuita"
+ "ai.ask_go": "Crear una cuenta gratuita",
+ "prem.web_h": "Premium se consigue en la app",
+ "prem.web_1": "Instala BE Mastery en tu iPhone o en tu teléfono Android.",
+ "prem.web_2": "Suscríbete allí: Apple o Google cobra el pago y empieza tu prueba gratuita.",
+ "prem.web_3": "Inicia sesión aquí con la misma cuenta. Tu Premium también está en la web.",
+ "prem.web_3_in": "Has iniciado sesión: en cuanto te suscribas en la app, tu Premium también estará aquí.",
+ "prem.web_ios_k": "En iPhone",
+ "prem.web_play_k": "En Android",
+ "prem.web_soon": "Próximamente"
 }

@@ -6303,6 +6303,21 @@ h1.big{letter-spacing:-.025em}
 @media (prefers-reduced-motion:reduce){.prem-skel{animation:none}}
 .prem-loading{margin:10px 0 0;text-align:center;font-size:13px}
 .prem-unavail{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--txt);font-size:14px;line-height:1.45}
+/* the web's way to Premium (31 Oct 2026): three numbered steps and the two stores, in the sheet's own glass */
+.prem-web{display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--prem-line);background:linear-gradient(150deg,var(--prem-bg),color-mix(in srgb,var(--card) 88%,transparent));box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 8%,transparent)}
+.prem-web-h{display:flex;align-items:center;gap:8px;margin:0;font-weight:800;font-size:15.5px;color:var(--txt)}
+.prem-web-h svg{width:18px;height:18px;color:var(--prem)}
+.prem-web-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.prem-web-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--txt)}
+.prem-web-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:800;color:#fff;background:var(--prem-grad);box-shadow:0 0 0 3px color-mix(in srgb,var(--prem) 18%,transparent)}
+.prem-web-stores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prem-store{display:flex;flex-direction:column;justify-content:center;gap:1px;min-height:52px;padding:8px 14px;border-radius:14px;text-decoration:none;color:var(--txt);border:1px solid var(--line2);background:color-mix(in srgb,var(--card) 92%,transparent);transition:transform .15s,border-color .15s}
+.prem-store:hover{transform:translateY(-1px);border-color:var(--prem-line)}
+.prem-store-k{font-size:11px;color:var(--mut);letter-spacing:.02em}
+.prem-store b{font-size:15px}
+.prem-store.is-soon{opacity:.6;cursor:default}
+.prem-store.is-soon:hover{transform:none;border-color:var(--line2)}
+@media (prefers-reduced-motion:reduce){.prem-store{transition:none}}
 .prem-unavail p{margin:0;font-weight:600}.prem-unavail small{display:block;color:var(--mut);margin-top:4px;font-size:13px;font-weight:400}
 .prem-unavail-ic{flex:none;color:var(--gold);margin-top:1px}.prem-unavail-ic svg{width:20px;height:20px}
 .prem-note{margin:12px 0 0;font-size:13px}
@@ -7018,6 +7033,8 @@ ProfessionalTrackContext.setActive(BE_APP_TRACK||(S.professionalTracks&&S.profes
 ProfessionalTrackContext.bindActive(()=>BE_APP_TRACK||((typeof S!=="undefined"&&S&&S.professionalTracks)?S.professionalTracks.activeId:null));
 areaSplit();
 function applyTrackIdentity(){
+  /* the web's Premium follows the open programme (entApp): a switch re-asks the plan */
+  try{if(window.__entReady)setTimeout(()=>{try{entOnAppChange()}catch(e){}},0)}catch(e){}
   const track=activeProfessionalTrack();
   const professional=!!track&&track.id!=="general-english";
   document.documentElement.setAttribute("data-track",professional?(track.themeId||track.id):"general");
@@ -7864,6 +7881,14 @@ const I18N_EN={
  "prem.cta":"Continue with Premium",
  "prem.done":"Continue learning",
  "prem.unavailable":"Premium can't be bought on this device yet. You can get it in the BE Mastery app from Google Play.",
+ "prem.web_h":"Premium comes from the app",
+ "prem.web_1":"Get BE Mastery on your iPhone or Android phone.",
+ "prem.web_2":"Subscribe there: Apple or Google takes the payment, and your free trial starts.",
+ "prem.web_3":"Sign in here with the same account. Your Premium is on the web too.",
+ "prem.web_3_in":"You are signed in: once you subscribe in the app, your Premium is here too.",
+ "prem.web_ios_k":"On iPhone",
+ "prem.web_play_k":"On Android",
+ "prem.web_soon":"Coming soon",
  /* iOS must NEVER be sent to Google Play (3 Oct 2026): this is the App Store
     app, and Apple would reject the wording even if a learner could follow it.
     The two are separate keys because the honest answer differs by platform. */
@@ -23083,7 +23108,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v698";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v699";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -25069,9 +25094,18 @@ const ENT_API_PROD="https://entitlements.lomonec.com";
    NOT unlock the other, so every entitlement question names the app it is
    about: entRefresh asks /v1/entitlement?app=<programme> and the cache is
    keyed by (uid, app) so one app's plan can never be drawn in the other.
-   On the web BE_APP_TRACK is null and the question is about the General
-   English app, which is the only app the website has ever sold. */
-function entApp(){return BE_APP_TRACK||AREA_GEN}
+   On the web BE_APP_TRACK is null. Until 31 Oct 2026 the web then always asked
+   about the General English app, so a learner who bought Premium in the WELDING
+   app was Free on the web's Welding programme. The web now asks about the app of
+   the programme that is OPEN (owner: "three ways in, two ways to subscribe" —
+   the web carries whichever store subscription belongs to what you are studying).
+   Only the two store apps' programmes are asked about; anything else is the
+   General English app, as before. */
+const ENT_STORE_APPS=["general-english","welding"];
+function entApp(){
+  if(BE_APP_TRACK)return BE_APP_TRACK;
+  try{const a=areaId();return ENT_STORE_APPS.indexOf(a)>=0?a:AREA_GEN}catch(e){return AREA_GEN}
+}
 /* Is a server view about THIS app? The entitlement service names the app it
    answered about (`app`). An OLDER service does not know about apps at all and
    answers about the account as a whole: that is the pre-split contract and is
@@ -25108,7 +25142,7 @@ const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
 const ENT_CAPS=Object.freeze(["ad_free","ai_analysis","advanced_progress","ai_coach","recommended_content"]);
 const ENT_CAPS_OFF=Object.freeze(ENT_CAPS.reduce((o,k)=>(o[k]=false,o),{ai_allowance:"standard",practice_allowance:"standard"}));
 const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capabilities:ENT_CAPS_OFF,expiresAt:null,startedAt:null,renews:null,source:null});
-let _entView=null,_entUid=null,_entBusy=null;
+let _entView=null,_entUid=null,_entBusy=null,_entBusyApp=null,_entAppK=null;   /* _entAppK: the app the in-memory view is about */
 /* the localStorage override is honoured only on localhost (tests, local
    wrangler dev) — a production page never lets a learner point it elsewhere */
 function entApiBase(){try{if(!IS_IOS_APP&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){const o=localStorage.getItem("be_ent_api");if(o!=null)return o.replace(/\/+$/,"")}}catch(e){}try{const env=beEnv();if(env&&env.entitlements)return env.entitlements}catch(e){}return ENT_API}
@@ -25150,7 +25184,7 @@ function entCacheRead(uid){
 /* the plan as this screen should DRAW it — signed out or unknown = FREE */
 function entView(){
   const uid=entUid();if(!uid)return ENT_FREE;
-  if(_entView&&_entUid===uid)return _entView;
+  if(_entView&&_entUid===uid&&_entAppK===entApp())return _entView;
   return entCacheRead(uid)||ENT_FREE;
 }
 function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v.paid===true}
@@ -25553,7 +25587,18 @@ function planLimit(name,plan){
   try{const o=PLAN_LIMITS_TRACK[areaId()];if(o&&o[k]&&o[k][name]!==undefined)return o[k][name]}catch(e){}
   const v=PLAN_LIMITS[k][name];return v===undefined?null:v;
 }
-function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
+function entWipe(){_entView=null;_entUid=null;_entAppK=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
+/* the open programme changed (web only — a store app's programme is fixed): its app's
+   plan is a different answer, so draw from that app's cache and ask the server again */
+function entOnAppChange(){
+  try{
+    if(BE_APP_TRACK||!entUid())return;
+    if(_entAppK&&_entAppK===entApp())return;
+    entApply();
+    if(entApiBase())entRefresh();
+  }catch(e){}
+}
+window.__entReady=true;
 /* Plan changes for release analytics (Phase 12A): compare the server's new
    answer with the LAST one this account saw (memory, else the raw cache — the
    display TTL does not matter here) and count Premium ending, being refunded
@@ -25577,27 +25622,32 @@ const ENT_RECHECK_MS=5*60e3;let _entAskedAt=0;
 function entRefreshSoon(force){try{if(!entUid()||!entApiBase())return;if(!force&&Date.now()-_entAskedAt<ENT_RECHECK_MS)return;_entAskedAt=Date.now();entRefresh()}catch(e){}}
 async function entRefresh(){
   _entAskedAt=Date.now();
-  const uid=entUid(),base=entApiBase();
+  const uid=entUid(),base=entApiBase(),app=entApp();
   if(!uid){entWipe();entApply();return ENT_FREE}
   if(!base)return entView();
-  if(_entBusy)return _entBusy;
-  _entBusy=(async()=>{
+  /* one request per app at a time: a programme switch mid-request asks again for
+     the new app rather than reuse the answer about the old one */
+  if(_entBusy&&_entBusyApp===app)return _entBusy;
+  _entBusyApp=app;
+  const job=(async()=>{
+    await null;                                                        /* yield first: the finally below reads `job`, which a synchronous throw would reach before it is assigned */
     try{
-      const r=await fetch(base+"/v1/entitlement?app="+encodeURIComponent(entApp()),{headers:{authorization:"Bearer "+await FBUser.getIdToken()}});
+      const r=await fetch(base+"/v1/entitlement?app="+encodeURIComponent(app),{headers:{authorization:"Bearer "+await FBUser.getIdToken()}});
       if(r.status===401){entWipe();return ENT_FREE}
       if(!r.ok)return entView();                                      /* server trouble: keep what we last knew (display only) */
       const j=await r.json();
       /* an answer about another app — or from a service too old to say which —
          is not this app's plan: Free, and nothing cached */
-      if(!entViewIsOurs(j)){entWipe();_entView=ENT_FREE;_entUid=uid;return ENT_FREE}
+      if(!entViewIsOurs(j)){if(app===entApp()){entWipe();_entView=ENT_FREE;_entUid=uid;_entAppK=app}return ENT_FREE}
       const v=entSanitize(j);
-      entNoteChange(uid,v);entPaidNote(uid,v);
-      _entView=v;_entUid=uid;
-      try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,app:entApp(),at:Date.now(),view:v}))}catch(e){}
+      /* the answer is about the app ASKED; keep it in memory only while that is still the open one */
+      if(app===entApp()){entNoteChange(uid,v);entPaidNote(uid,v);_entView=v;_entUid=uid;_entAppK=app;
+        try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,app,at:Date.now(),view:v}))}catch(e){}}
       return v;
     }catch(e){return entView()}
-    finally{_entBusy=null;entApply();try{_wgRecs.at=0;widgetSync(true)}catch(e){}}
+    finally{if(_entBusy===job){_entBusy=null;_entBusyApp=null}entApply();try{_wgRecs.at=0;widgetSync(true)}catch(e){}}
   })();
+  _entBusy=job;
   return _entBusy;
 }
 /* account deletion: the entitlement row goes with the account (a store
@@ -26622,7 +26672,7 @@ function billingWhyText(why){
    it cannot be this app's plan. */
 function billingTakeView(v){if(!v)return;
   try{if(typeof v.app==="string"&&v.app&&v.app!==entApp())return}catch(e){}
-  const s=entSanitize(v);entNoteChange(entUid(),s);entPaidNote(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,app:entApp(),at:Date.now(),view:s}))}catch(e){}entApply()}
+  const s=entSanitize(v);entNoteChange(entUid(),s);entPaidNote(entUid(),s);_entView=s;_entUid=entUid();_entAppK=entApp();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,app:entApp(),at:Date.now(),view:s}))}catch(e){}entApply()}
 
 /* WHY THE STORE IS NOT THERE (3 Oct 2026). "Premium can't be bought on this
    device" was one message for five different causes, so a physical failure
@@ -26849,6 +26899,24 @@ function premBenHTML(){
   return rows.length?`<ul class="prem-ben">${rows.join("")}</ul>`:"";
 }
 /* exactly ONE billing-unavailable message, never a second Close button (the X leaves) */
+/* The App Store listing of each programme's app, once it is LIVE (released, not just
+   submitted — an unreleased listing answers 404). Welding: id 6822527532, in its first
+   review on 31 Oct 2026; set it here the day Apple releases it. */
+const APP_STORE_IDS={[AREA_GEN]:"6817207864",welding:""};
+function appStoreUrl(){const id=APP_STORE_IDS[entApp()]||"";return id?"https://apps.apple.com/app/id"+id:""}
+function premWebHTML(){
+  const ios=appStoreUrl(),signed=!!FBUser;
+  const step=(n,txt)=>`<li><span class="prem-web-n" aria-hidden="true">${n}</span><span>${esc(txt)}</span></li>`;
+  return `<div class="prem-web" role="group" aria-labelledby="premWebH">
+    <p class="prem-web-h" id="premWebH">${ic("phone")}<span>${esc(t("prem.web_h"))}</span></p>
+    <ol class="prem-web-steps">${step(1,t("prem.web_1"))}${step(2,t("prem.web_2"))}${step(3,t(signed?"prem.web_3_in":"prem.web_3"))}</ol>
+    <div class="prem-web-stores">
+      ${ios?`<a class="prem-store" href="${esc(ios)}" target="_blank" rel="noopener"><span class="prem-store-k">${esc(t("prem.web_ios_k"))}</span><b>App Store</b></a>`:`<span class="prem-store is-soon" aria-disabled="true"><span class="prem-store-k">${esc(t("prem.web_ios_k"))}</span><b>${esc(t("prem.web_soon"))}</b></span>`}
+      <a class="prem-store" href="${esc(playUrl())}" target="_blank" rel="noopener"><span class="prem-store-k">${esc(t("prem.web_play_k"))}</span><b>Google Play</b></a>
+    </div>
+    ${signed?"":`<button type="button" class="btn btn-g prem-wide prem-web-in" onclick="premClose();fbOpenModal('in')">${esc(t("acc.prem_signin"))}</button>`}
+  </div>`;
+}
 function premUnavailHTML(msg,hint,retry){
   return `<div class="prem-unavail" role="status"><span class="prem-unavail-ic" aria-hidden="true">${ic("alert")}</span><div><p>${esc(msg)}</p>${hint?`<small>${esc(hint)}</small>`:""}</div></div>${retry?`<button type="button" class="btn btn-g prem-wide prem-retry" onclick="premRetry()">${esc(t("prem.retry"))}</button>`:""}`;
 }
@@ -26886,18 +26954,19 @@ function premMainHTML(){
      unavailable wording has to match the store the device actually has. */
   if(B.state==="loading")return `<div aria-hidden="true"><div class="prem-skel"></div></div><p class="sub prem-loading" role="status">${esc(t("acc.prem_loading"))}</p>`;
   if(!B.provider){
+    /* THREE WAYS IN, TWO WAYS TO SUBSCRIBE (owner, 31 Oct 2026). A plain browser is
+       not a broken store: it is the third way in. Premium is bought in the iPhone or
+       Android app (Apple or Google takes the payment) and, signed in with the same
+       account, it is on the web too — for the programme that is open (entApp). So
+       the web gets the way there, not a warning, and no purchase_failed event: a
+       web visitor reading this has not failed anything. */
+    if(!IS_IOS_APP&&!isPlayApp())return premWebHTML();
     const why=billingWhy();
-    try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":isPlayApp()?"google_play":"none",reason:String(why).slice(0,24)})}catch(e){}
+    try{track("purchase_failed",{provider:IS_IOS_APP?"app_store":"google_play",reason:String(why).slice(0,24)})}catch(e){}
     /* the code is shown, small, under the message: a learner can read it back
        to us and it is the difference between a guess and an answer */
-    /* A plain browser is not a broken store, it is the web: Premium is bought
-       in the app, and prem.unavailable already says so, so give the learner
-       the way there. playUrl() is the listing for the programme this app is
-       in, so the standalone Welding web app points at the Welding app. */
-    const web=!IS_IOS_APP&&!isPlayApp();
-    const get=web?`<a class="btn btn-g prem-wide" href="${esc(playUrl())}" target="_blank" rel="noopener">${esc(t("land.play"))}</a>`:"";
-    return premUnavailHTML(t(IS_IOS_APP||isPlayApp()?"prem.unavailable_ios":"prem.unavailable"),"",false)   /* inside either store app: "close and reopen", never "get it from Google Play" */
-      +get+`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
+    return premUnavailHTML(t("prem.unavailable_ios"),"",false)   /* inside either store app: "close and reopen", never "get it from Google Play" */
+      +`<p class="sub" style="margin-top:6px;font-size:11px;opacity:.7">${esc(why)}</p>`;
   }
   /* A purchase needs an account, so every REAL store asks to sign in first and
      the foot carries that button. The staging preview is not a purchase — it

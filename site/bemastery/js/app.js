@@ -96,13 +96,15 @@
       }).join(" ") + " " + T("It will be listed here the moment it is live.") + '</span>';
   }
 
-  /* every [data-stores] host renders both stores, in the order given */
+  /* every [data-stores] host renders both stores, in the order given —
+     or only one with data-store-only="ios|android" (the three-ways cards) */
   function buildStores() {
     $$("[data-stores]").forEach(function (host) {
       var source = host.dataset.stores || "page";
       var size   = host.dataset.storeSize || "";
-      host.innerHTML = storeBtn(C.stores.ios, source, size) +
-                       storeBtn(C.stores.android, source, size);
+      var only   = host.dataset.storeOnly || "";
+      host.innerHTML = (only !== "android" ? storeBtn(C.stores.ios, source, size) : "") +
+                       (only !== "ios" ? storeBtn(C.stores.android, source, size) : "");
     });
   }
 

@@ -27,12 +27,13 @@ window.BEM = (function () {
      AND it has been released: until then the listing page answers 404, and
      the badge would be a dead link. false = an honest "Coming soon" badge.   */
   var APP_STORE_URL   = "https://apps.apple.com/app/id6817207864";
-  var IOS_LIVE        = false;
+  var IOS_LIVE        = true;    /* General English 1.1.0 released 31 Oct 2026; the Welding page forces its own badge to coming_soon */
   var GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.bemastery.app";
 
-  /* The app's own pages (privacy, help, delete account). BE Mastery is used
-     through the two store apps only (owner, 7 Oct 2026): nothing on this site
-     sends a learner to the web app to practise or to sign in. */
+  /* The app's own pages (privacy, help, delete account) and the web app.
+     THREE WAYS IN, TWO WAYS TO SUBSCRIBE (owner, 31 Oct 2026 — this reverses
+     the 7 Oct "store apps only" rule): iPhone, Android and the web; Premium is
+     bought through Apple or Google and follows the account to the web, per app. */
   var APP = "https://app.lomonec.com/";
 
   return {

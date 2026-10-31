@@ -25,13 +25,13 @@ const DAY = 864e5, NOW = Date.now();
 const db = new DatabaseSync(":memory:");
 for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
-const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app", APP_PROGRAMMES: "general-english" };
-const grant = (uid, { status = "active", expires = NOW + 30 * DAY, product = "premium_annual" } = {}) =>
+const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", PLAY_PACKAGE: "com.bemastery.app,com.lomonec.bemastery.welding", APP_PROGRAMMES: "general-english,welding" };
+const grant = (uid, { status = "active", expires = NOW + 30 * DAY, product = "premium_annual", app = "general-english" } = {}) =>
   /* PER-APP ENTITLEMENT (migration 0005): the derived row is per (account, app).
      These suites exercise the General English app — the web build, and what every
      pre-split purchase is. */
   db.prepare("INSERT OR REPLACE INTO entitlements(uid,app_id,plan,product,status,starts_at,expires_at,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)")
-    .run("dev:" + uid, "general-english", "premium", product, status, NOW - DAY, expires, "google_play", "test", Date.now());
+    .run("dev:" + uid, app, "premium", product, status, NOW - DAY, expires, "google_play", "test", Date.now());
 
 const PLAY_STUB = ({ trial, products, owned }) => {
   window.__play = { shows: [], lists: 0, noProducts: !products, trial, owned: owned || [] };
@@ -151,7 +151,9 @@ console.log("\n# D · no store at all (the open web) · E · signed out");
 {
   const { ctx, p } = await open({ uid: "d1", stub: false });
   const s = await openSheet(p);
-  ok("D1 · no provider: one plain message (get it from Google Play), the benefits still shown, no price, no Close button, the X leaves", s.unavail === 1 && /can't be bought on this device yet/.test(s.unavailText) && (s.text.match(/can't be bought/g) || []).length === 1 && s.ben.length === 5 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
+  /* three ways in, two ways to subscribe (owner, 31 Oct 2026): the web gets the way to Premium, not a warning */
+  const web = await p.evaluate(() => { const w = document.querySelector("#premOv .prem-web"); return w ? { text: w.innerText.replace(/\s+/g, " "), links: [...w.querySelectorAll("a")].map(a => a.href) } : null; });
+  ok("D1 · no provider (the web): the three steps and both stores, no warning, the benefits still shown, no price, no Close button, the X leaves", web && /Premium comes from the app/.test(web.text) && web.links.some(h => /apps\.apple\.com\/app\/id6817207864/.test(h)) && web.links.some(h => /play\.google\.com\/store\/apps\/details\?id=com\.bemastery\.app/.test(h)) && s.unavail === 0 && !/can't be bought/.test(s.text) && s.ben.length === 5 && !/\$/.test(s.text) && !s.closeBtn && !s.xHidden && s.ctas === 0, JSON.stringify({ web, u: s.unavailText, ben: s.ben.length, close: s.closeBtn }));
   await shot(p, "sheet-noprovider-dark-390");
   await ctx.close();
   const o = await open({ uid: null });
@@ -290,7 +292,8 @@ console.log("\n# J · the General English boundary: Welding");
      the opposite while Premium was General-English-only. */
   ok("J1 · Welding, Free: the SAME offer and management surfaces as General English — one subscription, one paywall", w.prof && w.offered && w.card && w.sub, JSON.stringify(w));
   await ctx.close();
-  grant("j2"); const o = await open({ track: "welding", uid: "j2", owned: [{ itemId: "premium_monthly", purchaseToken: "tok_j2_" + "j".repeat(20) }] });
+  /* per app (owner, 31 Oct 2026): a paying WELDING learner is one with the Welding subscription */
+  grant("j2", { app: "welding" }); const o = await open({ track: "welding", uid: "j2", owned: [{ itemId: "premium_monthly", purchaseToken: "tok_j2_" + "j".repeat(20) }] });
   const v = await o.p.evaluate(async () => { go("profile"); await new Promise(r => setTimeout(r, 400)); const row = document.querySelector(".pf-prem .pf-row"); go("data"); await new Promise(r => setTimeout(r, 600)); const c = document.getElementById("subCard"); return { row: row && row.textContent.replace(/\s+/g, " "), sub: c ? c.innerText.replace(/\s+/g, " ") : null }; });
   ok("J2 · Welding, Premium: the Subscription row and card still exist (a paying learner can manage the plan)", v.row && /Subscription/.test(v.row) && /Premium/.test(v.row) && v.sub && /Manage subscription/.test(v.sub), JSON.stringify(v));
   await o.ctx.close();

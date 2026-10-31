@@ -33,7 +33,7 @@ async function open({ dgs, preview = true }) {
   await p.evaluate(async () => { await Billing.init(); });   /* signed out: the store is still looked up, as at boot (same as premium-acquisition.mjs) */
   await p.evaluate(() => premiumOpen("test")); await sleep(1800);
   const s = await p.evaluate(() => { const o = document.getElementById("premOv"); const t = o ? o.innerText : "";
-    return { open: !!o, provider: Billing.provider ? Billing.provider.id : null, state: Billing.state, preview: !!(o && o.querySelector(".prem-preview")), unavail: !!(o && o.querySelector(".prem-unavail")), noStore: /no_store/.test(t), price: /19\.99/.test(t), asked: window.__dgsAsked || 0, text: t.slice(0, 200) }; });
+    return { open: !!o, provider: Billing.provider ? Billing.provider.id : null, state: Billing.state, preview: !!(o && o.querySelector(".prem-preview")), unavail: !!(o && o.querySelector(".prem-unavail")), web: !!(o && o.querySelector(".prem-web")), noStore: /no_store/.test(t), price: /19\.99/.test(t), asked: window.__dgsAsked || 0, text: t.slice(0, 200) }; });
   await ctx.close(); return { ...s, errs };
 }
 
@@ -44,7 +44,7 @@ ok("2 · a browser without the Play API (desktop, Safari): the preview provider,
 const t = await open({ dgs: "twa" });
 ok("3 · inside the Play app (the API resolves): the REAL Play provider wins and the preview stays out (signed out, so the store is not asked for prices yet — the sheet asks to sign in)", t.open && t.provider === "google_play" && !t.preview && !t.unavail && !t.noStore, JSON.stringify(t));
 const off = await open({ dgs: "reject", preview: false });
-ok("4 · with the preview flag off (production), a plain browser gets the honest card — Premium is bought in the store app — and the reason code no_store under it", off.open && off.provider === null && off.unavail && off.noStore && !off.price, JSON.stringify(off));
+ok("4 · with the preview flag off (production), a plain browser gets the way to Premium — the three steps and both stores (three ways in, two ways to subscribe, 31 Oct 2026) — not a warning, and no price", off.open && off.provider === null && off.web && !off.unavail && !off.price, JSON.stringify(off));
 ok("5 · no JavaScript errors", [a, n, t, off].every(x => !x.errs.length), JSON.stringify([a, n, t, off].flatMap(x => x.errs)));
 
 await b.close(); srv.kill();

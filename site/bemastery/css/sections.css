@@ -542,3 +542,30 @@
 .faq-q[open] .faq-chev{transform:rotate(-135deg) translate(-2px,-2px)}
 .faq-q p{padding:0 20px 18px;color:var(--color-muted);font-size:15px;line-height:1.6}
 @media (prefers-reduced-motion:reduce){.faq-chev{transition:none}}
+
+/* ── THREE WAYS IN, TWO WAYS TO SUBSCRIBE (owner, 31 Oct 2026) ──────────────
+   Three glass doors (iPhone, Android, web) on a faint circuit grid, then the one
+   rule about paying: Apple or Google, and the plan follows you to the web. */
+.ways-sec .wrap{position:relative}
+.ways-grid{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:34px}
+.ways-grid::before{content:"";position:absolute;inset:-30px -10px;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(129,140,248,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(129,140,248,.07) 1px,transparent 1px);background-size:36px 36px;
+  mask-image:radial-gradient(70% 70% at 50% 40%,#000 35%,transparent 80%);-webkit-mask-image:radial-gradient(70% 70% at 50% 40%,#000 35%,transparent 80%)}
+.way{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;text-align:start;gap:12px;padding:26px 24px;border-radius:var(--radius-lg);transition:transform .25s,box-shadow .25s,border-color .25s}
+.way:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(99,102,241,.22);border-color:rgba(129,140,248,.4)}
+.way-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;background:var(--grad-cta);box-shadow:0 0 0 1px rgba(255,255,255,.14),0 10px 30px rgba(59,130,246,.38)}
+.way-ic svg{width:26px;height:26px}
+.way h3{margin:4px 0 0;font-size:20px;color:#fff}
+.way p{margin:0;color:var(--color-muted);font-size:15.5px;line-height:1.55}
+.way .way-k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent);font-weight:700}
+.way .stores{margin-top:auto;justify-content:flex-start}
+.way .btn{margin-top:auto;align-self:flex-start}
+.ways-pay{position:relative;z-index:1;margin-top:22px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;padding:24px 26px;border-radius:var(--radius-lg);
+  background:linear-gradient(100deg,rgba(34,211,238,.1),rgba(99,102,241,.14) 55%,rgba(168,85,247,.12));border:1px solid rgba(34,211,238,.25)}
+.ways-pay .pay-pair{display:flex;gap:10px}
+.ways-pay .pay-pair b{display:inline-flex;align-items:center;justify-content:center;min-width:64px;height:48px;padding:0 14px;border-radius:14px;color:#fff;font-size:14px;letter-spacing:.02em;background:rgba(255,255,255,.07);border:1px solid var(--color-border-strong)}
+.ways-pay p{margin:0;font-size:16px;line-height:1.6}
+.ways-pay p strong{color:#fff}
+.ways-pay small{display:block;margin-top:6px;color:var(--color-muted);font-size:14px}
+@media (max-width:900px){.ways-grid{grid-template-columns:1fr}.ways-pay{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.way{transition:none}.way:hover{transform:none}}

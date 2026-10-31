@@ -41,7 +41,8 @@ async function open({ track = "general-english", billing = true, api = true, pla
   const ALLOW = JSON.stringify({ used: 1, limit: 3, resetAt: Date.now() + 3600e3, plan: "free" });
   await ctx.route(u => /be-polish/.test(u.href), r => { ai.push({ url: r.request().url(), auth: r.request().headers()["authorization"] || null, body: r.request().postData() }); r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*", "access-control-expose-headers": "X-BE-Allowance, X-BE-Video-Allowance", "x-be-allowance": ALLOW }, body: "{}" }); });
   await ctx.route(u => /be-events|be-partner|cloudflareinsights|youtube|ytimg/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
-  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(plan) }));
+  /* like the real service, the answer names the app it is about (per app, owner 31 Oct 2026) */
+  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(plan ? { ...plan, app: new URL(r.request().url()).searchParams.get("app") || "general-english" } : plan) }));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(1500);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#premOv").forEach(e => e.remove()));
@@ -154,7 +155,8 @@ console.log("\n# Welding shares the ONE subscription (owner, 30 September 2026 �
 {
   const { ctx, p } = await open({ track: "welding", plan: PREMIUM });
   const g = await gates(p);
-  ok("26b · the same purchase makes Welding Premium — no second subscription", CAPABILITIES.every(k => g.has[k] === true) && g.aiOffAnalysis === false, JSON.stringify(g.has));
+  const asks = await p.evaluate(() => entApp());
+  ok("26b · Welding with ITS OWN subscription is Premium, and the plan asked about is the Welding app's (Premium is per app)", asks === "welding" && CAPABILITIES.every(k => g.has[k] === true) && g.aiOffAnalysis === false, JSON.stringify({ asks, has: g.has }));
   await ctx.close();
 }
 

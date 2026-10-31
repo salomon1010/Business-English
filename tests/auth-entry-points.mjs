@@ -37,7 +37,7 @@ const wrong = labelled.filter(c => c.want !== c.arg);
 ok("3 · every labelled button opens the mode its words promise: Log in / Sign in → Log in; Create / Register → Create account", labelled.length >= 8 && wrong.length === 0, JSON.stringify(wrong.map(c => ({ line: c.line, arg: c.arg, want: c.want, src: c.src.slice(0, 160) }))));
 
 const premCard = calls.filter(c => c.src.includes("acc.prem_signin"));
-ok("4 · both 'Sign in to get Premium' buttons (plan card + Premium sheet foot) open Log in", premCard.length === 2 && premCard.every(c => c.arg === "in"), JSON.stringify(premCard.map(c => [c.line, c.arg])));
+ok("4 · all three 'Sign in to get Premium' buttons (plan card, Premium sheet foot, the web 'subscribe in the app' card) open Log in", premCard.length === 3 && premCard.every(c => c.arg === "in"), JSON.stringify(premCard.map(c => [c.line, c.arg])));
 
 const pp = calls.filter(c => c.src.includes("pp.signin_btn"));
 ok("5 · both Practice Partner 'Create my free account' buttons open Create account", pp.length === 2 && pp.every(c => c.arg === "up"), JSON.stringify(pp.map(c => [c.line, c.arg])));

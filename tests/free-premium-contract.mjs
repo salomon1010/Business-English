@@ -104,7 +104,8 @@ async function learner({ track = "general-english", plan = null, heard = "we mus
      shLoad waits for the real player before the Challenge panel exists — the
      same arrangement tests/shadow-challenge.mjs uses */
   await ctx.route(u => /be-events|be-partner|be-push|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
-  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(plan || FREE) }));
+  /* like the real service, the answer names the app it is about (per app, owner 31 Oct 2026) */
+  await ctx.route("http://ent.test/**", r => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify({ ...(plan || FREE), app: new URL(r.request().url()).searchParams.get("app") || "general-english" }) }));
   const p = await ctx.newPage();
   const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html?t=" + Date.now()); await sleep(1500);
@@ -342,8 +343,8 @@ console.log("\n# 8. WELDING — one subscription, and the free loop whole on bot
   ok("8.3 · a Welding spoken turn comes back as words, with no Premium wall mid-activity", /delivery date/.test(turn.said) && !turn.why, JSON.stringify(turn));
   ok("8.4 · Welding is not sold the removed 'spoken back' row either", !g.rows.some(r => /spoken back|aloud/i.test(r)), JSON.stringify(g.rows));
   const prem = await learner({ track: "welding", plan: PREMIUM });
-  ok("8.5 · the same purchase makes Welding Premium — no second subscription, no second question",
-    await prem.p.evaluate(() => entGated() && hasEntitlement("ai_analysis") === true && aiOff("ai_analysis") === false));
+  ok("8.5 · Welding with ITS OWN subscription is Premium, asked about the Welding app (Premium is per app)",
+    await prem.p.evaluate(() => entApp() === "welding" && entGated() && hasEntitlement("ai_analysis") === true && aiOff("ai_analysis") === false));
   await prem.ctx.close(); await L.ctx.close();
 }
 
