@@ -22,7 +22,7 @@ BE_APP_GROUP = group.com.lomonec.bemastery.welding
 BE_DISPLAY_NAME = BE Welding
 BE_PROGRAMME = welding
 MARKETING_VERSION = 1.0.1
-CURRENT_PROJECT_VERSION = 4
+CURRENT_PROJECT_VERSION = 5
 
 // Branding (13 Oct 2026). The project's own AppIcon and LaunchScreen are the
 // EXISTING General English app's and are not touched; the Welding build selects
@@ -30,3 +30,14 @@ CURRENT_PROJECT_VERSION = 4
 // branding/welding/logo-master.png by scripts/branding/make-welding-icons.py.
 BE_APPICON_NAME = AppIconWelding
 BE_LAUNCH_STORYBOARD = LaunchScreenWelding
+
+// AdMob (31 Oct 2026). An AdMob app belongs to ONE store listing, so Welding must
+// never send its ad requests under the General English app's ids (the project
+// default). Welding has no AdMob app yet: the APP id is Google's sample one, only
+// so the SDK has a well-formed value to load with, and the two UNITS are EMPTY, so
+// BEAdsPlugin.configure answers "not_configured" in a store build and shows
+// nothing (a debug / staging build swaps in Google's test units, as before).
+// When the owner creates the Welding iOS app in AdMob, put its three ids here.
+BE_ADMOB_APP_ID = ca-app-pub-3940256099942544~1458002511
+BE_ADMOB_INTERSTITIAL =
+BE_ADMOB_NATIVE =

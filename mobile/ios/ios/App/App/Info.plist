@@ -5,9 +5,9 @@
 	<key>BEAdsAllowTestUnits</key>
 	<true/>
 	<key>BEAdsInterstitialUnitId</key>
-	<string>ca-app-pub-2222980379604934/2444172761</string>
+	<string>$(BE_ADMOB_INTERSTITIAL)</string>
 	<key>BEAdsNativeUnitId</key>
-	<string>ca-app-pub-2222980379604934/2737570820</string>
+	<string>$(BE_ADMOB_NATIVE)</string>
 	<key>BEAppGroup</key>
 	<string>$(BE_APP_GROUP)</string>
 	<key>BEGoogleIosClientID</key>
@@ -48,7 +48,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-2222980379604934~5854778049</string>
+	<string>$(BE_ADMOB_APP_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

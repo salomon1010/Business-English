@@ -76,6 +76,11 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         return s.range(of: "^ca-app-pub-[0-9]{16}~[0-9]{10}$", options: .regularExpression) != nil
     }
 
+    /// true when any of the ids belongs to Google's sample publisher (3940256099942544)
+    static func isSamplePublisher(_ ids: String?...) -> Bool {
+        ids.contains { ($0 ?? "").hasPrefix("ca-app-pub-3940256099942544") }
+    }
+
     static func validUnitId(_ s: String?) -> Bool {
         guard let s = s else { return false }
         return s.range(of: "^ca-app-pub-[0-9]{16}/[0-9]{10}$", options: .regularExpression) != nil
@@ -158,6 +163,13 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
             nativeU = BEAdsPlugin.testNative
         }
         guard BEAdsPlugin.validAppId(appId), BEAdsPlugin.validUnitId(inter), BEAdsPlugin.validUnitId(nativeU) else {
+            call.resolve(BEAdsPlugin.unavailable("not_configured")); return
+        }
+        // Google's SAMPLE publisher is a placeholder, never configuration: in a store
+        // build it would put "Test Ad" creatives in front of real learners. The
+        // Welding app carries it until it has its own AdMob app (Welding.xcconfig),
+        // and the Android shell refuses it the same way.
+        if !BEAdsPlugin.testUnitsAllowed && BEAdsPlugin.isSamplePublisher(appId, inter, nativeU) {
             call.resolve(BEAdsPlugin.unavailable("not_configured")); return
         }
         interstitialUnit = inter

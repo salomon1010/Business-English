@@ -144,8 +144,12 @@ console.log("\n# BEAdsPlugin.swift — two formats, fail closed, no tracking");
     /<key>BEAdsAllowTestUnits<\/key>\s*<true\/>/.test(PLIST) && /return asked && sandboxBuild/.test(CODE));
   /* 8 Oct 2026: Lomonec's AdMob account exists; the real app id is in the plist for
      every configuration (Google: real app id + test units while developing) */
-  ok("XAe · the AdMob app id in Info.plist is Lomonec's real one, in every configuration",
-    /<key>GADApplicationIdentifier<\/key>\s*<string>ca-app-pub-2222980379604934~5854778049<\/string>/.test(PLIST));
+  /* 31 Oct 2026: the ids are build settings (BE_ADMOB_*), so the Welding app can carry
+     its own instead of General English's; the project default is General English's */
+  const pbxAdmob = k => (PBX.match(new RegExp(k + ' = "([^"]*)";', "g")) || []).map(x => x.split('"')[1]);
+  ok("XAe · the AdMob app id comes from BE_ADMOB_APP_ID, and the project default is Lomonec's real General English id in every configuration",
+    /<key>GADApplicationIdentifier<\/key>\s*<string>\$\(BE_ADMOB_APP_ID\)<\/string>/.test(PLIST)
+    && pbxAdmob("BE_ADMOB_APP_ID").length === 2 && pbxAdmob("BE_ADMOB_APP_ID").every(v => v === "ca-app-pub-2222980379604934~5854778049"), JSON.stringify(pbxAdmob("BE_ADMOB_APP_ID")));
   ok("XAf · no build configuration overrides it any more (the old BE_ADS_APP_ID setting is read by nothing)",
     !/\$\(BE_ADS_APP_ID\)/.test(PLIST), JSON.stringify({ Debug: cfgAppId("Debug"), Release: cfgAppId("Release") }));
   ok("XB · no fill, no scene and a failed present are ordinary answers, not errors",
@@ -176,10 +180,22 @@ console.log("\n# plugin registration and the Xcode project");
 console.log("\n# Info.plist and PrivacyInfo.xcprivacy");
 {
   ok("P1 · the AdMob app id and both ad units are declared", /<key>GADApplicationIdentifier<\/key>/.test(PLIST) && /<key>BEAdsInterstitialUnitId<\/key>/.test(PLIST) && /<key>BEAdsNativeUnitId<\/key>/.test(PLIST));
-  ok("P2 · the ad UNITS are Lomonec's real interstitial and native units (a debug / staging build swaps them for Google's — XAd)",
-    /<key>BEAdsInterstitialUnitId<\/key>\s*<string>ca-app-pub-2222980379604934\/2444172761<\/string>/.test(PLIST)
-    && /<key>BEAdsNativeUnitId<\/key>\s*<string>ca-app-pub-2222980379604934\/2737570820<\/string>/.test(PLIST)
+  const pbxU = k => (PBX.match(new RegExp(k + ' = "([^"]*)";', "g")) || []).map(x => x.split('"')[1]);
+  ok("P2 · the ad UNITS come from build settings and default to Lomonec's real General English units (a debug / staging build swaps them for Google's — XAd)",
+    /<key>BEAdsInterstitialUnitId<\/key>\s*<string>\$\(BE_ADMOB_INTERSTITIAL\)<\/string>/.test(PLIST)
+    && /<key>BEAdsNativeUnitId<\/key>\s*<string>\$\(BE_ADMOB_NATIVE\)<\/string>/.test(PLIST)
+    && pbxU("BE_ADMOB_INTERSTITIAL").every(v => v === "ca-app-pub-2222980379604934/2444172761") && pbxU("BE_ADMOB_INTERSTITIAL").length === 2
+    && pbxU("BE_ADMOB_NATIVE").every(v => v === "ca-app-pub-2222980379604934/2737570820") && pbxU("BE_ADMOB_NATIVE").length === 2
     && !/ca-app-pub-REPLACE/.test(PLIST));
+  /* the Welding app must never request ads under General English's AdMob app */
+  const WXC = read("mobile/ios/ios/App/Welding.xcconfig");
+  const wx = k => ((WXC.match(new RegExp("^" + k + " *=(.*)$", "m")) || [])[1] || "").trim();
+  ok("P2w · Welding.xcconfig overrides all three: never General English's ids; without its own AdMob app the units are empty",
+    !/2222980379604934~5854778049|2444172761|2737570820/.test(WXC) && /^ca-app-pub-[0-9]{16}~[0-9]{10}$/.test(wx("BE_ADMOB_APP_ID"))
+    && (wx("BE_ADMOB_INTERSTITIAL") === "" || /^ca-app-pub-(?!3940256099942544)[0-9]{16}\/[0-9]{10}$/.test(wx("BE_ADMOB_INTERSTITIAL")))
+    && (wx("BE_ADMOB_NATIVE") === "" || /^ca-app-pub-(?!3940256099942544)[0-9]{16}\/[0-9]{10}$/.test(wx("BE_ADMOB_NATIVE"))), JSON.stringify([wx("BE_ADMOB_APP_ID"), wx("BE_ADMOB_INTERSTITIAL"), wx("BE_ADMOB_NATIVE")]));
+  ok("P2s · a store build refuses Google's sample publisher (no 'Test Ad' in front of a learner)",
+    /if !BEAdsPlugin\.testUnitsAllowed && BEAdsPlugin\.isSamplePublisher\(appId, inter, nativeU\)/.test(SWIFT) && /hasPrefix\("ca-app-pub-3940256099942544"\)/.test(SWIFT));
   ok("P2b · and the only AdMob account in the plist is Lomonec's (pub-2222980379604934)", !/ca-app-pub-(?!2222980379604934)[0-9]{16}/.test(PLIST), (PLIST.match(/ca-app-pub-[0-9]{16}[~/][0-9]{10}/g) || []).join(","));
   ok("P3 · no App Tracking Transparency prompt is declared (this release is non-personalised)", !/<key>NSUserTrackingUsageDescription<\/key>/.test(PLIST));
   ok("P4 · no SKAdNetwork attribution list (nothing is attributed without tracking)", !/<key>SKAdNetworkItems<\/key>/.test(PLIST));
