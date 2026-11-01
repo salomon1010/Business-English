@@ -917,6 +917,13 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 /* the speaker stays in view while the words scroll under — shadowing needs the
    face and the line at the same time */
 #shWork[data-v3] .sh-stick{padding:0;position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 10px 18px -14px rgba(0,0,0,.6)}
+/* THE SHADOW AD STAYS PUT (owner, 31 Oct 2026: "this ad should freeze when the user
+   scrolls"). Its host is pinned straight under the pinned player, so the transcript
+   scrolls beneath both. The HOST is pinned, never the slot: the slot stays in ordinary
+   flow inside it, so the creative the shell draws over the slot's box always lands on
+   it. --sh-stick-h is the player block's live height (shStickWatch); with no height
+   known, or where the player itself is not pinned (wide screens), nothing changes. */
+#shWork.sh-stick-on #shAdHost:not(:empty){position:sticky;top:var(--sh-stick-h,0px);z-index:5;background:var(--bg)}
 #shWork[data-v3] .yt-shell{border-radius:0;margin:0}
 #shWork[data-v3] .sh-ctl,#shWork[data-v3] .sv-shbar{display:none!important}
 /* The clip-marking tools and the notes card are the old workspace. They are
@@ -16205,6 +16212,7 @@ window.shOpenWork=()=>{
   w.style.display="flex";
   document.body.classList.add("sh-work-open");   // stops the picker scrolling behind the overlay
   adNativeSync();                                /* the library's slots are behind this overlay now: hide their platform views */
+  try{shStickWatch(w)}catch(e){}
   const body=w.querySelector(".sh-work-body");if(body)body.scrollTop=0;
   try{if(svAsset&&svOn()){svNowDraw(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0),true,svLast.word);svLayoutSync()}}catch(e){}   // the card measures its two lines only once on screen
   document.addEventListener("keydown",shWorkKeys);
@@ -16212,6 +16220,16 @@ window.shOpenWork=()=>{
   try{shLibDockSync()}catch(e){}
   const x=w.querySelector(".sh-work-x");if(x)x.focus();
 };
+/* the pinned player's height, for the ad host pinned under it; only while the
+   player block really is sticky (phones, and the v3 layout) */
+let _shStickRO=null;
+function shStickWatch(w){
+  const st=w&&w.querySelector(".sh-stick");if(!st)return;
+  const apply=()=>{const on=getComputedStyle(st).position==="sticky";w.classList.toggle("sh-stick-on",on);
+    w.style.setProperty("--sh-stick-h",Math.round(st.getBoundingClientRect().height)+"px");adNativeSync()};
+  apply();
+  if(!_shStickRO&&window.ResizeObserver){_shStickRO=new ResizeObserver(()=>{try{apply()}catch(e){}});_shStickRO.observe(st)}
+}
 /* close the workspace and return to the picker (pause the video, keep state) */
 window.shCloseWork=()=>{
   try{svStop()}catch(e){}
@@ -23133,7 +23151,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v701";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v702";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
