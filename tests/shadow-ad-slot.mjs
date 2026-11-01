@@ -142,6 +142,18 @@ console.log("\n# 1-4 · ONE slot, between the player and the transcript, in ordi
   ok("S8 · …and it is not moved by a transform either", v.transform === "none" || v.transform === "", String(v.transform));
   ok("S9 · it sits BELOW the player, with no overlap", v.rect && v.stickRect && v.rect.y >= v.stickRect.bottom - 1, JSON.stringify({ ad: v.rect, player: v.stickRect }));
   ok("S10 · …and ABOVE the transcript, with no overlap", v.rect && v.txRect && v.rect.bottom <= v.txRect.y + 1, JSON.stringify({ ad: v.rect, tx: v.txRect }));
+  /* owner, 31 Oct 2026: "this ad should freeze when the user scrolls" — the HOST is
+     pinned under the pinned player, the transcript scrolls beneath both */
+  const pin = async by => p.evaluate(n => { const b = document.querySelector("#shWork .sh-work-body"); if (b) b.scrollTop = n;
+    const s = document.querySelector('#shAdHost [data-ad-slot]'), st = document.querySelector("#shPlayerWrap .sh-stick"), tx = document.getElementById("shV2");
+    return { top: b && b.scrollTop, ad: s && Math.round(s.getBoundingClientRect().top), stick: st && Math.round(st.getBoundingClientRect().bottom), tx: tx && Math.round(tx.getBoundingClientRect().top) }; }, by);
+  /* the real workspace is a flex column whose BODY scrolls; the helper above shows it as a block */
+  await p.evaluate(() => { const w = document.getElementById("shWork"); w.style.display = "flex"; shStickWatch(w); });
+  await sleep(150);
+  const p0 = await pin(0); await sleep(150); const p1 = await pin(400); await sleep(150); const p2 = await pin(700); await sleep(150);
+  ok("S11b · scrolling the workspace pins the ad straight under the player, and it stays there (the transcript moves, the ad does not)",
+    p1.top > 0 && p2.top > p1.top && Math.abs(p1.ad - p1.stick) <= 1 && Math.abs(p2.ad - p1.ad) <= 1 && p2.tx < p1.tx, JSON.stringify({ p0, p1, p2 }));
+  await pin(0);
   ok("S11 · no JavaScript errors", errs.length === 0, JSON.stringify(errs));
   await ctx.close();
 }
