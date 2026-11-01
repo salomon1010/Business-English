@@ -351,6 +351,8 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func showNative(_ call: CAPPluginCall) {
         let placement = call.getString("placement") ?? ""
         let rect = BEAdsPlugin.rect(call)
+        let visible = call.getBool("visible") ?? true
+        let dark = call.getBool("dark") ?? false
         #if canImport(GoogleMobileAds)
         guard started, consentResolved, canRequestAds, let unit = nativeUnit,
               !placement.isEmpty, rect.width > 40, rect.height > 40 else {
@@ -358,7 +360,8 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let host = self.hostView() else { call.resolve(["shown": false]); return }
-            let d = NativeLoaderDelegate(owner: self, placement: placement, rect: rect, host: host) { ok in
+            let d = NativeLoaderDelegate(owner: self, placement: placement, rect: rect, host: host,
+                                         visible: visible, dark: dark) { ok in
                 call.resolve(["shown": ok])
             }
             self.loaderDelegate = d
@@ -369,7 +372,7 @@ public class BEAdsPlugin: CAPPlugin, CAPBridgedPlugin {
             loader.load(self.request())
         }
         #else
-        _ = placement
+        _ = (placement, visible, dark)
         call.resolve(["shown": false])
         #endif
     }
@@ -481,10 +484,14 @@ final class NativeLoaderDelegate: NSObject, NativeAdLoaderDelegate {
     private let placement: String
     private let rect: CGRect
     private weak var host: UIView?
+    private let visible: Bool
+    private let dark: Bool
     private var done: ((Bool) -> Void)?
 
-    init(owner: BEAdsPlugin, placement: String, rect: CGRect, host: UIView, done: @escaping (Bool) -> Void) {
-        self.owner = owner; self.placement = placement; self.rect = rect; self.host = host; self.done = done
+    init(owner: BEAdsPlugin, placement: String, rect: CGRect, host: UIView,
+         visible: Bool, dark: Bool, done: @escaping (Bool) -> Void) {
+        self.owner = owner; self.placement = placement; self.rect = rect; self.host = host
+        self.visible = visible; self.dark = dark; self.done = done
     }
 
     private func finish(_ ok: Bool) { let d = done; done = nil; d?(ok) }
@@ -495,9 +502,17 @@ final class NativeLoaderDelegate: NSObject, NativeAdLoaderDelegate {
 
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         guard let owner = owner, let host = host else { finish(false); return }
+        // An OPAQUE card in the app's own theme (31 Oct 2026). It used to be
+        // clear, so whatever the page drew behind the slot showed through the
+        // text, and UILabel's default colours followed the phone's appearance
+        // rather than the app's, so a light app on a dark phone drew white on white.
         let view = NativeAdView(frame: rect)
+        view.overrideUserInterfaceStyle = dark ? .dark : .light
         view.clipsToBounds = true
-        view.backgroundColor = .clear
+        view.backgroundColor = dark ? UIColor(red: 0.09, green: 0.10, blue: 0.16, alpha: 1)
+                                    : UIColor(red: 0.97, green: 0.97, blue: 0.99, alpha: 1)
+        view.layer.cornerRadius = 12
+        view.isHidden = !visible
 
         let badge = UILabel()
         badge.text = "Ad"
@@ -510,46 +525,77 @@ final class NativeLoaderDelegate: NSObject, NativeAdLoaderDelegate {
 
         let headline = UILabel()
         headline.font = .systemFont(ofSize: 15, weight: .semibold)
-        headline.numberOfLines = 2
+        headline.textColor = .label
+        headline.lineBreakMode = .byTruncatingTail
 
         let body = UILabel()
         body.font = .systemFont(ofSize: 13)
-        body.numberOfLines = 2
         body.textColor = .secondaryLabel
+        body.lineBreakMode = .byTruncatingTail
 
         let cta = UIButton(type: .system)
         cta.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
         cta.isUserInteractionEnabled = false   // GMA handles the tap on the ad view
+        cta.setContentCompressionResistancePriority(.required, for: .horizontal)
+        cta.setContentHuggingPriority(.required, for: .horizontal)
 
         for v in [badge, headline, body, cta] as [UIView] {
             v.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(v)
         }
-        NSLayoutConstraint.activate([
-            badge.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            badge.topAnchor.constraint(equalTo: view.topAnchor),
+        // Every registered asset must be fully inside the ad view: an asset cut
+        // off by the frame is what AdMob's validator reports. The 68 pt strip
+        // (Shadow, library top) is ONE row — badge, one-line headline and
+        // one-line body, the button on the right; the 132 pt card has room for
+        // two lines each and the button underneath.
+        let pad: CGFloat = 10
+        let strip = rect.height < 100
+        headline.numberOfLines = strip ? 1 : 2
+        body.numberOfLines = strip ? 1 : 2
+        var cons: [NSLayoutConstraint] = [
+            badge.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: pad),
             badge.widthAnchor.constraint(equalToConstant: 22),
             badge.heightAnchor.constraint(equalToConstant: 14),
             headline.leadingAnchor.constraint(equalTo: badge.trailingAnchor, constant: 6),
-            headline.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headline.topAnchor.constraint(equalTo: view.topAnchor),
-            body.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            body.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            body.topAnchor.constraint(equalTo: headline.bottomAnchor, constant: 4),
-            cta.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            cta.topAnchor.constraint(greaterThanOrEqualTo: body.bottomAnchor, constant: 4),
-            cta.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-        ])
+            body.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: pad),
+            body.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -pad),
+        ]
+        if strip {
+            cons += [
+                badge.topAnchor.constraint(equalTo: view.topAnchor, constant: pad + 2),
+                headline.topAnchor.constraint(equalTo: view.topAnchor, constant: pad),
+                headline.trailingAnchor.constraint(lessThanOrEqualTo: cta.leadingAnchor, constant: -8),
+                body.topAnchor.constraint(equalTo: headline.bottomAnchor, constant: 2),
+                body.trailingAnchor.constraint(lessThanOrEqualTo: cta.leadingAnchor, constant: -8),
+                cta.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -pad),
+                cta.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            ]
+        } else {
+            cons += [
+                badge.topAnchor.constraint(equalTo: view.topAnchor, constant: pad + 2),
+                headline.topAnchor.constraint(equalTo: view.topAnchor, constant: pad),
+                headline.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -pad),
+                body.topAnchor.constraint(equalTo: headline.bottomAnchor, constant: 4),
+                body.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -pad),
+                cta.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: pad),
+                cta.topAnchor.constraint(greaterThanOrEqualTo: body.bottomAnchor, constant: 2),
+                cta.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -6),
+            ]
+        }
+        NSLayoutConstraint.activate(cons)
 
         headline.text = nativeAd.headline
         body.text = nativeAd.body
         cta.setTitle(nativeAd.callToAction, for: .normal)
+        // an asset the ad does not carry is not registered and not shown
+        body.isHidden = (nativeAd.body ?? "").isEmpty
+        cta.isHidden = (nativeAd.callToAction ?? "").isEmpty
 
         // Google's required wiring: the asset views must be registered, and
         // nativeAd set last, or the impression is not counted.
         view.headlineView = headline
-        view.bodyView = body
-        view.callToActionView = cta
+        view.bodyView = body.isHidden ? nil : body
+        view.callToActionView = cta.isHidden ? nil : cta
         view.nativeAd = nativeAd
 
         host.addSubview(view)

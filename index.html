@@ -23133,7 +23133,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v700";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v701";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -26105,8 +26105,33 @@ function beNativeAdsInit(){
       try{if(document.fullscreenElement||document.webkitFullscreenElement)return false}catch(e){}
       return true;
     };
-    const onScreen=b=>b.w>=40&&b.h>=20&&b.x>=0&&b.y>=0
-      &&b.x+b.w<=(window.innerWidth||0)+1&&b.y+b.h<=(window.innerHeight||0)+1;
+    /* Inside the viewport is not enough either (owner, 31 Oct 2026, a photo of the
+       Shadow workspace): the player and the header are PINNED, so the slot scrolls
+       UNDER them while staying inside the viewport, and the platform view — which
+       nothing in the page can cover — was drawn over the video and the status bar.
+       So the slot must also clear the status bar (the safe-area inset) and be the
+       topmost thing at five points of its box: elementFromPoint answers with the
+       sticky player, the header or the foot bar when one of them sits on top. */
+    let _adSafeTop=-1;
+    const safeTop=()=>{
+      if(_adSafeTop>=0)return _adSafeTop;
+      try{const p=document.createElement("div");p.style.cssText="position:fixed;top:0;left:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top)";document.body.appendChild(p);_adSafeTop=Math.round(p.getBoundingClientRect().height)||0;p.remove()}catch(e){_adSafeTop=0}
+      return _adSafeTop;
+    };
+    const uncovered=(b,el)=>{
+      if(!el)return true;
+      const slot=el.closest&&el.closest("[data-ad-slot]")||el;
+      const xs=[b.x+4,b.x+b.w/2,b.x+b.w-4],ys=[b.y+4,b.y+b.h/2,b.y+b.h-4];
+      const pts=[[xs[1],ys[1]],[xs[0],ys[0]],[xs[2],ys[0]],[xs[0],ys[2]],[xs[2],ys[2]]];
+      for(const [x,y] of pts){
+        let hit=null;try{hit=document.elementFromPoint(x,y)}catch(e){return true}
+        if(hit&&!slot.contains(hit)&&!hit.contains(slot))return false;
+      }
+      return true;
+    };
+    const onScreen=(b,el)=>b.w>=40&&b.h>=20&&b.x>=0&&b.y>=safeTop()
+      &&b.x+b.w<=(window.innerWidth||0)+1&&b.y+b.h<=(window.innerHeight||0)+1
+      &&uncovered(b,el);
     /* `deep` re-asks the policy; a scroll only moves the rectangle. The policy
        answer costs a handful of selector queries, which is nothing four times a
        second and too much on every frame of a scroll. */
@@ -26116,7 +26141,7 @@ function beNativeAdsInit(){
         const w=watched[place],el=slotBody(place);
         if(!el){unwatch(place);continue}
         if(deep||w.allow===undefined)w.allow=allowed(place);
-        const b=r4(el),on=w.allow&&onScreen(b),k=on?b.x+","+b.y+","+b.w+","+b.h:"off";
+        const b=r4(el),on=w.allow&&onScreen(b,el),k=on?b.x+","+b.y+","+b.w+","+b.h:"off";
         if(k===w.last)continue;
         w.last=k;
         try{P.moveNative(Object.assign({placement:place,visible:on},b))}catch(e){}
@@ -26186,7 +26211,7 @@ function beNativeAdsInit(){
         let out=null;
         /* born with the same answer the follower would give it a frame later, so
            a slot that is already below the fold never flashes on screen first */
-        try{out=await P.showNative(Object.assign({placement:place,visible:onScreen(b)},b))}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"show_threw"});return false}
+        try{out=await P.showNative(Object.assign({placement:place,visible:onScreen(b,el),dark:document.documentElement.getAttribute("data-theme")==="dark"},b))}catch(e){adTrack("ad_suppressed",{format:"native",context:place,reason:"show_threw"});return false}
         if(!out||out.shown!==true){try{el.style.minHeight=""}catch(e){}adTrack("ad_suppressed",{format:"native",context:place,reason:"no_fill"});return false}
         watch(place);
         return true;

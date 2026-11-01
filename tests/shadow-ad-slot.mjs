@@ -247,7 +247,7 @@ console.log("\n# 9 · THE FAULT: a slot the learner cannot see must be told to h
      rectangle it measures. */
   const intoView = () => p.evaluate(() => { const s = document.querySelector('[data-ad-slot][data-placement="library"]');
     s.style.position = "relative"; s.style.top = "0px";
-    s.style.top = -(Math.round(s.getBoundingClientRect().top) - 120) + "px"; adNativeSync(); });
+    s.style.top = -(Math.round(s.getBoundingClientRect().top) - 400) + "px"; adNativeSync(); });
   await intoView(); await sleep(250);
   ok("S34 · (setup) in view on the library page, the shell is drawing it",
     await p.evaluate(() => window.__ad.vis.library === true), await p.evaluate(() => JSON.stringify(window.__ad.vis)));
@@ -288,9 +288,26 @@ console.log("\n# 9 · THE FAULT: a slot the learner cannot see must be told to h
   /* and the player going full screen is the same question again: the page is
      covered by the player's own element, and a platform view would be over it */
   await p.evaluate(() => { const s = document.querySelector('[data-ad-slot][data-placement="library"]');
-    s.style.top = "0px"; s.style.top = -(Math.round(s.getBoundingClientRect().top) - 120) + "px"; adNativeSync(); });
+    s.style.top = "0px"; s.style.top = -(Math.round(s.getBoundingClientRect().top) - 400) + "px"; adNativeSync(); });
   await sleep(200);
   ok("S39c · (control) back in view, it is drawn again", await p.evaluate(() => window.__ad.vis.library === true), await p.evaluate(() => JSON.stringify(window.__ad.vis)));
+  /* the owner's photo of 31 Oct 2026: the slot scrolled UNDER a pinned element
+     (the sticky player, the library bar) while staying inside the viewport, and
+     the shell drew the ad over it. elementFromPoint is the page's answer. */
+  await p.evaluate(() => { const s = document.querySelector('[data-ad-slot][data-placement="library"]');
+    s.style.top = "0px"; s.style.top = -(Math.round(s.getBoundingClientRect().top) - 120) + "px"; adNativeSync(); });
+  await sleep(200);
+  ok("S39e · slid under the library's pinned bar → the ad is hidden, never drawn on top of it",
+    await p.evaluate(() => window.__ad.vis.library === false), await p.evaluate(() => JSON.stringify(window.__ad.vis)));
+  await p.evaluate(() => { const s = document.querySelector('[data-ad-slot][data-placement="library"]'), r = s.getBoundingClientRect(), c = document.createElement("div"); c.id = "__pin";
+    s.style.top = "0px"; s.style.top = -(Math.round(s.getBoundingClientRect().top) - 400) + "px";
+    const q = (s.querySelector(".ad-native-body") || s).getBoundingClientRect(); c.style.cssText = `position:fixed;left:0;right:0;top:${q.top - 10}px;height:40px;z-index:99999;background:#000`;
+    document.body.appendChild(c); adNativeSync(); });
+  await sleep(200);
+  ok("S39f · a fixed element over part of the slot → hidden", await p.evaluate(() => window.__ad.vis.library === false), await p.evaluate(() => JSON.stringify(window.__ad.vis)));
+  await p.evaluate(() => { document.getElementById("__pin").remove(); adNativeSync(); });
+  await sleep(200);
+  ok("S39g · (control) uncovered again, it is drawn again", await p.evaluate(() => window.__ad.vis.library === true), await p.evaluate(() => JSON.stringify(window.__ad.vis)));
   await p.evaluate(() => { Object.defineProperty(document, "fullscreenElement", { configurable: true, get: () => document.getElementById("ytBox") }); adNativeSync(); });
   await sleep(200);
   ok("S39d · the video full screen → every native ad is hidden, none over the player",
