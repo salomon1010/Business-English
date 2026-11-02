@@ -81,6 +81,14 @@ new_sqlite_classes = ["RateLimiter"]
 binding = "AI_LEDGER"
 dataset = "be_ai_ledger"
 
+# The Mastery games' Premium packs ("Advanced situations" / the advanced workshop):
+# ge-advanced-v1 and advanced-v1, copied from WM_PACK_STAGING on 1 Nov 2026
+# (owner: "release it"). Content lives in KV only — see the staging note below.
+# Without this binding production answered 503 pack_unavailable.
+[[kv_namespaces]]
+binding = "WM_PACK"
+id = "1cd15bde16864fcda4cc8da3e5df789c"
+
 [vars]
 # PRODUCTION: the full polish-worker.js with the Premium gate ON since 31 Oct 2026
 # (Phase C; billing_enabled + ENT_API were already live, so Free has a way out).
@@ -152,7 +160,7 @@ dataset = "be_ai_ledger_staging"
 # NOT in this repository: the repository is public and the site serves it, so a
 # file here would be free to anyone. Upload with
 #   npx wrangler kv key put --namespace-id b3798804a2b649f4afdd6ca9a7fc5bb7 advanced-v1 --path <private file> --remote
-# Production has no binding: the route answers 503 pack_unavailable there.
+# Production has its own namespace since 1 Nov 2026 (WM_PACK_PROD, above).
 [[env.staging.kv_namespaces]]
 binding = "WM_PACK"
 id = "b3798804a2b649f4afdd6ca9a7fc5bb7"

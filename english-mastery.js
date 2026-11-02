@@ -103,7 +103,7 @@
       f_def: "Meaning", f_use: "When to use it", f_ex: "Example", f_syn: "Also", f_gl: "In your language", f_gl_pack: "Translation from the Foundations course.",
       ok: "Correct", no: "Not quite", the_answer: "The answer: {{w}}", combo: "{{n}} in a row",
       q_def: "Which one means this?", q_ex: "Which one completes the sentence?", q_use: "Which phrase would you use to…", q_gram: "Choose the correct English.", q_sent: "Which sentence did you hear?",
-      gl_btn: "Translate (AI)", gl_busy: "Translating…", gl_ai: "Machine translation by AI — it may contain mistakes.", gl_none: "Translation needs a connection and a signed-in account.", gl_en: "Your app is in English, so there is nothing to translate.",
+      gl_btn: "Translate (AI)", gl_busy: "Translating…", gl_ai: "Machine translation by AI — it may contain mistakes.", gl_none: "Translation needs a connection and a signed-in account.", gl_en: "Your app is in English, so there is nothing to translate.", gl_lang: "Choose the translation language",
       l_prompt: "Listen and find it.", l_type: "Listen and type the word.", l_sent: "Listen to the sentence and find it.", l_synth: "Synthetic voice (text-to-speech).", l_speed: "Speed {{n}}× — it gets a little faster as you go.", l_hint: "Hint", l_hint_txt: "Starts with “{{c}}” · {{d}}", l_no_audio: "Audio is not available on this device, so this round cannot run. Try Word Quest or Sentence Builder instead.", l_type_ph: "Type what you heard",
       b_prompt: "Spell the word.", b_hint: "Show a letter", b_clear: "Clear", b_type_ph: "Or type it", b_try: "Not yet — try again.",
       s_prompt: "Put the words in order.", s_fix: "Find the correct sentence.", s_hint: "Place the next word", s_undo: "Undo", s_try: "Not quite — look at the order again.", s_ok_order: "Correct order:",
@@ -205,7 +205,7 @@
       f_def: "Sens", f_use: "Quand l'utiliser", f_ex: "Exemple", f_syn: "Aussi", f_gl: "Dans ta langue", f_gl_pack: "Traduction du cours Foundations.",
       ok: "Bonne réponse", no: "Pas tout à fait", the_answer: "La réponse : {{w}}", combo: "{{n}} d'affilée",
       q_def: "Lequel a ce sens ?", q_ex: "Lequel complète la phrase ?", q_use: "Quelle expression utiliserais-tu pour…", q_gram: "Choisis l'anglais correct.", q_sent: "Quelle phrase as-tu entendue ?",
-      gl_btn: "Traduire (IA)", gl_busy: "Traduction…", gl_ai: "Traduction automatique par IA — elle peut contenir des erreurs.", gl_none: "La traduction a besoin d'une connexion et d'un compte connecté.", gl_en: "Ton appli est en anglais, il n'y a rien à traduire.",
+      gl_btn: "Traduire (IA)", gl_busy: "Traduction…", gl_ai: "Traduction automatique par IA — elle peut contenir des erreurs.", gl_none: "La traduction a besoin d'une connexion et d'un compte connecté.", gl_en: "Ton appli est en anglais, il n'y a rien à traduire.", gl_lang: "Choisir la langue de traduction",
       l_prompt: "Écoute et retrouve.", l_type: "Écoute et écris le mot.", l_sent: "Écoute la phrase et retrouve-la.", l_synth: "Voix de synthèse.", l_speed: "Vitesse {{n}}× — un peu plus rapide à chaque fois.", l_hint: "Indice", l_hint_txt: "Commence par « {{c}} » · {{d}}", l_no_audio: "L'audio n'est pas disponible sur cet appareil, cette série ne peut pas tourner. Essaie Word Quest ou Sentence Builder.", l_type_ph: "Écris ce que tu entends",
       b_prompt: "Écris le mot.", b_hint: "Montrer une lettre", b_clear: "Effacer", b_type_ph: "Ou tape-le", b_try: "Pas encore — réessaie.",
       s_prompt: "Remets les mots dans l'ordre.", s_fix: "Trouve la phrase correcte.", s_hint: "Placer le mot suivant", s_undo: "Annuler", s_try: "Pas tout à fait — regarde l'ordre.", s_ok_order: "Bon ordre :",
@@ -891,12 +891,22 @@
     if (t.gl && t.gl[L.code]) return { text: t.gl[L.code], pack: true };
     const c = glCache()[t.id + ":" + L.code]; return c ? { text: c, pack: false } : null;
   }
+  /* the language chip (1 Nov 2026): opens the same searchable list as Shadow
+     Studio's Translate (svTrPick), so a pick here is the learner's one
+     translation language everywhere. Absent if that list is not on the page. */
+  function glLangBtn(L) {
+    if (typeof svTrPick !== "function") return "";
+    return `<button class="btn btn-g btn-sm em-tr-lang" data-em="trlang" aria-haspopup="dialog" aria-expanded="false" aria-label="${h(w("gl_lang"))}" title="${h(w("gl_lang"))}">${wi("globe")} ${h(String(L.code).toUpperCase())}</button>`;
+  }
   function glossHTML(t) {
     const L = glLang(); if (!L.ok) return "";
     const g = glossOf(t);
-    if (g) return `<div class="wm-f em-gl"><b>${wi("globe")} ${h(w("f_gl"))}</b><p lang="${h(L.code)}" dir="auto">${h(g.text)}</p><small class="wm-mut">${h(g.pack ? w("f_gl_pack") : w("gl_ai"))}</small></div>`;
+    if (g) return `<div class="wm-f em-gl"><div class="em-gl-h"><b>${wi("globe")} ${h(w("f_gl"))}</b>${glLangBtn(L)}</div><p lang="${h(L.code)}" dir="auto">${h(g.text)}</p><small class="wm-mut">${h(g.pack ? w("f_gl_pack") : w("gl_ai"))}</small></div>`;
     const busy = _glBusy[t.id + ":" + L.code];
-    return `<div class="em-gl-btn"><button class="btn btn-g btn-sm" data-em="gloss" data-a="${h(t.id)}" ${busy || !signedIn() ? "disabled" : ""}>${wi("globe")} ${h(busy ? w("gl_busy") : w("gl_btn"))}</button>${signedIn() ? "" : `<small class="wm-mut">${h(w("gl_none"))}</small>`}</div>`;
+    return `<div class="em-gl-btn"><button class="btn btn-g btn-sm" data-em="gloss" data-a="${h(t.id)}" ${busy || !signedIn() ? "disabled" : ""}>${wi("globe")} ${h(busy ? w("gl_busy") : w("gl_btn"))}</button>${glLangBtn(L)}${signedIn() ? "" : `<small class="wm-mut">${h(w("gl_none"))}</small>`}</div>`;
+  }
+  function glLangPick(btn) {
+    try { svTrPick(btn, () => regloss()); } catch (e) {}
   }
   async function glossFetch(id) {
     const t = byId(id), L = glLang(); if (!t || !L.ok) return;
@@ -1639,6 +1649,7 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
       case "trend": _trendSpan = +arg === 90 ? 90 : 30; { const el = document.getElementById("emTrends"); if (el) el.outerHTML = trendsHTML(true); } return;
       case "coach": return coachAsk();
       case "gloss": return glossFetch(arg);
+      case "trlang": return glLangPick(btn);
       case "partner": if (document.getElementById("emGame") && document.getElementById("emGame").classList.contains("show")) gameClose(); sheetClose(); try { go("partner"); } catch (e) {} return;
       case "shadow": { const vid = arg; if (document.getElementById("emGame") && document.getElementById("emGame").classList.contains("show")) gameClose(); sheetClose(); try { go("shadow"); setTimeout(() => { try { shLoad({ vid, start: 0, end: 0, title: "" }); } catch (e) {} }, 250); } catch (e) {} return; }
       case "advanced": {

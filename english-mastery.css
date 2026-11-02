@@ -48,6 +48,8 @@ html.wm-still .em-mic.on { animation: none; }
 /* the learner's own language */
 .em-gl p { font-size: 16px; }
 .em-gl-btn { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.em-gl-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.em-tr-lang { min-height: 36px; padding-inline: 10px; font-weight: 700; letter-spacing: .02em; }
 
 /* the learning loop on Home */
 .em-loop { display: grid; gap: 10px; background: linear-gradient(135deg, rgba(20, 184, 166, .14), rgba(99, 102, 241, .14)); }
