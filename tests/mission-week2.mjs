@@ -207,6 +207,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -335,10 +336,10 @@ ok("D4 · a retrieval is scheduled from the track's own intervals", d2.retrieval
 /* ── A · SUCCESS, and everything downstream ── */
 console.log("\nA · SUCCESS DOWNSTREAM");
 const prog = await L.page.evaluate(() => { go("review"); const ps = [...document.querySelectorAll(".pg-v2")]; const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), moves: (d[0].byMove || []).length }; });
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), moves: (d[0].byMove || []).length }; });
 ok("A1 · Progress renders Week 2 with its five moves and its state",
   prog.panels === 1 && prog.comps.join() === "explain-work:TRANSFER_READY" && prog.moves === 5
-  && /Week 1/.test(prog.txt) && /Why it matters/.test(prog.txt), JSON.stringify({ p: prog.panels, c: prog.comps, m: prog.moves }));
+  && /Week 1/.test(prog.txt) && /Why it matters/.test(prog.txt), JSON.stringify({ p: prog.panels, c: prog.comps, m: prog.moves, t: prog.txt.slice(0, 400) }));
 const rec = await L.page.evaluate(() => ({ a: AdaptiveLearningEngine.recommendation(S, ProfessionalTrackContext.active()), m: LearningCoach.mission(S, ProfessionalTrackContext.active()) }));
 ok("A2 · with Week 2 complete the engine moves the learner on to Week 3",
   rec.a.v2 === true && rec.m.arg1 === "clear-update-guided", JSON.stringify({ t: rec.a.title, arg: rec.m.arg1 }));

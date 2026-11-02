@@ -50,6 +50,7 @@ const SAID = { alice: "I work at Walmart as a web designer and I am responsible 
 const polishCalls = { alice: [], bob: [] };
 async function learner(id, name) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+  await ctx.addInitScript(() => { try { localStorage.setItem("be_ent_api", ""); } catch (e) {} });   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds transcription; "" is the localhost escape hatch */
   await ctx.addInitScript(({ id, name, WORKER, FLAGS, ROUND_SECS }) => {
     localStorage.setItem("be_partner_api", WORKER); localStorage.setItem("be_partner_dev_user", id); localStorage.setItem("be_flags", JSON.stringify(FLAGS));
     localStorage.setItem("be_live_round_secs", String(ROUND_SECS));

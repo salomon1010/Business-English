@@ -336,6 +336,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -484,12 +485,13 @@ await sleep(1200);
 await L.page.evaluate(() => mvRecord());
 await L.page.waitForFunction(() => _mv && !_mv.busy && (_mv.ev || _mv.err), null, { timeout: 15000 }).catch(() => {});
 await sleep(250);
-const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, improve: (document.querySelector(".mv-improve") || {}).innerText, step: _mv.step }));
+const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, improve: (document.querySelector(".mv-improve") || {}).innerText || JSON.stringify(_mv.coach || {}), step: _mv.step }));
 ok("B1 · the missing recommendation is identified from what was said; five chips render, one off",
   b1.moves.recommend === false && b1.cov === 0.8 && b1.move === "recommend" && b1.chips === 5 && b1.off === 1 && b1.step === "coach", JSON.stringify({ c: b1.cov, m: b1.move, chips: b1.chips, off: b1.off }));
 ok("B2 · four of five does not advance the learner", (await rec6(L.page, ID)).state === "PRACTICING");
 ok("B3 · the coach's system prompt carried Week 6's five moves — not Week 5's check, Week 4's confirm or Week 3's ask",
   /makes 5 communication/.test(lastSystem) && /recommend \(Recommend one\)/.test(lastSystem) && !/check \(/.test(lastSystem) && !/confirm \(/.test(lastSystem) && !/ask \(What I need\)/.test(lastSystem), lastSystem.slice(0, 90));
+/* since 24 Sep 2026 the Coach step shows the speaking report; the mission's own coaching is kept on the attempt (Speaking History), so the model's text is read from _mv.coach when .mv-improve is not drawn */ 
 ok("B4 · the coaching shown is the model's and is tagged as such", b1.ai === true && /own name/i.test(b1.improve || ""));
 const ovc = await overflow(L.page); ok("COACH has no horizontal overflow at 390px with five chips", ovc.sw <= ovc.cw, JSON.stringify(ovc));
 await shot(L.page, "390-coach");
@@ -529,7 +531,7 @@ await shot(L.page, "390-evidence");
 /* ── K · PROGRESS ── */
 console.log("\nK · PROGRESS");
 const prog = await L.page.evaluate(() => { go("review"); const ps = [...document.querySelectorAll(".pg-v2")]; const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), weeks: d.map(x => x.week).join(), moves: d.map(x => (x.byMove || []).length).join(), last: d[d.length - 1] }; });
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), weeks: d.map(x => x.week).join(), moves: d.map(x => (x.byMove || []).length).join(), last: d[d.length - 1] }; });
 const spokenComps = PACK.competencies.filter(c => c.week <= 6);
 ok("K6 · Progress renders every spoken competency oldest week first, in canonical order with each one's own move count — ordering and counts come from the data",
   prog.panels === spokenComps.length && prog.weeks === spokenComps.map(c => c.week).join() && prog.moves === spokenComps.map(c => c.moves.length).join() && prog.comps[spokenComps.length - 1] === ID + ":TRANSFER_READY", JSON.stringify({ p: prog.panels, w: prog.weeks, m: prog.moves, c: prog.comps }));

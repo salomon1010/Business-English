@@ -28,6 +28,7 @@ function fakeServer(o = {}) {
     if (S.down) return [503, { error: "wm_store_unavailable" }];
     if (body.chat) {
       if (!auth) return [401, { error: "auth_required" }];
+      if (body.chat.purpose === "practice") { S.tr = (S.tr || 0) + 1; return [200, { reply: "amoladora — Una herramienta eléctrica para cortar o alisar el metal." }]; }
       S.coach++; if (!prem() && S.coach > 3) return [429, { error: "allowance", scope: "verdicts", limit: 3 }];
       return [200, { reply: "VERDICT: almost\nWELL: You named the defect and its place.\nFIX: Say what you will do next.\nBETTER: I found undercut on the toe of the weld; I will grind it out and re-weld to the WPS.\nFR: Dis aussi la réparation." }];
     }
@@ -62,10 +63,12 @@ function fakeServer(o = {}) {
 const PACK = { v: 1, title: { en: "Advanced workshop", fr: "Atelier avancé" }, scenarios: [
   { id: "wa-01", cat: "defects", level: "C1", topic: { en: "Inspection", fr: "Contrôle" }, who: { en: "Welding inspector", fr: "Inspecteur" }, say: { en: "The cap on line 4 has a groove melted along the top edge, about 0.8 mm deep over 30 mm.", fr: "La passe de finition de la ligne 4 a une rainure fondue le long du bord supérieur." }, q: { en: "What is the defect?", fr: "Quel est le défaut ?" }, answer: "wm-undercut", options: ["wm-overlap", "wm-undercut", "wm-underfill", "wm-crack"], why: { en: "A groove at the toe is undercut.", fr: "Une rainure au raccordement est un caniveau." }, reply: { q: { en: "What do you say?", fr: "Que réponds-tu ?" }, options: [{ en: "Undercut is cosmetic.", ok: false }, { en: "I'll grind out the undercut and repair it to the WPS, then call you for re-inspection.", ok: true }, { en: "I'll paint over it.", ok: false }], why: { en: "Repair to the procedure and re-inspect.", fr: "Réparer selon la procédure." } }, task: { en: "Report the defect, its size and the repair you propose.", fr: "Signale le défaut, sa taille et la réparation." }, model: { en: "I found undercut on the cap of line 4, about 0.8 mm deep over 30 mm. I will grind it out and re-weld to the WPS, then ask for re-inspection." } }] };
 const seed = (tr, o = {}) => Object.assign({ profile: { name: "Alex", lang: o.lang || "en", ts: 1 }, professionalTracks: { activeId: tr, tradeId: "welder" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 }, o.extra || {});
-async function open(track, { width = 390, height = 844, hash = "", lang = "en", flags = { welding_mastery_enabled: true, welding_studio_enabled: true, home_v2_enabled: true }, extra, ctx: reuse, signed = true, plan = "free", server = null } = {}) {
+async function open(track, { width = 390, height = 844, hash = "", lang = "en", flags = { welding_mastery_enabled: true, welding_studio_enabled: true, home_v2_enabled: true }, extra, ctx: reuse, signed = true, plan = "free", server = null, plansOff = false } = {}) {
   const ctx = reuse || await b.newContext({ viewport: { width, height }, serviceWorkers: "block" });
   if (!reuse) {
     await ctx.addInitScript(([s, lang, f]) => { if (!sessionStorage.getItem("wm_seeded")) { localStorage.setItem("be12_v1", s); sessionStorage.setItem("wm_seeded", "1"); } localStorage.setItem("be_lang", lang); localStorage.setItem("be_flags", f); }, [JSON.stringify(seed(track, { lang, extra })), lang, JSON.stringify(flags)]);
+    /* billing is ON by default since 11 Oct 2026; "" is the documented localhost escape hatch that turns plans off */
+    if (plansOff) await ctx.addInitScript(() => { try { localStorage.setItem("be_ent_api", ""); } catch (e) {} });
     ctx._srv = server || fakeServer({ plan, track: track === "welding" ? "welding" : track });
     await ctx.route(u => /be-polish/.test(u.href), async r => {
       const req = r.request(); if (req.method() === "OPTIONS") return r.fulfill({ status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "*" } });
@@ -488,6 +491,19 @@ console.log("\n# sign-in, energy, server XP — Free learner");
   ok("S3 · signed out: Collection (all 250 words) stays open", await p.evaluate(() => document.querySelectorAll(".wm-word").length === 250));
   await p.evaluate(() => { FBUser = { uid: "free-user", getIdToken: async () => "tok" }; WMUI._act("tab", "home"); }); await sleep(800);
   ok("S4 · signed in (Free): status from the server — energy chip shows 5", await p.evaluate(() => (document.querySelector(".wm-stat.en b") || {}).textContent === "5"), await p.evaluate(() => document.querySelector(".wm-stats").textContent));
+  /* translation (2 Nov 2026): French is on the card; the chip opens the shared list; another language is machine-translated, labelled, cached */
+  await p.evaluate(() => WMUI._act("word", "wm-grinder")); await sleep(300);
+  const fr = await p.evaluate(() => ({ chip: ((document.querySelector("#wmSheet .wm-tr-lang") || {}).textContent || "").trim(), btn: !!document.querySelector('#wmSheet [data-wm="gloss"]') }));
+  ok("T1 · Welding card: the language chip shows FR (French is already on the card), no AI button", fr.chip === "FR" && !fr.btn, JSON.stringify(fr));
+  await p.click("#wmSheet .wm-tr-lang"); await sleep(300);
+  const pk = await p.evaluate(() => { const pop = document.getElementById("svTrPop"), r = pop && pop.getBoundingClientRect(); const top = pop && document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { open: !!pop, onTop: !!(top && pop.contains(top)), n: pop ? pop.querySelectorAll(".sv-tr-opt").length : 0 }; });
+  await p.evaluate(() => { const b = [...document.querySelectorAll("#svTrPop .sv-tr-opt")].find(x => /Espa/.test(x.textContent)); b && b.click(); }); await sleep(300);
+  await p.click('#wmSheet [data-wm="gloss"]'); await sleep(700);
+  const es = await p.evaluate(() => ({ txt: (document.querySelector("#wmSheet .wm-gl p") || {}).textContent, lang: (document.querySelector("#wmSheet .wm-gl p") || {}).lang, label: (document.querySelector("#wmSheet .wm-gl small") || {}).textContent, chip: ((document.querySelector("#wmSheet .wm-tr-lang") || {}).textContent || "").trim(), tr: S.profile.trLang }));
+  ok("T2 · pick Spanish from the full list, Translate (AI): the term and definition in Spanish, labelled AI, saved as the one choice", pk.open && pk.onTop && pk.n >= 10 && /amoladora/.test(es.txt || "") && es.lang === "es" && /AI/.test(es.label || "") && es.chip === "ES" && es.tr === "es" && F.srv.tr === 1, JSON.stringify({ pk, es }));
+  await p.evaluate(() => { document.getElementById("wmSheet").remove(); WMUI._act("word", "wm-grinder"); }); await sleep(300);
+  ok("T3 · reopened, the translation comes from the device cache — no second AI call", await p.evaluate(() => /amoladora/.test((document.querySelector("#wmSheet .wm-gl p") || {}).textContent || "")) && F.srv.tr === 1);
+  await p.evaluate(() => { document.getElementById("wmSheet").remove(); delete S.profile.trLang; save(); });
   const played = [];
   for (const m of ["quiz", "match", "visual", "builder", "quiz"]) { await p.evaluate(m => WMUI._start(m), m); await waitG(p); played.push(await p.evaluate(() => !!WMUI._game())); await p.evaluate(() => WMUI._act("gclose")); await sleep(150); }
   ok("S5 · five challenge rounds start, one energy each", played.every(Boolean) && F.srv.used === 5, JSON.stringify({ played, used: F.srv.used }));
@@ -526,7 +542,7 @@ console.log("\n# sign-in, energy, server XP — Free learner");
 
 console.log("\n# Premium — advanced scenarios from the server, AI coaching, trends");
 {
-  const P = await open("welding", { plan: "premium", hash: "#mastery" }); await sleep(900);
+  const P = await open("welding", { plan: "premium", hash: "#mastery", plansOff: true }); await sleep(900);
   const p = P.p;
   ok("P1 · Premium: the energy chip shows unlimited (∞)", await p.evaluate(() => (document.querySelector(".wm-stat.en b") || {}).textContent === "∞"));
   const row = await p.evaluate(() => { const c = [...document.querySelectorAll(".wm-stat")]; return { n: c.length, tops: new Set(c.map(x => Math.round(x.getBoundingClientRect().top))).size, clipped: c.map(x => x.querySelector("b")).filter(b => b.scrollWidth > b.clientWidth + 1).map(b => b.textContent) }; });
@@ -551,6 +567,8 @@ console.log("\n# Premium — advanced scenarios from the server, AI coaching, tr
 {
   /* the Premium lock on trends, as the Progress page does it: plans on, no advanced_progress */
   const L = await open("welding", { hash: "#mastery" }); await sleep(700);
+  /* one graded answer, so Performance draws its charts rather than the empty state (which has no trends to lock) */
+  await L.p.evaluate(() => { const s = WMUI._state(), T = WMUI._corpus().terms; WMEngine.grade(s, T[0].id, 2, { mode: "visual", now: Date.now() }); save(); });
   await L.p.evaluate(() => WMUI._act("tab", "perf")); await sleep(300);
   const st2 = await L.p.evaluate(() => ({ gated: entGated(), has: hasEntitlement("advanced_progress"), locked: !!document.querySelector("#wmTrends.locked"), card: !!document.querySelector("#wmTrends .prem-lock, #wmTrends [class*='prem']") }));
   /* the lock follows the app's one rule: gated build + no advanced_progress → dimmed preview + offer; otherwise open */

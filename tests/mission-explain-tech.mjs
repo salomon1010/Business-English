@@ -345,6 +345,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -494,12 +495,13 @@ await sleep(1200);
 await L.page.evaluate(() => mvRecord());
 await L.page.waitForFunction(() => _mv && !_mv.busy && (_mv.ev || _mv.err), null, { timeout: 15000 }).catch(() => {});
 await sleep(250);
-const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, improve: (document.querySelector(".mv-improve") || {}).innerText, step: _mv.step }));
+const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, improve: (document.querySelector(".mv-improve") || {}).innerText || JSON.stringify(_mv.coach || {}), step: _mv.step }));
 ok("B1 · the missing takeaway is identified from what was said; four chips render, one off",
   b1.moves.check === false && b1.cov === 0.75 && b1.move === "check" && b1.chips === 4 && b1.off === 1 && b1.step === "coach", JSON.stringify({ c: b1.cov, m: b1.move, chips: b1.chips, off: b1.off }));
 ok("B2 · three of four does not advance the learner", (await rec5(L.page, "explain-tech")).state === "PRACTICING");
 ok("B3 · the coach's system prompt carried Week 5's four moves — not Week 4's confirm, Week 3's ask or Week 2's status",
   /makes 4 communication/.test(lastSystem) && /check \(Land the takeaway\)/.test(lastSystem) && !/confirm \(/.test(lastSystem) && !/ask \(What I need\)/.test(lastSystem) && !/status \(/.test(lastSystem), lastSystem.slice(0, 90));
+/* since 24 Sep 2026 the Coach step shows the speaking report; the mission's own coaching is kept on the attempt (Speaking History), so the model's text is read from _mv.coach when .mv-improve is not drawn */ 
 ok("B4 · the coaching shown is the model's and is tagged as such", b1.ai === true && /one sentence/i.test(b1.improve || ""));
 const ovc = await overflow(L.page); ok("COACH has no horizontal overflow at 390px", ovc.sw <= ovc.cw, JSON.stringify(ovc));
 await shot(L.page, "390-coach");
@@ -539,7 +541,7 @@ await shot(L.page, "390-evidence");
 /* ── K · PROGRESS ── */
 console.log("\nK · PROGRESS");
 const prog = await L.page.evaluate(() => { go("review"); const ps = [...document.querySelectorAll(".pg-v2")]; const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), weeks: d.map(x => x.week).join(), moves: d.map(x => (x.byMove || []).length).join(), last: d[d.length - 1] }; });
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), weeks: d.map(x => x.week).join(), moves: d.map(x => (x.byMove || []).length).join(), last: d[d.length - 1] }; });
 ok("K6 · Progress renders five competencies oldest week first, 1 → 5, with move counts 5 / 4 / 5 / 4 / 4 — ordering comes from the data",
   prog.panels === 5 && prog.weeks === "1,2,3,4,5" && prog.moves === "5,4,5,4,4" && prog.comps[4] === "explain-tech:TRANSFER_READY", JSON.stringify({ p: prog.panels, w: prog.weeks, m: prog.moves, c: prog.comps }));
 ok("K7 · The Week 5 panel names its week, its state and its own moves through the same evidence contract",

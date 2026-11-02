@@ -476,3 +476,9 @@ html.wm-still .wm-game-card:hover .wm-gc-ic.a3 { transform: none; }
 .wm-games > .wm-ad-mid { grid-column: 1 / -1; margin: 0; }
 .wm-road > li.wm-ad-mid { padding: 0; }
 .wm-ad-end { margin-top: 22px; }
+
+/* the learner's own language (2 Nov 2026) */
+.wm-gl p { font-size: 15px; }
+.wm-gl-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wm-gl-btn { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.wm-tr-lang { min-height: 36px; padding-inline: 10px; font-weight: 700; letter-spacing: .02em; }

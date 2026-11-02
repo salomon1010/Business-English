@@ -92,7 +92,7 @@
       p_hard: "Words to review", p_rec: "Next step", p_empty: "No games played yet. Start with Cards: five words, about three minutes.", p_open: "Open Welding Mastery", p_go_progress: "See it on the Progress page",
       rec_first: "Start with Cards: five words, about three minutes.", rec_gap: "Your {{strong}} is strong, but {{weak}} needs more practice.", rec_due: "{{n}} words are due for review.", rec_difficult: "{{n}} words need another look.", rec_try: "You have not tried {{skill}} yet.", rec_keep: "Keep your words fresh with a quick quiz.",
       set_h: "Settings", set_sound: "Sound effects", set_motion: "Reduce motion", set_dir: "Show first in games", set_close: "Close", on: "On", off_: "Off",
-      close: "Close", next: "Next", check: "Check", reveal: "Show answer", hear: "Hear it", hear_ex: "Hear it in a sentence", slow: "Slowly", replay: "Replay",
+      close: "Close", next: "Next", check: "Check", reveal: "Show answer", hear: "Hear it", hear_ex: "Hear it in a sentence", f_gl: "In your language", gl_btn: "Translate (AI)", gl_busy: "Translating…", gl_ai: "Machine translation by AI — it may contain mistakes.", gl_none: "Translation needs a connection and a signed-in account.", gl_lang: "Choose the translation language", gl_other: "The French is on the card. Pick another language to translate it.", slow: "Slowly", replay: "Replay",
       again: "Again", hard: "Hard", good: "Good", easy: "Easy", rate_q: "How well did you know it?",
       fav: "Favourite", unfav: "Remove from favourites", mark_hard: "Mark as difficult", unmark_hard: "Not difficult", save_list: "Save to my list", saved_list: "Saved",
       f_def: "Definition", f_use: "What it is for", f_ctx: "On the job", f_ex: "Example", f_syn: "Also called", f_drawing: "Line drawing — an illustration, not a photograph.", f_verify: "French term awaiting review by a welding trainer.",
@@ -193,7 +193,7 @@ au_h: "Sign in to play", au_b: "Your XP, energy, streak and badges are saved on 
       p_hard: "Mots à revoir", p_rec: "Prochaine étape", p_empty: "Aucun jeu pour l'instant. Commence par les Cartes : cinq mots, environ trois minutes.", p_open: "Ouvrir Welding Mastery", p_go_progress: "Voir sur la page Progrès",
       rec_first: "Commence par les Cartes : cinq mots, environ trois minutes.", rec_gap: "Ta {{strong}} est solide, mais ton {{weak}} demande plus de pratique.", rec_due: "{{n}} mots sont à réviser.", rec_difficult: "{{n}} mots méritent un autre regard.", rec_try: "Tu n'as pas encore essayé : {{skill}}.", rec_keep: "Garde tes mots frais avec un petit quiz.",
       set_h: "Paramètres", set_sound: "Effets sonores", set_motion: "Réduire les animations", set_dir: "Afficher d'abord dans les jeux", set_close: "Fermer", on: "Oui", off_: "Non",
-      close: "Fermer", next: "Suivant", check: "Vérifier", reveal: "Voir la réponse", hear: "Écouter", hear_ex: "Écouter dans une phrase", slow: "Lentement", replay: "Réécouter",
+      close: "Fermer", next: "Suivant", check: "Vérifier", reveal: "Voir la réponse", hear: "Écouter", hear_ex: "Écouter dans une phrase", f_gl: "Dans ta langue", gl_btn: "Traduire (IA)", gl_busy: "Traduction…", gl_ai: "Traduction automatique par IA — elle peut contenir des erreurs.", gl_none: "La traduction a besoin d'une connexion et d'un compte connecté.", gl_lang: "Choisir la langue de traduction", gl_other: "Le français est sur la carte. Choisis une autre langue pour la traduire.", slow: "Lentement", replay: "Réécouter",
       again: "À revoir", hard: "Difficile", good: "Bien", easy: "Facile", rate_q: "Tu le connaissais comment ?",
       fav: "Favori", unfav: "Retirer des favoris", mark_hard: "Marquer comme difficile", unmark_hard: "Pas difficile", save_list: "Enregistrer dans ma liste", saved_list: "Enregistré",
       f_def: "Définition", f_use: "À quoi ça sert", f_ctx: "Sur le terrain", f_ex: "Exemple", f_syn: "Aussi appelé", f_drawing: "Dessin au trait — une illustration, pas une photo.", f_verify: "Terme français en attente de relecture par un formateur soudeur.",
@@ -254,6 +254,7 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
      screen here uses it: there is no energy limit in this feature (Free is a
      complete product), so nothing draws a counter that limits nothing. */
   const WI = {
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/>',
     home: '<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>',
     games: '<rect x="3" y="8" width="18" height="10" rx="5"/><path d="M8 11v4M6 13h4"/><circle cx="15.5" cy="12" r=".9"/><circle cx="17.5" cy="14" r=".9"/>',
     map: '<path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2-6-2Z"/><path d="M9 5v12M15 7v12"/>',
@@ -844,6 +845,7 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
   }
   function fullCardHTML(t, withActions, noHead) {
     const s = st(), r = s.t[t.id], fav = E.isFav(s, t.id), hard = r && r.hard;
+    if (withActions) _glWord = t.id;
     const art = artSVG(t, w("v_alt_after", { w: t.en }), { credit: false });
     let saved = false; try { saved = vocHas(t.en.toLowerCase()); } catch (e) {}
     const sec = (ic, k, o) => o && (o.en || o.fr) ? `<div class="wm-f"><b>${wi(ic)} ${h(w(k))}</b>${o.en ? `<p lang="en">${h(o.en)}</p>` : ""}${o.fr ? `<p lang="fr" class="fr">${h(o.fr)}</p>` : ""}</div>` : "";
@@ -854,6 +856,7 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
       <div class="wm-row"><button class="btn btn-g btn-sm" data-wm="say" data-a="${h(t.en)}">${wi("sound")} ${h(w("hear"))}</button>${t.ex && t.ex.en ? `<button class="btn btn-g btn-sm" data-wm="say" data-a="${h(t.ex.en)}">${wi("chat")} ${h(w("hear_ex"))}</button>` : ""}</div>
       ${(t.syn || []).length || (t.frSyn || []).length ? `<p class="wm-mut small">${h(w("f_syn"))}: ${h((t.syn || []).concat(t.frSyn || []).join(" · "))}</p>` : ""}
       ${sec("book", "f_def", t.def)}${sec("tool", "f_use", t.use)}${sec("factory", "f_ctx", t.ctx)}${sec("chat", "f_ex", t.ex)}
+      ${glossHTML(t)}
       ${t.verify ? `<p class="wm-mut small">${wi("edit")} ${h(w("f_verify"))}</p>` : ""}
       ${withActions ? `<div class="wm-row wm-full-a">
         <button class="btn btn-g btn-sm wm-star ${fav ? "on" : ""}" data-wm="fav" data-a="${h(t.id)}" aria-pressed="${fav}">${wi("star")} ${h(fav ? w("unfav") : w("fav"))}</button>
@@ -862,6 +865,51 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
       </div>` : ""}
     </div>`;
   }
+
+  /* ---- the learner's own language (owner, 2 Nov 2026) ----
+     The card already carries French, written for the course. Any other language
+     is translated ON DEMAND by the existing chat route, labelled machine
+     translation and cached on this device. The language is the learner's one
+     translation choice (svShLang), picked from the same searchable list as
+     Shadow Studio's Translate and English Mastery's cards (svTrPick). */
+  let _gl = null, _glWord = null; const _glBusy = {};
+  function glLang() {
+    try { if (typeof svShLang === "function") { const L = svShLang(); return { code: L.code, name: L.name, ok: !!L.ok }; } } catch (e) {}
+    const c = (S.profile && S.profile.lang) || "en"; return { code: c, name: c, ok: c !== "en" };
+  }
+  function glCache() { if (!_gl) { try { _gl = JSON.parse(localStorage.getItem("be_wm_gl") || "{}") || {}; } catch (e) { _gl = {}; } } return _gl; }
+  function glSave() { const c = glCache(), ks = Object.keys(c); while (ks.length > 800) delete c[ks.shift()]; try { localStorage.setItem("be_wm_gl", JSON.stringify(c)); } catch (e) {} }
+  function glText(t) { return t.en + (t.def && t.def.en ? "\nDefinition: " + t.def.en : ""); }
+  function glossOf(t) { const L = glLang(); if (!L.ok || L.code === "fr") return null; const c = glCache()[t.id + ":" + L.code]; return c ? { text: c } : null; }
+  function glLangBtn(L) {
+    if (typeof svTrPick !== "function") return "";
+    return `<button class="btn btn-g btn-sm wm-tr-lang" data-wm="trlang" aria-haspopup="dialog" aria-expanded="false" aria-label="${h(w("gl_lang"))}" title="${h(w("gl_lang"))}">${wi("globe")} ${h(String(L.code).toUpperCase())}</button>`;
+  }
+  function glossHTML(t) {
+    const L = glLang(); if (!L.ok || !t || !t.en) return "";
+    if (L.code === "fr") return glLangBtn(L) ? `<div class="wm-gl-btn">${glLangBtn(L)}<small class="wm-mut">${h(w("gl_other"))}</small></div>` : "";
+    const g = glossOf(t);
+    if (g) return `<div class="wm-f wm-gl"><div class="wm-gl-h"><b>${wi("globe")} ${h(w("f_gl"))}</b>${glLangBtn(L)}</div><p lang="${h(L.code)}" dir="auto">${h(g.text)}</p><small class="wm-mut">${h(w("gl_ai"))}</small></div>`;
+    const busy = _glBusy[t.id + ":" + L.code];
+    return `<div class="wm-gl-btn"><button class="btn btn-g btn-sm" data-wm="gloss" data-a="${h(t.id)}" ${busy || !signedIn() ? "disabled" : ""}>${wi("globe")} ${h(busy ? w("gl_busy") : w("gl_btn"))}</button>${glLangBtn(L)}${signedIn() ? "" : `<small class="wm-mut">${h(w("gl_none"))}</small>`}</div>`;
+  }
+  async function glossFetch(id) {
+    const t = byId(id), L = glLang(); if (!t || !L.ok || L.code === "fr") return;
+    const key = t.id + ":" + L.code; if (_glBusy[key] || glossOf(t)) return;
+    if (!signedIn() || !navigator.onLine) { toast(w("gl_none")); return; }
+    _glBusy[key] = 1; regloss();
+    const system = `You are a translator for a welding English course. Translate the welding term and its definition into ${L.name}, using the words a welder in that language would use on the job. Respond with ONLY minified JSON: {"reply":"<translation of the term> — <translation of the definition>"}`;
+    try {
+      const r = await fetch(POLISH_API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat: { purpose: "practice", system, messages: [{ role: "user", content: glText(t) }] } }) });
+      const j = await r.json().catch(() => ({}));
+      const tx = String((j && j.reply) || "").trim();
+      if (!r.ok || !tx) throw new Error("tr");
+      glCache()[key] = tx.slice(0, 400); glSave();
+    } catch (e) { toast(w("gl_none")); }
+    delete _glBusy[key]; regloss();
+  }
+  function glLangPick(btn) { try { svTrPick(btn, () => regloss()); } catch (e) {} }
+  function regloss() { if (document.getElementById("wmSheet") && _glWord) return wordSheet(_glWord); if (_G) draw(); }
 
   /* ------------------------------------------------------------ the daily habit
      One daily challenge (the same eight words for every Welding learner that
@@ -1180,7 +1228,7 @@ au_h: "Connecte-toi pour jouer", au_b: "Tes XP, ton énergie, ta série et tes b
   }
   function feedbackHTML(t, okFlag, extra) {
     return `<div class="wm-fb ${okFlag ? "ok" : "no"}" role="status">${wi(okFlag ? "check" : "cross")}<div><b>${h(okFlag ? w("ok") : w("no"))}</b>${okFlag ? "" : `<span>${h(w("the_answer", { w: t.en + (t.fr ? " · " + t.fr : "") }))}</span>`}
-      <p lang="en">${h(t.def.en)}</p>${t.def.fr ? `<p lang="fr" class="fr">${h(t.def.fr)}</p>` : ""}${extra || ""}</div></div>
+      <p lang="en">${h(t.def.en)}</p>${t.def.fr ? `<p lang="fr" class="fr">${h(t.def.fr)}</p>` : ""}${extra || ""}${glossHTML(t)}</div></div>
       <button class="btn btn-p wm-wide" data-wm="next" autofocus>${h(w("next"))} →</button>`;
   }
 
@@ -1493,6 +1541,8 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\nWELL: <one short line on w
       case "cat": _coll.cat = arg; return redraw();
       case "dir": s.set.first = first() === "fr" ? "en" : "fr"; persist(); return redraw();
       case "word": return wordSheet(arg);
+      case "gloss": return glossFetch(arg);
+      case "trlang": return glLangPick(btn);
       case "fav": { E.setFav(s, arg, !E.isFav(s, arg), Date.now()); persist(); const sh = document.getElementById("wmSheet"); if (sh) wordSheet(arg); if (G) draw(); else redraw(); return; }
       case "hard": { const r = s.t[arg]; E.setHard(s, arg, !(r && r.hard)); persist(); const sh = document.getElementById("wmSheet"); if (sh) wordSheet(arg); if (G) draw(); else redraw(); return; }
       case "savelist": { const t = byId(arg); if (t) { try { vocPut(t.en.toLowerCase(), /^[ABC][12]$/.test(t.lvl) ? t.lvl : "B1"); save(); toast(t.en + " ✓"); } catch (e) {} } if (document.getElementById("wmSheet")) wordSheet(arg); else if (G) draw(); return; }

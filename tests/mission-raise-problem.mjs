@@ -320,6 +320,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -469,7 +470,7 @@ await shot(L.page, "390-evidence");
 /* ── A · SUCCESS DOWNSTREAM ── */
 console.log("\nA · SUCCESS DOWNSTREAM");
 const prog = await L.page.evaluate(() => { go("review"); const ps = [...document.querySelectorAll(".pg-v2")]; const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), moves: (d[0].byMove || []).length, week: d[0].week }; });
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), moves: (d[0].byMove || []).length, week: d[0].week }; });
 ok("A1 · Progress renders Week 3 with its five moves, its week and its state — and nothing for the unspoken weeks",
   prog.panels === 1 && prog.comps.join() === "raise-problem:TRANSFER_READY" && prog.moves === 5 && prog.week === 3 && /Week 3/.test(prog.txt) && /What I need/.test(prog.txt), JSON.stringify({ p: prog.panels, c: prog.comps, m: prog.moves, w: prog.week }));
 const ovp = await overflow(L.page); ok("Progress has no horizontal overflow at 390px", ovp.sw <= ovp.cw, JSON.stringify(ovp));
@@ -511,7 +512,9 @@ const co = await L.page.evaluate(() => {
   go("home");
   const cards = [...document.querySelectorAll("#v-home .card")];
   const mvIdx = cards.findIndex(c => c.classList.contains("mv-home"));
-  const v1Idx = cards.findIndex(c => c.classList.contains("today-card"));
+  /* Home V2 leads with ONE recommendation (here it may be "words due"); the 12-week programme is
+     reached from Home through the lesson hero or card, or the road map — no fixed "today" card any more */
+  const v1Idx = [...document.querySelectorAll("#v-home [onclick]")].some(e => /go\('(session|journey)'/.test(e.getAttribute("onclick"))) || document.querySelector("#v-home .hx[data-kind=lesson], #v-home .hx[data-kind=comeback], #v-home .hx[data-kind=done]") ? 0 : cards.findIndex(c => c.classList.contains("today-card"));
   const before = { days: JSON.stringify(S.days), v2: JSON.stringify(S.v2A) };
   toggleDay(dayKey(3, "Mon"), 3, "Mon");
   const after = { days: JSON.stringify(S.days), v2: JSON.stringify(S.v2A) };
@@ -530,7 +533,8 @@ const gate = await L.page.evaluate(async () => {
   const f = fndState(); const keep = JSON.parse(JSON.stringify(f));
   delete f.placed; delete f.checkedAt; delete f.finished; save();
   go("home"); await new Promise(r => setTimeout(r, 400));
-  const cards = [...document.getElementById("v-home").querySelectorAll(":scope > .card, :scope > section.card, :scope > button.card")].map(c => c.className);
+  const hx = document.querySelector("#v-home .hx");   /* Home V2: the hero leads; a placement check there is data-kind="placement" */
+  const cards = hx ? ["hx:" + hx.dataset.kind] : [...document.getElementById("v-home").querySelectorAll(":scope > .card, :scope > section.card, :scope > button.card")].map(c => c.className);
   const card = !!document.querySelector(".mv-home");
   go("mission", "raise-problem-guided", "speak"); await new Promise(r => setTimeout(r, 400));
   const gated = !!document.querySelector("#v-mission .fnd-gate, #v-mission .card") && !document.querySelector("#v-mission .mv-speak");
@@ -538,7 +542,7 @@ const gate = await L.page.evaluate(async () => {
   Object.assign(fndState(), keep); save();
   return { first: cards[0] || "", card, gated, n };
 });
-ok("K1 · an unplaced learner is not offered Week 3 — the placement check stays the first card", /fnd-home/.test(gate.first) && gate.card === false, JSON.stringify(gate));
+ok("K1 · an unplaced learner is not offered Week 3 — the placement check stays the first card", /fnd-home|^hx:placement$/.test(gate.first) && gate.card === false, JSON.stringify(gate));
 ok("K2 · …and cannot reach Week 3 by route: the mission renders the Foundations gate, and no evidence is written", gate.gated === true && gate.n === 3, JSON.stringify(gate));
 
 /* ── DESKTOP ── */
