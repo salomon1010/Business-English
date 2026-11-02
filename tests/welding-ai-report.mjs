@@ -21,6 +21,7 @@ const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"],
   serviceWorkers: /^https:/.test(BASE) ? "block" : "allow" });
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
 const page = await ctx.newPage();
 const errors = []; page.on("pageerror", e => errors.push(String(e.message)));
 await ctx.addInitScript(() => {

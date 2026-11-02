@@ -23156,7 +23156,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v703";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v704";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -28206,9 +28206,9 @@ function svTrPopClose(){
   const pop=document.getElementById("svTrPop");if(!pop)return;
   pop.remove();_svTrCb=null;document.removeEventListener("pointerdown",svTrPopOut,true);document.removeEventListener("keydown",svTrPopKey,true);
   window.removeEventListener("scroll",svTrPopScroll,true);window.removeEventListener("resize",svTrPopClose);
-  document.querySelectorAll(".sv-tr-lang[aria-expanded],.em-tr-lang[aria-expanded]").forEach(b=>b.setAttribute("aria-expanded","false"));
+  document.querySelectorAll(".sv-tr-lang[aria-expanded],.em-tr-lang[aria-expanded],.wm-tr-lang[aria-expanded]").forEach(b=>b.setAttribute("aria-expanded","false"));
 }
-function svTrPopOut(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target)&&!e.target.closest(".sv-tr-lang,.em-tr-lang"))svTrPopClose()}
+function svTrPopOut(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target)&&!e.target.closest(".sv-tr-lang,.em-tr-lang,.wm-tr-lang"))svTrPopClose()}
 function svTrPopKey(e){if(e.key==="Escape"){e.stopPropagation();svTrPopClose()}}
 function svTrPopScroll(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target))svTrPopClose()}
 /* the flags come from langBadgeHTML / LANG_FLAG / flagsDrawn (next to
@@ -28216,7 +28216,7 @@ function svTrPopScroll(e){const pop=document.getElementById("svTrPop");if(pop&&!
    small, in place of the globe; no flag (or a device that cannot draw one)
    keeps the globe. */
 function svTrBtnIcon(code,on){const f=LANG_FLAG[code];return f&&flagsDrawn()?`<span class="lang-ic lang-flag sv-tr-bf" aria-hidden="true"><span>${flagEmoji(f)}</span></span>`:ic(on?"check":"globe")}
-/* onPick (optional): another screen (English Mastery's cards, 1 Nov 2026) borrows
+/* onPick (optional): another screen (English / Welding Mastery's cards, Nov 2026) borrows
    this list. It gets the same saved choice (S.profile.trLang) and its own redraw;
    Shadow's Translate switch is left as it is. */
 let _svTrCb=null;

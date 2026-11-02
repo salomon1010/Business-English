@@ -115,6 +115,7 @@ let reply = null, mode = "ok", lastSys = "";
 
 async function learner(id, track) {
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+await ctx2.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx2.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -167,10 +168,15 @@ const L = await learner("ge", "general-english");
 reply = Object.assign({}, MISSION_BASE, { polish: POL_REAL });
 await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(L.page, SAID);
-const f1 = await foldOf(L.page);
 const prim = await L.page.evaluate(() => !!document.querySelector(".mv-rep .mv-pol"));
-ok("1 · meaningful improvement → a closed 'Natural English' fold (the Practice Partner review's name for it), first of the folds, You said / Better / Why for each entry",
-  f1 && !f1.open && /Natural English/.test(f1.first) && f1.rows.length === 2 && /YOU SAID.*supplier he changed/i.test(f1.rows[0]) && /BETTER.*order number/i.test(f1.rows[0]) && /WHY/i.test(f1.rows[0]), JSON.stringify(f1));
+/* Since 24 Sep 2026 the Coach step IS the Executive Polish speaking report; the mission's own report —
+   and its language polish — is drawn by the Speaking history for that attempt. Check 1 reads it there:
+   a closed row, the "Language polish" heading, You said / Better / Why for each entry. */
+await L.page.evaluate(() => go("mvhist")); await sleep(300);
+const f1 = await L.page.evaluate(() => { const d = document.querySelectorAll("#v-mvhist .mv-hist-row")[0]; if (!d) return null;
+  return { open: d.open, head: [...d.querySelectorAll("h4")].map(x => x.textContent.trim()), rows: [...d.querySelectorAll(".mv-pol")].map(p => p.textContent.replace(/\s+/g, " ")) }; });
+ok("1 · meaningful improvement → the attempt's Speaking history row (closed) carries 'Language polish', You said / Try / Why for each entry",
+  f1 && !f1.open && f1.head.includes(await L.page.evaluate(() => t("mv.sec_polish"))) && f1.rows.length === 2 && /YOU SAID.*supplier he changed/i.test(f1.rows[0]) && /(BETTER|TRY).*order number/i.test(f1.rows[0]) && /WHY/i.test(f1.rows[0]), JSON.stringify(f1));
 ok("the primary hierarchy is unchanged — polish is not in the top report", !prim);
 const row = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; return r.attempts[r.attempts.length - 1]; });
 ok("the polish is stored on the attempt row, nothing about the evidence mentions it", row.report.pol.length === 2 && !("polish" in row) && !("pol" in row), JSON.stringify(Object.keys(row)));

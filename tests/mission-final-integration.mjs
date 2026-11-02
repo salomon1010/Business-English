@@ -447,6 +447,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -628,7 +629,7 @@ await shot(L.page, "390-evidence");
 
 console.log("\nR · PROGRESS");
 const prog = await L.page.evaluate(() => { go("review"); const ps = [...document.querySelectorAll(".pg-v2")]; const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), weeks: d.map(x => x.week).join(), last: d[d.length - 1], comps: d.map(x => x.competency) }; });
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "), weeks: d.map(x => x.week).join(), last: d[d.length - 1], comps: d.map(x => x.competency) }; });
 ok("R1 · Progress renders all twelve competencies oldest week first, with the integration last",
   prog.panels === 12 && prog.weeks === PACK.competencies.map(c => c.week).join() && prog.comps[11] === ID, JSON.stringify({ p: prog.panels, w: prog.weeks }));
 ok("R2 · The Week 12 panel names its week, its state and its five beats through the same evidence contract",

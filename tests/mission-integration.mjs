@@ -253,6 +253,7 @@ let coachCovered = [];
 
 async function learner(id, track) {
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+await ctx2.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx2.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
@@ -322,7 +323,7 @@ ok("LearningCoach passes the mission and step through so the card opens the righ
 const prog = await L.page.evaluate(() => {
   go("review"); const ps = [...document.querySelectorAll(".pg-v2")];
   const d = window.v2Evidence();
-  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "),
+  return { panels: ps.length, txt: ps.map(p => p.textContent.replace(/\s+/g, " ")).join(" || "),
     isArray: Array.isArray(d), states: (d || []).map(x => x.competency + ":" + x.state) };
 });
 ok("The Progress page renders a V2 evidence panel per competency with evidence",
@@ -366,7 +367,9 @@ const co = await L.page.evaluate(() => {
   go("home");
   const cards = [...document.querySelectorAll("#v-home .card")];
   const mvIdx = cards.findIndex(c => c.classList.contains("mv-home"));
-  const v1Idx = cards.findIndex(c => c.classList.contains("today-card"));
+  /* Home V2 leads with ONE recommendation (here it may be "words due"); the 12-week programme is
+     reached from Home through the lesson hero or card, or the road map — no fixed "today" card any more */
+  const v1Idx = [...document.querySelectorAll("#v-home [onclick]")].some(e => /go\('(session|journey)'/.test(e.getAttribute("onclick"))) || document.querySelector("#v-home .hx[data-kind=lesson], #v-home .hx[data-kind=comeback], #v-home .hx[data-kind=done]") ? 0 : cards.findIndex(c => c.classList.contains("today-card"));
   const before = { days: JSON.stringify(S.days), v2: JSON.stringify(S.v2A) };
   /* complete a V1 session day and prove it cannot touch V2 evidence */
   toggleDay(dayKey(1, "Mon"), 1, "Mon");
@@ -388,7 +391,8 @@ const gate = await L.page.evaluate(async () => {
   const f = fndState(); const keep = JSON.parse(JSON.stringify(f));
   delete f.placed; delete f.checkedAt; delete f.finished; save();
   go("home"); await new Promise(r => setTimeout(r, 400));
-  const cards = [...document.getElementById("v-home").querySelectorAll(":scope > .card, :scope > section.card, :scope > button.card")].map(c => c.className);
+  const hx = document.querySelector("#v-home .hx");   /* Home V2: the hero leads; a placement check there is data-kind="placement" */
+  const cards = hx ? ["hx:" + hx.dataset.kind] : [...document.getElementById("v-home").querySelectorAll(":scope > .card, :scope > section.card, :scope > button.card")].map(c => c.className);
   const card = !!document.querySelector(".mv-home");
   go("mission", "clear-update-guided", "speak"); await new Promise(r => setTimeout(r, 400));
   const gated = !!document.querySelector("#v-mission .fnd-gate, #v-mission .card") && !document.querySelector("#v-mission .mv-speak");
@@ -396,7 +400,7 @@ const gate = await L.page.evaluate(async () => {
   return { first: cards[0] || "", card, gated };
 });
 ok("An unplaced learner is not offered the 'Give a clear update' mission — the placement check stays the first card",
-  /fnd-home/.test(gate.first) && gate.card === false, JSON.stringify(gate));
+  /fnd-home|^hx:placement$/.test(gate.first) && gate.card === false, JSON.stringify(gate));
 ok("…and cannot reach it by route either: the mission renders the Foundations gate, like the daily session",
   gate.gated === true, JSON.stringify(gate));
 

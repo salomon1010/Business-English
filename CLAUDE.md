@@ -943,8 +943,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   decided by `backend/wm-game.js` (be-polish `{wm:{op}}`, sign-in + Welding account via
   `/programme`, RateLimiter DO buckets, HMAC round tickets); Premium adds 30/90-day trends
   (`advanced_progress`), the Advanced workshop (KV `WM_PACK`, content kept out of this public
-  repo) and the AI coach (`chat` purpose `coach`). Staging only — production has no
-  be-entitlements, so the route answers 503 there. Tests:
+  repo) and the AI coach (`chat` purpose `coach`). **Production has its own `WM_PACK`
+  (`WM_PACK_PROD`, 1cd15bde…) since 1 Nov 2026**, holding `advanced-v1` + `ge-advanced-v1`
+  copied from staging — before it, Advanced situations answered 503 pack_unavailable.
+  **Translation (owner, 1–2 Nov 2026):** both hubs' cards carry a language chip that opens
+  Shadow Studio's list (`svTrPick(anchor, onPick)` → `svTrChoose`), so `S.profile.trLang` is
+  the ONE translation language app-wide. Welding: French stays on the card; any other
+  language is AI-translated on demand (term + definition, `be_wm_gl` cache). Tests:
   `tests/welding-mastery-engine.test.mjs`, `tests/welding-mastery.mjs`.
 - **Smart Coach (10 Oct 2026, both programmes, flag `smart_coach_enabled`: staging ON,
   production OFF) — `docs/SMART_COACH.md`.** Card at the top of the Daily reminder sheet →

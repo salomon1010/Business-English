@@ -15,6 +15,7 @@ if (!BASE) { server = spawn("python3", ["-m", "http.server", "8799"], { cwd: ROO
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + d}`); };
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
 const page = await ctx.newPage();
 const errors = []; page.on("pageerror", e => errors.push(String(e.message)));
 const SAID = "My name is Salomon. I have been working as a welder for three years, mostly MIG on structural steel, and some offshore work on a vessel.";

@@ -102,6 +102,7 @@ let polishHits = 0;
 
 async function learner(id, track) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+await ctx.addInitScript(()=>{try{localStorage.setItem("be_ent_api","")}catch(e){}});   /* as session-report.mjs: billing is on by default since 11 Oct 2026, so a signed-out page withholds AI; "" is the localhost escape hatch */
   await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     /* A scripted SpeechRecognition. The app captures
        `const SR = window.SpeechRecognition || window.webkitSpeechRecognition`
@@ -322,7 +323,10 @@ ok("D2 · the evidence is still correct — it was computed on the device before
   d1.cov === 1 && d1.state === "DEMONSTRATED", JSON.stringify(d1));
 ok("D3 · coaching is marked pending and safe fallback coaching is shown instead of an error",
   d1.pending === true && d1.coach && d1.offline === true, JSON.stringify(d1));
-const dUi = await D.page.evaluate(() => ({ note: !!document.querySelector(".mv-note"), btn: !!document.querySelector(".mv-pending") }));
+/* since 24 Sep 2026 the Coach step IS the speaking report: the old .mv-note went with the old report,
+   and the learner is told by the report's own line — the coach could not be reached, or what they said
+   could not be written down (the network is down here) — or the pending badge */
+const dUi = await D.page.evaluate(() => { const txt = (document.getElementById("v-mission") || document.body).textContent; return { note: !!document.querySelector(".mv-note") || txt.includes(t("ex.ai_off")) || txt.includes(t("sess.report_stt")) || txt.includes(t("mv.coach_pending_badge")), btn: !!document.querySelector(".mv-pending") }; });
 ok("D4 · the learner is told the coaching is waiting, and given the way to finish it", dUi.note && dUi.btn, JSON.stringify(dUi));
 
 coachMode = "ok"; coachCovered = ["status", "issue", "impact", "next"];
@@ -393,8 +397,9 @@ const e7 = await W.page.evaluate(async () => {
 });
 ok("E7 · the Welding simulation catalogue still opens and still lists its workshops", e7.view === "simulation" && e7.sims === 12 && e7.cards > 0, JSON.stringify(e7));
 
-const e8 = await W.page.evaluate(() => ({ pp: ppAvailable(), sv: svOn(), ge: isGeneralEnglish() }));
-ok("E8 · Practice Partner and Shadow Studio V2 remain General English only", e8.pp === false && e8.sv === false && e8.ge === false, JSON.stringify(e8));
+/* Shadow Studio V2 reaches Welding through its own studio flag (welding_studio_enabled, ON in production) — intended, see CLAUDE.md "Welding Professional English studio" */
+const e8 = await W.page.evaluate(() => ({ pp: ppAvailable(), sv: svOn(), studio: weldStudioOn(), ge: isGeneralEnglish() }));
+ok("E8 · Practice Partner stays General English only; Shadow Studio V2 reaches Welding only through its studio flag", e8.pp === false && e8.sv === e8.studio && e8.ge === false, JSON.stringify(e8));
 
 const e9 = await A.page.evaluate(() => ({ v2: Object.keys(S.v2A || {}), welding: (S.v2A || {})["welding"] }));
 ok("E9 · General English evidence is filed under General English and creates no Welding bucket",

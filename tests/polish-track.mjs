@@ -40,20 +40,40 @@ if(server){
    demanding there be no binding at all: what it writes is a count and a reset
    time, keyed by an IP or a uid, and never a transcript, a phrase, a report or
    a track. If a future binding can hold learner CONTENT, this check fails
-   again — which is the point. */
+   again — which is the point.
+
+   2 Nov 2026: the checks below were brought up to date without loosening them.
+   (1) WM_PACK (KV, 9 Oct staging / 1 Nov production) holds the Mastery games'
+   Premium scenarios — course content written by us, READ by wm-game.js and
+   never written by any Worker code — so it is the one KV binding allowed, and
+   a put/delete on it fails the check. (2) The limiter is called with literal
+   bucket arrays now (per-minute + per-day, a cost, the ytai budget); what
+   matters is that a call carries a subject and buckets whose only keys are
+   name / limit / windowMs / cost. (3) rate-limit.js grew peek / release (bucket
+   NAMES, for refunds) and a cost-weighted count; every record it writes is
+   still { count, resetAt }. */
 {
   const w=readFileSync(ROOT+"backend/polish-worker.js","utf8"),toml=readFileSync(ROOT+"backend/wrangler.toml","utf8"),rl=readFileSync(ROOT+"backend/rate-limit.js","utf8");
-  const bindings=/kv_namespaces|d1_databases|r2_buckets|queues/.test(toml);
+  const wm=readFileSync(ROOT+"backend/wm-game.js","utf8");
+  const tomlNoPack=toml.replace(/\[\[(?:env\.\w+\.)?kv_namespaces\]\]\s*\nbinding = "WM_PACK"\s*\nid = "\w+"/g,"");
+  const bindings=/kv_namespaces|d1_databases|r2_buckets|queues/.test(tomlNoPack);
   const stores=/caches\.(default|open)\(|env\.[A-Z_]*(KV|DB|BUCKET|STORE)\b/.test(w);
-  ok("The Polish Worker holds no content store — nothing server-side can carry one area's minute to the other",!bindings&&!stores,JSON.stringify({bindings,stores}));
+  const packWrites=/WM_PACK\.(put|delete)\(/.test(w+wm);
+  ok("The Polish Worker holds no content store — nothing server-side can carry one area's minute to the other (the read-only WM_PACK course pack aside)",!bindings&&!stores&&!packWrites,JSON.stringify({bindings,stores,packWrites}));
   /* the one binding, and what it is allowed to contain */
   const dos=(toml.match(/\[\[(?:env\.\w+\.)?durable_objects\.bindings\]\]/g)||[]).length;
   const classes=[...toml.matchAll(/class_name = "(\w+)"/g)].map(m=>m[1]);
   ok("The only Durable Object bound is the rate limiter, in both environments",dos===2&&classes.every(c=>c==="RateLimiter"),JSON.stringify({dos,classes}));
   /* it is handed buckets only — never a body, a transcript or a track */
-  const callers=[...w.matchAll(/consume\(env,[^)]*\)/g)].map(m=>m[0]);
-  ok("the limiter is only ever handed a subject and bucket sizes",callers.length>0&&callers.every(c=>/consume\(env, subject, buckets\)|consume\(env, "/.test(c)||/consume\(env, subject/.test(c)),JSON.stringify(callers));
-  ok("…and what it persists is a count and a reset time, nothing else",/put\[r\.k\] = \{ count: r\.count \+ 1, resetAt: r\.resetAt \}/.test(rl)&&!/transcript|text|said|phrase|track|body\./.test(rl.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\bbody\.buckets\b/g,"").replace(/\bbody\.now\b/g,"")),"rate-limit.js persists more than counters");
+  const total=(w.match(/consume\(env,/g)||[]).length;
+  const callers=[...w.matchAll(/consume\(env, ([^,]+), (buckets\)|\[[\s\S]*?\]\))/g)].map(m=>({subj:m[1].trim(),arr:m[2]}));
+  const BUCKET_KEYS=new Set(["name","limit","windowMs","cost"]);
+  const badCall=callers.filter(c=>!/^(\w+|"[a-z]+:" \+ \w+)$/.test(c.subj)||[...c.arr.replace(/"[^"]*"/g,'""').matchAll(/(\w+):/g)].some(k=>!BUCKET_KEYS.has(k[1])));
+  ok("the limiter is only ever handed a subject and bucket sizes",total>0&&callers.length===total&&!badCall.length,JSON.stringify({total,parsed:callers.length,badCall}));
+  const rlCode=rl.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\bbody\.(buckets|now|peek|release)\b/g,"");
+  const recs=[...rl.matchAll(/put\[[^\]]+\] = \{([^}]*)\}/g)].map(m=>[...m[1].matchAll(/(\w+):/g)].map(k=>k[1]).join(","));
+  const storePuts=[...rl.matchAll(/storage\.put\(([^)]*)\)/g)].map(m=>m[1].trim());
+  ok("…and what it persists is a count and a reset time, nothing else",recs.length>0&&recs.every(r=>r==="count,resetAt")&&storePuts.length>0&&storePuts.every(a=>a==="put")&&!/transcript|text|said|phrase|track|body\./.test(rlCode),JSON.stringify({recs,storePuts}));
   ok("the subject is an IP or a uid, both prefixed here and never taken from the request body",/"ip:" \+ ip/.test(w)&&/"acct:" \+ id/.test(w)&&!/subject = .*body/.test(rl));
 }
 
