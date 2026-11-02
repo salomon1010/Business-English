@@ -5814,7 +5814,12 @@ html,body{max-width:100%;overflow-x:clip}
 .ob-win-actions .btn{padding:clamp(9px,1.7vh,11px) clamp(14px,4vw,20px)}
 /* On a short screen the decorative logo is the first thing to go — it buys
    ~70px, which is the difference between the result fitting and not. */
-@media(max-height:760px){.ob-logo{display:none}}
+/* Owner, 1 Nov 2026: the BE Mastery logo on the welcome step is never hidden —
+   on a short iPhone it vanished until the keyboard came up. It shrinks with the
+   height instead; only the later steps' decorative icons still give way. */
+@media(max-height:760px){.ob-logo:not(.ob-logo-img){display:none}
+  .ob-logo-img{width:clamp(52px,8.6vh,76px);height:clamp(52px,8.6vh,76px);margin-bottom:clamp(8px,1.6vh,14px)}
+  .ob-logo-img img{width:clamp(52px,8.6vh,76px)!important;height:clamp(52px,8.6vh,76px)!important;border-radius:clamp(15px,2.5vh,22px)!important}}
 /* 2b — ZOOM STABILITY. Three separate things make a phone appear to "zoom in";
    all of them are disabled here, without taking away deliberate pinch-zoom. */
 html{
@@ -23151,7 +23156,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v702";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v703";   /* bumped with sw.js on every deploy */
 /* Cloudflare Worker (holds the AI key + natural TTS). Resolved through beEnv()
    like every other Worker URL, so a staging host talks to be-polish-staging and
    production talks to production — without touching any of the ~50 call sites.
@@ -28195,15 +28200,15 @@ function svTrListHTML(q){
   q=String(q||"").trim().toLowerCase();const cur=svShLang().code;
   const list=LANGS.filter(l=>l.code!=="en"&&(!q||l.en.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)||l.code===q));
   if(!list.length)return `<p class="sv-tr-none">${esc(t("lang.none_found"))}</p>`;
-  return list.map(l=>`<button class="sv-tr-opt ${l.code===cur?"sel":""}" role="option" aria-selected="${l.code===cur}" onclick="svTrSet('${l.code}')">${langBadgeHTML(l)}<span class="sv-tr-nm">${esc(l.native)}<small>${esc(l.en)}</small></span>${l.code===cur?ic("check"):""}</button>`).join("");
+  return list.map(l=>`<button class="sv-tr-opt ${l.code===cur?"sel":""}" role="option" aria-selected="${l.code===cur}" onclick="svTrChoose('${l.code}')">${langBadgeHTML(l)}<span class="sv-tr-nm">${esc(l.native)}<small>${esc(l.en)}</small></span>${l.code===cur?ic("check"):""}</button>`).join("");
 }
 function svTrPopClose(){
   const pop=document.getElementById("svTrPop");if(!pop)return;
-  pop.remove();document.removeEventListener("pointerdown",svTrPopOut,true);document.removeEventListener("keydown",svTrPopKey,true);
+  pop.remove();_svTrCb=null;document.removeEventListener("pointerdown",svTrPopOut,true);document.removeEventListener("keydown",svTrPopKey,true);
   window.removeEventListener("scroll",svTrPopScroll,true);window.removeEventListener("resize",svTrPopClose);
-  document.querySelectorAll(".sv-tr-lang[aria-expanded]").forEach(b=>b.setAttribute("aria-expanded","false"));
+  document.querySelectorAll(".sv-tr-lang[aria-expanded],.em-tr-lang[aria-expanded]").forEach(b=>b.setAttribute("aria-expanded","false"));
 }
-function svTrPopOut(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target)&&!e.target.closest(".sv-tr-lang"))svTrPopClose()}
+function svTrPopOut(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target)&&!e.target.closest(".sv-tr-lang,.em-tr-lang"))svTrPopClose()}
 function svTrPopKey(e){if(e.key==="Escape"){e.stopPropagation();svTrPopClose()}}
 function svTrPopScroll(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target))svTrPopClose()}
 /* the flags come from langBadgeHTML / LANG_FLAG / flagsDrawn (next to
@@ -28211,15 +28216,19 @@ function svTrPopScroll(e){const pop=document.getElementById("svTrPop");if(pop&&!
    small, in place of the globe; no flag (or a device that cannot draw one)
    keeps the globe. */
 function svTrBtnIcon(code,on){const f=LANG_FLAG[code];return f&&flagsDrawn()?`<span class="lang-ic lang-flag sv-tr-bf" aria-hidden="true"><span>${flagEmoji(f)}</span></span>`:ic(on?"check":"globe")}
-window.svTrPick=anchor=>{
-  if(!svOn())return false;
+/* onPick (optional): another screen (English Mastery's cards, 1 Nov 2026) borrows
+   this list. It gets the same saved choice (S.profile.trLang) and its own redraw;
+   Shadow's Translate switch is left as it is. */
+let _svTrCb=null;
+window.svTrPick=(anchor,onPick)=>{
+  if(!onPick&&!svOn())return false;
   if(document.getElementById("svTrPop")){svTrPopClose();return false}
   const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||[...document.querySelectorAll(".sv-tr-lang")].find(b=>b.offsetParent);
   const pop=document.createElement("div");pop.id="svTrPop";pop.className="sv-tr-pop";
   pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("sv.sh_tr_pick_h"));
   pop.innerHTML=`<input id="svTrSearch" class="sv-tr-q" type="search" autocomplete="off" placeholder="${esc(t("lang.search_placeholder"))}" aria-label="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('svTrList').innerHTML=svTrListHTML(this.value)">
     <div id="svTrList" class="sv-tr-list" role="listbox" aria-label="${esc(t("sv.sh_tr_pick_h"))}">${svTrListHTML("")}</div>`;
-  document.body.appendChild(pop);
+  document.body.appendChild(pop);_svTrCb=typeof onPick==="function"?onPick:null;if(_svTrCb)pop.style.zIndex="200";   /* above the Mastery game and its sheets (z 150-180) */
   const vw=innerWidth,vh=innerHeight,w=Math.min(232,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
   const below=vh-r.bottom-12,above=r.top-12,h=Math.min(264,Math.max(below,above));
   pop.style.width=w+"px";pop.style.maxHeight=h+"px";
@@ -28229,6 +28238,13 @@ window.svTrPick=anchor=>{
   const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;   /* the list only: scrollIntoView would also scroll the page and pull the tag away */
   setTimeout(()=>{document.addEventListener("pointerdown",svTrPopOut,true);document.addEventListener("keydown",svTrPopKey,true);window.addEventListener("scroll",svTrPopScroll,true);window.addEventListener("resize",svTrPopClose)},0);
   return false;
+};
+window.svTrChoose=code=>{
+  const f=_svTrCb;if(!f)return svTrSet(code);
+  if(code==="en"||!langByCode(code))return false;
+  S.profile=S.profile||{};S.profile.trLang=code;save();svTrPopClose();
+  try{f(code)}catch(e){}
+  return true;
 };
 /* a pick sets the language AND switches Translate on — that is why they opened the list */
 window.svTrSet=code=>{

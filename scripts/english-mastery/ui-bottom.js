@@ -390,6 +390,7 @@ Reply as JSON: {"reply": "VERDICT: good|almost|retry\\nWELL: <one short line on 
       case "trend": _trendSpan = +arg === 90 ? 90 : 30; { const el = document.getElementById("emTrends"); if (el) el.outerHTML = trendsHTML(true); } return;
       case "coach": return coachAsk();
       case "gloss": return glossFetch(arg);
+      case "trlang": return glLangPick(btn);
       case "partner": if (document.getElementById("emGame") && document.getElementById("emGame").classList.contains("show")) gameClose(); sheetClose(); try { go("partner"); } catch (e) {} return;
       case "shadow": { const vid = arg; if (document.getElementById("emGame") && document.getElementById("emGame").classList.contains("show")) gameClose(); sheetClose(); try { go("shadow"); setTimeout(() => { try { shLoad({ vid, start: 0, end: 0, title: "" }); } catch (e) {} }, 250); } catch (e) {} return; }
       case "advanced": {

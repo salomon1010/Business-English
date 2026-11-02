@@ -295,6 +295,13 @@ console.log("\n# Free: sign-in, energy, offline, the programme check");
   await F.p.evaluate(() => { document.getElementById("emSheet").remove(); EMUI._act("word", "em-f-1-0"); }); await sleep(300);
   const fg = await F.p.evaluate(() => ({ txt: (document.querySelector("#emSheet .em-gl p") || {}).textContent, label: (document.querySelector("#emSheet .em-gl small") || {}).textContent }));
   ok("T2 · a First steps sentence shows the Foundations course's own French, no AI call", /Bonjour/.test(fg.txt || "") && /Foundations/.test(fg.label || "") && F.srv.tr === 1, JSON.stringify(fg));
+  /* the language chip opens Shadow's searchable list over the card; a pick redraws the card in that language and is the one saved choice */
+  await click(F.p, '#emSheet .em-tr-lang'); await sleep(300);
+  const pk = await F.p.evaluate(() => { const pop = document.getElementById("svTrPop"), r = pop && pop.getBoundingClientRect(); const top = pop && document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { open: !!pop, onTop: !!(top && pop.contains(top)), n: pop ? pop.querySelectorAll(".sv-tr-opt").length : 0 }; });
+  await F.p.evaluate(() => { const b = [...document.querySelectorAll("#svTrPop .sv-tr-opt")].find(x => /Espa/.test(x.textContent)); b && b.click(); }); await sleep(300);
+  const es = await F.p.evaluate(() => ({ pop: !!document.getElementById("svTrPop"), tr: S.profile.trLang, chip: ((document.querySelector("#emSheet .em-tr-lang") || {}).textContent || "").trim(), lang: (document.querySelector("#emSheet .em-gl p") || {}).lang }));
+  ok("T3 · the language chip opens the full list above the card; Spanish redraws the card in Spanish and is saved", pk.open && pk.onTop && pk.n >= 10 && !es.pop && es.tr === "es" && es.chip === "ES" && es.lang === "es", JSON.stringify({ pk, es }));
+  await F.p.evaluate(() => { delete S.profile.trLang; save(); });
   await F.p.evaluate(() => { document.getElementById("emSheet") && document.getElementById("emSheet").remove(); S.profile.lang = "en"; save(); });
   /* curriculum order: a learner in week 5 meets weeks 4–6 first; a learner placed in Foundations meets First steps first */
   const al = await F.p.evaluate(() => { window.currentPos = () => ({ w: 5, d: "Mon" }); const ids = EMUI._choose("cards", { onlyNew: true, n: 10 }); const C = EMUI._corpus(); return ids.map(id => C.terms.find(t => t.id === id)).map(t => t.wk); });
