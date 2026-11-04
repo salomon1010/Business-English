@@ -41,7 +41,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 MASTER = ROOT / "branding" / "welding" / "logo-master.png"
@@ -117,15 +117,41 @@ def bbox_of(alpha):
     return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
 
 
+def corner_radius(alpha, x0, y0, side):
+    """The artwork's own corner radius, measured from its top-left corner.
+
+    tile_mask() fills convex rows/columns, so a corner where the artwork
+    itself runs flush to its dark surround (the welding badge's trim does,
+    bottom-right) never gets rounded — the top-left corner is always clean,
+    so measure there and apply that radius to all four below."""
+    a = np.asarray(alpha) > 128
+    half = side // 2
+    for dy in range(half):
+        row = a[y0 + dy, x0:x0 + half]
+        xs = np.nonzero(row)[0]
+        if len(xs) and xs.min() <= 1:
+            return dy
+    return round(side * 0.22)
+
+
 def shapes(im):
     alpha = tile_mask(im)
     x0, y0, x1, y1 = bbox_of(alpha)
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     side = max(x1 - x0, y1 - y0)
+    radius = corner_radius(alpha, x0, y0, int(side))
 
     tile = im.copy()
-    tile.putalpha(alpha)
     tile = tile.crop((int(cx - side / 2), int(cy - side / 2), int(cx + side / 2), int(cy + side / 2)))
+
+    # The alpha is a canonical rounded square, not the detected one: where the
+    # artwork itself runs flush to the dark surround (the welding badge's
+    # trim does, bottom-right) tile_mask() fills a flat corner instead of a
+    # curve, and intersecting that flawed shape with a clean mask can only
+    # shrink it further, never restore the missing curve.
+    clip = Image.new("L", tile.size, 0)
+    ImageDraw.Draw(clip).rounded_rectangle([0, 0, tile.width - 1, tile.height - 1], radius=radius, fill=255)
+    tile.putalpha(clip)
 
     full = grow_to_square(tile)
 
