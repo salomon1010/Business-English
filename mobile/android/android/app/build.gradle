@@ -71,8 +71,13 @@ android {
             // 25 (31 Oct 2026): web be12-v697 — adds the "same time tomorrow?" prompt and the per-app AI allowance. The production release.
             // 26 (31 Oct 2026): web be12-v700 — REAL ADS on (ads_enabled) and Play's in-app review card (BEReviewPlugin).
             //    Needs "Contains ads: Yes" + the Data safety update in Play Console before it reaches production.
-            versionCode 28
-            versionName "1.2.9"
+            // 28 IS SPENT — it is the LIVE production release (name 1.2.9), confirmed against the Play
+            //    Developer API on 4 Nov 2026 (production track status=completed). It carries web be12-v704.
+            // 29 (4 Nov 2026): web be12-v705 — the Welding Home-card thumbnail fallback, the rounded +
+            //    animated Welding opening splash, and the Shadow library category/channel filters now
+            //    also reaching the hero carousel.
+            versionCode 29
+            versionName "1.2.10"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
@@ -110,8 +115,11 @@ android {
             // 9 (31 Oct 2026): web be12-v696, as the other app's 24. Supersedes 8 (a draft, never released).
             // 10 (31 Oct 2026): web be12-v697, as the other app's 25. The production release.
             // 11 (31 Oct 2026): web be12-v700, as the other app's 26 (ads only in the game hubs on Welding).
-            versionCode 13
-            versionName "1.0.9"
+            // 13 IS SPENT — it is the LIVE production release (name 1.0.9), confirmed against the Play
+            //    Developer API on 4 Nov 2026 (production track status=completed). It carries web be12-v704.
+            // 14 (4 Nov 2026): web be12-v705, as the other app's 29.
+            versionCode 14
+            versionName "1.0.10"
             buildConfigField "String", "BE_PROGRAMME", '"welding"'
             // NOT bemastery://apple: only one installed app may claim a scheme, and
             // a second claimant would put a chooser between the learner and their
