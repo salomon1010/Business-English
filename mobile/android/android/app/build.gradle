@@ -75,9 +75,14 @@ android {
             //    Developer API on 4 Nov 2026 (production track status=completed). It carries web be12-v704.
             // 29 (4 Nov 2026): web be12-v705 — the Welding Home-card thumbnail fallback, the rounded +
             //    animated Welding opening splash, and the Shadow library category/channel filters now
-            //    also reaching the hero carousel.
-            versionCode 29
-            versionName "1.2.10"
+            //    also reaching the hero carousel. SUBMITTED for public review — 29 cannot be reused.
+            // 30 (6 Nov 2026, release/ge-baseline-recovery, NOT merged/uploaded): the recovered
+            //    curriculum-first redesign (Today tab, simplified Road Map, illustrated Practice hub),
+            //    selfLevel + pronunciation-honesty fixes, the Welding/Professional-Tracks selector gated
+            //    out of every General English build, and the flag-gated (OFF) Ideas & Personal Growth
+            //    Shadow pipeline. Local artifact only — see docs produced alongside this release.
+            versionCode 30
+            versionName "1.2.11"
             buildConfigField "String", "BE_PROGRAMME", '"general-english"'
             // Sign in with Apple opens Apple's page in a Custom Tab and auth.lomonec.com
             // hands the answer back on bemastery://apple. Only ONE app may claim a
