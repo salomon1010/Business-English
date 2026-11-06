@@ -34710,7 +34710,17 @@ function rProfile(el){
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
-    ${pfRow("map",t("pf.area"),"go('tracks','profile')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
+    ${/* The two-app split (owner, 6 Nov 2026): every other entry point into the
+          Programme page is already hidden in a single-programme build —
+          homeProgrammeRowHTML(), homeTracksHTML(), areaScopeHTML() and
+          areaNoteHTML() all return "" the instant BE_APP_TRACK is set, because
+          "there is nothing to choose and nothing to cross to." This row was
+          the one place that rule was missed: it rendered on every build,
+          opening a Programme page that (correctly, via rTracks' own filter)
+          never lists Welding — but still presented a "Programme" setting with
+          no real second option to a learner who installed a single-programme
+          app. Same rule, same outcome: nothing to show, so show nothing. */
+      BE_APP_TRACK?"":pfRow("map",t("pf.area"),"go('tracks','profile')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
     ${pfRow("sound",t("acc.voice_label"),"pfSetupSheet('setVoice',this.dataset.l)",(TTS_VOICE_OPTS.find(v=>v[0]===(p.voice||"alloy"))||[])[1]||"")}
     ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"pfThemeSheet()",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
     ${pfRow("clock",t("rem.label"),"pfSetupSheet('setRem',this.dataset.l)",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}

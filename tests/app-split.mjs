@@ -163,6 +163,12 @@ console.log("\n# §4 — the cross-programme UI is not drawn");
   ok("22 · Home draws no card for the other programme and no way to the Programme page", !u.otherCard && !u.tracksRow, JSON.stringify(u));
   ok("23 · the Progress banner and the Profile caption that offer the other area are empty", u.scope === "" && u.note === "", JSON.stringify(u));
   ok("24 · the Programme page never names Welding in the General English app", !/true$/.test(u.tracksPage) && !u.tracksPage.endsWith("|true"), u.tracksPage);
+  /* Found 6 Nov 2026 (the Standing Release Target's open work item): every
+     OTHER entry point into the Programme page was already hidden in a
+     single-programme build — this Profile row was missed, and rendered on
+     every build regardless of BE_APP_TRACK. */
+  const prof = await p.evaluate(() => { go("profile"); return document.getElementById("v-profile").innerHTML });
+  ok("24b · Profile's own 'Programme' row is also gone in the General English app (the one entry point that had been missed)", !prof.includes("go('tracks','profile')"), prof.includes("go('tracks','profile')"));
   await ctx.close();
 }
 {
@@ -170,6 +176,8 @@ console.log("\n# §4 — the cross-programme UI is not drawn");
   const u = await p.evaluate(() => { go("home"); const home = document.getElementById("v-home").innerHTML;
     return { tracksRow: home.includes("go('tracks')"), geCard: /tracks\.general|Practice Partner/.test(home), scope: areaScopeHTML() } });
   ok("25 · the Welding app's Home offers no General English card and no Programme row", !u.tracksRow && !u.geCard && u.scope === "", JSON.stringify(u));
+  const prof = await p.evaluate(() => { go("profile"); return document.getElementById("v-profile").innerHTML });
+  ok("25b · Profile's own 'Programme' row is gone in the Welding app too (same rule, same app split)", !prof.includes("go('tracks','profile')"), prof.includes("go('tracks','profile')"));
   await ctx.close();
 }
 
@@ -207,6 +215,7 @@ console.log("\n# §6 — the unsplit web build is unchanged");
   ok("33 · …and after switching back, the General English pages too", back.area === GE && back.partner === "partner" && back.english === "english" && back.roleplay === "roleplay", JSON.stringify(back));
   ok("34 · the Programme page still offers both programmes on the web", (await p.evaluate(() => { const d = document.createElement("div"); rTracks(d, "home"); return /tracks\.general|General English/i.test(d.innerHTML) && /welding/i.test(d.innerHTML) })));
   ok("35 · Home still draws the other programme's card and the Programme row on the web", (await p.evaluate(() => { go("home"); const h = document.getElementById("v-home").innerHTML; return h.includes("go('tracks')") })));
+  ok("35b · Profile's own 'Programme' row still shows on the web too — only a single-programme BUILD hides it, not the web", (await p.evaluate(() => { go("profile"); return document.getElementById("v-profile").innerHTML.includes("go('tracks','profile')") })));
   ok("36 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
