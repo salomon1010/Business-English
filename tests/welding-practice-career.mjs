@@ -100,8 +100,16 @@ console.log("\n# 9/10 · General English is unchanged");
   const h = await p.evaluate(() => ({ chip: !!document.getElementById("trackIndicator"), dataTrack: document.documentElement.getAttribute("data-track") }));
   ok("9 · no chip on General English (as before)", !h.chip && h.dataTrack === "general", JSON.stringify(h));
   await p.evaluate(() => go("practice")); await sleep(400);
+  /* curriculum-driven Practice hub (owner-approved, 5 Nov 2026): General English's
+     old .path-tool-list ("Best tool for your step") is gone, replaced by the
+     four-card Recommended Practice grid (.prac-card) — so there is no longer a
+     tool list to compare against Welding's at all. What this check still
+     protects — nothing of Welding's leaks into General English — now reads the
+     new grid directly: it must carry exactly the four brief-defined activities,
+     none of them Welding's text-shadowing or Career Destination. */
   const tl = (await tools(p)).map(x => x.t);
-  ok("9 · General English Practice has no text-shadowing or Career tool", !tl.includes("Practice text shadowing") && !tl.includes("Career Destination") && tl.slice(0, 3).join("|") === WELD.slice(0, 3).join("|"), JSON.stringify(tl));
+  const pc = await p.evaluate(() => [...document.querySelectorAll("#v-practice .prac-card .pc-t")].map(x => x.textContent.trim()));
+  ok("9 · General English Practice has no text-shadowing or Career tool — and no old tool list either", tl.length === 0 && !pc.includes("Practice text shadowing") && !pc.includes("Career Destination") && pc.join("|") === ["AI Conversation", "Grammar Practice", "Vocabulary Practice", "Live Partner Practice"].join("|"), JSON.stringify({ tl, pc }));
   ok("10 · pathTools() on General English has neither id", await p.evaluate(() => !pathTools().some(x => x.id === "lines" || x.id === "career")));
   ok("9 · General English Shadow is still the video library, not workplace lines", await p.evaluate(() => { go("shadow"); return !document.querySelector("#v-shadow .sh-lines"); }));
   ok("14 · no page errors on General English", !errs.length, errs.join(" | "));

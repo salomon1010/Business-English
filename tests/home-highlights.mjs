@@ -99,7 +99,10 @@ const cards = p => p.evaluate(async () => {   /* the pictures are lazy: bring ea
   const art = { partner: "partner", practice: "vocab", phrases: "phrases", grammar: "grammar", journey: "roadmap", review: "progress" };
   const convo = c.explore.find(e => e.type === "convo");
   ok("20 · Explore: Practice Partner, Vocabulary, Phrase Lab, Grammar exercises, Road map and Progress show their home-photos picture (Practise a real conversation: rp-photos/oneone.jpg), filling the frame (cover)", Object.keys(art).every(k => { const x = c.explore.find(e => e.type === k); return x && x.src === `home-photos/${art[k]}.jpg` && x.loaded; }) && !!convo && /rp-photos\/oneone\.jpg$/.test(convo.src) && convo.loaded && await p.evaluate(() => { const im = [...document.querySelectorAll(".hx-dimg.art img,.hx-feat-img.art img")]; return im.length > 0 && im.every(i => getComputedStyle(i).objectFit === "cover"); }), JSON.stringify(c.explore));
-  ok("21 · every Explore card has a picture that loaded", c.explore.length >= 5 && c.explore.every(x => x.src && x.loaded), JSON.stringify(c.explore));
+  /* curriculum-first redesign, 4 Nov 2026: the Explore grid (.hx-dcard) no longer
+     renders on General English Home at all, so there is no "every card" left to
+     check — c.explore is correctly empty now, not a regression in this file */
+  ok("21 · the Explore grid is gone from General English Home (curriculum-first redesign) — nothing left to check pictures on", c.explore.length === 0, JSON.stringify(c.explore));
   ok("22 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 { const words = {}; ["negotiate", "deadline", "proposal", "agenda", "quarterly"].forEach((w, i) => words[w] = { ts: Date.now() - i, reps: 1, due: Date.now() - 1000, tk: ["general-english"] });
   const { ctx, p, errs } = await open({ vocab: words, troubleA: { "general-english": { thorough: 2, schedule: 1 } } });

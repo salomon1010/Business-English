@@ -41,7 +41,7 @@ const clipTo = async (v, find, off, name, prep) => {
   console.log(name, "at", Math.round(y));
 };
 await clipTo("practice", { sel: "button", txt: "^\\s*STUDY" }, -10, "vocab");
-await clipTo("journey", { sel: "#rmRoad" }, +(process.env.RM || 300), "roadmap");
+await clipTo("journey", { sel: ".rm-path" }, +(process.env.RM || 60), "roadmap");
 await clipTo("review", { sel: "h3,h2,b,span,div", txt: "Progress calendar" }, +(process.env.PG || 60), "progress");
 await clipTo(["session", 1, "Mon"], { sel: "div,span,b", txt: "^\\s*Focused practice block" }, -12, "session");
 await clipTo("phrases", { sel: "div,span,b", txt: "^\\s*Executive Polish" }, -20, "phrases", () => {

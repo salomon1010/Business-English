@@ -1,9 +1,10 @@
-/* Road map card — one design for General English and Welding (owner, 30 Sep 2026).
-   Run: cd tests && node roadmap-card.mjs        (BASE=… to test another tree; SHOTS=dir for screenshots)
-
-   One presentation (rmCardHTML) fed by track data (rmData) and a per-area look
-   (rmLook: photo + two icons). These checks hold the data to the curriculum on
-   each track, the button to the learner's real state, and the two areas apart. */
+/* Road map — two designs since 5 Nov 2026 (owner-approved).
+   Welding keeps the single overview card + illustrated road (rmCardHTML / rmBoardHTML /
+   rmDraw, "one design for both areas," owner 30 Sep 2026) completely unchanged.
+   General English now gets a simplified Duolingo-style vertical path (rmHeaderHTML /
+   rmPathHTML), fed by the SAME rmSteps()/rmData() both designs always read, so it
+   cannot disagree with the curriculum, progression rules or the Practice/Progress pages.
+   Run: cd tests && node roadmap-card.mjs        (BASE=… to test another tree; SHOTS=dir for screenshots) */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 const root = new URL("..", import.meta.url).pathname;
 const PORT = +(process.env.PORT || 8133);
@@ -26,6 +27,7 @@ async function open(state, { w = 390, h = 844, lang = "en", reduce = false } = {
   await p.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#coachSummary").forEach(e => e.remove()); go("journey"); scrollTo(0, 0) }); await sleep(1500);
   return { ctx, p, errs };
 }
+/* Welding's shared overview card — unchanged from before 5 Nov 2026. */
 const card = p => p.evaluate(() => {
   const c = document.querySelector("#v-journey .rm2"); if (!c) return null;
   const q = s => c.querySelector(s), tx = s => (q(s) || {}).innerText?.trim() ?? null;
@@ -38,25 +40,43 @@ const card = p => p.evaluate(() => {
     rows: [...c.querySelectorAll(".rm2-row")].map(r => ({ n: r.querySelector(".rm2-num").innerText.trim(), t: r.querySelector(".rm2-row-t").innerText, p: r.querySelector(".rm2-row-p").innerText, s: r.className.replace("rm2-row", "").trim() })),
     cta: tx(".rm2-cta-l"), ctaGo: q(".rm2-cta")?.getAttribute("onclick"), img: getComputedStyle(q(".rm2-art")).backgroundImage, text: c.innerText };
 });
+/* General English's new simplified path: a compact header (rmHeaderHTML) + a
+   vertical list of steps (rmPathHTML), both fed by the same rmData()/rmSteps()
+   the Welding card above reads — see index.html rmHTML(). */
+const path = p => p.evaluate(() => {
+  const h = document.querySelector("#v-journey .rm-head2"); if (!h) return null;
+  const q = s => h.querySelector(s), tx = s => (q(s) || {}).innerText?.trim() ?? null;
+  const rows = [...document.querySelectorAll("#v-journey .rm-path-row")].map(li => ({
+    cls: li.className.replace("rm-path-row", "").trim(), k: (li.querySelector(".rm-path-k") || {}).innerText,
+    title: (li.querySelector("h3") || {}).innerText, sub: (li.querySelector(".rm-path-sub") || {}).innerText ?? null,
+    pct: (li.querySelector(".rm-path-bar i") || {}).style?.width ?? null, tag: (li.querySelector(".rm-path-tag") || {}).innerText ?? null,
+    go: (li.querySelector(".rm-path-card") || {}).getAttribute?.("onclick") }));
+  return { eyebrow: tx(".eyebrow"), pos: tx(".rm-head2-pos"), title: tx(".rm-head2-title"), sub: tx(".rm-head2-sub"),
+    count: tx(".rm-head2-count"), barW: (q(".rm-head2-bar i") || {}).style?.width, cta: tx(".rm-head2-cta-l"),
+    ctaGo: q(".rm-head2-cta")?.getAttribute("onclick"), rows, text: document.querySelector("#v-journey").innerText };
+});
 const ser = x => JSON.stringify(x);
 
-console.log("\n# General English — new learner");
+console.log("\n# General English — new learner (simplified vertical path)");
 { const { ctx, p, errs } = await open(seed("general-english"));
-  const c = await card(p);
-  ok("GE · header: 'Your 12-week road map' + the General English line", /12-week road map/i.test(c.title) && c.sub === "Build the English skills you need for real workplace success.", ser(c));
-  ok("GE · progress: 0%, '0 of 84 sessions done', 12 weeks · 84 sessions (real counts)", c.count === "0 of 84 sessions done" && /^12 Weeks/i.test(c.stats[0]) && /^84 Sessions/i.test(c.stats[1]), ser(c));
-  ok("GE · current = Week 1 of 12, its curriculum theme, phase and goal", c.badge.toUpperCase() === "WEEK 1 OF 12" && c.cur === "Introductions, role clarity & speech baseline" && c.curSub === "Foundation" && c.desc === "Build your baseline and start speaking clearly about yourself and your role.", ser(c));
-  ok("GE · 0 of 7 sessions, seven segments, Monday marked as the next one", c.curN === "0 of 7 sessions" && c.curPct === "0%" && c.segs.length === 7 && c.segs[0] === "now" && c.segs.slice(1).every(s => !s), ser(c.segs));
-  ok("GE · today's session travels with the button (read out, not drawn — the reference shows no extra line): Week 1 · Monday, Pronunciation baseline, Session 1 of 7", /Week 1 · Monday/.test(c.today) && /Pronunciation baseline/.test(c.today) && /Session 1 of 7 in Week 1/.test(c.today), c.today);
-  ok("GE · next = Week 2 and its theme; tapping it opens Week 2", /NEXT WEEK/i.test(c.nextK) && c.next === "Week 2 — Project updates & status communication" && /go\('journey',2\)/.test(c.nextGo), ser(c));
-  ok("GE · journey = the three General English phases, Foundation current", c.jourH.toUpperCase() === "YOUR LEARNING JOURNEY" && ser(c.rows.map(r => r.t)) === ser(["Foundation", "Workplace Fluency", "Executive Communication"]) && c.rows[0].s === "now" && c.rows[0].n === "01" && c.all.startsWith("View all 12 weeks"), ser(c.rows));
-  ok("GE · button: 'Start Week 1' → Week 1 Monday", c.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(c.ctaGo), ser(c));
-  ok("GE · photo is the General English one", /roadmap-art\/general\.jpg/.test(c.img) && c.look === "ge", c.img);
-  ok("isolation · no Welding words on the General English card", !/Stage \d|Workshop|welding|professional journey/i.test(c.text), c.text);
+  const r = await path(p);
+  ok("GE · the old card and old road are gone; the new header and path render instead", !(await p.evaluate(() => !!document.querySelector("#v-journey .rm2") || !!document.querySelector("#v-journey #rmRoad"))), ser(r));
+  ok("GE · header: 'Your 12-week road map' eyebrow, Week 1 of 12, 0 of 84 sessions done, 0% bar", r.eyebrow.toUpperCase() === "YOUR 12-WEEK ROAD MAP" && r.pos === "WEEK 1 OF 12" && r.count === "0 of 84 sessions done" && r.barW === "0%", ser(r));
+  ok("GE · header names today's actual lesson and where it sits in the week — not just the week theme", r.title === "Pronunciation baseline" && r.sub === "Session 1 of 7 in Week 1", ser(r));
+  ok("GE · one primary action: 'Start Week 1' → Monday's session", r.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(r.ctaGo), ser(r));
+  ok("GE · exactly one path, 17 rows: Stage 0 + 12 weeks + 3 review checkpoints (after 4/8/12) + certificate", r.rows.length === 17 && r.rows.filter(x => x.k === "REVIEW CHECKPOINT").length === 3 && r.rows[16].k === "YOUR CERTIFICATE", ser(r.rows.map(x => x.k)));
+  ok("GE · Stage 0 already passed shows done; Week 1 is the one 'now' row; Week 2 is the one 'next' row; everything after is locked", /\bdone\b/.test(r.rows[0].cls) && /\bnow\b/.test(r.rows[1].cls) && r.rows[1].tag === "You are here" && /\bnext\b/.test(r.rows[2].cls) && r.rows[2].tag === "Next" && r.rows.slice(3).every(x => /\blocked\b/.test(x.cls)), ser(r.rows.map(x => [x.k, x.cls, x.tag])));
+  ok("GE · the review checkpoints keep the curriculum's real words (Monthly review after WEEK 4/8/12) — no invented milestones", r.rows.filter(x => x.k === "REVIEW CHECKPOINT").map(x => x.title).join("|") === "Monthly review after WEEK 4|Monthly review after WEEK 8|Monthly review after WEEK 12", ser(r.rows.filter(x => x.k === "REVIEW CHECKPOINT")));
+  ok("GE · the certificate row is last, locked, and names the real total", r.rows[16].title === "Unlocks when all 84 sessions are done", r.rows[16]);
+  ok("GE · every row's tap destination is the same go('journey', w) the curriculum already uses — no new navigation invented", r.rows[1].go === "rmClose();go('journey',1)" && r.rows[2].go === "rmClose();go('journey',2)", ser(r.rows.slice(0, 3).map(x => x.go)));
+  /* "Stage 0" is a SHARED label (rm.stage0) — both areas' Foundations placement
+     step uses it, so it is not a leak. Welding-specific numbered stages start
+     at Stage 1 (rmUnitName); General English's own weeks are always "WEEK n". */
+  ok("isolation · no Welding words anywhere on the General English page", !/Stage [1-9]|Stage 1[0-2]|Workshop|welding|professional journey/i.test(r.text), r.text.slice(0, 200));
   ok("no page errors", !errs.length, errs.join(" | "));
   await ctx.close(); }
 
-console.log("\n# Welding — new learner");
+console.log("\n# Welding — new learner (unchanged: the overview card + illustrated road)");
 { const { ctx, p, errs } = await open(seed("welding"));
   const c = await card(p);
   ok("W · header: same title, the Welding line", /12-week road map/i.test(c.title) && /successful career in welding/.test(c.sub), ser(c));
@@ -76,110 +96,145 @@ console.log("\n# isolation — each area's progress stays its own");
   const c = await card(p);
   ok("Welding card ignores General English sessions: 0 of 84, Stage 1", c.count === "0 of 84 sessions done" && /STAGE 1 OF 12/i.test(c.badge), ser(c)); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", { days: { ...weekDays(1, "welding:"), "welding:w2Mon": true } }));
-  const c = await card(p);
-  ok("General English card ignores Welding sessions: 0 of 84, Week 1", c.count === "0 of 84 sessions done" && /WEEK 1 OF 12/i.test(c.badge), ser(c)); await ctx.close(); }
+  const r = await path(p);
+  ok("General English path ignores Welding sessions: 0 of 84, Week 1", r.count === "0 of 84 sessions done" && r.pos === "WEEK 1 OF 12", ser(r)); await ctx.close(); }
 
-console.log("\n# states — the button follows the learner's real position");
+console.log("\n# states — the button and the path follow the learner's real position");
 { const { ctx, p } = await open(seed("general-english", { days: { w1Mon: true, w1Tue: true, w1Wed: true } }));
-  const c = await card(p);
-  ok("in progress: 3 of 84 → 4%, 3 of 7, three segments done + Thursday next, 'Continue Week 1' → Thursday", c.count === "3 of 84 sessions done" && c.curN === "3 of 7 sessions" && c.curPct === "43%" && ser(c.segs) === ser(["done", "done", "done", "now", "", "", ""]) && c.cta === "Continue Week 1" && /go\('session',1,'Thu'\)/.test(c.ctaGo), ser(c));
-  await sleep(1400); ok("the ring counts up to the real figure (4%)", (await card(p)).pct === "4%"); await ctx.close(); }
+  const r = await path(p);
+  ok("in progress: 3 of 84, today's real next lesson (Thursday), Week 1 row at 43% with three sub-segments implied by its own 'sub', 'Continue Week 1' → Thursday", r.count === "3 of 84 sessions done" && r.title === "Explain your role to a non-technical person" && r.sub === "Session 4 of 7 in Week 1" && r.rows[1].sub === "3 of 7 sessions" && r.rows[1].pct === "43%" && r.cta === "Continue Week 1" && /go\('session',1,'Thu'\)/.test(r.ctaGo), ser(r));
+  await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", { days: { w1Mon: true, w1Tue: true, w1Wed: true }, steps: { w1Thu: [0, 1] } }));
-  const c = await card(p);
-  ok("returning mid-session: 'Resume Week 1' → Thursday", c.cta === "Resume Week 1" && /go\('session',1,'Thu'\)/.test(c.ctaGo), ser(c)); await ctx.close(); }
+  const r = await path(p);
+  ok("returning mid-session: 'Resume Week 1' → Thursday", r.cta === "Resume Week 1" && /go\('session',1,'Thu'\)/.test(r.ctaGo), ser(r)); await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { days: weekDays(1, "welding:") }));
   const c = await card(p);
   ok("stage complete: current = Stage 2, 'Continue to Stage 2', Workshop Foundations 25%, next = Stage 3", /STAGE 2 OF 12/i.test(c.badge) && c.cta === "Continue to Stage 2" && c.rows[0].p === "25%" && c.rows[0].s === "now" && c.next === "Stage 3 — Tools & Equipment" && c.count === "7 of 84 sessions done", ser(c)); await ctx.close(); }
 { const days = {}; for (let w = 1; w <= 4; w++) Object.assign(days, weekDays(w));
   const { ctx, p } = await open(seed("general-english", { days }));
-  const c = await card(p);
-  ok("phase complete: Foundation row shows a check and 100%, Workplace Fluency is current, next skips the review checkpoint to Week 6", c.rows[0].s === "done" && c.rows[0].p === "100%" && c.rows[0].n === "" && c.rows[1].s === "now" && /WEEK 5 OF 12/i.test(c.badge) && c.next.startsWith("Week 6 — "), ser(c)); await ctx.close(); }
+  const r = await path(p);
+  ok("phase complete: weeks 1-4 and the first checkpoint all show done+lit, Week 5 is 'now', Week 6 is 'next' (the checkpoint is correctly skipped, not counted as a week)", r.rows.slice(1, 5).every(x => /\bdone\b/.test(x.cls) && x.pct === "100%") && /\bdone\b/.test(r.rows[5].cls) && /\bnow\b/.test(r.rows[6].cls) && /\bnext\b/.test(r.rows[7].cls) && r.pos === "WEEK 5 OF 12" && r.count === "28 of 84 sessions done", ser(r.rows.map(x => [x.k, x.cls])));
+  await ctx.close(); }
 { const days = {}; for (let w = 1; w <= 12; w++) Object.assign(days, weekDays(w));
   const { ctx, p } = await open(seed("general-english", { days }));
-  const c = await card(p);
-  ok("programme finished: 84 of 84, the certificate panel, 'Review your journey' → Progress, no today line", c.count === "84 of 84 sessions done" && /certificate/i.test(c.badge) && c.cta === "Review your journey" && /go\('review'\)/.test(c.ctaGo) && c.today === null && /Ready to download/.test(c.next), ser(c)); await ctx.close(); }
+  const r = await path(p);
+  ok("programme finished: 84 of 84, every row done+lit including the certificate, 'Review your journey' → Progress, the certificate reads 'ready to download'", r.count === "84 of 84 sessions done" && r.barW === "100%" && r.rows.every(x => /\bdone\b/.test(x.cls)) && r.cta === "Review your journey" && /go\('review'\)/.test(r.ctaGo) && r.rows[16].title === "Ready to download and share", ser(r)); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", { fnd: { "general-english": {}, welding: F() } }));
-  const c = await card(p);
-  ok("placement not taken: Stage 0 Foundations is current and the button is the one-minute check", /Stage 0/i.test(c.badge) && c.cur === "Foundations" && /one-minute check/i.test(c.cta) && /fndOpenCheck/.test(c.ctaGo) && c.next.startsWith("Week 1 — "), ser(c)); await ctx.close(); }
+  const r = await path(p);
+  ok("placement not taken: Stage 0 is the 'now' row and the button is the one-minute check; Week 1 is correctly 'next'", r.pos === "STAGE 0" && /one-minute check/i.test(r.cta) && /fndOpenCheck/.test(r.ctaGo) && /\bnow\b/.test(r.rows[0].cls) && /\bnext\b/.test(r.rows[1].cls) && r.rows[1].k === "WEEK 1", ser(r)); await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F(), welding: F({ placed: "foundations", finished: false, day: 3, done: { d1: true, d2: true } }) } }));
   const c = await card(p);
   ok("in Foundations: 2 of 15 days, a plain bar, the button opens the Foundations day", /Stage 0/i.test(c.badge) && c.curN === "2 of 15 sessions" && !c.segs.length && /go\('foundations'\)/.test(c.ctaGo), ser(c)); await ctx.close(); }
 
-console.log("\n# navigation");
+console.log("\n# navigation — General English");
 { const { ctx, p, errs } = await open(seed("general-english"));
-  await p.click("#v-journey .rm2-cta"); await sleep(600);
-  ok("the button opens the session", await p.evaluate(() => cur.v === "session" && String(cur.arg1) === "1" && cur.arg2 === "Mon"));
+  await p.click("#v-journey .rm-head2-cta"); await sleep(600);
+  ok("the primary button opens today's session", await p.evaluate(() => cur.v === "session" && String(cur.arg1) === "1" && cur.arg2 === "Mon"));
   await p.evaluate(() => go("journey")); await sleep(800);
-  await p.click("#v-journey .rm2-next"); await sleep(600);
-  ok("Next week opens the Week 2 page", await p.evaluate(() => cur.v === "journey" && String(cur.arg1) === "2"));
+  await p.locator("#v-journey .rm-path-row.next .rm-path-card").click(); await sleep(600);
+  ok("tapping the 'Next' row (Week 2) opens Week 2", await p.evaluate(() => cur.v === "journey" && String(cur.arg1) === "2"));
   await p.evaluate(() => go("journey")); await sleep(800);
-  await p.locator("#v-journey .rm2-row").nth(1).click(); await sleep(900);
-  const ph = await p.evaluate(() => ({ v: cur.v, ph: String(_jPhase), top: Math.round(document.querySelector("#v-journey #rmDetail").getBoundingClientRect().top), tab: document.querySelector("#v-journey .seg-tab.on,#v-journey .seg-phase-tab.on")?.innerText }));
-  ok("a journey row shows that phase's weeks and scrolls to them", ph.v === "journey" && ph.ph === "2" && ph.top < 300 && /Workplace Fluency/.test(ph.tab), ser(ph));
-  await p.evaluate(() => { _jPhase = null; go("journey"); scrollTo(0, 0) }); await sleep(800);
-  await p.click("#v-journey .rm2-all"); await sleep(900);
-  const va = await p.evaluate(() => ({ y: scrollY, road: Math.round(document.querySelector("#v-journey #rmRoad").getBoundingClientRect().top) }));
-  /* the board came back on 30 Sep 2026 (owner), so "View all" scrolls to it again, as it did
-     before the morning's deletion — the board is the twelve weeks, laid out. */
-  ok("'View all 12 weeks' scrolls to the winding board", va.y > 200 && va.road < 250, ser(va));
+  /* Locked rows still open the week page (existing rule, unchanged): the days
+     inside are what pathLocked()/pathNudge() actually gate, same as before. */
+  await p.locator("#v-journey .rm-path-row.locked.week .rm-path-card").first().click(); await sleep(600);
+  ok("tapping a locked week (Week 3) still opens its page — locking happens at the day level, same progression rule as before", await p.evaluate(() => cur.v === "journey" && String(cur.arg1) === "3"));
+  await p.evaluate(() => go("journey")); await sleep(800);
+  ok("the header button carries 'Continue Learning'-style wording consistent with the day it targets (Start on day 1)", await p.evaluate(() => document.querySelector("#v-journey .rm-head2-cta-l").innerText) === "Start Week 1");
+  /* The full-screen map sheet (header button, elsewhere in the app) wraps the
+     SAME rmHTML() — so it shows the new path too, not a second design. */
   await p.evaluate(() => rmOpen()); await sleep(700);
-  ok("the full-screen map sheet carries the same card", await p.evaluate(() => !!document.querySelector("#rmOv .rm2 .rm2-cta")));
-  await p.locator("#rmOv .rm2-row").nth(2).click(); await sleep(900);
-  ok("a row in the sheet closes it and lands on that phase", await p.evaluate(() => !document.getElementById("rmOv") && cur.v === "journey" && String(_jPhase) === "3"));
+  ok("the full-screen map sheet carries the SAME simplified path, not a second design", await p.evaluate(() => !!document.querySelector("#rmOv .rm-path") && !!document.querySelector("#rmOv .rm-head2")));
+  await p.locator("#rmOv .rm-path-row.next .rm-path-card").click(); await sleep(700);
+  ok("a row in the sheet closes it and lands on that week", await p.evaluate(() => !document.getElementById("rmOv") && cur.v === "journey" && String(cur.arg1) === "2"));
   ok("no page errors", !errs.length, errs.join(" | "));
   await ctx.close(); }
 
-console.log("\n# widths");
-for (const tr of ["general-english", "welding"]) for (const w of [375, 390, 400, 428, 430, 768, 1280]) {
-  const { ctx, p } = await open(seed(tr, { days: { [(tr === "welding" ? "welding:" : "") + "w1Mon"]: true } }), { w, h: w > 700 ? 900 : 844 });
+console.log("\n# widths — General English (the simplified path)");
+for (const w of [375, 390, 400, 428, 430, 768, 1280]) {
+  const { ctx, p } = await open(seed("general-english", { days: { w1Mon: true } }), { w, h: w > 700 ? 900 : 844 });
+  const m = await p.evaluate(() => {
+    const rm = document.querySelector("#v-journey .rm"), head = document.querySelector("#v-journey .rm-head2"), now = document.querySelector("#v-journey .rm-path-row.now .rm-path-card");
+    const r = e => e.getBoundingClientRect();
+    const clipped = [...rm.querySelectorAll(".rm-head2-title,.rm-head2-pos,.rm-head2-cta-l,.rm-path-k,h3,.rm-path-sub")].filter(e => e.scrollWidth > e.clientWidth + 1).length;
+    const taps = [...rm.querySelectorAll(".rm-path-card,.rm-head2-cta")].map(e => Math.round(r(e).height));
+    return { hscroll: document.documentElement.scrollWidth > innerWidth, clipped, minTap: Math.min(...taps), rmWidth: Math.round(r(rm).width), nowBottom: Math.round(r(now).bottom), vh: innerHeight };
+  });
+  /* "current lesson visible without unnecessary scrolling" (the brief's own words): the
+     header + the current-week row both land well inside one phone screen's height. */
+  ok(`GE ${w}px: no sideways scroll, nothing clipped, taps ≥44px, the current lesson is visible within the first screen (no unnecessary scrolling)`, !m.hscroll && !m.clipped && m.minTap >= 44 && m.nowBottom < m.vh, ser(m));
+  if (w >= 720) ok(`GE ${w}px: the path is centred and capped to a readable column, not stretched edge-to-edge`, m.rmWidth <= 640, ser(m));
+  if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-ge-${w}.png`, fullPage: true });
+  await ctx.close();
+}
+{ /* The certificate row is now genuinely the last thing on the page, and #ppFab
+     (the floating Partner button) is fixed over this view only (PP_FAB_VIEWS,
+     owner 22 Sep 2026) — a learner who scrolls all the way down must still be
+     able to read it. Found on a real device 5 Nov 2026; fixed with .rm-simple's
+     own bottom padding, not by moving or hiding the shared, unrelated #ppFab. */
+  const { ctx, p } = await open(seed("general-english"));
+  const g = await p.evaluate(() => {
+    const last = document.querySelector("#v-journey .rm-path-row:last-child .rm-path-card");
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }); // html{scroll-behavior:smooth} makes a plain scrollTo async
+    const b = last.getBoundingClientRect();
+    const fabTopFromBottom = 92 + 60; // #ppFab: bottom offset + its own height
+    return { clearance: Math.round(innerHeight - fabTopFromBottom - b.bottom) };
+  });
+  ok("GE: the certificate row can scroll clear of where the floating Partner button sits, on any device", g.clearance >= 0, ser(g));
+  await ctx.close(); }
+console.log("\n# widths — Welding (unchanged: the overview card)");
+for (const w of [375, 390, 400, 428, 430, 768, 1280]) {
+  const { ctx, p } = await open(seed("welding", { days: { "welding:w1Mon": true } }), { w, h: w > 700 ? 900 : 844 });
   const m = await p.evaluate(() => {
     const c = document.querySelector("#v-journey .rm2"), r = e => e.getBoundingClientRect(), cr = r(c);
     const clipped = [...c.querySelectorAll(".rm2-badge,.rm2-cur h3,.rm2-next-t b,.rm2-cta-l,.rm2-title,.rm2-count,.rm2-stat b,.rm2-stat small,.rm2-row-t")].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className);
     const out = [...c.querySelectorAll("*")].filter(e => { const b = r(e); return b.width && (b.right > cr.right + 1 || b.left < cr.left - 1) && !e.closest(".rm2-art,svg,.rm2-sr") }).map(e => e.className).slice(0, 3);
     const taps = [...c.querySelectorAll(".rm2-row,.rm2-next,.rm2-cta")].map(e => Math.round(r(e).height));
     const two = r(c.querySelector(".rm2-cur")).left > r(c.querySelector(".rm2-prog")).right - 1;
-    const allH = r(c.querySelector(".rm2-all")); const cta = r(c.querySelector(".rm2-cta"));
-    return { hscroll: document.documentElement.scrollWidth > innerWidth, fits: cr.left >= 0 && cr.right <= innerWidth, clipped, out, minTap: Math.min(...taps), two, h: Math.round(cr.height), ctaBottom: Math.round(cta.bottom), vh: innerHeight };
+    return { hscroll: document.documentElement.scrollWidth > innerWidth, fits: cr.left >= 0 && cr.right <= innerWidth, clipped, out, minTap: Math.min(...taps), two, h: Math.round(cr.height) };
   });
-  /* the owner's call (30 Sep 2026): the phone shows the same two-column card, scaled down — rows ~24px, button ~30px */
-  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ ${w >= 760 ? 36 : 22}px, two columns`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= (w >= 760 ? 36 : 22) && m.two === true, ser(m));
-  if (process.env.SHOTS) { await p.screenshot({ path: `${process.env.SHOTS}/rmc-${tr === "welding" ? "weld" : "ge"}-${w}.png` }) }
+  ok(`W ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ ${w >= 760 ? 36 : 22}px, two columns`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= (w >= 760 ? 36 : 22) && m.two === true, ser(m));
+  if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-weld-${w}.png` });
   await ctx.close();
 }
 
-console.log("\n# French and Arabic");
+console.log("\n# French and Arabic — General English");
 { const { ctx, p, errs } = await open(seed("general-english", { days: { w1Mon: true } }), { w: 375, lang: "fr" });
-  const c = await card(p); const m = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
-  ok("fr · translated: 'Semaine 1 sur 12', 'Continuer : Semaine 1', 'Votre parcours d'apprentissage', no sideways scroll", /Semaine 1 sur 12/i.test(c.badge) && c.cta === "Continuer : Semaine 1" && /parcours d'apprentissage/i.test(c.jourH) && !m, ser(c));
-  const fc = await p.evaluate(() => [...document.querySelectorAll("#v-journey .rm2 .rm2-stat small,#v-journey .rm2 .rm2-badge,#v-journey .rm2 .rm2-cta-l")].filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1).map(e => e.innerText));
-  ok("fr · longer French labels are not cut off (stats, badge, button)", !fc.length, ser(fc));
+  const r = await path(p); const m = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+  ok("fr · translated: 'Semaine 1 sur 12', 'Continuer : Semaine 1', 'Votre feuille de route…', no sideways scroll", /SEMAINE 1 SUR 12/i.test(r.pos) && r.cta === "Continuer : Semaine 1" && /feuille de route/i.test(r.eyebrow) && !m, ser(r));
+  ok("fr · review checkpoints and the certificate are translated too ('Point de contrôle', 'Votre certificat')", r.rows.some(x => /point de contrôle/i.test(x.k)) && /votre certificat/i.test(r.rows[16].k), ser(r.rows.map(x => x.k)));
+  const fc = await p.evaluate(() => [...document.querySelectorAll("#v-journey .rm-head2-pos,#v-journey .rm-head2-cta-l,#v-journey .rm-path-k")].filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1).map(e => e.innerText));
+  ok("fr · longer French labels are not cut off", !fc.length, ser(fc));
   if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-fr-375.png` });
   ok("fr · no page errors", !errs.length, errs.join(" | ")); await ctx.close(); }
-console.log("\n# compact — the reference's proportions");
-for (const [tr, w, maxH] of [["welding", 1280, 660], ["general-english", 1280, 660], ["welding", 390, 400], ["general-english", 390, 400], ["welding", 375, 400]]) {
-  const { ctx, p } = await open(seed(tr), { w, h: w > 700 ? 900 : 844 });
-  const m = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2").getBoundingClientRect(), b = document.querySelector("#v-journey .rm2-cta").getBoundingClientRect(), nav = document.querySelector(".bnav"); return { h: Math.round(c.height), w: Math.round(c.width), ctaBottom: Math.round(b.bottom), navTop: nav && getComputedStyle(nav).display !== "none" ? Math.round(nav.getBoundingClientRect().top) : innerHeight } });
-  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: card ≤ ${maxH}px tall${w < 760 ? ", and its button is above the tab bar without scrolling" : ""}`, m.h <= maxH && (w >= 760 || m.ctaBottom <= m.navTop), ser(m));
-  await ctx.close(); }
 { const { ctx, p, errs } = await open(seed("general-english", { days: { w1Mon: true } }), { w: 375, lang: "ar" });
-  const c = await card(p);
-  const r = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2"), q = s => c.querySelector(s);
-    return { dir: getComputedStyle(c).direction, arrow: getComputedStyle(q(".rm2-cta .go-arrow")).transform, chev: getComputedStyle(q(".rm2-chev svg")).transform, art: getComputedStyle(q(".rm2-art")).transform,
-      numRight: q(".rm2-row .rm2-num").getBoundingClientRect().left > q(".rm2-row .rm2-row-t").getBoundingClientRect().left, hscroll: document.documentElement.scrollWidth > innerWidth } });
-  ok("ar · right-to-left: rows start on the right, arrows and chevrons mirrored, the photo moves sides but is NOT flipped (it has words in it), no sideways scroll", r.dir === "rtl" && r.numRight && /matrix\(-1/.test(r.arrow) && /matrix\(0, 1, -1, 0/.test(r.chev) && r.art === "none" && !r.hscroll, ser(r));
-  ok("ar · translated button 'تابع الأسبوع 1'", c.cta === "تابع الأسبوع 1", c.cta);
+  const r = await path(p);
+  const rtl = await p.evaluate(() => { const rm = document.querySelector("#v-journey .rm"), row = document.querySelector("#v-journey .rm-path-row.now"), dot = row.querySelector(".rm-path-dot"), card = row.querySelector(".rm-path-card");
+    return { dir: getComputedStyle(rm).direction, dotAfterCard: dot.getBoundingClientRect().left > card.getBoundingClientRect().right - 1, arrow: getComputedStyle(document.querySelector("#v-journey .rm-head2-cta .go-arrow")).transform, hscroll: document.documentElement.scrollWidth > innerWidth } });
+  ok("ar · right-to-left: the current lesson's dot sits on the reading side (right of its card), the button arrow is mirrored, no sideways scroll", rtl.dir === "rtl" && rtl.dotAfterCard && /matrix\(-1/.test(rtl.arrow) && !rtl.hscroll, ser(rtl));
+  ok("ar · translated button 'تابع الأسبوع 1'", r.cta === "تابع الأسبوع 1", r.cta);
   if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-ar-375.png` });
   ok("ar · no page errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 
 console.log("\n# reduced motion");
 { const { ctx, p } = await open(seed("general-english", { days: { w1Mon: true, w1Tue: true, w1Wed: true } }), { reduce: true });
+  /* The new design has no JS-driven count-up ring or rotating knob to begin
+     with (a static CSS bar), so there is nothing for reduced-motion to turn
+     off — this just proves the bar still renders the right value either way. */
+  const r = await path(p);
+  ok("reduced motion: the progress bar still shows the real figure (4%) with no animation to suppress", r.barW === "4%", ser(r)); await ctx.close(); }
+{ const { ctx, p } = await open(seed("welding", { days: { "welding:w1Mon": true, "welding:w1Tue": true, "welding:w1Wed": true } }), { reduce: true });
+  /* rmMount's ring text is set inside requestAnimationFrame; "at once" under
+     reduced motion still means "after the next paint" — poll for it instead
+     of trusting a fixed sleep under a loaded test run. */
+  try { await p.waitForFunction(() => document.querySelector("#v-journey .rm-ring-txt b").innerText !== "0%", { timeout: 4000 }); } catch (e) {}
   const r = await p.evaluate(() => ({ pct: document.querySelector("#v-journey .rm-ring-txt b").innerText, tr: getComputedStyle(document.querySelector("#v-journey .rm2-knob")).transitionDuration }));
-  ok("reduced motion: the figure is shown at once and the knob does not animate", r.pct === "4%" && parseFloat(r.tr) < 0.01, ser(r)); await ctx.close(); }
+  ok("W · reduced motion: the figure is shown at once and the knob does not animate", r.pct === "4%" && parseFloat(r.tr) < 0.01, ser(r)); await ctx.close(); }
 
-/* The learner's profession, named on the card (owner, 30 Sep 2026). One source:
-   Trades.active() — the same answer the workshops, the standards and the reports
-   are built from — so these checks change the profession and read the card back. */
-console.log("\n# the profession the learner picked is named on the card");
+/* The learner's profession, named on the card (owner, 30 Sep 2026) — Welding only.
+   One source: Trades.active() — the same answer the workshops, the standards and
+   the reports are built from — so these checks change the profession and read
+   the card back. General English has no profession line on either design. */
+console.log("\n# the profession the learner picked is named on the card (Welding)");
 for (const [id, label, career] of [["welder", "Welder", "welding"], ["instrumentation", "Instrumentation Technician", "instrumentation and control"],
   ["hse", "HSE Officer", "health, safety and environment"], ["millwright", "Millwright", "industrial mechanical maintenance"]]) {
   const { ctx, p, errs } = await open(seed("welding", { professionalTracks: { activeId: "welding", tradeId: id } }));
@@ -188,8 +243,8 @@ for (const [id, label, career] of [["welder", "Welder", "welding"], ["instrument
   ok(`W · ${id}: no page errors`, !errs.length, errs.join(" | "));
   await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english"));
-  const c = await card(p);
-  ok("GE · no profession line — General English has no profession", c.prof === null && !/Welder|Technician|Officer/i.test(c.text), ser({ prof: c.prof }));
+  const r = await path(p);
+  ok("GE · no profession line — General English has no profession, on either design", !/Welder|Technician|Officer/i.test(r.text), r.text.slice(0, 150));
   await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { professionalTracks: { activeId: "welding", tradeId: "instrumentation" } }), { lang: "fr" });
   const c = await card(p);

@@ -28,7 +28,12 @@ async function open(state, opts = {}) {
 const hero = p => p.evaluate(() => { const h = document.querySelector(".hx"); if (!h) return null;
   return { kind: h.dataset.kind, kicker: (h.querySelector(".hx-kicker") || {}).innerText || "", title: h.querySelector("#hxT").innerText, sub: (h.querySelector(".hx-sub") || {}).innerText || "", meta: (h.querySelector(".hx-meta") || {}).innerText || "", cta: h.querySelector(".hx-cta").innerText.replace(/→/g, "").trim(), go: h.querySelector(".hx-cta").getAttribute("onclick"),
     slides: [...h.querySelectorAll(".hx-slide")].map(i => i.dataset.vid || i.getAttribute("src")), feat: (document.querySelector(".hx-feat") || { getAttribute: () => null }).getAttribute("onclick"), featDest: (document.querySelector(".hx-feat") || { dataset: {} }).dataset.dest || null,
-    cards: [...document.querySelectorAll(".hx-dcard")].map(c => ({ dest: c.dataset.dest, tag: c.getAttribute("aria-label") || "", rec: c.classList.contains("rec"), h: Math.round(c.getBoundingClientRect().height), vtag: !!c.querySelector(".hx-tag"), go: c.getAttribute("onclick") })), dest: [...document.querySelectorAll(".hx-dcard b")].map(x => x.innerText), engine: (() => { try { const r = NudgeEngine.rank(nudgeSignals(), {}); return r.map(x => x.kind); } catch (e) { return null; } })() }; });
+    cards: [...document.querySelectorAll(".hx-dcard")].map(c => ({ dest: c.dataset.dest, tag: c.getAttribute("aria-label") || "", rec: c.classList.contains("rec"), h: Math.round(c.getBoundingClientRect().height), vtag: !!c.querySelector(".hx-tag"), go: c.getAttribute("onclick") })), dest: [...document.querySelectorAll(".hx-dcard b")].map(x => x.innerText), engine: (() => { try { const r = NudgeEngine.rank(nudgeSignals(), {}); return r.map(x => x.kind); } catch (e) { return null; } })(),
+    /* curriculum-first redesign (4 Nov 2026): the Explore grid (.hx-dcard) is gone from
+       General English Home; .hx-today-tool is its one real replacement — a deep link to
+       TODAY's own tool, not a menu of every tool */
+    tool: (() => { const tb = document.querySelector(".hx-today-tool"); return tb ? { label: tb.innerText.replace(/→/g, "").trim(), go: tb.getAttribute("onclick") } : null; })(),
+    missionTag: (document.querySelector(".hx-today-mission") || {}).innerText || "" }; });
 
 console.log("\n# the recommendation comes from the learner's real state");
 { const { ctx, p, errs } = await open({ fnd: {} });
@@ -48,11 +53,15 @@ console.log("\n# the recommendation comes from the learner's real state");
   ok("4 · lesson pending, nothing done yet: 'Your first session' · Week 1 · Monday · the day's focus as the title · the week's topic · 25 min · Pronunciation + Shadowing · Start session", h && h.kind === "lesson" && h.kicker === "Week 1 · Monday" && h.title === "Pronunciation baseline" && /Introductions/.test(h.sub) && /25 min · Pronunciation \+ Shadowing/.test(h.meta) && h.cta === "Start session" && /go\('session',1,'Mon'\)/.test(h.go), JSON.stringify(h));
   const g = await p.evaluate(() => ({ h1: document.querySelectorAll("#v-home h1").length, greet: (document.querySelector(".hx-greet") || {}).innerText || "", size: parseFloat(getComputedStyle(document.querySelector(".hx-greet")).fontSize), title: parseFloat(getComputedStyle(document.getElementById("hxT")).fontSize) }));
   ok("4b · no standalone greeting line above the hero; a small greeting sits inside it, far smaller than the next step", g.h1 === 0 && /Tester/.test(g.greet) && g.size <= 13 && g.title >= 2 * g.size, JSON.stringify(g));
-  ok("4c · Explore opens the exact activity: the first card (spoken 'Recommended for you') is the session's own shadowing step (sessGo shadow, Week 1 Mon), not the generic Shadow page — and it is an ordinary card, no big one", !h.featDest && h.cards[0].dest === "shadow" && /Recommended for you/i.test(h.cards[0].tag) && /sessGo\('shadow',1,'Mon'\)/.test(h.cards[0].go), JSON.stringify({ featDest: h.featDest, first: h.cards[0] }));
-  ok("4d · every Explore card is the same size, with no tag line (owner, 28 Sep 2026)", h.cards.length >= 4 && new Set(h.cards.map(c => c.h)).size === 1 && h.cards.every(c => !c.vtag), JSON.stringify(h.cards.map(c => [c.dest, c.h, c.vtag])));
-  await p.click(".hx-dcard"); await sleep(900);
+  /* curriculum-first redesign (owner-approved, 4 Nov 2026, from an annotated screenshot):
+     the nine-card Explore grid is gone from General English Home — every destination it
+     named is still one tap away on the tab bar, and the ONE tool today's day actually
+     needs is named once, as a real deep link, inside the hero itself. */
+  ok("4c · the Explore grid is gone from General English Home — nothing competes with the hero", h.cards.length === 0 && !h.featDest, JSON.stringify({ cards: h.cards, featDest: h.featDest }));
+  ok("4d · …in its place, Today's tool is a real deep link to TODAY's own tool (sessGo shadow, Week 1 Mon) — not a generic Shadow page, not a grid", h.tool && /Open the Shadow Studio/.test(h.tool.label) && /sessGo\('shadow',1,'Mon'\)/.test(h.tool.go), JSON.stringify(h.tool));
+  await p.click(".hx-today-tool"); await sleep(900);
   const ss = await p.evaluate(() => ({ v: cur.v, back: typeof SESS_RETURN !== "undefined" && SESS_RETURN ? SESS_RETURN.w + " " + SESS_RETURN.d : null }));
-  ok("4d · … and the card lands in Shadow with the way back to that session (the session page's own link)", ss.v === "shadow" && ss.back === "1 Mon", JSON.stringify(ss));
+  ok("4e · … and it lands in Shadow with the way back to that session (the session page's own link)", ss.v === "shadow" && ss.back === "1 Mon", JSON.stringify(ss));
   await p.evaluate(async () => { SESS_RETURN = null; go("home"); await new Promise(z => setTimeout(z, 600)); });
   ok("5 · Home and the push nudge agree: the hero is the engine's own first choice", h.engine && h.engine[0] === h.kind, JSON.stringify(h.engine));
   const vis1 = h.slides; await p.evaluate(() => go("home")); await sleep(600); const vis2 = (await hero(p)).slides;
@@ -72,7 +81,11 @@ console.log("\n# different learners, different Homes — and every other recomme
 { const { ctx, p, errs } = await open({ vocab: words(5), troubleA: trouble, dates: [today], dayLog: { [today]: 1 }, dayLogA: { "general-english": { [today]: 1 } } });
   const h = await hero(p);
   const want = { words: "practice", shadow: "shadow" };
-  ok("11 · practised today, 5 words due, 3 trouble words: the hero is the engine's first choice; its place leads Explore, spoken 'Recommended for you', the second choice's place 'Also for you' — each with its own deep link", h && h.kind === h.engine[0] && ["words", "shadow"].includes(h.kind) && !h.feat && h.cards[0].dest === want[h.engine[0]] && /Recommended for you/i.test(h.cards[0].tag) && /homeGoRec/.test(h.cards[0].go) && h.cards[1].dest === want[h.engine[1]] && /Also for you/i.test(h.cards[1].tag), JSON.stringify(h));
+  /* curriculum-first redesign, 4 Nov 2026: the second-ranked recommendation ("Also for
+     you") had its own card in the Explore grid; the grid is gone, so there is no longer
+     a second visible pick on Home — only the engine's TOP choice, in the hero. That is
+     the point of the change, not a gap in it: one primary action, not a ranked menu. */
+  ok("11 · practised today, 5 words due, 3 trouble words: the hero is the engine's first choice, and nothing else competes with it on the page", h && h.kind === h.engine[0] && ["words", "shadow"].includes(h.kind) && !h.feat && h.cards.length === 0, JSON.stringify(h));
   await p.click(".hx-cta"); await sleep(1200);
   ok("12 · its button deep-links like the notification (nudgeGo)", await p.evaluate(() => cur.v === "practice" || cur.v === "shadow"), await p.evaluate(() => cur.v));
   await ctx.close(); }

@@ -74,8 +74,11 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   ok("4 · rows are ranked by the engine's signal strength, strongest first (not a fixed order)", ranked.every((x, i) => i === 0 || ranked[i - 1] >= x), JSON.stringify(ranked));
   ok("5 · every card is specific content (a title, a type line, a content id), 2–3 per row; no clip twice; none the learner already has as a 'new' clip",
     R.every(r => r.cards.length >= 2 && r.cards.length <= 3 && r.cards.every(c => c.title && c.line && c.cid)) && (() => { const v = R.flatMap(r => r.cards.filter(c => c.type === "video" || c.type === "challenge").map(c => c.vid)); return new Set(v).size === v.length && !R.find(r => r.id === "watched").cards.some(c => c.vid === V.W); })(), JSON.stringify(R.map(r => r.cards.map(c => [c.type, c.cid]))));
-  const hero = await p.evaluate(() => ({ kind: document.querySelector(".hx").dataset.kind, best: (NudgeEngine.rank(nudgeSignals(), {})[0] || {}).kind, order: [".hx", "#hxRows", ".hx-dest"].map(s => document.querySelector(s)).every((e, i, a) => e && (i === 0 || a[i - 1].compareDocumentPosition(e) & 4)) }));
-  ok("6 · hierarchy: the hero (the engine's own first choice) → the rows → Explore", hero.kind === hero.best && hero.order, JSON.stringify(hero));
+  /* curriculum-first redesign, 4 Nov 2026: .hx-dest (the Explore grid) no longer
+     exists on General English Home — hero → rows → the "N of 84 · next milestone"
+     strip (.home-today-progress) is what follows them now */
+  const hero = await p.evaluate(() => ({ kind: document.querySelector(".hx").dataset.kind, best: (NudgeEngine.rank(nudgeSignals(), {})[0] || {}).kind, order: [".hx", "#hxRows", ".home-today-progress"].map(s => document.querySelector(s)).every((e, i, a) => e && (i === 0 || a[i - 1].compareDocumentPosition(e) & 4)), noDest: !document.querySelector(".hx-dest") }));
+  ok("6 · hierarchy: the hero (the engine's own first choice) → the rows → the progress strip — and the Explore grid is gone from General English Home", hero.kind === hero.best && hero.order && hero.noDest, JSON.stringify(hero));
   ok("7 · on the phone each row swipes sideways inside itself; the page has no sideways scroll; cards ≥ 120 px tall and real buttons",
     R.every(r => r.scroll.display === "flex") && R.some(r => r.scroll.w) && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll(".hx-rcard")].every(e => e.tagName === "BUTTON")) && R.every(r => r.cards.every(c => c.h >= 120)));
   const imp = await p.evaluate(() => __ev.filter(e => e[0] === "recommendation_impression").map(e => e[1]));

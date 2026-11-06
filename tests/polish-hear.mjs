@@ -33,7 +33,11 @@ await p.evaluate(() => {
 console.log("\n# the Read it aloud button");
 await p.evaluate(() => go("phrases")); await sleep(400);
 const row = await p.evaluate(() => [...document.querySelectorAll(".ex-btnrow > button")].map(x => x.className.split(" ").find(c => /^ex-/.test(c))));
-ok("H1 · the row is a wide Record button, Read it aloud, bin — Polish it removed (owner, 6 Oct 2026)", JSON.stringify(row) === JSON.stringify(["ex-mic", "ex-read", "ex-clear"]), JSON.stringify(row));
+/* Button disposition redesigned 5 Nov 2026 (owner-approved): Record is now the
+   centred, circular primary action with Listen and Clear as smaller satellite
+   buttons either side — Read, Record, Clear in DOM order so Record sits visually
+   centred without relying on CSS order tricks. Polish it is still gone. */
+ok("H1 · the row is Read it aloud, a centred Record button, bin — Polish it removed (owner, 6 Oct 2026)", JSON.stringify(row) === JSON.stringify(["ex-read", "ex-mic", "ex-clear"]), JSON.stringify(row));
 const rd = await p.evaluate(() => { const ta = document.getElementById("exIn"); ta.value = "I introduced myself yesterday and today I will be reciting my job"; exDraft(ta); exReadBox(); const on = document.getElementById("exReadBtn").classList.contains("is-on"); exReadBox(); return { said: window.__said.slice(), on, after: exReading, label: document.getElementById("exReadBtn").getAttribute("aria-label") }; });
 ok("H2 · it reads exactly what is in the box, shows that it is reading, and a second tap stops it", rd.said.length === 1 && /reciting my job/.test(rd.said[0]) && rd.on && rd.after === false && rd.label === "Read it aloud", JSON.stringify(rd));
 const em = await p.evaluate(() => { window.__said = []; const ta = document.getElementById("exIn"); ta.value = ""; exDraft(ta); exReadBox(); return { said: window.__said.length, toast: (document.getElementById("toast") || {}).textContent || "" }; });
@@ -110,7 +114,7 @@ const wd = await p.evaluate(async () => {
   const r = aList("exRep")[0];
   return { area: areaId(), row, rep: r && { tx: r.tx, rec: r.rec, at: r.at }, wRecs: (await getRecs("welding:polish")).map(x => x.ts), gRecs: (await getRecs("polish")).length, histBtn: !!document.querySelector(".ex-hist-btn") };
 });
-ok("H9 · Welding has the same row of buttons", JSON.stringify(wd.row) === JSON.stringify(["ex-mic", "ex-read", "ex-clear"]), JSON.stringify(wd.row));
+ok("H9 · Welding has the same row of buttons (shared component, same redesign)", JSON.stringify(wd.row) === JSON.stringify(["ex-read", "ex-mic", "ex-clear"]), JSON.stringify(wd.row));
 ok("H10 · a Welding take is saved under Welding, never under General English", wd.area === "welding" && wd.rep.rec === 1 && wd.wRecs.length === 1 && wd.wRecs[0] === wd.rep.at && wd.gRecs === 1, JSON.stringify(wd));
 const sep = await p.evaluate(async () => { exHistSheet(); const t = [...document.querySelectorAll("#exHistOv .ex-hist-tx")].map(x => x.textContent).join("|"); document.getElementById("exHistOv").remove(); return t; });
 ok("H11 · the Welding history shows only the Welding take", /strike the arc/.test(sep) && !/walk you through/.test(sep), sep);

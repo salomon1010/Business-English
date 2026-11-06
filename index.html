@@ -452,7 +452,7 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 /* 821–1023px (iPad portrait, small laptops): six labels in French, Spanish, Italian,
    Russian or Japanese are wider than the header, and the row scrolled Profile off
    the edge. The labels carry the meaning; the icons go in this band only. */
-@media(min-width:821px) and (max-width:1023px){.nav-in{gap:3px}.nav-in .tab{padding:8px 7px;font-size:13px}.nav-in .tab-ic{display:none}}
+@media(min-width:821px) and (max-width:1023px){.nav-in{gap:1px}.nav-in .tab{padding:8px 4px;font-size:12.5px}.nav-in .tab-ic{display:none}}
 .tab:hover{color:var(--txt);background:var(--hover)}
 .tab.on{color:var(--on-accent);background:var(--accent-fill);font-weight:600}
 .hdr-map{margin-left:auto;display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--acc) 14%,transparent);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);color:var(--accent-text);padding:6px 12px;border-radius:99px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer;min-height:auto}
@@ -1589,6 +1589,28 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-kicker{margin:4px 0 0;font-size:12px;font-weight:600;color:var(--mut)}
 .hx-over h2{margin:2px 0 0;font-size:clamp(22px,5.8vw,28px);line-height:1.12;letter-spacing:-.015em;color:var(--txt);text-wrap:balance}
 .hx-sub{margin:4px 0 0;font-size:13px;line-height:1.4;color:var(--txt);opacity:.86;max-width:48ch}
+/* Today's curriculum-position / why / tool lines (General English only, 4 Nov 2026) —
+   quieter than .hx-sub, each on its own line so position, purpose and tool read as
+   three short facts rather than one paragraph */
+.hx-today{display:flex;flex-direction:column;gap:3px;margin:8px 0 0}
+.hx-today-tool,.hx-today-mission{margin:0;font-size:12px;line-height:1.4;color:var(--mut)}
+.hx-today-tool,.hx-today-mission{display:flex;align-items:center;gap:6px}
+.hx-today-tool svg,.hx-today-mission svg{width:13px;height:13px;flex:none}
+.hx-today-tool b{color:var(--txt);font-weight:600}
+/* .hx-today-tool is a real button (a tap-target to today's own tool, same sessGo
+   call the classic session page's jump button uses) — reset the button chrome,
+   keep the text styling identical to the plain lines beside it */
+.hx-today-tool{border:none;background:transparent;padding:0;font:inherit;text-align:left;width:100%;cursor:pointer;border-radius:8px;
+  /* owner, narrow-phone polish: the shared align-items:center (above, still
+     true for .hx-today-mission, a single line) put the icon and arrow in the
+     middle of the whole box once "Today's tool: …" wraps to two lines on a
+     narrow phone, floating the arrow between the lines instead of beside the
+     text. flex-start anchors both to the first line; the 1px nudges below line
+     them up with its cap-height rather than its literal top edge. */
+  align-items:flex-start}
+.hx-today-tool:hover,.hx-today-tool:focus-visible{color:var(--txt)}
+.hx-today-tool .inl-ic{margin-top:1px}
+.hx-today-tool-go{margin-left:auto;margin-top:1px;flex:none;opacity:.7}
 /* the label and the time share one line: a line less under the picture */
 .hx-line{display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
 .hx-meta{display:flex;align-items:center;gap:6px;margin:0;font-size:11.5px;font-weight:600;color:var(--mut)}
@@ -3401,6 +3423,48 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 @media (prefers-reduced-motion:reduce){.rm-new .ic svg,.rm-new .tab-ic svg{animation:none}}
 .rm-sub-h{font-size:13px;font-weight:800;letter-spacing:.4px;color:var(--mut);margin:4px 0 12px;text-transform:uppercase}
 .wk-card.wk-here{border-color:var(--accent)}
+/* ---- Simplified General English road map (owner-approved, 5 Nov 2026) ----
+   A Duolingo-style vertical path replaces the winding SVG road + stat card for
+   General English only; Welding keeps .rm2 / .rm-road exactly as before. Every
+   token below is the shared theme palette (--acc/--acc2/--grad), so it follows
+   light/dark and the Welding amber theme automatically wherever it is reused. */
+.rm-simple{display:flex;flex-direction:column;gap:18px;
+  /* #ppFab floats fixed over this page only (PP_FAB_VIEWS, owner 22 Sep 2026) and the last
+     row (the certificate) is now the true end of the page — clear its 60px circle + offset
+     so the floating button never sits over the path's own text, on any device. */
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 168px)}
+.rm-head2{padding:16px 18px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--card)}
+.rm-head2-pos{margin:6px 0 0;font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--acc2);text-transform:uppercase}
+.rm-head2-title{margin:4px 0 0;font-size:19px}
+.rm-head2-sub{margin:3px 0 0;font-size:13px;color:var(--mut)}
+.rm-head2-count{margin:12px 0 0;font-size:12.5px;color:var(--mut)}
+.rm-head2-bar{display:block;margin-top:6px;height:6px;border-radius:4px;background:var(--line2);overflow:hidden}
+.rm-head2-bar i{display:block;height:100%;background:var(--grad)}
+.rm-head2-cta{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.rm-path{list-style:none;margin:0;padding:0}
+.rm-path-row{position:relative;padding:0 0 20px 46px}
+.rm-path-row:last-child{padding-bottom:0}
+.rm-path-row:not(:last-child)::before{content:"";position:absolute;left:17px;top:34px;bottom:-20px;width:2px;background:var(--line2)}
+.rm-path-row.lit:not(:last-child)::before{background:linear-gradient(var(--acc2),var(--acc))}
+.rm-path-dot{position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card2);border:2px solid var(--line2);color:var(--mut);z-index:1}
+.rm-path-dot svg{width:17px;height:17px}
+.rm-path-row.done .rm-path-dot{background:var(--grad);border-color:transparent;color:#fff}
+.rm-path-row.now .rm-path-dot{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc2) 28%,transparent)}
+.rm-path-row.locked .rm-path-dot{opacity:.55}
+.rm-path-card{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;font:inherit;color:var(--txt);cursor:pointer}
+.rm-path-row.now .rm-path-card{border-color:var(--acc2);box-shadow:0 0 0 1px var(--acc2) inset}
+.rm-path-row.locked .rm-path-card{opacity:.62}
+.rm-path-row.check .rm-path-card,.rm-path-row.cert .rm-path-card{background:color-mix(in srgb,var(--acc) 9%,var(--card))}
+.rm-path-tag{display:inline-block;margin-bottom:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--acc2);color:#04212b}
+.rm-path-k{display:block;font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--acc2);text-transform:uppercase}
+.rm-path-card h3{margin:2px 0 0;font-size:15px}
+.rm-path-sub{display:block;margin-top:3px;font-size:12.5px;color:var(--mut)}
+.rm-path-bar{display:block;margin-top:8px;height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
+.rm-path-bar i{display:block;height:100%;background:var(--grad)}
+@media(min-width:720px){.rm-simple{max-width:640px;margin:0 auto}}
+html[dir="rtl"] .rm-path-row{padding:0 46px 20px 0}
+html[dir="rtl"] .rm-path-row:not(:last-child)::before{left:auto;right:17px}
+html[dir="rtl"] .rm-path-dot{left:auto;right:0}
 @media (min-width:720px){
   .rm-ring{width:124px;height:124px;flex-basis:124px}
   .rm-ring-txt b{font-size:31px}
@@ -3684,7 +3748,8 @@ html[dir="rtl"][data-view="session"] .view.on #scnSess .sess-jump .sess-jump-go{
 html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width:fit-content;min-width:150px;margin:6px auto 0;padding:5px 28px;font-size:15px;min-height:36px}
 
 /* PHRASES */
-.ph-card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 18px;margin-bottom:10px}
+.ph-card{border:1px solid var(--line);border-radius:var(--r-lg,16px);background:var(--card);padding:16px 18px;margin-bottom:10px;transition:border-color .2s}
+.ph-card:focus-within{border-color:color-mix(in srgb,var(--acc2) 40%,var(--line))}
 .ph-card.mastered{border-color:rgba(52,211,153,.4)}
 /* Every sentence of the week, joined into one speech. Deliberately a different
    colour from the phrase cards — it is the destination, not another exercise. */
@@ -3701,23 +3766,29 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 /* EXECUTIVE POLISH — the card, the recorder, the report. Section eyebrows
    in small caps, one gold rule beside every judged sentence, stat tiles in
    threes: a report you can read top to bottom on a phone. */
-.ex-card{margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),color-mix(in srgb,var(--accent) 6%,transparent));border-color:rgba(251,191,36,.3)}
-.ex-prompt{position:relative;border:1px solid var(--line2);border-radius:var(--r-md,12px);padding:12px 14px;margin:0 0 12px;background:color-mix(in srgb,var(--card) 70%,transparent)}
-.ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.ex-card{margin:18px 0;background:linear-gradient(150deg,color-mix(in srgb,var(--acc2) 10%,transparent),color-mix(in srgb,var(--acc) 7%,transparent));border-color:color-mix(in srgb,var(--acc2) 32%,transparent);box-shadow:0 20px 50px -30px color-mix(in srgb,var(--acc2) 55%,transparent)}
+.ex-prompt{position:relative;border:1px solid color-mix(in srgb,var(--acc2) 22%,var(--line2));border-radius:var(--r-lg,16px);padding:14px 16px;margin:0 0 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+.ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc2);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
-.ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
+.ex-prompt-btn{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid color-mix(in srgb,var(--acc2) 35%,var(--line2));background:color-mix(in srgb,var(--acc2) 12%,var(--bg2));color:var(--acc2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
 /* Polish it had half the row and the mic had whatever was left, so the running
    timer — "0:02 / 1:30" — wrapped onto three lines inside a 44 px button while
    the learner was recording (owner, 22 Sep 2026, on an iPhone). The recording
    button is the one that has to hold text, so it gets the room: Polish it
    shrinks to its label, the mic takes what it needs and keeps the timer on one
    line, the bin stays square. */
-.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:0 1 auto;min-width:0;justify-content:center;min-height:48px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:1 1 auto;width:auto;min-height:48px;font-size:15px;margin:0;padding:0 10px}
+/* Record, centred and the obvious one thing to do; Listen and Clear are
+   smaller satellite buttons either side (owner-approved redesign, 5 Nov 2026
+   — "the disposition of the button to listen to record"). */
+.ex-btnrow{display:flex;gap:14px;margin:14px 0;align-items:center;justify-content:center}.ex-btnrow .btn{flex:0 1 auto;min-width:0;justify-content:center;font-size:17px}.ex-btnrow .ex-polish{flex:1 1 auto;width:auto;min-height:48px;font-size:15px;margin:0;padding:0 10px}
 .ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
-.ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
-.ex-btnrow .ex-read{flex:0 0 52px;padding:0}
-.ex-btnrow .ex-mic-wide{flex:1 1 auto;width:auto;gap:8px;font-size:15px;font-weight:700;padding:0 14px}
-.ex-btnrow .ex-mic.ex-mic-wide{color:#fff!important;border-color:transparent!important}.ex-mic-wide>svg{width:22px;height:22px;flex:0 0 22px}.ex-mic-wide .ex-mic-l{white-space:nowrap}.ex-mic-wide.is-live .ex-mic-l{display:none}
+.ex-btnrow .ex-clear{flex:0 0 52px;width:52px;min-height:52px;padding:0;border-radius:50%}
+.ex-btnrow .ex-read{flex:0 0 52px;width:52px;min-height:52px;padding:0;border-radius:50%}
+.ex-btnrow .ex-read.is-on{border-color:var(--acc2)!important;color:var(--acc2)}
+.ex-btnrow .ex-mic-wide{flex:0 0 auto;width:auto;min-width:168px;min-height:64px;border-radius:999px;gap:9px;font-size:15.5px;font-weight:800;padding:0 24px;background:var(--grad)!important;box-shadow:0 14px 34px -14px color-mix(in srgb,var(--acc2) 65%,transparent)}
+.ex-btnrow .ex-mic.ex-mic-wide{color:#fff!important;border-color:transparent!important}.ex-mic-wide>svg{width:24px;height:24px;flex:0 0 24px}.ex-mic-wide .ex-mic-l{white-space:nowrap}.ex-mic-wide.is-live .ex-mic-l{display:none}
+.ex-mic-wide.exd-ring::after{border-radius:999px}
+@media(max-width:360px){.ex-btnrow{gap:10px}.ex-btnrow .ex-mic-wide{min-width:0;padding:0 18px}}
 .ex-quickbtn.is-cue{animation:exCue 2.4s ease-in-out infinite;position:relative;border-color:color-mix(in srgb,var(--acc) 55%,transparent)!important}
 @keyframes exCue{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent),0 0 0 1px color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--acc) 22%,transparent),0 0 22px 2px color-mix(in srgb,var(--acc) 45%,transparent)}}
 @media(prefers-reduced-motion:reduce){.ex-quickbtn.is-cue{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 40%,transparent)}}
@@ -3911,7 +3982,7 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ex-pat-use{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--mut)}
 .ex-saveall{width:100%;min-height:46px;margin-top:16px}
 .ex-repolish{width:100%;min-height:46px;margin-top:14px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc)}
-.ex-quickbtn{width:100%;min-height:46px;margin:0 0 10px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--accent-text);font-weight:700}
+.ex-quickbtn{width:100%;min-height:48px;margin:0 0 10px;border-radius:999px;border-color:color-mix(in srgb,var(--acc2) 45%,var(--acc) 35%);background:color-mix(in srgb,var(--acc2) 7%,transparent);color:var(--accent-text);font-weight:700}
 .ex-quickbtn:disabled{opacity:.7}
 .ex-quickwrap{margin:2px 0 10px}
 .ex-qv{padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--bg2);margin-bottom:10px}
@@ -3945,7 +4016,7 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
-.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center;min-width:44px;min-height:44px}
+.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center;min-width:44px;min-height:44px;border-radius:50%;background:color-mix(in srgb,var(--acc2) 6%,transparent)}
 .ph-icobtn svg{width:18px;height:18px;display:block}
 .ph-card .phrase{font-size:16.5px;font-weight:600;margin-bottom:4px}
 .ph-card .use{font-size:13px;color:var(--mut);margin-bottom:10px}
@@ -4115,6 +4186,32 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .fb-sync:empty{display:none}
 .fb-sync.ok{color:var(--green)}
 .fb-sync.bad{color:var(--gold)}
+/* Curriculum-driven Practice hub (General English only, 5 Nov 2026) — same
+   visual language as Today's hero/cards: compact, dark, one accent, clear
+   hierarchy. .prac-focus mirrors .hx (the Today hero): eyebrow, position,
+   title, one primary action. */
+.prac-focus{margin-top:14px}
+.prac-focus-pos{margin:2px 0 0;font-size:12px;font-weight:700;color:var(--acc2)}
+.prac-focus h2{margin:4px 0 0;font-size:19px}
+.prac-focus .sub{margin:4px 0 0;font-size:13px;color:var(--mut)}
+.prac-focus-done{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:12px;color:var(--mut)}
+.prac-focus-done svg{width:14px;height:14px;flex:none}
+.prac-focus-cta{margin-top:12px}
+.prac-cards-wrap{margin-top:22px}
+.prac-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.prac-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;
+  padding:14px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--card);font:inherit;color:var(--txt);cursor:pointer}
+.prac-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.prac-card.rec{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.prac-card .pc-ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc2) 7%,var(--card2));margin-bottom:4px;flex:none}
+.prac-card .pc-ic svg{width:40px;height:40px}
+.prac-card .pc-t{font-size:14px}
+.prac-card .pc-sub{color:var(--mut);font-size:12px;line-height:1.35}
+.prac-card .pc-status{color:var(--acc2);font-size:11.5px;font-weight:600}
+.prac-card .pc-cta{margin-top:6px;font-size:12.5px;font-weight:700;color:var(--accent-text);display:inline-flex;align-items:center;gap:4px}
+.prac-card .pc-cta svg{width:12px;height:12px}
+.prac-card .pc-rec{position:absolute;top:10px;right:10px;font-size:10px;padding:2px 7px}
+@media(max-width:380px){.prac-cards{grid-template-columns:1fr}}
 /* Conversation practice entry on the dashboard */
 .rp-entry{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
   margin:14px 0 0;border:1px solid rgba(99,102,241,.35);
@@ -4345,6 +4442,12 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .home-more>summary .hm-chev{margin-left:auto;color:var(--mut);font-size:13px;display:inline-flex;transition:transform .15s;transform:rotate(-90deg)}.home-more>summary .hm-chev svg{width:15px;height:15px}
 .home-more[open]>summary .hm-chev{transform:rotate(0)}
 .home-more[open]>summary{border-bottom:1px solid var(--line)}
+/* Today's "N of 84 sessions · next milestone" strip (General English only, 4 Nov
+   2026) — a tap-target to the Road map, not a card, since it is one fact, not an
+   action in its own right */
+.home-today-progress{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 2px 0;cursor:pointer}
+.home-today-prog-n{font-size:12.5px;font-weight:700;color:var(--txt)}
+.home-today-ms{font-size:11.5px;color:var(--mut)}
 .home-more-body{padding:4px 16px 18px}
 
 /* Dashboard is the "what you have earned" half, so its cards carry green the
@@ -4501,7 +4604,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .exd{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:11px;text-align:left;font-size:11px}
 .exd-head{display:flex;align-items:center;gap:6px;margin-bottom:9px}
 .exd-head b{font-size:11.5px}
-.exd-head .exd-chip{font-size:9px;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold)}
+.exd-head .exd-chip{font-size:9px;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--acc2) 20%,transparent);color:var(--acc2)}
 .exd-row{display:flex;gap:7px;align-items:stretch}
 .exd-box{flex:1;min-height:62px;background:var(--card);border:1px solid var(--line2);border-radius:9px;
   padding:7px 8px;font-size:10.5px;line-height:1.5;color:var(--mut);word-break:break-word}
@@ -6795,6 +6898,14 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
   <!-- the Welding header chip ("International · Welder", which opened the Career Center) was removed on 29 Sep 2026
        (owner): Career Destination is now the fifth tool on Welding Practice. applyTrackIdentity() is guarded and
        still sets data-track; goCareer() and the #career route are unchanged. -->
+  <!-- Today, the primary entry point (owner-approved curriculum-first redesign, 4 Nov
+       2026). Not gated to General English: adding an explicit Home tab is a pure
+       discoverability change — the view it opens (go('home')) is exactly the Home
+       Welding already had via the logo, untouched by this redesign. bnavSync/go()'s
+       tv mapping already resolve data-v="home" with no code change: both already
+       map foundations/mission to "home", and the else-branch naturally yields "home"
+       when v==="home" itself. -->
+  <button class="tab" data-v="home" data-ic="home"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.today">Today</span></button>
   <button class="tab" data-v="journey" data-ic="route"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
   <button class="tab" data-v="phrases" data-ic="phrase"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="shadowing"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
@@ -6868,6 +6979,7 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
 
 <!-- Mobile bottom navigation (app style) -->
 <nav class="bottom-nav" aria-label="Main navigation">
+  <button class="bnav-item" data-v="home" onclick="go('home')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/></svg></span><span data-i18n="bnav.today">Today</span></button>
   <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18.5" r="2.4"/><circle cx="18" cy="5.5" r="2.4"/><path d="M8.4 18.5h7.6a3.25 3.25 0 0 0 0-6.5H8a3.25 3.25 0 0 1 0-6.5h7.6"/></svg></span><span data-i18n="bnav.weeks">Road map</span></button>
   <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="12" r="7"/><path d="M12 5.3a7 7 0 1 1 0 13.4"/><path d="M8.6 9.3v5.4l4.4-2.7Z"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
   <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5h9a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.3l-3.9 3.3a.6.6 0 0 1-1-.46V17.4A4 4 0 0 1 3.5 13.5v-5a4 4 0 0 1 4-4Z"/><path d="M8 9.3h8M8 12.6h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
@@ -8142,7 +8254,7 @@ const I18N_EN={
  "home.continue":"▶ Continue where you left off",
  "home.week_line":"Week {{w}} · {{d}} — {{focus}}",
  "home.start_btn":"Start today's 25-minute session →",
- "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.eyebrow_first":"Your first session","home.cta_first":"Start session","home.cta_today":"Start session","home.cta_resume":"Resume session","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.hl_film":"Film lesson","home.hl_tag":"Highlight","home.hl_new":"New","home.hl_open":"Open the video: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_grammar":"Practise grammar with interactive exercises","home.d_convo":"Speak with an AI colleague","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening",
+ "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.eyebrow_first":"Your first session","home.cta_first":"Start session","home.cta_today":"Start session","home.cta_resume":"Resume session","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.hl_film":"Film lesson","home.hl_tag":"Highlight","home.hl_new":"New","home.hl_open":"Open the video: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_grammar":"Practise grammar with interactive exercises","home.d_convo":"Speak with an AI colleague","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening","home.today_tool_eyebrow":"Today's tool","home.today_mission_tag":"Guided mission · a few short steps","home.today_progress":"{{done}} of {{total}} sessions · Week {{w}} of 12","home.today_milestone":"Next milestone: review after Week {{w}}","home.today_milestone_final":"Final week — finish strong.","home.cta_mission":"Start today's mission",
  "home.rows_aria":"Recommended for you",
  "home.bc_watched":"Because you watched \u201c{{title}}\u201d","home.bc_watched_s":"More on the same subject, and from the same voice.","home.bc_practiced_shadow":"Because you practised \u201c{{title}}\u201d","home.bc_practiced_shadow_s":"Take that clip into the Challenge, then the next voices at that level.","home.bc_practiced_challenge":"Because you passed the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_s":"More clips at that level. Each one opens straight in the Challenge.","home.bc_practiced_challenge_try":"Because you took the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_try_s":"Finish it, then try the next clips at that level.","home.bc_practiced_session":"Because you practised {{focus}}","home.bc_practiced_session_s":"The next session, and the clips and conversation that build on it.","home.bc_feedback_words":"Because your feedback flagged {{words}}","home.bc_feedback_words_s":"Hear those words in real speech, then take the line again.","home.bc_feedback_words_x":"Because your feedback on \u201c{{title}}\u201d named words to fix","home.bc_feedback_words_x_s":"Hear them in real speech, then take the line again.","home.bc_feedback_pron":"Because your pronunciation feedback flagged {{words}}","home.bc_feedback_pron_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_pron_x":"Because your pronunciation feedback showed sounds to work on","home.bc_feedback_pron_x_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_fluency":"Because your speaking report showed fillers and hesitations","home.bc_feedback_fluency_s":"Speakers who pause instead of filling. Copy their rhythm.","home.bc_feedback_expressions":"Because your speaking report suggested {{words}}","home.bc_feedback_expressions_s":"This week's expressions, and clips that use language like it.","home.bc_struggled_challenge":"Because you struggled with the Challenge on \u201c{{title}}\u201d","home.bc_struggled_challenge_s":"It reopens one step easier. Shorter clips at that level help too.","home.bc_struggled_words":"Because you struggled with {{words}}","home.bc_struggled_words_s":"Hear the words in real speech, then drill them until they come out clean.","home.bc_saved_words":"Because you saved {{words}}","home.bc_saved_words_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_words_x":"Because you saved {{n}} words","home.bc_saved_words_x_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_clips":"Because you saved \u201c{{title}}\u201d","home.bc_saved_clips_s":"Pick up your saved clip, then put its language to work.","home.bc_learning_new":"Start here: your Week 1 learning path","home.bc_learning_new_s":"{{theme}}. The first session, a first voice to shadow and the week's expressions.","home.bc_learning_week":"Because you're working on Week {{n}}: {{theme}}","home.bc_learning_week_s":"This week's session, its clip, its expressions and a conversation to try.","home.bc_learning_week_done":"Because you finished Week {{done}}","home.bc_learning_week_done_s":"Week {{n}} starts here: {{theme}}.","home.bc_partner_partner":"Because you practised with a partner","home.bc_partner_partner_s":"Keep the conversation going while it is fresh.","home.bc_partner_live":"Because you practised live with a partner","home.bc_partner_live_s":"Keep the conversation going while it is fresh.","home.bc_partner_ai":"Because you practised with the AI coach","home.bc_partner_ai_s":"Try it with a person next, or go again with the coach.","home.bc_partner_roleplay":"Because you practised \u201c{{title}}\u201d with {{persona}}","home.bc_partner_roleplay_s":"Go again, or try the next conversation on the same subject.","home.bc_inactive_days":"Because you haven't practised for {{n}} days","home.bc_inactive_days_s":"Five minutes is enough to restart. One step, one short clip, one conversation.","home.bc_inactive_speaking":"Because you haven't practised speaking for {{n}} days","home.bc_inactive_speaking_s":"Say something out loud today. A short clip or a quick conversation is enough.","home.bc_level":"Recommended for your level","home.bc_level_s":"Clear, well-paced voices to shadow first.","home.row_lead":"Your strongest signal","home.rows_prem":"Unlock to see what we picked for you.",
  /* the next-step card's action: what it opens, not what it costs */
@@ -10716,7 +10828,9 @@ const I18N_EN={
  "nav.account":"👤 Account",
  "nav.profile":"Profile",
  "nav.manual":"📘 Manual",
+ "nav.today":"🏠 Today",
  "bnav.home":"Home",
+ "bnav.today":"Today",
  "bnav.weeks":"Road map",
  "rm.new_toast":"New: your road map lives here — every stage, where you are, what is next.",
  "rm.notice_open":"Show me",
@@ -10724,6 +10838,12 @@ const I18N_EN={
  "bnav.practice":"Practice",
  "bnav.phrases":"Phrase Lab",
  "prac.eyebrow":"Your challenge area",
+ "prac.focus_eyebrow":"Current Learning Focus","prac.focus_done":"Today's session is done","prac.focus_pending":"Not started yet","prac.continue_btn":"Continue Learning",
+ "prac.cards_h":"Recommended Practice",
+ "prac.card_ai_t":"AI Conversation","prac.card_ai_sub":"Practise speaking in a short AI conversation.","prac.card_ai_cta":"Start Conversation","prac.card_ai_status_done":"Practised today","prac.card_ai_status_ready":"{{n}} scenarios ready",
+ "prac.card_gram_t":"Grammar Practice","prac.card_gram_sub":"Pick a grammar topic and drill it.","prac.card_gram_cta":"Practice Grammar","prac.card_gram_status":"{{done}} of {{total}} topics started","prac.card_gram_status_x":"Pick a topic to start",
+ "prac.card_voc_t":"Vocabulary Practice","prac.card_voc_sub":"Review the words and expressions you're learning.","prac.card_voc_cta":"Practice Vocabulary","prac.card_voc_status_due":"{{n}} words ready","prac.card_voc_status_none":"All caught up",
+ "prac.card_partner_t":"Live Partner Practice","prac.card_partner_cta":"Find Practice Partner",
  "prac.title":"Practice",
  "prac.sub":"Every word, phrase and rule you've collected while practising — keep working them until they're yours.",
  "prac.tab_ready":"Study",
@@ -13532,6 +13652,49 @@ function hxOnlinePaint(){
   el.setAttribute("aria-label",t("pp.fab")+" · "+el.textContent);
 }
 window.hxOnlineTap=()=>{try{track("partner_availability_viewed",{})}catch(e){}go("partner")};
+/* ---- CURRICULUM-FIRST TODAY (General English only, 4 Nov 2026 — owner-approved
+   "Today must be the primary entry point… the learner should immediately
+   understand where they are, what to do, why it matters, which tool, and what's
+   next"). Everything here reads curriculum data that already exists — the same
+   sessionLinks table rSession's "Open the Shadow Studio" button already uses,
+   and MissionEngine's own competencies — nothing invented, nothing duplicated.
+   Welding is untouched: this is called from exactly one place (homeHeroHTML,
+   below) and returns "" the instant isGeneralEnglish() is false, so Welding's
+   hero — which shares homeHeroHTML — renders byte-for-byte as before. */
+/* a speaking day with a defined competency already hands the classic session
+   page off to the guided see→hear→notice→speak→coach mission (rSession's own
+   v2&&sessIsSpeaking(d) check) — c.go already points at go('session',w,d), which
+   already lands there; everything below only PREVIEWS that truthfully instead of
+   promising a plain "session" and surprising the learner with five steps */
+function homeTodayIsMission(c){
+  try{return !!(c&&c.w&&c.d&&sessIsSpeaking(c.d)&&window.MissionEngine&&(mvComps()||[]).some(x=>x.week===c.w))}catch(e){return false}
+}
+/* the hero's own CTA text — read by exactly one caller, homeHeroHTML's button —
+   c.cta itself is untouched (homeRecDest and the analytics topic string still
+   read the plain "Start session"/"Resume" c.cta, for every kind, every track) */
+function homeTodayCtaLabel(c){
+  return (isGeneralEnglish()&&(c.kind==="lesson"||c.kind==="comeback")&&homeTodayIsMission(c))?t("home.cta_mission"):c.cta;
+}
+function homeTodayHeroExtraHTML(c){
+  if(!isGeneralEnglish()||!(c.kind==="lesson"||c.kind==="comeback")||!c.w||!c.d)return "";
+  /* "why it matters" is NOT its own line here: c.sub, drawn immediately above
+     this by homeHeroHTML, already carries the week's theme for a lesson/
+     comeback card — a second "why" line cost real height and pushed the rows
+     below the first screen on a phone (home-v2.mjs check 22). */
+  /* the exact tool the classic session page already jumps to for this day
+     (trackSessionLinks) — named here instead of buried a tap away. A real
+     deep link, not a label — the same sessGo('<v>',w,d) the classic session's
+     own jump button and homeRecDest() already call, so tapping this opens
+     TODAY's tool for TODAY's content in one tap, same as the Explore grid's
+     primary card used to (that card is gone; this replaces its one actual
+     function, not its look). */
+  let tool="";
+  try{const L=(trackSessionLinks()||{})[c.d];if(L)tool=`<button type="button" class="hx-today-tool" onclick="sessGo('${esc(L.v)}',${c.w},'${esc(c.d)}')"><span class="inl-ic">${ic(sessLinkIc(L))}</span><span><b>${esc(t("home.today_tool_eyebrow"))}:</b> ${esc(sessLinkLabel(L))}</span><span class="hx-today-tool-go" aria-hidden="true">→</span></button>`}catch(e){}
+  const mission=homeTodayIsMission(c)?`<p class="hx-today-mission">${ic("route")}<span>${esc(t("home.today_mission_tag"))}</span></p>`:"";
+  return `<div class="hx-today">
+    ${tool}${mission}
+  </div>`;
+}
 function homeHeroHTML(c,vis){
   const meta=[c.minutes?t("home.min",{n:c.minutes}):"",c.meta||""].filter(Boolean).join(" · ");
   return `<section class="hx" data-kind="${esc(c.kind)}" aria-labelledby="hxT">
@@ -13547,11 +13710,12 @@ function homeHeroHTML(c,vis){
         ${c.kicker?`<p class="hx-kicker">${esc(c.kicker)}</p>`:""}
         <h2 id="hxT">${esc(c.title)}</h2>
         ${c.sub?`<p class="hx-sub">${esc(c.sub)}</p>`:""}
+        ${homeTodayHeroExtraHTML(c)}
         ${/* the PREMIUM chip and its paragraph are gone (owner, 3 Oct 2026): on the
              card that tells a learner what to do next, a lock and a sales line
              sat between the advice and the button. The action below says what
              it unlocks, which is all that was needed. */""}
-        <div class="hx-acts"><button class="btn-primary hx-cta" onclick="${c.prem?"premiumOpen('home_rec')":c.go}">${esc(c.prem?t("home.rows_prem_cta"):c.cta)}<span class="hx-cta-go" aria-hidden="true">→</span></button>
+        <div class="hx-acts"><button class="btn-primary hx-cta" onclick="${c.prem?"premiumOpen('home_rec')":c.go}">${esc(c.prem?t("home.rows_prem_cta"):homeTodayCtaLabel(c))}<span class="hx-cta-go" aria-hidden="true">→</span></button>
         <button type="button" class="pp-online-pill hx-online" id="hxOnline" hidden onclick="hxOnlineTap()"></button></div>
       </div>
     ${c.desc?`<div class="hx-foot"><p class="hx-desc">${esc(c.desc)}</p></div>`:""}
@@ -13621,6 +13785,30 @@ window.homeGoGrammar=()=>{
     const top=el.getBoundingClientRect().top+scrollY-((document.querySelector("header")||{}).offsetHeight||64)-8;
     window.scrollTo({top:Math.max(0,top),behavior:"smooth"})},120);
 };
+/* Week X of 12 · N of 84 sessions · the next review checkpoint (General English
+   only). activeCurriculum().reviewCheckpoints is the SAME [4,8,12] array the Road
+   map already reads (rmSteps/rMonthly) — this says the same thing in one line,
+   it does not compute a second answer. */
+function homeTodayProgressHTML(){
+  if(!isGeneralEnglish())return "";
+  const pos=currentPos(),done=totalDone(),total=trackSessionCount();
+  const cps=(activeCurriculum().reviewCheckpoints||[]).filter(w=>w>=pos.w);
+  const ms=cps.length?t("home.today_milestone",{w:cps[0]}):(pos.w>=12?t("home.today_milestone_final"):"");
+  return `<div class="home-today-progress" onclick="go('journey')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')go('journey')">
+    <span class="home-today-prog-n">${esc(t("home.today_progress",{done,total,w:pos.w}))}</span>
+    ${ms?`<span class="home-today-ms">${esc(ms)}</span>`:""}
+  </div>`;
+}
+/* THE EXPLORE GRID IS GONE FROM GENERAL ENGLISH HOME (owner, 4 Nov 2026, from an
+   annotated screenshot: keep the hero and the "Start here / Because you…" rows —
+   they justify themselves, each is evidence, not a menu — remove the nine-card
+   Explore grid, which named every tool at once with equal weight and nothing to
+   choose between them). homeDestHTML() itself is UNCHANGED and UNREMOVED: Welding
+   (isGeneralEnglish() false) still calls it exactly as before, immediately below.
+   Every destination the grid offered stays reachable — the tab bar already covers
+   all of them (Road map, Shadow, Phrase Lab, Practice for Partner/Vocab/Grammar/
+   Life Simulations, Progress) — and the ONE tool today's day actually needs is
+   already named once, in the hero, by homeTodayHeroExtraHTML above. */
 function rHomeV2(el){
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   const gate=homeGateCard();
@@ -13631,12 +13819,13 @@ function rHomeV2(el){
   const heroCid=top.kind==="lesson"||top.kind==="comeback"?"w"+top.w+top.d:(top.vid||"");
   _homeRows=gate?[]:homeRows(heroCid);
   try{homeRecCheckDone()}catch(e){}
+  const ge=isGeneralEnglish();
   const draw=()=>{
     const vis=homeHighlights(top,_homeRows);
     el.innerHTML=`
     ${homeHeroHTML(top,vis)}
     ${homeRowsHTML(_homeRows)}
-    ${homeDestHTML(top,gate?[]:cards.slice(1),vis)}
+    ${ge?homeTodayProgressHTML():homeDestHTML(top,gate?[]:cards.slice(1),vis)}
     ${ppHomeCardHTML()}
     ${homeNudgeHTML()}
     ${homeTracksHTML()}`;
@@ -14179,10 +14368,52 @@ window.rmPhaseGo=p=>{
 };
 /* "View all" = the board under the card, which already draws every stage */
 window.rmViewAll=btn=>{const r=btn&&btn.closest(".rm")&&btn.closest(".rm").querySelector(".rm-road");if(r)try{r.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}};
+/* ---- The simplified General English path (owner-approved, 5 Nov 2026) ----
+   A Duolingo-style vertical list, fed by the SAME rmSteps() the illustrated
+   road read, so it can never disagree with it. Welding is untouched: it keeps
+   rmCardHTML/rmBoardHTML/rmDraw exactly as they were (see rmHTML below). */
+function rmPathIcon(s){return s.state==="done"?"check":s.kind==="cert"?"trophy":s.kind==="check"?"clipboard":s.kind==="fnd"?"mic":s.state==="locked"?"lock":null}
+function rmPathRowHTML(s,lit){
+  const icon=rmPathIcon(s),tag=s.state==="now"?t("rm.here"):s.state==="next"?t("rm.next"):"";
+  return `<li class="rm-path-row ${s.state} ${s.kind}${lit?" lit":""}">
+    <span class="rm-path-dot" aria-hidden="true">${icon?ic(icon):esc(s.num)}</span>
+    <button class="rm-path-card" onclick="rmClose();${s.go}" aria-label="${esc(s.k+" — "+s.title)}">
+      ${tag?`<span class="rm-path-tag">${esc(tag)}</span>`:""}
+      <span class="rm-path-k">${esc(s.k)}</span>
+      <h3><bdi>${esc(s.title)}</bdi></h3>
+      ${s.sub?`<span class="rm-path-sub"><bdi>${esc(s.sub)}</bdi></span>`:""}
+      ${s.pct!=null?`<span class="rm-path-bar"><i style="width:${s.pct}%"></i></span>`:""}
+    </button>
+  </li>`;
+}
+function rmPathHTML(){
+  const {steps}=rmSteps();
+  return `<ol class="rm-path">${steps.map((s,i)=>rmPathRowHTML(s,i>0&&steps[i-1].state==="done")).join("")}</ol>`;
+}
+/* Reuses rmData() verbatim — same week/day/progress facts the old card showed,
+   just without the ring, the two stat tiles and the separate phase-row list
+   (the path below already answers "what's next": it's the next row down). */
+function rmHeaderHTML(D){
+  const c=D.current,today=D.today;
+  const sub=today&&today.pos?today.pos:(c.sub||"");
+  return `<section class="rm-head2">
+    <div class="eyebrow">${esc(D.head.title)}</div>
+    <p class="rm-head2-pos">${esc(c.badge)}</p>
+    <h2 class="rm-head2-title"><bdi>${esc(today?today.t:c.title)}</bdi></h2>
+    ${sub?`<p class="rm-head2-sub"><bdi>${esc(sub)}</bdi></p>`:""}
+    <p class="rm-head2-count">${esc(t("rm.sessions",{done:D.done,total:D.total}))}</p>
+    <span class="rm-head2-bar" aria-hidden="true"><i style="width:${D.pct}%"></i></span>
+    <button class="btn-primary rm-head2-cta" onclick="rmClose();${D.cta.go}"><span class="rm-head2-cta-l">${esc(D.cta.label)}</span><span class="go-arrow" aria-hidden="true">→</span></button>
+  </section>`;
+}
 function rmHTML(){
-  return `<section class="rm" aria-label="${esc(t("rm.label"))}">
+  if(isProfessionalJourney())return `<section class="rm" aria-label="${esc(t("rm.label"))}">
     ${rmCardHTML(rmData(),rmLook())}
     ${rmBoardHTML()}
+  </section>`;
+  return `<section class="rm rm-simple" aria-label="${esc(t("rm.label"))}">
+    ${rmHeaderHTML(rmData())}
+    ${rmPathHTML()}
   </section>`;
 }
 /* The animated parts need the DOM: the spine fills to the beacon, the ring and
@@ -14397,18 +14628,11 @@ function rJourney(el,wArg){
   <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
   ${subInfo(isProfessionalJourney()?`Build the communication, technical language, and professional readiness to progress through your ${esc((window.Trades&&Trades.active(S).career)||"welding")} career.`:t("journey.sub"))}
   ${rmHTML()}
+  ${isProfessionalJourney()?`
   <h2 class="rm-sub-h" id="rmDetail">${esc(t("rm.detail"))}</h2>
-  ${isProfessionalJourney()
-    /* Square cards, four across, only on the professional journey. General
-       English keeps the shared scrolling row it always had — its phase names are
-       short enough for one nowrap line, and changing it there was a regression
-       the owner had to point out. */
-    ? `<div class="seg-phase" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
+  <div class="seg-phase" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
     ${Object.keys(phases).map(p=>`<button class="seg-phase-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-phase-lbl">${esc(phaseLabel(p))}</span><b>${esc(phases[p].wk||"")}</b></button>`).join("")}
-  </div>`
-    : `<div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
-    ${Object.keys(phases).map(p=>`<button class="seg-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-lbl">${esc(phaseLabel(p))}</span> <b>${esc(phases[p].wk||"")}</b></button>`).join("")}
-  </div>`}
+  </div>
   <p class="sub" style="margin:-4px 0 18px;font-size:13px">${t("journey.phase_progress",{done:pDone,total:pTotal,phase:esc(phaseLabel(_jPhase))})}</p>
   <div class="grid g3">${(()=>{const _cur=currentPos().w;return weeks.map(w=>{
     const done=weekDone(w.n);
@@ -14422,7 +14646,8 @@ function rJourney(el,wArg){
       <h3>${esc(w.theme)}</h3>
       <div class="bar"><i style="width:${done/trackDays().length*100}%"></i></div>
       <div class="dots">${trackDays().map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
-    </div>`}).join("")})()}</div>`;
+    </div>`}).join("")})()}</div>
+  `:""}`;
   manIconizeInline(el);segSync(el);rmMount(el);
   /* a comeback landing: rmMount draws in its own frame and go() has just
      scrolled to the top, so the centring waits two frames */
@@ -21477,6 +21702,112 @@ window.libGroup=k=>{
    bucket the user last looked at. fcStart() reads _pracTab through pvBucket(),
    so the bucket is set first. */
 window.pracStudyDue=()=>{_pracTab="ready";fcStart();};
+/* ============== CURRICULUM-DRIVEN PRACTICE HUB (General English only, 5 Nov
+   2026, owner-approved) ==============
+   Reuses pathSummary()/currentPos()/trackWeeks() — the SAME curriculum engine
+   the Today redesign reads, so this page can never disagree with Today or the
+   Road map about where the learner is. Nothing here is a second progress
+   system: "done today" below reads S.days[dayKey] directly, the one place the
+   whole app already marks a day complete.
+   Four cards, matched 1:1 to the brief's own four activities. None of them is
+   a new backend or a new curriculum schema — each reuses what already exists:
+     AI Conversation → roleplay (areaConvos() for "practised today")
+     Grammar         → the library's own "exercises" tab (gxStats per category)
+     Vocabulary      → the same spaced-repetition buckets "words due" already uses
+     Live Partner    → Practice Partner, unchanged, including its own
+                        #ppEntryOnline pill painted by the existing ppOnlineSync() */
+function practiceFocusHTML(){
+  if(!isGeneralEnglish())return "";
+  const pos=currentPos(),wk=trackWeeks()[pos.w-1]||{},dd=(wk.days||{})[pos.d]||{},s=pathSummary();
+  if(!s.next)return `<section class="card prac-focus"><div class="eyebrow">${t("prac.focus_eyebrow")}</div><h2>${esc(t("path.all_done"))}</h2></section>`;
+  const key=dayKey(pos.w,pos.d),done=!!S.days[key];
+  return `<section class="card prac-focus">
+    <div class="eyebrow">${t("prac.focus_eyebrow")}</div>
+    <p class="prac-focus-pos">${esc(t("home.kicker_week",{w:pos.w,day:homeDayName(pos.d)}))}</p>
+    <h2>${esc(dd.focus||wk.theme||s.next.label)}</h2>
+    ${dd.task?`<p class="sub">${esc(dd.task)}</p>`:""}
+    <p class="prac-focus-done">${ic(done?"check":"clock")}<span>${done?t("prac.focus_done"):t("prac.focus_pending")}</span></p>
+    ${done?"":`<button class="btn-primary prac-focus-cta" onclick="go('session',${pos.w},'${pos.d}')">${t("prac.continue_btn")}<span aria-hidden="true">→</span></button>`}
+  </section>`;
+}
+/* ---- Illustrated card icons (owner-approved, 6 Nov 2026) ----
+   A richer, multi-colour alternative to ic()'s flat single-tone glyphs, for the
+   handful of "what to do" cards that carry the most visual weight (Practice's
+   four activities first; the Road map and Home cards are the next rollout,
+   pending the owner's review of this pilot). Hand-authored SVG, not an image
+   asset — there is no stock-photo or image-generation tool in this
+   environment, and the owner confirmed illustrated icons over photography.
+   Each is self-contained (own <defs>, gradient ids scoped to the icon name so
+   two different illustrations on the same page never collide). */
+const PRAC_ILLO={
+  chat:`<defs><linearGradient id="illoChatA" x1="4" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#6366f1"/></linearGradient><linearGradient id="illoChatB" x1="16" y1="16" x2="44" y2="42" gradientUnits="userSpaceOnUse"><stop stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>
+    <path d="M4 10a6 6 0 0 1 6-6h14a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H16l-7 6v-6a6 6 0 0 1-5-5.9Z" fill="url(#illoChatA)"/>
+    <path d="M44 26a6 6 0 0 0-6-6H26a6 6 0 0 0-6 6v8a6 6 0 0 0 6 6h11l5 4v-4.2A6 6 0 0 0 44 34Z" fill="url(#illoChatB)"/>
+    <circle cx="11" cy="14" r="1.8" fill="#eef2ff"/><circle cx="17" cy="14" r="1.8" fill="#eef2ff"/><circle cx="23" cy="14" r="1.8" fill="#eef2ff"/>
+    <path d="M31 30.5h8M31 34.5h5.5" stroke="#452b03" stroke-width="2" stroke-linecap="round" opacity=".7"/>`,
+  doc:`<defs><linearGradient id="illoDocA" x1="8" y1="4" x2="34" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+    <path d="M12 6a3 3 0 0 1 3-3h13l8 8v30a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3Z" fill="url(#illoDocA)"/>
+    <path d="M28 3v6a2 2 0 0 0 2 2h6Z" fill="#eef2ff" opacity=".55"/>
+    <path d="M17 20h12M17 26h14M17 32h9" stroke="#eef2ff" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+    <circle cx="34" cy="35" r="9" fill="#22d3ee"/><path d="M30 35.2l2.6 2.6L38 32" stroke="#042a30" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  cards:`<defs><linearGradient id="illoCardA" x1="4" y1="18" x2="28" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#34d399"/><stop offset="1" stop-color="#0ea5c7"/></linearGradient><linearGradient id="illoCardB" x1="16" y1="4" x2="42" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+    <rect x="4" y="18" width="24" height="26" rx="5" transform="rotate(-8 16 31)" fill="url(#illoCardA)"/>
+    <rect x="16" y="4" width="26" height="30" rx="5" fill="url(#illoCardB)"/>
+    <path d="M22 13h14M22 18h10" stroke="#eafdff" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M32.5 23.5l1.6 3.3 3.6.5-2.6 2.6.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.6 3.6-.5Z" fill="#fde68a"/>`,
+  user:`<defs><linearGradient id="illoUserA" x1="2" y1="10" x2="26" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#6366f1"/></linearGradient><linearGradient id="illoUserB" x1="20" y1="6" x2="46" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#f0abfc"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+    <circle cx="16" cy="18" r="9" fill="url(#illoUserA)"/><path d="M2 42c0-8 6.3-13 14-13s14 5 14 13Z" fill="url(#illoUserA)"/>
+    <circle cx="32" cy="15" r="8" fill="url(#illoUserB)"/><path d="M20 43c0-7.2 5.4-11.6 12-11.6S44 35.8 44 43Z" fill="url(#illoUserB)"/>
+    <path d="M24 17.5a6 6 0 0 1 6 0" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>`,
+};
+function illo(name){return `<svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">${PRAC_ILLO[name]||PRAC_ILLO.chat}</svg>`}
+/* one card per activity — status is read fresh on every render, from data
+   that already exists; nothing here is computed nowhere else */
+function practiceCardsHTML(){
+  if(!isGeneralEnglish())return "";
+  const pick=pathToolPick().id;   /* the SAME day-of-week pick pathToolsHTML used — "sim" and "vocab" are two of our four cards; Mon/Tue/Fri's pick (shadow/phrases) belongs to tools that are not on this page, so no card is forced "recommended" those days */
+  const today0=new Date();today0.setHours(0,0,0,0);
+  const convoToday=areaConvos().some(c=>c&&c.ts>=today0.getTime());
+  const nScen=(trackScenarios()||[]).length;
+  const cats=trackGrammarCategories(),gDone=cats.filter(c=>gxStats(c.k).runs>0).length;
+  const due=navBadgeCount("practice");
+  const online=ppOnlineCount?ppOnlineCount():0;
+  const CARDS=[
+    {id:"ai",rec:pick==="sim",ic:"chat",t:t("prac.card_ai_t"),sub:t("prac.card_ai_sub"),
+      status:convoToday?t("prac.card_ai_status_done"):t("prac.card_ai_status_ready",{n:nScen}),
+      cta:t("prac.card_ai_cta"),go:"go('roleplay')"},
+    {id:"grammar",rec:false,ic:"doc",t:t("prac.card_gram_t"),sub:t("prac.card_gram_sub"),
+      status:cats.length?t("prac.card_gram_status",{done:gDone,total:cats.length}):t("prac.card_gram_status_x"),
+      cta:t("prac.card_gram_cta"),go:"practiceGoGrammar()"},
+    {id:"vocab",rec:pick==="vocab",ic:"cards",t:t("prac.card_voc_t"),sub:t("prac.card_voc_sub"),
+      status:due?t("prac.card_voc_status_due",{n:due}):t("prac.card_voc_status_none"),
+      cta:t("prac.card_voc_cta"),go:"pathToolGo('vocab')"},
+  ];
+  const partner=ppAvailable()?{id:"partner",rec:false,ic:"user",t:t("prac.card_partner_t"),sub:t("pp.card_sub"),
+      status:online>0?t("pp.fab_online",{n:online}):"",cta:t("prac.card_partner_cta"),go:"go('partner')"}:null;
+  if(partner)CARDS.push(partner);
+  return `<section class="prac-cards-wrap" aria-label="${esc(t("prac.cards_h"))}">
+    <h2 class="prac-sec">${t("prac.cards_h")}</h2>
+    <div class="prac-cards">${CARDS.map(c=>`<button class="prac-card${c.rec?" rec":""}" onclick="${c.go}"${c.id==="ai"?' data-cid="ai"':""}>
+      <span class="pc-ic">${illo(c.ic)}</span>
+      <b class="pc-t">${esc(c.t)}</b>
+      <small class="pc-sub">${esc(c.sub)}</small>
+      ${c.status?`<small class="pc-status">${esc(c.status)}</small>`:""}
+      ${c.id==="partner"?`<span class="pp-online-pill" id="ppEntryOnline" style="display:${online>0?"":"none"}"></span>`:""}
+      <span class="pc-cta">${esc(c.cta)}<span aria-hidden="true">→</span></span>
+      ${c.rec?`<span class="chip done pc-rec">${t("tools.rec")}</span>`:""}
+    </button>`).join("")}</div>
+  </section>`;
+}
+/* Grammar lives in this same page's library — libTab() already re-renders
+   rPractice with the exercises tab active; this only adds the scroll, the same
+   pattern homeGoGrammar() already uses from Home. */
+window.practiceGoGrammar=()=>{
+  libGroup(libGroupOf("exercises"));libTab("exercises");
+  setTimeout(()=>{const g=document.querySelector("#v-practice .prac-subgroup");if(!g)return;
+    const top=g.getBoundingClientRect().top+scrollY-((document.querySelector("header")||{}).offsetHeight||64)-8;
+    window.scrollTo({top:Math.max(0,top),behavior:"smooth"})},120);
+};
 function rPractice(el){
   _libGroup=libGroupOf(_libTab);
   /* Same source as the nav badge, so the number that brought the user here is
@@ -21489,29 +21820,20 @@ function rPractice(el){
   <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
   ${subInfo(t("prac.sub"))}
+  ${isGeneralEnglish()?`
+  ${practiceFocusHTML()}
+  ${practiceCardsHTML()}
+  `:`
   ${pathToolsHTML()}
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
-  ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
-    <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
-    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
-    <span class="rp-entry-go">→</span>
-    <span class="pp-online-pill" id="ppEntryOnline" style="display:none"></span>
-  </button>`:""}
-  <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
-    <span class="rp-entry-ic"><img src="${isProfessionalJourney()?"workshop-team-card.jpg":"rp-photos/oneone.jpg"}" alt="" loading="lazy" onerror="this.remove()"></span>
-    <!-- The card said "Professional Interview Coaches" but opened the workplace
-         scenario catalogue, and the interview coaches live in the Career Center.
-         It now carries the name of the page it actually goes to. -->
-    <span class="rp-entry-t"><b>${isProfessionalJourney()?"Professional Workplace Scenarios":t("home.rp_title")}</b><small>${isProfessionalJourney()?"Practice real workplace situations you will experience on the job.":t("home.rp_sub")}</small></span>
+  <button class="card rp-entry workplace-simulation-entry" onclick="go('simulation')">
+    <span class="rp-entry-ic"><img src="workshop-team-card.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+    <span class="rp-entry-t"><b>Professional Workplace Scenarios</b><small>Practice real workplace situations you will experience on the job.</small></span>
     <span class="rp-entry-go">→</span>
   </button>
-  ${isProfessionalJourney()&&window.CareerCenter&&CareerCenter.coachesHTML?`<div class="prac-coaches">${CareerCenter.coachesHTML(appState())}</div>`:""}
-  ${trackSimulations().length&&!isProfessionalJourney()?`<button class="card rp-entry sim-entry" onclick="go('simulation')">
-    <span class="rp-entry-ic">${ic("briefcase")}</span>
-    <span class="rp-entry-t"><b>Professional Simulation</b><small>Step into a workplace scenario with a full professional team.</small></span>
-    <span class="rp-entry-go">→</span>
-  </button>`:""}
+  ${window.CareerCenter&&CareerCenter.coachesHTML?`<div class="prac-coaches">${CareerCenter.coachesHTML(appState())}</div>`:""}
+  `}
 
   ${_due?`<button class="card home-due prac-due" onclick="pracStudyDue()">
     <span class="home-due-ic">${ic("book")}</span>
@@ -23409,18 +23731,46 @@ function exLang(){return (S.profile&&S.profile.lang)||"en"}
 function exReps(area){return aList("exRep",area)}
 
 /* ---------- the card ---------- */
+/* Curriculum-connected prompt (owner-approved, 5 Nov 2026): the prompt used to
+   be a fixed 6-item rotation with no link to the curriculum at all. It now
+   leads with the real task from wherever currentPos() has the learner today
+   — the same position Today, the Road map and Practice already read — with
+   the week's broader goal as a second angle to shuffle to. Falls back to the
+   old generic prompts only when there is genuinely no day to read (e.g. the
+   programme is finished). Reused by exPathCtx() below so the AI's report is
+   judged against the same real task, not a guess. */
+function exPathDay(){const pos=currentPos(),wk=trackWeeks()[pos.w-1]||{};return {pos,wk,dd:(wk.days||{})[pos.d]||{}}}
+function exPathPrompts(){
+  const {wk,dd}=exPathDay(),out=[];
+  if(dd.task)out.push(dd.task);
+  if(wk.goal&&wk.goal!==dd.task)out.push(wk.goal);
+  if(!out.length)for(let i=0;i<EX_PROMPT_N;i++)out.push(t("ex.prompt_"+(i+1)));
+  return out;
+}
 function exPromptHTML(){
+  const {pos,wk}=exPathDay(),list=exPathPrompts(),i=((ex.prompt%list.length)+list.length)%list.length;
+  const wkLabel=wk.theme?t("home.kicker_week",{w:pos.w,day:homeDayName(pos.d)}):"";
   return `<div class="ex-prompt" id="exPrompt">
-    <span class="ex-prompt-k">${t("ex.prompt_h")}</span>
-    <p class="ex-prompt-t">${esc(t("ex.prompt_"+(ex.prompt+1)))}</p>
-    <button class="ex-prompt-btn" onclick="exShuffle()" aria-label="${esc(t("ex.prompt_shuffle"))}" title="${esc(t("ex.prompt_shuffle"))}">${ic("repeat")}</button>
+    <span class="ex-prompt-k">${t("ex.prompt_h")}${wkLabel?` · ${esc(wkLabel)}`:""}</span>
+    <p class="ex-prompt-t">${esc(list[i])}</p>
+    ${list.length>1?`<button class="ex-prompt-btn" onclick="exShuffle()" aria-label="${esc(t("ex.prompt_shuffle"))}" title="${esc(t("ex.prompt_shuffle"))}">${ic("repeat")}</button>`:""}
   </div>`;
 }
 window.exShuffle=()=>{
-  ex.prompt=(ex.prompt+1+Math.floor(Math.random()*(EX_PROMPT_N-1)))%EX_PROMPT_N;
+  const list=exPathPrompts();
+  ex.prompt=(ex.prompt+1)%Math.max(1,list.length);
   const el=document.getElementById("exPrompt");if(el)el.outerHTML=exPromptHTML();
   manIconizeInline(document.getElementById("exCard"));
 };
+/* The same real task, shaped for the AI call (sessCtx() is the exact function
+   a hosted session already uses) — so Polish's report judges the minute
+   against today's actual lesson instead of guessing from the transcript alone. */
+function exPathCtx(){
+  const {pos,wk,dd}=exPathDay();
+  if(!dd.task&&!dd.focus)return undefined;   /* nothing real to judge against (e.g. finished) */
+  const weekPhrases=trackPhrases().filter(p=>p.w===pos.w&&!p.i);
+  return sessCtx(pos.w,pos.d,dd,weekPhrases);
+}
 function exLastHTML(){
   const r=exReps()[0];if(!r||!r.m||(ex.showReport&&ex.report===r))return "";
   const m=r.m,bits=[];
@@ -23435,7 +23785,7 @@ function exCardHTML(){
     <div class="ex-head">
       <div class="ex-head-t">
         <b>${tIc("ph.exec_title","briefcase")}</b>
-        <span class="chip p3">${t("ph.exec_tag")}</span>
+        <span class="chip p1">${t("ph.exec_tag")}</span>
       </div>
     </div>
     <div id="exStage">${exIdleHTML()}</div>
@@ -23452,8 +23802,8 @@ function exIdleHTML(){
     ${meterHTML("verdicts")}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
-      <button class="btn-primary ex-mic ex-mic-wide" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span class="ex-mic-l">${esc(t("ex.rec_wide"))}</span><span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-read" id="exReadBtn" onclick="exReadBox()" title="${esc(t("ex.read_btn"))}" aria-label="${esc(t("ex.read_btn"))}">${ic("sound")}</button>
+      <button class="btn-primary ex-mic ex-mic-wide" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span class="ex-mic-l">${esc(t("ex.rec_wide"))}</span><span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
     <button class="btn btn-g ex-quickbtn${ex.cue?" is-cue":""}" id="exQuickBtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
@@ -23725,7 +24075,7 @@ async function exRun(src){
   exStep(t("ex.step_measure"));
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
-  const ai=await exAI(text,m);
+  const ai=await exAI(text,m,exPathCtx());
   /* targets = the phrases this report hands over. The next recording is marked
      against them (exCarryHTML), so the assignment has to be stored, not
      recomputed from an AI answer that will be different next time. */

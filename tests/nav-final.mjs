@@ -1,5 +1,7 @@
 /* Navigation, final UX pass (29 Sep 2026, feature/bemastery-complete-ux-redesign).
-   The owner kept the six tabs; Home is found through its one permanent control, the logo.
+   Updated 4 Nov 2026 (owner-approved curriculum-first redesign): Today is now a seventh,
+   real tab that opens Home on both phone and desktop, on every track — the six-tabs-plus-
+   logo-only-Home design this file originally documented was deliberately superseded.
    Run: cd tests && node nav-final.mjs   (BASE=… for another tree; PORT=… for the server it starts) */
 import { webkit, devices } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
 const root = new URL("..", import.meta.url).pathname, PORT = +(process.env.PORT || 8151);
@@ -28,22 +30,25 @@ const view = async (p, v, a1, a2) => { await p.evaluate(([v, a1, a2]) => { docum
 const jsErr = errs => errs.filter(e => !/MIME type/.test(e));
 const brand = p => p.evaluate(() => { const b = document.querySelector(".brand"); return { on: b.classList.contains("on"), cur: b.getAttribute("aria-current"), name: b.getAttribute("aria-label"), chip: !!b.querySelector(".brand-home"), track: (b.querySelector("#brandTrack") || {}).textContent } });
 
-console.log("\n# the six tabs stay; Home is not a seventh");
+console.log("\n# Today joined the six tabs as a real, discoverable Home entry (owner-approved curriculum-first redesign, 4 Nov 2026) — not gated to General English");
 { const { ctx, p, errs } = await open(seed("general-english", ge3), { w: 375 });
   const m = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".bottom-nav .bnav-item")].map(x => x.dataset.v + ":" + x.innerText.trim()), home: !!document.querySelector('.bottom-nav [data-v="home"]') }));
-  ok("1 · phone: Road map · Shadow · Phrase Lab · Practice · Progress · Profile, and no Home tab", m.tabs.join("|") === "journey:Road map|shadow:Shadow|phrases:Phrase Lab|practice:Practice|review:Progress|profile:Profile" && !m.home, JSON.stringify(m));
+  ok("1 · phone: Today · Road map · Shadow · Phrase Lab · Practice · Progress · Profile — Today is the new first tab and opens Home", m.tabs.join("|") === "home:Today|journey:Road map|shadow:Shadow|phrases:Phrase Lab|practice:Practice|review:Progress|profile:Profile" && m.home, JSON.stringify(m));
   ok("1b · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", ge3), { w: 1280, h: 800 }); await view(p, "review");
   const m = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".nav-in button.tab")].map(x => x.dataset.v + ":" + x.innerText.trim()), on: (document.querySelector(".nav-in button.tab.on") || {}).dataset?.v, bar: getComputedStyle(document.querySelector(".bottom-nav")).display }));
-  ok("2 · desktop: its own header tabs (order kept), the Progress page named 'Progress' there too (was 'Reviews'), active tab marked, no bottom bar", m.tabs.join("|") === "journey:Road map|phrases:Phrase Lab|shadow:Shadow Studio|practice:Practice|review:Progress|profile:Profile" && m.on === "review" && m.bar === "none", JSON.stringify(m));
+  ok("2 · desktop: Today leads the same header tabs (order otherwise kept), the Progress page named 'Progress' there too (was 'Reviews'), active tab marked, no bottom bar", m.tabs.join("|") === "home:Today|journey:Road map|phrases:Phrase Lab|shadow:Shadow Studio|practice:Practice|review:Progress|profile:Profile" && m.on === "review" && m.bar === "none", JSON.stringify(m));
   await p.evaluate(() => { document.querySelector(".brand").focus() }); await p.keyboard.press("Enter"); await sleep(900);
   ok("3 · desktop keyboard: focus the logo, press Enter → Home", await p.evaluate(() => cur.v === "home"));
   await ctx.close(); }
-/* 821–1023px: the header row once scrolled Profile off the edge in French, Russian, Japanese… (29 Sep 2026) */
+/* 821–1023px: the header row once scrolled Profile off the edge in French, Russian, Japanese… (29 Sep 2026).
+   Adding Today as a 7th tab (4 Nov 2026) reopened that overflow at this same band (over:51/8/12px at three
+   of the four widths below) — a real, unintentional side effect, not a deliberate change, so it was fixed in
+   CSS (tighter .nav-in gap/padding/font-size for this band only) rather than the test being weakened. */
 for (const [w, lang] of [[821, "ru"], [834, "fr"], [834, "ja"], [900, "fr"]]) {
   const { ctx, p } = await open(seed("general-english", ge3), { w, h: 900, lang }); await view(p, "review");
   const r = await p.evaluate(() => { const n = document.querySelector(".nav-in"), t = [...n.querySelectorAll(".tab")].filter(x => x.offsetParent); return { over: n.scrollWidth - n.clientWidth, n: t.length, off: t.filter(x => { const q = x.getBoundingClientRect(); return q.right > innerWidth + .5 || q.left < -.5 }).map(x => x.dataset.v), h: Math.min(...t.map(x => Math.round(x.getBoundingClientRect().height))), lbl: t.every(x => x.innerText.trim().length > 1) } });
-  ok(`3b · ${w}px ${lang}: all six header tabs fit on screen with their labels (no sideways scroll), targets ≥24px`, r.n === 6 && r.over <= 0 && !r.off.length && r.h >= 24 && r.lbl, JSON.stringify(r)); await ctx.close(); }
+  ok(`3b · ${w}px ${lang}: all seven header tabs (Today included) fit on screen with their labels (no sideways scroll), targets ≥24px`, r.n === 7 && r.over <= 0 && !r.off.length && r.h >= 24 && r.lbl, JSON.stringify(r)); await ctx.close(); }
 
 console.log("\n# the lockup is still the way Home, without a Home chip of its own (owner, 30 Sep 2026)");
 for (const [lang, word] of [["en", "Home"], ["fr", "Accueil"], ["ar", "الرئيسية"]]) {
@@ -62,7 +67,10 @@ for (const area of ["general-english", "welding"]) {
 }
 { const { ctx, p } = await open(seed("general-english", { fnd: { "general-english": F({ placed: "foundations", finished: false, day: 2, done: { d1: true } }) } }));
   await view(p, "foundations"); const f = await brand(p);
-  ok("5 · Foundations (a Home page with no tab): the logo shows 'you are here'; no tab lit", f.on && f.cur === "page" && !f.chip && !(await p.evaluate(() => !!document.querySelector(".bnav-item.on"))), JSON.stringify(f));
+  /* Today's tv mapping already resolved foundations/mission to "home" before the tab existed (owner's own
+     comment at the tab's markup); now that Today is a real tab, that resolution lights it — intentional,
+     not a regression. */
+  ok("5 · Foundations (a Home page with no tab of its own): the logo shows 'you are here' AND the Today tab lights, since Today IS Home", f.on && f.cur === "page" && !f.chip && (await p.evaluate(() => (document.querySelector(".bnav-item.on") || {}).dataset?.v) === "home"), JSON.stringify(f));
   await ctx.close(); }
 /* a session is drawn by its own go() wrapper, which never reaches the base router (found on the iPhone, 29 Sep 2026) */
 for (const area of ["general-english", "welding"]) {
@@ -79,13 +87,17 @@ console.log("\n# pages with no tab light the tab they belong to");
   /* the lit tab is the one announced as the current page, on the phone bar and the desktop header */
   const cur = async (v, a1, a2) => { await view(p, v, a1, a2); return p.evaluate(() => ({ b: [...document.querySelectorAll(".bnav-item[aria-current=page]")].map(x => x.dataset.v), bOn: [...document.querySelectorAll(".bnav-item.on")].map(x => x.dataset.v), d: [...document.querySelectorAll(".nav-in .tab[aria-current=page]")].map(x => x.dataset.v), brand: document.querySelector(".brand").getAttribute("aria-current") })) };
   const a = { review: await cur("review"), session: await cur("session", 1, "Thu"), phrasebank: await cur("phrasebank", 1), home: await cur("home") };
-  ok("6b · aria-current=page sits on exactly the lit tab (phone and desktop), and on the logo only on Home", a.review.b.join() === "review" && a.review.d.join() === "review" && !a.review.brand && a.session.b.join() === "journey" && a.session.d.join() === "journey" && a.phrasebank.b.join() === "phrases" && a.home.b.length === 0 && a.home.d.length === 0 && a.home.brand === "page" && Object.values(a).every(x => x.b.join() === x.bOn.join()), JSON.stringify(a));
+  /* Today is now a real tab, so Home correctly carries aria-current=page on BOTH the Today tab and the
+     logo (owner's 4 Nov redesign) — the two are not mutually exclusive now that Home has its own tab. */
+  ok("6b · aria-current=page sits on exactly the lit tab (phone and desktop) — and on Home, both the Today tab and the logo carry it", a.review.b.join() === "review" && a.review.d.join() === "review" && !a.review.brand && a.session.b.join() === "journey" && a.session.d.join() === "journey" && a.phrasebank.b.join() === "phrases" && a.home.b.join() === "home" && a.home.d.join() === "home" && a.home.brand === "page" && Object.values(a).every(x => x.b.join() === x.bOn.join()), JSON.stringify(a));
   await ctx.close(); }
 
 console.log("\n# Road map: the same step as Home, told as a place on the journey");
 { const { ctx, p } = await open(seed("general-english", ge3)); await view(p, "journey");
-  const r = await p.evaluate(() => { const x = document.querySelector("#v-journey .rm2-today"); return { k: x.querySelector(".rm2-today-k").innerText, pos: x.querySelector(".rm2-today-pos").innerText, pin: !!x.closest(".rm2-cta"), hero: !!document.querySelector("#v-journey .hx") } });
-  ok("7 · 'Week 1 · Thursday', 'Session 4 of 7 in Week 1' (real counts), carried by the Road map button — not Home's hero card", r.k === "Week 1 · Thursday" && r.pos === "Session 4 of 7 in Week 1" && r.pin && !r.hero, JSON.stringify(r));
+  /* Simplified header (5 Nov 2026): the week position and the session count sit
+     directly above the one button in the same compact card — not Home's hero. */
+  const r = await p.evaluate(() => { const h = document.querySelector("#v-journey .rm-head2"); return { pos: h.querySelector(".rm-head2-pos").innerText, sub: h.querySelector(".rm-head2-sub").innerText, withCta: !!h.querySelector(".rm-head2-cta"), hero: !!document.querySelector("#v-journey .hx") } });
+  ok("7 · 'Week 1 of 12', 'Session 4 of 7 in Week 1' (real counts), carried by the Road map header's one button — not Home's hero card", r.pos === "WEEK 1 OF 12" && r.sub === "Session 4 of 7 in Week 1" && r.withCta && !r.hero, JSON.stringify(r));
   await ctx.close(); }
 
 console.log("\n# Phrase Lab: Executive Polish and the week's phrases, from the tab itself");

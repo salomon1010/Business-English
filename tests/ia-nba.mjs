@@ -22,10 +22,18 @@ async function open(state, { w = 390, lang = "en", flags = { home_v2_enabled: tr
   return { ctx, p, errs };
 }
 const view = async (p, v) => { await p.evaluate(v => { document.querySelectorAll("#wcOv,.cf-ov,.wc-ov,#rmCel,#fndCheckOv,.sync-nudge").forEach(e => e.remove()); go(v); scrollTo(0, 0) }, v); await sleep(1000); };
-/* the Road map card (30 Sep 2026): today's session is a line in the current-stage panel (.rm2-today),
-   and the card's one button (.rm2-cta) is worded as a place on the journey — "Start Week 1" */
-const today = p => p.evaluate(() => { const r = document.querySelector("#v-journey .rm2-today"); if (!r) return null; const b = document.querySelector("#v-journey .rm2-cta"), q = document.querySelector("#v-journey .rm2").getBoundingClientRect();
-  return { k: r.querySelector(".rm2-today-k").innerText, pos: (r.querySelector(".rm2-today-pos") || {}).innerText || "", t: r.querySelector("b").innerText, cta: b.querySelector(".rm2-cta-l").innerText.trim(), go: b.getAttribute("onclick"), h: Math.round(b.getBoundingClientRect().height), fits: q.left >= 0 && q.right <= innerWidth, primaries: document.querySelectorAll("#v-journey .rm2 .btn-primary, #v-journey .rm2 .rm2-cta").length } });
+/* Today's session, read from whichever design is on screen: General English's
+   simplified header (.rm-head2, 5 Nov 2026) or Welding's unchanged overview
+   card (.rm2-today / .rm2-cta). Both expose the same shape here so the checks
+   below read one way regardless of which track opened the page. */
+const today = p => p.evaluate(() => {
+  const h = document.querySelector("#v-journey .rm-head2");
+  if (h) { const b = h.querySelector(".rm-head2-cta"), q = document.querySelector("#v-journey .rm").getBoundingClientRect();
+    return { pos: h.querySelector(".rm-head2-pos").innerText, title: h.querySelector(".rm-head2-title").innerText, sub: (h.querySelector(".rm-head2-sub") || {}).innerText || "", cta: h.querySelector(".rm-head2-cta-l").innerText.trim(), go: b.getAttribute("onclick"), h: Math.round(b.getBoundingClientRect().height), fits: q.left >= 0 && q.right <= innerWidth, primaries: h.querySelectorAll(".btn-primary,.rm-head2-cta").length }; }
+  const r = document.querySelector("#v-journey .rm2-today"); if (!r) return null;
+  const b = document.querySelector("#v-journey .rm2-cta"), q = document.querySelector("#v-journey .rm2").getBoundingClientRect();
+  return { pos: (r.querySelector(".rm2-today-pos") || {}).innerText || "", title: r.querySelector("b").innerText, sub: r.querySelector(".rm2-today-k").innerText, cta: b.querySelector(".rm2-cta-l").innerText.trim(), go: b.getAttribute("onclick"), h: Math.round(b.getBoundingClientRect().height), fits: q.left >= 0 && q.right <= innerWidth, primaries: document.querySelectorAll("#v-journey .rm2 .btn-primary, #v-journey .rm2 .rm2-cta").length };
+});
 const heroGo = p => p.evaluate(() => { const c = document.querySelector(".hx .hx-cta"); return c && c.getAttribute("onclick") });
 const jsErr = errs => errs.filter(e => !/MIME type/.test(e));
 
@@ -38,30 +46,32 @@ console.log("\n# Learn (Road map) answers 'what is today?' with one button — t
   ok("2 · in Foundations: Today = the Foundations day", r && /go\('foundations'\)/.test(r.go), JSON.stringify(r)); await ctx.close(); }
 { const { ctx, p, errs } = await open(seed("general-english")); await view(p, "journey");
   const r = await today(p);
-  /* the row is the map's pin (29 Sep 2026): the day and its place in the week — Home keeps "what next?" */
-  ok("3 · placed, nothing done: 'Week 1 · Monday', 'Session 1 of 7 in Week 1', the day's focus, 'Start Week 1' → Week 1 Monday", r && r.k === "Week 1 · Monday" && r.pos === "Session 1 of 7 in Week 1" && r.t === "Pronunciation baseline" && r.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(r.go), JSON.stringify(r));
+  /* the header answers "where am I / what's today" (5 Nov 2026 simplification): Week 1 of 12, the
+     day's real place in the week, and the day's own focus — Home keeps "what next?" */
+  ok("3 · placed, nothing done: 'Week 1 of 12', 'Session 1 of 7 in Week 1', the day's focus, 'Start Week 1' → Week 1 Monday", r && r.pos === "WEEK 1 OF 12" && r.sub === "Session 1 of 7 in Week 1" && r.title === "Pronunciation baseline" && r.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(r.go), JSON.stringify(r));
   ok("3b · one primary button in the Road map header, ≥28px (the phone card is scaled down — owner, 30 Sep 2026), inside the screen", r.primaries === 1 && r.h >= 28 && r.fits, JSON.stringify(r));
   await view(p, "home");
   ok("3c · Home's hero points at the same session", /go\('session',1,'Mon'\)/.test(await heroGo(p) || ""), await heroGo(p));
   ok("3d · no JavaScript errors", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", { ...ge3, steps: { w1Thu: [0, 1] } })); await view(p, "journey");
   const r = await today(p);
-  ok("4 · three sessions done, Thursday begun: 'Resume Week 1' → Week 1 Thursday", r && /Thursday/.test(r.k) && r.cta === "Resume Week 1" && /go\('session',1,'Thu'\)/.test(r.go), JSON.stringify(r)); await ctx.close(); }
+  ok("4 · three sessions done, Thursday begun: 'Resume Week 1' → Week 1 Thursday", r && /Session 4 of 7/.test(r.sub) && r.cta === "Resume Week 1" && /go\('session',1,'Thu'\)/.test(r.go), JSON.stringify(r)); await ctx.close(); }
 { const { ctx, p } = await open(seed("general-english", ge3)); await view(p, "journey");
   const r = await today(p);
   ok("5 · three sessions done, Thursday not begun: 'Continue Week 1' → Week 1 Thursday", r && r.cta === "Continue Week 1" && /go\('session',1,'Thu'\)/.test(r.go), JSON.stringify(r));
   /* the same row in the full-screen map sheet: its button closes the sheet and opens the session */
   await p.evaluate(() => rmOpen()); await sleep(800);
-  await p.evaluate(() => document.querySelector("#rmOv .rm2-cta").click()); await sleep(900);
+  await p.evaluate(() => document.querySelector("#rmOv .rm-head2-cta").click()); await sleep(900);
   const s = await p.evaluate(() => ({ ov: !!document.getElementById("rmOv"), v: cur.v, w: cur.arg1, d: cur.arg2 }));
   ok("5b · in the map sheet, the button closes the sheet and opens that session", !s.ov && s.v === "session" && String(s.w) === "1" && s.d === "Thu", JSON.stringify(s)); await ctx.close(); }
 { const days = {}; for (let w = 1; w <= 12; w++) for (const x of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) days["w" + w + x] = true;
   const { ctx, p } = await open(seed("general-english", { days })); await view(p, "journey");
-  ok("6 · programme finished: no Today row", (await today(p)) === null);
-  ok("6b · …and the button is 'Review your journey' → Progress", await p.evaluate(() => { const b = document.querySelector("#v-journey .rm2-cta"); return b && b.innerText.includes("Review your journey") && /go\('review'\)/.test(b.getAttribute("onclick")) })); await ctx.close(); }
+  const r = await today(p);
+  ok("6 · programme finished: no day-specific line left, the header carries the finished headline", r && !r.sub, JSON.stringify(r));
+  ok("6b · …and the button is 'Review your journey' → Progress", r.cta.includes("Review your journey") && /go\('review'\)/.test(r.go), JSON.stringify(r)); await ctx.close(); }
 { const st = seed("general-english"); st.fnd["general-english"] = { placed: "full", finished: true };   // a state written without its done map
   const { ctx, p, errs } = await open(st); await view(p, "journey");
-  const r = await p.evaluate(() => ({ failed: /could not be drawn/.test(document.getElementById("v-journey").innerText), rows: document.querySelectorAll("#v-journey .rm2-row").length, cta: !!document.querySelector("#v-journey .rm2-cta") }));
+  const r = await p.evaluate(() => ({ failed: /could not be drawn/.test(document.getElementById("v-journey").innerText), rows: document.querySelectorAll("#v-journey .rm-path-row").length, cta: !!document.querySelector("#v-journey .rm-head2-cta") }));
   ok("7 · a Foundations record without its 'done' map no longer takes the Road map down", !r.failed && r.rows >= 3 && r.cta, JSON.stringify(r)); await ctx.close(); }
 
 console.log("\n# Welding before placement: one decision — the check; then the mission (Career Dashboard = welding_studio_enabled off, as in production; the studio's Home V2 is tests/welding-studio.mjs)");
@@ -94,13 +104,13 @@ console.log("\n# Empty states say why and what next");
   ok("16 · an empty Shadow group: 'No videos in this group yet. Pick another group, or paste any YouTube link.'", /No videos in this group yet\. Pick another group, or paste any YouTube link\./.test(s), s); await ctx.close(); }
 
 console.log("\n# French and Arabic at 375px");
-for (const [lang, word, pos] of [["fr", "Semaine 1", "Séance 4 sur 7"], ["ar", "الأسبوع 1", "الجلسة 4 من 7"]]) {
+for (const [lang, pos, sub] of [["fr", "SEMAINE 1", "Séance 4 sur 7"], ["ar", "الأسبوع 1", "الجلسة 4 من 7"]]) {
   const { ctx, p } = await open(seed("general-english", ge3), { w: 375, lang }); await view(p, "journey");
-  const r = await today(p); const dir = await p.evaluate(() => { const e = document.querySelector("#v-journey .rm2-today"); return e && getComputedStyle(e).direction });
-  const flip = await p.evaluate(() => { const a = document.querySelector("#v-journey .rm2-cta .go-arrow"); return a ? getComputedStyle(a).transform : null });
+  const r = await today(p); const dir = await p.evaluate(() => getComputedStyle(document.querySelector("#v-journey .rm")).direction);
+  const flip = await p.evaluate(() => { const a = document.querySelector("#v-journey .rm-head2-cta .go-arrow"); return a ? getComputedStyle(a).transform : null });
   ok(`17a · ${lang}: the button's arrow ${lang === "ar" ? "is mirrored" : "is not mirrored"}`, lang === "ar" ? /matrix\(-1/.test(flip || "") : (flip === "none"), String(flip));
-  ok(`17 · ${lang}: the Today row is translated, fits the screen, its button ≥26px (the phone card is scaled down)${lang === "ar" ? ", right-to-left" : ""}`, r && r.k.startsWith(word) && r.pos.startsWith(pos) && r.fits && r.h >= 26 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
-  if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-journey .rm2").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/today-${lang}.png` }) }
+  ok(`17 · ${lang}: the header is translated ('${pos}…', '${sub}…'), fits the screen, its button ≥26px (the phone card is scaled down)${lang === "ar" ? ", right-to-left" : ""}`, r && r.pos.toUpperCase().startsWith(pos) && r.sub.startsWith(sub) && r.fits && r.h >= 26 && (lang !== "ar" || dir === "rtl"), JSON.stringify({ r, dir }));
+  if (process.env.OUT) { await p.evaluate(() => document.querySelector("#v-journey .rm-head2").scrollIntoView({ block: "center" })); await sleep(300); await p.screenshot({ path: `${process.env.OUT}/today-${lang}.png` }) }
   await ctx.close(); }
 { const { ctx, p } = await open(seed("welding", { fnd: { "general-english": F() } }), { w: 375, lang: "fr", flags: { welding_studio_enabled: false } }); await view(p, "home");
   const g = await p.evaluate(() => (document.querySelector("#v-home .career-dash-gated") || {}).innerText || "");

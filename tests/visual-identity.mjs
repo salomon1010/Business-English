@@ -61,11 +61,15 @@ console.log("\n# brand and Premium assets");
     return { v: document.querySelector(".bnav-item.on").dataset.v, w: Math.round(r.width), h: Math.round(r.height), bg: getComputedStyle(i).backgroundColor, offBg: getComputedStyle(off).backgroundColor, tf: getComputedStyle(i).transform, col: getComputedStyle(document.querySelector(".bnav-item.on")).color, acc: getComputedStyle(document.documentElement).getPropertyValue("--accent-text").trim() } });
   ok("12 · the selected tab: a 52×30 tinted pill behind an unscaled icon, in the accent text colour; the others have no pill", on.v === "practice" && on.w === 52 && on.h === 30 && on.bg !== "rgba(0, 0, 0, 0)" && on.offBg === "rgba(0, 0, 0, 0)" && on.tf === "none", JSON.stringify(on));
 
-  console.log("\n# a card holds rows, not cards");
-  const pt = await p.evaluate(() => { const l = document.querySelector(".path-tool-list"), rows = [...l.querySelectorAll(".path-tool")], rec = l.querySelector(".path-tool.rec"), ls = getComputedStyle(l);
-    return { n: rows.length, listBorder: ls.borderTopWidth, listR: ls.borderTopLeftRadius, gap: ls.rowGap, rowR: rows.map(r => getComputedStyle(r).borderTopLeftRadius), rowB: rows.map(r => getComputedStyle(r).borderLeftWidth), div: rows.slice(1).map(r => getComputedStyle(r).borderTopWidth), rec: rec && getComputedStyle(rec).boxShadow, tile: getComputedStyle(rows[0].querySelector(".pt-ic")).borderTopLeftRadius, shIc: rows.some(r => /shadowing|phrase/.test(r.outerHTML) || r.querySelector(".pt-ic svg circle[r='7']")) } });
-  ok("13 · Practice › best tool is one grouped list: 1px frame, 12px corners, rows with no own box, 1px dividers", pt.n >= 3 && pt.listBorder === "1px" && pt.listR === "12px" && (pt.gap === "0px" || pt.gap === "normal") && pt.rowR.every(r => r === "0px") && pt.rowB.every(b => b === "0px") && pt.div.every(d => d === "1px"), JSON.stringify(pt));
-  ok("14 · the recommended row is marked by a 3px accent edge; row tiles are 10px", /3px 0px 0px 0px inset/.test(pt.rec || "") && pt.tile === "10px", JSON.stringify(pt));
+  console.log("\n# the Practice hub's four cards are one consistent design-system card, not ad-hoc styling");
+  /* Practice hub redesign (owner-approved, 5 Nov 2026): General English's Practice
+     page replaced the old grouped "best tool" list with four standalone cards
+     (tests/practice-hub.mjs) — Welding keeps the grouped .path-tool-list untouched. */
+  const pt = await p.evaluate(() => { const cards = [...document.querySelectorAll(".prac-card")], rec = document.querySelector(".prac-card.rec");
+    return { n: cards.length, r: cards.map(c => getComputedStyle(c).borderTopLeftRadius), b: cards.map(c => getComputedStyle(c).borderTopWidth), rec: rec && getComputedStyle(rec).boxShadow, tile: getComputedStyle(cards[0].querySelector(".pc-ic")).borderTopLeftRadius }; });
+  ok("13 · Practice hub is four cards sharing one radius and a 1px frame", pt.n === 4 && new Set(pt.r).size === 1 && pt.b.every(b => b === "1px"), JSON.stringify(pt));
+  /* icon tiles grew to 16px radius / 56px box for the illustrated-icon pilot (owner, 6 Nov 2026) */
+  ok("14 · the recommended card is marked by an accent inset ring; card icon tiles are 16px", /inset/.test(pt.rec || "") && pt.tile === "16px", JSON.stringify(pt));
 
   console.log("\n# shape rule, eyebrows, fields, switches");
   await view(p, "profile");
@@ -95,9 +99,9 @@ console.log("\n# light theme, Welding, Arabic");
   ok("22 · Welding: the wordmark turns amber with Forge's --grad-text; Premium keeps its sapphire", /253, 230, 138|fde68a/i.test(w.clip) && /6d7dff/i.test(w.prem), JSON.stringify(w));
   ok("22b · no JavaScript errors (Welding)", !jsErr(errs).length, errs.join(" | ")); await ctx.close(); }
 { const { ctx, p, errs } = await open(seed("general-english"), { w: 375, lang: "ar" }); await view(p, "practice");
-  const a = await p.evaluate(() => { const i = [...document.querySelectorAll(".bnav-item")]; const rec = document.querySelector(".path-tool.rec");
+  const a = await p.evaluate(() => { const i = [...document.querySelectorAll(".bnav-item")]; const rec = document.querySelector(".prac-card.rec");
     return { over: i.filter(x => { const s = x.querySelector("span:not(.ic)"); return s.scrollWidth > x.clientWidth + 1 }).map(x => x.innerText), rec: rec && getComputedStyle(rec).boxShadow, dir: document.documentElement.dir } });
-  ok("23 · Arabic at 375px: every tab label fits; the recommended edge is on the reading side (right)", a.dir === "rtl" && !a.over.length && /-3px 0px 0px 0px inset/.test(a.rec || ""), JSON.stringify(a));
+  ok("23 · Arabic at 375px: every tab label fits; the Practice hub's recommended card keeps its accent ring (symmetric, so RTL needs no mirrored edge)", a.dir === "rtl" && !a.over.length && /inset/.test(a.rec || ""), JSON.stringify(a));
   await view(p, "data");
   const k = await p.evaluate(async () => { const r = document.getElementById("remOn"); r.checked = true; await new Promise(z => setTimeout(z, 250)); const t = getComputedStyle(r, "::after").transform; r.checked = false; return t });
   ok("24 · Arabic: the switch knob slides to the left when on", /matrix\(1, 0, 0, 1, -18/.test(k), k);

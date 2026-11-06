@@ -81,10 +81,11 @@ const A = await learner("alice", "Alice Ngo", "general-english", false);
 const W = await learner("wendy", "Wendy Weld", "welding", false);
 
 /* ---------- General-English-only boundary ---------- */
-ok("General English: Practice tab shows the Practice Partner card", (await txt(A.page, ".pp-entry")).includes("Practice Partner"));
-/* "How it works" left the card (owner, 6 Oct 2026); ppHowSheet stays for any other caller */
-ok("The card no longer carries 'How it works'", !(await A.page.$(".pp-entry .pp-how-link")));
-ok("Practice tab: the 'Best tool' conversation row shows only when it is the day's pick, and then carries the Life Simulations card's name (roleplay)", await A.page.evaluate(() => { const strip = [...document.querySelectorAll(".path-tool")].find(b => b.getAttribute("onclick").includes("'sim'")); const card = [...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("roleplay")); const pick = pathToolPick().id; if (!card || !card.innerText.includes("Practise a real conversation")) return false; if (pick !== "sim") return !strip; return !!strip && strip.innerText.includes("Practise a real conversation") && !strip.innerText.includes("Workplace conversations"); }));
+/* Practice hub redesign (owner-approved, 5 Nov 2026): General English's Practice
+   page is now four curriculum-synced cards (tests/practice-hub.mjs), not the old
+   standalone .pp-entry / .rp-entry cards — those stay as Welding's layout only. */
+ok("General English: Practice tab shows the Live Partner Practice card", await A.page.evaluate(() => [...document.querySelectorAll("#v-practice .prac-card .pc-t")].some(e => e.textContent.trim() === "Live Partner Practice")));
+ok("Practice tab: the AI Conversation card is the one route into Life Simulations (roleplay), carrying the Recommended chip only when it is the day's pick", await A.page.evaluate(() => { const card = [...document.querySelectorAll("#v-practice .prac-card")].find(b => (b.getAttribute("onclick") || "") === "go('roleplay')"); const pick = pathToolPick().id; return !!card && card.querySelector(".pc-t").textContent.trim() === "AI Conversation" && card.classList.contains("rec") === (pick === "sim"); }));
 ok("Welding: the same shortcut and card keep the professional simulation route", await W.page.evaluate(() => pathTools().find(x => x.id === "sim").go[0] === "simulation" && !![...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("simulation"))));
 ok("Welding: no Practice Partner card on the Practice tab", await W.page.evaluate(() => !document.querySelector(".pp-entry")));
 await W.page.evaluate(() => go("partner")); await sleep(500);
@@ -107,7 +108,7 @@ ok("Welding: no presence strip, no floating button (flags on, consented via API)
 await W.ctx.close();
 
 /* ---------- consent with 18+ and preferences ---------- */
-await A.page.click(".pp-entry"); await sleep(1200);
+await A.page.click('.prac-card:has-text("Live Partner Practice")'); await sleep(1200);
 ok("First visit asks for consent", (await txt(A.page, "#v-partner")).includes("Before your first partner"));
 await A.page.click("#v-partner .pp-cta button"); await sleep(300);
 const consentText = await txt(A.page, ".pp-consent");
@@ -581,7 +582,7 @@ await A.page.evaluate(W => localStorage.setItem("be_partner_api", W), WORKER); a
 ok("Reconnect restores the partner page", /Match me|waiting list|looking for your partner|Try a practice|Practise live|No one is available/i.test(await txt(A.page, "#v-partner")), (await txt(A.page, "#v-partner")).slice(0, 300));
 /* since the 2026-09-19 release the production default is ON, so the switch is tested by turning it off explicitly */
 await A.page.evaluate(() => { localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: false })); go("practice"); }); await sleep(400);
-ok("Flag off → no card on Practice, no Home card, route shows unavailable (the client kill switch)", await A.page.evaluate(async () => { const noCard = !document.querySelector(".pp-entry"); go("partner"); await new Promise(r => setTimeout(r, 300)); return noCard && /temporarily unavailable/.test(document.getElementById("v-partner").innerText); }));
+ok("Flag off → no card on Practice, no Home card, route shows unavailable (the client kill switch)", await A.page.evaluate(async () => { const noCard = ![...document.querySelectorAll("#v-practice .prac-card .pc-t")].some(e => e.textContent.trim() === "Live Partner Practice"); go("partner"); await new Promise(r => setTimeout(r, 300)); return noCard && /temporarily unavailable/.test(document.getElementById("v-partner").innerText); }));
 await A.page.evaluate(F => localStorage.setItem("be_flags", JSON.stringify(F)), FLAGS);
 await A.page.evaluate(() => { localStorage.removeItem("be_partner_dev_user"); go("partner"); }); await sleep(600);
 ok("Signed out → sign-in card, no data", (await txt(A.page, "#v-partner")).includes("Create your free account"));

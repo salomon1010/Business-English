@@ -210,7 +210,11 @@ console.log("\n# General English is unchanged, and sees nothing of Welding");
   const { ctx, p, errs } = await open("general-english", { extra: { lastClipA: { welding: { vid: Object.keys(WELD.videos)[0], title: "weld clip", start: 0, end: 0 } } } });
   await p.evaluate(() => go("home")); await sleep(1800);
   const gph = await p.evaluate(() => [...document.querySelectorAll(".hx-dimg img")].map(i => i.getAttribute("src")));
-  ok("16c · General English keeps its own Explore photos", gph.some(x => /^home-photos\/[a-z]+\.jpg/.test(x)) && !gph.some(x => x.includes("/welding/")), JSON.stringify(gph));
+  /* curriculum-first redesign, 4 Nov 2026, General English only: the Explore grid
+     (.hx-dimg/.hx-dcard) no longer renders on General English Home at all — so by
+     construction there is no Welding photo to leak through it. Welding itself is
+     untouched: 15c above still exercises its own full six-photo grid. */
+  ok("16c · the Explore grid is gone from General English Home, so nothing of Welding's photos can leak through it", gph.length === 0, JSON.stringify(gph));
   const hv = await shownVids(p);
   ok("16 · every video on General English Home is a General English video", hv.length >= 3 && hv.every(v => GV.has(v) || !WV.has(v)), hv.filter(v => WV.has(v)));
   await p.evaluate(() => go("shadow")); await sleep(1500);
