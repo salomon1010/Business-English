@@ -23518,10 +23518,14 @@ async function fbRenderPron(target,out){
   if(!box.isConnected)return;                                     /* a newer report replaced this one meanwhile */
   if(!res||!res.words||!res.words.length){box.innerHTML=fbRepRun(()=>`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`);fbPronSum(root,null);return;}
   const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
-  /* "ai": an audio model listened and scored each word. "whisper": the
-     Worker had no audio model and cross-checked the words against a
-     transcript — coarse, so the header says so and the number is marked
-     approximate rather than presented as a measurement. */
+  const bucket=s=>s>=80?"strong":s>=55?"good":"practice";
+  /* "ai": an audio model listened and scored each word — a real number.
+     "whisper": the Worker had no audio model and cross-checked the words
+     against a transcript — a string match, not a pronunciation judgement.
+     A digit there would claim precision the data doesn't have (the owner's
+     "do not fabricate pronunciation precision" rule), so whisper mode shows
+     only the colour-coded bucket (Strong/Good/Needs practice) via colour +
+     an honest aria-label — never a percentage, on the header or per word. */
   const ai=res.mode==="ai";
   const bad=res.words.filter(w=>w.score<80&&w.note);
   box.innerHTML=fbRepRun(()=>`<div class="fb-pron">
@@ -23529,10 +23533,10 @@ async function fbRenderPron(target,out){
       <b style="font-size:15px">${tIc("fb.pron_h","mic")}</b>
       <span style="font-size:11.5px;color:var(--mut2)">${ai?t("fb.pron_sub"):t("fb.c_pron_sub_tx")}</span>
       <span style="flex:1"></span>
-      <span class="fb-pron-score" style="color:${col(res.overall)}">${ai?"":"~"}${res.overall}%</span>
+      <span class="fb-pron-score" style="color:${col(res.overall)}">${ai?`${res.overall}%`:`${esc(t("sv.ch_st_"+bucket(res.overall)))} <i>${esc(t("sv.ch_approx"))}</i>`}</span>
     </div>
     ${ai?"":`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`}
-    <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
+    <div class="fb-pw-wrap">${res.words.map(w=>ai?`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`:`<span class="fb-pw" style="--c:${col(w.score)}" aria-label="${esc(w.word)} — ${esc(t("sv.ch_st_"+bucket(w.score)))}">${esc(w.word)}<b aria-hidden="true">●</b></span>`).join("")}</div>
     ${bad.length?`<div class="fb-pron-tips">${bad.map(w=>`<div><span class="fb-pron-dot" style="background:${col(w.score)}"></span><b>${esc(w.word)}</b> — ${esc(w.note)}</div>`).join("")}</div>`:`<p class="fb-pron-good">${tIc("fb.pron_all_good","check")}</p>`}
   </div>`);
   manIconizeInline(box);
@@ -30963,7 +30967,11 @@ function ppRevPaint(revId,key,st){
 function ppRevResultHTML(revId,key,st,r){
   const btn=(rec)=>`<button class="btn btn-g btn-sm pp-rv-rec ${rec?"rec":""}" onclick="ppRevPracticeFrom(this)">${ic(rec?"stop":"mic")} ${rec?t("pp.rec_stop"):(r&&r.tries?t("pp.rv_try_again"):t("pp.rv_say_it"))}</button>`;
   const col=s=>s>=PP_REV_PASS?"var(--green)":s>=55?"var(--gold)":"var(--red)";
-  const chips=w=>w&&w.length?`<div class="fb-pw-wrap pp-rv-pw">${w.map(x=>`<span class="fb-pw" style="--c:${col(x.score)}">${esc(x.word)}<b>${x.score}</b></span>`).join("")}</div>`:"";
+  const bucket=s=>s>=PP_REV_PASS?"strong":s>=55?"good":"practice";
+  /* "whisper" mode is a transcript string-match, not a listened pronunciation
+     score — a digit there would claim precision the data doesn't have, so it
+     shows only the colour-coded bucket (never a number), same rule as fbRenderPron. */
+  const chips=(w,mode)=>w&&w.length?`<div class="fb-pw-wrap pp-rv-pw">${w.map(x=>mode==="whisper"?`<span class="fb-pw" style="--c:${col(x.score)}" aria-label="${esc(x.word)} — ${esc(t("sv.ch_st_"+bucket(x.score)))}">${esc(x.word)}<b aria-hidden="true">●</b></span>`:`<span class="fb-pw" style="--c:${col(x.score)}">${esc(x.word)}<b>${x.score}</b></span>`).join("")}</div>`:"";
   if(!st||st.state==="idle")return `${btn(false)}${r&&r.best!=null?`<span class="pp-rv-best" style="--c:${col(r.best)}">${t("pp.rv_best",{n:r.best})}</span>`:""}`;
   if(st.state==="recording")return `${btn(true)}<span class="pp-rv-live">${ic("mic")} ${t("pp.rv_listening")}</span>`;
   if(st.state==="grading")return `${DS.aiInline(t("pp.grading"))}`;
@@ -30974,8 +30982,9 @@ function ppRevResultHTML(revId,key,st,r){
      header badge follows on the next render, the box says so at once */
   const mastery=coach?(passes>=PP_REV_MASTER?`<p class="pp-rv-note pp-rv-master done">${ic("check")} ${t("pp.rv_master_done")}</p>`:`<p class="pp-rv-note pp-rv-master">${t("pp.rv_master_prog",{n:passes,m:PP_REV_MASTER})}</p>`):"";
   if(coach&&passes>=PP_REV_MASTER){const item=document.querySelector(`[data-rvkey="${CSS.escape(key)}"]`)?.closest(".pp-rv-coach-item");if(item)item.classList.add("mastered")}
-  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${st.score}%</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${r&&r.best!=null&&r.tries>1?`<small>${t("pp.rv_best",{n:r.best})} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>${mastery}
-    ${chips(st.words)}${st.mode==="whisper"?`<p class="pp-rv-note">${t("pp.rv_asr_note")}</p>`:""}
+  const scoreLbl=st.mode==="whisper"?`${esc(t("sv.ch_st_"+bucket(st.score)))} <i>${esc(t("sv.ch_approx"))}</i>`:`${st.score}%`;
+  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${scoreLbl}</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${r&&r.best!=null&&r.tries>1?`<small>${t("pp.rv_best",{n:r.best})} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>${mastery}
+    ${chips(st.words,st.mode)}${st.mode==="whisper"?`<p class="pp-rv-note">${t("pp.rv_asr_note")}</p>`:""}
     <div class="pp-rv-acts">${btn(false)}</div>`;
 }
 /* the practice buttons carry their target on the container, so a repaint

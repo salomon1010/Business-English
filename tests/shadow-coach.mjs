@@ -159,6 +159,7 @@ ok("The dense analysis is intact behind the folds: word chips, ranked practice c
 }));
 ok("Analytics: the report reports itself once, with the band and the source, nothing else", await A.page.evaluate(() => { const v = window.__ev.filter(e => e.n === "shadow_report_viewed"); const sc = parseInt(document.querySelector(".fbc-score").textContent); return v.length === 1 && v[0].p.band === (sc >= 80 ? "good" : sc >= 55 ? "fair" : "poor") && v[0].p.source === "new"; }));
 ok("The pronunciation pass lands in the summary as a real percentage when an audio model listened (mode ai)", await pronDone(A.page) && await A.page.evaluate(() => { const b = document.querySelector("#fbSumPron b"); return /^\d+%$/.test(b.textContent) && !!document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fb-pron .fb-pw'); }), await txt(A.page, "#fbSumPron"));
+ok("mode ai also shows a real digit in the detail header and on every per-word chip — the honesty fix only suppresses digits in whisper mode, not real ones", await A.page.evaluate(() => ({ head: document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fb-pron-score')?.textContent, words: [...document.querySelectorAll('#fbOut .fb-sec[data-kind="pron"] .fb-pw b')].map(x => x.textContent) })).then(r => /^\d+%$/.test(r.head || "") && r.words.length > 0 && r.words.every(w => /^\d+$/.test(w))));
 if (SHOT) { await A.page.evaluate(() => svChReveal(document.getElementById("fbOut"))); await sleep(600); await A.page.screenshot({ path: SHOT + "/report-dark.png" }); await A.page.screenshot({ path: SHOT + "/report-dark-full.png", fullPage: false }); }
 
 /* ---------- mobile: the first screen holds result, strengths, the focus and the primary action ---------- */
@@ -307,8 +308,12 @@ ok("Full practice fold still lists every problem, ranked worst-first, so nothing
 /* ---------- 8. insufficient confidence: whisper-mode pronunciation is not shown as a precise number ---------- */
 assessMode = "whisper"; heard = H7;
 await report(A.page, T7, H7); await pronDone(A.page);
-const WH = await A.page.evaluate(() => ({ sum: document.querySelector("#fbSumPron b").textContent, note: document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fbc-pron-note')?.textContent, head: document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fb-pron-score')?.textContent }));
-ok("Transcript cross-check (mode whisper): the summary shows a state marked 'approx.', the fold says listening was not available, the number is marked ~", !/^\d+%$/.test(WH.sum) && /approx/.test(WH.sum) && /not available/.test(WH.note || "") && /^~\d+%$/.test(WH.head || ""), JSON.stringify(WH));
+const WH = await A.page.evaluate(() => ({ sum: document.querySelector("#fbSumPron b").textContent, note: document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fbc-pron-note')?.textContent, head: document.querySelector('#fbOut .fb-sec[data-kind="pron"] .fb-pron-score')?.textContent, words: [...document.querySelectorAll('#fbOut .fb-sec[data-kind="pron"] .fb-pw')].map(x => x.textContent.trim()), wordLabels: [...document.querySelectorAll('#fbOut .fb-sec[data-kind="pron"] .fb-pw')].map(x => x.getAttribute("aria-label") || "") }));
+/* fixed 6 Nov 2026: a whisper-mode string-match is not a pronunciation measurement,
+   so neither the summary chip nor the detail header nor any per-word chip may show a
+   digit — only the colour-coded bucket label, marked 'approx.', with the honest word
+   verdict moved to aria-label for anyone using a screen reader. */
+ok("Transcript cross-check (mode whisper): the summary shows a state marked 'approx.', the fold says listening was not available, and NO digit appears anywhere — not the header, not any per-word chip", !/^\d+%$/.test(WH.sum) && /approx/.test(WH.sum) && /not available/.test(WH.note || "") && !/\d/.test(WH.head || "") && /approx/.test(WH.head || "") && WH.words.every(w => !/\d/.test(w)) && WH.wordLabels.every(l => /Strong|Good|Needs practice/.test(l)), JSON.stringify(WH));
 
 /* ---------- 9. score unavailable (the pass fails) ---------- */
 assessMode = "502";
