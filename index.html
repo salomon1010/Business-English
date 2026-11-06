@@ -69,6 +69,7 @@
 <script src="shadow-sync.js?v=8"></script>
 <script src="shadow-scenes.js?v=2"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
+<script src="daily-learning-plan.js?v=1"></script>
 <script src="career-center.js?v=80"></script>
 <script src="professional-skills-passport.js?v=85"></script>
 <script src="jurisdictions.js?v=79"></script>
@@ -25387,6 +25388,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
    own PARTNER_ENABLED switch as the server-side boundary. */
 const FLAGS_DEFAULT={
+  daily_learning_plan_pilot_enabled:false,   // Phase 2 pilot (6 Nov 2026): the guided TRY..FINISH flow on Week 1 Monday, General English only. OFF until the owner enables it on staging.
   practice_partner_enabled:true,       // released 2026-09-20 (owner decision; DEVICE_CHECKLIST 24/66 rows certified on staging)
   practice_partner_matching_enabled:true,
   practice_partner_voice_enabled:true,
