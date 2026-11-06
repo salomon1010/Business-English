@@ -65,6 +65,20 @@ console.log("\n# persistence — resumable across days, multiple lessons per day
   ok("21 · starting again after completion builds a FRESH entry (a real retry), attempt number increments", e3.attempt === 2 && e3.step === "try" && !e3.completedAt);
 }
 
+console.log("\n# pickSupportingVideo — never fabricates a match; honest about being 'closest', not literal");
+{
+  const starters = [
+    { vid: "UF8uR6Z6KLc", name: "Steve Jobs — Stanford Commencement Address", why: "Slow, clear, perfectly paced — the ideal first shadowing voice." },
+    { vid: "Do8iVld-RB4", name: "Tim Cook — Duke Commencement Address", why: "Warm, measured corporate delivery — leadership and values vocabulary." },
+    { vid: "x_MS-RFun8Q", name: "Elon Musk — Caltech Commencement Address", why: "Conversational, technical delivery — startup, tech and business vocabulary." }
+  ];
+  const v = DailyPlan.pickSupportingVideo(starters, ["corporate", "business", "leadership", "professional"]);
+  ok("26 · picks the real catalogue entry with the most keyword overlap (Tim Cook: corporate + leadership)", v && v.id === "Do8iVld-RB4");
+  ok("27 · the reason says 'closest match', never claims the clip literally is a self-introduction", /closest/.test(v.matchReason) && !/introduc/i.test(v.matchReason));
+  ok("28 · no keyword overlap at all → null, never a fabricated pick", DailyPlan.pickSupportingVideo(starters, ["xyzzynotarealword"]) === null);
+  ok("29 · an empty catalogue → null", DailyPlan.pickSupportingVideo([], ["corporate"]) === null);
+}
+
 console.log("\n# evidenceStatus — four states, strictly from real evidence counts");
 ok("22 · zero attempts → not_assessed", DailyPlan.evidenceStatus(0) === "not_assessed");
 ok("23 · one attempt → initial", DailyPlan.evidenceStatus(1) === "initial");

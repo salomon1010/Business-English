@@ -120,6 +120,29 @@
     return { valid: errors.length === 0, errors };
   }
 
+  /* Picks a supporting video from the REAL Shadow Studio starters catalogue —
+     never invents a clip or a reason. The catalogue is 19 commencement/TED
+     speeches; none is literally "a professional introducing themselves"
+     (verified against tracks/general/shadow.json — the same honest gap
+     missions.json's own week-1 competency hit, which is why that file omits
+     a shadow block entirely rather than force a link). This phase needs a
+     LISTEN clip, so it picks the closest professional-register match by real
+     keyword overlap in the catalogue's own name/why text, and the match
+     reason shown to the learner must say "closest match", never claim the
+     clip literally is a self-introduction. Returns null — never a fabricated
+     pick — if nothing in the catalogue matches at all. */
+  function pickSupportingVideo(starters, keywords) {
+    starters = starters || []; keywords = keywords || [];
+    let best = null, bestScore = 0;
+    starters.forEach(s => {
+      const hay = (String(s.name || "") + " " + String(s.why || "")).toLowerCase();
+      const score = keywords.reduce((n, k) => n + (hay.includes(k.toLowerCase()) ? 1 : 0), 0);
+      if (score > bestScore) { bestScore = score; best = s; }
+    });
+    if (!best) return null;
+    return { id: best.vid, title: best.name, matchReason: "closest professional-register match in the library — " + best.why };
+  }
+
   function load(S, id) { return (S.dlp && S.dlp[id]) || null; }
 
   /* Idempotent: an in-progress (not yet completed) entry is returned
@@ -168,7 +191,7 @@
     return "established";
   }
 
-  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, load, start, setStep, complete, evidenceStatus };
+  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, load, start, setStep, complete, evidenceStatus };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.DailyPlan = api;
 })(typeof window !== "undefined" ? window : globalThis);

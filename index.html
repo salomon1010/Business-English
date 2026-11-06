@@ -3614,6 +3614,15 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .rec-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--grad);color:var(--on-accent);font-size:22px;transition:.2s;box-shadow:0 4px 16px color-mix(in srgb,var(--acc) 38%,transparent);display:grid;place-items:center}
 .rec-btn svg{width:26px;height:26px}
 .rec-btn.recording{background:var(--ds-rec);animation:pulse 1.2s infinite}
+.rec-btn-sm{width:34px;height:34px;vertical-align:middle;margin-left:6px}
+.rec-btn-sm svg{width:17px;height:17px}
+/* Phase 2 pilot: the TRY..FINISH step dots (daily_learning_plan_pilot_enabled) */
+.dlp-steps{display:flex;gap:6px;margin:10px 0}
+.dlp-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.dlp-dot.on{background:var(--accent);width:20px;border-radius:4px}
+.dlp-dot.done{background:var(--green)}
+.dlp-expr-list{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.dlp-expr-list li{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
 /* The recording pulse and the over-length clip warning are live-state signals,
    so they are legitimately perpetual — but they were the only infinite
@@ -8433,6 +8442,43 @@ const I18N_EN={
  "starter.1.why":"Presentation rhythm & persuasion language for meetings.",
  "sess.back":"← Week {{w}}",
  "sess.return":"← Back to your session · Week {{w}} · {{d}}",
+ "dlp.unavailable":"This guided lesson isn't available right now — try the regular session instead.",
+ "dlp.progress_label":"Lesson steps",
+ "dlp.step_try":"Try","dlp.step_try_sub":"Before you watch anyone else, let's hear where you're starting from.",
+ "dlp.step_learn":"Learn","dlp.step_learn_sub":"A few expressions worth having ready.",
+ "dlp.step_listen":"Listen","dlp.step_listen_sub":"Hear a professional voice before you try it yourself.",
+ "dlp.step_rehearse":"Rehearse","dlp.step_rehearse_sub":"Say each expression out loud, as many times as you like.",
+ "dlp.step_converse":"Converse","dlp.step_converse_sub":"Put it to use in a short, realistic moment.",
+ "dlp.step_improve":"Improve","dlp.step_improve_sub":"One thing to sharpen, then try again.",
+ "dlp.step_finish":"Finish","dlp.step_finish_sub":"",
+ "dlp.continue":"Continue",
+ "dlp.save_continue":"Save & continue",
+ "dlp.recorded_state":"Recorded",
+ "dlp.typed_state":"Saved",
+ "dlp.no_mic":"No microphone? Type it instead",
+ "dlp.type_ph":"Type what you'd say…",
+ "dlp.save_text":"Save",
+ "dlp.type_required_toast":"Type a few words first.",
+ "dlp.try_prompt":"Introduce yourself in a few sentences, in your own words — nothing to get right yet.",
+ "dlp.learn_sub":"Today's expressions — tap the speaker to hear each one.",
+ "dlp.listen_sub":"The closest professional-register clip in the library: “{{title}}”.",
+ "dlp.listen_none":"No matching clip in the library today — that's alright, move straight on.",
+ "dlp.watch_shadow":"Watch & shadow it",
+ "dlp.rehearse_sub":"Hear each expression, then record yourself saying it.",
+ "dlp.converse_prompt":"Introduce yourself to a new colleague, using at least one of today's expressions.",
+ "dlp.converse_ai":"Practise this with the AI coach instead",
+ "dlp.improve_none":"Nothing to improve yet — go back and record your response first.",
+ "dlp.improve_unreachable":"We couldn't reach the coach to grade this take — your recording and progress are still saved. Try again shortly.",
+ "dlp.improve_text_only":"You typed your response — good practice. We can't assess pronunciation without a recording, so here's today's expressions to keep in mind:",
+ "dlp.improve_h":"One thing to sharpen",
+ "dlp.retry":"Try again",
+ "dlp.finish_btn":"Finish",
+ "dlp.finish_done":"Lesson complete",
+ "dlp.finish_evidence_not_assessed":"Nice work — today's objective was pronunciation and introducing yourself. Keep practising and a coaching focus will appear here.",
+ "dlp.finish_evidence_initial":"One attempt recorded so far. One more like this and we'll start seeing a pattern.",
+ "dlp.finish_evidence_developing":"A pattern is forming — keep going and we'll be able to name a specific focus.",
+ "dlp.finish_evidence_established":"Enough attempts now to see both a strength and a clear next focus.",
+ "dlp.back_home":"Back to Today",
  "sess.link_shadow":"Open the Shadow Studio",
  "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
  "sess.link_shadow_why_fri":"Drill your weakest clip here, then record the improved version.",
@@ -14702,6 +14748,11 @@ function rSession(el,w,d){
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
   _sessCur={key,w,d,ctx:sessCtx(w,d,dd,weekPhrases),ws:wsPick(w,dd)};   /* what the report is judged against */
+  /* Phase 2 pilot (6 Nov 2026, General English only, flag-gated): Week 1
+     Monday's guided TRY..FINISH flow, built on the DailyLearningPlan
+     contract. Every other day, and Welding entirely, keeps this page
+     exactly as it was. */
+  if(dlpOn(w,d)){rGuidedLesson(el,w,d,wk,dd,key,weekPhrases);return}
   /* General English V2: no script, no scoring against a script, no self-score,
      no notes. A speaking day hands over to this week's mission; any other day
      keeps its activity, recorder and manual tick. Welding never gets here. */
@@ -14838,6 +14889,213 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   ${mvDockHTML(prim,sec)}`;
   manIconizeInline(el);
+}
+/* ===================== DailyLearningPlan guided lesson (Phase 2 pilot) =====================
+   Week 1 Monday, General English only, behind daily_learning_plan_pilot_enabled — every
+   other day and Welding entirely are untouched. Every step reuses an existing primitive
+   rather than a new one: phRecInto() for recording (mic-denial handling included), fbSay()
+   for playback, vocPut() for vocabulary, sessReport()/sessRepGet() for the AI feedback pass
+   (the SAME pipeline the classic session page already runs, so IMPROVE's correction has
+   the same evidence rules as everywhere else), sessDayDone() for completion, and the
+   existing sessGo('shadow',w,d) deep link for LISTEN. Nothing new is sent to a server. */
+function dlpOn(w,d){return isGeneralEnglish()&&w===1&&d==="Mon"&&flag("daily_learning_plan_pilot_enabled")&&!!window.DailyPlan}
+let _dlpEntry=null;
+function dlpVideoKeywords(){return ["corporate","business","leadership","professional","startup","workplace","values"]}
+function dlpPack(){const p=curriculumOrEmpty();return {weeks:p.weeks,starters:p.starters,missions:{competencies:(window.MissionEngine?mvComps():[])}}}
+function rGuidedLesson(el,w,d,wk,dd,key,weekPhrases){
+  const video=DailyPlan.pickSupportingVideo(trackShadowStarters(),dlpVideoKeywords());
+  const entry=DailyPlan.start(S,{trackId:"general",w,day:d,pack:dlpPack(),profile:S.profile,phrases:weekPhrases,video});
+  if(!entry){el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button><div class="card"><p class="sub">${esc(t("dlp.unavailable"))}</p></div>`;return}
+  const check=DailyPlan.validate(entry.plan);
+  if(!check.valid){el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button><div class="card"><p class="sub">${esc(t("dlp.unavailable"))}</p></div>`;try{console.error("[dlp] invalid plan",check.errors)}catch(e){}return}
+  _dlpEntry=entry;save();
+  dlpRenderStep(el,w,d,key);
+}
+function dlpStepData(step){return (_dlpEntry&&_dlpEntry.stepData[step])||null}
+function dlpRenderStep(el,w,d,key){
+  const entry=_dlpEntry;if(!entry)return;
+  const plan=entry.plan,ix=DailyPlan.STEPS.indexOf(entry.step);
+  const dots=`<div class="dlp-steps" role="list" aria-label="${esc(t("dlp.progress_label"))}">${DailyPlan.STEPS.map((s,i)=>`<span class="dlp-dot ${i<ix?'done':i===ix?'on':''}" role="listitem" title="${esc(t("dlp.step_"+s))}"></span>`).join("")}</div>`;
+  const body={try:dlpTryHTML,learn:dlpLearnHTML,listen:dlpListenHTML,rehearse:dlpRehearseHTML,converse:dlpConverseHTML,improve:dlpImproveHTML,finish:dlpFinishHTML}[entry.step];
+  el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
+    ${dots}
+    <span class="chip">${esc(t("dlp.step_"+entry.step))}</span>
+    <h1 class="big">${esc(plan.competencyObjective)}</h1>
+    <p class="sub" style="margin-bottom:10px">${esc(t("dlp.step_"+entry.step+"_sub"))}</p>
+    <div id="dlpBody">${body(plan,key,w,d)}</div>`;
+  manIconizeInline(el);
+}
+window.dlpAdvance=(w,d,key)=>{
+  const entry=_dlpEntry;if(!entry)return;
+  DailyPlan.setStep(S,entry.lessonId,entry.step,entry.stepData[entry.step]);save();
+  dlpRenderStep(document.getElementById("v-journey"),w,d,key);
+};
+window.dlpBack=(w,d,key)=>{
+  const entry=_dlpEntry;if(!entry)return;
+  const ix=DailyPlan.STEPS.indexOf(entry.step);
+  if(ix>0)entry.step=DailyPlan.STEPS[ix-1];save();
+  dlpRenderStep(document.getElementById("v-journey"),w,d,key);
+};
+/* One recorder for TRY/REHEARSE/CONVERSE, each with its own ctx so takes never
+   collide — phRecInto already handles mic-denial, too-short takes and saving. */
+function dlpRerender(){
+  if(!_dlpEntry)return;
+  const el=document.getElementById("v-journey");if(!el)return;
+  dlpRenderStep(el,_dlpEntry.plan.week,_dlpEntry.plan.day,dayKey(_dlpEntry.plan.week,_dlpEntry.plan.day));
+}
+window.dlpRecord=(step,subIx)=>{
+  const btn=document.getElementById("dlpRecBtn"+(subIx!=null?subIx:""));
+  const ctx=recCtx("dlp-"+step+(subIx!=null?"-"+subIx:""));
+  phRecInto(ctx,t("dlp.step_"+step),btn,()=>{
+    _dlpEntry.stepData[step]=_dlpEntry.stepData[step]||{};
+    if(subIx!=null){_dlpEntry.stepData[step][subIx]={recorded:true,mode:"audio"}}
+    else{_dlpEntry.stepData[step]={recorded:true,mode:"audio"}}
+    save();
+    dlpRerender();
+  });
+};
+window.dlpTypeFallback=(step)=>{
+  const ta=document.getElementById("dlpType"+step);
+  const text=(ta&&ta.value||"").trim();
+  if(!text)return toast(t("dlp.type_required_toast"));
+  _dlpEntry.stepData[step]={recorded:false,mode:"text",text:text.slice(0,500)};
+  save();
+  dlpRerender();
+};
+function dlpRecOrTypeHTML(step){
+  const d=dlpStepData(step);
+  const has=!!(d&&(d.recorded||d.mode==="text"));
+  return `<div style="display:flex;align-items:center;gap:18px">
+      <button class="rec-btn" id="dlpRecBtn" onclick="dlpRecord('${step}')" aria-label="Record">${ic("mic")}</button>
+      <div style="font-size:12px;color:var(--mut)">${has?t(d.mode==="text"?"dlp.typed_state":"dlp.recorded_state"):t("sess.tap_to_record")}</div>
+    </div>
+    <details style="margin-top:10px"><summary style="font-size:12px;color:var(--mut)">${esc(t("dlp.no_mic"))}</summary>
+      <textarea id="dlpType${step}" rows="3" placeholder="${esc(t("dlp.type_ph"))}" style="width:100%;margin-top:8px">${esc(d&&d.mode==="text"?d.text:"")}</textarea>
+      <button class="btn btn-g" style="margin-top:8px" onclick="dlpTypeFallback('${step}')">${esc(t("dlp.save_text"))}</button>
+    </details>`;
+}
+function dlpContinueBtn(step,w,d,key,label){
+  const has=!!dlpStepData(step);
+  return `<button class="btn-primary" style="margin-top:16px" ${has?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(label||t("dlp.continue"))}</button>`;
+}
+
+function dlpTryHTML(plan,key,w,d){
+  return `<div class="card">
+    <p class="sub">${esc(t("dlp.try_prompt"))}</p>
+    ${dlpRecOrTypeHTML("try")}
+    ${dlpContinueBtn("try",w,d,key)}
+  </div>`;
+}
+function dlpLearnHTML(plan,key,w,d){
+  const saved=dlpStepData("learn");
+  return `<div class="card">
+    <p class="sub">${esc(t("dlp.learn_sub"))}</p>
+    <ul class="dlp-expr-list">${plan.targetExpressions.map((x,i)=>`<li>“${esc(x)}” <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(x)},.95)">${ic("sound")}</button></li>`).join("")}</ul>
+    <button class="btn-primary" style="margin-top:14px" onclick="dlpLearnSave(${w},'${d}','${key}')">${saved?esc(t("dlp.continue")):esc(t("dlp.save_continue"))}</button>
+  </div>`;
+}
+window.dlpLearnSave=(w,d,key)=>{
+  (_dlpEntry.plan.targetExpressions||[]).forEach(x=>vocPut(x));
+  _dlpEntry.stepData.learn={saved:true,count:(_dlpEntry.plan.targetExpressions||[]).length};
+  save();
+  dlpAdvance(w,d,key);
+};
+function dlpListenHTML(plan,key,w,d){
+  _dlpEntry.stepData.listen=_dlpEntry.stepData.listen||{seen:true};
+  const v=plan.supportingVideo;
+  return `<div class="card">
+    ${v?`<p class="sub">${esc(t("dlp.listen_sub",{title:v.title}))}</p><p class="ex-fine">${esc(v.matchReason)}</p>
+      <button class="btn btn-g" style="margin-top:8px" onclick="sessGo('shadow',${w},'${d}')">${ic("shadowing")} ${esc(t("dlp.watch_shadow"))}</button>`
+     :`<p class="sub">${esc(t("dlp.listen_none"))}</p>`}
+    ${dlpContinueBtn("listen",w,d,key,t("dlp.continue"))}
+  </div>`;
+}
+function dlpRehearseHTML(plan,key,w,d){
+  const data=dlpStepData("rehearse")||{};
+  const any=Object.keys(data).length>0;
+  return `<div class="card">
+    <p class="sub">${esc(t("dlp.rehearse_sub"))}</p>
+    <ul class="dlp-expr-list">${plan.targetExpressions.map((x,i)=>`<li>
+      “${esc(x)}”
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(x)},.95)">${ic("sound")}</button>
+      <button class="rec-btn rec-btn-sm" id="dlpRecBtn${i}" onclick="dlpRecord('rehearse',${i})" aria-label="Record">${ic("mic")}</button>
+      ${data[i]?`<span class="chip done" style="margin-left:6px">${esc(t("dlp.recorded_state"))}</span>`:""}
+    </li>`).join("")}</ul>
+    <button class="btn-primary" style="margin-top:16px" ${any?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
+  </div>`;
+}
+function dlpConverseHTML(plan,key,w,d){
+  const aiOk=ppAvailable()&&flag("practice_partner_ai_fallback_enabled")&&isGeneralEnglish();
+  return `<div class="card">
+    <p class="sub">${esc(t("dlp.converse_prompt"))}</p>
+    ${dlpRecOrTypeHTML("converse")}
+    ${aiOk?`<button class="btn btn-g" style="margin-top:10px" onclick="dlpConverseWithAI()">${ic("chat")} ${esc(t("dlp.converse_ai"))}</button>`:""}
+    ${dlpContinueBtn("converse",w,d,key)}
+  </div>`;
+}
+window.dlpConverseWithAI=()=>{
+  /* Same seeding pattern svApplyAI already uses: hand the target expression to
+     the Partner AI coach rather than build a second AI-conversation system. */
+  ppState().applyPhrase={text:(_dlpEntry.plan.targetExpressions[0]||"").slice(0,160),ts:Date.now()};
+  const a=ppAiActive();if(a&&a.seed&&a.seed.phrase!==ppState().applyPhrase.text)ppState().ai=null;
+  save();
+  ppAiStart("apply");
+};
+function dlpImproveHTML(plan,key,w,d){
+  const conv=dlpStepData("converse");
+  if(!conv){return `<div class="card"><p class="sub">${esc(t("dlp.improve_none"))}</p>${dlpContinueBtn("improve",w,d,key)}</div>`}
+  if(conv.mode==="text"){
+    _dlpEntry.stepData.improve=_dlpEntry.stepData.improve||{seen:true,mode:"text"};
+    return `<div class="card"><p class="sub">${esc(t("dlp.improve_text_only"))}</p>
+      <ul class="dlp-expr-list">${plan.targetExpressions.map(x=>`<li>“${esc(x)}”</li>`).join("")}</ul>
+      ${dlpContinueBtn("improve",w,d,key,t("dlp.finish_btn"))}</div>`;
+  }
+  /* Real audio: run the SAME report pipeline the classic page uses, reading the
+     saved take back from IndexedDB (resumable even if the page reloaded between
+     CONVERSE and here) rather than relying on an in-memory blob reference. */
+  setTimeout(async()=>{
+    const ctx=recCtx("dlp-converse");
+    const recs=await getRecs(ctx);
+    const body=document.getElementById("dlpBody");if(!body)return;
+    if(!recs[0]){body.innerHTML=`<div class="card"><p class="sub">${esc(t("dlp.improve_none"))}</p>${dlpContinueBtn("improve",w,d,key)}</div>`;return}
+    body.innerHTML=`<div class="card">${DS.aiInline(t("ex.step_measure"))}</div>`;
+    _sessCur={key,w,d,ctx:sessCtx(w,d,{focus:plan.competencyObjective,task:plan.personalizedScenario.task,out:""},(plan.targetExpressions||[]).map(p=>({p}))),ws:null};
+    /* sessReport silently leaves a STALE prior report in place on any failure
+       (no Worker reachable, STT came back empty, …) rather than overwrite it —
+       correct for the classic page, but here it means sessRepGet(key) could
+       return yesterday's report, or none. Only trust a result stamped AFTER
+       this call started; otherwise say so honestly rather than claim either
+       "nothing to fix" or someone else's correction. */
+    const prevAt=(sessRepGet(key)||{}).at||0;
+    await sessReport(key,recs[0].blob,0);
+    const rep=sessRepGet(key);
+    const fresh=!!(rep&&rep.at>prevAt);
+    const corr=fresh&&rep.ai&&Array.isArray(rep.ai.corrections)&&rep.ai.corrections[0];
+    _dlpEntry.stepData.improve={seen:true,mode:"audio",hadCorrection:!!corr,aiReached:fresh};save();
+    body.innerHTML=!fresh
+      ?`<div class="card"><p class="sub">${esc(t("dlp.improve_unreachable"))}</p>${dlpContinueBtn("improve",w,d,key,t("dlp.finish_btn"))}</div>`
+      :corr
+      ?`<div class="card"><b>${esc(t("dlp.improve_h"))}</b>
+          <div class="fb-item" style="margin-top:8px"><span class="w">${esc(corr.said)}</span> → <b>${esc(corr.fix)}</b><p class="ex-fine">${esc(corr.why||"")}</p></div>
+          <button class="btn btn-g" style="margin-top:10px" onclick="dlpBack(${w},'${d}','${key}')">${esc(t("dlp.retry"))}</button>
+          ${dlpContinueBtn("improve",w,d,key,t("dlp.finish_btn"))}</div>`
+      :`<div class="card"><p class="fb-pron-good">${tIc("fb.pron_all_good","check")}</p>${dlpContinueBtn("improve",w,d,key,t("dlp.finish_btn"))}</div>`;
+    manIconizeInline(body);
+  },30);
+  return `<div class="card">${DS.aiInline(t("ex.step_stt"))}</div>`;
+}
+function dlpFinishHTML(plan,key,w,d){
+  if(!_dlpEntry.completedAt){
+    DailyPlan.complete(S,_dlpEntry.lessonId);
+    sessDayDone(key,w,d);
+    save();
+  }
+  const status=DailyPlan.evidenceStatus(Math.max(0,(_dlpEntry.attempt||1)-1));
+  return `<div class="card">
+    <p class="fb-pron-good">${tIc("dlp.finish_done","check")}</p>
+    <p class="sub">${esc(t("dlp.finish_evidence_"+status))}</p>
+    <button class="btn-primary" style="margin-top:14px" onclick="go('home')">${esc(t("dlp.back_home"))}</button>
+  </div>`;
 }
 window.toggleStep=(key,i)=>{
   const a=S.steps[key]||[];const ix=a.indexOf(i);
