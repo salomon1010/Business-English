@@ -9,6 +9,54 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
 - **Owner / credit:** always **Lomonec LLC** — never the user's personal name in
   any public-facing content.
 
+## STANDING RELEASE TARGET — read before any release-adjacent task (owner, 6 Nov 2026)
+
+This applies to every future task on either store app unless the owner explicitly
+overrides it for that task. **General English apps only — Welding is untouched.**
+
+- **iOS baseline: TestFlight 1.1.3, build 10.** Verified directly in Xcode's
+  evaluated build settings for the `App` target (not inferred from a screenshot):
+  `MARKETING_VERSION=1.1.3`, `CURRENT_PROJECT_VERSION=10`,
+  `PRODUCT_BUNDLE_IDENTIFIER` resolves to `com.lomonec.bemastery` (General English;
+  Welding overrides this via `Welding.xcconfig` to `com.lomonec.bemastery.welding`
+  and is a separate, untouched identity). Matches App Store Connect's App Info page
+  (Version 1.1.3, Build 10, LOMON EC LLC, Education) as of 6 Nov 2026.
+- **Android baseline: production 1.2.10, shown at 100% rollout** (Play Console
+  Releases page, 6 Nov 2026, production track, dated Nov 4 2026 3:00 PM). **The
+  Play Console does not show versionCode — it was read from source**,
+  `mobile/android/android/app/build.gradle`, `general` flavor: `versionCode 29`,
+  `versionName "1.2.10"`, `applicationId "com.bemastery.app"`. The in-file comment
+  trail explicitly confirms versionCode 28 (name 1.2.9) as LIVE via the Play
+  Developer API on 4 Nov 2026; 29 is described as built the same day (web
+  be12-v705) but the comment does not use the same "IS SPENT — confirmed" language
+  as 28 — treat 29/1.2.10 as the strong, matching candidate, not an
+  independently-reconfirmed fact, until a fresh Play Developer API check is run.
+- **Android internal testing 1.2.4 is older — never use it as a baseline.**
+  (Screenshot showed it dated Oct 31 2026 6:33 PM, before the Nov 4 production
+  promotion.)
+- **Welding Android flavor is separate and must stay untouched by this target**:
+  `applicationId "com.lomonec.bemastery.welding"`, its own `versionCode`/`versionName`
+  track in the same `build.gradle`, bumped independently (see the inline comment
+  trail there) — never bump it as a side effect of a General English change.
+- **Before editing for any task under this target:** verify the app's identity,
+  source commit, release configuration and current build records fresh — this
+  baseline goes stale every release, like the `be12-vNN` note elsewhere in this
+  file. Don't infer a build number from a store-listing screenshot; read it from
+  the actual project/build-gradle source.
+- **Open work item under this target (not started as of 6 Nov 2026):** trace and
+  remove the Welding / Professional Tracks selection from the General English app
+  specifically — both the UI route(s) that let a General English learner switch
+  into Welding, and any backend access control that currently allows it — while
+  leaving the standalone Welding app's own tracks/selection untouched. Preserve
+  every fix already shipped in the two baselines above, bundle/package IDs,
+  signing, subscriptions and learner progress. Prepare new build numbers only when
+  asked; validate iOS and Android separately and report separately.
+- **Never merge, deploy, upload or submit under this target without the owner's
+  explicit authorization for that specific action**, even once code changes are
+  ready — same rule as every other feature in this file
+  ("READY FOR REVIEW — DO NOT MERGE OR DEPLOY" is the expected end state, not a
+  formality).
+
 ## Architecture — it's basically one file
 - **`index.html`** — the *entire* app (HTML + CSS in `<style>` + all JS inline). No
   build step, no framework, no bundler. Everything lives here.
