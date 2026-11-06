@@ -9332,6 +9332,7 @@ const I18N_EN={
  "pp.rv_pass":"Got it",
  "pp.rv_retry":"Close — once more",
  "pp.rv_best":"best {{n}}%",
+ "pp.rv_best_unknown":"best attempt saved — accuracy not recorded",
  "pp.rv_tries":"{{n}} tries",
  "pp.rv_ungraded":"Recorded. Grading needs a connection — try again when you're online.",
  "pp.rv_asr_note":"Scored by word recognition only (the listening model was not available), so this says whether each word was recognised, not how it sounded.",
@@ -31211,7 +31212,13 @@ window.ppRevPractice=async(revId,key,target,label)=>{
     rec.tries++;markPracticed();
     if(!res){rec.ungraded=(rec.ungraded||0)+1;save();ppRevPaint(revId,key,{state:"ungraded"});return}
     const score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=PP_REV_PASS).length/res.words.length*100);
-    if(rec.first==null)rec.first=score;rec.last=score;if(rec.best==null||score>rec.best)rec.best=score;rec.mode=res.mode||"";if(score>=PP_REV_PASS)rec.passes=(rec.passes||0)+1;
+    if(rec.first==null)rec.first=score;rec.last=score;
+    /* bestMode is stamped ONLY here, alongside best itself — never on every
+       attempt (rec.mode below still tracks the latest attempt for other
+       callers) — otherwise a later attempt in a different mode would silently
+       relabel an earlier attempt's best score. */
+    if(rec.best==null||score>rec.best){rec.best=score;rec.bestMode=res.mode||"";}
+    rec.mode=res.mode||"";if(score>=PP_REV_PASS)rec.passes=(rec.passes||0)+1;
     rec.words=res.words.slice(0,40).map(w=>({word:String(w.word).slice(0,30),score:Math.round(w.score),note:String(w.note||"").slice(0,60)}));
     save();if(!String(revId).startsWith("mv:"))try{track("partner_review_practice",{result:score>=PP_REV_PASS?"pass":"retry"})}catch(_){}
     ppRevPaint(revId,key,{state:"done",score,words:rec.words,mode:rec.mode});
@@ -31236,7 +31243,20 @@ function ppRevResultHTML(revId,key,st,r){
      score — a digit there would claim precision the data doesn't have, so it
      shows only the colour-coded bucket (never a number), same rule as fbRenderPron. */
   const chips=(w,mode)=>w&&w.length?`<div class="fb-pw-wrap pp-rv-pw">${w.map(x=>mode==="whisper"?`<span class="fb-pw" style="--c:${col(x.score)}" aria-label="${esc(x.word)} — ${esc(t("sv.ch_st_"+bucket(x.score)))}">${esc(x.word)}<b aria-hidden="true">●</b></span>`:`<span class="fb-pw" style="--c:${col(x.score)}">${esc(x.word)}<b>${x.score}</b></span>`).join("")}</div>`:"";
-  if(!st||st.state==="idle")return `${btn(false)}${r&&r.best!=null?`<span class="pp-rv-best" style="--c:${col(r.best)}">${t("pp.rv_best",{n:r.best})}</span>`:""}`;
+  /* The historical "best" score is kept across many attempts, each possibly
+     graded in a different mode. rec.bestMode (added 6 Nov 2026) is stamped
+     ONLY when best actually changes, so it names the mode that produced THIS
+     best — never the latest attempt's mode, which could be a different take
+     entirely. A record saved before this fix carries no bestMode at all: its
+     provenance is genuinely unknown, so it is shown as neither an AI score
+     nor a whisper approximation — never guessed, per the owner's rule. */
+  const bestLabel=rec=>{
+    if(rec==null||rec.best==null)return null;
+    if(rec.bestMode==="ai")return {html:t("pp.rv_best",{n:rec.best}),cls:""};
+    if(rec.bestMode==="whisper")return {html:`${esc(t("sv.ch_st_"+bucket(rec.best)))} <i>${esc(t("sv.ch_approx"))}</i>`,cls:""};
+    return {html:esc(t("pp.rv_best_unknown")),cls:"unknown"};
+  };
+  if(!st||st.state==="idle"){const bl=bestLabel(r);return `${btn(false)}${bl?`<span class="pp-rv-best ${bl.cls}" style="--c:${col(r.best)}">${bl.html}</span>`:""}`}
   if(st.state==="recording")return `${btn(true)}<span class="pp-rv-live">${ic("mic")} ${t("pp.rv_listening")}</span>`;
   if(st.state==="grading")return `${DS.aiInline(t("pp.grading"))}`;
   if(st.state==="short")return `${btn(false)}<span class="pp-rv-note">${t("ph.too_short_toast")}</span>`;
@@ -31247,7 +31267,8 @@ function ppRevResultHTML(revId,key,st,r){
   const mastery=coach?(passes>=PP_REV_MASTER?`<p class="pp-rv-note pp-rv-master done">${ic("check")} ${t("pp.rv_master_done")}</p>`:`<p class="pp-rv-note pp-rv-master">${t("pp.rv_master_prog",{n:passes,m:PP_REV_MASTER})}</p>`):"";
   if(coach&&passes>=PP_REV_MASTER){const item=document.querySelector(`[data-rvkey="${CSS.escape(key)}"]`)?.closest(".pp-rv-coach-item");if(item)item.classList.add("mastered")}
   const scoreLbl=st.mode==="whisper"?`${esc(t("sv.ch_st_"+bucket(st.score)))} <i>${esc(t("sv.ch_approx"))}</i>`:`${st.score}%`;
-  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${scoreLbl}</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${r&&r.best!=null&&r.tries>1?`<small>${t("pp.rv_best",{n:r.best})} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>${mastery}
+  const bestBl=bestLabel(r);
+  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${scoreLbl}</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${bestBl&&r.tries>1?`<small>${bestBl.html} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>${mastery}
     ${chips(st.words,st.mode)}${st.mode==="whisper"?`<p class="pp-rv-note">${t("pp.rv_asr_note")}</p>`:""}
     <div class="pp-rv-acts">${btn(false)}</div>`;
 }
