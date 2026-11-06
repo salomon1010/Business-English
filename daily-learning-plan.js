@@ -181,6 +181,15 @@
     return e;
   }
 
+  /* How many of this lesson's attempts are actually DONE — counting the
+     current one once it's completed (entry.completedAt set), never before.
+     A still-in-progress attempt (started a retry, not finished) counts only
+     the completed cycles before it — it is not evidence yet. */
+  function completedAttempts(entry) {
+    if (!entry) return 0;
+    return entry.completedAt ? (entry.attempt || 1) : Math.max(0, (entry.attempt || 1) - 1);
+  }
+
   /* Four states, built only from real evidence counts — never an invented
      weakness, never a claim of improvement from one unsupported score. */
   function evidenceStatus(attempts) {
@@ -191,7 +200,7 @@
     return "established";
   }
 
-  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, load, start, setStep, complete, evidenceStatus };
+  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, load, start, setStep, complete, completedAttempts, evidenceStatus };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.DailyPlan = api;
 })(typeof window !== "undefined" ? window : globalThis);

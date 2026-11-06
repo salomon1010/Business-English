@@ -79,6 +79,13 @@ console.log("\n# pickSupportingVideo — never fabricates a match; honest about 
   ok("29 · an empty catalogue → null", DailyPlan.pickSupportingVideo([], ["corporate"]) === null);
 }
 
+console.log("\n# completedAttempts — counts a cycle only once it's actually finished");
+ok("25a · no entry at all → 0", DailyPlan.completedAttempts(null) === 0);
+ok("25b · attempt 1, still in progress (no completedAt) → 0 — not evidence yet", DailyPlan.completedAttempts({ attempt: 1, completedAt: null }) === 0);
+ok("25c · attempt 1, completed → 1", DailyPlan.completedAttempts({ attempt: 1, completedAt: Date.now() }) === 1);
+ok("25d · attempt 3 (a 3rd retry), still in progress → 2 (the two prior finished cycles, not this unfinished one)", DailyPlan.completedAttempts({ attempt: 3, completedAt: null }) === 2);
+ok("25e · attempt 3, completed → 3", DailyPlan.completedAttempts({ attempt: 3, completedAt: Date.now() }) === 3);
+
 console.log("\n# evidenceStatus — four states, strictly from real evidence counts");
 ok("22 · zero attempts → not_assessed", DailyPlan.evidenceStatus(0) === "not_assessed");
 ok("23 · one attempt → initial", DailyPlan.evidenceStatus(1) === "initial");
