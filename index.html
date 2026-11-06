@@ -13883,6 +13883,12 @@ function homeTodayProgressHTML(){
    data earns. */
 function homeAiCoachFocusOn(){
   if(!isGeneralEnglish()||!flag("daily_learning_plan_pilot_enabled")||!window.DailyPlan)return false;
+  /* Found on an iPhone simulator, 6 Nov 2026: a brand-new learner is gated
+     behind the Foundations placement check (rSession's own fndBlocks() guard,
+     above and before this pilot's branch) — Week 1 Monday is not reachable
+     yet, so a card inviting them to "Continue your lesson" would be a promise
+     the app can't keep. Same guard the session page itself uses. */
+  if(typeof fndBlocks==="function"&&fndBlocks())return false;
   const pos=currentPos();
   if(pos.w===1&&pos.d==="Mon")return true;
   return !!DailyPlan.load(S,DailyPlan.lessonId("general",1,"Mon"));

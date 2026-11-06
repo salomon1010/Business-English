@@ -81,6 +81,19 @@ const dlpBase = { lessonId: "general:w1Mon", plan: { competencyObjective: "Pronu
   await ctx.close();
 }
 
+console.log("\n# a brand-new learner gated behind the Foundations placement check never sees a promise the app can't keep");
+{
+  /* found live on an iPhone 17 simulator, 6 Nov 2026: a fresh learner (no fnd
+     state at all) is gated by rSession's own fndBlocks() before Monday's
+     lesson is reachable — the coach-focus card must agree, not invite them
+     into a lesson they'd bounce straight off. */
+  const { ctx, p, errs } = await open(seed({ fnd: {} }));
+  const c = await focusCard(p);
+  ok("9b · a brand-new learner needing the Foundations placement check sees NO coach-focus card at all (Week 1 Monday isn't reachable yet)", c === null, c);
+  ok("9c · no JavaScript errors", !jsErr(errs).length, errs.join(" | "));
+  await ctx.close();
+}
+
 console.log("\n# Start / Continue — the hero's own button, driven by real DailyPlan state, not a second progress tracker");
 {
   const { ctx, p } = await open(seed());
