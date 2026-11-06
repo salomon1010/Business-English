@@ -1,0 +1,151 @@
+{
+  "about": "Ideas & Personal Growth — Shadow library source registry for General English only. This file is a CHANNEL-LEVEL registry, not an import list: it records which creator channels are in scope for this category and their review status. It does not contain video IDs for channels marked \"candidate_new\" — none have been discovered or verified yet, and none may be fabricated (see docs/IDEAS_PERSONAL_GROWTH.md). Videos actually proposed for import live in catalogue/drafts/ideas-personal-growth-seed.json (the 200-video seed pack, channels 1-4 below) and, once a real discovery pass is run for channels 5-20, in a future catalogue/drafts/ideas-personal-growth-seed-2.json. TED/TEDx/TED-Ed are excluded from this category on principle (no commercial license) and must never be added here.",
+  "rules_note": "catalogue/sources.json's global rules are minSec:60, maxSec:1800 (30 min). Several seed-pack entries already exceed 30 minutes (e.g. ipg-004, ipg-025 at 1h11m; ipg-030 at 1h1m) and several candidate channels below (Big Think interviews, The School of Life essays) are known to run long. Do not assume these are importable without an explicit owner decision to raise maxSec for this category or trim to clip-length excerpts — flagged in docs/IDEAS_PERSONAL_GROWTH.md, not decided here.",
+  "channels": [
+    {
+      "handle": "@RobertGreeneOfficial",
+      "name": "Robert Greene",
+      "focus": "Human nature, mastery, strategy, books",
+      "status": "already_in_seed_200",
+      "seed_ids": "ipg-001..ipg-060",
+      "note": "60 videos already observed and seeded. No further discovery needed unless the owner wants a second pass."
+    },
+    {
+      "handle": "@academyofideas",
+      "name": "Academy of Ideas",
+      "focus": "Philosophy, psychology, self-development",
+      "status": "already_in_seed_200",
+      "seed_ids": "ipg-161..ipg-200",
+      "note": "40 videos already observed and seeded."
+    },
+    {
+      "handle": "@einzelganger",
+      "name": "Einzelgänger",
+      "focus": "Stoicism, resilience, practical philosophy",
+      "status": "already_in_seed_200",
+      "seed_ids": "ipg-061..ipg-110",
+      "note": "50 videos already observed and seeded."
+    },
+    {
+      "handle": "@PursuitofWonder",
+      "name": "Pursuit of Wonder",
+      "focus": "Meaning, thought experiments, philosophical stories",
+      "status": "already_in_seed_200",
+      "seed_ids": "ipg-111..ipg-160",
+      "note": "50 videos already observed and seeded."
+    },
+    {
+      "handle": "@DailyStoic",
+      "name": "Daily Stoic",
+      "focus": "Discipline, character, everyday Stoicism",
+      "status": "candidate_new",
+      "note": "5,110+ videos on the channel (observed Nov 2026) and uploads multiple times a day, mixing evergreen Stoic essays with current-events/political commentary (e.g. election-result videos observed live during a WebSearch check). A real discovery pass must filter for evergreen, non-political titles only."
+    },
+    {
+      "handle": "@theschooloflifetv",
+      "name": "The School of Life",
+      "focus": "Self-understanding, emotions, relationships",
+      "status": "candidate_new",
+      "note": "Known for high production-quality narrated essays; some run well past 10-15 minutes. Check maxSec rule before import."
+    },
+    {
+      "handle": "@FreedominThought",
+      "name": "Freedom in Thought",
+      "focus": "Clear thinking and applied philosophy",
+      "status": "candidate_new",
+      "note": "No prior catalogue presence; smaller/less-documented channel than the others — embeddability/caption availability unverified."
+    },
+    {
+      "handle": "@PhilosophiesforLife",
+      "name": "Philosophies for Life",
+      "focus": "Life lessons from philosophers",
+      "status": "candidate_new",
+      "note": "Thematically overlaps Academy of Ideas / Einzelgänger — discovery pass should watch for duplicate coverage of the same philosophers to keep the category varied, not redundant."
+    },
+    {
+      "handle": "@AfterSkool",
+      "name": "After Skool",
+      "focus": "Illustrated talks about ideas and personal growth",
+      "status": "candidate_new",
+      "note": "Content is often narrated over third-party audio/talks with original animation layered on top — rights review must check whose voice is actually being used before any transcript/AI pipeline touches it."
+    },
+    {
+      "handle": "@bigthink",
+      "name": "Big Think",
+      "focus": "Expert perspectives on psychology, work, and ideas",
+      "status": "candidate_new",
+      "note": "Interview-style with named academic/public-figure guests — likely has an existing commercial licensing posture of its own (like TED) that needs checking before any publish decision, separate from the generic YouTube ToS review."
+    },
+    {
+      "handle": "@TheWell",
+      "name": "The Well",
+      "focus": "Human nature, meaning, science, philosophy",
+      "status": "candidate_new",
+      "note": "No prior catalogue presence; this is a Big Think-affiliated property per public branding — same licensing caveat as Big Think applies pending verification."
+    },
+    {
+      "handle": "@Sprouts",
+      "name": "Sprouts",
+      "focus": "Animated explanations of psychology and learning",
+      "status": "candidate_new",
+      "note": "Short animated explainers — good length fit if duration holds under the 30-min rule, but animated narration may be scripted/non-conversational English; check CEFR/speech-speed suitability before tagging a level."
+    },
+    {
+      "handle": "@betterideas",
+      "name": "Better Ideas",
+      "focus": "Habits, motivation, practical self-improvement",
+      "status": "candidate_new",
+      "note": "No prior catalogue presence; generic self-improvement content, verify it isn't primarily reaction/commentary content with heavy editing that complicates caption alignment."
+    },
+    {
+      "handle": "@NathanielDrew",
+      "name": "Nathaniel Drew",
+      "focus": "Self-discovery, creativity, personal reflection",
+      "status": "candidate_new",
+      "note": "Personal-vlog format (first-person, unscripted) — likely good natural-speech listening practice, but review for personal/identifying content before publishing a creator's personal story in a commercial product."
+    },
+    {
+      "handle": "@mattdavella",
+      "name": "Matt D'Avella",
+      "focus": "Minimalism, habits, intentional living",
+      "status": "candidate_new",
+      "note": "Documentary-style, well-known creator — same named-creator licensing caution as Big Think applies; also tends to run 15-20+ minutes."
+    },
+    {
+      "handle": "@Sisyphus55",
+      "name": "Sisyphus 55",
+      "focus": "Existential philosophy and illustrated essays",
+      "status": "candidate_new",
+      "note": "No prior catalogue presence; verify embeddability and caption availability — smaller channel, less consistently captioned in experience with similar channels."
+    },
+    {
+      "handle": "@LikeStoriesofOld",
+      "name": "Like Stories of Old",
+      "focus": "Philosophy and meaning through film and stories",
+      "status": "candidate_new",
+      "note": "Content is essentially film-essay criticism that embeds copyrighted film clips throughout — this is a materially different rights profile than a single narrator talking to camera. Flag for explicit publisher/fair-use review before any import, separate from the standard YouTube ToS check."
+    },
+    {
+      "handle": "@exurb1a",
+      "name": "exurb1a",
+      "focus": "Philosophical storytelling and existential questions",
+      "status": "candidate_new",
+      "note": "Surreal/literary narration style and occasionally dark or mature themes — explicitly needs the content-sensitivity review the main prompt calls for before any learner-facing use, more so than the other candidates."
+    },
+    {
+      "handle": "@ImprovementPill",
+      "name": "Improvement Pill",
+      "focus": "Animated lessons on habits and personal growth",
+      "status": "candidate_new",
+      "note": "Short animated explainers, similar profile to Sprouts/After Skool — check for overlap in topics across these three animated-explainer channels."
+    },
+    {
+      "handle": "@BetterThanYesterday",
+      "name": "Better Than Yesterday",
+      "focus": "Learning, productivity, behavioral habits",
+      "status": "candidate_new",
+      "note": "No prior catalogue presence; generic productivity/habits content, lowest-risk profile of the new candidates on a first read of the title/focus alone — still unverified."
+    }
+  ],
+  "discovery_status": "No video-level discovery has been run for the 16 candidate_new channels. WebSearch/WebFetch were tried and rejected as unreliable for this purpose (see docs/IDEAS_PERSONAL_GROWTH.md) — search results returned similarly-titled but wrong videos when checked against an exact title, and YouTube's channel/videos page is client-rendered so WebFetch cannot see the video grid. No official YouTube Data API key exists anywhere in this repository. yt-dlp is installed on this machine (2026.08.19, confirmed on PATH) and is the mechanism this project's OWN existing scripts/build_catalogue.mjs and scripts/build_welding_catalogue.mjs already use to build the live General English and Welding catalogues (maintainer-run, no API key needed) — see scripts/import_ideas_personal_growth.mjs --discover, prepared but NOT executed against these 16 channels this session."
+}
