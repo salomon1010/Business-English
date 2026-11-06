@@ -11,8 +11,11 @@ const browser = await chromium.launch();
 const seed = () => { localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true })); localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), vocab: Object.fromEntries(Array.from({ length: 12 }, (_, i) => ["word" + i, { ts: Date.now(), due: 0 }])) })); };
 
 /* A: a welding file fails permanently (404) — a General English learner must not notice */
-/* the Practice page now opens on the "Best tool for your step" card, not a "Practice" title */
-const PRACTICE_DRAWN = /Practice|Best tool for your step/i;
+/* the Practice page now opens on the curriculum-driven Practice hub's "Current Learning
+   Focus" card (5 Nov 2026 redesign), not a "Practice" title or the older "Best tool for
+   your step" card — subInfoMount() removes the h1.big under a sticky .pg-eyebrow bar
+   (owner, 2026-09-22), so any of the three real first-drawn headings is correct. */
+const PRACTICE_DRAWN = /Practice|Best tool for your step|Current Learning Focus/i;
 { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); await ctx.addInitScript(seed);
   await ctx.route(u => u.href.includes("tracks/welding/vocabulary.json"), r => r.fulfill({ status: 404, body: "" }));
   const page = await ctx.newPage(); const errs = []; page.on("pageerror", e => errs.push(e.message));
