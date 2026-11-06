@@ -7741,6 +7741,8 @@ const I18N_EN={
  "ob.goal_sub":"We'll keep it in front of you every day, so you never lose sight of who you're becoming.",
  "ob.slot_title":"When is your daily 25 minutes?",
  "ob.slot_sub":"Tie practice to a habit you already have — that's how quiet mornings turn into a new voice. Pick your slot; we'll hold you to it.",
+ "ob.level_title":"How would you describe your English today?",
+ "ob.level_sub":"Just your honest read — nothing here is graded, and it changes as you practise.",
  "ob.win_title":"Your first win takes 60 seconds",
  "ob.win_sub":"Say this out loud, as if the room is already listening:",
  "ob.hear_first":"Hear it first",
@@ -7756,6 +7758,7 @@ const I18N_EN={
  "role.0":"Engineering / Data","role.1":"Product / PM","role.2":"Finance / Business","role.3":"Sales / Marketing","role.4":"Student","role.5":"Other",
  "goal.0":"🎤 Speak confidently in meetings","goal.1":"💼 Sound more executive","goal.2":"🏆 Ace interviews in English","goal.3":"🗣️ Improve my accent & clarity",
  "slot.0":"☀️ Morning coffee","slot.1":"🍽️ Lunch break","slot.2":"🚇 Commute","slot.3":"🌙 Evening wind-down",
+ "level.0":"New to speaking English","level.1":"Can get by","level.2":"Comfortable but not confident","level.3":"Fluent, want to sound sharper","level.4":"Not sure",
  "ob.say_it_now":"🎤 Say it now",
  "ob.skip_takeme":"Skip — take me in →",
  "ob.name_required_toast":"Tell me your name 🙂",
@@ -7995,6 +7998,7 @@ const I18N_EN={
  "acc.what_you_do":"What you do",
  "acc.goal_label":"Your #1 goal",
  "acc.slot_label":"Daily practice slot",
+ "acc.level_label":"Your English today",
  "acc.voice_label":"App voice",
  "acc.voice_sample":"Hear a sample",
  "acc.voice_sample_text":"Let's align on the key priorities before we close.",
@@ -33924,6 +33928,7 @@ window.acctSave=()=>{
   p.role=document.getElementById("acRole").value;
   p.goal=document.getElementById("acGoal").value;
   p.slot=document.getElementById("acSlot").value;
+  const lvEl=document.getElementById("acLevel");if(lvEl)p.selfLevel=lvEl.value;
   const av=document.getElementById("acVoice");if(av)p.voice=av.value;
   S.profile=p;save();toast(t("acc.profile_saved_toast"));
   const ov=document.getElementById("pfSetupOv");if(ov){ov.remove();go("profile");return}
@@ -34477,6 +34482,8 @@ async function rData(el,embedded){
       ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
       <label class="set-lbl" for="acSlot">${t("acc.slot_label")}</label>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
+      <label class="set-lbl" for="acLevel">${t("acc.level_label")}</label>
+      ${sel("acLevel",OB_LEVELS,p.selfLevel,"level.")}
       <h3 class="set-h" id="setRem">${t("rem.label")}</h3>
       ${window.SmartCoach&&SmartCoach.on()?SmartCoach.cardHTML():""}
       <div class="rem-box">
@@ -36661,7 +36668,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 /* ===== ONBOARDING (first launch) ===== */
 /* track: a single-programme build (the two-app split) starts with its own
    programme already chosen — the track step is never shown. */
-let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:BE_APP_TRACK||"",trade:"",best:0};
+let OB={step:0,name:"",role:"",goal:"",slot:"",selfLevel:"",lang:"",track:BE_APP_TRACK||"",trade:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
 /* OB_TARGET used to be a second, hand-lowercased copy of OB_LINE, and the
    scorer read it directly. Once obWinLine() started returning the learner's
@@ -36677,6 +36684,14 @@ const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive"
 const GOAL_ICONS=["mic","briefcase","trophy","waveform"];
 const ROLE_ICONS=["bolt","podium","chart","sound","book","more"];
 const SLOT_ICONS=["sun","utensils","train","moon"];
+/* Replaced the slot question in onboarding (owner, Phase 0/1 2026): "when do you
+   practise" was collected and never read anywhere in the app (grep-confirmed —
+   OB.slot/S.profile.slot has exactly one reader, this same Account settings
+   screen's own select, and a couple of display-only summary pills). selfLevel is
+   a USER-DECLARED confidence read, never shown back as a CEFR grade — the
+   learner is not asked to diagnose a skill they can't reasonably assess. */
+const OB_LEVELS=["New to speaking English","Can get by","Comfortable but not confident","Fluent, want to sound sharper","Not sure"];
+const LEVEL_ICONS=["mic","chat","waveform","trophy","help"];
 /* Roles/goals/slots are STORED as canonical English (S.profile.role etc.) but DISPLAYED translated.
    optLabel maps a stored canonical value to its translated label by index; unknown values pass through. */
 function optLabel(val,arr,prefix){const i=arr.indexOf(val);return i>=0?t(prefix+i):val}
@@ -36754,10 +36769,10 @@ function obRender(){
      <h1>${t("ob.goal_title")}</h1>
      <p class="sub">${t("ob.goal_sub")}</p>
      <div class="ob-chips ob-chips-list">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
-    `<div class="ob-logo">${ic("clock")}</div>
-     <h1>${t("ob.slot_title")}</h1>
-     <p class="sub">${t("ob.slot_sub")}</p>
-     <div class="ob-chips">${OB_SLOTS.map((s,i)=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(SLOT_ICONS[i])}</span>${optLabel(s,OB_SLOTS,"slot.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
+    `<div class="ob-logo">${ic("waveform")}</div>
+     <h1>${t("ob.level_title")}</h1>
+     <p class="sub">${t("ob.level_sub")}</p>
+     <div class="ob-chips ob-chips-list">${OB_LEVELS.map((lv,i)=>`<button class="ob-chip ${OB.selfLevel===lv?'on':''}" onclick="obLevelPick('${lv.replace(/'/g,"\\'")}')"><span class="btn-ic">${ic(LEVEL_ICONS[i])}</span>${optLabel(lv,OB_LEVELS,"level.")}</button>`).join("")}</div>`,
     `<div class="ob-logo">${ic("rocket")}</div>
      <h1>${t("ob.win_title")}</h1>
      <p class="sub">${t("ob.win_sub")}</p>
@@ -36836,6 +36851,7 @@ window.obTradePick=(id)=>{
   obNext();
 };
 window.obGoalPick=(id)=>{OB.goal=id;obNext()};
+window.obLevelPick=(id)=>{OB.selfLevel=id;obNext()};
 window.obLangPick=async(code)=>{
   OB.lang=code;
   await loadLangDict(code);
@@ -36920,7 +36936,7 @@ function obConfetti(){
 }
 window.obFinish=()=>{
   _voiceOverride=null;   // onboarding done → the app now defaults to Alloy (unless the user changes it in Settings)
-  S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",lang:OB.lang||"en",ts:Date.now()};
+  S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",selfLevel:OB.selfLevel||"",lang:OB.lang||"en",ts:Date.now()};
   if(OB.track==="welding"&&OB.trade&&window.Trades)Trades.setActive(S,OB.trade);
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
