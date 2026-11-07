@@ -14954,7 +14954,7 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
    existing sessGo('shadow',w,d) deep link for LISTEN. Nothing new is sent to a server. */
 function dlpOn(w,d){return isGeneralEnglish()&&w===1&&d==="Mon"&&flag("daily_learning_plan_pilot_enabled")&&!!window.DailyPlan}
 let _dlpEntry=null;
-function dlpVideoKeywords(){return ["corporate","business","leadership","professional","startup","workplace","values"]}
+function dlpVideoKeywords(){return DailyPlan.videoKeywordsFor(S.profile,["corporate","business","leadership","professional","startup","workplace","values"])}
 function dlpPack(){const p=curriculumOrEmpty();return {weeks:p.weeks,starters:p.starters,missions:{competencies:(window.MissionEngine?mvComps():[])}}}
 function rGuidedLesson(el,w,d,wk,dd,key,weekPhrases){
   const video=DailyPlan.pickSupportingVideo(trackShadowStarters(),dlpVideoKeywords());

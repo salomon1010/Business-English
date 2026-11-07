@@ -51,6 +51,69 @@
     return { range: narrowed, confidence: profile.baseline >= 70 ? "medium" : "low", basis: "selfLevel + baseline attempt" };
   }
 
+  /* Closed, deterministic scenario/vocabulary maps — NOT an AI call. Same
+     principle as the rest of this module: bounded personalization from a
+     fixed, reviewable table, never open-ended generation. An unrecognised
+     situation/role simply yields no match and the curriculum's own generic
+     task/phrase order is used untouched (see staticFallback in build()). */
+  const SCENARIO_BY_SITUATION = {
+    meetings: { frame: "Introduce yourself at the start of a team meeting, the way you actually would at work.", keywords: ["meeting", "team", "standup", "corporate", "business"] },
+    presentations: { frame: "Introduce yourself and your role before you present to a group.", keywords: ["presentation", "leadership", "conference", "keynote", "pitch"] },
+    interviews: { frame: "Introduce yourself the way you would at the start of a job interview.", keywords: ["interview", "career", "hiring", "job"] },
+    everyday: { frame: "Introduce yourself to someone you're meeting for the first time today.", keywords: ["everyday", "conversation", "casual", "customer"] },
+    skills: { frame: "Introduce yourself and one skill you bring to your work.", keywords: ["skills", "learning", "growth"] }
+  };
+  const ROLE_VOCAB_HINT = {
+    "Engineering / Data": ["deadline", "deploy", "pipeline", "data", "system"],
+    "Product / PM": ["roadmap", "stakeholder", "priority", "launch", "timeline"],
+    "Finance / Business": ["budget", "forecast", "revenue", "report"],
+    "Sales / Marketing": ["client", "pitch", "campaign", "target"],
+    "Student": ["course", "assignment", "exam", "study"]
+  };
+  /* The learner's first listed situation that this module recognises wins —
+     situations is a short, intentionally-ordered list (see obSituationToggle),
+     not a bag, so "first match" respects the order the learner picked in. */
+  function scenarioFor(profile) {
+    const situations = (profile && profile.situations) || [];
+    const key = situations.find(s => SCENARIO_BY_SITUATION[s]);
+    return key ? SCENARIO_BY_SITUATION[key] : null;
+  }
+  /* Scaffolding, not assessment: sizes the TASK (how long/complex a turn is
+     invited to be) directly from the learner's own self-declared confidence —
+     a legitimate, everyday use of self-report, same as any app asking "how
+     comfortable are you?" before picking a starting difficulty. This is
+     deliberately a DIFFERENT question from proficiencyRange() above, which
+     protects a separate claim (a VERIFIED CEFR band) from ever resting on
+     self-report alone. Scaffolding size is not a skill claim, so it is free
+     to use selfLevel directly; an unset/"Not sure" level gets a wide,
+     unconstrained default rather than assuming the easiest case. */
+  function difficultyFor(profile) {
+    const level = (profile && profile.selfLevel) || "";
+    if (level === "New to speaking English") return { minSeconds: 12, maxSeconds: 40, complexity: "short, simple sentences" };
+    if (level === "Can get by") return { minSeconds: 14, maxSeconds: 50, complexity: "short sentences with a little detail" };
+    if (level === "Comfortable but not confident") return { minSeconds: 15, maxSeconds: 60, complexity: "a few connected sentences" };
+    if (level === "Fluent, want to sound sharper") return { minSeconds: 20, maxSeconds: 90, complexity: "a fuller, more nuanced answer" };
+    return { minSeconds: 15, maxSeconds: 90, complexity: "whatever length feels natural" };
+  }
+  /* Role + situation keywords rank the SAME curriculum phrase pool — never a
+     different pool per learner — so two learners on the same week/day always
+     choose from identical source material, just in a different order. Stable
+     sort: ties keep the curriculum's own original order. */
+  function personalizedExpressions(pool, profile) {
+    const scenario = scenarioFor(profile);
+    const roleHints = (profile && ROLE_VOCAB_HINT[profile.role]) || [];
+    const kw = [...(scenario ? scenario.keywords : []), ...roleHints].map(k => k.toLowerCase());
+    if (!kw.length) return pool.slice(0, 5);
+    return pool.map((p, i) => ({ p, i, hit: kw.some(k => p.toLowerCase().includes(k)) ? 1 : 0 }))
+      .sort((a, b) => b.hit - a.hit || a.i - b.i).map(x => x.p).slice(0, 5);
+  }
+  function videoKeywordsFor(profile, fallback) {
+    const scenario = scenarioFor(profile);
+    const roleHints = (profile && ROLE_VOCAB_HINT[profile.role]) || [];
+    const kw = [...(scenario ? scenario.keywords : []), ...roleHints];
+    return kw.length ? kw : (fallback || []);
+  }
+
   /* The one non-personalizable core of a plan, derived only from the
      curriculum pack. AI/personalization callers must never overwrite these
      three fields — validate() checks a plan still matches them. */
@@ -77,25 +140,29 @@
     if (!core) return null;
     const prof = proficiencyRange(profile);
     const id = lessonId(trackId, w, d);
+    const pool = (phrases || []).map(p => String(p.p || p));
+    const scenario = scenarioFor(profile);
+    const diff = difficultyFor(profile);
+    const chosen = personalizedExpressions(pool, profile);
     return {
       curriculumVersion: core.curriculumVersion,
       learnerProfileVersion: SCHEMA_VERSION,
       lessonId: id,
       week: w, day: d,
       competencyObjective: core.competencyObjective,
-      learnerContext: { selfLevel: (profile && profile.selfLevel) || "", role: (profile && profile.role) || "", proficiency: prof },
-      personalizedScenario: { task: core._task, missionPattern: core._missionPattern, missionObjective: core._missionObjective },
-      targetExpressions: (phrases || []).slice(0, 5).map(p => String(p.p || p)),
+      learnerContext: { selfLevel: (profile && profile.selfLevel) || "", role: (profile && profile.role) || "", situations: (profile && profile.situations) || [], proficiency: prof },
+      personalizedScenario: { task: (scenario && scenario.frame) || core._task, missionPattern: core._missionPattern, missionObjective: core._missionObjective, personalized: !!scenario },
+      targetExpressions: chosen,
       pronunciationFocus: { source: "observed from the learner's own take, not prescribed in advance" },
-      speakingTask: { kind: "shadow-then-own-intro", minSeconds: 15, maxSeconds: 90 },
+      speakingTask: { kind: "shadow-then-own-intro", minSeconds: diff.minSeconds, maxSeconds: diff.maxSeconds, complexity: diff.complexity },
       assessmentCriteria: core.assessmentCriteria,
       supportingVideo: video || null,
-      vocabularyReview: { phrases: (phrases || []).slice(0, 5).map(p => String(p.p || p)) },
+      vocabularyReview: { phrases: chosen },
       evidenceStatus: "not_assessed",
       nextAction: null,
       generatedAt: Date.now(),
       planVersion: SCHEMA_VERSION,
-      staticFallback: { competencyObjective: core.competencyObjective, task: core._task, out: core._out, expressions: (phrases || []).slice(0, 5).map(p => String(p.p || p)) }
+      staticFallback: { competencyObjective: core.competencyObjective, task: core._task, out: core._out, expressions: pool.slice(0, 5) }
     };
   }
 
@@ -200,7 +267,7 @@
     return "established";
   }
 
-  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, load, start, setStep, complete, completedAttempts, evidenceStatus };
+  const api = { STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, load, start, setStep, complete, completedAttempts, evidenceStatus, scenarioFor, difficultyFor, personalizedExpressions, videoKeywordsFor };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.DailyPlan = api;
 })(typeof window !== "undefined" ? window : globalThis);
