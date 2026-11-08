@@ -10164,6 +10164,8 @@ const I18N_EN={
  "sh.cat_everyday":"Everyday",
  "sh.cat_skills":"Learning skills",
  "sh.cat_ideas_growth":"Ideas & Personal Growth",
+ "sh.cat_pronunciation":"Pronunciation",
+ "sh.cat_public_speaking":"Public speaking",
  "sh.cat_talks":"Talks",
  "sh.cat_tv":"TV shows",
  "sh.cat_movies":"Movies",
@@ -17532,10 +17534,15 @@ function shProLines(){return isProfessionalJourney()&&!shLibOn()}
 function shCatMergeIdeas(a,j){
   if(!j||a!==AREA_GEN||!flag("ideas_personal_growth_enabled"))return Promise.resolve(j);
   return fetch("catalogue/ideas-growth.json").then(r=>r.ok?r.json():null).catch(()=>null).then(o=>{
-    if(!o||!o.category||!o.videos)return j;
-    if((j.categories||[]).some(c=>c.id===o.category.id))return j;   /* never merge twice */
+    if(!o||!o.videos)return j;
+    /* one overlay may carry several categories; `category` is the older single form */
+    const cats=(o.categories&&o.categories.length)?o.categories:(o.category?[o.category]:[]);
+    if(!cats.length)return j;
+    const already=new Set((j.categories||[]).map(c=>c.id));
+    const add=cats.filter(c=>c&&c.id&&!already.has(c.id));   /* never merge twice */
+    if(!add.length)return j;
     j.videos=Object.assign({},j.videos,o.videos);
-    j.categories=(j.categories||[]).concat([o.category]);
+    j.categories=(j.categories||[]).concat(add);
     const have=new Set((j.channels||[]).map(c=>c.id));
     j.channels=(j.channels||[]).concat((o.channels||[]).filter(c=>c&&c.id&&!have.has(c.id)));
     return j;

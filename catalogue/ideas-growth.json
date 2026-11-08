@@ -1,246 +1,2263 @@
 {
-  "about": "Ideas & Personal Growth — PREVIEW overlay for the General English Shadow library. Merged into the catalogue by shCatLoad() only when ideas_personal_growth_enabled is on AND the open programme is General English. It is a separate file precisely so that production, where the flag is false, never loads it at all.",
-  "reviewed": false,
-  "review_warning": "NOT editorially reviewed and NOT rights-cleared. Every video here is still editorial_review:pending and rights_review:pending in catalogue/drafts/ideas-personal-growth-registry.json. What IS verified is playability: public, embeddable, not age-limited, not live, measured duration, channel id confirmed from the creator own videos. Do not enable this flag in production on the strength of this file.",
-  "captions": "No caption file is bundled for any video here and none may be fetched without a documented authorisation decision. Records are cap:\"player\" or cap:null, so the Shadow and Challenge transcript modes do not apply; the app shows its existing no-transcript card instead.",
-  "built": "2026-11-08",
-  "source": "catalogue/drafts/ideas-personal-growth-registry.json",
-  "category": {
-    "id": "ideas_growth",
-    "label": "Ideas & Personal Growth",
-    "vids": [
-      "OTvm5LfhDzg",
-      "Z-zYu4patP8",
-      "16QlwqB7crc",
-      "gB4dNxorewE",
-      "PjKJRa1369s",
-      "tLAZvESoVgI",
-      "O42tZse-P6w",
-      "LGXRpbDuDGE",
-      "NGQQGeI1MmE",
-      "HUXEqS6GqUU",
-      "4Tm6Z1y3h94",
-      "oGVhOWqsBWM",
-      "LaffA9EyUgo",
-      "6qU1sDBU9Cs",
-      "g7RAPS8mE94",
-      "gfyCzLbcAvk",
-      "FDjeRloNgx0",
-      "tIoJhqnOc0M",
-      "C5SwcrVnyLc",
-      "tGkymdspups"
-    ]
+ "built": "2026-11-08",
+ "reviewed": false,
+ "review_warning": "NOT editorially reviewed and NOT rights-reviewed. Every video here is a CANDIDATE: validation proves only that it plays, is embeddable and is the stated length. Behind ideas_personal_growth_enabled, which is false in production.",
+ "categories": [
+  {
+   "id": "ideas_growth",
+   "label": "Ideas & Personal Growth",
+   "vids": [
+    "OTvm5LfhDzg",
+    "UKPkqrkgKmw",
+    "Z-zYu4patP8",
+    "16QlwqB7crc",
+    "D8--Ep_g9UY",
+    "gB4dNxorewE",
+    "X1WpQInh1Dw",
+    "_f3xwMWrBSo",
+    "PjKJRa1369s",
+    "8BDz5_HWLBA",
+    "Zy4-0CsQCtQ",
+    "6KUEigk4JCA",
+    "kIw0YJ6YM58",
+    "ZE-YCwsnc6A",
+    "MroQcPHkhW0",
+    "So7X2huT1ho",
+    "Ky6HHgiNGfU",
+    "sLXA6xOJ6uo",
+    "7UIEIiYycjY",
+    "eqToq2QabH4",
+    "VuJwuGgNgNM",
+    "DPWbPbp41_4",
+    "lU0S7N4B-_Q",
+    "Tb5ykUF2VJE",
+    "Ow9eVJ9o5Yw",
+    "L1_wcaOdxoo",
+    "JBs0id1EKUM",
+    "phrthApnmps",
+    "ZoST0yv0fI0",
+    "ocVczQeUDvY",
+    "2ZhVPEZETCU",
+    "_VDn9uVch40",
+    "0zytxyuMw8Q",
+    "uV3sJ7P_dn0",
+    "4gGZKBA_hyw",
+    "PTGORPMC14k",
+    "pmwec81-yj8",
+    "ee3D-SwS8pI",
+    "iPVKGU1wm1g",
+    "wscjOGTlqR8",
+    "w0FWr4L_aE0",
+    "vdr9JkzCNwo",
+    "uPsXkFKK0QU",
+    "STE97oWAGzg",
+    "BGucbPvQJGw",
+    "vOxuO-P8Rpw",
+    "tLAZvESoVgI",
+    "JtGtqmC5wU4",
+    "O42tZse-P6w",
+    "aF2pCff3ocg",
+    "B-F319b5SuQ",
+    "LGXRpbDuDGE",
+    "-IlG32Pb43g",
+    "g0rhN8U14dk",
+    "NGQQGeI1MmE",
+    "sY8lYexr72U",
+    "p2KHo95Qknk",
+    "JHcGmiZqKXo",
+    "Oswc-jAgwgo",
+    "HUXEqS6GqUU",
+    "IkJZMxW__nI",
+    "VpcQVjSVqOM",
+    "KDsdLKDHIWI",
+    "-tZnVvsP4_4",
+    "l1rV4kmUJko",
+    "yah-abKb96g",
+    "qRM5VRIO_TU",
+    "JX-8-IYhQKk",
+    "yUjPFCosmNA",
+    "koo59KK43YA",
+    "dSdBvjzKuqI",
+    "4LE5bel_GvU",
+    "ZrMOLqgv714",
+    "2-6UH0j7Jzc",
+    "6gIMVxFen_A",
+    "lb3VckEacf4",
+    "OOBTNw2nsa8",
+    "teqOInIwoUI",
+    "GYkFvaYeRno",
+    "_hJZEq61KeM",
+    "r7zThgJAAPg",
+    "4T_fwF-Torc",
+    "02o-gxQy130",
+    "M759yNSOTMs",
+    "XyzIX87zuTw",
+    "V2Jl5OA_y3o",
+    "6H6vefCqBM8",
+    "bhlvYmn1IUQ",
+    "YefMpOWi4lU",
+    "Q0ngcyxZxEY",
+    "1d2G7V_Oz5o",
+    "VwROPb6a8RY",
+    "ggXGba-vBeo",
+    "nLj7J51FdQQ",
+    "4Tm6Z1y3h94",
+    "oGVhOWqsBWM",
+    "LaffA9EyUgo",
+    "uLOB6hj3M_Q",
+    "6qU1sDBU9Cs",
+    "eMTDAHK-tkE",
+    "XBTOqyUtX-0",
+    "LrRfjmv-5cQ",
+    "lUjoFzT0VNI",
+    "g7RAPS8mE94",
+    "uRDy4M5jI-g",
+    "mDwrilOepHo",
+    "8mY4UByNHP0",
+    "-J-9Ct0oFMU",
+    "9bHM-mhgQyk",
+    "ZQkby8bl8yE",
+    "P6wH7bXG09k",
+    "h_lZo9hvNhY",
+    "Y4ObnLRrklo",
+    "edyqWHRgSX8",
+    "gc7wKr0XkN8",
+    "fguhlv23lSg",
+    "e9Mb0cbDenA",
+    "JLfRPtyJWZw",
+    "_b5Xhgnd4lk",
+    "GTSXBkHlUJE",
+    "ffWSQCjTtgk",
+    "m5DABiixjXE",
+    "dBQAo6pEweE",
+    "GOd1CaAP1HU",
+    "hPhc9FU7ycI",
+    "ojnQ0Acmy1A",
+    "gxglts0Sw5I",
+    "6r-AcnkP_ug",
+    "x3EVh2jhyLM",
+    "z1exaJRpOuw",
+    "mOpMhYGPajU",
+    "zZcWBUZEhME",
+    "b04zs6QHuWM",
+    "ncmeYUWvvAU",
+    "gfyCzLbcAvk",
+    "wywUQc-4Opk",
+    "FDjeRloNgx0",
+    "MQgC2nI6Wu4",
+    "tIoJhqnOc0M",
+    "tE67Ye91Ii0",
+    "C5SwcrVnyLc",
+    "j0KzUS0b_uc",
+    "SPuRxF6P5Hk",
+    "tGkymdspups",
+    "uhAeXyVDDTc",
+    "uvY3VWe4O4k",
+    "qKq0Afmsj-U",
+    "Vkoc0ltIBF4",
+    "ARGczzoPASo",
+    "CPIsRwf5Mmc",
+    "TgV90NzrZ8w",
+    "1l2WFl1EqwM",
+    "8S__1h2Z2xI",
+    "3_t4obUc51A",
+    "z9vMczQ3jiM",
+    "sNg5FXt_DDM",
+    "nI-Ko-d29X4",
+    "ssuDqtUcKEw",
+    "ilg7PiDD8yY",
+    "o0MzQZ_eFEY",
+    "wRz8l-Ojs70",
+    "WnhMJl11JUo",
+    "vzRbCrIWURY",
+    "Vx_60kIXLIU",
+    "Uig8Lw7ixI0",
+    "XVAXMR2L6n8",
+    "cViZ6wVysKk",
+    "VhYPtNZUi6s",
+    "t3TbSjZ_fxc",
+    "iw36V_iXR2k",
+    "wIXtN2S2d2w",
+    "2sXnOMeSSgc",
+    "bRERpUGzwzU",
+    "3nvmFxdWF1g",
+    "k39L86VW7iw",
+    "bSULVW0u1GM",
+    "nVjxBf5yHBQ",
+    "vFji6Fy_bqU",
+    "E3BAOkBaYOg",
+    "uOBZFhe2Kmc",
+    "iD-0Kbul_zE",
+    "dCy-RENaZnQ",
+    "lxDNHLgWInU",
+    "gMOurQuERVs",
+    "fTrF-6hI8i8",
+    "3_uOA2K78M8",
+    "c__DMV_Clog",
+    "G_ATGHMKEZA",
+    "op77gGdFY1g",
+    "156C-c48ezU",
+    "FbS1hO2dQPM",
+    "zRp_0hc-ZgQ",
+    "EyHPvu4aIJY",
+    "_HqfzLk0QxU",
+    "7SSHksM3qrs",
+    "O8xqi5tpD7I"
+   ]
   },
-  "channels": [
-    {
-      "id": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "name": "Academy of Ideas",
-      "avatar": null,
-      "handle": "@academyofideas",
-      "videos": 5
-    },
-    {
-      "id": "UCybBViio_TH_uiFFDJuz5tg",
-      "name": "Einzelgänger",
-      "avatar": null,
-      "handle": "@einzelganger",
-      "videos": 5
-    },
-    {
-      "id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "name": "Pursuit of Wonder",
-      "avatar": null,
-      "handle": "@PursuitofWonder",
-      "videos": 5
-    },
-    {
-      "id": "UC-qsP49Ai2GymJgyKX38l1w",
-      "name": "Robert Greene",
-      "avatar": null,
-      "handle": "@RobertGreeneOfficial",
-      "videos": 5
-    }
-  ],
-  "videos": {
-    "OTvm5LfhDzg": {
-      "title": "3 Books That Will Change Your Life",
-      "ch": "Robert Greene",
-      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
-      "dur": 375,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "Z-zYu4patP8": {
-      "title": "Three Essential Skills For Today’s World",
-      "ch": "Robert Greene",
-      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
-      "dur": 584,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "16QlwqB7crc": {
-      "title": "My Advice to Young Men",
-      "ch": "Robert Greene",
-      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
-      "dur": 534,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "gB4dNxorewE": {
-      "title": "What Machiavelli Has Taught Me",
-      "ch": "Robert Greene",
-      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
-      "dur": 357,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "PjKJRa1369s": {
-      "title": "Understanding Human Behavior",
-      "ch": "Robert Greene",
-      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
-      "dur": 698,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "tLAZvESoVgI": {
-      "title": "TAOISM | The Art of Not Trying",
-      "ch": "Einzelgänger",
-      "chId": "UCybBViio_TH_uiFFDJuz5tg",
-      "dur": 794,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "O42tZse-P6w": {
-      "title": "Stop Trying to Get It And You'll Have It | The Backwards Law",
-      "ch": "Einzelgänger",
-      "chId": "UCybBViio_TH_uiFFDJuz5tg",
-      "dur": 684,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "LGXRpbDuDGE": {
-      "title": "When Life Hurts, Care Less About It | The Philosophy of Marcus Aurelius",
-      "ch": "Einzelgänger",
-      "chId": "UCybBViio_TH_uiFFDJuz5tg",
-      "dur": 847,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "NGQQGeI1MmE": {
-      "title": "Miyamoto Musashi | The Path of the Loner",
-      "ch": "Einzelgänger",
-      "chId": "UCybBViio_TH_uiFFDJuz5tg",
-      "dur": 894,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "HUXEqS6GqUU": {
-      "title": "Miyamoto Musashi | A Life of Ultimate Focus",
-      "ch": "Einzelgänger",
-      "chId": "UCybBViio_TH_uiFFDJuz5tg",
-      "dur": 832,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "4Tm6Z1y3h94": {
-      "title": "A Reason To Stop Worrying - Watch This Whenever You're Stressed Or Anxious",
-      "ch": "Pursuit of Wonder",
-      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "dur": 258,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "oGVhOWqsBWM": {
-      "title": "The Nova Effect - The Tragedy of Good Luck",
-      "ch": "Pursuit of Wonder",
-      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "dur": 354,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "LaffA9EyUgo": {
-      "title": "What Is Kafkaesque? - The 'Philosophy' of Franz Kafka",
-      "ch": "Pursuit of Wonder",
-      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "dur": 556,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "6qU1sDBU9Cs": {
-      "title": "The Terrible Paradox of Self-Awareness | Fernando Pessoa",
-      "ch": "Pursuit of Wonder",
-      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "dur": 782,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "g7RAPS8mE94": {
-      "title": "The Problem with Nice People",
-      "ch": "Pursuit of Wonder",
-      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
-      "dur": 772,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "gfyCzLbcAvk": {
-      "title": "Nietzsche and Psychology: How To Become Who You Are",
-      "ch": "Academy of Ideas",
-      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "dur": 878,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "FDjeRloNgx0": {
-      "title": "Why You Should Seek Power, Not Happiness - Nietzsche's Guide to Greatness",
-      "ch": "Academy of Ideas",
-      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "dur": 731,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "tIoJhqnOc0M": {
-      "title": "How to Integrate Your Shadow - The Dark Side is Unrealized Potential",
-      "ch": "Academy of Ideas",
-      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "dur": 662,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "C5SwcrVnyLc": {
-      "title": "The Psychology of Solitude",
-      "ch": "Academy of Ideas",
-      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "dur": 470,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    },
-    "tGkymdspups": {
-      "title": "Aldous Huxley and Brave New World: The Dark Side of Pleasure",
-      "ch": "Academy of Ideas",
-      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
-      "dur": 523,
-      "cap": "player",
-      "watch": true,
-      "up": null
-    }
+  {
+   "id": "pronunciation",
+   "label": "Pronunciation",
+   "vids": [
+    "GeQO2Twc8DA",
+    "EJQMxdPNHDk",
+    "HXhjdcrZjLQ",
+    "Eps9alVTEHg",
+    "tnHANfZHKqQ",
+    "kqEWuxDyvQQ",
+    "CvytjqZMpcA",
+    "U3bMcJj4ORQ",
+    "g1PKBNjE9js",
+    "4SXimXhxsco"
+   ]
+  },
+  {
+   "id": "public_speaking",
+   "label": "Public speaking",
+   "vids": [
+    "FEkKaLMT6J0",
+    "2J9S8aFaWwc",
+    "GfbGrX_PluQ",
+    "N97XYE0s7iY",
+    "YtpColBIPcw",
+    "6JFOQrSrPy4",
+    "5kpscm-ekFY",
+    "1rldib3f5yA",
+    "-X13GINFYOY",
+    "NqbOg5ECegE",
+    "jv7CHnxEFTk",
+    "XbtxooSGPFA"
+   ]
   }
+ ],
+ "channels": [
+  {
+   "id": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "name": "Academy of Ideas",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_lN8eaX6OlDhq8tUK-YYzvCa4OrXyiu_dh7gIvzS1ZgdFg=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@academyofideas"
+  },
+  {
+   "id": "UCIaH-gZIVC432YRjNVvnyCA",
+   "name": "Chris Williamson",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@ChrisWillx"
+  },
+  {
+   "id": "UCybBViio_TH_uiFFDJuz5tg",
+   "name": "Einzelgänger",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mNi2q9ustWatgB7eBZAM9e5Ps_7KGy3CiGmMA4N4IkgVs=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@einzelganger"
+  },
+  {
+   "id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "name": "Pursuit of Wonder",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_n6sKEuv0Htuprgy4xckZIGNU0HfAfCk8ub7v9_7P1Kru4=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@PursuitofWonder"
+  },
+  {
+   "id": "UC9d2mNoH8coSqtnotE81Tww",
+   "name": "RealLife English",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@reallifeenglish1"
+  },
+  {
+   "id": "UC-qsP49Ai2GymJgyKX38l1w",
+   "name": "Robert Greene",
+   "avatar": "https://yt3.googleusercontent.com/twmZrV5lHYXgxsp0eqIiqOGqiDJN2XWFyW2_XdGGfy55RYbQUyX8c_8Lzcm5oLMLaAK1XrVgPw=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@RobertGreeneOfficial"
+  },
+  {
+   "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "name": "Speak English With Vanessa",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@SpeakEnglishWithVanessa"
+  },
+  {
+   "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "name": "The School of Life",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@theschooloflifetv"
+  },
+  {
+   "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "name": "Vinh Giang",
+   "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj",
+   "handle": "@askvinh"
+  }
+ ],
+ "videos": {
+  "OTvm5LfhDzg": {
+   "title": "3 Books That Will Change Your Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 375,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "UKPkqrkgKmw": {
+   "title": "The Pleasures and Powers from Reading Books",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 241,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Z-zYu4patP8": {
+   "title": "Three Essential Skills For Today’s World",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 584,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "16QlwqB7crc": {
+   "title": "My Advice to Young Men",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 534,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "D8--Ep_g9UY": {
+   "title": "The Nature of Human Stupidity",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 344,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "gB4dNxorewE": {
+   "title": "What Machiavelli Has Taught Me",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 357,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "X1WpQInh1Dw": {
+   "title": "The Most Critical Social Skill",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 469,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "_f3xwMWrBSo": {
+   "title": "The Best Way To Spend Your Youth",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 400,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "PjKJRa1369s": {
+   "title": "Understanding Human Behavior",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 698,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "8BDz5_HWLBA": {
+   "title": "My Advice To Young Women",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 310,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Zy4-0CsQCtQ": {
+   "title": "The Genius of Napoleon",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 454,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6KUEigk4JCA": {
+   "title": "Mastery Summarized in 8 Minutes by Robert Greene",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 494,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "kIw0YJ6YM58": {
+   "title": "Read Books That Challenge Your Mind",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 299,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ZE-YCwsnc6A": {
+   "title": "Find Your Purpose in Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 834,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "MroQcPHkhW0": {
+   "title": "The Art of Strategy",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 386,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "So7X2huT1ho": {
+   "title": "The Laws of Human Nature Summarized in 8 Minutes by Robert Greene",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 487,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Ky6HHgiNGfU": {
+   "title": "What Boredom Teaches You",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 296,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "sLXA6xOJ6uo": {
+   "title": "My Love of Friedrich Nietzsche",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 332,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "7UIEIiYycjY": {
+   "title": "The Power in Loneliness",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 264,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "eqToq2QabH4": {
+   "title": "Being Social Is a Skill",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 404,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "VuJwuGgNgNM": {
+   "title": "Social Media is Warping Your Mind",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 502,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "DPWbPbp41_4": {
+   "title": "Why You Waste Time",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 295,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "lU0S7N4B-_Q": {
+   "title": "How to Break a Social Media Addiction",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 282,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Tb5ykUF2VJE": {
+   "title": "Follow Your Passion Is Terrible Advice",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 464,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Ow9eVJ9o5Yw": {
+   "title": "The 50th Law In Under 10 Minutes",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 484,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "L1_wcaOdxoo": {
+   "title": "The Philosophy of Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 673,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "JBs0id1EKUM": {
+   "title": "How Daily Meditation Can Change Your Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 449,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "phrthApnmps": {
+   "title": "How To Find Your Life's Task",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 579,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ZoST0yv0fI0": {
+   "title": "Your Intensity of Focus Will Reward You",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 699,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ocVczQeUDvY": {
+   "title": "The Dance with Uncertainty",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 284,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "2ZhVPEZETCU": {
+   "title": "Become a Master Persuader",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 352,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "_VDn9uVch40": {
+   "title": "Your Attitude Will Change Your Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 635,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "0zytxyuMw8Q": {
+   "title": "Your Superpower",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 506,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uV3sJ7P_dn0": {
+   "title": "Sun-Tzu and the Heights of Strategy",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 317,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "4gGZKBA_hyw": {
+   "title": "Unlock Your Potential and Build Better Habits",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 408,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "PTGORPMC14k": {
+   "title": "The Power of Daily Habits",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 864,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "pmwec81-yj8": {
+   "title": "Exercise 3 - Silence",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 281,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ee3D-SwS8pI": {
+   "title": "Exercise 1 - Question Why",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 295,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "iPVKGU1wm1g": {
+   "title": "The Superior Strategist in Life",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 715,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "wscjOGTlqR8": {
+   "title": "Steps To Mastery",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 706,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "w0FWr4L_aE0": {
+   "title": "Finding Your Path, Rewiring Your Brain",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 621,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "vdr9JkzCNwo": {
+   "title": "Exercise 9: Your Attitude",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 388,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uPsXkFKK0QU": {
+   "title": "Plan All The Way To The End",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 532,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "STE97oWAGzg": {
+   "title": "Exercise 5 - Patterns",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 547,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "BGucbPvQJGw": {
+   "title": "Loneliness, Purpose & Not Giving Up",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 520,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "vOxuO-P8Rpw": {
+   "title": "Five Books That Had a Big Influence On Me",
+   "ch": "Robert Greene",
+   "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+   "dur": 273,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "tLAZvESoVgI": {
+   "title": "TAOISM | The Art of Not Trying",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 794,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "JtGtqmC5wU4": {
+   "title": "TAOISM | The Philosophy Of Flow",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 645,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "O42tZse-P6w": {
+   "title": "Stop Trying to Get It And You'll Have It | The Backwards Law",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 684,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "aF2pCff3ocg": {
+   "title": "Sun Tzu | The Art of War",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 696,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "B-F319b5SuQ": {
+   "title": "TAOISM | The Power of Letting Go",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 752,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "LGXRpbDuDGE": {
+   "title": "When Life Hurts, Care Less About It | The Philosophy of Marcus Aurelius",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 847,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "-IlG32Pb43g": {
+   "title": "The Harder You Try, The Worse It Gets | Law of Reversed Effort",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 704,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "g0rhN8U14dk": {
+   "title": "Wu-wei | The Art of Letting Things Happen",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 765,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "NGQQGeI1MmE": {
+   "title": "Miyamoto Musashi | The Path of the Loner",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 894,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "sY8lYexr72U": {
+   "title": "Be a Loser if Need Be | The Philosophy of Epictetus",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 861,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "p2KHo95Qknk": {
+   "title": "When Life Hurts, Stop Clinging to It | The Philosophy of Epictetus",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 915,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "JHcGmiZqKXo": {
+   "title": "Why Letting Go Is True Wealth | Minimalist Philosophy for Simple Living",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 698,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Oswc-jAgwgo": {
+   "title": "The Cheaper Your Pleasures, The Richer You’ll Be | Minimalist Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 698,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "HUXEqS6GqUU": {
+   "title": "Miyamoto Musashi | A Life of Ultimate Focus",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 832,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "IkJZMxW__nI": {
+   "title": "Why Silence is Power | Priceless Benefits of Being Silent",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 770,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "VpcQVjSVqOM": {
+   "title": "Once You Stop Caring, Results Come | The Law of Reverse Effect",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 840,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "KDsdLKDHIWI": {
+   "title": "The Problem Isn’t Life, It’s Your Expectations | Stoicism",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 932,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "-tZnVvsP4_4": {
+   "title": "How To Be Alone | 4 Healthy Ways",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 497,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "l1rV4kmUJko": {
+   "title": "The Power Of Walking Away",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 249,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "yah-abKb96g": {
+   "title": "You Don’t Lose People. You Return Them | Stoic Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 887,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "qRM5VRIO_TU": {
+   "title": "Stop Letting Things Bother You | Stoic Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 319,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "JX-8-IYhQKk": {
+   "title": "Finding Something to Live and Die For | The Philosophy of Viktor Frankl",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 917,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "yUjPFCosmNA": {
+   "title": "TAOISM | Be Like Water",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 747,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "koo59KK43YA": {
+   "title": "What You Try to Control, Controls You | The Paradox of Control",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 871,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "dSdBvjzKuqI": {
+   "title": "Reasons Not to Worry What Others Think",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 730,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "4LE5bel_GvU": {
+   "title": "IKIGAI | A Japanese Philosophy for Finding Purpose",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 643,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ZrMOLqgv714": {
+   "title": "The Less You Want, The More You Have | Minimalist Philosophy for Living in Abundance",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 927,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "2-6UH0j7Jzc": {
+   "title": "Buddhist Wisdom For Inner Peace",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 495,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6gIMVxFen_A": {
+   "title": "The Deep Meaning Of Yin & Yang",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 673,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "lb3VckEacf4": {
+   "title": "Don’t Worry, Everything is Out of Control | Taoist Antidotes for an Insane, Stressful World",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 782,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "OOBTNw2nsa8": {
+   "title": "7 Stoic Exercises to Calm Your Mind",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 477,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "teqOInIwoUI": {
+   "title": "How to Become Unbreakable | Stoic Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 679,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "GYkFvaYeRno": {
+   "title": "How to Transform Yourself in Solitude | Useful Ways to Spend Time Alone",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 780,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "_hJZEq61KeM": {
+   "title": "Life is Absurd. How to Live it? | ALBERT CAMUS",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 643,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "r7zThgJAAPg": {
+   "title": "How Marcus Aurelius Stayed Calm in Chaos | 3 Stoic Methods",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 417,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "4T_fwF-Torc": {
+   "title": "What Cats Teach Us About Happiness | A Cat's Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 787,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "02o-gxQy130": {
+   "title": "Why You Lack Discipline (And How to Fix It) | Stoicism",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 839,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "M759yNSOTMs": {
+   "title": "Wabi-Sabi | A Japanese Philosophy of Perfect Imperfection",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 795,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "XyzIX87zuTw": {
+   "title": "We Worry About Problems We Don't Even Have | Eastern Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 925,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "V2Jl5OA_y3o": {
+   "title": "When Life Falls Apart, Does it Actually Fall Into Place? | A Buddhist Story",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 566,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6H6vefCqBM8": {
+   "title": "Lao Tzu’s Secrets to Stress-Free Living | Taoist Philosophy",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 928,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "bhlvYmn1IUQ": {
+   "title": "Miyamoto Musashi | The Way of the Ronin (Dokkodo)",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 800,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "YefMpOWi4lU": {
+   "title": "8 Ways To Enter The Present Moment",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 445,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Q0ngcyxZxEY": {
+   "title": "Reasons To Stop Worrying (Break The Habit of Excessive Thinking)",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 587,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "1d2G7V_Oz5o": {
+   "title": "Why Indifference is Power | Priceless Benefits of Being Indifferent",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 848,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "VwROPb6a8RY": {
+   "title": "Carl Jung & The Psychology of Self-Sabotage (feat. Emerald)",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 943,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ggXGba-vBeo": {
+   "title": "Taoist Wisdom For Inner Peace",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 504,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "nLj7J51FdQQ": {
+   "title": "Why Patience is Power | Priceless Benefits of Being Patient",
+   "ch": "Einzelgänger",
+   "chId": "UCybBViio_TH_uiFFDJuz5tg",
+   "dur": 842,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "4Tm6Z1y3h94": {
+   "title": "A Reason To Stop Worrying - Watch This Whenever You're Stressed Or Anxious",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 258,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "oGVhOWqsBWM": {
+   "title": "The Nova Effect - The Tragedy of Good Luck",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 354,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "LaffA9EyUgo": {
+   "title": "What Is Kafkaesque? - The 'Philosophy' of Franz Kafka",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 556,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uLOB6hj3M_Q": {
+   "title": "Stoicism & The Art of Not Caring",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 508,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6qU1sDBU9Cs": {
+   "title": "The Terrible Paradox of Self-Awareness | Fernando Pessoa",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 782,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "eMTDAHK-tkE": {
+   "title": "Don't Try - The Philosophy of Charles Bukowski",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 469,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "XBTOqyUtX-0": {
+   "title": "How To Waste Your Life & Never Be Happy (A Short Story)",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 601,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "LrRfjmv-5cQ": {
+   "title": "This Is How Terribly Short Your Life Is (If You Hate Your Job & Live For The Weekends)",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 347,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "lUjoFzT0VNI": {
+   "title": "Becoming Who You Really Are - The Philosophy of Friedrich Nietzsche",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 955,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "g7RAPS8mE94": {
+   "title": "The Problem with Nice People",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 772,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uRDy4M5jI-g": {
+   "title": "Becoming Your True Self - The Psychology of Carl Jung",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 919,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "mDwrilOepHo": {
+   "title": "This One Idea Will Change How You Think About Your Entire Life",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 666,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "8mY4UByNHP0": {
+   "title": "3 Paradoxes That Will Change the Way You Think About Everything",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 761,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "-J-9Ct0oFMU": {
+   "title": "3 Thought Experiments That No One Can Solve",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 811,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "9bHM-mhgQyk": {
+   "title": "Be a Loser - The Philosophy of Henry David Thoreau",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 622,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ZQkby8bl8yE": {
+   "title": "How the Way You Respond to Anxiety Changes Your Life - Søren Kierkegaard on Angst",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 763,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "P6wH7bXG09k": {
+   "title": "These Simple Words Can Change How You Think About The Past - Nietzsche",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 626,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "h_lZo9hvNhY": {
+   "title": "You’d Be Surprised How Smart (Or Dumb) You Are | The Dunning-Kruger Effect",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 637,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Y4ObnLRrklo": {
+   "title": "You’d Be Surprised How People Perceive You",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 727,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "edyqWHRgSX8": {
+   "title": "The Paradox of Being Nice",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 397,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "gc7wKr0XkN8": {
+   "title": "How the Way You Respond to Boredom Changes Your Life",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 745,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "fguhlv23lSg": {
+   "title": "5 Important Questions No One Knows The Answers To",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 550,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "e9Mb0cbDenA": {
+   "title": "Most People Have Never Been Adults",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 759,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "JLfRPtyJWZw": {
+   "title": "The Art of Letting Things Happen | A Japanese Philosophy That Will Change How You Think",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 645,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "_b5Xhgnd4lk": {
+   "title": "The Hidden Story Of Every Person",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 391,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "GTSXBkHlUJE": {
+   "title": "The Philosophy Of Alan Watts - Making Sense Of Senselessness",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 664,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ffWSQCjTtgk": {
+   "title": "The Tragedy of Being Too Early - The Timeline Effect",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 776,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "m5DABiixjXE": {
+   "title": "Life Is Not Short; We Just Waste Most of It - The Philosophy of Seneca",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 708,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "dBQAo6pEweE": {
+   "title": "Who Am I? - The Mysterious Thing You Always Are",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 861,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "GOd1CaAP1HU": {
+   "title": "The Best Life Advice You’ve Ever Heard is Probably Wrong",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 875,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "hPhc9FU7ycI": {
+   "title": "The Backwards Law - Why Happiness Is Ruining Your Life",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 377,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ojnQ0Acmy1A": {
+   "title": "You’d Be Surprised How Closed-Minded You Are | Jacques Derrida",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 652,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "gxglts0Sw5I": {
+   "title": "This Simple Tool Will Improve Your Critical Thinking",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 917,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6r-AcnkP_ug": {
+   "title": "The Curse of Creativity",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 670,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "x3EVh2jhyLM": {
+   "title": "The Lie That Every Story Has In Common - Kurt Vonnegut On The Shapes of Stories",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 487,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "z1exaJRpOuw": {
+   "title": "\"Everything Happens For A Reason\" (Until It Doesn't)",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 399,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "mOpMhYGPajU": {
+   "title": "The False Memory Effect - How Fake Memories Change Us",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 550,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "zZcWBUZEhME": {
+   "title": "The High Price We Pay For Pursuing the Wrong Things in Life",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 845,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "b04zs6QHuWM": {
+   "title": "The Art of Trusting One's Self - The Philosophy of Ralph Waldo Emerson",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 544,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ncmeYUWvvAU": {
+   "title": "Once You Stop Caring, the Results Come - The Philosophy of Michel de Montaigne",
+   "ch": "Pursuit of Wonder",
+   "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+   "dur": 813,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "gfyCzLbcAvk": {
+   "title": "Nietzsche and Psychology: How To Become Who You Are",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 878,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "wywUQc-4Opk": {
+   "title": "Carl Jung - What are the Archetypes?",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 708,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "FDjeRloNgx0": {
+   "title": "Why You Should Seek Power, Not Happiness - Nietzsche's Guide to Greatness",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 731,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "MQgC2nI6Wu4": {
+   "title": "The Psychology of Self-Transformation",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 638,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "tIoJhqnOc0M": {
+   "title": "How to Integrate Your Shadow - The Dark Side is Unrealized Potential",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 662,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "tE67Ye91Ii0": {
+   "title": "Nietzsche and Morality: The Higher Man and The Herd",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 811,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "C5SwcrVnyLc": {
+   "title": "The Psychology of Solitude",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 470,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "j0KzUS0b_uc": {
+   "title": "Introduction to Carl Jung - The Psyche, Archetypes and the Collective Unconscious",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 648,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "SPuRxF6P5Hk": {
+   "title": "Rapid Personality Change and the Psychological Rebirth",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 693,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "tGkymdspups": {
+   "title": "Aldous Huxley and Brave New World: The Dark Side of Pleasure",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 523,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uhAeXyVDDTc": {
+   "title": "Introduction to Carl Jung - Individuation, the Persona, the Shadow, and the Self",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 790,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uvY3VWe4O4k": {
+   "title": "The Ideas of Socrates",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 655,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "qKq0Afmsj-U": {
+   "title": "Introduction to Metaphysics",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 490,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Vkoc0ltIBF4": {
+   "title": "Carl Jung and the Spiritual Problem of the Modern Individual",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 692,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ARGczzoPASo": {
+   "title": "The Psychology of Conformity",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 656,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "CPIsRwf5Mmc": {
+   "title": "The Psychology of Self-Sabotage and Resistance",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 523,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "TgV90NzrZ8w": {
+   "title": "How to Overcome the Downward Pull of Other People",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 582,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "1l2WFl1EqwM": {
+   "title": "The Ideal Body: How our Body Shapes our Character",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 708,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "8S__1h2Z2xI": {
+   "title": "Face Your Dark Side - Carl Jung and the Shadow",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 763,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "3_t4obUc51A": {
+   "title": "Introduction to Ethics",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 607,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "z9vMczQ3jiM": {
+   "title": "Life as a Quest - The Antidote to a Wasted Existence",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 774,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "sNg5FXt_DDM": {
+   "title": "Carl Jung and The Most Important Rule of Life",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 655,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "nI-Ko-d29X4": {
+   "title": "Carl Jung, the Shadow, and the Dangers of Psychological Projection",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 484,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ssuDqtUcKEw": {
+   "title": "Carl Jung: What is the Individuation Process?",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 664,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "ilg7PiDD8yY": {
+   "title": "Introduction to Existentialism",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 743,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "o0MzQZ_eFEY": {
+   "title": "Introduction to Stoicism",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 860,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "wRz8l-Ojs70": {
+   "title": "Nietzsche and Self Overcoming",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 728,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "WnhMJl11JUo": {
+   "title": "Nietzsche and Thus Spoke Zarathustra: The Last Man and The Superman",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 620,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "vzRbCrIWURY": {
+   "title": "Introduction to Nietzsche",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 875,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Vx_60kIXLIU": {
+   "title": "Carl Jung's Method of Self-Development - The Path of Individuation",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 715,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Uig8Lw7ixI0": {
+   "title": "The Psychology of Self-Deception",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 628,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "XVAXMR2L6n8": {
+   "title": "Why Purpose and Discipline Promote Psychological Well-Being",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 437,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "cViZ6wVysKk": {
+   "title": "The Problem of Anger - How to Use the Power of Your Dark Side",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 541,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "VhYPtNZUi6s": {
+   "title": "How to Turn Your Mind from an Enemy to an Ally",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 540,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "t3TbSjZ_fxc": {
+   "title": "The Psychology of Alfred Adler:  Superiority, Inferiority, and Courage",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 538,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "iw36V_iXR2k": {
+   "title": "Introduction to Kierkegaard: The Existential Problem",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 854,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "wIXtN2S2d2w": {
+   "title": "Why You Should Strive for a Meaningful Life, Not a Happy One",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 584,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "2sXnOMeSSgc": {
+   "title": "The Psychology and Principles of Mastery",
+   "ch": "Academy of Ideas",
+   "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+   "dur": 643,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "GeQO2Twc8DA": {
+   "title": "SPEAK With Me in English [Conversation Lesson]",
+   "ch": "Speak English With Vanessa",
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "dur": 927,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "EJQMxdPNHDk": {
+   "title": "Listen and Repeat: SPEAK with me in English",
+   "ch": "Speak English With Vanessa",
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "dur": 705,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "HXhjdcrZjLQ": {
+   "title": "No Partner? No Problem! (3 Ways to Practice Speaking Alone)",
+   "ch": "Speak English With Vanessa",
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "dur": 755,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "Eps9alVTEHg": {
+   "title": "SPEAK With Me: English Speaking Practice",
+   "ch": "Speak English With Vanessa",
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "dur": 780,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "tnHANfZHKqQ": {
+   "title": "Speak With Me: English Speaking Practice",
+   "ch": "Speak English With Vanessa",
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "dur": 946,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "kqEWuxDyvQQ": {
+   "title": "4 Things You Need To Do to Level Up to ADVANCED English",
+   "ch": "RealLife English",
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "dur": 828,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "CvytjqZMpcA": {
+   "title": "American vs. British vs. Australian ENGLISH — Learn the Different Vocabulary",
+   "ch": "RealLife English",
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "dur": 906,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "U3bMcJj4ORQ": {
+   "title": "5 Great TV Series to Learn English in 2025 (+ 5 Bonus Ones!)",
+   "ch": "RealLife English",
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "dur": 809,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "g1PKBNjE9js": {
+   "title": "How I Stopped Translating in My Head and STARTED to Think in English",
+   "ch": "RealLife English",
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "dur": 875,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "4SXimXhxsco": {
+   "title": "Why Some People Become Fluent in English... But You Haven't (Yet)",
+   "ch": "RealLife English",
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "dur": 908,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "FEkKaLMT6J0": {
+   "title": "The Most Important Connection Skill In 2027",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 591,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "2J9S8aFaWwc": {
+   "title": "What I Learned From Asia's Biggest Podcaster (feat. Raj Shamani)",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 478,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "GfbGrX_PluQ": {
+   "title": "Behind The Scenes w/ Mark Manson & Vanessa Van Edwards!",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 571,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "N97XYE0s7iY": {
+   "title": "How I Deal With Nerves Before Big Conversations",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 608,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "YtpColBIPcw": {
+   "title": "I'm On The Road For 3 Weeks In The US!",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 618,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "6JFOQrSrPy4": {
+   "title": "The Guide To Talk To Anyone (Regardless of Their Seniority)",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 404,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "5kpscm-ekFY": {
+   "title": "How to Sound Friendly Without Losing Authority",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 816,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "1rldib3f5yA": {
+   "title": "3 Speaking Habits That Stop People From Interrupting You",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 478,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "-X13GINFYOY": {
+   "title": "How to Enter Conversations (Even If You Have Nothing To Say!)",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 423,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "NqbOg5ECegE": {
+   "title": "The Ultimate 30-Day Plan To Master Your Communication Skills",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 848,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "jv7CHnxEFTk": {
+   "title": "Understand This, And Your Communication Changes (Forever)",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 790,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "XbtxooSGPFA": {
+   "title": "This Speaking Habit Makes Conversations Harder Than They Should Be",
+   "ch": "Vinh Giang",
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "dur": 705,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "bRERpUGzwzU": {
+   "title": "Women Are Moving Left. Men Aren’t Following.",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 664,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "3nvmFxdWF1g": {
+   "title": "Signs That You’re About To Make The Wrong Decision - Joe Hudson",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 744,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "k39L86VW7iw": {
+   "title": "The War Horse Who Would Not Die - The Fat Electrician",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 745,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "bSULVW0u1GM": {
+   "title": "How Having A Stroke Reveals The Truth About Life - Robert Greene",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 574,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "nVjxBf5yHBQ": {
+   "title": "The One Threat That Terrifies A Former CIA Officer",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 806,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "vFji6Fy_bqU": {
+   "title": "The Cheating Double Standard Nobody Talks About",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 592,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "E3BAOkBaYOg": {
+   "title": "The Rock Bottom Moment That Almost Ruined Dr K",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 714,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "uOBZFhe2Kmc": {
+   "title": "\"Japan Pissed Off The Wrong Guy\" - The Fat Electrician",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 899,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "iD-0Kbul_zE": {
+   "title": "How to Master The Urge That Ruins Men’s Lives",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 693,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "dCy-RENaZnQ": {
+   "title": "People Dumber than You Have What You Want - Shaan Puri",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 742,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "lxDNHLgWInU": {
+   "title": "The ElevenLabs Situation Is Crazy",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 876,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "gMOurQuERVs": {
+   "title": "“I Was A Loser Until I Was 39” - Robert Greene",
+   "ch": "Chris Williamson",
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "dur": 760,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "fTrF-6hI8i8": {
+   "title": "How to See the Miraculous Beauty in Everyday Life",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 283,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "3_uOA2K78M8": {
+   "title": "What Years of Heartbreak Actually Teach Us",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 344,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "c__DMV_Clog": {
+   "title": "Why Every Couple Struggles With Closeness and Distance",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 292,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "G_ATGHMKEZA": {
+   "title": "Why Some Breakups Hurt So Much More Than Others",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 246,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "op77gGdFY1g": {
+   "title": "Are We Rejecting Them Because They’re Wrong—or Because We’re Unwell?",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 308,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "156C-c48ezU": {
+   "title": "What Do I Project onto Other People?",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 277,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "FbS1hO2dQPM": {
+   "title": "The Japanese Philosophy That Turns Everyday Life Into Art",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 243,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "zRp_0hc-ZgQ": {
+   "title": "Ancient Chinese Wisdom to Calm Your Modern Mind",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 568,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "EyHPvu4aIJY": {
+   "title": "The Love Lessons We Never Learned",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 344,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "_HqfzLk0QxU": {
+   "title": "Why You Want to Run Away From a Good Relationship",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 268,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "7SSHksM3qrs": {
+   "title": "Why You Deserve a Tantrum: The Truth About Adult Rage",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 263,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  },
+  "O8xqi5tpD7I": {
+   "title": "5 Philosophical Lessons to Cure Modern Burnout",
+   "ch": "The School of Life",
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "dur": 570,
+   "cap": "player",
+   "watch": true,
+   "up": null
+  }
+ }
 }

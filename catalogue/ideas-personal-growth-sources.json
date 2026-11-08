@@ -15,6 +15,14 @@
         "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
         "observed_handle": "@RobertGreeneOfficial",
         "agrees_with_listed_handle": true
+      },
+      "avatar": "https://yt3.googleusercontent.com/twmZrV5lHYXgxsp0eqIiqOGqiDJN2XWFyW2_XdGGfy55RYbQUyX8c_8Lzcm5oLMLaAK1XrVgPw=s900-c-k-c0x00ffffff-no-rj",
+      "avatar_verified": {
+        "how": "yt-dlp channel metadata (-J --skip-download --playlist-items 0), largest square/avatar thumbnail — the same route scripts/build_catalogue.mjs uses for the existing channel row",
+        "checked": "2026-11-08",
+        "size": "900x900",
+        "hotlinked": true,
+        "note": "metadata only: the image is referenced at YouTube's own CDN, never downloaded, cached or rehosted"
       }
     },
     {
@@ -30,6 +38,14 @@
         "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
         "observed_handle": "@academyofideas",
         "agrees_with_listed_handle": true
+      },
+      "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_lN8eaX6OlDhq8tUK-YYzvCa4OrXyiu_dh7gIvzS1ZgdFg=s900-c-k-c0x00ffffff-no-rj",
+      "avatar_verified": {
+        "how": "yt-dlp channel metadata (-J --skip-download --playlist-items 0), largest square/avatar thumbnail — the same route scripts/build_catalogue.mjs uses for the existing channel row",
+        "checked": "2026-11-08",
+        "size": "900x900",
+        "hotlinked": true,
+        "note": "metadata only: the image is referenced at YouTube's own CDN, never downloaded, cached or rehosted"
       }
     },
     {
@@ -46,6 +62,14 @@
         "observed_handle": "@Einzelgänger",
         "agrees_with_listed_handle": false,
         "handle_note": "The handle recorded in this file (@einzelganger) and the one YouTube reports (@Einzelgänger) differ only in capitalisation and the umlaut; the channel_id was identical across every lookup, so this is a rendering difference, not a different channel. The listed handle is left as observed rather than rewritten."
+      },
+      "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mNi2q9ustWatgB7eBZAM9e5Ps_7KGy3CiGmMA4N4IkgVs=s900-c-k-c0x00ffffff-no-rj",
+      "avatar_verified": {
+        "how": "yt-dlp channel metadata (-J --skip-download --playlist-items 0), largest square/avatar thumbnail — the same route scripts/build_catalogue.mjs uses for the existing channel row",
+        "checked": "2026-11-08",
+        "size": "900x900",
+        "hotlinked": true,
+        "note": "metadata only: the image is referenced at YouTube's own CDN, never downloaded, cached or rehosted"
       }
     },
     {
@@ -61,6 +85,14 @@
         "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
         "observed_handle": "@PursuitofWonder",
         "agrees_with_listed_handle": true
+      },
+      "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_n6sKEuv0Htuprgy4xckZIGNU0HfAfCk8ub7v9_7P1Kru4=s900-c-k-c0x00ffffff-no-rj",
+      "avatar_verified": {
+        "how": "yt-dlp channel metadata (-J --skip-download --playlist-items 0), largest square/avatar thumbnail — the same route scripts/build_catalogue.mjs uses for the existing channel row",
+        "checked": "2026-11-08",
+        "size": "900x900",
+        "hotlinked": true,
+        "note": "metadata only: the image is referenced at YouTube's own CDN, never downloaded, cached or rehosted"
       }
     },
     {

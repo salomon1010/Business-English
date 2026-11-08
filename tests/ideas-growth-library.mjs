@@ -15,22 +15,32 @@ if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind"
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 300)}`); };
 
 const overlay = JSON.parse(fs.readFileSync(new URL("../catalogue/ideas-growth.json", import.meta.url)));
-const IDS = overlay.category.vids, CH = overlay.channels.map(c => c.id);
+const CATS = overlay.categories || (overlay.category ? [overlay.category] : []);
+const IDS = CATS.flatMap(c => c.vids), CH = overlay.channels.map(c => c.id);
+/* Two provenances now: rows that came from the seed registry, and rows harvested
+   from the channels the owner asked for. Only the first can be checked AGAINST the
+   registry — checking the others against it would silently pass by being empty. */
+const IDEAS = (CATS.find(c => c.id === "ideas_growth") || { vids: [] }).vids;
 /* The overlay is checked against the REGISTRY, not against itself. Checking an artefact
    with ids taken from that same artefact proves nothing: an earlier build keyed every
    record by the seed label ("ipg-001") instead of the YouTube id, so the library asked
    i.ytimg.com for /vi/ipg-001/ and every thumbnail and player url was wrong — while a
    self-referential test passed happily. */
 const registry = JSON.parse(fs.readFileSync(new URL("../catalogue/drafts/ideas-personal-growth-registry.json", import.meta.url)));
+const SEED = IDS.filter(v => registry.videos[v]);
+const HARVEST = IDS.filter(v => !registry.videos[v]);
 console.log("\n# the overlay against its source of truth");
 ok("every id is an 11-character YouTube video id", IDS.every(v => /^[A-Za-z0-9_-]{11}$/.test(v)), IDS.filter(v => !/^[A-Za-z0-9_-]{11}$/.test(v)).join());
-ok("every id is a real key in the validated registry", IDS.every(v => registry.videos[v]), IDS.filter(v => !registry.videos[v]).join());
+ok("the seed-sourced rows are real keys in the validated registry", SEED.length > 0 && SEED.every(v => registry.videos[v]));
+ok("every harvested row carries a measured duration and a channel id", HARVEST.every(v => overlay.videos[v].dur > 0 && /^UC[\w-]{22}$/.test(overlay.videos[v].chId)), HARVEST.filter(v => !(overlay.videos[v].dur > 0 && /^UC[\w-]{22}$/.test(overlay.videos[v].chId))).join());
 ok("no seed label (ipg-NNN) leaked in as a video id", !IDS.some(v => /^ipg-/.test(v)), IDS.filter(v => /^ipg-/.test(v)).join());
-ok("the videos map and the category list hold the same ids", JSON.stringify(Object.keys(overlay.videos).sort()) === JSON.stringify([...IDS].sort()));
-ok("every title matches the registry row", IDS.every(v => overlay.videos[v].title === registry.videos[v].title));
-ok("every duration is the measured one, not the rounded listing", IDS.every(v => overlay.videos[v].dur === registry.videos[v].exact_duration_seconds));
-ok("every record carries a verified channel id", IDS.every(v => overlay.videos[v].chId && overlay.videos[v].chId === registry.videos[v].verified_channel_id));
-ok("every row was actually validated as embeddable", IDS.every(v => registry.videos[v].embedding_status === "embeddable"));
+ok("the videos map and the category lists hold the same ids", JSON.stringify(Object.keys(overlay.videos).sort()) === JSON.stringify([...IDS].sort()));
+ok("no id appears in two categories", new Set(IDS).size === IDS.length);
+ok("every seed title matches the registry row", SEED.every(v => overlay.videos[v].title === registry.videos[v].title));
+ok("every seed duration is the measured one, not the rounded listing", SEED.every(v => overlay.videos[v].dur === registry.videos[v].exact_duration_seconds));
+ok("every seed record carries the registry's verified channel id", SEED.every(v => overlay.videos[v].chId && overlay.videos[v].chId === registry.videos[v].verified_channel_id));
+ok("every channel in the row has an avatar", overlay.channels.every(c => typeof c.avatar === "string" && c.avatar.startsWith("https://")), overlay.channels.filter(c => !c.avatar).map(c => c.name).join());
+ok("every seed row was actually validated as embeddable", SEED.every(v => registry.videos[v].embedding_status === "embeddable"));
 ok("the file states it is not reviewed", overlay.reviewed === false && /NOT editorially reviewed/i.test(overlay.review_warning));
 
 const b = await chromium.launch();
@@ -69,7 +79,7 @@ console.log("\n# flag OFF — production: the overlay does not exist as far as t
   ok("the overlay file is never requested", asked.length === 0, asked.join());
   ok("no ideas_growth category in the loaded catalogue", !c.cats.includes("ideas_growth"), c.cats.join());
   ok("none of the 4 creator channels is in the channel row", !CH.some(id => c.chans.includes(id)), c.chans.join());
-  ok("not one of the 20 video ids is in the catalogue", !IDS.some(v => c.vids.includes(v)), IDS.filter(v => c.vids.includes(v)).join());
+  ok("not one of the overlay video ids is in the catalogue", !IDS.some(v => c.vids.includes(v)), IDS.filter(v => c.vids.includes(v)).join());
   ok("no chip carries the category label", !c.chipLabels.some(l => /Ideas & Personal Growth/i.test(l)), c.chipLabels.join(" | "));
   const found = await p.evaluate(() => { shLibQ("Nietzsche"); return shLibList().length; });
   ok("searching a title from the pack finds nothing", found === 0, String(found));
@@ -85,18 +95,22 @@ let onPage = null;
   ok("the overlay file is fetched exactly once", asked.length === 1, String(asked.length));
   ok("ideas_growth is in the catalogue", c.cats.includes("ideas_growth"), c.cats.join());
   ok("all 4 creator channels joined the channel row", CH.every(id => c.chans.includes(id)), c.chans.join());
-  ok("all 20 videos joined the catalogue", IDS.every(v => c.vids.includes(v)), String(IDS.filter(v => !c.vids.includes(v)).length) + " missing");
+  ok("every overlay video joined the catalogue", IDS.every(v => c.vids.includes(v)), String(IDS.filter(v => !c.vids.includes(v)).length) + " missing");
+ok("every overlay category is drawn", CATS.every(x => c.cats.includes(x.id)), CATS.map(x=>x.id).filter(x=>!c.cats.includes(x)).join());
   ok("the existing 12 channels are still there, none replaced", c.chans.length === 12 + CH.length, String(c.chans.length));
   ok("the existing categories are untouched", ["meetings", "presentations", "interviews", "everyday", "skills", "tv", "movies", "songs"].every(id => c.cats.includes(id)), c.cats.join());
   ok("a chip is drawn for the category", c.chipLabels.some(l => /Ideas & Personal Growth/i.test(l)), c.chipLabels.join(" | "));
-  ok("the four creators are named in the channel row", ["Robert Greene", "Academy of Ideas", "Einzelgänger", "Pursuit of Wonder"].every(n => c.chanNames.includes(n)), c.chanNames.join(" | "));
+  ok("every overlay creator is named in the channel row", overlay.channels.every(x => c.chanNames.includes(x.name)), overlay.channels.map(x=>x.name).filter(x=>!c.chanNames.includes(x)).join(" | "));
 
   const n = await p.evaluate(() => { shLibQ(""); shLibCat("ideas_growth"); return shLibList().length; });
-  ok("selecting the chip lists all 20 videos", n === 20, String(n));
+  ok("selecting the chip lists every video in that category", n === IDEAS.length, `${n} listed, ${IDEAS.length} in the category`);
   const s = await p.evaluate(() => { shLibQ("Nietzsche"); return shLibList().length; });
   ok("search reaches them too", s > 0, String(s));
   const chf = await p.evaluate(id => { shLibQ(""); shLibChan(id); return shLibList().length; }, CH[0]);
-  ok("filtering by one of the new channels lists only its videos", chf === 5, String(chf));
+  /* derived, not hardcoded: a literal here was written when the overlay held 20 videos
+     and silently became wrong the moment it held more */
+  const wantCh = IDS.filter(v => overlay.videos[v].chId === CH[0]).length;
+  ok("filtering by one of the new channels lists only its videos", chf === wantCh, `${chf} listed, ${wantCh} belong to ${CH[0]}`);
 
   /* the honest part: these carry no transcript, and the record says so */
   const rec = (await p.evaluate(v => _shCat.videos[v], IDS[0])) || {};
@@ -114,7 +128,8 @@ console.log("\n# Welding — the programme boundary, with the flag ON");
   const c = await cat(p);
   ok("the overlay is never fetched for a Welding learner", asked.length === 0, asked.join());
   ok("no ideas_growth category on Welding", !c.cats.includes("ideas_growth"), c.cats.join());
-  ok("none of the 20 videos reached the Welding catalogue", !IDS.some(v => c.vids.includes(v)));
+  ok("none of the overlay videos reached the Welding catalogue", !IDS.some(v => c.vids.includes(v)));
+ok("no overlay category on Welding", !CATS.some(x => c.cats.includes(x.id)));
   ok("no JavaScript errors", errs.length === 0, errs.join());
   await ctx.close();
 }
