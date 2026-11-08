@@ -37,6 +37,11 @@ const REGISTRY = path.join(ROOT, 'catalogue/drafts/ideas-personal-growth-registr
 const SOURCES = path.join(ROOT, 'catalogue/ideas-personal-growth-sources.json');
 const OUT = path.join(ROOT, 'catalogue/ideas-growth.json');
 const WRITE = process.argv.includes('--write');
+if (WRITE) {
+  console.error('REFUSED: this generator predates the multi-source overlay. Writing would replace catalogue/ideas-growth.json');
+  console.error('(four categories, ~280 videos) with a single-category file of the first 20. Use scripts/ideas-growth/build-overlay.mjs.');
+  process.exit(1);
+}
 
 const registry = JSON.parse(fs.readFileSync(REGISTRY, 'utf8'));
 const sources = JSON.parse(fs.readFileSync(SOURCES, 'utf8'));

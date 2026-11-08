@@ -1,0 +1,498 @@
+{
+ "built": "2026-11-08",
+ "reviewed": false,
+ "review_warning": "A REVIEW QUEUE, not a catalogue. Technical checks say a video plays and allows embedding. Nothing here has been watched, no transcript is bundled, and every segment is a claim. lessonReady is false for every row and is set by a human, not by this script.",
+ "weeks": [
+  {
+   "week": 1,
+   "skill": "Introductions, role clarity & speech baseline",
+   "id": "lq213nm9aDk",
+   "url": "https://www.youtube.com/watch?v=lq213nm9aDk",
+   "start": 0,
+   "end": 56,
+   "boundaries": "claimed",
+   "asked": "general fallback: attorney introduction, 0:00-0:56",
+   "industries": [
+    "legalgov"
+   ],
+   "situations": [
+    "networking",
+    "small_talk",
+    "interviews"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Attorney Introduction | The Layton Law Firm",
+   "channel": "Layton Law Firm",
+   "channelId": "UCUmIxCNA7DjwT01qnm9pEGw",
+   "dur": 56,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 56,
+    "embeddable": true,
+    "englishCaptionTrack": "none",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "start and end are an unverified claim"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 2,
+   "skill": "Project updates & status communication",
+   "id": "z4q6fxouTd4",
+   "url": "https://www.youtube.com/watch?v=z4q6fxouTd4",
+   "start": 128,
+   "end": null,
+   "boundaries": "none",
+   "asked": "30-second stand-up update from 2:08: progress, blocker, next step",
+   "industries": [
+    "tech",
+    "mgmt"
+   ],
+   "situations": [
+    "standups",
+    "meetings"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "EP38｜站會英文：30 秒說清楚進度與卡點｜Daily Stand-up English for Updates, Blockers, and Next Steps",
+   "channel": "Kerstle",
+   "channelId": "UC8-c_XJfzmHbEAIQMggR58Q",
+   "dur": 263,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 263,
+    "embeddable": true,
+    "englishCaptionTrack": "none",
+    "startInsideVideo": true
+   },
+   "notes": [
+    "the title is not in English; whether the spoken segment is English is unchecked"
+   ],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 3,
+   "skill": "Problems, blockers & escalation",
+   "id": "4W5YYwMUyaE",
+   "url": "https://www.youtube.com/watch?v=4W5YYwMUyaE",
+   "start": null,
+   "end": null,
+   "boundaries": "none",
+   "asked": "first dialogue: project deadline and supplier delay",
+   "industries": [],
+   "situations": [
+    "meetings",
+    "clients"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Speak Fluently in Real Business Scenarios | Business Discussion in English [BEL106]",
+   "channel": "Business English Learning",
+   "channelId": "UCyfuXve0-iSw1Pbd1HRbDAA",
+   "dur": 5188,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 5188,
+    "embeddable": true,
+    "englishCaptionTrack": "auto",
+    "startInsideVideo": null
+   },
+   "notes": [
+    "a 86-minute source: only an approved excerpt can be used"
+   ],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 4,
+   "skill": "Clarifying, asking questions & confirming",
+   "id": "ENCnqouZgyQ",
+   "url": "https://www.youtube.com/watch?v=ENCnqouZgyQ",
+   "start": null,
+   "end": null,
+   "boundaries": "none",
+   "asked": "Anne and James dialogue: the clarification question AND the answer",
+   "industries": [],
+   "situations": [
+    "meetings",
+    "calls"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Business English - 925 English Lesson 24: Asking for Clarification | Clarifying in English",
+   "channel": "Business English - Learn with Business English Pod",
+   "channelId": "UCIiFsAO2Gh_vu8OStpjl16A",
+   "dur": 516,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 516,
+    "embeddable": true,
+    "englishCaptionTrack": "none",
+    "startInsideVideo": null
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 5,
+   "skill": "Explaining technical work to non-technical stakeholders",
+   "id": "RRxQQxiM7AA",
+   "url": "https://www.youtube.com/watch?v=RRxQQxiM7AA",
+   "start": 45,
+   "end": 92,
+   "boundaries": "claimed",
+   "asked": "0:45-1:32: defines Slack, then how communication is organised differently from email",
+   "industries": [
+    "tech"
+   ],
+   "situations": [
+    "presentations",
+    "clients"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "How to use Slack",
+   "channel": "Kevin Stratvert",
+   "channelId": "UCfJT_eYDTmDE-ovKaxVE1ig",
+   "dur": 1223,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 1223,
+    "embeddable": true,
+    "englishCaptionTrack": "human",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "start and end are an unverified claim"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 6,
+   "skill": "Recommendations & decision language",
+   "id": "ByIIAjfw5bg",
+   "url": "https://www.youtube.com/watch?v=ByIIAjfw5bg",
+   "start": 1498,
+   "end": null,
+   "boundaries": "none",
+   "asked": "the candidate's final recommendation from 24:58",
+   "industries": [
+    "bizfin",
+    "mgmt"
+   ],
+   "situations": [
+    "interviews",
+    "presentations"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Bain Private Equity Case Interview Example",
+   "channel": "Management Consulted",
+   "channelId": "UCrDscHOUEz_YZWGXIYL7w4g",
+   "dur": 2720,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 2720,
+    "embeddable": true,
+    "englishCaptionTrack": "auto",
+    "startInsideVideo": true
+   },
+   "notes": [
+    "a 45-minute source: only an approved excerpt can be used"
+   ],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 7,
+   "skill": "Disagreeing professionally & pushing back",
+   "id": "2ReRqMy7hN4",
+   "url": "https://www.youtube.com/watch?v=2ReRqMy7hN4",
+   "start": 666,
+   "end": 715,
+   "boundaries": "claimed",
+   "asked": "11:06-11:55: polite disagreement, marketing-spend example",
+   "industries": [],
+   "situations": [
+    "meetings",
+    "negotiation"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "DON'T BE SHY AT WORK - HOW TO SPEAK UP IN ANY MEETING!",
+   "channel": "Go Natural English - Real Life English with Gabby",
+   "channelId": "UC9Pbt3q-ihROg1lmmmQdU2w",
+   "dur": 939,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 939,
+    "embeddable": true,
+    "englishCaptionTrack": "human",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "start and end are an unverified claim"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 8,
+   "skill": "Sprint meetings, blockers & stakeholder coordination",
+   "id": "as9IYFrTiKc",
+   "url": "https://www.youtube.com/watch?v=as9IYFrTiKc",
+   "start": 84,
+   "end": null,
+   "boundaries": "none",
+   "asked": "team and stakeholder exchange from about 1:24",
+   "industries": [
+    "tech",
+    "mgmt"
+   ],
+   "situations": [
+    "standups",
+    "meetings"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "A Real Sprint Review Meeting Example",
+   "channel": "DataMiner by Skyline Communications",
+   "channelId": "UC5TQFJhSnKFIxaZogEmlmxg",
+   "dur": 404,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 404,
+    "embeddable": true,
+    "englishCaptionTrack": "human",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 9,
+   "skill": "Leadership-style summaries",
+   "id": "mIK5-yi7a-c",
+   "url": "https://www.youtube.com/watch?v=mIK5-yi7a-c",
+   "start": null,
+   "end": null,
+   "boundaries": "none",
+   "asked": "start of Sundar Pichai's prepared remarks, after the investor-relations handoff",
+   "industries": [
+    "bizfin",
+    "mgmt",
+    "tech"
+   ],
+   "situations": [
+    "presentations",
+    "meetings"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Alphabet 2025 Q4 Earnings Call",
+   "channel": "Alphabet Investor Relations",
+   "channelId": "UC9RZRAPdKRM91k1XwbELJEg",
+   "dur": 3647,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 3647,
+    "embeddable": true,
+    "englishCaptionTrack": "human",
+    "startInsideVideo": null
+   },
+   "notes": [
+    "a 61-minute source: only an approved excerpt can be used"
+   ],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 10,
+   "skill": "Interview & networking communication",
+   "id": "BouSVKqom5o",
+   "url": "https://www.youtube.com/watch?v=BouSVKqom5o",
+   "start": 155,
+   "end": null,
+   "boundaries": "none",
+   "asked": "interviewer's question and the candidate's answer from about 2:35",
+   "industries": [],
+   "situations": [
+    "interviews",
+    "networking"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "Job Interview Role Play | English Language Practice",
+   "channel": "Single Step English",
+   "channelId": "UCQ6726dvjNEX1hVUO7t9b1Q",
+   "dur": 441,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 441,
+    "embeddable": true,
+    "englishCaptionTrack": "human",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "no exact start and end"
+   ],
+   "lessonReady": false
+  },
+  {
+   "week": 11,
+   "skill": "Persuasion & stakeholder influence",
+   "id": "ae5MssJ8en4",
+   "url": "https://www.youtube.com/watch?v=ae5MssJ8en4",
+   "start": 15,
+   "end": 60,
+   "boundaries": "claimed",
+   "asked": "0:15-1:00: introduces the product, makes a specific ask, demonstrates the benefit",
+   "industries": [
+    "sales"
+   ],
+   "situations": [
+    "presentations",
+    "negotiation",
+    "clients"
+   ],
+   "tagBasis": "the owner's brief and the video title; nobody has watched the clip",
+   "editorial": "pending",
+   "rights": "pending",
+   "transcriptInApp": false,
+   "role": null,
+   "roleGroup": null,
+   "title": "A Bidding War Breaks Out During Scrub Daddy's Pitch | Shark Tank US | Shark Tank Global",
+   "channel": "Shark Tank Global",
+   "channelId": "UCREgA-BmOocJ9Is_bZV6aJQ",
+   "dur": 741,
+   "embeddable": true,
+   "technical": {
+    "state": "checked",
+    "checked": "2026-11-08",
+    "durationSeconds": 741,
+    "embeddable": true,
+    "englishCaptionTrack": "none",
+    "startInsideVideo": true
+   },
+   "notes": [],
+   "blockers": [
+    "editorial review pending",
+    "rights review pending",
+    "no transcript in the app",
+    "start and end are an unverified claim"
+   ],
+   "lessonReady": false
+  }
+ ]
+}

@@ -1,0 +1,850 @@
+{
+ "channels": [
+  {
+   "name": "mmmEnglish",
+   "handle": "@mmmEnglish",
+   "cat": "pronunciation",
+   "fail": "no channel object (yt-dlp returned null) — handle may be wrong"
+  },
+  {
+   "name": "Speak English With Vanessa",
+   "handle": "@SpeakEnglishWithVanessa",
+   "cat": "pronunciation",
+   "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "observedName": "Speak English With Vanessa",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "RealLife English",
+   "handle": "@reallifeenglish1",
+   "cat": "pronunciation",
+   "id": "UC9d2mNoH8coSqtnotE81Tww",
+   "observedName": "RealLife English",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "Vinh Giang",
+   "handle": "@askvinh",
+   "cat": "public_speaking",
+   "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "observedName": "Vinh Giang",
+   "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "Huberman Lab",
+   "handle": "@hubermanlab",
+   "cat": "ideas_growth",
+   "id": "UC2D2CMWXMOVWx7giW1n3LIg",
+   "observedName": "Andrew Huberman",
+   "avatar": "https://yt3.googleusercontent.com/Y8lhyl8aHY42phxwoAwUqwLGDp-z8nmtj3Z7_JB-Oh4yIZ1OFYb-MlJRuz_oygqsYQU-VgGqiOM=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "Modern Wisdom",
+   "handle": "@ChrisWillx",
+   "cat": "ideas_growth",
+   "id": "UCIaH-gZIVC432YRjNVvnyCA",
+   "observedName": "Chris Williamson",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "The Diary of a CEO",
+   "handle": "@TheDiaryOfACEO",
+   "cat": "ideas_growth",
+   "id": "UCGq-a57w-aPwyi3pW7XLiHw",
+   "observedName": "The Diary Of A CEO",
+   "avatar": "https://yt3.googleusercontent.com/JHCZDz37bsTmwoE1o4LEodF5vhsHfk29kCEauDTFr27-7hHXsHHvvWGzcG77v32ERrkpfInkGQ=s900-c-k-c0x00ffffff-no-rj"
+  },
+  {
+   "name": "The School of Life",
+   "handle": "@theschooloflifetv",
+   "cat": "ideas_growth",
+   "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "observedName": "The School of Life",
+   "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+  }
+ ],
+ "videos": [
+  {
+   "id": "GeQO2Twc8DA",
+   "dur": 927,
+   "title": "SPEAK With Me in English [Conversation Lesson]",
+   "ch": {
+    "name": "Speak English With Vanessa",
+    "handle": "@SpeakEnglishWithVanessa",
+    "cat": "pronunciation",
+    "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "observedName": "Speak English With Vanessa",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "caps": "auto"
+  },
+  {
+   "id": "EJQMxdPNHDk",
+   "dur": 705,
+   "title": "Listen and Repeat: SPEAK with me in English",
+   "ch": {
+    "name": "Speak English With Vanessa",
+    "handle": "@SpeakEnglishWithVanessa",
+    "cat": "pronunciation",
+    "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "observedName": "Speak English With Vanessa",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "caps": "auto"
+  },
+  {
+   "id": "HXhjdcrZjLQ",
+   "dur": 755,
+   "title": "No Partner? No Problem! (3 Ways to Practice Speaking Alone)",
+   "ch": {
+    "name": "Speak English With Vanessa",
+    "handle": "@SpeakEnglishWithVanessa",
+    "cat": "pronunciation",
+    "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "observedName": "Speak English With Vanessa",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "caps": "auto"
+  },
+  {
+   "id": "Eps9alVTEHg",
+   "dur": 780,
+   "title": "SPEAK With Me: English Speaking Practice",
+   "ch": {
+    "name": "Speak English With Vanessa",
+    "handle": "@SpeakEnglishWithVanessa",
+    "cat": "pronunciation",
+    "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "observedName": "Speak English With Vanessa",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "caps": "auto"
+  },
+  {
+   "id": "tnHANfZHKqQ",
+   "dur": 946,
+   "title": "Speak With Me: English Speaking Practice",
+   "ch": {
+    "name": "Speak English With Vanessa",
+    "handle": "@SpeakEnglishWithVanessa",
+    "cat": "pronunciation",
+    "id": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "observedName": "Speak English With Vanessa",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+   "caps": "auto"
+  },
+  {
+   "id": "kqEWuxDyvQQ",
+   "dur": 828,
+   "title": "4 Things You Need To Do to Level Up to ADVANCED English",
+   "ch": {
+    "name": "RealLife English",
+    "handle": "@reallifeenglish1",
+    "cat": "pronunciation",
+    "id": "UC9d2mNoH8coSqtnotE81Tww",
+    "observedName": "RealLife English",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "caps": "auto"
+  },
+  {
+   "id": "CvytjqZMpcA",
+   "dur": 906,
+   "title": "American vs. British vs. Australian ENGLISH — Learn the Different Vocabulary",
+   "ch": {
+    "name": "RealLife English",
+    "handle": "@reallifeenglish1",
+    "cat": "pronunciation",
+    "id": "UC9d2mNoH8coSqtnotE81Tww",
+    "observedName": "RealLife English",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "caps": "auto"
+  },
+  {
+   "id": "U3bMcJj4ORQ",
+   "dur": 809,
+   "title": "5 Great TV Series to Learn English in 2025 (+ 5 Bonus Ones!)",
+   "ch": {
+    "name": "RealLife English",
+    "handle": "@reallifeenglish1",
+    "cat": "pronunciation",
+    "id": "UC9d2mNoH8coSqtnotE81Tww",
+    "observedName": "RealLife English",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "caps": "auto"
+  },
+  {
+   "id": "g1PKBNjE9js",
+   "dur": 875,
+   "title": "How I Stopped Translating in My Head and STARTED to Think in English",
+   "ch": {
+    "name": "RealLife English",
+    "handle": "@reallifeenglish1",
+    "cat": "pronunciation",
+    "id": "UC9d2mNoH8coSqtnotE81Tww",
+    "observedName": "RealLife English",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "caps": "auto"
+  },
+  {
+   "id": "4SXimXhxsco",
+   "dur": 908,
+   "title": "Why Some People Become Fluent in English... But You Haven't (Yet)",
+   "ch": {
+    "name": "RealLife English",
+    "handle": "@reallifeenglish1",
+    "cat": "pronunciation",
+    "id": "UC9d2mNoH8coSqtnotE81Tww",
+    "observedName": "RealLife English",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9d2mNoH8coSqtnotE81Tww",
+   "caps": "auto"
+  },
+  {
+   "id": "FEkKaLMT6J0",
+   "dur": 591,
+   "title": "The Most Important Connection Skill In 2027",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "2J9S8aFaWwc",
+   "dur": 478,
+   "title": "What I Learned From Asia's Biggest Podcaster (feat. Raj Shamani)",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "GfbGrX_PluQ",
+   "dur": 571,
+   "title": "Behind The Scenes w/ Mark Manson & Vanessa Van Edwards!",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "N97XYE0s7iY",
+   "dur": 608,
+   "title": "How I Deal With Nerves Before Big Conversations",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "YtpColBIPcw",
+   "dur": 618,
+   "title": "I'm On The Road For 3 Weeks In The US!",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "6JFOQrSrPy4",
+   "dur": 404,
+   "title": "The Guide To Talk To Anyone (Regardless of Their Seniority)",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "5kpscm-ekFY",
+   "dur": 816,
+   "title": "How to Sound Friendly Without Losing Authority",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "1rldib3f5yA",
+   "dur": 478,
+   "title": "3 Speaking Habits That Stop People From Interrupting You",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "-X13GINFYOY",
+   "dur": 423,
+   "title": "How to Enter Conversations (Even If You Have Nothing To Say!)",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "NqbOg5ECegE",
+   "dur": 848,
+   "title": "The Ultimate 30-Day Plan To Master Your Communication Skills",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "jv7CHnxEFTk",
+   "dur": 790,
+   "title": "Understand This, And Your Communication Changes (Forever)",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "XbtxooSGPFA",
+   "dur": 705,
+   "title": "This Speaking Habit Makes Conversations Harder Than They Should Be",
+   "ch": {
+    "name": "Vinh Giang",
+    "handle": "@askvinh",
+    "cat": "public_speaking",
+    "id": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+    "observedName": "Vinh Giang",
+    "avatar": "https://yt3.googleusercontent.com/9tb3n5juqeflrf4pSonU3AMOyFpVxqmmuhhUR1ikjiFWAY5idhFBAXmRHPojPbb85zQNIEz5FA=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC9K9Wnz6t4cLnCdTzAVrXqQ",
+   "caps": "auto"
+  },
+  {
+   "id": "bRERpUGzwzU",
+   "dur": 664,
+   "title": "Women Are Moving Left. Men Aren’t Following.",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "3nvmFxdWF1g",
+   "dur": 744,
+   "title": "Signs That You’re About To Make The Wrong Decision - Joe Hudson",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "k39L86VW7iw",
+   "dur": 745,
+   "title": "The War Horse Who Would Not Die - The Fat Electrician",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "bSULVW0u1GM",
+   "dur": 574,
+   "title": "How Having A Stroke Reveals The Truth About Life - Robert Greene",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "nVjxBf5yHBQ",
+   "dur": 806,
+   "title": "The One Threat That Terrifies A Former CIA Officer",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "vFji6Fy_bqU",
+   "dur": 592,
+   "title": "The Cheating Double Standard Nobody Talks About",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "E3BAOkBaYOg",
+   "dur": 714,
+   "title": "The Rock Bottom Moment That Almost Ruined Dr K",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "uOBZFhe2Kmc",
+   "dur": 899,
+   "title": "\"Japan Pissed Off The Wrong Guy\" - The Fat Electrician",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "iD-0Kbul_zE",
+   "dur": 693,
+   "title": "How to Master The Urge That Ruins Men’s Lives",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "dCy-RENaZnQ",
+   "dur": 742,
+   "title": "People Dumber than You Have What You Want - Shaan Puri",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "lxDNHLgWInU",
+   "dur": 876,
+   "title": "The ElevenLabs Situation Is Crazy",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "gMOurQuERVs",
+   "dur": 760,
+   "title": "“I Was A Loser Until I Was 39” - Robert Greene",
+   "ch": {
+    "name": "Modern Wisdom",
+    "handle": "@ChrisWillx",
+    "cat": "ideas_growth",
+    "id": "UCIaH-gZIVC432YRjNVvnyCA",
+    "observedName": "Chris Williamson",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_mmN30Y4ap7dtPfLw8Algolz_LGtHHpTJxa-qAw-MCQpdo=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UCIaH-gZIVC432YRjNVvnyCA",
+   "caps": "auto"
+  },
+  {
+   "id": "fTrF-6hI8i8",
+   "dur": 283,
+   "title": "How to See the Miraculous Beauty in Everyday Life",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "3_uOA2K78M8",
+   "dur": 344,
+   "title": "What Years of Heartbreak Actually Teach Us",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "c__DMV_Clog",
+   "dur": 292,
+   "title": "Why Every Couple Struggles With Closeness and Distance",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "human"
+  },
+  {
+   "id": "G_ATGHMKEZA",
+   "dur": 246,
+   "title": "Why Some Breakups Hurt So Much More Than Others",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "op77gGdFY1g",
+   "dur": 308,
+   "title": "Are We Rejecting Them Because They’re Wrong—or Because We’re Unwell?",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "156C-c48ezU",
+   "dur": 277,
+   "title": "What Do I Project onto Other People?",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "FbS1hO2dQPM",
+   "dur": 243,
+   "title": "The Japanese Philosophy That Turns Everyday Life Into Art",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "zRp_0hc-ZgQ",
+   "dur": 568,
+   "title": "Ancient Chinese Wisdom to Calm Your Modern Mind",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "EyHPvu4aIJY",
+   "dur": 344,
+   "title": "The Love Lessons We Never Learned",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "_HqfzLk0QxU",
+   "dur": 268,
+   "title": "Why You Want to Run Away From a Good Relationship",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "7SSHksM3qrs",
+   "dur": 263,
+   "title": "Why You Deserve a Tantrum: The Truth About Adult Rage",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  },
+  {
+   "id": "O8xqi5tpD7I",
+   "dur": 570,
+   "title": "5 Philosophical Lessons to Cure Modern Burnout",
+   "ch": {
+    "name": "The School of Life",
+    "handle": "@theschooloflifetv",
+    "cat": "ideas_growth",
+    "id": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "observedName": "The School of Life",
+    "avatar": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s900-c-k-c0x00ffffff-no-rj"
+   },
+   "ok": true,
+   "embeddable": true,
+   "chId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+   "caps": "auto"
+  }
+ ]
+}
