@@ -17555,7 +17555,11 @@ function shLibCatsOrdered(c){
   // no "ideas_growth" category yet — every candidate is still a draft pending review. This
   // gate is the actual kill switch for whenever that category is merged in; today it's a
   // no-op because the category id isn't in the catalogue at all.
-  if(!flag('ideas_personal_growth_enabled'))L=L.filter(x=>x.id!=='ideas_growth');
+  // The gate is BOTH the flag and the programme: a category that only ever lives in
+  // catalogue/general.json still gets an explicit isGeneralEnglish() check, because
+  // hiding a General-English-only category from Welding by data placement alone is the
+  // kind of boundary that quietly breaks the first time a file is copied.
+  if(!flag('ideas_personal_growth_enabled')||!isGeneralEnglish())L=L.filter(x=>x.id!=='ideas_growth');
   if(!weldStudioOn())return L;
   const me=weldProf();if(!me)return L;const g=(L.find(x=>x.id===me)||{}).group;
   const rank=x=>x.id===me?0:x.group&&x.group===g?1:2;

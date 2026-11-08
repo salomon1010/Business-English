@@ -1,0 +1,215 @@
+{
+  "about": "First-review candidate set for Ideas & Personal Growth. A review ORDER, not a clearance: every row below is still a draft and sets no review field. A human must watch the video, decide rights and editorial suitability, and advance the registry row before anything can publish.",
+  "generated": "2026-11-08T05:04:11.633Z",
+  "env": "development",
+  "select_n": 20,
+  "selection_rules": [
+    "listing duration carries seconds (YouTube rounds longer cards; a seconds-precise card is the one real metadata can be checked against)",
+    "between 4 and 16 minutes",
+    "round-robin across the four creators so the first batch is not one voice",
+    "within a creator, prefer a proposed subtopic not already represented",
+    "ties break on seed id, so the same seed always yields the same list"
+  ],
+  "candidates": [
+    {
+      "id": "ipg-161",
+      "video_id": "gfyCzLbcAvk",
+      "title": "Nietzsche and Psychology: How To Become Who You Are",
+      "channel": "Academy of Ideas",
+      "proposed_subtopic": "Self-Awareness & Creativity",
+      "display_duration": "14 minutes, 39 seconds",
+      "display_duration_seconds": 879,
+      "reason": "listing duration is seconds-precise (14 minutes, 39 seconds) and inside the 4-16 min practice window; Academy of Ideas slot 1; subtopic \"Self-Awareness & Creativity\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-061",
+      "video_id": "tLAZvESoVgI",
+      "title": "TAOISM | The Art of Not Trying",
+      "channel": "Einzelgänger",
+      "proposed_subtopic": "Practical Philosophy",
+      "display_duration": "13 minutes, 14 seconds",
+      "display_duration_seconds": 794,
+      "reason": "listing duration is seconds-precise (13 minutes, 14 seconds) and inside the 4-16 min practice window; Einzelgänger slot 1; subtopic \"Practical Philosophy\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-111",
+      "video_id": "4Tm6Z1y3h94",
+      "title": "A Reason To Stop Worrying - Watch This Whenever You're Stressed Or Anxious",
+      "channel": "Pursuit of Wonder",
+      "proposed_subtopic": "Resilience & Perspective",
+      "display_duration": "4 minutes, 19 seconds",
+      "display_duration_seconds": 259,
+      "reason": "listing duration is seconds-precise (4 minutes, 19 seconds) and inside the 4-16 min practice window; Pursuit of Wonder slot 1; subtopic \"Resilience & Perspective\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-001",
+      "video_id": "OTvm5LfhDzg",
+      "title": "3 Books That Will Change Your Life",
+      "channel": "Robert Greene",
+      "proposed_subtopic": "Books & Ideas",
+      "display_duration": "6 minutes, 15 seconds",
+      "display_duration_seconds": 375,
+      "reason": "listing duration is seconds-precise (6 minutes, 15 seconds) and inside the 4-16 min practice window; Robert Greene slot 1; subtopic \"Books & Ideas\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-163",
+      "video_id": "FDjeRloNgx0",
+      "title": "Why You Should Seek Power, Not Happiness - Nietzsche's Guide to Greatness",
+      "channel": "Academy of Ideas",
+      "proposed_subtopic": "Strategy & Decisions",
+      "display_duration": "12 minutes, 11 seconds",
+      "display_duration_seconds": 731,
+      "reason": "listing duration is seconds-precise (12 minutes, 11 seconds) and inside the 4-16 min practice window; Academy of Ideas slot 2; subtopic \"Strategy & Decisions\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-063",
+      "video_id": "O42tZse-P6w",
+      "title": "Stop Trying to Get It And You'll Have It | The Backwards Law",
+      "channel": "Einzelgänger",
+      "proposed_subtopic": "Strategy & Decisions",
+      "display_duration": "11 minutes, 24 seconds",
+      "display_duration_seconds": 684,
+      "reason": "listing duration is seconds-precise (11 minutes, 24 seconds) and inside the 4-16 min practice window; Einzelgänger slot 2; subtopic \"Strategy & Decisions\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-112",
+      "video_id": "oGVhOWqsBWM",
+      "title": "The Nova Effect - The Tragedy of Good Luck",
+      "channel": "Pursuit of Wonder",
+      "proposed_subtopic": "Practical Philosophy",
+      "display_duration": "5 minutes, 55 seconds",
+      "display_duration_seconds": 355,
+      "reason": "listing duration is seconds-precise (5 minutes, 55 seconds) and inside the 4-16 min practice window; Pursuit of Wonder slot 2; subtopic \"Practical Philosophy\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-003",
+      "video_id": "Z-zYu4patP8",
+      "title": "Three Essential Skills For Today’s World",
+      "channel": "Robert Greene",
+      "proposed_subtopic": "Habits & Learning",
+      "display_duration": "9 minutes, 44 seconds",
+      "display_duration_seconds": 584,
+      "reason": "listing duration is seconds-precise (9 minutes, 44 seconds) and inside the 4-16 min practice window; Robert Greene slot 2; subtopic \"Habits & Learning\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-165",
+      "video_id": "tIoJhqnOc0M",
+      "title": "How to Integrate Your Shadow - The Dark Side is Unrealized Potential",
+      "channel": "Academy of Ideas",
+      "proposed_subtopic": "Practical Philosophy",
+      "display_duration": "11 minutes, 3 seconds",
+      "display_duration_seconds": 663,
+      "reason": "listing duration is seconds-precise (11 minutes, 3 seconds) and inside the 4-16 min practice window; Academy of Ideas slot 3; subtopic \"Practical Philosophy\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-066",
+      "video_id": "LGXRpbDuDGE",
+      "title": "When Life Hurts, Care Less About It | The Philosophy of Marcus Aurelius",
+      "channel": "Einzelgänger",
+      "proposed_subtopic": "Resilience & Perspective",
+      "display_duration": "14 minutes, 8 seconds",
+      "display_duration_seconds": 848,
+      "reason": "listing duration is seconds-precise (14 minutes, 8 seconds) and inside the 4-16 min practice window; Einzelgänger slot 3; subtopic \"Resilience & Perspective\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-113",
+      "video_id": "LaffA9EyUgo",
+      "title": "What Is Kafkaesque? - The 'Philosophy' of Franz Kafka",
+      "channel": "Pursuit of Wonder",
+      "proposed_subtopic": "Books & Ideas",
+      "display_duration": "9 minutes, 16 seconds",
+      "display_duration_seconds": 556,
+      "reason": "listing duration is seconds-precise (9 minutes, 16 seconds) and inside the 4-16 min practice window; Pursuit of Wonder slot 3; subtopic \"Books & Ideas\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-005",
+      "video_id": "16QlwqB7crc",
+      "title": "My Advice to Young Men",
+      "channel": "Robert Greene",
+      "proposed_subtopic": "Practical Philosophy",
+      "display_duration": "8 minutes, 54 seconds",
+      "display_duration_seconds": 534,
+      "reason": "listing duration is seconds-precise (8 minutes, 54 seconds) and inside the 4-16 min practice window; Robert Greene slot 3; subtopic \"Practical Philosophy\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-167",
+      "video_id": "C5SwcrVnyLc",
+      "title": "The Psychology of Solitude",
+      "channel": "Academy of Ideas",
+      "proposed_subtopic": "Human Nature & Communication",
+      "display_duration": "7 minutes, 51 seconds",
+      "display_duration_seconds": 471,
+      "reason": "listing duration is seconds-precise (7 minutes, 51 seconds) and inside the 4-16 min practice window; Academy of Ideas slot 4; subtopic \"Human Nature & Communication\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-069",
+      "video_id": "NGQQGeI1MmE",
+      "title": "Miyamoto Musashi | The Path of the Loner",
+      "channel": "Einzelgänger",
+      "proposed_subtopic": "Purpose & Direction",
+      "display_duration": "14 minutes, 55 seconds",
+      "display_duration_seconds": 895,
+      "reason": "listing duration is seconds-precise (14 minutes, 55 seconds) and inside the 4-16 min practice window; Einzelgänger slot 4; subtopic \"Purpose & Direction\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-115",
+      "video_id": "6qU1sDBU9Cs",
+      "title": "The Terrible Paradox of Self-Awareness | Fernando Pessoa",
+      "channel": "Pursuit of Wonder",
+      "proposed_subtopic": "Strategy & Decisions",
+      "display_duration": "13 minutes, 3 seconds",
+      "display_duration_seconds": 783,
+      "reason": "listing duration is seconds-precise (13 minutes, 3 seconds) and inside the 4-16 min practice window; Pursuit of Wonder slot 4; subtopic \"Strategy & Decisions\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-007",
+      "video_id": "gB4dNxorewE",
+      "title": "What Machiavelli Has Taught Me",
+      "channel": "Robert Greene",
+      "proposed_subtopic": "Strategy & Decisions",
+      "display_duration": "5 minutes, 58 seconds",
+      "display_duration_seconds": 358,
+      "reason": "listing duration is seconds-precise (5 minutes, 58 seconds) and inside the 4-16 min practice window; Robert Greene slot 4; subtopic \"Strategy & Decisions\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-170",
+      "video_id": "tGkymdspups",
+      "title": "Aldous Huxley and Brave New World: The Dark Side of Pleasure",
+      "channel": "Academy of Ideas",
+      "proposed_subtopic": "Books & Ideas",
+      "display_duration": "8 minutes, 43 seconds",
+      "display_duration_seconds": 523,
+      "reason": "listing duration is seconds-precise (8 minutes, 43 seconds) and inside the 4-16 min practice window; Academy of Ideas slot 5; subtopic \"Books & Ideas\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-074",
+      "video_id": "HUXEqS6GqUU",
+      "title": "Miyamoto Musashi | A Life of Ultimate Focus",
+      "channel": "Einzelgänger",
+      "proposed_subtopic": "Habits & Learning",
+      "display_duration": "13 minutes, 52 seconds",
+      "display_duration_seconds": 832,
+      "reason": "listing duration is seconds-precise (13 minutes, 52 seconds) and inside the 4-16 min practice window; Einzelgänger slot 5; subtopic \"Habits & Learning\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-122",
+      "video_id": "g7RAPS8mE94",
+      "title": "The Problem with Nice People",
+      "channel": "Pursuit of Wonder",
+      "proposed_subtopic": "Human Nature & Communication",
+      "display_duration": "12 minutes, 52 seconds",
+      "display_duration_seconds": 772,
+      "reason": "listing duration is seconds-precise (12 minutes, 52 seconds) and inside the 4-16 min practice window; Pursuit of Wonder slot 5; subtopic \"Human Nature & Communication\" not yet represented for this creator"
+    },
+    {
+      "id": "ipg-010",
+      "video_id": "PjKJRa1369s",
+      "title": "Understanding Human Behavior",
+      "channel": "Robert Greene",
+      "proposed_subtopic": "Human Nature & Communication",
+      "display_duration": "11 minutes, 38 seconds",
+      "display_duration_seconds": 698,
+      "reason": "listing duration is seconds-precise (11 minutes, 38 seconds) and inside the 4-16 min practice window; Robert Greene slot 5; subtopic \"Human Nature & Communication\" not yet represented for this creator"
+    }
+  ]
+}

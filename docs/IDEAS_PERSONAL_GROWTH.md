@@ -271,4 +271,127 @@ Everything this session touched is additive and isolated:
   server enforcement layer. This matches existing project precedent; it is not a new
   gap introduced by this work.
 
+
+---
+
+# Session 2 — 8 Nov 2026: the review gate, real metadata, verified creators
+
+Branch: `feature/ideas-growth-review-gate`, cut from `release/ge-baseline-recovery`
+(`b35640a1`), which already carries session 1's pipeline as `b26c67c0`. Session 1's
+worktree branch `feature/ideas-personal-growth` was left untouched; its sibling
+`feature/ge-shadow-ideas-category` was deliberately **not** merged (see below).
+
+## What was actually wrong, and is now fixed
+
+1. **Validation results were computed and thrown away.** `--validate` printed a
+   verdict to the console and wrote nothing to the registry, so `embedding_status`
+   could never leave `unchecked` and `exact_duration_seconds` could never leave
+   `null` — the two fields a publication decision most needs. A validated row now
+   records `embedding_status`, `exact_duration_seconds`, `verified_channel_id` and a
+   `validation` block (availability, age limit, live status, observed title/channel/
+   handle, whether the observed title and duration agree with the seed, the tool and
+   timestamp).
+2. **Validation could only ever check the first N seed rows** (`slice(0, N)`), which
+   are all Robert Greene. Added `--validate-ids=` and `--validate-selected`.
+3. **Nothing enforced "publication fails closed".** There is now one `publishable()`
+   gate requiring nine conditions to be positively true, and `--emit-category`, which
+   builds the catalogue block this category *would* contribute — from publishable rows
+   only. With all 200 rows still drafts it exits 3, prints no block, and names every
+   unmet gate. It never writes a catalogue; merging the block stays a human step.
+4. **A re-import wiped machine-written fields.** The seed carries
+   `exact_duration_seconds: null`, and `mergeRecord` refreshed every non-review field
+   from the seed — so a plain re-import erased a real measured duration. `MACHINE_FIELDS`
+   now survive re-import and are replaced only by a newer validation run.
+5. **`catalogue/drafts/` shipped inside the store apps.** ~700 KB of seed, registry and
+   CSV was being copied into both the iOS and Android bundles — including the Welding
+   bundle, which has no business carrying General English review-queue data. No app code
+   ever fetches it (only `scripts/` and `tests/` read it). `mobile/ios/scripts/sync-web.mjs`
+   now prunes `catalogue/drafts` from both bundles. The already-synced copies in the
+   local bundles are untracked build output and are replaced on the next sync.
+6. **The gate was the flag alone.** `shLibCatsOrdered` now requires
+   `flag('ideas_personal_growth_enabled') && isGeneralEnglish()`.
+
+## Why `feature/ge-shadow-ideas-category` was not merged
+
+That branch adds an `ideas_growth` category and 20 channel records to the LIVE
+`catalogue/general.json`, plus a `draft:true` code change whose stated purpose is to
+make a category chip appear **while it is still empty**. Both conflict with this
+feature's own rules: an empty category page is exactly what the brief forbids, and 16
+of those 20 channel records carry no verified channel id, no avatar and no videos —
+its own commit message says so. Nothing from it is lost: the 16 channels already live
+in `catalogue/ideas-personal-growth-sources.json` as `candidate_new`.
+
+## Live metadata validation (real, not mocked)
+
+`yt-dlp 2026.08.19` metadata lookups (`-J --skip-download`) against the 20 first-review
+candidates. **No captions, transcripts, audio or video were fetched** by any path.
+
+| Result | Count |
+|---|---:|
+| Checked | 20 |
+| `public`, embeddable, not age-limited, not live | 20 |
+| Observed title disagrees with the seed | 0 |
+| Observed duration disagrees with the listing | 0 |
+| Genuinely unavailable | 0 |
+
+**A caveat that matters more than the table.** The first pass reported 9 of 20 as
+failures. They were not failures of the videos: a 40-second subprocess timeout under
+throttling returned empty output, and the script counted that as "unavailable". One of
+the nine had already been verified by hand minutes earlier. A tool that gives no answer
+and a video that is genuinely gone are opposite claims about the world, and the script
+was conflating them. `validateOne` now retries once with a longer deadline, and the
+report counts `check_failed` separately from `unavailable`. All 9 passed on retry.
+The remaining **180 seed rows are still `unchecked`** — not assumed good.
+
+## Verified creator identities
+
+Each of the four seeded creators' channel ids was resolved from **five of that
+creator's own validated seed videos**, agreeing unanimously:
+
+| Creator | channel_id | Handle |
+|---|---|---|
+| Robert Greene | `UC-qsP49Ai2GymJgyKX38l1w` | `@RobertGreeneOfficial` |
+| Academy of Ideas | `UCiRiQGCHGjDLT9FQXFW0I3A` | `@academyofideas` |
+| Einzelgänger | `UCybBViio_TH_uiFFDJuz5tg` | `@Einzelgänger` |
+| Pursuit of Wonder | `UC-tLyAaPbRZiYrOJxAGB7dQ` | `@PursuitofWonder` |
+
+Einzelgänger's listed handle (`@einzelganger`) differs from the observed one by case
+and an umlaut only; the channel id was identical on every lookup, so the file records
+the difference rather than quietly rewriting either value. The 16 `candidate_new`
+channels still have **no channel id** and were not looked up.
+
+## The 20 first-review candidates
+
+`catalogue/drafts/ideas-personal-growth-review-manifest.json`. Selection is deterministic
+and is a review **order**, not a clearance — it advances no review field. Rules: the
+listing duration carries seconds (YouTube rounds longer cards, so a seconds-precise card
+is the one real metadata can be checked against); 4–16 minutes; round-robin across the
+four creators so the first batch is not one voice; within a creator, prefer a subtopic
+not yet represented; ties break on seed id. Result: 5 per creator, 8 distinct subtopics.
+
+## Tests
+
+`node tests/ideas-personal-growth-import.mjs` — **56/56 pass** (was 25). New coverage:
+manifest determinism and balance, the fail-closed publication gate and its unmet-gate
+reporting, that `--emit-category` emits only approved rows, machine-field survival across
+re-import, the Welding programme gate, and that no committed registry row claims to be
+publication-ready, CEFR-levelled or playback-tested.
+
+`index.html` passes the project JS parse check (5 scripts, 0 errors).
+
+## Still not done (unchanged from session 1 unless noted)
+
+- **No video is approved, published or visible.** `catalogue/general.json` still has no
+  `ideas_growth` category; the production flag is still `false`.
+- 180 of 200 seed rows have no metadata check.
+- Caption rights, editorial suitability and use-policy review: **untouched by any of
+  this**. An embeddable flag is a playback signal, nothing more — the registry says so
+  on every validated row.
+- The Watch → speak → record → AI-feedback flow is still unbuilt, for the same reason as
+  session 1: there is no approved content to attach it to.
+- No device or simulator check was run; no bundle was rebuilt. The `sync-web.mjs` prune
+  is a code change verified by reading and by the existing prune mechanism (`drop(d,
+  "dirs")` already handles nested paths such as `home-photos/welding`) — **it has not
+  been exercised by an actual build in this session.**
+
 **READY FOR REVIEW — DO NOT MERGE OR DEPLOY.**

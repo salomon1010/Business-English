@@ -70,3 +70,7 @@ scripts/welding-photos/out/
 
 # the assembled portal site (scripts/portal/build-site.mjs) — a build artefact
 _site/
+
+# Ideas & Personal Growth: per-run import output, rewritten by every dry run (the
+# registry and the review manifest ARE tracked; this transient report is not)
+catalogue/drafts/ideas-personal-growth-import-report.json

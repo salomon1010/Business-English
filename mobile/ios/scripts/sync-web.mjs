@@ -71,13 +71,16 @@ for (const name of readdirSync(root)) {
    docs/APP_SPLIT.md as a follow-up. */
 const PRUNE = {
   "general-english": {
-    dirs: ["tracks/welding", "sim-photos", "home-photos/welding"],
+    dirs: ["tracks/welding", "sim-photos", "home-photos/welding", "catalogue/drafts"],
     files: ["catalogue/welding.json", "catalogue/welding-sources.json", "catalogue/welding-survey.json",
             "welding-mastery-logo.svg", "workshop-team.jpg", "workshop-team-card.jpg"],
     captionsOf: "welding",
   },
   welding: {
-    dirs: ["scenes", "rp-photos"],
+    /* catalogue/drafts is the Ideas & Personal Growth review queue (~700 KB of seed +
+       registry JSON). No code in the app ever fetches it — only scripts/ and tests/ read
+       it — and it is General English material, so neither bundle should carry it. */
+    dirs: ["scenes", "rp-photos", "catalogue/drafts"],
     files: ["catalogue/general.json", "catalogue/sources.json", "catalogue/survey.json",
             "tracks/general/missions.json", "tracks/general/mastery.json", "tracks/general/mastery-art3d.json",
             "english-mastery-logo.svg",

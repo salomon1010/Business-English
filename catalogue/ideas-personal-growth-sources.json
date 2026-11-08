@@ -8,7 +8,14 @@
       "focus": "Human nature, mastery, strategy, books",
       "status": "already_in_seed_200",
       "seed_ids": "ipg-001..ipg-060",
-      "note": "60 videos already observed and seeded. No further discovery needed unless the owner wants a second pass."
+      "note": "60 videos already observed and seeded. No further discovery needed unless the owner wants a second pass.",
+      "channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
+      "channel_id_verified": {
+        "on": "2026-11-08",
+        "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
+        "observed_handle": "@RobertGreeneOfficial",
+        "agrees_with_listed_handle": true
+      }
     },
     {
       "handle": "@academyofideas",
@@ -16,7 +23,14 @@
       "focus": "Philosophy, psychology, self-development",
       "status": "already_in_seed_200",
       "seed_ids": "ipg-161..ipg-200",
-      "note": "40 videos already observed and seeded."
+      "note": "40 videos already observed and seeded.",
+      "channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "channel_id_verified": {
+        "on": "2026-11-08",
+        "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
+        "observed_handle": "@academyofideas",
+        "agrees_with_listed_handle": true
+      }
     },
     {
       "handle": "@einzelganger",
@@ -24,7 +38,15 @@
       "focus": "Stoicism, resilience, practical philosophy",
       "status": "already_in_seed_200",
       "seed_ids": "ipg-061..ipg-110",
-      "note": "50 videos already observed and seeded."
+      "note": "50 videos already observed and seeded.",
+      "channel_id": "UCybBViio_TH_uiFFDJuz5tg",
+      "channel_id_verified": {
+        "on": "2026-11-08",
+        "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
+        "observed_handle": "@Einzelgänger",
+        "agrees_with_listed_handle": false,
+        "handle_note": "The handle recorded in this file (@einzelganger) and the one YouTube reports (@Einzelgänger) differ only in capitalisation and the umlaut; the channel_id was identical across every lookup, so this is a rendering difference, not a different channel. The listed handle is left as observed rather than rewritten."
+      }
     },
     {
       "handle": "@PursuitofWonder",
@@ -32,7 +54,14 @@
       "focus": "Meaning, thought experiments, philosophical stories",
       "status": "already_in_seed_200",
       "seed_ids": "ipg-111..ipg-160",
-      "note": "50 videos already observed and seeded."
+      "note": "50 videos already observed and seeded.",
+      "channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "channel_id_verified": {
+        "on": "2026-11-08",
+        "how": "yt-dlp 2026.08.19 metadata lookup on 5 of this channel's own seed videos; every lookup returned the same channel_id and handle",
+        "observed_handle": "@PursuitofWonder",
+        "agrees_with_listed_handle": true
+      }
     },
     {
       "handle": "@DailyStoic",
