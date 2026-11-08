@@ -30,7 +30,11 @@ ok("before/after costs no verdict", free.finish==="compare");
 ok("shadowing is graded on the device", free.shadow==="device");
 ok("premium costs more than free (it does more)", prem.verdicts>free.verdicts);
 ok("a premium day fits many times over in "+premCap, premCap/prem.verdicts>=10);
-ok("premium adds AI to the rehearsal step", prem.rehearse==="ai" && free.rehearse==="device");
+/* Steps 2 and 4 became the same exercise (owner, 8 Nov 2026): the AI writes the five sentences,
+   which is content and unmetered, and the device grades them. Premium buys nothing extra there —
+   what it adds is a coach on each shadow. */
+ok("the practice-sentence step costs a verdict on no plan", prem.rehearse==="device" && free.rehearse==="device");
+ok("premium's extra verdicts are the two shadow coaches", prem.verdicts-free.verdicts===2);
 ok("anonymous spends nothing", anon.verdicts===0);
 ok("anonymous still gets the lesson, measured on the device", anon.try==="device" && anon.overall===false);
 

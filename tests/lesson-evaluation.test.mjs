@@ -18,7 +18,10 @@ console.log("\n# who may spend a verdict");
      finish the day they had started. What Premium buys is doing it again, not finishing it. */
   ok("2 · free with an account: baseline, conversation AND the closing report", free.verdicts === 3 && free.try === "ai" && free.converse === "ai" && free.overall === true && free.rehearse === "device", JSON.stringify(free));
   ok("3 · a free day fits the 3-a-day allowance exactly, with nothing spare", free.verdicts === 3);
-  ok("4 · premium: a verdict on every spoken step, plus one overall", prem.rehearse === "ai" && prem.overall === true && prem.verdicts === 6, JSON.stringify(prem));
+  ok("4 · premium: the baseline, the conversation, the closing verdict and a coach on each shadow", prem.overall === true && prem.verdicts === 5, JSON.stringify(prem));
+  /* Steps 2 and 4 are the same exercise: the AI WRITES the sentences (content) and the device
+     grades them. Neither step may buy a verdict, or the free day stops fitting the free cap. */
+  ok("4c · the practice-sentence steps cost nothing on any plan", free.rehearse === "device" && prem.rehearse === "device");
   /* The shadowing coach speaks on every plan — what changes is whether a model wrote the script.
      Free must not spend a verdict there, or the day it is sized for no longer fits. */
   ok("4b · the shadowing coach is drawn on every plan, and costs a free learner nothing", free.shadowCoach === "device" && prem.shadowCoach === "ai" && free.verdicts === 3);

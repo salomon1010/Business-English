@@ -8612,7 +8612,7 @@ const I18N_EN={
  "dlp.step_try":"Try","dlp.step_try_sub":"Before you watch anyone else, let's hear where you're starting from.",
  "dlp.step_learn":"Learn","dlp.step_learn_sub":"A few expressions worth having ready.",
  "dlp.step_listen":"Listen","dlp.step_listen_sub":"Hear a professional voice before you try it yourself.",
- "dlp.step_rehearse":"Rehearse","dlp.step_rehearse_sub":"Say each expression out loud, as many times as you like.",
+ "dlp.step_rehearse":"Rehearse","dlp.step_rehearse_sub":"Five sentences from your working day. Say each one until it comes out clearly.",
  "dlp.step_converse":"Converse","dlp.step_converse_sub":"Put it to use in a short, realistic moment.",
  "dlp.step_improve":"Improve","dlp.step_improve_sub":"One thing to sharpen, then try again.",
  "dlp.step_finish":"Finish","dlp.step_finish_sub":"",
@@ -8730,6 +8730,9 @@ const I18N_EN={
  "dlp.sent_need":"Aim for {{n}}%.",
  "dlp.sent_mastered_n":"{{n}} of {{of}} mastered",
  "dlp.sent_polish_locked":"Master all {{n}} sentences, then you can ask for another version.",
+ "dlp.reh_sub":"Five sentences from your own working day. Hear each one, say it back, and keep going until it comes out clearly.",
+ "dlp.reh_for":"Your working day as a {{p}} — hear each one, then say it out loud.",
+ "dlp.sent_master_all":"Master all {{n}} sentences to continue.",
  "dlp.sent_skip":"Skip the practice and move on",
  "dlp.sent_polish":"Another version",
  "dlp.sent_polish_max":"You have had {{n}} versions — practise these before asking for more.",
@@ -15735,7 +15738,40 @@ async function dlpChat(system,content,purpose){
 }
 /* Always-available sentences: the week's own patterns completed with this learner's role, so the
    step works with no network and never shows a stub. */
-function dlpLocalSentences(plan,round){
+/* The device's own five, when the coach cannot be reached. Step 4's are about the working day,
+   like the AI's — a learner offline must still get complete sentences, never a pattern with a gap.
+   Written from the role and the situation they gave, and from nothing else. */
+function dlpLocalRehearse(round){
+  const role=(dlpRoleLoc()||t("dlp.sent_role_fallback")).toLowerCase();
+  const sit=(dlpSitLoc()||"").toLowerCase();
+  const inSit=sit?" in "+sit:"";
+  const k=Math.max(0,Math.min(3,Number(round)||0));   /* three rewrites, so rounds 0-3 all exist */
+  const SETS=[
+    [`Before I start, I check that everything I need is actually ready.`,
+     `If something does not look right, I say so straight away rather than carry on.`,
+     `I explain what I did and why, so the next person is not guessing.`,
+     `When the work is handed over, I walk through it properly${inSit}.`,
+     `If I am not sure, I ask the question early, not at the end.`],
+    [`Most days the pressure is on time, so I plan the order of the work first.`,
+     `I would rather stop for a minute than fix the same thing twice.`,
+     `When somebody asks me how it is going, I give them the real answer.`,
+     `I keep the people who depend on my work in the picture${inSit}.`,
+     `If I make a mistake, I say what happened and what I am doing about it.`],
+    [`The part I take most seriously as a ${role} is leaving the job finished properly.`,
+     `I say what I need from other people instead of hoping they work it out.`,
+     `When the plan changes, I make sure everyone hears it from me first.`,
+     `I check my own work before anyone else has to${inSit}.`,
+     `At the end of the day I know exactly what is done and what is not.`],
+    [`When something takes longer than I said, I tell them before they have to ask.`,
+     `I would rather be clear than sound clever${inSit}.`,
+     `If two things cannot both be done today, I say which one I am doing.`,
+     `I write down what we agreed, so nobody remembers it differently next week.`,
+     `The work speaks for itself, but somebody still has to explain it.`],
+  ];
+  return SETS[k].map(x=>({text:x}));
+}
+function dlpLocalSentences(plan,round,step){
+  if(dlpSentStep(step)==="rehearse")return dlpLocalRehearse(round);
   const role=dlpProfileLabel()||t("dlp.sent_role_fallback");
   const sit=dlpSituationLabel();
   const r=role.toLowerCase(),inSit=sit?" in "+sit.toLowerCase():"";
@@ -15762,7 +15798,10 @@ function dlpLocalSentences(plan,round){
     [`the work I do as a ${r}.`,`what my day actually looks like as a ${r}.`,`the part of the job people never see.`],
     [`a ${r}.`,`a ${r}, and I have done it for a while now.`,`a ${r} on this team.`],
   ];
-  const k=Math.max(0,Math.min(2,Number(round)||0));
+  /* The tails have three variants; the ROTATION below has as many as there are patterns. Three
+     rewrites means round 3 exists, so it reuses the third tail but starts from a different
+     pattern — otherwise "Another version" would hand back the set they just had. */
+  const r3=Math.max(0,Number(round)||0),k=Math.min(2,r3);
   const fill=x=>{
     const base=String(x||"").replace(/\s*(\.{3}|…)\s*$/,"").trim();
     for(const [re,tail] of TAIL)if(re.test(base))return `${base} ${tail(k)}`;
@@ -15771,26 +15810,36 @@ function dlpLocalSentences(plan,round){
   /* rotate which patterns are used as well as how they end: round 1 starts where round 0 stopped */
   const all=(plan.targetExpressions||[]).filter(Boolean);
   if(!all.length)return [];
-  const start=(k*DLP_SENTENCES)%all.length;
+  const start=(r3*DLP_SENTENCES)%all.length;
   const pick=[];for(let j=0;j<Math.min(DLP_SENTENCES,all.length);j++)pick.push(all[(start+j)%all.length]);
   return pick.map(x=>({text:fill(x),from:x}));
 }
-async function dlpBuildSentences(plan,key,w,d,polish){
+/* What the five sentences are ABOUT. Step 2 introduces the learner using the week's patterns;
+   step 4 is their working day — "something he could have said in his position, in his job …
+   what he is facing or is experiencing in his environment" (owner, 8 Nov 2026). Both are
+   complete spoken sentences about this person's own work; neither is ever a pattern with a gap. */
+const DLP_SENT_ANGLE={
+  learn:"Each sentence introduces this person or their work, in the way they would say it out loud to a colleague or a client. Build on the patterns given.",
+  rehearse:"Each sentence is about a REAL MOMENT in this person's working day in the situations named above — something going wrong, a handover, a deadline, a check, a decision, explaining their work to somebody else. Not a self-introduction: they have already done that. Use the patterns given only where one fits naturally. Choose words that are worth getting right out loud.",
+};
+async function dlpBuildSentences(plan,key,w,d,polish,step){
   const e=_dlpEntry;if(!e)return;
+  const st=dlpSentStep(step);
   const host=document.getElementById("dlpSentWrap");
   if(host)host.innerHTML=`<div class="card" style="margin:0">${DS.aiInline(t("dlp.sent_writing"))}</div>`;
   const role=dlpProfileLabel(),sit=dlpSituationLabel();
   const said=((e.stepData.try||{}).m||{}).tx||"";
-  const sys=`You write short spoken-English practice sentences for ONE professional. Reply with STRICT JSON only: {"profile":"<the profile in 2-4 words>","intro":"<one sentence, max 22 words, addressed to them by name if a name is given, naming their profession>","sentences":["<sentence>","..."]}. Exactly ${DLP_SENTENCES} sentences. Each is a COMPLETE spoken sentence of 8-18 words that this person could say out loud about their own work. Natural spoken business English, no jargon, no placeholders, no brackets, no names. Build on the patterns given. Never invent facts about them beyond what is provided.`;
+  const sys=`You write short spoken-English practice sentences for ONE professional. Reply with STRICT JSON only: {"profile":"<the profile in 2-4 words>","intro":"<one sentence, max 22 words, addressed to them by name if a name is given, naming their profession>","sentences":["<sentence>","..."]}. Exactly ${DLP_SENTENCES} sentences. Each is a COMPLETE spoken sentence of 8-18 words that this person could say out loud about their own work. ${DLP_SENT_ANGLE[st]} Natural spoken business English, no jargon, no placeholders, no brackets, no names. Never invent facts about them beyond what is provided.`;
   const brief=dlpProfileBrief()||`Profession: ${role||"a professional"}`;
-  /* on a polish, every sentence they have already been given, so the next five are genuinely new */
-  const seen=((e.stepData.learn||{}).seen||[]).slice(-15);
+  /* on a polish, every sentence they have already been given, so the next five are genuinely new.
+     BOTH steps' sets are listed: step 4 must not hand back step 2's sentences either. */
+  const seen=[].concat(((e.stepData.learn||{}).seen)||[],((e.stepData.rehearse||{}).seen)||[]).slice(-20);
   const usr=[brief,
     `Patterns to build on: ${(plan.targetExpressions||[]).join(" | ")}`,
     said?`What they actually said about themselves, in their own words: "${said.slice(0,400)}"`:"",
-    polish?`They have already practised these — write FIVE DIFFERENT ones for the same person, saying other true things about the same work:\n${seen.map(x=>"- "+x).join("\n")}`:""].filter(Boolean).join("\n");
+    seen.length?`${polish?"They have already practised these — write FIVE DIFFERENT ones":"Do NOT repeat any of these, which they already have"} for the same person, about the same work:\n${seen.map(x=>"- "+x).join("\n")}`:""].filter(Boolean).join("\n");
   /* the round this call PRODUCES, not the one it came from: a polish must never re-emit round 0 */
-  const round=polish?((e.stepData.learn||{}).polished||0)+1:((e.stepData.learn||{}).polished||0);
+  const round=polish?((e.stepData[st]||{}).polished||0)+1:((e.stepData[st]||{}).polished||0);
   const raw=await dlpChat(sys,usr,"practice");   /* content, not a verdict */
   let out=null;
   try{
@@ -15800,10 +15849,10 @@ async function dlpBuildSentences(plan,key,w,d,polish){
     if(list.length>=3)out={profile:String(j.profile||role||"").slice(0,60),intro:String(j.intro||"").slice(0,200),sentences:list.map(x=>({text:x}))};
   }catch(err){}
   const local=!out;
-  if(local)out={profile:role,intro:"",sentences:dlpLocalSentences(plan,round)};
-  const prev=e.stepData.learn||{};
+  if(local)out={profile:role,intro:"",sentences:dlpLocalSentences(plan,round,st)};
+  const prev=e.stepData[st]||{};
   const seenAll=((prev.seen)||[]).concat(out.sentences.map(x=>x.text)).slice(-20);
-  e.stepData.learn=Object.assign({},prev,{saved:true,count:out.sentences.length,
+  e.stepData[st]=Object.assign({},prev,{saved:true,count:out.sentences.length,
     profile:out.profile,intro:out.intro,sentences:out.sentences,local,seen:seenAll,
     polished:polish?((prev.polished||0)+1):(prev.polished||0),
     takes:polish?{}:(prev.takes||{}),res:polish?{}:(prev.res||{}),pass:polish?{}:(prev.pass||{})});
@@ -15815,30 +15864,44 @@ async function dlpBuildSentences(plan,key,w,d,polish){
 /* a function, not a const: FND_PASS is declared far below this point and a `const` here would
    read it inside its temporal dead zone, throwing at load and taking the rest of the script with it */
 function dlpPass(){return FND_PASS}
-window.dlpLearnPolish=(key,w,d)=>{
-  const L=dlpStepData("learn")||{};
-  if(!L.done)return toast(t("dlp.sent_polish_locked",{n:(L.sentences||[]).length||DLP_SENTENCES}));
+/* Owner, 8 Nov 2026: "Another version" is ALWAYS available (three times) — it no longer waits for
+   all five to be mastered. A learner who cannot get on with this set must be able to ask for
+   another one, which was the whole point of the button. */
+window.dlpLearnPolish=(key,w,d,step)=>{
+  const st=dlpSentStep(step),L=dlpStepData(st)||{};
   if((L.polished||0)>=DLP_POLISH_MAX)return toast(t("dlp.sent_polish_max",{n:DLP_POLISH_MAX}));
-  dlpBuildSentences(_dlpEntry.plan,key,w,d,true);
+  dlpBuildSentences(_dlpEntry.plan,key,w,d,true,st);
 };
 /* Step 2 uses the FOUNDATIONS report, not a second one of its own (owner, 7 Nov 2026). The key
    is namespaced so it can never collide with a Foundations "<day>-<i>", and the host says where
    the report draws and what its buttons do — everything else is the shared renderer. */
-function dlpSentKey(i){return "dlp:learn:"+i}
-function dlpSentHost(i,sentence){
-  _fndHost[dlpSentKey(i)]={
-    sentence, boxId:"dlpRes"+i,
+/* TWO STEPS, ONE PAGE (owner, 8 Nov 2026). Step 2 and step 4 are the same exercise on different
+   content: five COMPLETE sentences written for this learner's job, read aloud, mastered at 80%,
+   and rewritten up to three times. Step 4 used to show the bare patterns ("My focus is on…"),
+   which is the thing the owner had already rejected for step 2 — "a stub is not something anyone
+   can practise". The step is a parameter, never a second copy; it is the LAST argument everywhere
+   and defaults to "learn", so every existing call site and test still means step 2. */
+const DLP_SENT_STEPS=["learn","rehearse"];
+function dlpSentStep(step){return DLP_SENT_STEPS.indexOf(step)>=0?step:"learn"}
+function dlpSentData(step){const e=_dlpEntry;return (e&&e.stepData[dlpSentStep(step)])||{}}
+function dlpSentKey(i,step){return "dlp:"+dlpSentStep(step)+":"+i}
+function dlpSentArg(step){return dlpSentStep(step)==="learn"?"":",'"+dlpSentStep(step)+"'"}
+/* step 2 keeps the element ids it already had (dlpRes0, dlpRecBtn0); step 4 gets its own */
+function dlpSentIdp(step){return dlpSentStep(step)==="learn"?"":"r"}
+function dlpSentHost(i,sentence,step){
+  _fndHost[dlpSentKey(i,step)]={
+    sentence, boxId:"dlpRes"+dlpSentIdp(step)+i,
     lang:(S.profile&&S.profile.lang)||"en",     /* the learner's own language, not the pack's gloss */
-    again:`dlpSentRec(${i})`, recheck:`dlpSentRec(${i})`,
-    drill:w=>`fndDrillKey(${jarg(dlpSentKey(i))},${jarg(w)})`,
-    wordCtx:w=>recCtx("dlp-learn-"+i+"-w-"+w.replace(/[^a-z0-9]/g,"")),
+    again:`dlpSentRec(${i}${dlpSentArg(step)})`, recheck:`dlpSentRec(${i}${dlpSentArg(step)})`,
+    drill:w=>`fndDrillKey(${jarg(dlpSentKey(i,step))},${jarg(w)})`,
+    wordCtx:w=>recCtx("dlp-"+dlpSentStep(step)+"-"+i+"-w-"+w.replace(/[^a-z0-9]/g,"")),
     evidence:null                                /* the Foundations evidence log is not this lesson's */
   };
-  return dlpSentKey(i);
+  return dlpSentKey(i,step);
 }
 /* one sentence: hear it, say it, and how close it came */
-function dlpSentRowHTML(sx,i,L){
-  const P=L.pass||{},R=L.res||{};
+function dlpSentRowHTML(sx,i,L,step){
+  const P=L.pass||{},R=L.res||{},st=dlpSentIdp(step),a=dlpSentArg(step);
   const passed=!!P[i], r=R[i]||null;
   const locked=i>0&&!P[i-1]&&!passed;        /* master the one above first */
   return `<li class="dlp-sent${passed?" ok":r?" has":""}${locked?" lock":""}">
@@ -15850,44 +15913,58 @@ function dlpSentRowHTML(sx,i,L){
     ${locked?`<p class="ex-fine dlp-sent-n">${esc(t("dlp.sent_locked",{n:dlpPass()}))}</p>`:`
     <div class="dlp-sent-go">
       <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(sx.text)},.95)">${ic("sound")} ${esc(t("dlp.sent_hear"))}</button>
-      <button class="rec-btn rec-btn-sm" id="dlpRecBtn${i}" onclick="dlpSentRec(${i})" aria-label="${esc(r?t("dlp.sent_again"):t("dlp.sent_say"))}">${ic("mic")}</button>
+      <button class="rec-btn rec-btn-sm" id="dlpRecBtn${st}${i}" onclick="dlpSentRec(${i}${a})" aria-label="${esc(r?t("dlp.sent_again"):t("dlp.sent_say"))}">${ic("mic")}</button>
 
     </div>`}
-    <div id="dlpRes${i}"></div>
+    <div id="dlpRes${st}${i}"></div>
   </li>`;
 }
-function dlpLearnHTML(plan,key,w,d){
-  const L=dlpStepData("learn")||{};
-  if(!L.sentences){setTimeout(()=>{try{dlpBuildSentences(plan,key,w,d,false)}catch(e){}},30);
-    return `<div class="card"><p class="sub">${esc(t("dlp.learn_sub"))}</p><div id="dlpSentWrap">${DS.aiInline(t("dlp.sent_writing"))}</div></div>`;}
+/* ONE page for steps 2 and 4. `step` picks the content and the state bucket; everything else —
+   the 80% gate, the locking, the shared Foundations report, the three rewrites and the skip —
+   is identical, because the owner asked for the same exercise in both places. */
+function dlpSentPageHTML(step,plan,key,w,d){
+  const st=dlpSentStep(step),L=dlpStepData(st)||{};
+  const subK=st==="learn"?"dlp.learn_sub":"dlp.reh_sub";
+  if(!L.sentences){setTimeout(()=>{try{dlpBuildSentences(plan,key,w,d,false,st)}catch(e){}},30);
+    return `<div class="card"><p class="sub">${esc(t(subK))}</p><div id="dlpSentWrap">${DS.aiInline(t("dlp.sent_writing"))}</div></div>`;}
   const total=L.sentences.length, P=L.pass||{};
   const done=L.sentences.filter((_,i)=>P[i]).length;
   const nm=dlpLearnerName();
-  const head=(nm?esc(nm)+" — ":"")+(L.intro?esc(L.intro):esc(t("dlp.sent_for",{p:L.profile||t("dlp.sent_role_fallback")})));
+  const forK=st==="learn"?"dlp.sent_for":"dlp.reh_for";
+  const head=(nm?esc(nm)+" — ":"")+(L.intro?esc(L.intro):esc(t(forK,{p:L.profile||dlpRoleLoc()||t("dlp.sent_role_fallback")})));
   /* the report is drawn into the row AFTER the list exists, by the shared Foundations renderer */
-  setTimeout(()=>{try{dlpSentReports()}catch(e){}},0);
+  setTimeout(()=>{try{dlpSentReports(st)}catch(e){}},0);
   const canGo=!!L.done;                      /* one full set mastered, ever */
-  const canPolish=canGo&&(L.polished||0)<DLP_POLISH_MAX;
+  const canPolish=(L.polished||0)<DLP_POLISH_MAX;
+  /* WHY the device wrote them, not just THAT it did (owner, 8 Nov 2026). On a phone the usual
+     reason is that nobody is signed in — every AI route needs an account — and "the coach was out
+     of reach" sent the owner looking for a network fault. aiOffNote already picks the true one. */
+  const why=L.local?(()=>{let m="";try{m=aiOffNote("ai_coach")}catch(e){}
+    const acct=(()=>{try{return aiNoAccount()}catch(e){return false}})();
+    return `<p class="ex-fine dlp-sent-why">${esc(m||t("dlp.sent_offline"))}</p>`+
+      (acct?`<button class="btn btn-g btn-sm" style="margin-bottom:8px" onclick="fbOpenModal('in')">${esc(t("fnd.sign_in"))}</button>`:"");
+  })():"";
   return `<div class="card">
     <p class="sub">${head}</p>
-    ${L.local?`<p class="ex-fine">${esc(t("dlp.sent_offline"))}</p>`:""}
+    ${why}
     <p class="ex-fine">${esc(t("dlp.sent_master_note",{n:dlpPass()}))}</p>
-    <div id="dlpSentWrap"><ul class="dlp-sent-list">${L.sentences.map((sx,i)=>dlpSentRowHTML(sx,i,L)).join("")}</ul></div>
+    <div id="dlpSentWrap"><ul class="dlp-sent-list">${L.sentences.map((sx,i)=>dlpSentRowHTML(sx,i,L,st)).join("")}</ul></div>
     <p class="ex-fine">${esc(t("dlp.sent_mastered_n",{n:done,of:total}))}</p>
     <div class="dlp-sent-bar">
-      <button class="btn btn-g" ${canPolish?"":"disabled"} onclick="dlpLearnPolish('${key}',${w},'${d}')">${ic("sparkle")} ${esc(t("dlp.sent_polish"))}${(L.polished||0)?` (${L.polished}/${DLP_POLISH_MAX})`:""}</button>
+      <button class="btn btn-g" ${canPolish?"":"disabled"} onclick="dlpLearnPolish('${key}',${w},'${d}'${dlpSentArg(st)})">${ic("sparkle")} ${esc(t("dlp.sent_polish"))}${(L.polished||0)?` (${L.polished}/${DLP_POLISH_MAX})`:""}</button>
       <button class="btn-primary" ${canGo?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
     </div>
-    ${canGo?"":`<p class="ex-fine">${esc(t("dlp.sent_polish_locked",{n:total}))}</p>`}
+    ${canGo?"":`<p class="ex-fine">${esc(t("dlp.sent_master_all",{n:total}))}</p>`}
     <button class="btn btn-g btn-sm dlp-skip" onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.sent_skip"))}</button>
   </div>`;
 }
+function dlpLearnHTML(plan,key,w,d){return dlpSentPageHTML("learn",plan,key,w,d)}
 /* repaint the report of every sentence that has one: the row markup is rebuilt on every render,
    so the shared renderer has to be pointed at the new nodes */
-function dlpSentReports(){
-  const L=dlpStepData("learn")||{};
+function dlpSentReports(step){
+  const st=dlpSentStep(step),L=dlpStepData(st)||{};
   (L.sentences||[]).forEach((sx,i)=>{
-    const key=dlpSentKey(i);
+    const key=dlpSentKey(i,st);
     /* After a reload — or after walking back to this step from a later one — the in-memory report
        is gone but the transcript was saved. The alignment is pure, so the SAME report is rebuilt
        from what was actually heard; nothing is re-transcribed and nothing is invented. */
@@ -15896,19 +15973,20 @@ function dlpSentReports(){
       if(!r||!r.heard)return;
       _fndRep[key]={heard:r.heard,al:fndAlign(sx.text,r.heard),pct:r.pct};
     }
-    dlpSentHost(i,sx.text);
+    dlpSentHost(i,sx.text,st);
     fndDrawScoreKey(key);
   });
 }
 /* say one sentence back: aligned on the device, with a coaching line where the plan allows one */
-window.dlpSentRec=(i)=>{
+window.dlpSentRec=(i,step)=>{
   const e=_dlpEntry;if(!e)return;
-  const L=e.stepData.learn||{};const sx=(L.sentences||[])[i];if(!sx)return;
+  const st=dlpSentStep(step);
+  const L=e.stepData[st]||{};const sx=(L.sentences||[])[i];if(!sx)return;
   const P=L.pass||{};
   if(i>0&&!P[i-1]&&!P[i])return toast(t("dlp.sent_locked",{n:dlpPass()}));
-  const key=dlpSentHost(i,sx.text);
-  const btn=document.getElementById("dlpRecBtn"+i);
-  phRecInto(recCtx("dlp-learn-"+i),t("dlp.step_learn"),btn,null,async blob=>{
+  const key=dlpSentHost(i,sx.text,st);
+  const btn=document.getElementById("dlpRecBtn"+dlpSentIdp(st)+i);
+  phRecInto(recCtx("dlp-"+st+"-"+i),t("dlp.step_"+st),btn,null,async blob=>{
     try{exPlayBlob(blob)}catch(err){}
     /* exactly the Foundations check: busy → transcribe → align → the same report */
     _fndBusy[key]=1;delete _fndRep[key];_fndDrill[key]={};fndDrawScoreKey(key);
@@ -15918,17 +15996,17 @@ window.dlpSentRec=(i)=>{
     const al=fndAlign(sx.text,heard);
     _fndRep[key]={heard,al,pct:al.pct};
     const E=_dlpEntry;if(!E)return;
-    const LL=E.stepData.learn||{};
+    const LL=E.stepData[st]||{};
     LL.res=LL.res||{};LL.pass=LL.pass||{};LL.takes=LL.takes||{};
     LL.res[i]={pct:al.pct,heard:String(heard).slice(0,300),at:Date.now()};
     LL.takes[i]={at:Date.now(),pct:al.pct,tx:String(heard).slice(0,300)};
     if(al.pct>=dlpPass())LL.pass[i]=true;
     if((LL.sentences||[]).length&&(LL.sentences||[]).every((_,k)=>LL.pass[k]))LL.done=true;
-    E.stepData.learn=LL;save();               /* persist only: the learner moves on when they choose */
+    E.stepData[st]=LL;save();                 /* persist only: the learner moves on when they choose */
     try{dlpRerender()}catch(err){}            /* rebuilds the rows, then repaints the reports */
     if(al.pct<dlpPass()){
       fndTipsLoadKey(key);                    /* the IPA, the respelling and the tip per wrong word */
-      setTimeout(()=>{const r=document.getElementById("dlpRes"+i);if(r)r.scrollIntoView({behavior:"smooth",block:"nearest"})},250);
+      setTimeout(()=>{const r=document.getElementById("dlpRes"+dlpSentIdp(st)+i);if(r)r.scrollIntoView({behavior:"smooth",block:"nearest"})},250);
     }
   });
 };
@@ -16414,23 +16492,12 @@ window.dlpShFinish=()=>{
   _dlpSh=null;
   go("session",sh.w,sh.d);
 };
-function dlpRehearseHTML(plan,key,w,d){
-  const data=dlpStepData("rehearse")||{};
-  const any=Object.keys(data).length>0;
-  return `<div class="card">
-    <p class="sub">${esc(t("dlp.rehearse_sub"))}</p>
-    <ul class="dlp-expr-list">${plan.targetExpressions.map((x,i)=>`<li>
-      “${esc(x)}”
-      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(x)},.95)">${ic("sound")}</button>
-      <button class="rec-btn rec-btn-sm" id="dlpRecBtn${i}" onclick="dlpRecord('rehearse',${i})" aria-label="Record">${ic("mic")}</button>
-      ${data[i]?`<span class="chip done" style="margin-left:6px">${esc(t("dlp.recorded_state"))}</span>`:""}
-      ${(()=>{const m=data[i]&&data[i].m;if(!m)return "";
-        const got=m.used>0;
-        return `<p class="ex-fine dlp-metrics">${esc(got?t("dlp.m_said_it"):t("dlp.m_not_heard"))}${m.wpm?" · "+esc(t("dlp.m_pace",{n:m.wpm})):""}</p>`})()}
-    </li>`).join("")}</ul>
-    <button class="btn-primary" style="margin-top:16px" ${any?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
-  </div>`;
-}
+/* STEP 4 IS THE SAME PAGE AS STEP 2 (owner, 8 Nov 2026). It used to list the week's bare
+   patterns — "My focus is on…" — which is exactly what the owner had already rejected: "I don't
+   want this kind of page any more. I want complete sentences." Same exercise, different content:
+   five full sentences from this learner's own working day, mastered at 80%, rewritten up to
+   three times. The old per-expression recorder (dlpRecord('rehearse', i)) is gone with it. */
+function dlpRehearseHTML(plan,key,w,d){return dlpSentPageHTML("rehearse",plan,key,w,d)}
 function dlpConverseHTML(plan,key,w,d){
   const aiOk=ppAvailable()&&flag("practice_partner_ai_fallback_enabled")&&isGeneralEnglish();
   return `<div class="card">

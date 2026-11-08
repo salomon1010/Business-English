@@ -361,7 +361,10 @@
     const o = opts || {}, acct = !!o.account, premium = !!o.premium && acct;
     return {
       try: acct ? "ai" : "device",
-      rehearse: premium ? "ai" : "device",
+      /* REHEARSE is now the same exercise as LEARN (owner, 8 Nov 2026): the AI WRITES the five
+         sentences (content, unmetered) and the device grades them against the 80% bar. So it
+         buys no verdict on any plan — the page is identical for a free learner and a paying one. */
+      rehearse: "device",
       shadow: "device",                      /* the word-by-word accuracy is aligned on the device */
       /* The spoken shadowing coach (owner, 7 Nov 2026). It ALWAYS runs: the read of the attempt is
          assembled from the alignment, and the method — before / during / after / what to focus on —
@@ -380,9 +383,10 @@
       /* What the spine costs, so the free cap can be sized against it rather than guessed:
          TRY report + IMPROVE report (the converse take) + the closing verdict. Writing the
          practice sentences is content, not a verdict, and is unmetered, and so is the shadow
-         transcript. Premium additionally pays for REHEARSE and for a coach on each of the two
-         shadows — which is why the free day, and only the free day, has to equal the free cap. */
-      verdicts: (acct ? 1 : 0) + (acct ? 1 : 0) + (acct ? 1 : 0) + (premium ? 1 : 0) + (premium ? 2 : 0),
+         transcript, and so are the practice sentences on steps 2 and 4. Premium additionally pays
+         for a coach on each of the two shadows — which is why the free day, and only the free
+         day, has to equal the free cap. */
+      verdicts: (acct ? 1 : 0) + (acct ? 1 : 0) + (acct ? 1 : 0) + (premium ? 2 : 0),
     };
   }
 

@@ -81,7 +81,9 @@ const rows=[
  ["polish max 3", r.max===3],
  ["fresh: sentence 2 locked", (r.html0.match(/dlp-sent lock/g)||[]).length===4],
  ["fresh: Continue disabled", /class="btn-primary" disabled/.test(r.html0)],
- ["fresh: polish disabled", /class="btn btn-g" disabled/.test(r.html0)],
+ /* Owner, 8 Nov 2026: "Another version" no longer waits for all five to be mastered — a learner
+    who cannot get on with this set must be able to ask for another one. Three remains the cap. */
+ ["fresh: Another version is already offered", !/class="btn btn-g" disabled/.test(r.html0)&&r.html0.includes("dlpLearnPolish")],
  ["fresh: skip offered", has(r.html0,"dlp-skip")],
  ["heading carries the name", has(r.html0,"Hassan")],
  ["partial take scores <80", r.pct_partial<80 && r.pct_partial>0],
