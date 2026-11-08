@@ -10163,6 +10163,7 @@ const I18N_EN={
  "sh.cat_interviews":"Interviews",
  "sh.cat_everyday":"Everyday",
  "sh.cat_skills":"Learning skills",
+ "sh.cat_ideas_growth":"Ideas & Personal Growth",
  "sh.cat_talks":"Talks",
  "sh.cat_tv":"TV shows",
  "sh.cat_movies":"Movies",
@@ -27593,7 +27594,9 @@ const FLAGS_STAGING={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
   shadow_scenes_enabled:true,
-  ideas_personal_growth_enabled:true, // preview only — empty until real videos are approved and merged into catalogue/general.json (docs/IDEAS_PERSONAL_GROWTH.md)
+  ideas_personal_growth_enabled:true, // preview: catalogue/ideas-growth.json (20 first-review candidates, overlaid by shCatMergeIdeas — NOT merged into catalogue/general.json). Editorial and rights review still pending on every one (docs/IDEAS_PERSONAL_GROWTH.md)
+  daily_learning_plan_pilot_enabled:true, // the store apps already have it (FLAGS_IOS); without it a staging preview SILENTLY LOSES Week 1's guided flow, because flag() never falls through from FLAGS_STAGING
+  onboarding_v2_enabled:true,             // same reason: lpOn() gates dlpProfile() and dlpPool(), so without it the week's phrase pool halves (10 -> 5, every day drawing the same five) and the coach line loses the learner's situation
   learning_nudges_enabled:true,
   smart_coach_enabled:true,            // Smart Coach — staging only
   home_v2_enabled:true,
