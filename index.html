@@ -8828,6 +8828,7 @@ const I18N_EN={
  "dlp.finish_evidence_developing":"A pattern is forming — keep going and we'll be able to name a specific focus.",
  "dlp.finish_evidence_established":"Enough attempts now to see both a strength and a clear next focus.",
  "dlp.back_home":"Back to Today",
+ "dlp.back_lesson":"‹ Back to your lesson",
  "dlp.continue_lesson":"Continue your lesson",
  "sess.link_shadow":"Open the Shadow Studio",
  "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
@@ -16658,7 +16659,29 @@ window.dlpConverseGo=()=>{
   go("roleplay");
   setTimeout(()=>{try{rpStart(DLP_RP_ID)}catch(err){}},250);
 };
-window.dlpConverseReport=()=>{try{rpReport()}catch(e){toast(t("rp.rep_none"))}};
+/* THE REPORT LIVES ON THE ROLE-PLAY PAGE (rpRepScreen writes into #v-roleplay), so opening it
+   from the lesson has to go there first — tapping it while the session view was open drew the
+   report into a view nobody could see, which is why nothing happened. The back button comes
+   straight back to the lesson. */
+window.dlpConverseReport=()=>{
+  const e=_dlpEntry;if(!e)return;
+  const sc=dlpScenarioGet();if(!sc)return toast(t("rp.rep_none"));
+  /* after a reload the conversation's turns are gone from memory; the sentences were kept on
+     S.convos, so the report can still be built from what the learner actually said */
+  if(!_rpLast||!(_rpLast.turns||[]).length){
+    const c=(S.convos||[]).filter(x=>x&&x.id===DLP_RP_ID).pop();
+    const lines=((c&&c.lines)||[]).filter(x=>x&&x.text);
+    const C=dlpStepData("converse")||{};
+    if(!lines.length&&!C.ts)return toast(t("rp.rep_none"));
+    _rpLast={sc,turns:lines.map(x=>({text:x.text})),covered:new Set(C.pts||[])};
+    _rpLastTs=(c&&c.ts)||C.ts||0;
+  }
+  const w=e.plan.week,d=e.plan.day;
+  SESS_RETURN=null;
+  go("roleplay");
+  setTimeout(()=>{try{rpReport(`dlpBackToLesson(${w},'${d}')`,t("dlp.back_lesson"))}catch(err){toast(t("rp.rep_none"))}},220);
+};
+window.dlpBackToLesson=(w,d)=>{go("session",w,d)};
 /* written by rpSummary the moment the conversation ends */
 function dlpConverseDone(n,total,ts){
   const e=_dlpEntry;if(!e)return;
@@ -37310,18 +37333,28 @@ function rpRepRun(sc,key,turns,ts){
   _rpRepRuns[key]=job;
   return job;
 }
-window.rpReport=async()=>{
-  if(!_rpLast||!(_rpLast.turns||[]).length)return;
-  const sc=_rpLast.sc,key=rpRepKey(sc);
+/* `back` / `backLabel` let a caller that is NOT the summary screen say where the way out goes —
+   the guided lesson opens this report from its own step and must return there, not to a summary
+   the learner never saw.
+   This used to `return` on a missing _rpLast, which is module state: after a reload, or from any
+   screen that is not the conversation's own, the button did nothing at all and said nothing
+   (reported from a real phone, 8 Nov 2026). It now shows a STORED report without needing the
+   turns, and says so when there is genuinely nothing to show. */
+window.rpReport=async(back,backLabel)=>{
+  const sc=_rpLast&&_rpLast.sc;
+  if(!sc)return toast(t("rp.rep_none"));
+  const key=rpRepKey(sc),stored0=sessRepGet(key);
+  if(!stored0&&!(_rpLast.turns||[]).length)return toast(t("rp.rep_none"));
   /* the compact evidence report feeds the General English Speaking history
      only — Welding writes no c.rep and no V2 state */
   if(isGeneralEnglish()&&window.MissionEngine)rpRepEvidence(sc).catch(()=>{});
-  rpRepScreen(sc);
-  const stored=sessRepGet(key);
+  rpRepScreen(sc,back,backLabel);
+  const stored=stored0;
   if(stored){exHost=rpHost(sc,key,stored);exRenderReport(stored,true);return}
   if(aiOff("ai_analysis")){exHost=rpHost(sc,key,null);rpRepNote(aiOffNote("ai_analysis"),true);return}
   exCoachStop();
   exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t(_rpRepRuns[key]?"ex.step_plan":"ex.step_stt")),true);
+  if(!(_rpLast.turns||[]).length){rpRepNote(t("rp.rep_none"),false);return}
   const r=await rpRepRun(sc,key,_rpLast.turns,_rpLastTs);
   if(!rpRepOn(key))return;
   if(r&&r.rep&&!r.fail){exHost=rpHost(sc,key,r.rep);exRenderReport(r.rep,true);return}

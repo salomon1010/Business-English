@@ -59,6 +59,26 @@ const r=await p.evaluate(async()=>{
   out.m=(dlpStepData("converse")||{}).m;
   /* step 6 now reads the conversation, not a recorder that no longer exists */
   out.improve=dlpImproveHTML(plan,"k",1,"Mon");
+
+  /* THE SPEAKING REPORT must actually open (reported from a phone: the button did nothing).
+     It draws into #v-roleplay, so it has to go there first, and it must survive the loss of
+     the in-memory turns by rebuilding them from the kept conversation. */
+  out.toasts=[];const _t=window.toast;window.toast=m=>out.toasts.push(m);
+  _rpLast=null;                                    /* as after a reload */
+  S.convos=[{ts:999,id:"dlp-lesson",title:sc.title,cat:"work",tk:areaId(),covered:3,total:3,turns:1,
+    lines:[{text:"I currently work as a welder and I am responsible for the quality of the work."}]}];
+  dlpConverseReport();
+  await new Promise(r=>setTimeout(r,600));
+  out.rep={view:cur&&cur.v,screen:!!document.querySelector("#v-roleplay #rpRepWrap"),
+    html:(document.getElementById("v-roleplay")||{}).innerHTML||"",
+    restored:!!(_rpLast&&(_rpLast.turns||[]).length)};
+  /* and with nothing kept at all it SAYS so instead of doing nothing */
+  _rpLast=null;S.convos=[];_dlpEntry.stepData.converse=Object.assign({},_dlpEntry.stepData.converse,{ts:0});
+  out.toasts=[];
+  dlpConverseReport();
+  await new Promise(r=>setTimeout(r,120));
+  out.silent=out.toasts.slice();
+  window.toast=_t;
   return out;
 });
 
@@ -84,6 +104,10 @@ const rows=[
  ["what they said is measured for the day's before/after", !!r.m&&r.m.words>0],
  ["…but pace is not invented from a conversation", r.m.wpm===null],
  ["step 6 reads the conversation, not a missing recording", has(r.improve,"dlpConverseReport()")&&!has(r.improve,"improve_none")],
+ ["the speaking report opens on the page that can draw it", r.rep.view==="roleplay"&&r.rep.screen===true],
+ ["…rebuilding what was said when the conversation is no longer in memory", r.rep.restored===true],
+ ["…with a way back to the lesson, not to a summary they never saw", has(r.rep.html,"dlpBackToLesson(1,'Mon')")],
+ ["with nothing kept, it says so instead of doing nothing", r.silent.length===1],
  ["no page errors", errs.length===0],
 ];
 let bad=0;
