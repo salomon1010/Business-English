@@ -68,3 +68,36 @@ I=catalogue/drafts/ideas-growth-inputs
 node scripts/ideas-growth/build-overlay.mjs $I/harvest.json $I/intros.json $I/intro-roles.json $I/mmm.json
 node tests/week-pick.test.mjs
 ```
+
+## Week 1 Monday wiring (8 Nov 2026) — a PATCH, not yet in the lesson
+
+The lesson code is in another session's uncommitted working tree, so the wiring is handed over as
+`docs/patches/week1-baseline-wiring.patch` (`git apply --3way`). It touches `index.html` (14 hunks), `sw.js`
+(two script entries), all 15 `i18n/*.json` (27 keys; fr/es/pt/ar translated) and adds
+`tests/week1-baseline.mjs`. Flag `week1_model_clip_enabled`: OFF in production, absent from `FLAGS_IOS`, ON in
+`FLAGS_STAGING`. `DLP_WEEKS` is unchanged (1).
+
+What the lesson does: the learner records an uncoached introduction; **only then** is one model introduction
+revealed (chosen by `WeekPick`, frozen into `stepData.try.model`, written once to `S.dlpAssign["general:w1"]`);
+they shadow it (the model clip is Listen's passage 0, so the report, coach and word drills are the existing
+ones; 6 shadows unlock the second take, up to 8 are asked for); then record again into `recCtx("dlp-try-after")`,
+stored as `stepData.try.after`. Both takes replay separately. **Nothing in this block gates the lesson**: an
+empty catalogue, captions that will not load and a player that errors each leave the recordings intact and
+Continue open.
+
+Hooks into existing code (everything else is a new block after `dlpTryHTML`): `dlpPassages` (frozen model leads),
+the Listen row label, `dlpTypeFallback` (carries `model`/`after`/`baseAt` across), `dlpTryHTML`, `dlpTryRec`
+(`baseAt`, freeze), `rGuidedLesson` (resume), `shVideoError` (player failure), `dlpShSync` (studio card: "back to
+the lesson", never the Listen step's next button), `dlpMeasure`.
+
+**A defect found on the way, fixed in the patch.** The Try step records under the session key (`w1Mon`), but
+`dlpMeasure("try")` read the context `dlp-try`. They never matched, so the baseline measurement was never
+produced and the day's closing before/after could not compare anything. No test covered the path. The patch
+passes the real context through.
+
+### Tests, kept apart
+- **Fixture tests (pass):** `tests/week1-model.test.mjs` 41/41 (pure) and `tests/week1-baseline.mjs` 67/67 (the real
+  lesson, Chromium, fake microphone). The clips are real library videos with their real captions given TEST role
+  tags and `fixture:true`; the card says so on screen. **They prove the integration, not the content.**
+- **Tests with approved content: none can run.** `catalogue/week1-models.json` is empty because nobody has
+  approved a clip, and `catalogue/drafts/week1-model-approvals.json` is where a person records an approval.

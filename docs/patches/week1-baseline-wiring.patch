@@ -1,0 +1,1225 @@
+diff --git a/i18n/ar.json b/i18n/ar.json
+index b0561842..c9779c71 100644
+--- a/i18n/ar.json
++++ b/i18n/ar.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "أعد هذا اليوم",
+  "dlp.redo_t": "هل تبدأ هذا اليوم من جديد؟",
+  "dlp.redo_b": "ستمرّ بكل خطوة من البداية. تُحفظ تقارير التحدّث الخاصة بك، لكن الخطوات المسجّلة لهذا اليوم ستُستبدل بالجديدة.",
+- "dlp.redo_go": "ابدأ من جديد"
++ "dlp.redo_go": "ابدأ من جديد",
++ "dlp.w1m_h": "عرضك التعريفي النموذجي",
++ "dlp.w1m_hint": "سجّل أولاً عرضك التعريفي بنفسك. ثم سترى عرضاً تعريفياً نموذجياً لتردده بأسلوب الظل.",
++ "dlp.w1m_prep": "جارٍ اختيار عرضك التعريفي النموذجي…",
++ "dlp.w1m_why_1": "اختير لأنه {{role}} يعرّف بنفسه مثلك.",
++ "dlp.w1m_why_2": "اختير لأن هذا المتحدث يعمل في مجال قريب من مجالك ({{role}}).",
++ "dlp.w1m_why_3": "اختير لأنك تتدرب على الإنجليزية في {{situation}}.",
++ "dlp.w1m_why_3g": "اختير لدعم هدفك: {{goal}}.",
++ "dlp.w1m_why_4": "عرض تعريفي عام وواضح يمكنك تكييفه مع عملك.",
++ "dlp.w1m_transcript": "اقرأه أثناء الاستماع",
++ "dlp.w1m_shadow_n": "تدرّبت {{n}} من {{min}} مرات · حتى {{max}}",
++ "dlp.w1m_go": "شاهد وردّد",
++ "dlp.w1m_again": "ردّد مرة أخرى",
++ "dlp.w1m_try_other": "جرّب نموذجاً آخر",
++ "dlp.w1m_after_h": "الآن قله بطريقتك",
++ "dlp.w1m_after_locked": "بعد {{min}} مرات، سجّل عرضك مرة أخرى واسمع الفرق.",
++ "dlp.w1m_after_go": "سجّل عرضي التعريفي مرة أخرى",
++ "dlp.w1m_after_done": "تم حفظ تسجيلك الثاني.",
++ "dlp.w1m_play_base": "اسمع تسجيلي الأول",
++ "dlp.w1m_play_after": "اسمع تسجيلي الثاني",
++ "dlp.w1m_failed": "لا يمكن تشغيل هذا المقطع. تسجيلاتك وتقدمك محفوظة. إليك نموذجاً آخر.",
++ "dlp.w1m_exhausted": "لا يمكن تشغيل أي من العروض النموذجية. تسجيلاتك محفوظة ويمكنك المتابعة.",
++ "dlp.w1m_none_t": "لا يوجد عرض تعريفي نموذجي جاهز بعد",
++ "dlp.w1m_none_b": "تسجيلك محفوظ ويُحتسب. سيظهر التمرين النموذجي عند اعتماد مقطع.",
++ "dlp.w1m_gone": "العرض النموذجي من محاولتك الأولى لم يعد متاحاً. تسجيلك الأصلي محفوظ.",
++ "dlp.w1m_fixture": "مقطع تجريبي · لم تتم مراجعته",
++ "dlp.w1m_pass": "عرضك التعريفي النموذجي",
++ "dlp.w1m_back": "العودة إلى الدرس"
+ }
+diff --git a/i18n/bn.json b/i18n/bn.json
+index be50f933..37b84407 100644
+--- a/i18n/bn.json
++++ b/i18n/bn.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/de.json b/i18n/de.json
+index 0c4d5c5f..a88619b7 100644
+--- a/i18n/de.json
++++ b/i18n/de.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/es.json b/i18n/es.json
+index ca3abcc7..fb72768f 100644
+--- a/i18n/es.json
++++ b/i18n/es.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Repetir este día",
+  "dlp.redo_t": "¿Empezar este día de nuevo?",
+  "dlp.redo_b": "Harás cada paso desde el principio. Tus informes de expresión oral se conservan, pero los pasos grabados de este día se sustituyen por los nuevos.",
+- "dlp.redo_go": "Empezar de nuevo"
++ "dlp.redo_go": "Empezar de nuevo",
++ "dlp.w1m_h": "Tu presentación modelo",
++ "dlp.w1m_hint": "Graba primero tu propia presentación. Después verás una presentación modelo para repetir con shadowing.",
++ "dlp.w1m_prep": "Eligiendo tu presentación modelo…",
++ "dlp.w1m_why_1": "Elegida porque es un/a {{role}} que se presenta, como tú.",
++ "dlp.w1m_why_2": "Elegida porque esta persona trabaja en un campo cercano al tuyo ({{role}}).",
++ "dlp.w1m_why_3": "Elegida porque practicas inglés para {{situation}}.",
++ "dlp.w1m_why_3g": "Elegida para tu objetivo: {{goal}}.",
++ "dlp.w1m_why_4": "Una presentación general y clara que puedes adaptar a tu trabajo.",
++ "dlp.w1m_transcript": "Léela mientras escuchas",
++ "dlp.w1m_shadow_n": "Shadowing hecho {{n}} de {{min}} veces · hasta {{max}}",
++ "dlp.w1m_go": "Ver y repetir",
++ "dlp.w1m_again": "Repetir otra vez",
++ "dlp.w1m_try_other": "Probar otro modelo",
++ "dlp.w1m_after_h": "Ahora dila a tu manera",
++ "dlp.w1m_after_locked": "Después de {{min}} repeticiones, graba tu presentación otra vez y oye la diferencia.",
++ "dlp.w1m_after_go": "Grabar mi presentación otra vez",
++ "dlp.w1m_after_done": "Tu segunda grabación está guardada.",
++ "dlp.w1m_play_base": "Escuchar mi primera grabación",
++ "dlp.w1m_play_after": "Escuchar mi segunda grabación",
++ "dlp.w1m_failed": "Ese vídeo no se reproduce. Tus grabaciones y tu progreso se conservan. Aquí tienes otro modelo.",
++ "dlp.w1m_exhausted": "Ninguna de las presentaciones modelo se reproduce. Tus grabaciones se conservan y puedes continuar.",
++ "dlp.w1m_none_t": "Todavía no hay una presentación modelo lista",
++ "dlp.w1m_none_b": "Tu grabación está guardada y cuenta. El ejercicio modelo aparecerá cuando se apruebe un vídeo.",
++ "dlp.w1m_gone": "La presentación modelo de tu primer intento ya no está disponible. Tu grabación original se conserva.",
++ "dlp.w1m_fixture": "VÍDEO DE PRUEBA · sin revisar",
++ "dlp.w1m_pass": "Tu presentación modelo",
++ "dlp.w1m_back": "Volver a la lección"
+ }
+diff --git a/i18n/fr.json b/i18n/fr.json
+index 3eb616be..094068a8 100644
+--- a/i18n/fr.json
++++ b/i18n/fr.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Refaire cette journée",
+  "dlp.redo_t": "Recommencer cette journée ?",
+  "dlp.redo_b": "Vous reprendrez chaque étape depuis le début. Vos rapports d'expression orale sont conservés, mais les étapes enregistrées pour cette journée seront remplacées par les nouvelles.",
+- "dlp.redo_go": "Recommencer"
++ "dlp.redo_go": "Recommencer",
++ "dlp.w1m_h": "Votre présentation modèle",
++ "dlp.w1m_hint": "Enregistrez d'abord votre propre présentation. Vous verrez ensuite une présentation modèle à répéter en shadowing.",
++ "dlp.w1m_prep": "Choix de votre présentation modèle…",
++ "dlp.w1m_why_1": "Choisie parce que c'est un(e) {{role}} qui se présente, comme vous.",
++ "dlp.w1m_why_2": "Choisie parce que cette personne travaille dans un domaine proche du vôtre ({{role}}).",
++ "dlp.w1m_why_3": "Choisie parce que vous pratiquez l'anglais pour {{situation}}.",
++ "dlp.w1m_why_3g": "Choisie pour votre objectif : {{goal}}.",
++ "dlp.w1m_why_4": "Une présentation générale et claire, que vous pouvez adapter à votre travail.",
++ "dlp.w1m_transcript": "Lisez-la pendant que vous écoutez",
++ "dlp.w1m_shadow_n": "Shadowing fait {{n}} fois sur {{min}} · jusqu'à {{max}}",
++ "dlp.w1m_go": "Regarder et répéter",
++ "dlp.w1m_again": "Répéter encore",
++ "dlp.w1m_try_other": "Essayer un autre modèle",
++ "dlp.w1m_after_h": "Maintenant, dites-la à votre façon",
++ "dlp.w1m_after_locked": "Après {{min}} répétitions, enregistrez à nouveau votre présentation et entendez la différence.",
++ "dlp.w1m_after_go": "Enregistrer à nouveau ma présentation",
++ "dlp.w1m_after_done": "Votre deuxième enregistrement est sauvegardé.",
++ "dlp.w1m_play_base": "Écouter mon premier enregistrement",
++ "dlp.w1m_play_after": "Écouter mon deuxième enregistrement",
++ "dlp.w1m_failed": "Cette vidéo ne se lit pas. Vos enregistrements et votre progression sont conservés. Voici un autre modèle.",
++ "dlp.w1m_exhausted": "Aucune des présentations modèles ne se lit. Vos enregistrements sont conservés et vous pouvez continuer.",
++ "dlp.w1m_none_t": "Aucune présentation modèle n'est prête pour l'instant",
++ "dlp.w1m_none_b": "Votre enregistrement est sauvegardé et compte. L'exercice modèle apparaîtra quand une vidéo aura été approuvée.",
++ "dlp.w1m_gone": "La présentation modèle de votre première tentative n'est plus disponible. Votre enregistrement d'origine est conservé.",
++ "dlp.w1m_fixture": "VIDÉO DE TEST · non vérifiée",
++ "dlp.w1m_pass": "Votre présentation modèle",
++ "dlp.w1m_back": "Retour à la leçon"
+ }
+diff --git a/i18n/hi.json b/i18n/hi.json
+index 44c78ab4..7c45c4c0 100644
+--- a/i18n/hi.json
++++ b/i18n/hi.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/id.json b/i18n/id.json
+index 8ec8d5ae..f76ddadc 100644
+--- a/i18n/id.json
++++ b/i18n/id.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/it.json b/i18n/it.json
+index c86f06fa..4fc08ae6 100644
+--- a/i18n/it.json
++++ b/i18n/it.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/ja.json b/i18n/ja.json
+index ea25ac5f..d276f153 100644
+--- a/i18n/ja.json
++++ b/i18n/ja.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/ko.json b/i18n/ko.json
+index 6e1359af..5a4796af 100644
+--- a/i18n/ko.json
++++ b/i18n/ko.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/pt.json b/i18n/pt.json
+index 6142da67..84093ab8 100644
+--- a/i18n/pt.json
++++ b/i18n/pt.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Refazer este dia",
+  "dlp.redo_t": "Recomeçar este dia?",
+  "dlp.redo_b": "Vai percorrer cada etapa desde o início. Os seus relatórios de expressão oral são mantidos, mas as etapas gravadas deste dia são substituídas pelas novas.",
+- "dlp.redo_go": "Recomeçar"
++ "dlp.redo_go": "Recomeçar",
++ "dlp.w1m_h": "A sua apresentação modelo",
++ "dlp.w1m_hint": "Grave primeiro a sua própria apresentação. Depois verá uma apresentação modelo para repetir com shadowing.",
++ "dlp.w1m_prep": "A escolher a sua apresentação modelo…",
++ "dlp.w1m_why_1": "Escolhida porque é um(a) {{role}} a apresentar-se, como você.",
++ "dlp.w1m_why_2": "Escolhida porque esta pessoa trabalha numa área próxima da sua ({{role}}).",
++ "dlp.w1m_why_3": "Escolhida porque pratica inglês para {{situation}}.",
++ "dlp.w1m_why_3g": "Escolhida para o seu objetivo: {{goal}}.",
++ "dlp.w1m_why_4": "Uma apresentação geral e clara que pode adaptar ao seu trabalho.",
++ "dlp.w1m_transcript": "Leia enquanto ouve",
++ "dlp.w1m_shadow_n": "Shadowing feito {{n}} de {{min}} vezes · até {{max}}",
++ "dlp.w1m_go": "Ver e repetir",
++ "dlp.w1m_again": "Repetir outra vez",
++ "dlp.w1m_try_other": "Experimentar outro modelo",
++ "dlp.w1m_after_h": "Agora diga à sua maneira",
++ "dlp.w1m_after_locked": "Depois de {{min}} repetições, grave a sua apresentação outra vez e ouça a diferença.",
++ "dlp.w1m_after_go": "Gravar a minha apresentação outra vez",
++ "dlp.w1m_after_done": "A sua segunda gravação está guardada.",
++ "dlp.w1m_play_base": "Ouvir a minha primeira gravação",
++ "dlp.w1m_play_after": "Ouvir a minha segunda gravação",
++ "dlp.w1m_failed": "Esse vídeo não reproduz. As suas gravações e o seu progresso ficam guardados. Aqui está outro modelo.",
++ "dlp.w1m_exhausted": "Nenhuma das apresentações modelo reproduz. As suas gravações ficam guardadas e pode continuar.",
++ "dlp.w1m_none_t": "Ainda não há uma apresentação modelo pronta",
++ "dlp.w1m_none_b": "A sua gravação está guardada e conta. O exercício modelo aparecerá quando um vídeo for aprovado.",
++ "dlp.w1m_gone": "A apresentação modelo da sua primeira tentativa já não está disponível. A sua gravação original fica guardada.",
++ "dlp.w1m_fixture": "VÍDEO DE TESTE · não revisto",
++ "dlp.w1m_pass": "A sua apresentação modelo",
++ "dlp.w1m_back": "Voltar à lição"
+ }
+diff --git a/i18n/ru.json b/i18n/ru.json
+index 01eba168..d6661ef6 100644
+--- a/i18n/ru.json
++++ b/i18n/ru.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/ur.json b/i18n/ur.json
+index 0dbe2104..4429b50c 100644
+--- a/i18n/ur.json
++++ b/i18n/ur.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/vi.json b/i18n/vi.json
+index 30f50c7e..811595ad 100644
+--- a/i18n/vi.json
++++ b/i18n/vi.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/i18n/zh.json b/i18n/zh.json
+index 2f2a5bec..b971b668 100644
+--- a/i18n/zh.json
++++ b/i18n/zh.json
+@@ -3881,5 +3881,32 @@
+  "dlp.redo_btn": "Do this day again",
+  "dlp.redo_t": "Start this day again?",
+  "dlp.redo_b": "You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+- "dlp.redo_go": "Start again"
++ "dlp.redo_go": "Start again",
++ "dlp.w1m_h": "Your model introduction",
++ "dlp.w1m_hint": "Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep": "Choosing your model introduction…",
++ "dlp.w1m_why_1": "Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2": "Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3": "Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g": "Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4": "A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript": "Read it while you listen",
++ "dlp.w1m_shadow_n": "Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go": "Watch and shadow",
++ "dlp.w1m_again": "Shadow again",
++ "dlp.w1m_try_other": "Try another model",
++ "dlp.w1m_after_h": "Now say it your way",
++ "dlp.w1m_after_locked": "After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go": "Record my introduction again",
++ "dlp.w1m_after_done": "Your second take is saved.",
++ "dlp.w1m_play_base": "Hear my first take",
++ "dlp.w1m_play_after": "Hear my second take",
++ "dlp.w1m_failed": "That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted": "None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t": "No model introduction is ready yet",
++ "dlp.w1m_none_b": "Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone": "The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture": "TEST CLIP · not reviewed",
++ "dlp.w1m_pass": "Your model introduction",
++ "dlp.w1m_back": "Back to the lesson"
+ }
+diff --git a/index.html b/index.html
+index 8f2b02ae..46120871 100644
+--- a/index.html
++++ b/index.html
+@@ -70,6 +70,8 @@
+ <script src="shadow-scenes.js?v=2"></script>
+ <script src="adaptive-learning-engine.js?v=84"></script>
+ <script src="daily-learning-plan.js?v=1"></script>
++<script src="week-pick.js?v=1"></script>
++<script src="week1-model.js?v=1"></script>
+ <script src="learner-profile.js?v=2"></script>
+ <script src="onboarding-catalog.js?v=1"></script>
+ <script src="onboarding-v2.js?v=1"></script>
+@@ -3666,6 +3668,13 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
+ .dlp-pass-q{margin:8px 0 10px;font-size:14px;line-height:1.5;color:var(--txt);border-inline-start:3px solid var(--acc);padding-inline-start:10px}
+ .dlp-pass-go{display:flex;flex-wrap:wrap;gap:8px}
+ .dlp-pass-go .btn{flex:1 1 auto;min-height:44px}
++.dlp-w1m{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd,rgba(127,127,127,.25))}
++.dlp-w1m h3{font-size:15px;margin:0 0 6px}
++.dlp-w1m .dlp-w1m-chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--red);color:var(--red);margin:0 0 8px}
++.dlp-w1m .dlp-w1m-n{font-weight:600;color:var(--txt);margin:8px 0}
++.dlp-w1m .dlp-w1m-after{margin-top:12px}
++.dlp-w1m .dlp-w1m-hear{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
++.dlp-w1m .btn[disabled]{opacity:.45}
+ .dlp-pass-why{margin:4px 2px 0}
+ .dlp-steps{display:flex;gap:6px;margin:0 0 4px;align-items:center;min-height:44px}
+ .dlp-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+@@ -8868,6 +8877,33 @@ const I18N_EN={
+  "dlp.redo_t":"Start this day again?",
+  "dlp.redo_b":"You'll work through every step from the beginning. Your speaking reports are kept, but this day's recorded steps are replaced by the new ones.",
+  "dlp.redo_go":"Start again",
++ "dlp.w1m_h":"Your model introduction",
++ "dlp.w1m_hint":"Record your own introduction first. Then you'll see a model introduction to shadow.",
++ "dlp.w1m_prep":"Choosing your model introduction…",
++ "dlp.w1m_why_1":"Chosen because this is a {{role}} introducing themselves, like you.",
++ "dlp.w1m_why_2":"Chosen because this speaker works in a field close to yours ({{role}}).",
++ "dlp.w1m_why_3":"Chosen because you practise English for {{situation}}.",
++ "dlp.w1m_why_3g":"Chosen to help with your goal: {{goal}}.",
++ "dlp.w1m_why_4":"A clear, general introduction you can adapt to your own work.",
++ "dlp.w1m_transcript":"Read it while you listen",
++ "dlp.w1m_shadow_n":"Shadowed {{n}} of {{min}} times · up to {{max}}",
++ "dlp.w1m_go":"Watch and shadow",
++ "dlp.w1m_again":"Shadow again",
++ "dlp.w1m_try_other":"Try another model",
++ "dlp.w1m_after_h":"Now say it your way",
++ "dlp.w1m_after_locked":"After {{min}} shadows, record your introduction again and hear the difference.",
++ "dlp.w1m_after_go":"Record my introduction again",
++ "dlp.w1m_after_done":"Your second take is saved.",
++ "dlp.w1m_play_base":"Hear my first take",
++ "dlp.w1m_play_after":"Hear my second take",
++ "dlp.w1m_failed":"That clip would not play. Your recordings and progress are kept. Here is another model.",
++ "dlp.w1m_exhausted":"None of the model introductions would play. Your recordings are kept, and you can continue.",
++ "dlp.w1m_none_t":"No model introduction is ready yet",
++ "dlp.w1m_none_b":"Your recording is saved and counts. The model exercise will appear when a clip has been approved.",
++ "dlp.w1m_gone":"The model introduction from your first attempt is no longer available. Your original recording is kept.",
++ "dlp.w1m_fixture":"TEST CLIP · not reviewed",
++ "dlp.w1m_pass":"Your model introduction",
++ "dlp.w1m_back":"Back to the lesson",
+  "dlp.back_home":"Back to Today",
+  "dlp.back_lesson":"‹ Back to your lesson",
+  "dlp.continue_lesson":"Continue your lesson",
+@@ -15378,6 +15414,7 @@ function rGuidedLesson(el,w,d,wk,dd,key,weekPhrases){
+   const check=DailyPlan.validate(entry.plan);
+   if(!check.valid){el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button><div class="card"><p class="sub">${esc(t("dlp.unavailable"))}</p></div>`;try{console.error("[dlp] invalid plan",check.errors)}catch(e){}return}
+   _dlpEntry=entry;save();
++  try{dlpBaseResume()}catch(e){}
+   dlpRenderStep(el,w,d,key);
+ }
+ function dlpStepData(step){return (_dlpEntry&&_dlpEntry.stepData[step])||null}
+@@ -15485,9 +15522,9 @@ let _dlpSays=null;
+ const dlpHas=(text,phrase)=>{try{if(!_dlpSays)_dlpSays=DailyPlan.makeSays(ShadowSync.findExpression);return _dlpSays(text,phrase)}catch(e){return false}};
+ /* Measure a step's recording: hear it, count what the lesson cares about, keep the numbers on the
+    step. Never throws and never blocks the learner — a step with no measurement simply has none. */
+-async function dlpMeasure(step,targets,subIx){
++async function dlpMeasure(step,targets,subIx,ctxOverride){
+   try{
+-    const ctx=recCtx("dlp-"+step+(subIx!=null?"-"+subIx:""));
++    const ctx=ctxOverride||recCtx("dlp-"+step+(subIx!=null?"-"+subIx:""));
+     const recs=await getRecs(ctx);
+     const r=recs&&recs[0];if(!r||!r.blob)return null;
+     const tr=await exTranscribe(r.blob);
+@@ -15536,8 +15573,13 @@ window.dlpTypeFallback=(step)=>{
+   const ta=document.getElementById("dlpType"+step);
+   const text=(ta&&ta.value||"").trim();
+   if(!text)return toast(t("dlp.type_required_toast"));
++  const prev=_dlpEntry.stepData[step]||{};
+   _dlpEntry.stepData[step]={recorded:false,mode:"text",text:text.slice(0,500)};
++  /* the Try step also holds the frozen model introduction and the second take; typing the baseline
++     instead of speaking it must not erase them */
++  if(step==="try")["model","after","baseAt"].forEach(k=>{if(prev[k]!==undefined)_dlpEntry.stepData.try[k]=prev[k]});
+   save();
++  if(step==="try")try{dlpBaseFreeze()}catch(e){}
+   dlpRerender();
+ };
+ function dlpRecOrTypeHTML(step){
+@@ -15598,9 +15640,187 @@ function dlpTryHTML(plan,key,w,d){
+     ${dd.repOnFirst?`<p class="ex-fine">${esc(t("dlp.try_rep_once"))}</p>`:""}
+     ${dlpTakesHTML(dd.takes)}
+     ${done?`<p class="ex-fine dlp-next">${esc(dlpLearnerName()?t("dlp.try_next",{name:dlpLearnerName(),p:dlpProfileLabel()||t("dlp.sent_role_fallback")}):t("dlp.try_next_x",{p:dlpProfileLabel()||t("dlp.sent_role_fallback")}))}</p>`:""}
++    ${dlpBaseHTML(w,d,key)}
+     ${dlpContinueBtn("try",w,d,key)}
+   </div>`;
+ }
++/* ============================================================ WEEK 1 MONDAY: THE MODEL INTRODUCTION
++   (owner, 8 Nov 2026.) After the learner records their UNCOACHED introduction, the lesson reveals ONE
++   model introduction chosen from their onboarding profile. They shadow it 6-8 times, then record their
++   own introduction again. The decisions are in week-pick.js and week1-model.js (pure, tested without a
++   browser); this block is the page's side of them.
++
++   What it must never do: gate the lesson. The baseline take opens Continue exactly as it always did.
++   An empty catalogue, captions that will not load and a player that errors each leave the recordings and
++   the progress intact and the lesson able to advance.
++
++   Where things live:
++     stepData.try.baseAt         when the FIRST take was saved — the baseline, replayable
++     stepData.try.model          the FROZEN ranked list + a snapshot of each passage; never re-selected
++     stepData.try.after          the second take {recorded, mode, at, m}; its audio is ctx dlp-try-after
++     S.dlpAssign["general:w1"]   the clip and segment assigned: WRITE-ONCE, outside the attempt, so a
++                                 restart rebuilds the same model and Week 12 can replay it
++   stepData.try.m is the baseline MEASUREMENT, and the day's closing comparison reads it as "before".
++   The second take is measured into try.after.m and never into try.m, or the comparison would quietly
++   measure the coached take against the conversation. The shadows are the LISTEN step's own machinery
++   (stepData.listen.sh["0"], the model clip being passage 0), so the report, the spoken coach and the
++   word drills are the ones the rest of the lesson already has. */
++const DLP_W1_ASSIGN="general:w1";
++let _w1Models=null,_w1Busy=false;
++function dlpBaseOn(w,d){return w===1&&d==="Mon"&&isGeneralEnglish()&&flag("week1_model_clip_enabled")&&!!window.Week1Model&&!!window.WeekPick}
++function dlpBaseLoad(){
++  if(!_w1Models)_w1Models=fetch("catalogue/week1-models.json").then(r=>r.ok?r.json():{clips:[]}).catch(()=>({clips:[]}));
++  return _w1Models;
++}
++function dlpBaseAssign(){return (S.dlpAssign&&S.dlpAssign[DLP_W1_ASSIGN])||null}
++function dlpBaseHas(T){return !!(T&&(T.recorded||T.mode==="text"))}
++function dlpBaseIsMon(){return !!_dlpEntry&&_dlpEntry.lessonId===DailyPlan.lessonId("general",1,"Mon")}
++/* the frozen model passage, only while it was frozen before any shadow existed */
++function dlpBaseModelPassage(w){
++  try{
++    if(w!==1||!dlpBaseIsMon())return null;
++    const T=_dlpEntry.stepData.try;if(!T||!T.model||!T.model.passageFront)return null;
++    return Week1Model.current(T.model);
++  }catch(e){return null}
++}
++function dlpBaseCount(T){return (T&&T.model&&T.model.passageFront&&Week1Model.current(T.model))?((dlpShRec(0)||{}).n||0):0}
++/* freeze ONCE, after the baseline exists. Never from a render. */
++async function dlpBaseFreeze(){
++  const e=_dlpEntry;if(!e||_w1Busy||!dlpBaseOn(1,"Mon")||!dlpBaseIsMon())return;
++  const T=e.stepData.try||{};if(T.model||!dlpBaseHas(T))return;
++  _w1Busy=true;
++  try{
++    const models=await dlpBaseLoad();
++    if(_dlpEntry!==e)return;                               /* the learner left while the catalogue loaded */
++    const L=e.stepData.listen,started=!!(L&&L.sh&&Object.keys(L.sh).length);
++    const r=Week1Model.freeze(dlpProfile(),Week1Model.poolOf(models),dlpBaseAssign(),Date.now());
++    /* an attempt that already recorded shadows keeps its passages exactly as they are */
++    const model=started?{gap:true,ranked:[],picked:-1,failed:[],passages:{},frozenAt:r.model.frozenAt,reason:"this attempt already has recorded shadows"}
++      :Object.assign({},r.model,r.model.ranked&&r.model.ranked.length?{passageFront:true}:{});
++    e.stepData.try=Object.assign({},e.stepData.try,{model});
++    /* write-once and outside the attempt: never on a restart, never from a render */
++    if(r.assign&&!started){S.dlpAssign=S.dlpAssign||{};if(!S.dlpAssign[DLP_W1_ASSIGN])S.dlpAssign[DLP_W1_ASSIGN]=r.assign}
++    save();
++    try{dlpRerender()}catch(err){}
++  }finally{_w1Busy=false}
++}
++function dlpBaseResume(){
++  if(!dlpBaseOn(1,"Mon")||!dlpBaseIsMon())return;
++  const T=_dlpEntry.stepData.try;if(T&&dlpBaseHas(T)&&!T.model)dlpBaseFreeze();
++}
++/* why THIS clip, from the structured reason — a sentence in the learner's own language */
++function dlpBaseWhy(why){
++  try{
++    const role=dlpRoleLoc()||dlpProfileLabel()||"";
++    if(why.tier===1)return t("dlp.w1m_why_1",{role:dlpLocLabel("prof","professions",why.value)||role});
++    if(why.tier===2)return t("dlp.w1m_why_2",{role});
++    if(why.tier===3&&why.match==="situation")return t("dlp.w1m_why_3",{situation:(dlpLocLabel("sit","situations",why.value)||why.value).toLowerCase()});
++    if(why.tier===3)return t("dlp.w1m_why_3g",{goal:(dlpLocLabel("goal","goals",why.value)||why.value).toLowerCase()});
++  }catch(e){}
++  return t("dlp.w1m_why_4");
++}
++function dlpBaseHearHTML(T){
++  const base=!!(T&&T.recorded&&T.mode==="audio"),aft=!!(T&&T.after&&T.after.recorded);
++  if(!base&&!aft)return "";
++  return `<div class="dlp-w1m-hear">${base?`<button class="btn btn-g btn-sm" id="dlpW1mHearBase" onclick="dlpBasePlay('base')">${ic("play")} ${esc(t("dlp.w1m_play_base"))}</button>`:""}${aft?`<button class="btn btn-g btn-sm" id="dlpW1mHearAfter" onclick="dlpBasePlay('after')">${ic("play")} ${esc(t("dlp.w1m_play_after"))}</button>`:""}</div>`;
++}
++function dlpBaseHTML(w,d,key){
++  if(!dlpBaseOn(w,d))return "";
++  const T=dlpStepData("try")||{},has=dlpBaseHas(T),model=T.model,n=dlpBaseCount(T);
++  const st=Week1Model.status(model,n,has),head=`<h3>${esc(t("dlp.w1m_h"))}</h3>`;
++  const wrap=b=>`<div class="dlp-w1m" id="dlpW1m" data-phase="${st.phase}">${b}</div>`;
++  if(st.phase==="baseline")return wrap(`${head}<p class="ex-fine">${esc(t("dlp.w1m_hint"))}</p>`);
++  if(st.phase==="preparing")return wrap(`${head}<p class="ex-fine">${esc(t("dlp.w1m_prep"))}</p>`);
++  /* no approved clip: say so, and leave the baseline exactly as usable as it was */
++  if(st.phase==="empty")return wrap(`<h3>${esc(t("dlp.w1m_none_t"))}</h3><p class="ex-fine">${esc(t("dlp.w1m_none_b"))}</p>${dlpBaseHearHTML(T)}`);
++  if(st.phase==="original-gone")return wrap(`${head}<p class="ex-fine">${esc(t("dlp.w1m_gone"))}</p>${dlpBaseHearHTML(T)}`);
++  if(st.phase==="exhausted")return wrap(`${head}<p class="ex-fine" role="status">${esc(t("dlp.w1m_exhausted"))}</p>${dlpBaseHearHTML(T)}`);
++  const p=Week1Model.current(model),alt=Week1Model.alternatives(model);
++  const failedNote=(model.failed||[]).length?`<p class="ex-fine" id="dlpW1mFailed" role="status">${esc(t("dlp.w1m_failed"))}</p>`:"";
++  const after=T.after||{},locked=!st.canRecordAfter;
++  return wrap(`${head}${p.fixture?`<span class="dlp-w1m-chip" id="dlpW1mFixture">${esc(t("dlp.w1m_fixture"))}</span>`:""}${failedNote}
++    <p class="sub"><b id="dlpW1mTitle" data-vid="${esc(p.vid)}" data-start="${(p.startMs/1000)}" data-end="${(p.endMs/1000)}">${esc(shClipTitle({vid:p.vid,title:p.title}))}</b></p>
++    <p class="ex-fine" id="dlpW1mWhy" data-tier="${p.why.tier}">${esc(dlpBaseWhy(p.why))}</p>
++    <details class="dlp-pass-det" open><summary>${esc(t("dlp.w1m_transcript"))}</summary><p class="dlp-pass-q" id="dlpW1mText">“${esc(p.text)}”</p></details>
++    <p class="dlp-w1m-n" id="dlpW1mN" data-n="${n}">${esc(t("dlp.w1m_shadow_n",{n,min:st.min,max:st.max}))}</p>
++    <div class="dlp-pass-go">
++      <button class="btn ${locked?"btn-p":"btn-g"}" id="dlpW1mGo" onclick="dlpBaseShadow()">${ic("shadowing")} ${esc(t(n?"dlp.w1m_again":"dlp.w1m_go"))}</button>
++      ${alt?`<button class="btn btn-g" id="dlpW1mOther" onclick="dlpBaseOther()">${esc(t("dlp.w1m_try_other"))}</button>`:""}
++    </div>
++    <div class="dlp-w1m-after">
++      <p class="ex-fine"><b>${esc(t("dlp.w1m_after_h"))}</b></p>
++      ${locked?`<p class="ex-fine" id="dlpW1mLock">${esc(t("dlp.w1m_after_locked",{min:st.min}))}</p>`:""}
++      <button class="btn ${locked?"btn-g":"btn-p"}" id="dlpW1mRec" ${locked?"disabled":""} onclick="dlpBaseAfterRec()">${ic("mic")} ${esc(t("dlp.w1m_after_go"))}</button>
++      ${after.recorded?`<p class="ex-fine" id="dlpW1mAfterDone">${esc(t("dlp.w1m_after_done"))}</p>`:""}
++    </div>
++    ${dlpBaseHearHTML(T)}`);
++}
++/* open the studio on the frozen clip. Captions are checked FIRST: a clip whose captions will not load
++   cannot drive the shadow step (the segment, the target text and the scoring all come from them), and
++   a learner must never be left recording into a step that cannot notice the take. */
++window.dlpBaseShadow=async()=>{
++  const T=dlpStepData("try")||{},p=Week1Model.current(T.model);if(!p)return;
++  let ok=false;try{const r=await fetch("captions/"+p.vid+".json");ok=r.ok}catch(e){}
++  if(!ok){dlpBaseFail(p.key,"captions");return}
++  const lead=dlpPassages(1,2)[0];
++  if(!lead||lead.match!=="model"||lead.vid!==p.vid){toast(t("dlp.w1m_failed"));return}
++  dlpShadowGo(p.vid,p.startMs/1000,p.endMs/1000,p.title,1,"Mon",0);
++  if(_dlpSh)_dlpSh.fromTry=true;           /* the studio card then offers "back to the lesson", never the Listen step's next button */
++};
++window.dlpBaseOther=()=>{const T=dlpStepData("try")||{},p=Week1Model.current(T.model);if(p)dlpBaseFail(p.key,"learner chose another")};
++/* a clip that cannot be used: record why, move to the next, keep every recording and every count.
++   Shadows already recorded on the clip are RETIRED with it, never silently re-attributed to the next. */
++function dlpBaseFail(key,reason){
++  const e=_dlpEntry;if(!e)return;
++  const T=e.stepData.try;if(!T||!T.model)return;
++  const L=e.stepData.listen,retired=(T.model.retired||[]).slice();
++  if(L&&L.sh&&L.sh["0"]){retired.push({key,rec:L.sh["0"],reason});delete L.sh["0"]}
++  T.model=Object.assign({},Week1Model.fail(T.model,key,reason),{retired});
++  save();
++  const gone=!!T.model.exhausted;
++  toast(t(gone?"dlp.w1m_exhausted":"dlp.w1m_failed"));
++  if(_dlpSh){try{shCloseWork()}catch(x){}SESS_RETURN=null;_dlpSh=null;go("session",1,"Mon")}
++  else try{dlpRerender()}catch(x){}
++}
++/* called from shVideoError: the studio's own player gave up */
++function dlpBasePlayerFailed(){
++  const sh=_dlpSh;if(!sh||!sh.fromTry||!_dlpEntry)return;
++  const p=dlpPassages(1,2)[sh.ix];if(p&&p.match==="model")dlpBaseFail(p.key,"player");
++}
++window.dlpBaseBack=()=>{try{shCloseWork()}catch(e){}SESS_RETURN=null;_dlpSh=null;go("session",1,"Mon")};
++/* the studio card's actions while the learner is shadowing the MODEL clip from the Try step */
++function dlpBaseCardActs(mine){
++  const n=(dlpShRec(0)||{}).n||0;
++  return `${mine?`<p class="dlp-sh-next-h">${esc(t("dlp.w1m_shadow_n",{n,min:Week1Model.MIN_SHADOWS,max:Week1Model.MAX_SHADOWS}))}</p>`:`<p class="ex-fine">${esc(t("dlp.sh_how"))}</p>`}
++    <div class="dlp-sh-acts"><button class="btn-primary" id="dlpShGo" onclick="dlpBaseBack()">${ic("check")} ${esc(t("dlp.w1m_back"))}</button></div>`;
++}
++/* the SECOND take. Its own recording context, deliberately not a numeric sub-index of the baseline's, so
++   nothing that writes stepData.try[n] or reads the baseline can ever collide with it. */
++window.dlpBaseAfterRec=()=>{
++  phRecInto(recCtx("dlp-try-after"),t("dlp.step_try"),document.getElementById("dlpW1mRec"),()=>{
++    const T=_dlpEntry.stepData.try||{};
++    _dlpEntry.stepData.try=Object.assign({},T,{after:Object.assign({},T.after,{recorded:true,mode:"audio",at:Date.now()})});
++    save();try{dlpRerender()}catch(e){}
++  },async blob=>{
++    try{exPlayBlob(blob)}catch(e){}
++    const m=await dlpMeasure("try-after",(_dlpEntry&&_dlpEntry.plan.targetExpressions)||[]);
++    if(m&&_dlpEntry){const T=_dlpEntry.stepData.try||{};
++      _dlpEntry.stepData.try=Object.assign({},T,{after:Object.assign({},T.after,{m})});save();try{dlpRerender()}catch(e){}}
++  });
++};
++/* replay either take on its own. Each lives in its own recording context and is found by the time it
++   was saved, so a retry of the baseline or a later second take never plays the wrong one. */
++window.dlpBasePlay=async(which)=>{
++  const T=dlpStepData("try")||{},ctx=which==="after"?recCtx("dlp-try-after"):dayKey(1,"Mon");
++  const at=which==="after"?(T.after&&T.after.at):T.baseAt;
++  try{
++    const recs=await getRecs(ctx);if(!recs||!recs.length)return toast(t("dlp.sh_no_take"));
++    let pick=recs[0];
++    if(at){let best=Infinity;for(const x of recs){const gap=Math.abs((x.ts||0)-at);if(gap<best){best=gap;pick=x}}}
++    if(!pick||!pick.blob)return toast(t("dlp.sh_no_take"));
++    exPlayBlob(pick.blob);
++  }catch(e){toast(t("dlp.sh_no_take"))}
++};
+ /* the live words, where the device can hear them. iOS WKWebView ships no speech engine and
+    Android's in-app WebView does not deliver one either, so this is a BONUS: when it is absent the
+    panel says the words will arrive with the report, which they do (Whisper, moments later). */
+@@ -15643,8 +15863,10 @@ window.dlpTryRec=(key,w,d)=>{
+   phRecInto(key,t("dlp.step_try"),null,()=>{
+     /* the take is saved: Continue opens NOW, whatever the AI does next. A learner whose network is
+        down must still be able to move on, and may record again as often as they like. */
+-    _dlpEntry.stepData.try=Object.assign({},_dlpEntry.stepData.try,{recorded:true,mode:"audio"});
++    const T0=_dlpEntry.stepData.try||{};
++    _dlpEntry.stepData.try=Object.assign({},T0,{recorded:true,mode:"audio",baseAt:T0.baseAt||Date.now()});
+     save();
++    try{dlpBaseFreeze()}catch(e){}
+     try{dlpRerender()}catch(e){}
+   },async blob=>{
+     dlpLiveStop();dlpTick(false);
+@@ -15666,7 +15888,7 @@ window.dlpTryRec=(key,w,d)=>{
+     const fresh=((sessRepGet(key)||{}).at||0)>repAt;
+     /* and the plain numbers the rest of the lesson uses */
+     try{
+-      const m=await dlpMeasure("try",(_dlpEntry&&_dlpEntry.plan.targetExpressions)||[]);
++      const m=await dlpMeasure("try",(_dlpEntry&&_dlpEntry.plan.targetExpressions)||[],null,key);
+       if(m&&_dlpEntry){
+         const d=_dlpEntry.stepData.try||{};
+         /* every take is kept, so a learner who repeats the minute can see the line move
+@@ -16151,7 +16373,12 @@ function dlpPassages(w,n){
+     if(!isGeneralEnglish())return [];        /* the one check every General-English-only feature makes */
+     const ix=(curriculumOrEmpty().clipIndex)||null;
+     const list=ix&&ix[String(w)];
+-    return Array.isArray(list)?list.slice(0,n||2):[];
++    const base=Array.isArray(list)?list.slice(0,n||2):[];
++    /* WEEK 1 MONDAY: the learner's FROZEN model introduction leads. It takes a place rather than adding
++       one, so the Listen step still asks for the same number of shadows; and it only leads when it was
++       frozen before any shadow was recorded, so no stored ordinal is ever re-pointed at another clip. */
++    const m=dlpBaseModelPassage(w);
++    return m?[m].concat(base.slice(0,Math.max(0,(n||2)-1))):base;
+   }catch(e){return []}
+ }
+ /* a curriculum clip is the COURSE, not the learner's own collection: it is stamped with the lesson
+@@ -16191,7 +16418,7 @@ function dlpListenHTML(plan,key,w,d){
+     const saved=dlpClipSaved(p),r=dlpShRec(ix),mine=dlpShHasRec(ix),skipped=dlpShSkipped(ix);
+     return `<div class="dlp-pass">
+       <p class="dlp-pass-h"><b>${esc(shClipTitle({vid:p.vid,title:p.title}))}</b>${mine?`<span class="chip done" style="margin-inline-start:6px">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:skipped?`<span class="chip" style="margin-inline-start:6px">${esc(t("dlp.sh_skipped_chip"))}</span>`:""}</p>
+-      <p class="ex-fine">${esc(p.match==="topic"?t("dlp.pass_topic"):t("dlp.pass_where",{n:p.para,of:p.of,phrase:p.phrase}))}</p>
++      <p class="ex-fine">${esc(p.match==="model"?t("dlp.w1m_pass"):p.match==="topic"?t("dlp.pass_topic"):t("dlp.pass_where",{n:p.para,of:p.of,phrase:p.phrase}))}</p>
+       <p class="ex-fine dlp-pass-meta">${esc(t("dlp.pass_meta",{s:Math.round(p.seconds||0),n:p.sentences||1,w:p.words||0}))}</p>
+       ${mine&&r.pct!=null?`<p class="ex-fine dlp-pass-done">${esc(t("dlp.sh_row_done",{n:r.pct}))}</p>`:""}
+       <details class="dlp-pass-det"><summary>${esc(t("dlp.pass_read"))}</summary><p class="dlp-pass-q">“${esc(p.text)}”</p></details>
+@@ -16524,13 +16751,13 @@ function dlpShSync(){
+   const nx=dlpShNextIx(),mine=dlpShHasRec(sh.ix);
+   /* one primary, and — once a real shadow is behind them — a plain way past the rest */
+   const skip=dlpShMaySkip(sh.w)?`<button class="btn btn-g btn-sm dlp-skip" onclick="dlpShSkip()">${esc(t("dlp.sh_skip"))}</button>`:"";
+-  const acts=!mine?`<p class="ex-fine">${esc(t("dlp.sh_how"))}</p>${skip}`
++  const acts=sh.fromTry?dlpBaseCardActs(mine):!mine?`<p class="ex-fine">${esc(t("dlp.sh_how"))}</p>${skip}`
+     :nx>=0?`<p class="dlp-sh-next-h">${esc(t("dlp.sh_next_h",{n:sh.ix+1}))}</p>
+       <div class="dlp-sh-acts"><button class="btn-primary" id="dlpShGo" onclick="dlpShNext(${nx})">${ic("shadowing")} ${esc(t("dlp.sh_next",{n:nx+1,of:sh.total}))}</button>${skip}</div>`
+     :`<p class="dlp-sh-next-h">${esc(t("dlp.sh_step_h"))}</p>
+       <div class="dlp-sh-acts"><button class="btn-primary" id="dlpShGo" onclick="dlpShFinish()">${ic("check")} ${esc(t("dlp.sh_step"))}</button></div>`;
+   card.hidden=false;
+-  card.innerHTML=`<div class="dlp-sh-h"><span class="chip">${esc(t("dlp.sh_h",{n:sh.ix+1,of:sh.total}))}</span>
++  card.innerHTML=`<div class="dlp-sh-h"><span class="chip">${esc(sh.fromTry?t("dlp.w1m_pass"):t("dlp.sh_h",{n:sh.ix+1,of:sh.total}))}</span>
+       ${mine?`<span class="chip done">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:""}</div>
+     <div id="dlpShRes"></div>
+     ${mine?dlpShHearHTML(sh.ix):""}
+@@ -18648,6 +18875,7 @@ async function shLoad(c,quiet){
+    that would otherwise act on a dead player. Closing the workspace returns to
+    the picker, where another clip can be chosen. */
+ function shVideoError(on){
++  if(on){try{dlpBasePlayerFailed()}catch(e){}}
+   const box=document.getElementById("shVidErr");
+   if(box)box.style.display=on?"":"none";
+   const ctl=document.querySelector(".sh-ctl"),seg=document.getElementById("shSeg");
+@@ -27594,6 +27822,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
+    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
+    own PARTNER_ENABLED switch as the server-side boundary. */
+ const FLAGS_DEFAULT={
++  week1_model_clip_enabled:false,   // Week 1 Monday: after the uncoached baseline, ONE model introduction chosen from the onboarding profile (docs/WEEKLY_CLIP_SELECTION.md). OFF in production AND absent from FLAGS_IOS: the approved catalogue (catalogue/week1-models.json) is empty until the owner approves clips, and until captions are bundled for them no clip can drive the shadow step.
+   onboarding_v2_enabled:false,   // Onboarding V2 (owner-approved name, 6 Nov 2026), General English only. Phase 0 = sync safety only: gates the learner-profile (S.lp) cloud sync. OFF in production until the owner approves the sync compatibility separately.
+   daily_learning_plan_pilot_enabled:false,   // Phase 2 pilot (6 Nov 2026): the guided TRY..FINISH flow on Week 1 Monday, General English only. OFF until the owner enables it on staging.
+   practice_partner_enabled:true,       // released 2026-09-20 (owner decision; DEVICE_CHECKLIST 24/66 rows certified on staging)
+@@ -27634,6 +27863,7 @@ const FLAGS_DEFAULT={
+ /* the internal-preview set from PILOT.md, on by default on the staging host
+    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
+ const FLAGS_STAGING={
++  week1_model_clip_enabled:true,          // staging preview of the Week 1 model introduction; it shows 'no model introduction is ready yet' until approved clips exist
+   practice_partner_enabled:true,
+   practice_partner_matching_enabled:true,
+   practice_partner_voice_enabled:true,
+diff --git a/sw.js b/sw.js
+index a5c73b4a..d9d76ce6 100644
+--- a/sw.js
++++ b/sw.js
+@@ -7,7 +7,7 @@ const CACHE = "be12-v705";
+    than visibly. */
+ const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
+   "jurisdictions.js?v=79", "professional-standards.js?v=1", "trades.js?v=80", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=88", "nudge-engine.js?v=7",
+-  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=84", "shadow-sync.js?v=8", "shadow-scenes.js?v=2", "adaptive-learning-engine.js?v=84", "daily-learning-plan.js?v=1", "learner-profile.js?v=2", "onboarding-catalog.js?v=1", "onboarding-v2.js?v=1",
++  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=84", "shadow-sync.js?v=8", "shadow-scenes.js?v=2", "adaptive-learning-engine.js?v=84", "daily-learning-plan.js?v=1", "week-pick.js?v=1", "week1-model.js?v=1", "learner-profile.js?v=2", "onboarding-catalog.js?v=1", "onboarding-v2.js?v=1",
+   "career-center.js?v=80", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=87", "mission-engine.js?v=4", "welding-mastery.css?v=9", "welding-mastery-engine.js?v=3", "welding-mastery.js?v=8", "welding-mastery-logo.svg", "english-mastery.css?v=2", "english-mastery.js?v=4", "english-mastery-logo.svg", "smart-coach.css?v=1", "smart-coach-engine.js?v=1", "smart-coach.js?v=1",
+   "catalogue/general.json", "catalogue/welding.json", "catalogue/ideas-growth.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json", "tracks/general/missions.json", "tracks/general/clip-index.json",
+   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json", "tracks/welding/foundations.json"];
+diff --git a/tests/week1-baseline.mjs b/tests/week1-baseline.mjs
+new file mode 100644
+index 00000000..f7666ef7
+--- /dev/null
++++ b/tests/week1-baseline.mjs
+@@ -0,0 +1,269 @@
++/* FIXTURE INTEGRATION TEST — Week 1 Monday: the model introduction inside the real lesson.
++   Run: node tests/week1-baseline.mjs     (BASE= a server for THIS tree; one is started if absent)
++
++   WHAT THIS IS, AND IS NOT. The model clips are real library videos with their real bundled captions,
++   given TEST role tags and marked fixture:true. Nothing here is approved content, and a pass says
++   nothing about the real catalogue — which is empty. What it proves is the integration: the baseline
++   comes first, the clip is frozen and stays put, a playback failure never strands the learner, and the
++   two recordings stay separate and replayable.
++   Recordings use Chromium's fake audio device through the lesson's own recorder. Shadow takes are
++   graded through dlpShGraded, exactly as tests/lesson-shadow.mjs does: the studio's recorder and
++   YouTube's player are not exercised here. */
++import { chromium } from "playwright";
++import { readFileSync } from "node:fs";
++import { spawn } from "node:child_process";
++import { setTimeout as sleep } from "node:timers/promises";
++const root = new URL("..", import.meta.url);
++const read = p => readFileSync(new URL(p, root), "utf8");
++const PORT = +(process.env.PORT || 8397); let BASE = process.env.BASE, srv = null;
++if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root.pathname, stdio: "ignore" }); await sleep(900); BASE = `http://127.0.0.1:${PORT}`; }
++const { buildEntry } = await import(new URL("scripts/shadow/build-week1-models.mjs", root));
++const idx = JSON.parse(read("tracks/general/clip-index.json")).weeks;
++const readCaps = vid => { try { return JSON.parse(read("captions/" + vid + ".json")); } catch { return null; } };
++let pass = 0, fail = 0;
++const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + String(d).slice(0, 300)}`); };
++
++/* four DIFFERENT captioned videos whose passages are shadowable whole */
++const src = Object.values(idx).flat().filter(e => e.seconds >= 40 && e.seconds <= 72);
++const D = []; for (const e of src) if (!D.some(d => d.vid === e.vid)) D.push(e);
++const ap = (e, o) => Object.assign({ vid: e.vid, title: "FIXTURE " + e.title, start: e.startMs / 1000, end: e.endMs / 1000, editorial: "approved", approvedBy: "fixture", approvedOn: "2026-11-08", fixture: true }, o);
++const mk = (e, o) => { const r = buildEntry(ap(e, o), readCaps); if (!r.ok) throw new Error(r.error); return r.entry; };
++const CLIPS = { RE: mk(D[0], { role: "retail.real_estate", situations: ["clients"] }), DR: mk(D[1], { role: "health.doctor" }),
++  NU: mk(D[3], { role: "health.nurse" }), GEN: mk(D[2]) };
++const MODELS = { clips: [CLIPS.RE, CLIPS.DR, CLIPS.NU, CLIPS.GEN] };
++const FLAGS = "onboarding_v2_enabled,home_v2_enabled,daily_learning_plan_pilot_enabled,week1_model_clip_enabled";
++
++const b = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
++async function boot(o = {}) {
++  const ctx = await b.newContext({ viewport: { width: 430, height: 930 }, permissions: ["microphone"], serviceWorkers: "block" });
++  await ctx.route(u => /be-events|be-polish|cloudflareinsights|gstatic\.com\/firebasejs|ytimg|youtube|entitlements/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
++  const models = o.models === undefined ? MODELS : o.models;
++  await ctx.route("**/catalogue/week1-models.json", r => models === null ? r.fulfill({ status: 404, body: "" }) : r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(models) }));
++  if (o.captions404) await ctx.route(`**/captions/${o.captions404}.json`, r => r.fulfill({ status: 404, body: "" }));
++  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(String(e)));
++  await p.goto(`${BASE}/index.html?flags=${o.flags === undefined ? FLAGS : o.flags}`, { waitUntil: "domcontentloaded" });
++  await p.waitForFunction(() => typeof window.dlpOn === "function" && typeof window.Week1Model === "object" && (curriculumOrEmpty().weeks || []).length > 0, null, { timeout: 30000 });
++  await p.evaluate(a => {
++    document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove());
++    S.profile = Object.assign({}, S.profile, { name: a.name || "Test", lang: "en" });
++    /* a learner who has already passed the Foundations placement check, as every learner reaching Week 1 has */
++    S.fnd = { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } };
++    try {
++      if (a.role) LearnerProfile.set(S, "role", { role: a.role.label, roleId: a.role.id, roleCat: a.role.cat });
++      if (a.sits) LearnerProfile.set(S, "situations", { situations: a.sits, primarySituation: a.sits[0] });
++      LearnerProfile.set(S, "confidence", { selfLevel: "Can get by" });
++    } catch (e) {}
++    save();
++  }, o);
++  await stub(p);
++  return { ctx, p, errs };
++}
++/* the Worker is not reachable from here, so transcription and playback are stubbed; re-applied after a reload */
++const stub = p => p.evaluate(() => {
++  window.exTranscribe = async () => ({ text: "hello my name is test and i work in this field every day", words: [{ word: "hello", start: 0, end: 1 }, { word: "day", start: 5, end: 6 }] });
++  window.__played = []; window.exPlayBlob = x => { window.__played.push(x && x.size); };
++});
++const openMon = async p => { await p.evaluate(() => go("session", 1, "Mon")); await p.waitForSelector("#dlpMic", { timeout: 15000 }); };
++const takeBaseline = async (p, ms = 1800) => { await p.click("#dlpMic"); await sleep(ms); await p.click("#dlpMic");
++  await p.waitForFunction(() => { const T = (_dlpEntry && _dlpEntry.stepData.try) || {}; return T.recorded && T.m; }, null, { timeout: 20000 }); };
++const phase = p => p.evaluate(() => (document.getElementById("dlpW1m") || {}).dataset ? document.getElementById("dlpW1m").dataset.phase : null);
++const waitPhase = (p, ph) => p.waitForFunction(x => (document.getElementById("dlpW1m") || { dataset: {} }).dataset.phase === x, ph, { timeout: 15000 });
++const clipShown = p => p.evaluate(() => { const t = document.getElementById("dlpW1mTitle"); return t ? { vid: t.dataset.vid, start: +t.dataset.start, end: +t.dataset.end, tier: +document.getElementById("dlpW1mWhy").dataset.tier, fixture: !!document.getElementById("dlpW1mFixture") } : null; });
++const RE_P = { name: "Rae", role: { label: "Real estate agent", id: "retail.real_estate", cat: "retail" }, sits: ["clients"] };
++const DR_P = { name: "Dee", role: { label: "Doctor / physician", id: "health.doctor", cat: "health" }, sits: ["meetings"] };
++const DENT_P = { name: "Den", role: { label: "Dentist", id: "health.dentist", cat: "health" }, sits: ["meetings"] };
++const NONE_P = { name: "Nia" };
++
++/* ---------- shadows: the lesson's own handlers, as tests/lesson-shadow.mjs drives them ---------- */
++const armStudio = async p => p.evaluate(async () => {
++  const T = dlpStepData("try"), c = Week1Model.current(T.model);
++  const calls = []; const real = window.shClipGo; window.shClipGo = a => { calls.push(a); };
++  await dlpBaseShadow();
++  await new Promise(r => setTimeout(r, 450));      /* dlpShadowGo opens the clip from a 250 ms timer */
++  window.shClipGo = real;
++  const cap = await (await fetch("captions/" + c.vid + ".json")).json();
++  svAsset = ShadowSync.normalizeCaptions(cap); shClip.vid = c.vid; shClip.start = c.startMs / 1000; shClip.end = c.endMs / 1000;
++  svMode = "shadow"; svShPinned = true; svShPara = svAsset.segments.findIndex(s => s.startMs >= c.startMs - 50);
++  if (!document.getElementById("dlpShCard")) document.body.insertAdjacentHTML("beforeend", `<div class="card dlp-sh-card" id="dlpShCard" data-sv-keep="1" hidden></div>`);
++  dlpShSync();
++  return { calls: calls.map(x => ({ vid: x.vid, start: x.start, end: x.end })), armed: _dlpSh && { ix: _dlpSh.ix, fromTry: !!_dlpSh.fromTry, vid: _dlpSh.vid }, live: dlpShLive() };
++});
++const shadowTake = (p) => p.evaluate(async () => { dlpShBusy(); const sg = svShSeg(); await dlpShGraded(sg.text, { seconds: 13 }); dlpShSync(); return (dlpShRec(0) || {}).n || 0; });
++
++/* =============================================================================================== */
++console.log("\n# A · the flag, the day and the programme gate the whole block");
++{
++  const s = await boot({ flags: "onboarding_v2_enabled,home_v2_enabled,daily_learning_plan_pilot_enabled", ...RE_P });
++  await openMon(s.p);
++  ok("flag OFF (the production default): no model block at all", await s.p.evaluate(() => !document.getElementById("dlpW1m")));
++  await s.p.evaluate(() => { _dlpEntry.stepData.try = { recorded: true, mode: "audio" }; _dlpEntry.lessonId = "general:w1Tue"; });
++  ok("flag OFF: the Listen step's passages are exactly the library's, untouched", await s.p.evaluate(() => dlpPassages(1, 2).every(x => x.match !== "model")));
++  await s.ctx.close();
++  const t = await boot({ ...RE_P });
++  await t.p.evaluate(() => go("session", 1, "Tue")); await t.p.waitForSelector("#dlpMic", { timeout: 15000 }).catch(() => {});
++  ok("flag ON but Tuesday: no model block (only Monday's baseline has one)", await t.p.evaluate(() => !document.getElementById("dlpW1m")));
++  await t.p.evaluate(() => { S.professionalTracks = Object.assign({}, S.professionalTracks, { activeId: "welding" }); });
++  ok("flag ON but a Welding learner: the gate is closed", await t.p.evaluate(() => !dlpBaseOn(1, "Mon") && dlpPassages(1, 2).length === 0));
++  await t.ctx.close();
++}
++
++console.log("\n# B · the baseline comes first; nothing is revealed before it");
++const A = await boot(RE_P);
++await openMon(A.p);
++ok("before recording: the block says a model will follow, and shows NO clip", await phase(A.p) === "baseline" && await A.p.evaluate(() => !document.getElementById("dlpW1mTitle") && !document.getElementById("dlpW1mText")));
++ok("the model's transcript is not in the page at all yet", await A.p.evaluate(a => !document.body.innerText.includes(a), CLIPS.RE.text.slice(0, 30)));
++ok("nothing has been assigned", await A.p.evaluate(() => !S.dlpAssign));
++await takeBaseline(A.p);
++await waitPhase(A.p, "shadowing");
++const shownA = await clipShown(A.p);
++const assignA = await A.p.evaluate(() => S.dlpAssign["general:w1"]);
++console.log(`     Rae (real estate agent)  ->  https://youtu.be/${shownA.vid}  ${shownA.start}-${shownA.end}s  tier ${shownA.tier}`);
++ok("after the uncoached take the model is revealed, with its transcript", shownA.vid === CLIPS.RE.vid && await A.p.evaluate(a => document.getElementById("dlpW1mText").textContent.includes(a), CLIPS.RE.text.slice(0, 30)));
++ok("it is an exact-profession match (tier 1)", shownA.tier === 1);
++ok("the fixture is labelled, so no screenshot can pass it off as reviewed content", shownA.fixture);
++ok("the exact id and segment are saved, write-once, outside the attempt", assignA.vid === CLIPS.RE.vid && assignA.start === CLIPS.RE.startMs / 1000 && assignA.end === CLIPS.RE.endMs / 1000 && assignA.src === "week-pick");
++ok("the baseline MEASUREMENT now exists (the context bug is fixed): try.m has the words", await A.p.evaluate(() => { const m = _dlpEntry.stepData.try.m; return !!(m && m.tx && /hello/.test(m.tx)); }));
++ok("the baseline is a recording in its own context, and baseAt marks it", await A.p.evaluate(async () => { const r = await getRecs(dayKey(1, "Mon")); return r.length === 1 && Math.abs(r[0].ts - _dlpEntry.stepData.try.baseAt) < 5000; }));
++ok("Continue is already open: the model block gates NOTHING", await A.p.evaluate(() => { const b = [...document.querySelectorAll(".dlp-try button.btn-primary")].pop(); return !!b && !b.disabled; }));
++ok("the second-take button is locked until 6 shadows", await A.p.evaluate(() => document.getElementById("dlpW1mRec").disabled && !!document.getElementById("dlpW1mLock")));
++
++console.log("\n# C · shadowing from the Try step");
++const armed = await armStudio(A.p);
++ok("the studio is opened on EXACTLY the assigned clip and segment", armed.calls.length === 1 && armed.calls[0].vid === CLIPS.RE.vid && armed.calls[0].start === CLIPS.RE.startMs / 1000 && armed.calls[0].end === CLIPS.RE.endMs / 1000, JSON.stringify(armed));
++ok("it is armed on passage 0 and marked as opened from the Try step", armed.armed.ix === 0 && armed.armed.fromTry && armed.live);
++ok("the studio card offers 'back to the lesson' — never the Listen step's next shadow or its Finish", await A.p.evaluate(() => { const g = document.getElementById("dlpShCard").innerHTML; return /dlpBaseBack/.test(g) && !/dlpShFinish|dlpShNext\(/.test(g) || document.getElementById("dlpShCard").hidden; }));
++let n = 0; for (let i = 0; i < 5; i++) n = await shadowTake(A.p);
++ok("five shadows are counted by the lesson's own record", n === 5);
++await A.p.evaluate(() => dlpBaseBack());
++await A.p.waitForSelector("#dlpW1mN", { timeout: 15000 });
++ok("back in the lesson: 5 of 6, and the second take is still locked", await A.p.evaluate(() => document.getElementById("dlpW1mN").dataset.n === "5" && document.getElementById("dlpW1mRec").disabled));
++await armStudio(A.p); n = await shadowTake(A.p); await A.p.evaluate(() => dlpBaseBack()); await A.p.waitForSelector("#dlpW1mN");
++ok("the sixth shadow unlocks the second take", n === 6 && await A.p.evaluate(() => !document.getElementById("dlpW1mRec").disabled));
++ok("Listen's passage 0 IS the model clip, and the step still asks for the same number of shadows", await A.p.evaluate(() => { const ps = dlpPassages(1, 2); return ps.length === 2 && ps[0].match === "model" && ps[1].match !== "model"; }));
++ok("…and Listen already counts the model clip as shadowed (6 times)", await A.p.evaluate(() => dlpShHasRec(0) && dlpShRec(0).n === 6));
++
++console.log("\n# D · the second recording, kept apart from the baseline");
++await A.p.evaluate(() => { _dlpEntry.stepData.try.m = Object.assign({}, _dlpEntry.stepData.try.m, { sentinel: true }); save(); });
++await A.p.click("#dlpW1mRec"); await sleep(2600); await A.p.click("#dlpW1mRec");
++await A.p.waitForFunction(() => { const a = _dlpEntry.stepData.try.after; return a && a.recorded && a.m; }, null, { timeout: 20000 });
++const rec = await A.p.evaluate(async () => ({ base: (await getRecs(dayKey(1, "Mon"))).map(r => ({ size: r.blob.size, ts: r.ts })), after: (await getRecs(recCtx("dlp-try-after"))).map(r => ({ size: r.blob.size, ts: r.ts })),
++  T: JSON.parse(JSON.stringify(_dlpEntry.stepData.try)) }));
++ok("TWO recordings, each in its own context", rec.base.length === 1 && rec.after.length === 1, JSON.stringify({ b: rec.base.length, a: rec.after.length }));
++ok("they are different takes", rec.base[0].size !== rec.after[0].size && rec.base[0].ts !== rec.after[0].ts);
++ok("the second take is stored NESTED, as try.after", rec.T.after.recorded === true && rec.T.after.mode === "audio" && rec.T.after.at > rec.T.baseAt);
++ok("the BASELINE measurement is untouched — the day's before/after still reads it", rec.T.m.sentinel === true && /hello/.test(rec.T.m.tx));
++ok("the second take has its own measurement", !!rec.T.after.m && /hello/.test(rec.T.after.m.tx) && rec.T.after.m !== rec.T.m);
++ok("both replay buttons exist", await A.p.evaluate(() => !!document.getElementById("dlpW1mHearBase") && !!document.getElementById("dlpW1mHearAfter")));
++await A.p.evaluate(async () => { __played.length = 0; await dlpBasePlay("base"); await dlpBasePlay("after"); });
++const played = await A.p.evaluate(() => __played.slice());
++ok("each button plays ITS OWN take", played.length === 2 && played[0] === rec.base[0].size && played[1] === rec.after[0].size && played[0] !== played[1], JSON.stringify({ played, base: rec.base[0].size, after: rec.after[0].size }));
++ok("the day's closing comparison still has a 'before' of its own", await A.p.evaluate(() => { const before = dlpStepData("try").m; return !!before && before === _dlpEntry.stepData.try.m && !before.sentinel === false; }));
++
++console.log("\n# E · stable across leaving, reloading, restarting and a changed profile");
++const frozenKey = await A.p.evaluate(() => _dlpEntry.stepData.try.model.ranked[0].key);
++await A.p.evaluate(() => { LearnerProfile.set(S, "role", { role: "Doctor", roleId: "health.doctor", roleCat: "health" }); save(); go("journey"); });
++await A.p.evaluate(() => go("session", 1, "Mon")); await A.p.waitForSelector("#dlpW1mTitle");
++ok("leaving and returning keeps the clip, even after the profession was edited", (await clipShown(A.p)).vid === CLIPS.RE.vid);
++await A.p.reload({ waitUntil: "domcontentloaded" });
++await A.p.waitForFunction(() => typeof window.Week1Model === "object" && (curriculumOrEmpty().weeks || []).length > 0, null, { timeout: 30000 });
++await A.p.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel").forEach(e => e.remove()); }); await stub(A.p);
++await openMon(A.p); await A.p.waitForSelector("#dlpW1mTitle");
++ok("a full reload keeps the clip, the shadow count and the second take", await A.p.evaluate(() => document.getElementById("dlpW1mTitle").dataset.vid && document.getElementById("dlpW1mN").dataset.n === "6" && !!document.getElementById("dlpW1mAfterDone") && !!document.getElementById("dlpW1mHearAfter")));
++ok("…and the key it was frozen under is the same", await A.p.evaluate(() => _dlpEntry.stepData.try.model.ranked[0].key) === frozenKey);
++await A.p.evaluate(() => { _dlpEntry.completedAt = Date.now(); save(); });
++const restarted = await A.p.evaluate(async () => {
++  const e = DailyPlan.restart(S, { trackId: "general", w: 1, day: "Mon", pack: dlpPack(), profile: dlpProfile(), phrases: dlpPool(1, trackPhrases().filter(p => p.w === 1 && !p.i).slice(0, 5)), video: DailyPlan.pickSupportingVideo(trackShadowStarters(), dlpVideoKeywords()) });
++  _dlpEntry = e; save();
++  return { fresh: !e.stepData.try, assignKept: !!S.dlpAssign["general:w1"] };
++});
++ok("'Do this day again' mints a FRESH attempt but the assignment survives it", restarted.fresh && restarted.assignKept);
++await openMon(A.p); await takeBaseline(A.p, 1500); await waitPhase(A.p, "shadowing");
++const afterRestart = await clipShown(A.p);
++ok("the re-recorded baseline gets the SAME clip back — from the stored assignment, not a re-selection (the profile is a doctor's now)", afterRestart.vid === CLIPS.RE.vid && afterRestart.tier === 1, JSON.stringify(afterRestart));
++ok("…and the original assignment record was never rewritten", (await A.p.evaluate(() => S.dlpAssign["general:w1"])).at === assignA.at);
++await A.ctx.close();
++
++console.log("\n# F · different professions, same level -> different clips");
++const results = {};
++for (const [k, prof] of Object.entries({ RE: RE_P, DR: DR_P, DENT: DENT_P, NONE: NONE_P })) {
++  const s = await boot(prof); await openMon(s.p); await takeBaseline(s.p, 1400); await waitPhase(s.p, "shadowing");
++  results[k] = await clipShown(s.p); results[k].level = await s.p.evaluate(() => dlpProfile().selfLevel);
++  results[k].degraded = await s.p.evaluate(() => !dlpProfile().roleId);
++  console.log(`     ${k.padEnd(5)} level "${results[k].level}"  ->  https://youtu.be/${results[k].vid}  ${results[k].start}-${results[k].end}s  tier ${results[k].tier}`);
++  await s.ctx.close();
++}
++ok("every learner is at the same stated English level", new Set(Object.values(results).map(r => r.level)).size === 1 && results.RE.level === "Can get by");
++ok("EXACT ROLE: a real estate agent gets the real estate introduction (tier 1)", results.RE.vid === CLIPS.RE.vid && results.RE.tier === 1);
++ok("a doctor gets the doctor's introduction — a DIFFERENT clip, because of the profession", results.DR.vid === CLIPS.DR.vid && results.DR.vid !== results.RE.vid);
++ok("RELATED ROLE: a dentist gets a health-industry clip (tier 2), not the real estate one", results.DENT.tier === 2 && [CLIPS.DR.vid, CLIPS.NU.vid].includes(results.DENT.vid));
++ok("NO PROFILE: the GENERAL fallback, not somebody else's job (tier 4)", results.NONE.vid === CLIPS.GEN.vid && results.NONE.tier === 4 && results.NONE.degraded);
++
++console.log("\n# G · a clip that will not play never strands the learner");
++{
++  const s = await boot(DR_P); await openMon(s.p); await takeBaseline(s.p, 1400); await waitPhase(s.p, "shadowing");
++  const first = (await clipShown(s.p)).vid;
++  await armStudio(s.p); await shadowTake(s.p); await s.p.evaluate(() => dlpBaseBack()); await s.p.waitForSelector("#dlpW1mN");
++  const before = await s.p.evaluate(async () => ({ base: (await getRecs(dayKey(1, "Mon"))).length, n: dlpShRec(0).n }));
++  await armStudio(s.p);
++  await s.p.evaluate(() => shVideoError(true));          /* the studio's own player gave up */
++  await s.p.waitForSelector("#dlpW1mFailed", { timeout: 15000 });
++  const af = await s.p.evaluate(async () => ({ vid: document.getElementById("dlpW1mTitle").dataset.vid, base: (await getRecs(dayKey(1, "Mon"))).length, studio: _dlpSh, failed: _dlpEntry.stepData.try.model.failed.map(f => f.reason),
++    retired: (_dlpEntry.stepData.try.model.retired || []).length, assign: S.dlpAssign["general:w1"].vid, cont: !![...document.querySelectorAll(".dlp-try button.btn-primary")].pop() && ![...document.querySelectorAll(".dlp-try button.btn-primary")].pop().disabled }));
++  ok("a player failure moves to ANOTHER eligible clip and says so", af.vid !== first && af.failed[0] === "player", JSON.stringify(af));
++  ok("the recording is preserved", af.base === before.base && before.base === 1);
++  ok("the shadows already recorded on the failed clip are RETIRED with it, not credited to the next", af.retired === 1 && await s.p.evaluate(() => !dlpShRec(0)));
++  ok("the learner is back in the lesson, not stuck in the studio", af.studio === null);
++  ok("the ORIGINAL assignment is untouched", af.assign === first);
++  ok("Continue is still open", af.cont);
++  /* captions that will not load */
++  const second = af.vid;
++  await s.ctx.route(`**/captions/${second}.json`, r => r.fulfill({ status: 404, body: "" }));
++  await s.p.evaluate(() => dlpBaseShadow()); await sleep(500);
++  const af2 = await s.p.evaluate(() => ({ vid: (document.getElementById("dlpW1mTitle") || { dataset: {} }).dataset.vid, failed: _dlpEntry.stepData.try.model.failed.map(f => f.reason), studioOpened: !!_dlpSh }));
++  ok("captions that will not load: the studio is never opened, and another clip is offered", af2.failed[1] === "captions" && af2.vid !== second && !af2.studioOpened, JSON.stringify(af2));
++  /* every clip fails */
++  await s.p.evaluate(() => { const T = _dlpEntry.stepData.try; let m = T.model; for (let i = 0; i < 4 && !m.exhausted; i++) m = Week1Model.fail(m, Week1Model.current(m).key, "player"); T.model = m; save(); dlpRerender(); });
++  await waitPhase(s.p, "exhausted");
++  ok("when EVERY clip fails the block says so — and the baseline is still playable", await s.p.evaluate(() => !!document.getElementById("dlpW1mHearBase") && /continue/i.test(document.getElementById("dlpW1m").textContent)));
++  ok("…and Continue still advances the lesson", await s.p.evaluate(() => { const b = [...document.querySelectorAll(".dlp-try button.btn-primary")].pop(); b.click(); return _dlpEntry.step !== "try"; }));
++  ok("no JavaScript errors", s.errs.length === 0, s.errs.join(" | "));
++  await s.ctx.close();
++}
++
++console.log("\n# H · an EMPTY or MISSING approved catalogue keeps the baseline fully usable");
++for (const [label, models] of [["empty catalogue", { clips: [] }], ["models file missing (404)", null]]) {
++  const s = await boot({ ...RE_P, models }); await openMon(s.p); await takeBaseline(s.p, 1400); await waitPhase(s.p, "empty");
++  const r = await s.p.evaluate(async () => ({ txt: document.getElementById("dlpW1m").textContent, hear: !!document.getElementById("dlpW1mHearBase"), recs: (await getRecs(dayKey(1, "Mon"))).length,
++    assign: !!S.dlpAssign, rec: _dlpEntry.stepData.try.recorded, cont: !![...document.querySelectorAll(".dlp-try button.btn-primary")].pop() && ![...document.querySelectorAll(".dlp-try button.btn-primary")].pop().disabled }));
++  ok(`${label}: it explains the model exercise is unavailable`, /No model introduction is ready yet/.test(r.txt) && /counts/.test(r.txt), r.txt);
++  ok(`${label}: the baseline recording is saved, replayable, and Continue advances`, r.rec && r.hear && r.recs === 1 && r.cont);
++  ok(`${label}: nothing is assigned — Week 12 is never handed a clip that was never shown`, !r.assign);
++  ok(`${label}: no second-take or shadow controls are offered`, await s.p.evaluate(() => !document.getElementById("dlpW1mRec") && !document.getElementById("dlpW1mGo")));
++  ok(`${label}: no JavaScript errors`, s.errs.length === 0, s.errs.join(" | "));
++  await s.ctx.close();
++}
++
++console.log("\n# I · typing the baseline instead of speaking it");
++{
++  const s = await boot(RE_P); await openMon(s.p);
++  await s.p.evaluate(() => { document.getElementById("dlpTypetry").value = "My name is Rae and I sell homes."; dlpTypeFallback("try"); });
++  await waitPhase(s.p, "shadowing");
++  ok("a typed baseline is still an uncoached baseline: the model is revealed", (await clipShown(s.p)).vid === CLIPS.RE.vid);
++  await s.p.evaluate(() => { _dlpEntry.stepData.try.after = { recorded: true, mode: "audio", at: 123 }; document.getElementById("dlpTypetry").value = "Edited text."; dlpTypeFallback("try"); });
++  ok("typing again does NOT erase the frozen model or the second take", await s.p.evaluate(() => !!_dlpEntry.stepData.try.model && _dlpEntry.stepData.try.after.at === 123 && _dlpEntry.stepData.try.mode === "text"));
++  ok("a typed baseline has no audio, so no 'hear my first take'", await s.p.evaluate(() => !document.getElementById("dlpW1mHearBase")));
++  await s.ctx.close();
++}
++
++console.log("\n# J · an attempt already under way is never re-ordered");
++{
++  const s = await boot(RE_P); await openMon(s.p);
++  await s.p.evaluate(() => { _dlpEntry.stepData.listen = { sh: { "0": { vid: "x", para: 1, at: 1, n: 1 } } }; save(); });
++  await takeBaseline(s.p, 1400); await waitPhase(s.p, "empty");
++  ok("a lesson that already has recorded shadows gets no model (its stored ordinals stay valid)", await s.p.evaluate(() => !_dlpEntry.stepData.try.model.passageFront && dlpPassages(1, 2).every(x => x.match !== "model") && dlpShRec(0).n === 1));
++  await s.ctx.close();
++}
++
++ok("no JavaScript errors in the main learner's session", A.errs.length === 0, A.errs.join(" | "));
++await b.close(); if (srv) srv.kill();
++console.log(`\n${pass}/${pass + fail} passed`); process.exit(fail ? 1 : 0);

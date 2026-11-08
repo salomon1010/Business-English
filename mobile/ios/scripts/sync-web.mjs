@@ -82,7 +82,7 @@ const PRUNE = {
        it — and it is General English material, so neither bundle should carry it. */
     dirs: ["scenes", "rp-photos", "catalogue/drafts"],
     files: ["catalogue/general.json", "catalogue/sources.json", "catalogue/survey.json",
-            "catalogue/ideas-growth.json", "catalogue/ideas-personal-growth-sources.json", "catalogue/week-clips.json",
+            "catalogue/ideas-growth.json", "catalogue/ideas-personal-growth-sources.json", "catalogue/week-clips.json", "catalogue/week1-models.json",
             "tracks/general/missions.json", "tracks/general/mastery.json", "tracks/general/mastery-art3d.json",
             "english-mastery-logo.svg",
             /* Onboarding V2 and the General English learner profile (7 Nov 2026): General English only, so the Welding

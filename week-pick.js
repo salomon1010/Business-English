@@ -161,12 +161,17 @@
       rows.push({ id: c.id, key: c.key, start: c.start, end: c.end, dur: c.dur, tier: tier, why: whyOf(c, u, tier),
         wpm: c.wpm, over: over, tooHard: over > TOLERANCE, source: c.source, editorial: c.editorial,
         blockers: r.blockers, boundaries: c.boundaries, role: c.role, roleGroup: c.roleGroup, title: c.title,
+        _spec: (c.role || c.roleGroup || c.industries.length) ? 1 : 0,
         _unk: c.wpm === null ? 1 : 0,
         _gap: c.wpm !== null ? Math.abs(c.wpm - Math.min(TARGET_WPM, ceiling)) : 0, _cap: c.hasText ? 0 : 1 });
     });
     rows.sort(function (a, b) {
       if (a.tooHard !== b.tooHard) return a.tooHard ? 1 : -1;     /* level decides suitability first */
       if (a.tier !== b.tier) return a.tier - b.tier;
+      /* among clips that match nothing about the learner, a GENERAL clip beats one written for somebody
+         else's job: a learner with no profile must not be handed a real-estate agent's introduction
+         while a general one exists. Only meaningful at tier 4; above it the match itself decides. */
+      if (a.tier === 4 && a._spec !== b._spec) return a._spec - b._spec;
       /* a clip whose pace cannot be measured is not "gentle" — it is unknown. Without this it scored
          over:0 and gap:0, the best possible values, and a BLOCKED clip with no transcript outranked
          every measured one on a tie. Known pace first; unknown is never rewarded for being unknown. */
@@ -176,7 +181,7 @@
       if (a._cap !== b._cap) return a._cap - b._cap;              /* tie-break 3: one with a transcript */
       return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;          /* last: arbitrary but STABLE */
     });
-    rows.forEach(function (r) { delete r._gap; delete r._cap; delete r._unk; });
+    rows.forEach(function (r) { delete r._gap; delete r._cap; delete r._unk; delete r._spec; });
     var ranked = rows.filter(function (r) { return !r.blockers.length; });
     return { week: week, ranked: ranked, picked: ranked.length ? 0 : -1, degraded: degraded, gap: !ranked.length,
       candidates: rows, wouldPick: rows.length ? rows[0] : null, held: held };

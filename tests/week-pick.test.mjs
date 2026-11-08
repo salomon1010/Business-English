@@ -83,6 +83,10 @@ ok("two learners get different clips for the same weekly skill, by pace", nu.id 
 ok("a beginner is never handed a too-fast clip while a gentler one exists", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].every(w => { const r = WP.choose({ selfLevel: "New to speaking English" }, w, idx(w)); return !r.ranked[0].tooHard || r.ranked.every(c => c.tooHard); }));
 const lev = WP.choose({ roleId: "x.y", roleCat: "tech", selfLevel: "Can get by" }, 9, [mk("AAAAAAAAAAA", { role: "x.y", wpm: 200 }), mk("BBBBBBBBBBB", { roleGroup: "tech", wpm: 140 })]);
 ok("level outranks tier: a gentle related-role clip beats an exact-role clip they cannot follow", lev.ranked[0].id === "BBBBBBBBBBB", lev.ranked.map(r => r.id + ":" + r.tier + ":" + r.tooHard).join());
+const gen = WP.choose({}, 9, [mk("HHHHHHHHHHH", { role: "retail.real_estate", roleGroup: "retail", wpm: 150 }), mk("IIIIIIIIIII", { wpm: 150 })]);
+ok("a learner with no profile gets the GENERAL clip, not one written for somebody else's job", gen.ranked[0].id === "IIIIIIIIIII", gen.ranked.map(r => r.id + ":" + r.tier).join());
+const gen2 = WP.choose({ roleId: "health.doctor", roleCat: "health" }, 9, [mk("HHHHHHHHHHH", { role: "retail.real_estate", roleGroup: "retail", wpm: 150 }), mk("IIIIIIIIIII", { wpm: 150 })]);
+ok("…and so does a learner whose job matches none of the specific clips", gen2.ranked[0].id === "IIIIIIIIIII");
 ok("pace is null, not guessed, for a clip with no transcript", intros.every(c => c.wpm === null));
 ok("an unknown pace is never penalised", WP.choose({ selfLevel: "New to speaking English" }, 9, [mk("CCCCCCCCCCC", { wpm: null })]).ranked[0].tooHard === false);
 const unk = WP.choose({ selfLevel: "Can get by" }, 9, [mk("FFFFFFFFFFF", { wpm: null, hasText: false }), mk("GGGGGGGGGGG", { wpm: 165 })]);
