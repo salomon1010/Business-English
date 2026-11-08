@@ -95,6 +95,17 @@ the lesson", never the Listen step's next button), `dlpMeasure`.
 produced and the day's closing before/after could not compare anything. No test covered the path. The patch
 passes the real context through.
 
+**THE PATCH IS INERT ON ITS OWN.** `dlpBaseOn` requires `window.Week1Model` and `window.WeekPick`, which come
+from `week1-model.js` and `week-pick.js` (this branch). Apply the patch without them and, with the staging flag
+on, the block simply never appears. That is safe, and it looks exactly like a bug. Apply the patch with both
+files, `catalogue/week1-models.json` and the flag on a staging build.
+
+**Do not read the rights status off this feature.** The clips in `tracks/general/clip-index.json` are treated as
+"shipping" (what runs today), never as approved, and the audit in `docs/WEEK1_CLIP_APPROVAL.md` finds no caption
+basis for any third-party clip, and two Week 1 passages that are the channel's own advertising. The fixture clips
+used by the tests and the device demo are arbitrary library passages (one is that advertising); each is labelled
+"TEST CLIP · not reviewed" on screen.
+
 ### Tests, kept apart
 - **Fixture tests (pass):** `tests/week1-model.test.mjs` 41/41 (pure) and `tests/week1-baseline.mjs` 67/67 (the real
   lesson, Chromium, fake microphone). The clips are real library videos with their real captions given TEST role

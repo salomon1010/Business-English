@@ -569,7 +569,7 @@ index 2f2a5bec..b971b668 100644
 + "dlp.w1m_back": "Back to the lesson"
  }
 diff --git a/index.html b/index.html
-index 8f2b02ae..46120871 100644
+index 8f2b02ae..587ec8d8 100644
 --- a/index.html
 +++ b/index.html
 @@ -70,6 +70,8 @@
@@ -663,7 +663,7 @@ index 8f2b02ae..46120871 100644
    dlpRerender();
  };
  function dlpRecOrTypeHTML(step){
-@@ -15598,9 +15640,187 @@ function dlpTryHTML(plan,key,w,d){
+@@ -15598,9 +15640,188 @@ function dlpTryHTML(plan,key,w,d){
      ${dd.repOnFirst?`<p class="ex-fine">${esc(t("dlp.try_rep_once"))}</p>`:""}
      ${dlpTakesHTML(dd.takes)}
      ${done?`<p class="ex-fine dlp-next">${esc(dlpLearnerName()?t("dlp.try_next",{name:dlpLearnerName(),p:dlpProfileLabel()||t("dlp.sent_role_fallback")}):t("dlp.try_next_x",{p:dlpProfileLabel()||t("dlp.sent_role_fallback")}))}</p>`:""}
@@ -768,6 +768,7 @@ index 8f2b02ae..46120871 100644
 +  return wrap(`${head}${p.fixture?`<span class="dlp-w1m-chip" id="dlpW1mFixture">${esc(t("dlp.w1m_fixture"))}</span>`:""}${failedNote}
 +    <p class="sub"><b id="dlpW1mTitle" data-vid="${esc(p.vid)}" data-start="${(p.startMs/1000)}" data-end="${(p.endMs/1000)}">${esc(shClipTitle({vid:p.vid,title:p.title}))}</b></p>
 +    <p class="ex-fine" id="dlpW1mWhy" data-tier="${p.why.tier}">${esc(dlpBaseWhy(p.why))}</p>
++    ${p.fixture?`<p class="ex-fine" id="dlpW1mDev">${esc(p.vid)} · ${esc(String(p.startMs/1000))}–${esc(String(p.endMs/1000))} s · tier ${p.why.tier}</p>`:""}
 +    <details class="dlp-pass-det" open><summary>${esc(t("dlp.w1m_transcript"))}</summary><p class="dlp-pass-q" id="dlpW1mText">“${esc(p.text)}”</p></details>
 +    <p class="dlp-w1m-n" id="dlpW1mN" data-n="${n}">${esc(t("dlp.w1m_shadow_n",{n,min:st.min,max:st.max}))}</p>
 +    <div class="dlp-pass-go">
@@ -851,7 +852,7 @@ index 8f2b02ae..46120871 100644
  /* the live words, where the device can hear them. iOS WKWebView ships no speech engine and
     Android's in-app WebView does not deliver one either, so this is a BONUS: when it is absent the
     panel says the words will arrive with the report, which they do (Whisper, moments later). */
-@@ -15643,8 +15863,10 @@ window.dlpTryRec=(key,w,d)=>{
+@@ -15643,8 +15864,10 @@ window.dlpTryRec=(key,w,d)=>{
    phRecInto(key,t("dlp.step_try"),null,()=>{
      /* the take is saved: Continue opens NOW, whatever the AI does next. A learner whose network is
         down must still be able to move on, and may record again as often as they like. */
@@ -863,7 +864,7 @@ index 8f2b02ae..46120871 100644
      try{dlpRerender()}catch(e){}
    },async blob=>{
      dlpLiveStop();dlpTick(false);
-@@ -15666,7 +15888,7 @@ window.dlpTryRec=(key,w,d)=>{
+@@ -15666,7 +15889,7 @@ window.dlpTryRec=(key,w,d)=>{
      const fresh=((sessRepGet(key)||{}).at||0)>repAt;
      /* and the plain numbers the rest of the lesson uses */
      try{
@@ -872,7 +873,7 @@ index 8f2b02ae..46120871 100644
        if(m&&_dlpEntry){
          const d=_dlpEntry.stepData.try||{};
          /* every take is kept, so a learner who repeats the minute can see the line move
-@@ -16151,7 +16373,12 @@ function dlpPassages(w,n){
+@@ -16151,7 +16374,12 @@ function dlpPassages(w,n){
      if(!isGeneralEnglish())return [];        /* the one check every General-English-only feature makes */
      const ix=(curriculumOrEmpty().clipIndex)||null;
      const list=ix&&ix[String(w)];
@@ -886,7 +887,7 @@ index 8f2b02ae..46120871 100644
    }catch(e){return []}
  }
  /* a curriculum clip is the COURSE, not the learner's own collection: it is stamped with the lesson
-@@ -16191,7 +16418,7 @@ function dlpListenHTML(plan,key,w,d){
+@@ -16191,7 +16419,7 @@ function dlpListenHTML(plan,key,w,d){
      const saved=dlpClipSaved(p),r=dlpShRec(ix),mine=dlpShHasRec(ix),skipped=dlpShSkipped(ix);
      return `<div class="dlp-pass">
        <p class="dlp-pass-h"><b>${esc(shClipTitle({vid:p.vid,title:p.title}))}</b>${mine?`<span class="chip done" style="margin-inline-start:6px">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:skipped?`<span class="chip" style="margin-inline-start:6px">${esc(t("dlp.sh_skipped_chip"))}</span>`:""}</p>
@@ -895,7 +896,7 @@ index 8f2b02ae..46120871 100644
        <p class="ex-fine dlp-pass-meta">${esc(t("dlp.pass_meta",{s:Math.round(p.seconds||0),n:p.sentences||1,w:p.words||0}))}</p>
        ${mine&&r.pct!=null?`<p class="ex-fine dlp-pass-done">${esc(t("dlp.sh_row_done",{n:r.pct}))}</p>`:""}
        <details class="dlp-pass-det"><summary>${esc(t("dlp.pass_read"))}</summary><p class="dlp-pass-q">“${esc(p.text)}”</p></details>
-@@ -16524,13 +16751,13 @@ function dlpShSync(){
+@@ -16524,13 +16752,13 @@ function dlpShSync(){
    const nx=dlpShNextIx(),mine=dlpShHasRec(sh.ix);
    /* one primary, and — once a real shadow is behind them — a plain way past the rest */
    const skip=dlpShMaySkip(sh.w)?`<button class="btn btn-g btn-sm dlp-skip" onclick="dlpShSkip()">${esc(t("dlp.sh_skip"))}</button>`:"";
@@ -911,7 +912,7 @@ index 8f2b02ae..46120871 100644
        ${mine?`<span class="chip done">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:""}</div>
      <div id="dlpShRes"></div>
      ${mine?dlpShHearHTML(sh.ix):""}
-@@ -18648,6 +18875,7 @@ async function shLoad(c,quiet){
+@@ -18648,6 +18876,7 @@ async function shLoad(c,quiet){
     that would otherwise act on a dead player. Closing the workspace returns to
     the picker, where another clip can be chosen. */
  function shVideoError(on){
@@ -919,7 +920,7 @@ index 8f2b02ae..46120871 100644
    const box=document.getElementById("shVidErr");
    if(box)box.style.display=on?"":"none";
    const ctl=document.querySelector(".sh-ctl"),seg=document.getElementById("shSeg");
-@@ -27594,6 +27822,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
+@@ -27594,6 +27823,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
     Flags gate UI *and* the Worker calls the UI would make; the Worker has its
     own PARTNER_ENABLED switch as the server-side boundary. */
  const FLAGS_DEFAULT={
@@ -927,7 +928,7 @@ index 8f2b02ae..46120871 100644
    onboarding_v2_enabled:false,   // Onboarding V2 (owner-approved name, 6 Nov 2026), General English only. Phase 0 = sync safety only: gates the learner-profile (S.lp) cloud sync. OFF in production until the owner approves the sync compatibility separately.
    daily_learning_plan_pilot_enabled:false,   // Phase 2 pilot (6 Nov 2026): the guided TRY..FINISH flow on Week 1 Monday, General English only. OFF until the owner enables it on staging.
    practice_partner_enabled:true,       // released 2026-09-20 (owner decision; DEVICE_CHECKLIST 24/66 rows certified on staging)
-@@ -27634,6 +27863,7 @@ const FLAGS_DEFAULT={
+@@ -27634,6 +27864,7 @@ const FLAGS_DEFAULT={
  /* the internal-preview set from PILOT.md, on by default on the staging host
     only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
  const FLAGS_STAGING={
@@ -1223,3 +1224,143 @@ index 00000000..f7666ef7
 +ok("no JavaScript errors in the main learner's session", A.errs.length === 0, A.errs.join(" | "));
 +await b.close(); if (srv) srv.kill();
 +console.log(`\n${pass}/${pass + fail} passed`); process.exit(fail ? 1 : 0);
+diff --git a/tests/week1-device-demo.mjs b/tests/week1-device-demo.mjs
+new file mode 100644
+index 00000000..e8349a83
+--- /dev/null
++++ b/tests/week1-device-demo.mjs
+@@ -0,0 +1,134 @@
++/* DEVICE DEMO — Week 1 Monday's model introduction on a REAL browser on a device or emulator.
++   Not part of `npm test`. It needs a running emulator/simulator and the fixture server (see below).
++
++     ADB=…/adb CDP=http://127.0.0.1:9333 BASE=http://localhost:8302 OUT=/dir PLATFORM=android node tests/week1-device-demo.mjs
++
++   FIXTURES, STATED PLAINLY: the clips are real library videos with their real bundled captions, given TEST role
++   tags and fixture:true; each card is labelled "TEST CLIP". The model catalogue is served by a server that
++   overrides ONE file (catalogue/week1-models.json). Transcription is stubbed (the Worker is unreachable), so the
++   "words" in a measurement are not what was said. This is Chrome (or Safari) on the device, NOT the store app:
++   the Play app is a Trusted Web Activity on app.lomonec.com, so it would load production, where none of this exists. */
++import { chromium } from "playwright";
++import { execFileSync } from "node:child_process";
++import { writeFileSync, mkdirSync } from "node:fs";
++import { setTimeout as sleep } from "node:timers/promises";
++const CDP = process.env.CDP || "http://127.0.0.1:9333", BASE = process.env.BASE || "http://localhost:8302", OUT = process.env.OUT || "/tmp/w1-demo", PLATFORM = process.env.PLATFORM || "android", ADB = process.env.ADB;
++mkdirSync(OUT, { recursive: true });
++const FLAGS = "onboarding_v2_enabled,home_v2_enabled,daily_learning_plan_pilot_enabled,week1_model_clip_enabled";
++const shot = async (page, name) => {
++  const f = `${OUT}/${PLATFORM}-${name}.png`;
++  if (PLATFORM === "android" && ADB) writeFileSync(f, execFileSync(ADB, ["exec-out", "screencap", "-p"], { maxBuffer: 1 << 26 }));
++  else await page.screenshot({ path: f });
++  console.log(`     📷 ${f}`); return f;
++};
++let pass = 0, fail = 0; const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : "  — " + String(d).slice(0, 260)}`); };
++
++const browser = await chromium.connectOverCDP(CDP);
++const context = browser.contexts()[0];
++await context.grantPermissions(["microphone"], { origin: new URL(BASE).origin }).catch(e => console.log("  (grantPermissions:", String(e).slice(0, 80), ")"));
++let page = context.pages().find(p => p.url().startsWith(BASE)) || context.pages()[0];
++page.setDefaultNavigationTimeout(120000); page.setDefaultTimeout(60000);   /* an emulator on a busy host is slow; the checks themselves are unchanged */
++const ua = await page.evaluate(() => navigator.userAgent);
++console.log(`\n${PLATFORM.toUpperCase()}  ·  ${ua.slice(0, 110)}\n`);
++
++const ready = () => page.waitForFunction(() => typeof window.dlpOn === "function" && typeof window.Week1Model === "object" && (curriculumOrEmpty().weeks || []).length > 0, null, { timeout: 60000 });
++async function learner(prof) {
++  /* reset from a page that runs NO app code: leaving the previous learner's page re-saves their state, so clearing
++     from inside the app (as an earlier version did) handed the next learner the last one's data */
++  await page.goto(`${BASE}/robots.txt`, { waitUntil: "domcontentloaded" });
++  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); return new Promise(r => { const q = indexedDB.deleteDatabase("be12_recordings"); q.onsuccess = q.onerror = q.onblocked = () => r(); }); });
++  await page.goto(`${BASE}/index.html?flags=${FLAGS}`, { waitUntil: "domcontentloaded" }); await ready();
++  await page.evaluate(a => {
++    document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove());
++    S.profile = Object.assign({}, S.profile, { name: a.name, lang: "en" });
++    S.fnd = { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } };
++    try { if (a.role) LearnerProfile.set(S, "role", { role: a.role.label, roleId: a.role.id, roleCat: a.role.cat });
++      if (a.sits) LearnerProfile.set(S, "situations", { situations: a.sits, primarySituation: a.sits[0] });
++      LearnerProfile.set(S, "confidence", { selfLevel: "Can get by" }); } catch (e) {}
++    window.exTranscribe = async () => ({ text: "hello my name is test and i work in this field every day", words: [{ word: "hello", start: 0, end: 1 }, { word: "day", start: 5, end: 6 }] });
++    window.__played = []; const o = window.exPlayBlob; window.exPlayBlob = x => { window.__played.push(x && x.size); try { o(x); } catch (e) {} };
++    save();
++  }, prof);
++}
++/* Android Chrome shows the app's own "Get the Android app" nudge (playAsk). A learner would tap "Later". */
++const dismissNudges = async () => { for (let i = 0; i < 8; i++) { const had = await page.evaluate(() => { const b = document.querySelector('.pi-ov [data-pi="0"]'); if (b) { b.click(); return true; } return false; }); if (had) { await sleep(500); break; } await sleep(400); } };
++const openMon = async () => { await dismissNudges(); await page.evaluate(() => go("session", 1, "Mon")); await page.waitForSelector("#dlpMic", { timeout: 30000 }); await dismissNudges(); await sleep(600); };
++const baseline = async ms => { await page.tap("#dlpMic").catch(() => page.click("#dlpMic")); await sleep(ms); await page.tap("#dlpMic").catch(() => page.click("#dlpMic"));
++  await page.waitForFunction(() => { const T = (_dlpEntry && _dlpEntry.stepData.try) || {}; return T.recorded && T.m; }, null, { timeout: 60000 }); };
++const waitPhase = ph => page.waitForFunction(x => (document.getElementById("dlpW1m") || { dataset: {} }).dataset.phase === x, ph, { timeout: 60000 });
++const shown = () => page.evaluate(() => { const t = document.getElementById("dlpW1mTitle"); return t ? { vid: t.dataset.vid, start: +t.dataset.start, end: +t.dataset.end, tier: +document.getElementById("dlpW1mWhy").dataset.tier, why: document.getElementById("dlpW1mWhy").textContent } : null; });
++const scrollTo = sel => page.evaluate(s => { const e = document.querySelector(s); if (e) e.scrollIntoView({ block: "center" }); }, sel);
++const profiles = {
++  Rae: { name: "Rae", role: { label: "Real estate agent", id: "retail.real_estate", cat: "retail" }, sits: ["clients"] },
++  Dee: { name: "Dee", role: { label: "Doctor / physician", id: "health.doctor", cat: "health" }, sits: ["meetings"] },
++  Den: { name: "Den", role: { label: "Dentist", id: "health.dentist", cat: "health" }, sits: ["meetings"] },
++  Nia: { name: "Nia" },
++};
++const R = {};
++
++/* ---- Rae: the whole flow, with a picture at each step ---- */
++console.log("# Rae, a real estate agent: the full flow");
++await learner(profiles.Rae); await openMon();
++ok("before recording: a hint, and NO clip", await page.evaluate(() => document.getElementById("dlpW1m").dataset.phase === "baseline" && !document.getElementById("dlpW1mTitle")));
++await scrollTo("#dlpW1m"); await shot(page, "1-rae-before-baseline");
++await baseline(2500); await waitPhase("shadowing"); await scrollTo("#dlpW1m"); await sleep(500);
++R.Rae = await shown(); console.log(`     -> https://youtu.be/${R.Rae.vid}  ${R.Rae.start}-${R.Rae.end}s  tier ${R.Rae.tier}   "${R.Rae.why}"`);
++await shot(page, "2-rae-model-revealed");
++ok("the model is revealed only AFTER the uncoached take", R.Rae.tier === 1);
++ok("the baseline is a real recording on this device", await page.evaluate(async () => { const r = await getRecs(dayKey(1, "Mon")); return r.length === 1 && r[0].blob.size > 1200; }));
++ok("the lesson can still advance (Continue open)", await page.evaluate(() => { const b = [...document.querySelectorAll(".dlp-try button.btn-primary")].pop(); return !!b && !b.disabled; }));
++for (let i = 1; i <= 6; i++) {
++  await page.evaluate(async () => {
++    const T = dlpStepData("try"), c = Week1Model.current(T.model); const real = window.shClipGo; window.shClipGo = () => {};
++    await dlpBaseShadow(); await new Promise(r => setTimeout(r, 450)); window.shClipGo = real;
++    const cap = await (await fetch("captions/" + c.vid + ".json")).json();
++    svAsset = ShadowSync.normalizeCaptions(cap); shClip.vid = c.vid; shClip.start = c.startMs / 1000; shClip.end = c.endMs / 1000;
++    svMode = "shadow"; svShPinned = true; svShPara = svAsset.segments.findIndex(s => s.startMs >= c.startMs - 50);
++    if (!document.getElementById("dlpShCard")) document.body.insertAdjacentHTML("beforeend", `<div class="card dlp-sh-card" id="dlpShCard" data-sv-keep="1" hidden></div>`);
++    dlpShSync(); dlpShBusy(); await dlpShGraded(svShSeg().text, { seconds: 13 }); dlpShSync();
++    dlpBaseBack();
++  });
++  await page.waitForSelector("#dlpW1mN", { timeout: 30000 }); await sleep(250);
++  if (i === 1 || i === 6) { await scrollTo("#dlpW1mN"); await shot(page, `3-rae-shadowed-${i}`); }
++}
++ok("6 shadows counted, and the second take is now unlocked", await page.evaluate(() => document.getElementById("dlpW1mN").dataset.n === "6" && !document.getElementById("dlpW1mRec").disabled));
++await page.evaluate(() => { _dlpEntry.stepData.try.m = Object.assign({}, _dlpEntry.stepData.try.m, { sentinel: true }); save(); });
++await scrollTo("#dlpW1mRec"); await page.tap("#dlpW1mRec").catch(() => page.click("#dlpW1mRec")); await sleep(3200); await page.tap("#dlpW1mRec").catch(() => page.click("#dlpW1mRec"));
++await page.waitForFunction(() => { const a = _dlpEntry.stepData.try.after; return a && a.recorded && a.m; }, null, { timeout: 60000 });
++await scrollTo("#dlpW1mHearBase"); await sleep(400); await shot(page, "4-rae-second-take-saved");
++const rec = await page.evaluate(async () => ({ base: (await getRecs(dayKey(1, "Mon"))).map(r => r.blob.size), after: (await getRecs(recCtx("dlp-try-after"))).map(r => r.blob.size), keep: !!_dlpEntry.stepData.try.m.sentinel }));
++ok("TWO separate recordings, each in its own context", rec.base.length === 1 && rec.after.length === 1, JSON.stringify(rec));
++ok("the baseline measurement was not overwritten by the second take", rec.keep);
++await page.evaluate(async () => { __played.length = 0; await dlpBasePlay("base"); await dlpBasePlay("after"); });
++const pl = await page.evaluate(() => __played.slice());
++ok("each replay button plays its own take", pl.length === 2 && pl[0] === rec.base[0] && pl[1] === rec.after[0] && pl[0] !== pl[1], JSON.stringify({ pl, rec }));
++await page.reload({ waitUntil: "domcontentloaded" }); await ready(); await openMon(); await page.waitForSelector("#dlpW1mTitle", { timeout: 30000 });
++ok("RESUME: after a full reload the same clip, the 6 shadows and the second take are all still there", await page.evaluate(v => document.getElementById("dlpW1mTitle").dataset.vid === v && document.getElementById("dlpW1mN").dataset.n === "6" && !!document.getElementById("dlpW1mAfterDone"), R.Rae.vid));
++
++/* ---- three more learners at the SAME level: only the reveal ---- */
++for (const k of ["Dee", "Den", "Nia"]) {
++  console.log(`\n# ${k}`);
++  await learner(profiles[k]); await openMon(); await baseline(1600); await waitPhase("shadowing"); await scrollTo("#dlpW1m"); await sleep(400);
++  R[k] = await shown(); R[k].level = await page.evaluate(() => dlpProfile().selfLevel);
++  console.log(`     -> https://youtu.be/${R[k].vid}  ${R[k].start}-${R[k].end}s  tier ${R[k].tier}   level "${R[k].level}"`);
++  await shot(page, `5-${k.toLowerCase()}-model-revealed`);
++  if (k === "Dee") {                                  /* a playback failure, on the device */
++    const first = R.Dee.vid;
++    const before = await page.evaluate(async () => (await getRecs(dayKey(1, "Mon"))).length);
++    await page.evaluate(async () => { const real = window.shClipGo; window.shClipGo = () => {}; await dlpBaseShadow(); await new Promise(r => setTimeout(r, 450)); window.shClipGo = real; shVideoError(true); });
++    await page.waitForSelector("#dlpW1mFailed", { timeout: 30000 }); await scrollTo("#dlpW1m"); await sleep(400);
++    const af = await shown(); const after = await page.evaluate(async () => (await getRecs(dayKey(1, "Mon"))).length);
++    await shot(page, "6-dee-playback-failed-another-offered");
++    ok("PLAYBACK FAILURE: another eligible clip is offered", af.vid !== first, `${first} -> ${af.vid}`);
++    ok("…and the learner's recording is preserved", before === 1 && after === 1);
++    ok("…and the lesson can still advance", await page.evaluate(() => { const b = [...document.querySelectorAll(".dlp-try button.btn-primary")].pop(); return !!b && !b.disabled; }));
++  }
++}
++console.log("\n# the comparison");
++ok("all four learners are at the same stated English level", new Set(Object.values(R).map(r => r.level || "Can get by")).size === 1);
++ok("EXACT ROLE: the real estate agent gets the real estate clip (tier 1)", R.Rae.tier === 1);
++ok("a doctor gets a DIFFERENT clip, because of the profession (tier 1)", R.Dee.vid !== R.Rae.vid && R.Dee.tier === 1);
++ok("RELATED ROLE: a dentist gets a health-industry clip (tier 2)", R.Den.tier === 2);
++ok("NO PROFILE: the general fallback (tier 4)", R.Nia.tier === 4);
++writeFileSync(`${OUT}/${PLATFORM}-results.json`, JSON.stringify({ platform: PLATFORM, userAgent: ua, results: R }, null, 1));
++console.log(`\n${pass}/${pass + fail} passed`); await browser.close(); process.exit(fail ? 1 : 0);
