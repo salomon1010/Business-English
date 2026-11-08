@@ -1,0 +1,406 @@
+{
+ "about": "Three Week 1 candidates for the owner's review, prepared 8 Nov 2026. NOT RECORDED, NOT APPROVED. Scripts are session 30's drafts (catalogue/drafts/week1-clip-approval-batch.json) trimmed where the 45-60 s window would be overrun.",
+ "status": "awaiting_owner_review",
+ "bar": {
+  "duration_s": [
+   45,
+   60
+  ],
+  "content": "first-person self-introduction",
+  "speaker": "a US-based professional",
+  "captions": "accurate English",
+  "caption_basis": "BE Mastery-owned, or documented permission; a visible YouTube caption track does not qualify"
+ },
+ "duration_model": {
+  "paces_wpm": [
+   135,
+   145,
+   160
+  ],
+  "pause_between_lines_s": 0.5,
+  "note": "an ESTIMATE from word counts. The real start and end are measured from the recording; nothing here is a measurement."
+ },
+ "candidates": [
+  {
+   "id": "scene.intro-data-analyst",
+   "slug": "intro-data-analyst",
+   "slot": "role_relevant_1",
+   "profession": {
+    "roleId": "tech.data_analyst",
+    "roleLabel": "Data analyst",
+    "group": "tech"
+   },
+   "preview": {
+    "playable": false,
+    "why": "nothing is recorded yet; review the script and captions below. scene.coworker-intro is an existing owned scene showing the format."
+   },
+   "segment": {
+    "start_s": 0,
+    "end_s": null,
+    "end_note": "measured after recording; predicted 49.6-58.2 s"
+   },
+   "predicted_duration_s": {
+    "at_135_wpm": 58.2,
+    "at_145_wpm": 54.4,
+    "at_160_wpm": 49.6
+   },
+   "fits_45_60": true,
+   "words": 123,
+   "patterns_taught": [
+    "I currently work as",
+    "My focus is on",
+    "I work closely with",
+    "I'm responsible for",
+    "I have a background in",
+    "I'm currently focused on improving",
+    "What I enjoy most about my work is"
+   ],
+   "script_lines": [
+    "Hi, I'm Daniel. I currently work as a data analyst at a logistics company in Chicago.",
+    "I have a background in economics, and I moved into data about six years ago.",
+    "I'm responsible for the reports the operations managers use every morning.",
+    "I work closely with the warehouse teams, because they know what the numbers actually mean.",
+    "My focus is on turning messy data into one clear page a manager can read in two minutes.",
+    "Most weeks I'm in three or four planning meetings, explaining what the figures show.",
+    "What I enjoy most about my work is the moment a team changes a decision because of something I found.",
+    "I'm currently focused on improving how quickly we spot a problem in the data."
+   ],
+   "captions_provisional_at_145_wpm": [
+    {
+     "start": 0.0,
+     "end": 6.6,
+     "text": "Hi, I'm Daniel. I currently work as a data analyst at a logistics company in Chicago."
+    },
+    {
+     "start": 7.1,
+     "end": 13.3,
+     "text": "I have a background in economics, and I moved into data about six years ago."
+    },
+    {
+     "start": 13.8,
+     "end": 18.4,
+     "text": "I'm responsible for the reports the operations managers use every morning."
+    },
+    {
+     "start": 18.9,
+     "end": 25.1,
+     "text": "I work closely with the warehouse teams, because they know what the numbers actually mean."
+    },
+    {
+     "start": 25.6,
+     "end": 33.0,
+     "text": "My focus is on turning messy data into one clear page a manager can read in two minutes."
+    },
+    {
+     "start": 33.5,
+     "end": 39.3,
+     "text": "Most weeks I'm in three or four planning meetings, explaining what the figures show."
+    },
+    {
+     "start": 39.8,
+     "end": 48.1,
+     "text": "What I enjoy most about my work is the moment a team changes a decision because of something I found."
+    },
+    {
+     "start": 48.6,
+     "end": 54.4,
+     "text": "I'm currently focused on improving how quickly we spot a problem in the data."
+    }
+   ],
+   "facts_the_speaker_must_make_true": [
+    "employer type and city",
+    "years in the field",
+    "earlier background",
+    "who they work with"
+   ],
+   "approved": false,
+   "captionBasis": "",
+   "rights": {
+    "kind": "owned",
+    "owner": "Lomonec LLC (BE Mastery)",
+    "script": {
+     "authorship": "drafted with AI assistance (Claude) at BE Mastery's direction; awaiting the owner's review",
+     "third_party_text": false
+    },
+    "recording": {
+     "status": "NOT RECORDED",
+     "speaker": {
+      "requirement": "a US-based professional in the stated field, speaking about their OWN role",
+      "name": null,
+      "release": "REQUIRED — NOT OBTAINED",
+      "release_must_cover": [
+       "audio",
+       "captions and transcript",
+       "use inside the BE Mastery apps",
+       "automatic word timing (transcription of the recording)"
+      ]
+     }
+    },
+    "captions": {
+     "authored_by": "BE Mastery",
+     "basis": "the script as recorded, timed by speech alignment against BE Mastery's own recording; no third-party transcript, no YouTube caption track"
+    },
+    "hosting": "a BE Mastery scene (audio shipped in the app, id scene.intro-data-analyst); no YouTube video is involved"
+   },
+   "removed_from_draft": [
+    "A big part of my role is making sure those numbers are correct before anyone acts on them."
+   ]
+  },
+  {
+   "id": "scene.intro-care-coordinator",
+   "slug": "intro-care-coordinator",
+   "slot": "role_relevant_2",
+   "profession": {
+    "roleId": "health.health_admin",
+    "roleLabel": "Healthcare administrator",
+    "group": "health"
+   },
+   "preview": {
+    "playable": false,
+    "why": "nothing is recorded yet; review the script and captions below. scene.coworker-intro is an existing owned scene showing the format."
+   },
+   "segment": {
+    "start_s": 0,
+    "end_s": null,
+    "end_note": "measured after recording; predicted 47.4-55.5 s"
+   },
+   "predicted_duration_s": {
+    "at_135_wpm": 55.5,
+    "at_145_wpm": 51.9,
+    "at_160_wpm": 47.4
+   },
+   "fits_45_60": true,
+   "words": 117,
+   "patterns_taught": [
+    "I currently work as",
+    "My focus is on",
+    "I work closely with",
+    "I'm responsible for",
+    "A big part of my role is",
+    "I have a background in",
+    "I'm currently focused on improving",
+    "What I enjoy most about my work is"
+   ],
+   "script_lines": [
+    "Hello, I'm Rosa. I currently work as a care coordinator at a community hospital in Portland.",
+    "I'm responsible for the plan that follows a patient from admission to the day they go home.",
+    "I work closely with nurses, social workers and the discharge team.",
+    "My focus is on the handover, because that is where information gets lost.",
+    "A big part of my role is explaining a complicated plan in plain language.",
+    "I have a background in nursing, and I moved into coordination five years ago.",
+    "What I enjoy most about my work is sending somebody home with a plan they understand.",
+    "I'm currently focused on improving how quickly we reach a family after a decision is made."
+   ],
+   "captions_provisional_at_145_wpm": [
+    {
+     "start": 0.0,
+     "end": 6.6,
+     "text": "Hello, I'm Rosa. I currently work as a care coordinator at a community hospital in Portland."
+    },
+    {
+     "start": 7.1,
+     "end": 14.2,
+     "text": "I'm responsible for the plan that follows a patient from admission to the day they go home."
+    },
+    {
+     "start": 14.7,
+     "end": 19.2,
+     "text": "I work closely with nurses, social workers and the discharge team."
+    },
+    {
+     "start": 19.7,
+     "end": 25.1,
+     "text": "My focus is on the handover, because that is where information gets lost."
+    },
+    {
+     "start": 25.6,
+     "end": 31.4,
+     "text": "A big part of my role is explaining a complicated plan in plain language."
+    },
+    {
+     "start": 31.9,
+     "end": 37.7,
+     "text": "I have a background in nursing, and I moved into coordination five years ago."
+    },
+    {
+     "start": 38.2,
+     "end": 44.8,
+     "text": "What I enjoy most about my work is sending somebody home with a plan they understand."
+    },
+    {
+     "start": 45.3,
+     "end": 51.9,
+     "text": "I'm currently focused on improving how quickly we reach a family after a decision is made."
+    }
+   ],
+   "facts_the_speaker_must_make_true": [
+    "employer type and city",
+    "years in the field",
+    "earlier background",
+    "who they work with"
+   ],
+   "approved": false,
+   "captionBasis": "",
+   "rights": {
+    "kind": "owned",
+    "owner": "Lomonec LLC (BE Mastery)",
+    "script": {
+     "authorship": "drafted with AI assistance (Claude) at BE Mastery's direction; awaiting the owner's review",
+     "third_party_text": false
+    },
+    "recording": {
+     "status": "NOT RECORDED",
+     "speaker": {
+      "requirement": "a US-based professional in the stated field, speaking about their OWN role",
+      "name": null,
+      "release": "REQUIRED — NOT OBTAINED",
+      "release_must_cover": [
+       "audio",
+       "captions and transcript",
+       "use inside the BE Mastery apps",
+       "automatic word timing (transcription of the recording)"
+      ]
+     }
+    },
+    "captions": {
+     "authored_by": "BE Mastery",
+     "basis": "the script as recorded, timed by speech alignment against BE Mastery's own recording; no third-party transcript, no YouTube caption track"
+    },
+    "hosting": "a BE Mastery scene (audio shipped in the app, id scene.intro-care-coordinator); no YouTube video is involved"
+   },
+   "removed_from_draft": [
+    "My role sits at the intersection of the medical teams and the families who are waiting for answers."
+   ]
+  },
+  {
+   "id": "scene.intro-open-role",
+   "slug": "intro-open-role",
+   "slot": "general_fallback",
+   "profession": {
+    "roleId": null,
+    "roleLabel": null,
+    "group": null
+   },
+   "preview": {
+    "playable": false,
+    "why": "nothing is recorded yet; review the script and captions below. scene.coworker-intro is an existing owned scene showing the format."
+   },
+   "segment": {
+    "start_s": 0,
+    "end_s": null,
+    "end_note": "measured after recording; predicted 47.9-56.0 s"
+   },
+   "predicted_duration_s": {
+    "at_135_wpm": 56.0,
+    "at_145_wpm": 52.4,
+    "at_160_wpm": 47.9
+   },
+   "fits_45_60": true,
+   "words": 117,
+   "patterns_taught": [
+    "I currently work as",
+    "My focus is on",
+    "I work closely with",
+    "I'm responsible for",
+    "A big part of my role is",
+    "I have a background in",
+    "I'm currently focused on improving",
+    "What I enjoy most about my work is"
+   ],
+   "script_lines": [
+    "Hi, I'm Maya. I currently work as a project coordinator at a mid-size company.",
+    "I have a background in administration, and I've been in this role for two years.",
+    "I'm responsible for keeping our projects on schedule.",
+    "A big part of my role is knowing where every piece of work has got to.",
+    "I work closely with three teams, and with the managers who need the updates.",
+    "My focus is on the first hour of the week, when we agree what matters most.",
+    "What I enjoy most about my work is seeing a plan actually hold.",
+    "I'm currently focused on improving how I explain a delay without sounding defensive.",
+    "That's me. Now tell me about your role."
+   ],
+   "captions_provisional_at_145_wpm": [
+    {
+     "start": 0.0,
+     "end": 5.8,
+     "text": "Hi, I'm Maya. I currently work as a project coordinator at a mid-size company."
+    },
+    {
+     "start": 6.3,
+     "end": 12.5,
+     "text": "I have a background in administration, and I've been in this role for two years."
+    },
+    {
+     "start": 13.0,
+     "end": 16.3,
+     "text": "I'm responsible for keeping our projects on schedule."
+    },
+    {
+     "start": 16.8,
+     "end": 23.4,
+     "text": "A big part of my role is knowing where every piece of work has got to."
+    },
+    {
+     "start": 23.9,
+     "end": 29.7,
+     "text": "I work closely with three teams, and with the managers who need the updates."
+    },
+    {
+     "start": 30.2,
+     "end": 36.8,
+     "text": "My focus is on the first hour of the week, when we agree what matters most."
+    },
+    {
+     "start": 37.3,
+     "end": 42.7,
+     "text": "What I enjoy most about my work is seeing a plan actually hold."
+    },
+    {
+     "start": 43.2,
+     "end": 48.6,
+     "text": "I'm currently focused on improving how I explain a delay without sounding defensive."
+    },
+    {
+     "start": 49.1,
+     "end": 52.4,
+     "text": "That's me. Now tell me about your role."
+    }
+   ],
+   "facts_the_speaker_must_make_true": [
+    "job title and employer type",
+    "earlier background",
+    "years in the role",
+    "who they work with"
+   ],
+   "approved": false,
+   "captionBasis": "",
+   "rights": {
+    "kind": "owned",
+    "owner": "Lomonec LLC (BE Mastery)",
+    "script": {
+     "authorship": "drafted with AI assistance (Claude) at BE Mastery's direction; awaiting the owner's review",
+     "third_party_text": false
+    },
+    "recording": {
+     "status": "NOT RECORDED",
+     "speaker": {
+      "requirement": "a US-based professional in the stated field, speaking about their OWN role",
+      "name": null,
+      "release": "REQUIRED — NOT OBTAINED",
+      "release_must_cover": [
+       "audio",
+       "captions and transcript",
+       "use inside the BE Mastery apps",
+       "automatic word timing (transcription of the recording)"
+      ]
+     }
+    },
+    "captions": {
+     "authored_by": "BE Mastery",
+     "basis": "the script as recorded, timed by speech alignment against BE Mastery's own recording; no third-party transcript, no YouTube caption track"
+    },
+    "hosting": "a BE Mastery scene (audio shipped in the app, id scene.intro-open-role); no YouTube video is involved"
+   },
+   "removed_from_draft": []
+  }
+ ]
+}
