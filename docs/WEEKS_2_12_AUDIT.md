@@ -25,7 +25,8 @@ A detector that finds nothing is only worth something if it can find something, 
 2. **The Learn step's sentence brief** (`DLP_SENT_ANGLE.learn`) says “Each sentence introduces this person or their work”, for every week.
 3. **The offline conversation** (`dlpScenarioLocal`) is the same three talking points every day. Only the AI path is week-specific, and the AI paths need a sign-in.
 4. **Every Weeks 2–12 Listen step offers two `clip-index` passages**, the kind pulled from Week 1 on rights grounds. `docs/WEEK1_CLIP_APPROVAL.md` records Weeks 2–11 as “held, untouched, unreviewed”.
-5. **Week 12 does not fit the recipe on three days.** Mon: “Repeat a clip from Week 1 … compare with your Week 1 recording” needs the Week 1 clip assignment, which is paused. Sat: four recordings. Sun: a dashboard in the Reviews tab.
+5. **The personalised "Today's situation" is a self-introduction in every week, and it is also the task the take is JUDGED against.** All 16 situation frames in `SCENARIO_BY_SITUATION` say "Introduce yourself…". They fed the Try step's visible line AND the `task` sent with the baseline report, the Improve report and the closing conversation report. A learner who gave a good Week 2 status update would have been judged against "introduce yourself". Found by reading a device screenshot, not by the renderer; fixed in the staging branch by `dlpReportTask(plan, w)` (Week 1 keeps its frame; every later week uses the day's own curriculum task) and pinned by a mutation-checked test.
+6. **Week 12 does not fit the recipe on three days.** Mon: “Repeat a clip from Week 1 … compare with your Week 1 recording” needs the Week 1 clip assignment, which is paused. Sat: four recordings. Sun: a dashboard in the Reviews tab.
 
 ## What enabling it displaces
 
