@@ -16,6 +16,23 @@ const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); cons
 
 const overlay = JSON.parse(fs.readFileSync(new URL("../catalogue/ideas-growth.json", import.meta.url)));
 const IDS = overlay.category.vids, CH = overlay.channels.map(c => c.id);
+/* The overlay is checked against the REGISTRY, not against itself. Checking an artefact
+   with ids taken from that same artefact proves nothing: an earlier build keyed every
+   record by the seed label ("ipg-001") instead of the YouTube id, so the library asked
+   i.ytimg.com for /vi/ipg-001/ and every thumbnail and player url was wrong — while a
+   self-referential test passed happily. */
+const registry = JSON.parse(fs.readFileSync(new URL("../catalogue/drafts/ideas-personal-growth-registry.json", import.meta.url)));
+console.log("\n# the overlay against its source of truth");
+ok("every id is an 11-character YouTube video id", IDS.every(v => /^[A-Za-z0-9_-]{11}$/.test(v)), IDS.filter(v => !/^[A-Za-z0-9_-]{11}$/.test(v)).join());
+ok("every id is a real key in the validated registry", IDS.every(v => registry.videos[v]), IDS.filter(v => !registry.videos[v]).join());
+ok("no seed label (ipg-NNN) leaked in as a video id", !IDS.some(v => /^ipg-/.test(v)), IDS.filter(v => /^ipg-/.test(v)).join());
+ok("the videos map and the category list hold the same ids", JSON.stringify(Object.keys(overlay.videos).sort()) === JSON.stringify([...IDS].sort()));
+ok("every title matches the registry row", IDS.every(v => overlay.videos[v].title === registry.videos[v].title));
+ok("every duration is the measured one, not the rounded listing", IDS.every(v => overlay.videos[v].dur === registry.videos[v].exact_duration_seconds));
+ok("every record carries a verified channel id", IDS.every(v => overlay.videos[v].chId && overlay.videos[v].chId === registry.videos[v].verified_channel_id));
+ok("every row was actually validated as embeddable", IDS.every(v => registry.videos[v].embedding_status === "embeddable"));
+ok("the file states it is not reviewed", overlay.reviewed === false && /NOT editorially reviewed/i.test(overlay.review_warning));
+
 const b = await chromium.launch();
 const seed = tr => ({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr, tradeId: "welder" },
   fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } },

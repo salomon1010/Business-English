@@ -394,4 +394,94 @@ publication-ready, CEFR-levelled or playback-tested.
   "dirs")` already handles nested paths such as `home-photos/welding`) — **it has not
   been exercised by an actual build in this session.**
 
+
+---
+
+# Session 3 — 8 Nov 2026: the category is on the Shadow page (staging only)
+
+Owner instruction: "add channels and video links plus new category". Done, behind the
+existing flag. **Production is unchanged**: `ideas_personal_growth_enabled` is still
+`false` in `FLAGS_DEFAULT`.
+
+## Why an overlay file instead of editing catalogue/general.json
+
+The library's channel row, hero strip, search and "all" feed all read `_shCat` directly
+and contain **no feature-flag check of their own** — `shLibCatsOrdered` only filters the
+category chip list. So content placed in `general.json` would reach production whatever
+the flag said: the channels would appear in the channel row, and the videos would be
+findable by search. That is not an acceptable way to carry unreviewed third-party
+content.
+
+`catalogue/ideas-growth.json` is therefore a separate file, merged into `_shCat` by
+`shCatMergeIdeas()` inside `shCatLoad()` **only when the flag is on and the open
+programme is General English**. With the flag off the file is never fetched, so
+production's catalogue is identical byte for byte to what it was. The kill switch is
+absence, not a filter someone can forget to apply.
+
+## What is in it
+
+20 videos, 4 channels, one category. Only rows this project verified against real
+YouTube metadata are included: public, embeddable, not age-limited, not live, measured
+duration, and a channel id confirmed from that creator's own videos. The other 180 seed
+rows are excluded because nobody has checked them.
+
+Every record is `cap:"player"` (13 have human captions, 7 auto — availability read from
+metadata; **no caption file is fetched, converted or bundled**, because this category has
+no authorisation to) plus `watch:true`. `watch` is the one new concept: it tells
+`shLibHasTx` to list a video whose transcript we cannot provide. The studio needs no
+change — `svRender()` already draws its no-transcript card and hides the Shadow/Challenge
+tabs for an item with no asset, which is exactly the "WATCH plus independent speaking
+practice" fallback the brief asks for.
+
+## The bug this nearly shipped
+
+The first overlay build keyed every record by the seed label (`ipg-001`) instead of the
+YouTube id, because the generator spread the row after the key: `({ id, ...r })` — and
+`r.id` is the seed label. The library then asked `i.ytimg.com/vi/ipg-001/mqdefault.jpg`
+and would have handed `ipg-001` to the player. Every thumbnail was a grey placeholder
+and no video would have played.
+
+The suite passed anyway, because it took its list of ids from the overlay it was
+checking — a self-referential test proves nothing. It was caught by looking at a
+screenshot and reading the image URLs. The suite now checks the overlay against the
+**registry**: ids are 11-character YouTube ids, every id is a real registry key, no
+`ipg-` label leaked in, and titles, durations and channel ids match the validated rows.
+
+## Changed
+
+| File | Change |
+|---|---|
+| `catalogue/ideas-growth.json` | new — the overlay (20 videos, 4 channels, 1 category) |
+| `scripts/build_ideas_growth_overlay.mjs` | new — builds it from the registry; refuses to emit a non-11-character id or a channel without a verified id |
+| `index.html` | `shCatMergeIdeas()` + `shLibHasTx` accepts `watch:true` |
+| `sw.js` | precache the overlay beside the catalogue it extends |
+| `mobile/ios/scripts/sync-web.mjs` | the overlay and the sources file are pruned from the Welding bundle |
+| `tests/ideas-growth-library.mjs` | new — 35 checks |
+
+## Tests
+
+`node tests/ideas-growth-library.mjs` — **35/35**. Flag off: the overlay file is never
+requested, no category, no channel, not one of the 20 ids in the catalogue, and a search
+for a title in the pack finds nothing. Flag on: category, 4 channels and 20 videos
+present, the existing 12 channels and 8 categories untouched, the chip drawn, the chip
+feed lists 20, search and channel filtering reach them. Welding with the flag on: the
+overlay is never fetched. Verified visually too — real thumbnails load from
+`i.ytimg.com` and the four creators appear in the channel rail with the initials
+fallback.
+
+`node tests/ideas-personal-growth-import.mjs` — 56/56. `index.html` JS parse check clean.
+
+## What this still is not
+
+- **Not reviewed.** Every one of the 20 is `editorial_review: pending` and
+  `rights_review: pending`. Nobody has watched them. `publishable()` still refuses all
+  200, and the overlay file says `reviewed: false` with a warning in it.
+- **Not in production.** The flag is false there, and this must not be turned on in
+  production on the strength of a playability check.
+- **No transcript**, so Shadow and Challenge do not work on these videos — Watch only.
+- The four new channels sit at the END of the channel rail (after the existing 12) and
+  the rail is not re-ordered per category; a scene row still appears above the feed for
+  every category, as it already did. Both are existing behaviour, not introduced here.
+- `sw.js` `CACHE` was NOT bumped — nothing is being deployed. A deploy would need it.
+
 **READY FOR REVIEW — DO NOT MERGE OR DEPLOY.**
