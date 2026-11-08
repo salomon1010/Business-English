@@ -3689,6 +3689,15 @@ button.dlp-dot:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .dlp-rev > span{flex:1 1 180px;min-width:0}
 .dlp-rev .btn{flex:none}
 .dlp-sh-h svg,.dlp-pass-h svg,.dlp-pass-done svg{width:14px;height:14px}
+/* the day's own task from the curriculum, folded away on every step */
+.dlp-task{margin:0 0 10px;border:1px solid var(--line2);border-radius:12px;background:var(--card2,var(--bg2))}
+.dlp-task > summary{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;font-size:13px;min-height:44px;list-style:none}
+.dlp-task > summary::-webkit-details-marker{display:none}
+.dlp-task > summary svg{width:15px;height:15px;flex:none;color:var(--acc2,var(--acc))}
+.dlp-task > summary .hm-chev{margin-inline-start:auto;display:inline-flex}
+.dlp-task[open] > summary .hm-chev svg{transform:rotate(180deg)}
+.dlp-task-b{padding:0 12px 11px}
+.dlp-task-b p{margin:0 0 5px;font-size:13px;line-height:1.5;color:var(--txt)}
 /* the lesson's shadow stage, inside the Shadow workspace */
 .dlp-sh-card{margin-top:14px}
 .dlp-sh-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 6px}
@@ -8642,6 +8651,8 @@ const I18N_EN={
  "sess.return":"← Back to your session · Week {{w}} · {{d}}",
  "dlp.unavailable":"This guided lesson isn't available right now — try the regular session instead.",
  "dlp.progress_label":"Lesson steps",
+ "dlp.task_h":"Today's task",
+ "dlp.task_out":"What you end up with: {{o}}",
  "dlp.step_try":"Try","dlp.step_try_sub":"Before you watch anyone else, let's hear where you're starting from.",
  "dlp.step_learn":"Learn","dlp.step_learn_sub":"A few expressions worth having ready.",
  "dlp.step_listen":"Listen","dlp.step_listen_sub":"Hear a professional voice before you try it yourself.",
@@ -15322,7 +15333,13 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
    (the SAME pipeline the classic session page already runs, so IMPROVE's correction has
    the same evidence rules as everywhere else), sessDayDone() for completion, and the
    existing sessGo('shadow',w,d) deep link for LISTEN. Nothing new is sent to a server. */
-function dlpOn(w,d){return isGeneralEnglish()&&w===1&&d==="Mon"&&flag("daily_learning_plan_pilot_enabled")&&!!window.DailyPlan}
+/* WEEK 1, EVERY DAY (owner, 8 Nov 2026). The guided flow was Monday only while the model was
+   being settled; Week 1's seven days now each run it with the tools their own curriculum task
+   calls for (DailyPlan.shapeFor). Weeks 2-12 keep the page they have until this week is proved
+   on a real phone — the owner's call: "give me Week 1 complete and correct, not 12 weeks of
+   guesses". Opening them later is this one number. */
+const DLP_WEEKS=1;
+function dlpOn(w,d){return isGeneralEnglish()&&w>=1&&w<=DLP_WEEKS&&flag("daily_learning_plan_pilot_enabled")&&!!window.DailyPlan}
 let _dlpEntry=null;
 /* The profile the lesson plan reads. With the learner profile on, the lp groups are authoritative (primary situation first) and the
    legacy S.profile fields only fill what lp does not have; with it off, exactly S.profile as before. Reading never writes. */
@@ -15362,14 +15379,16 @@ function dlpDeclaredNote(plan){
    re-credits anything (DailyPlan.goStep refuses any step past the furthest reached) and the
    strip says plainly that this is a look back, with one button to return to their place. */
 function dlpStepName(s){return t("dlp.step_"+s)}
+/* the steps THIS day has, never the catalogue */
+function dlpSteps(entry){try{return DailyPlan.stepsOf(entry||_dlpEntry)}catch(e){return DailyPlan.STEPS}}
 window.dlpStepGo=(step)=>{
   const entry=_dlpEntry;if(!entry)return;
-  if(DailyPlan.STEPS.indexOf(step)>DailyPlan.reached(entry))return;
+  if(dlpSteps(entry).indexOf(step)>DailyPlan.reached(entry))return;
   DailyPlan.goStep(S,entry.lessonId,step);save();
   dlpRenderStep(document.getElementById("v-journey"),entry.plan.week,entry.plan.day,dayKey(entry.plan.week,entry.plan.day));
 };
 function dlpNavHTML(entry){
-  const ST=DailyPlan.STEPS,ix=ST.indexOf(entry.step),top=DailyPlan.reached(entry);
+  const ST=dlpSteps(entry),ix=ST.indexOf(entry.step),top=DailyPlan.reached(entry);
   const b=(step,icn)=>`<button type="button" class="dlp-nav-b" onclick="dlpStepGo('${step}')">${ic(icn)}<span>${esc(dlpStepName(step))}</span></button>`;
   const row=[ix>0?b(ST[ix-1],"rewind"):"",ix<top?b(ST[ix+1],"forward"):""].filter(Boolean).join("");
   const rev=ix<top?`<p class="dlp-rev">${ic("info")}<span>${esc(t("dlp.rev_note"))}</span>
@@ -15378,18 +15397,22 @@ function dlpNavHTML(entry){
 }
 function dlpRenderStep(el,w,d,key){
   const entry=_dlpEntry;if(!entry)return;
-  const plan=entry.plan,ix=DailyPlan.STEPS.indexOf(entry.step),top=DailyPlan.reached(entry);
-  const dots=`<div class="dlp-steps" role="list" aria-label="${esc(t("dlp.progress_label"))}">${DailyPlan.STEPS.map((s,i)=>{
+  const plan=entry.plan,ST=dlpSteps(entry),ix=ST.indexOf(entry.step),top=DailyPlan.reached(entry);
+  const dots=`<div class="dlp-steps" role="list" aria-label="${esc(t("dlp.progress_label"))}">${ST.map((s,i)=>{
     const cls=`dlp-dot ${i<ix?'done':i===ix?'on':''}`,nm=esc(dlpStepName(s));
     return i<=top&&i!==ix?`<button type="button" class="${cls}" role="listitem" onclick="dlpStepGo('${s}')" title="${nm}" aria-label="${nm}"></button>`
       :`<span class="${cls}" role="listitem" title="${nm}"></span>`;
   }).join("")}</div>`;
-  const body={try:dlpTryHTML,learn:dlpLearnHTML,listen:dlpListenHTML,rehearse:dlpRehearseHTML,converse:dlpConverseHTML,improve:dlpImproveHTML,finish:dlpFinishHTML}[entry.step];
+  const MAP={try:dlpTryHTML,learn:dlpLearnHTML,listen:dlpListenHTML,rehearse:dlpRehearseHTML,converse:dlpConverseHTML,improve:dlpImproveHTML,finish:dlpFinishHTML};
+  /* an entry saved before this day had a recipe can be sitting on a step the day does not use */
+  if(!MAP[entry.step]||ST.indexOf(entry.step)<0){entry.step=ST[0];save();return dlpRenderStep(el,w,d,key)}
+  const body=MAP[entry.step];
   el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
     ${dots}
     <span class="chip">${esc(t("dlp.step_"+entry.step))}</span>
     <h1 class="big">${esc(plan.competencyObjective)}</h1>
     <p class="sub" style="margin-bottom:10px">${esc(t("dlp.step_"+entry.step+"_sub"))}</p>
+    ${(()=>{const tk=(plan.staticFallback||{}).task||"";return tk?`<details class="dlp-task"><summary>${ic("target")} <b>${esc(t("dlp.task_h"))}</b><span class="hm-chev">${ic("chevron")}</span></summary><div class="dlp-task-b"><p>${esc(tk)}</p>${(plan.staticFallback||{}).out?`<p class="ex-fine">${esc(t("dlp.task_out",{o:plan.staticFallback.out}))}</p>`:""}</div></details>`:""})()}
     ${dlpNavHTML(entry)}
     ${entry.step==="improve"?dlpDeclaredNote(plan):""}
     <div id="dlpBody">${body(plan,key,w,d)}</div>`;
@@ -15405,8 +15428,8 @@ window.dlpAdvance=(w,d,key)=>{
 };
 window.dlpBack=(w,d,key)=>{
   const entry=_dlpEntry;if(!entry)return;
-  const ix=DailyPlan.STEPS.indexOf(entry.step);
-  if(ix>0)dlpStepGo(DailyPlan.STEPS[ix-1]);
+  const ST=dlpSteps(entry),ix=ST.indexOf(entry.step);
+  if(ix>0)dlpStepGo(ST[ix-1]);
 };
 /* One recorder for TRY/REHEARSE/CONVERSE, each with its own ctx so takes never
    collide — phRecInto already handles mic-denial, too-short takes and saving. */
@@ -15504,7 +15527,7 @@ function dlpRecOrTypeHTML(step){
 function dlpStepFree(step){
   const e=_dlpEntry;if(!e)return false;
   if(e.completedAt)return true;
-  const ST=DailyPlan.STEPS,i=ST.indexOf(step||e.step);
+  const ST=dlpSteps(e),i=ST.indexOf(step||e.step);
   return i>=0&&i<DailyPlan.reached(e);
 }
 function dlpContinueBtn(step,w,d,key,label){
@@ -15685,7 +15708,7 @@ function dlpYouLine(){
   const bits=[];
   if(name)bits.push(t("dlp.hi_name",{name}));
   if(role)bits.push(t("dlp.you_are_role",{role}));
-  if(sit)bits.push(t("dlp.you_speak_in",{sit}));
+  if(sit)bits.push(t("dlp.you_speak_in",{sit:sit.toLowerCase()}));   /* a catalogue label mid-sentence */
   return bits.join(" ");
 }
 function dlpProfileLabel(){
@@ -16828,7 +16851,8 @@ async function dlpOverall(key,w,d){
    Each STEP counts once, so a five-sentence step cannot drown a one-take step; the percentage is
    the average of the steps' own fractions, which is why the rows add up to what the number says. */
 function dlpDayScore(plan){
-  const rows=[],add=(k,done,of)=>{if(of>0)rows.push({k,done:Math.max(0,Math.min(of,done)),of})};
+  const use=(plan&&Array.isArray(plan.steps)&&plan.steps.length)?plan.steps:DailyPlan.STEPS;
+  const rows=[],add=(k,done,of)=>{if(of>0&&use.indexOf(k)>=0)rows.push({k,done:Math.max(0,Math.min(of,done)),of})};
   const T=dlpStepData("try")||{},L=dlpStepData("learn")||{},R=dlpStepData("rehearse")||{},C=dlpStepData("converse")||{};
   add("try",(T.recorded||T.mode==="text")?1:0,1);
   const ln=(L.sentences||[]).length;add("learn",Object.keys(L.pass||{}).filter(k=>(L.pass||{})[k]).length,ln);
@@ -17495,12 +17519,33 @@ function shLinesPage(){try{return typeof cur!=="undefined"&&!!cur&&cur.v==="line
 function shLibOn(){return flag("shadow_library_enabled")&&(isGeneralEnglish()||weldStudioOn())&&!shLinesPage()}
 /* the workplace-lines layout: a Professional Track without its video library, or the lines page itself */
 function shProLines(){return isProfessionalJourney()&&!shLibOn()}
+/* Ideas & Personal Growth (docs/IDEAS_PERSONAL_GROWTH.md) is merged in from its OWN
+   file, never from catalogue/general.json. That is deliberate: the library's channel
+   row, hero strip, search and "all" feed all read _shCat with no flag check of their
+   own, so anything sitting in general.json reaches production whatever the flag says.
+   Keeping it in a file that is fetched only when the flag is on AND the open programme
+   is General English makes production's copy absent by construction, not by a
+   render-time filter somebody can forget to apply.
+   The content is NOT editorially reviewed or rights-cleared — see the file's own
+   review_warning. The flag is false in production for exactly that reason. */
+function shCatMergeIdeas(a,j){
+  if(!j||a!==AREA_GEN||!flag("ideas_personal_growth_enabled"))return Promise.resolve(j);
+  return fetch("catalogue/ideas-growth.json").then(r=>r.ok?r.json():null).catch(()=>null).then(o=>{
+    if(!o||!o.category||!o.videos)return j;
+    if((j.categories||[]).some(c=>c.id===o.category.id))return j;   /* never merge twice */
+    j.videos=Object.assign({},j.videos,o.videos);
+    j.categories=(j.categories||[]).concat([o.category]);
+    const have=new Set((j.channels||[]).map(c=>c.id));
+    j.channels=(j.channels||[]).concat((o.channels||[]).filter(c=>c&&c.id&&!have.has(c.id)));
+    return j;
+  }).catch(()=>j);
+}
 function shCatLoad(){
   const a=shCatArea(),f=SH_CAT_FILE[a];
   if(!f)return Promise.resolve(null);
   if(_shCatA[a])return Promise.resolve(_shCatA[a]);
   if(_shCatPA[a])return _shCatPA[a];
-  _shCatPA[a]=fetch(f).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{_shCatA[a]=j;delete _shCatPA[a];try{shOwnClassify()}catch(e){}return j});
+  _shCatPA[a]=fetch(f).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>shCatMergeIdeas(a,j)).then(j=>{_shCatA[a]=j;delete _shCatPA[a];try{shOwnClassify()}catch(e){}return j});
   return _shCatPA[a];
 }
 /* ---- Welding: the ten refinery professions (catalogue/welding.json categories) ----
@@ -18196,7 +18241,12 @@ function shlHeroSwipe(el){
    category order — plan-week ranking is a later step (phase 3), and the label
    does not promise more than that. A library video without a transcript is
    never listed (owner, 28 Sep 2026); the learner's own links are theirs and stay. */
-function shLibHasTx(vid){const x=_shCat&&_shCat.videos[vid];return !!(x&&x.cap&&x.cap!=="player")}
+/* A video is listable when we can give the learner its words (cap, and not
+   "player"-only) OR when it is explicitly watch-only: a clip whose captions we are not
+   authorised to bundle is still a clip worth watching and speaking about. The studio
+   already handles the rest — svRender() draws its no-transcript card and hides the
+   Shadow/Challenge tabs, so a watch-only video never pretends to offer a transcript. */
+function shLibHasTx(vid){const x=_shCat&&_shCat.videos[vid];return !!(x&&((x.cap&&x.cap!=="player")||x.watch))}
 function shLibAll(){
   const c=_shCat;if(!c)return [];
   const ids=[],seen=new Set(),add=v=>{if(!seen.has(v)&&c.videos[v]&&shLibHasTx(v)){seen.add(v);ids.push(v)}};

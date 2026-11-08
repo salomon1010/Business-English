@@ -3780,6 +3780,8 @@
  "home.coach_focus_established": "Enough recorded attempts now to see both a strength and a clear next focus.",
  "dlp.unavailable": "This guided lesson isn't available right now — try the regular session instead.",
  "dlp.progress_label": "Lesson steps",
+ "dlp.task_h": "Today's task",
+ "dlp.task_out": "What you end up with: {{o}}",
  "dlp.step_try": "Try",
  "dlp.step_try_sub": "Before you watch anyone else, let's hear where you're starting from.",
  "dlp.step_learn": "Learn",

@@ -312,8 +312,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
   so they are track-scoped like everything else. No `track()` events — the
   Worker allow-list has none for it, and a silently-dropped call is a lie.
-- **Guided daily lesson (Week 1 Monday pilot, General English only, flag
-  `daily_learning_plan_pilot_enabled`) — `docs/DAILY_LESSON.md`.** Seven steps
+- **Guided daily lesson (Week 1, EVERY DAY, General English only, flag
+  `daily_learning_plan_pilot_enabled`) — `docs/DAILY_LESSON.md`.** `DLP_WEEKS`
+  bounds it to Week 1 (owner, 8 Nov 2026: "Week 1 complete and correct, not 12
+  weeks of guesses"); opening weeks 2-12 is that one number. `DailyPlan.STEPS`
+  is the CATALOGUE — each day uses a RECIPE from it (`plan.steps`), chosen by
+  `shapeFor(core)` from the curriculum's own words: shadow / speak / vocab /
+  rhythm / review. The rhythm shape reads the day's FOCUS, never its output, or
+  "recording v1 · corrected v2" turns every speaking day into a rhythm day.
+  `stepsOf(entry)` is what `setStep` / `reached` / `goStep` / `complete` and the
+  dots all walk; `start()` opens on the day's own first step. Each day shows its
+  own task and rotates its share of the week's ten phrases
+  (`personalizedExpressions(pool, profile, shift)`). Seven steps
   (`DailyPlan.STEPS` = try·learn·listen·rehearse·converse·improve·finish) in the
   pure `daily-learning-plan.js`, drawn by the `dlp*` block in index.html into
   `#v-journey` via `rSession` → `rGuidedLesson`. **The free allowance is sized to
@@ -360,7 +370,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `sc.ai`), the AI is told the learner's name and told to use it, and the three talking points are
   the gate: `dlpConverseDone` (called by `rpSummary`) decides whether Continue opens, on the
   engine's own strict judgement. Step 6 opens that conversation's speaking report.
-  Tests: `tests/lesson-converse.mjs` (21), `rehearse-sentences.mjs` (17),
+  Tests: `tests/week1-days.mjs` (18), `lesson-converse.mjs` (21), `rehearse-sentences.mjs` (17),
   `tests/lesson-shadow.mjs` (72), `learn-mastery.mjs` (36),
   `lesson-evaluation.test.mjs` (25), `lesson-allowance.test.mjs` (18),
   `curriculum-clips.mjs` (32).

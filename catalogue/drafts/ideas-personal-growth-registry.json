@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-08T05:08:01.067Z",
+  "updated": "2026-11-08T05:33:42.186Z",
   "env": "development",
   "videos": {
     "OTvm5LfhDzg": {
@@ -32,9 +32,9 @@
       "exact_duration_seconds": 375,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.860Z",
-      "reimported_at": "2026-11-08T05:08:01.060Z",
+      "reimported_at": "2026-11-08T05:33:42.178Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -44,6 +44,8 @@
         "observed_channel": "Robert Greene ",
         "observed_channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
         "observed_handle": "@RobertGreeneOfficial",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -81,7 +83,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "Z-zYu4patP8": {
       "id": "ipg-003",
@@ -113,9 +115,9 @@
       "exact_duration_seconds": 584,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z",
+      "reimported_at": "2026-11-08T05:33:42.184Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -125,6 +127,8 @@
         "observed_channel": "Robert Greene ",
         "observed_channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
         "observed_handle": "@RobertGreeneOfficial",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -162,7 +166,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "16QlwqB7crc": {
       "id": "ipg-005",
@@ -194,9 +198,9 @@
       "exact_duration_seconds": 534,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z",
+      "reimported_at": "2026-11-08T05:33:42.184Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -206,6 +210,8 @@
         "observed_channel": "Robert Greene ",
         "observed_channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
         "observed_handle": "@RobertGreeneOfficial",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -243,7 +249,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "gB4dNxorewE": {
       "id": "ipg-007",
@@ -275,9 +281,9 @@
       "exact_duration_seconds": 357,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z",
+      "reimported_at": "2026-11-08T05:33:42.184Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -287,6 +293,8 @@
         "observed_channel": "Robert Greene ",
         "observed_channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
         "observed_handle": "@RobertGreeneOfficial",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -324,7 +332,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "_f3xwMWrBSo": {
       "id": "ipg-009",
@@ -356,7 +364,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "PjKJRa1369s": {
       "id": "ipg-010",
@@ -388,9 +396,9 @@
       "exact_duration_seconds": 698,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z",
+      "reimported_at": "2026-11-08T05:33:42.184Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -400,6 +408,8 @@
         "observed_channel": "Robert Greene ",
         "observed_channel_id": "UC-qsP49Ai2GymJgyKX38l1w",
         "observed_handle": "@RobertGreeneOfficial",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -437,7 +447,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.861Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "Zy4-0CsQCtQ": {
       "id": "ipg-012",
@@ -469,7 +479,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "wu5soeP52no": {
       "id": "ipg-013",
@@ -501,7 +511,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "6KUEigk4JCA": {
       "id": "ipg-014",
@@ -533,7 +543,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "kIw0YJ6YM58": {
       "id": "ipg-015",
@@ -565,7 +575,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "ZE-YCwsnc6A": {
       "id": "ipg-016",
@@ -597,7 +607,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "MroQcPHkhW0": {
       "id": "ipg-017",
@@ -629,7 +639,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "So7X2huT1ho": {
       "id": "ipg-018",
@@ -661,7 +671,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "cI8Led0yXyg": {
       "id": "ipg-019",
@@ -693,7 +703,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "Ky6HHgiNGfU": {
       "id": "ipg-020",
@@ -725,7 +735,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "sLXA6xOJ6uo": {
       "id": "ipg-021",
@@ -757,7 +767,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "7UIEIiYycjY": {
       "id": "ipg-022",
@@ -789,7 +799,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "eqToq2QabH4": {
       "id": "ipg-023",
@@ -821,7 +831,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "VuJwuGgNgNM": {
       "id": "ipg-024",
@@ -853,7 +863,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "vlDghD69_xU": {
       "id": "ipg-025",
@@ -885,7 +895,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "DPWbPbp41_4": {
       "id": "ipg-026",
@@ -917,7 +927,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "lU0S7N4B-_Q": {
       "id": "ipg-027",
@@ -949,7 +959,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "yIZg3k4jU1I": {
       "id": "ipg-028",
@@ -981,7 +991,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "_QnYtzTU8qs": {
       "id": "ipg-029",
@@ -1013,7 +1023,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "SY2D_x-AMfw": {
       "id": "ipg-030",
@@ -1045,7 +1055,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "Tb5ykUF2VJE": {
       "id": "ipg-031",
@@ -1077,7 +1087,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "Ow9eVJ9o5Yw": {
       "id": "ipg-032",
@@ -1109,7 +1119,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "L1_wcaOdxoo": {
       "id": "ipg-033",
@@ -1141,7 +1151,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "JBs0id1EKUM": {
       "id": "ipg-034",
@@ -1173,7 +1183,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "phrthApnmps": {
       "id": "ipg-035",
@@ -1205,7 +1215,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "ZoST0yv0fI0": {
       "id": "ipg-036",
@@ -1237,7 +1247,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "ocVczQeUDvY": {
       "id": "ipg-037",
@@ -1269,7 +1279,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "rAyix-uB8DQ": {
       "id": "ipg-038",
@@ -1301,7 +1311,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "2ZhVPEZETCU": {
       "id": "ipg-039",
@@ -1333,7 +1343,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "_VDn9uVch40": {
       "id": "ipg-040",
@@ -1365,7 +1375,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.184Z"
     },
     "0zytxyuMw8Q": {
       "id": "ipg-041",
@@ -1397,7 +1407,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "RuLySjQSU1w": {
       "id": "ipg-042",
@@ -1429,7 +1439,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "y__1x-lqGdc": {
       "id": "ipg-043",
@@ -1461,7 +1471,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "uV3sJ7P_dn0": {
       "id": "ipg-044",
@@ -1493,7 +1503,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "bHVn__3-ahI": {
       "id": "ipg-045",
@@ -1525,7 +1535,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "4gGZKBA_hyw": {
       "id": "ipg-046",
@@ -1557,7 +1567,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "PTGORPMC14k": {
       "id": "ipg-047",
@@ -1589,7 +1599,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "quNnrXgmd0k": {
       "id": "ipg-048",
@@ -1621,7 +1631,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "pmwec81-yj8": {
       "id": "ipg-049",
@@ -1653,7 +1663,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ee3D-SwS8pI": {
       "id": "ipg-050",
@@ -1685,7 +1695,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "iPVKGU1wm1g": {
       "id": "ipg-051",
@@ -1717,7 +1727,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "wscjOGTlqR8": {
       "id": "ipg-052",
@@ -1749,7 +1759,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "w0FWr4L_aE0": {
       "id": "ipg-053",
@@ -1781,7 +1791,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "vdr9JkzCNwo": {
       "id": "ipg-054",
@@ -1813,7 +1823,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "uPsXkFKK0QU": {
       "id": "ipg-055",
@@ -1845,7 +1855,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "STE97oWAGzg": {
       "id": "ipg-056",
@@ -1877,7 +1887,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.065Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ha7dSOotgsA": {
       "id": "ipg-057",
@@ -1909,7 +1919,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "BGucbPvQJGw": {
       "id": "ipg-058",
@@ -1941,7 +1951,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "vOxuO-P8Rpw": {
       "id": "ipg-059",
@@ -1973,7 +1983,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "asBOtAtdmWM": {
       "id": "ipg-060",
@@ -2005,7 +2015,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "tLAZvESoVgI": {
       "id": "ipg-061",
@@ -2037,9 +2047,9 @@
       "exact_duration_seconds": 794,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -2049,6 +2059,8 @@
         "observed_channel": "Einzelgänger",
         "observed_channel_id": "UCybBViio_TH_uiFFDJuz5tg",
         "observed_handle": "@Einzelgänger",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -2086,7 +2098,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "O42tZse-P6w": {
       "id": "ipg-063",
@@ -2118,9 +2130,9 @@
       "exact_duration_seconds": 684,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -2130,6 +2142,8 @@
         "observed_channel": "Einzelgänger",
         "observed_channel_id": "UCybBViio_TH_uiFFDJuz5tg",
         "observed_handle": "@Einzelgänger",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -2167,7 +2181,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "B-F319b5SuQ": {
       "id": "ipg-065",
@@ -2199,7 +2213,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "LGXRpbDuDGE": {
       "id": "ipg-066",
@@ -2231,9 +2245,9 @@
       "exact_duration_seconds": 847,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -2243,6 +2257,8 @@
         "observed_channel": "Einzelgänger",
         "observed_channel_id": "UCybBViio_TH_uiFFDJuz5tg",
         "observed_handle": "@Einzelgänger",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -2280,7 +2296,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "g0rhN8U14dk": {
       "id": "ipg-068",
@@ -2312,7 +2328,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "NGQQGeI1MmE": {
       "id": "ipg-069",
@@ -2344,9 +2360,9 @@
       "exact_duration_seconds": 894,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -2356,6 +2372,8 @@
         "observed_channel": "Einzelgänger",
         "observed_channel_id": "UCybBViio_TH_uiFFDJuz5tg",
         "observed_handle": "@Einzelgänger",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -2393,7 +2411,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "p2KHo95Qknk": {
       "id": "ipg-071",
@@ -2425,7 +2443,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "JHcGmiZqKXo": {
       "id": "ipg-072",
@@ -2457,7 +2475,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "Oswc-jAgwgo": {
       "id": "ipg-073",
@@ -2489,7 +2507,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "HUXEqS6GqUU": {
       "id": "ipg-074",
@@ -2521,9 +2539,9 @@
       "exact_duration_seconds": 832,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -2533,6 +2551,8 @@
         "observed_channel": "Einzelgänger",
         "observed_channel_id": "UCybBViio_TH_uiFFDJuz5tg",
         "observed_handle": "@Einzelgänger",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -2570,7 +2590,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "VpcQVjSVqOM": {
       "id": "ipg-076",
@@ -2602,7 +2622,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "KDsdLKDHIWI": {
       "id": "ipg-077",
@@ -2634,7 +2654,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "-tZnVvsP4_4": {
       "id": "ipg-078",
@@ -2666,7 +2686,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "l1rV4kmUJko": {
       "id": "ipg-079",
@@ -2698,7 +2718,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "yah-abKb96g": {
       "id": "ipg-080",
@@ -2730,7 +2750,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "bK1g9bPHUTo": {
       "id": "ipg-081",
@@ -2762,7 +2782,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "qRM5VRIO_TU": {
       "id": "ipg-082",
@@ -2794,7 +2814,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "JX-8-IYhQKk": {
       "id": "ipg-083",
@@ -2826,7 +2846,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "yUjPFCosmNA": {
       "id": "ipg-084",
@@ -2858,7 +2878,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "koo59KK43YA": {
       "id": "ipg-085",
@@ -2890,7 +2910,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "dSdBvjzKuqI": {
       "id": "ipg-086",
@@ -2922,7 +2942,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "4LE5bel_GvU": {
       "id": "ipg-087",
@@ -2954,7 +2974,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ZrMOLqgv714": {
       "id": "ipg-088",
@@ -2986,7 +3006,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "2-6UH0j7Jzc": {
       "id": "ipg-089",
@@ -3018,7 +3038,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "6gIMVxFen_A": {
       "id": "ipg-090",
@@ -3050,7 +3070,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "lb3VckEacf4": {
       "id": "ipg-091",
@@ -3082,7 +3102,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "OOBTNw2nsa8": {
       "id": "ipg-092",
@@ -3114,7 +3134,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "teqOInIwoUI": {
       "id": "ipg-093",
@@ -3146,7 +3166,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "GYkFvaYeRno": {
       "id": "ipg-094",
@@ -3178,7 +3198,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "_hJZEq61KeM": {
       "id": "ipg-095",
@@ -3210,7 +3230,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "r7zThgJAAPg": {
       "id": "ipg-096",
@@ -3242,7 +3262,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "4T_fwF-Torc": {
       "id": "ipg-097",
@@ -3274,7 +3294,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "02o-gxQy130": {
       "id": "ipg-098",
@@ -3306,7 +3326,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "M759yNSOTMs": {
       "id": "ipg-099",
@@ -3338,7 +3358,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "XyzIX87zuTw": {
       "id": "ipg-100",
@@ -3370,7 +3390,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "V2Jl5OA_y3o": {
       "id": "ipg-101",
@@ -3402,7 +3422,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "6H6vefCqBM8": {
       "id": "ipg-102",
@@ -3434,7 +3454,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "bhlvYmn1IUQ": {
       "id": "ipg-103",
@@ -3466,7 +3486,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "YefMpOWi4lU": {
       "id": "ipg-104",
@@ -3498,7 +3518,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "Q0ngcyxZxEY": {
       "id": "ipg-105",
@@ -3530,7 +3550,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "1d2G7V_Oz5o": {
       "id": "ipg-106",
@@ -3562,7 +3582,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "k23x5kP7dAY": {
       "id": "ipg-107",
@@ -3594,7 +3614,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "VwROPb6a8RY": {
       "id": "ipg-108",
@@ -3626,7 +3646,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ggXGba-vBeo": {
       "id": "ipg-109",
@@ -3658,7 +3678,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "nLj7J51FdQQ": {
       "id": "ipg-110",
@@ -3690,7 +3710,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "4Tm6Z1y3h94": {
       "id": "ipg-111",
@@ -3722,9 +3742,9 @@
       "exact_duration_seconds": 258,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -3734,6 +3754,8 @@
         "observed_channel": "Pursuit of Wonder",
         "observed_channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
         "observed_handle": "@PursuitofWonder",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -3771,9 +3793,9 @@
       "exact_duration_seconds": 354,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -3783,6 +3805,8 @@
         "observed_channel": "Pursuit of Wonder",
         "observed_channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
         "observed_handle": "@PursuitofWonder",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -3820,9 +3844,9 @@
       "exact_duration_seconds": 556,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -3832,6 +3856,8 @@
         "observed_channel": "Pursuit of Wonder",
         "observed_channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
         "observed_handle": "@PursuitofWonder",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -3869,7 +3895,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "6qU1sDBU9Cs": {
       "id": "ipg-115",
@@ -3901,9 +3927,9 @@
       "exact_duration_seconds": 782,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -3913,6 +3939,8 @@
         "observed_channel": "Pursuit of Wonder",
         "observed_channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
         "observed_handle": "@PursuitofWonder",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -3950,7 +3978,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ohN-j-S0ul0": {
       "id": "ipg-117",
@@ -3982,7 +4010,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "XBTOqyUtX-0": {
       "id": "ipg-118",
@@ -4014,7 +4042,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "LrRfjmv-5cQ": {
       "id": "ipg-119",
@@ -4046,7 +4074,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "F9kfiUhmRO8": {
       "id": "ipg-120",
@@ -4078,7 +4106,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "lUjoFzT0VNI": {
       "id": "ipg-121",
@@ -4110,7 +4138,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "g7RAPS8mE94": {
       "id": "ipg-122",
@@ -4142,9 +4170,9 @@
       "exact_duration_seconds": 772,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.185Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -4154,6 +4182,8 @@
         "observed_channel": "Pursuit of Wonder",
         "observed_channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
         "observed_handle": "@PursuitofWonder",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -4191,7 +4221,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "x18bXxW3yhY": {
       "id": "ipg-124",
@@ -4223,7 +4253,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ivfw_TcsHbw": {
       "id": "ipg-125",
@@ -4255,7 +4285,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "mDwrilOepHo": {
       "id": "ipg-126",
@@ -4287,7 +4317,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "8mY4UByNHP0": {
       "id": "ipg-127",
@@ -4319,7 +4349,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "-J-9Ct0oFMU": {
       "id": "ipg-128",
@@ -4351,7 +4381,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "9bHM-mhgQyk": {
       "id": "ipg-129",
@@ -4383,7 +4413,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ZQkby8bl8yE": {
       "id": "ipg-130",
@@ -4415,7 +4445,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "P6wH7bXG09k": {
       "id": "ipg-131",
@@ -4447,7 +4477,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "h_lZo9hvNhY": {
       "id": "ipg-132",
@@ -4479,7 +4509,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "Y4ObnLRrklo": {
       "id": "ipg-133",
@@ -4511,7 +4541,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "edyqWHRgSX8": {
       "id": "ipg-134",
@@ -4543,7 +4573,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "D6KGIEQI1CY": {
       "id": "ipg-135",
@@ -4575,7 +4605,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "gc7wKr0XkN8": {
       "id": "ipg-136",
@@ -4607,7 +4637,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "fguhlv23lSg": {
       "id": "ipg-137",
@@ -4639,7 +4669,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "3DhNjtLivdg": {
       "id": "ipg-138",
@@ -4671,7 +4701,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "0VyyWklwpBE": {
       "id": "ipg-139",
@@ -4703,7 +4733,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "e9Mb0cbDenA": {
       "id": "ipg-140",
@@ -4735,7 +4765,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "JLfRPtyJWZw": {
       "id": "ipg-141",
@@ -4767,7 +4797,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "_b5Xhgnd4lk": {
       "id": "ipg-142",
@@ -4799,7 +4829,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "GTSXBkHlUJE": {
       "id": "ipg-143",
@@ -4831,7 +4861,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.185Z"
     },
     "ffWSQCjTtgk": {
       "id": "ipg-144",
@@ -4863,7 +4893,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "WagdzxAH8EQ": {
       "id": "ipg-145",
@@ -4895,7 +4925,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "m5DABiixjXE": {
       "id": "ipg-146",
@@ -4927,7 +4957,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "dBQAo6pEweE": {
       "id": "ipg-147",
@@ -4959,7 +4989,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "GOd1CaAP1HU": {
       "id": "ipg-148",
@@ -4991,7 +5021,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "hPhc9FU7ycI": {
       "id": "ipg-149",
@@ -5023,7 +5053,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "ojnQ0Acmy1A": {
       "id": "ipg-150",
@@ -5055,7 +5085,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "gxglts0Sw5I": {
       "id": "ipg-151",
@@ -5087,7 +5117,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "6r-AcnkP_ug": {
       "id": "ipg-152",
@@ -5119,7 +5149,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "x3EVh2jhyLM": {
       "id": "ipg-153",
@@ -5151,7 +5181,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "tqiL8QFy4Kw": {
       "id": "ipg-154",
@@ -5183,7 +5213,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "rK1mhvv920s": {
       "id": "ipg-155",
@@ -5215,7 +5245,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "z1exaJRpOuw": {
       "id": "ipg-156",
@@ -5247,7 +5277,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "mOpMhYGPajU": {
       "id": "ipg-157",
@@ -5279,7 +5309,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "zZcWBUZEhME": {
       "id": "ipg-158",
@@ -5311,7 +5341,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "b04zs6QHuWM": {
       "id": "ipg-159",
@@ -5343,7 +5373,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "ncmeYUWvvAU": {
       "id": "ipg-160",
@@ -5375,7 +5405,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "gfyCzLbcAvk": {
       "id": "ipg-161",
@@ -5407,9 +5437,9 @@
       "exact_duration_seconds": 878,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.186Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -5419,6 +5449,8 @@
         "observed_channel": "Academy of Ideas",
         "observed_channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
         "observed_handle": "@academyofideas",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -5456,7 +5488,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "FDjeRloNgx0": {
       "id": "ipg-163",
@@ -5488,9 +5520,9 @@
       "exact_duration_seconds": 731,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.186Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -5500,6 +5532,8 @@
         "observed_channel": "Academy of Ideas",
         "observed_channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
         "observed_handle": "@academyofideas",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -5537,7 +5571,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "tIoJhqnOc0M": {
       "id": "ipg-165",
@@ -5569,9 +5603,9 @@
       "exact_duration_seconds": 662,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.186Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -5581,6 +5615,8 @@
         "observed_channel": "Academy of Ideas",
         "observed_channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
         "observed_handle": "@academyofideas",
+        "captions_available": "auto",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -5618,7 +5654,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "C5SwcrVnyLc": {
       "id": "ipg-167",
@@ -5650,9 +5686,9 @@
       "exact_duration_seconds": 470,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.186Z",
       "validation": {
-        "checked_at": "2026-11-08T05:08:01.557Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -5662,6 +5698,8 @@
         "observed_channel": "Academy of Ideas",
         "observed_channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
         "observed_handle": "@academyofideas",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -5699,7 +5737,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "SPuRxF6P5Hk": {
       "id": "ipg-169",
@@ -5731,7 +5769,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "tGkymdspups": {
       "id": "ipg-170",
@@ -5763,9 +5801,9 @@
       "exact_duration_seconds": 523,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.066Z",
+      "reimported_at": "2026-11-08T05:33:42.186Z",
       "validation": {
-        "checked_at": "2026-11-08T04:56:27.302Z",
+        "checked_at": "2026-11-08T05:33:42.729Z",
         "tool": "yt-dlp 2026.08.19",
         "availability": "public",
         "embeddable": true,
@@ -5775,6 +5813,8 @@
         "observed_channel": "Academy of Ideas",
         "observed_channel_id": "UCiRiQGCHGjDLT9FQXFW0I3A",
         "observed_handle": "@academyofideas",
+        "captions_available": "human",
+        "captions_note": "Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators' captions.",
         "title_matches_seed": true,
         "display_duration_matches": true,
         "error": null,
@@ -5812,7 +5852,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "e1D_1MkFwN0": {
       "id": "ipg-172",
@@ -5844,7 +5884,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "uvY3VWe4O4k": {
       "id": "ipg-173",
@@ -5876,7 +5916,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "qKq0Afmsj-U": {
       "id": "ipg-174",
@@ -5908,7 +5948,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "Vkoc0ltIBF4": {
       "id": "ipg-175",
@@ -5940,7 +5980,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "ARGczzoPASo": {
       "id": "ipg-176",
@@ -5972,7 +6012,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "CPIsRwf5Mmc": {
       "id": "ipg-177",
@@ -6004,7 +6044,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "TgV90NzrZ8w": {
       "id": "ipg-178",
@@ -6036,7 +6076,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "1l2WFl1EqwM": {
       "id": "ipg-179",
@@ -6068,7 +6108,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "8S__1h2Z2xI": {
       "id": "ipg-180",
@@ -6100,7 +6140,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "3_t4obUc51A": {
       "id": "ipg-181",
@@ -6132,7 +6172,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "z9vMczQ3jiM": {
       "id": "ipg-182",
@@ -6164,7 +6204,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "sNg5FXt_DDM": {
       "id": "ipg-183",
@@ -6196,7 +6236,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "nI-Ko-d29X4": {
       "id": "ipg-184",
@@ -6228,7 +6268,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "ssuDqtUcKEw": {
       "id": "ipg-185",
@@ -6260,7 +6300,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "ilg7PiDD8yY": {
       "id": "ipg-186",
@@ -6292,7 +6332,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "o0MzQZ_eFEY": {
       "id": "ipg-187",
@@ -6324,7 +6364,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "w9zSQ2uGCoI": {
       "id": "ipg-188",
@@ -6356,7 +6396,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "wRz8l-Ojs70": {
       "id": "ipg-189",
@@ -6388,7 +6428,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "WnhMJl11JUo": {
       "id": "ipg-190",
@@ -6420,7 +6460,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "vzRbCrIWURY": {
       "id": "ipg-191",
@@ -6452,7 +6492,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "Vx_60kIXLIU": {
       "id": "ipg-192",
@@ -6484,7 +6524,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "Uig8Lw7ixI0": {
       "id": "ipg-193",
@@ -6516,7 +6556,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "XVAXMR2L6n8": {
       "id": "ipg-194",
@@ -6548,7 +6588,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "cViZ6wVysKk": {
       "id": "ipg-195",
@@ -6580,7 +6620,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "VhYPtNZUi6s": {
       "id": "ipg-196",
@@ -6612,7 +6652,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "t3TbSjZ_fxc": {
       "id": "ipg-197",
@@ -6644,7 +6684,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "iw36V_iXR2k": {
       "id": "ipg-198",
@@ -6676,7 +6716,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "wIXtN2S2d2w": {
       "id": "ipg-199",
@@ -6708,7 +6748,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     },
     "2sXnOMeSSgc": {
       "id": "ipg-200",
@@ -6740,7 +6780,7 @@
       "exact_duration_seconds": null,
       "duration_note": "YouTube listing display; rounded where the listing rounds it; not API-validated",
       "imported_at": "2026-11-06T20:46:44.862Z",
-      "reimported_at": "2026-11-08T05:08:01.067Z"
+      "reimported_at": "2026-11-08T05:33:42.186Z"
     }
   },
   "source_seed": "catalogue/drafts/ideas-personal-growth-seed.json"

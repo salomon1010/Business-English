@@ -269,9 +269,14 @@ function validateOne(id) {
   if (info.age_limit) why.push('age-limited');
   if (info.playable_in_embed === false) why.push('not embeddable');
   if (info.availability && info.availability !== 'public') why.push(info.availability);
+  /* Caption AVAILABILITY only — whether YouTube lists an English track. The track is
+     never fetched, converted or stored: this feature has no authorisation to bundle
+     these creators' captions, which is exactly why their records carry cap:"player". */
+  const enTrack = (o) => !!(o && Object.keys(o).some(k => /^en(-|$)/i.test(k)));
   return {
     id, ok: why.length === 0,
     why,
+    captions: enTrack(info.subtitles) ? 'human' : enTrack(info.automatic_captions) ? 'auto' : 'none',
     durationSec: Math.round(info.duration || 0),
     title: info.title,
     channel: info.channel || info.uploader,
@@ -309,6 +314,8 @@ if (validatedIds.length) {
       age_limit: r.ageLimit === undefined ? null : r.ageLimit, live_status: r.liveStatus || null,
       observed_title: r.title || null, observed_channel: r.channel || null,
       observed_channel_id: r.channelId || null, observed_handle: r.handle || null,
+      captions_available: r.captions || null,
+      captions_note: 'Availability only. No caption track was fetched, converted or stored — this category has no authorisation to bundle these creators\' captions.',
       title_matches_seed: r.title ? r.title.trim() === String(rec.title || '').trim() : null,
       display_duration_matches: (r.durationSec && seedDur.seconds) ? Math.abs(r.durationSec - seedDur.seconds) <= 60 : null,
       error: r.error || null,

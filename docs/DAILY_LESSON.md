@@ -1,13 +1,43 @@
-# The guided daily lesson (Week 1 Monday pilot)
+# The guided daily lesson (Week 1)
 
-General English only, behind `daily_learning_plan_pilot_enabled`, Week 1 Monday only
-(`dlpOn(w, d)`). Every other day and Welding entirely keep the session page they have.
+General English only, behind `daily_learning_plan_pilot_enabled`, **Week 1, every day**
+(`dlpOn`, bounded by `DLP_WEEKS`). Weeks 2-12 and Welding entirely keep the session page they
+have, until Week 1 is proved on a phone — the owner's call of 8 Nov 2026: "give me Week 1
+complete and correct, not 12 weeks of guesses". Opening the rest is one number.
 Engine: `daily-learning-plan.js` (pure, unit-tested). Screens: the `dlp*` block in
 `index.html`. The lesson renders into `#v-journey` through `rSession` → `rGuidedLesson`.
 
-## The seven steps
+## Each day uses the tools its own task calls for
 
-`DailyPlan.STEPS = try · learn · listen · rehearse · converse · improve · finish`
+`DailyPlan.STEPS` is the CATALOGUE — try · learn · listen · rehearse · converse · improve ·
+finish. A day uses a **recipe** from it, `plan.steps`, chosen by `DailyPlan.shapeFor(core)` from
+the curriculum's own words, so the same rule carries to all 12 weeks without editing 84 entries:
+
+| shape | matched on | steps | Week 1 |
+|-------|-----------|-------|--------|
+| `shadow` | the task says "shadow" | the full loop (7) | Mon |
+| `speak` | anything else (the safe default) | try · learn · converse · improve · finish | Tue, Thu, Sat |
+| `vocab` | "phrase bank" / "vocabulary bank" / "phrases" | learn · rehearse · converse · finish | Wed |
+| `rhythm` | the **focus** says rhythm / stress / intonation / pace | listen · rehearse · try · improve · finish | Fri |
+| `review` | "weekly review" | converse · finish | Sun |
+
+The rhythm shape is read from the FOCUS, never the output: Tuesday's output says "recording v1 ·
+corrected v2", which is what every speaking day does, and matching on it gave "Tell me about
+yourself" the rhythm loop with no self-introduction step at all.
+
+`DailyPlan.stepsOf(entry)` is the day's list; `setStep`, `reached`, `goStep` and `complete` all
+walk it, and an entry written before recipes existed keeps the full catalogue. `start()` opens on
+the day's own first step, so a vocabulary day begins in the sentence tools. On screen the dots,
+the Previous/Next pair and the day score all follow the same list, and a saved entry sitting on a
+step its day does not have is moved to the day's first step rather than rendering nothing.
+
+**Each day shows its own task** (`plan.staticFallback.task` and `.out`) in a fold under the
+heading, and works a **different share of the week's language**: the pool is the week's ten
+phrases, and `personalizedExpressions(pool, profile, shift)` rotates its starting point by the
+day. Personalisation still wins — a phrase matching the learner's role or goal ranks first
+whatever the day.
+
+## The step catalogue
 
 | # | Step | What the learner does | How it is evaluated |
 |---|------|----------------------|---------------------|
@@ -220,6 +250,7 @@ Owner, 7 Nov 2026: from step 3 you can look at step 2 and step 1 again.
 | `tests/lesson-evaluation.test.mjs` (25) | who may spend a verdict, the measurements, the before/after, the step history |
 | `tests/lesson-allowance.test.mjs` (18) | the free day costs exactly the free cap |
 | `tests/learn-mastery.mjs` (36) | step 2: the 80% gate, locking, polish rounds, the shared report |
+| `tests/week1-days.mjs` (18) | all seven days of Week 1: the recipe, the first step, the dots, the day's own task and expressions |
 | `tests/lesson-converse.mjs` (21) | step 5: the scenario built from the day, the name in the greeting and the prompt, the AI figure, the gate, the measurement |
 | `tests/rehearse-sentences.mjs` (17) | step 4: complete sentences, its own keys, three rewrites |
 | `tests/lesson-shadow.mjs` (72) | step 3 and the navigation: the armed stage, the shared report, the pace lines, the coach script, the method, the skip, playback, the spent-credit card, the two buttons, the gate, the pinned paragraph, the dots' tap area |

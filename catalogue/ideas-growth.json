@@ -1,0 +1,246 @@
+{
+  "about": "Ideas & Personal Growth — PREVIEW overlay for the General English Shadow library. Merged into the catalogue by shCatLoad() only when ideas_personal_growth_enabled is on AND the open programme is General English. It is a separate file precisely so that production, where the flag is false, never loads it at all.",
+  "reviewed": false,
+  "review_warning": "NOT editorially reviewed and NOT rights-cleared. Every video here is still editorial_review:pending and rights_review:pending in catalogue/drafts/ideas-personal-growth-registry.json. What IS verified is playability: public, embeddable, not age-limited, not live, measured duration, channel id confirmed from the creator own videos. Do not enable this flag in production on the strength of this file.",
+  "captions": "No caption file is bundled for any video here and none may be fetched without a documented authorisation decision. Records are cap:\"player\" or cap:null, so the Shadow and Challenge transcript modes do not apply; the app shows its existing no-transcript card instead.",
+  "built": "2026-11-08",
+  "source": "catalogue/drafts/ideas-personal-growth-registry.json",
+  "category": {
+    "id": "ideas_growth",
+    "label": "Ideas & Personal Growth",
+    "vids": [
+      "OTvm5LfhDzg",
+      "Z-zYu4patP8",
+      "16QlwqB7crc",
+      "gB4dNxorewE",
+      "PjKJRa1369s",
+      "tLAZvESoVgI",
+      "O42tZse-P6w",
+      "LGXRpbDuDGE",
+      "NGQQGeI1MmE",
+      "HUXEqS6GqUU",
+      "4Tm6Z1y3h94",
+      "oGVhOWqsBWM",
+      "LaffA9EyUgo",
+      "6qU1sDBU9Cs",
+      "g7RAPS8mE94",
+      "gfyCzLbcAvk",
+      "FDjeRloNgx0",
+      "tIoJhqnOc0M",
+      "C5SwcrVnyLc",
+      "tGkymdspups"
+    ]
+  },
+  "channels": [
+    {
+      "id": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "name": "Academy of Ideas",
+      "avatar": null,
+      "handle": "@academyofideas",
+      "videos": 5
+    },
+    {
+      "id": "UCybBViio_TH_uiFFDJuz5tg",
+      "name": "Einzelgänger",
+      "avatar": null,
+      "handle": "@einzelganger",
+      "videos": 5
+    },
+    {
+      "id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "name": "Pursuit of Wonder",
+      "avatar": null,
+      "handle": "@PursuitofWonder",
+      "videos": 5
+    },
+    {
+      "id": "UC-qsP49Ai2GymJgyKX38l1w",
+      "name": "Robert Greene",
+      "avatar": null,
+      "handle": "@RobertGreeneOfficial",
+      "videos": 5
+    }
+  ],
+  "videos": {
+    "OTvm5LfhDzg": {
+      "title": "3 Books That Will Change Your Life",
+      "ch": "Robert Greene",
+      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+      "dur": 375,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "Z-zYu4patP8": {
+      "title": "Three Essential Skills For Today’s World",
+      "ch": "Robert Greene",
+      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+      "dur": 584,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "16QlwqB7crc": {
+      "title": "My Advice to Young Men",
+      "ch": "Robert Greene",
+      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+      "dur": 534,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "gB4dNxorewE": {
+      "title": "What Machiavelli Has Taught Me",
+      "ch": "Robert Greene",
+      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+      "dur": 357,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "PjKJRa1369s": {
+      "title": "Understanding Human Behavior",
+      "ch": "Robert Greene",
+      "chId": "UC-qsP49Ai2GymJgyKX38l1w",
+      "dur": 698,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "tLAZvESoVgI": {
+      "title": "TAOISM | The Art of Not Trying",
+      "ch": "Einzelgänger",
+      "chId": "UCybBViio_TH_uiFFDJuz5tg",
+      "dur": 794,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "O42tZse-P6w": {
+      "title": "Stop Trying to Get It And You'll Have It | The Backwards Law",
+      "ch": "Einzelgänger",
+      "chId": "UCybBViio_TH_uiFFDJuz5tg",
+      "dur": 684,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "LGXRpbDuDGE": {
+      "title": "When Life Hurts, Care Less About It | The Philosophy of Marcus Aurelius",
+      "ch": "Einzelgänger",
+      "chId": "UCybBViio_TH_uiFFDJuz5tg",
+      "dur": 847,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "NGQQGeI1MmE": {
+      "title": "Miyamoto Musashi | The Path of the Loner",
+      "ch": "Einzelgänger",
+      "chId": "UCybBViio_TH_uiFFDJuz5tg",
+      "dur": 894,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "HUXEqS6GqUU": {
+      "title": "Miyamoto Musashi | A Life of Ultimate Focus",
+      "ch": "Einzelgänger",
+      "chId": "UCybBViio_TH_uiFFDJuz5tg",
+      "dur": 832,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "4Tm6Z1y3h94": {
+      "title": "A Reason To Stop Worrying - Watch This Whenever You're Stressed Or Anxious",
+      "ch": "Pursuit of Wonder",
+      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "dur": 258,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "oGVhOWqsBWM": {
+      "title": "The Nova Effect - The Tragedy of Good Luck",
+      "ch": "Pursuit of Wonder",
+      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "dur": 354,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "LaffA9EyUgo": {
+      "title": "What Is Kafkaesque? - The 'Philosophy' of Franz Kafka",
+      "ch": "Pursuit of Wonder",
+      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "dur": 556,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "6qU1sDBU9Cs": {
+      "title": "The Terrible Paradox of Self-Awareness | Fernando Pessoa",
+      "ch": "Pursuit of Wonder",
+      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "dur": 782,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "g7RAPS8mE94": {
+      "title": "The Problem with Nice People",
+      "ch": "Pursuit of Wonder",
+      "chId": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "dur": 772,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "gfyCzLbcAvk": {
+      "title": "Nietzsche and Psychology: How To Become Who You Are",
+      "ch": "Academy of Ideas",
+      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "dur": 878,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "FDjeRloNgx0": {
+      "title": "Why You Should Seek Power, Not Happiness - Nietzsche's Guide to Greatness",
+      "ch": "Academy of Ideas",
+      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "dur": 731,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "tIoJhqnOc0M": {
+      "title": "How to Integrate Your Shadow - The Dark Side is Unrealized Potential",
+      "ch": "Academy of Ideas",
+      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "dur": 662,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "C5SwcrVnyLc": {
+      "title": "The Psychology of Solitude",
+      "ch": "Academy of Ideas",
+      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "dur": 470,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    },
+    "tGkymdspups": {
+      "title": "Aldous Huxley and Brave New World: The Dark Side of Pleasure",
+      "ch": "Academy of Ideas",
+      "chId": "UCiRiQGCHGjDLT9FQXFW0I3A",
+      "dur": 523,
+      "cap": "player",
+      "watch": true,
+      "up": null
+    }
+  }
+}

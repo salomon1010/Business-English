@@ -129,12 +129,19 @@
      different pool per learner — so two learners on the same week/day always
      choose from identical source material, just in a different order. Stable
      sort: ties keep the curriculum's own original order. */
-  function personalizedExpressions(pool, profile) {
+  const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  /* A WEEK'S LANGUAGE, A DAY'S SHARE OF IT (owner, 8 Nov 2026 — the days must not feel the same).
+     The pool is the week's; `shift` rotates its starting point by the day, so Tuesday works a
+     different five from Monday instead of repeating them. Personalisation still wins: a phrase
+     that matches the learner's role or goal is ranked first whatever the day. */
+  function personalizedExpressions(pool, profile, shift) {
     const scenario = scenarioFor(profile);
     const kw = [...(scenario ? scenario.keywords : []), ...roleHintsFor(profile), ...vocabHintsFor(profile)].map(k => k.toLowerCase());
     const n = expressionCount(profile);
-    if (!kw.length) return pool.slice(0, n);
-    return pool.map((p, i) => ({ p, i, hit: kw.some(k => p.toLowerCase().includes(k)) ? 1 : 0 }))
+    const k = pool.length ? (((+shift || 0) % pool.length) + pool.length) % pool.length : 0;
+    const rot = k ? pool.slice(k).concat(pool.slice(0, k)) : pool.slice();
+    if (!kw.length) return rot.slice(0, n);
+    return rot.map((p, i) => ({ p, i, hit: kw.some(x => p.toLowerCase().includes(x)) ? 1 : 0 }))
       .sort((a, b) => b.hit - a.hit || a.i - b.i).map(x => x.p).slice(0, n);
   }
   function videoKeywordsFor(profile, fallback) {
@@ -161,6 +168,44 @@
     };
   }
 
+  /* ------------------------------------------------- WHICH TOOLS A DAY USES
+     Owner, 8 Nov 2026: every day follows the Monday model, but "the Monday model" is the method,
+     not seven fixed screens — "maybe this one, the Tuesday, this is just 4 steps". Week 1 proves
+     the point: Monday shadows a clip, Wednesday builds a phrase bank, Friday redoes Thursday's
+     explanation for rhythm, Sunday reviews the week. The same tools, in the order that day's own
+     curriculum task actually calls for.
+
+     The shape is READ FROM THE CURRICULUM's own words, not hard-coded per date, so the same rule
+     carries to all 12 weeks without editing 72 entries. A day whose task says "shadow" gets the
+     shadowing loop; one that says "phrase bank" starts in the sentence tools; one that says
+     "version 2" or "before/after" puts the redo after the rhythm work. Anything we do not
+     recognise gets the plain speaking loop, which is the safe default — never an empty day. */
+  const DAY_SHAPES = {
+    shadow:  ["try", "learn", "listen", "rehearse", "converse", "improve", "finish"],
+    speak:   ["try", "learn", "converse", "improve", "finish"],
+    vocab:   ["learn", "rehearse", "converse", "finish"],
+    rhythm:  ["listen", "rehearse", "try", "improve", "finish"],
+    review:  ["converse", "finish"]
+  };
+  function shapeFor(core) {
+    const focus = String((core && core.competencyObjective) || "").toLowerCase();
+    const txt = ((core && (core.competencyObjective + " " + core._task + " " + core._out)) || "").toLowerCase();
+    if (/\bweekly review\b|\breview of the week\b/.test(txt)) return "review";
+    if (/\bshadow\b|\bshadowing\b/.test(txt)) return "shadow";
+    if (/phrase bank|vocabulary bank|\bphrases\b/.test(txt)) return "vocab";
+    /* The rhythm shape is read from the day's FOCUS, never from its output. Tuesday's output says
+       "recording v1 · corrected v2", which is what every speaking day does — matching on that gave
+       "Tell me about yourself" the rhythm loop and no self-introduction step at all. */
+    if (/rhythm|stress|intonation|\bpace\b|melody/.test(focus)) return "rhythm";
+    return "speak";
+  }
+  /* The steps an entry actually has. Older entries carry no plan.steps and keep the full list,
+     so nothing written before this reads as a day with missing screens. */
+  function stepsOf(entry) {
+    const st = entry && entry.plan && entry.plan.steps;
+    return (Array.isArray(st) && st.length) ? st : STEPS;
+  }
+
   /* Builds a fresh plan. Never called directly by start() when an
      in-progress entry already exists (see start()). */
   function build(opts) {
@@ -172,12 +217,15 @@
     const pool = (phrases || []).map(p => String(p.p || p));
     const scenario = scenarioFor(profile);
     const diff = difficultyFor(profile);
-    const chosen = personalizedExpressions(pool, profile);
+    const di = Math.max(0, WEEK_DAYS.indexOf(String(d)));
+    const chosen = personalizedExpressions(pool, profile, di * 2);
     return {
       curriculumVersion: core.curriculumVersion,
       learnerProfileVersion: SCHEMA_VERSION,
       lessonId: id,
       week: w, day: d,
+      shape: shapeFor(core),
+      steps: DAY_SHAPES[shapeFor(core)] || DAY_SHAPES.speak,
       competencyObjective: core.competencyObjective,
       learnerContext: { selfLevel: (profile && profile.selfLevel) || "", role: (profile && profile.role) || "", roleCat: (profile && profile.roleCat) || "", goalId: (profile && profile.goalId) || "", situations: (profile && profile.situations) || [], priorities: (profile && profile.priorities) || [], vocabGoals: (profile && profile.vocabGoals) || [], dailyMinutes: (profile && profile.dailyMinutes) || "", proficiency: prof },
       personalizedScenario: { task: (scenario && scenario.frame) || core._task, missionPattern: core._missionPattern, missionObjective: core._missionObjective, personalized: !!scenario },
@@ -498,7 +546,9 @@
     const plan = build({ ...buildOpts, d: buildOpts.day || buildOpts.d });
     if (!plan) return null;
     const entry = {
-      lessonId: id, plan, step: "try", stepData: {},
+      /* the day's OWN first step: a vocabulary day starts in the sentence tools, a review day in
+         the conversation. Hard-coding "try" left those days opening on a step they do not have. */
+      lessonId: id, plan, step: (plan.steps && plan.steps[0]) || "try", stepData: {},
       profileSnapshot: { selfLevel: plan.learnerContext.selfLevel, role: plan.learnerContext.role },
       startedAt: Date.now(), completedAt: null,
       attempt: existing ? (existing.attempt || 1) + 1 : 1
@@ -510,9 +560,9 @@
   function setStep(S, id, step, data) {
     const e = load(S, id); if (!e) return null;
     if (data !== undefined) e.stepData[step] = data;
-    const i = STEPS.indexOf(step);
-    const next = STEPS[i + 1];
-    if (next) { if (STEPS.indexOf(next) > reached(e)) e.reached = next; e.step = next; }
+    const ST = stepsOf(e), i = ST.indexOf(step);
+    const next = ST[i + 1];
+    if (next) { if (ST.indexOf(next) > reached(e)) e.reached = next; e.step = next; }
     return e;
   }
 
@@ -522,14 +572,15 @@
      water mark. Older entries carry no `reached`, and then the open step IS the mark. */
   function reached(entry) {
     if (!entry) return 0;
-    const a = STEPS.indexOf(entry.step), b = STEPS.indexOf(entry.reached || entry.step);
+    const ST = stepsOf(entry);
+    const a = ST.indexOf(entry.step), b = ST.indexOf(entry.reached || entry.step);
     return Math.max(a < 0 ? 0 : a, b < 0 ? 0 : b);
   }
   /* Move the view WITHOUT crediting anything: only to a step already reached, and never forward
      past it. Walking back and pressing Continue again must not re-award a later step's data. */
   function goStep(S, id, step) {
     const e = load(S, id); if (!e) return null;
-    const i = STEPS.indexOf(step); if (i < 0 || i > reached(e)) return e;
+    const i = stepsOf(e).indexOf(step); if (i < 0 || i > reached(e)) return e;
     if (!e.reached) e.reached = e.step;
     e.step = step;
     return e;
@@ -538,8 +589,9 @@
   function complete(S, id) {
     const e = load(S, id); if (!e) return null;
     e.completedAt = Date.now();
-    e.step = "finish";
-    e.reached = "finish";
+    const last = stepsOf(e).slice(-1)[0] || "finish";
+    e.step = last;
+    e.reached = last;
     return e;
   }
 
@@ -562,7 +614,7 @@
     return "established";
   }
 
-  const api = { roleHintsFor, vocabHintsFor, expressionCount, declaredPronunciation, STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, paragraphsOf, pickParagraphs, expandPassage, phraseSentence, PASSAGE, evaluationPlan, measure, compareAttempts, foldContractions, makeSays, makeFinds, phraseVariants, load, start, setStep, reached, goStep, complete, completedAttempts, evidenceStatus, scenarioFor, difficultyFor, personalizedExpressions, videoKeywordsFor };
+  const api = { roleHintsFor, vocabHintsFor, expressionCount, declaredPronunciation, STEPS, SCHEMA_VERSION, lessonId, proficiencyRange, canonicalCore, build, validate, validateAgainstCurriculum, pickSupportingVideo, paragraphsOf, pickParagraphs, expandPassage, phraseSentence, PASSAGE, evaluationPlan, measure, compareAttempts, foldContractions, makeSays, makeFinds, phraseVariants, load, start, setStep, reached, goStep, stepsOf, shapeFor, DAY_SHAPES, WEEK_DAYS, complete, completedAttempts, evidenceStatus, scenarioFor, difficultyFor, personalizedExpressions, videoKeywordsFor };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.DailyPlan = api;
 })(typeof window !== "undefined" ? window : globalThis);

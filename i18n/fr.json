@@ -3780,6 +3780,8 @@
  "home.coach_focus_established": "Assez d'essais enregistrés maintenant pour voir à la fois une force et un point à travailler.",
  "dlp.unavailable": "Cette leçon guidée n'est pas disponible pour le moment — faites la séance habituelle.",
  "dlp.progress_label": "Étapes de la leçon",
+ "dlp.task_h": "La tâche du jour",
+ "dlp.task_out": "Ce que vous obtenez : {{o}}",
  "dlp.step_try": "Essayer",
  "dlp.step_try_sub": "Avant d'écouter qui que ce soit, écoutons d'où vous partez.",
  "dlp.step_learn": "Apprendre",

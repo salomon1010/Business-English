@@ -3780,6 +3780,8 @@
  "home.coach_focus_established": "Ya hay suficientes intentos grabados para ver tanto una fortaleza como un foco claro.",
  "dlp.unavailable": "Esta lección guiada no está disponible ahora mismo: haga la sesión normal.",
  "dlp.progress_label": "Pasos de la lección",
+ "dlp.task_h": "La tarea de hoy",
+ "dlp.task_out": "Con lo que termina: {{o}}",
  "dlp.step_try": "Probar",
  "dlp.step_try_sub": "Antes de escuchar a nadie, oigamos de dónde parte.",
  "dlp.step_learn": "Aprender",
