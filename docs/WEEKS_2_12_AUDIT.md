@@ -29,7 +29,15 @@ A detector that finds nothing is only worth something if it can find something, 
 
 ## What enabling it displaces
 
-`rSession` checks `dlpOn` **before** the V2 mission path. Lifting the limit for a week therefore replaces that week's mission flow (guided and real missions, the Executive Polish coach report), which is built and tested for all 12 weeks (`tests/mission-*.mjs`). That is a product decision, not a side effect, and it is why weeks are opened one at a time in staging.
+**Correction (same day): this section first said the guided lesson would replace each week's V2 mission flow. That was wrong.**
+The V2 missions are hidden in production by a kill switch (`localStorage.be_missions`, owner, 24 Sep 2026; `missionsOn()`), so
+every day opens the **classic session page**. What a Week 2–12 learner uses today is that page: the day's task, the "Evidence to
+produce" line, the timer, the recorder, the Executive Polish report, and the link out to the day's tool.
+
+`rSession` checks `dlpOn` before everything else, so opening a week **replaces that classic page** with the seven-step guided lesson.
+That is exactly what Week 1 already did. The missions (built and tested for all 12 weeks, `tests/mission-*.mjs`) are untouched and
+stay hidden; whether they should ever come back, and where, is a separate question. `tests/guided-weeks.mjs` section G pins
+both facts: the missions are off by default, and an opened week shows the guided lesson instead of the classic page.
 
 ## Per week
 
