@@ -16,3 +16,6 @@ ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
 *.p8
 AuthKey_*
 ExportOptions*.plist
+
+# archive / export output from scripts/build.sh --archive (81 MB; never committed)
+build/

@@ -393,6 +393,10 @@ console.log("\n== web bundle freshness");
   const bb = join(ios, "ios", "App", "App", "public", "be-build.js");
   ok("be-build.js in the bundle names that programme and nothing of staging",
     existsSync(bb) && read(bb).includes(`"track":"${programme}"`) && !/staging/.test(read(bb)), existsSync(bb) ? read(bb).trim() : "absent");
+  /* the development simulator hook (--dev-flags) marks its bundle `dev:true`; such a bundle forces feature
+     flags on and must never be archived or submitted */
+  ok("the bundle is not a development build (no forced feature flags)",
+    !existsSync(bb) || !/"dev"\s*:\s*true/.test(read(bb)), existsSync(bb) ? read(bb).trim() : "absent");
   /* The swap above is what lets a branded bundle match, so assert the bundle
      really carries its own mark instead of assuming it: a General English
      splash inside the Welding app is the thing this is here to catch. */

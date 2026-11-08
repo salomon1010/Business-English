@@ -1,0 +1,282 @@
+diff --git a/index.html b/index.html
+index d4c93f12..11f7441f 100644
+--- a/index.html
++++ b/index.html
+@@ -70,6 +70,7 @@
+ <script src="shadow-scenes.js?v=2"></script>
+ <script src="adaptive-learning-engine.js?v=84"></script>
+ <script src="daily-learning-plan.js?v=1"></script>
++<script src="learner-profile.js?v=1"></script>
+ <script src="career-center.js?v=80"></script>
+ <script src="professional-skills-passport.js?v=85"></script>
+ <script src="jurisdictions.js?v=79"></script>
+@@ -7747,6 +7748,10 @@ const I18N_EN={
+  "wc.body_trade":"Twenty-five focused minutes a day is all it takes.",
+  "ob.role_title":"What do you do, {{name}}?",
+  "ob.role_sub":"Every drill is a rehearsal for your real world — the standup, the update, the interview where you finally sound like yourself.",
++ "ob.role_other_placeholder":"Type what you do",
++ "ob.continue":"Continue",
++ "ob.situations_title":"Where do you need English most?",
++ "ob.situations_sub":"Pick as many as you like. We'll lead with the rooms you actually walk into — and you can change this any time.",
+  "ob.goal_title":"What's your #1 goal?",
+  "ob.goal_sub":"We'll keep it in front of you every day, so you never lose sight of who you're becoming.",
+  "ob.slot_title":"When is your daily 25 minutes?",
+@@ -13953,7 +13958,7 @@ function rHomeGeneral(el){
+   <h1 class="big home-hero-h">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
+   ${subInfo(t("home.sub_base")+".")}
+   ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
+-    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
++    if(P.role)pills.push(esc(roleLabel(P).replace(E,"")));
+     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
+     if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
+     return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
+@@ -25706,6 +25711,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
+    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
+    own PARTNER_ENABLED switch as the server-side boundary. */
+ const FLAGS_DEFAULT={
++  onboarding_v2_enabled:false,   // Onboarding V2 (owner-approved name, 6 Nov 2026), General English only. Phase 0 = sync safety only: gates the learner-profile (S.lp) cloud sync. OFF in production until the owner approves the sync compatibility separately.
+   daily_learning_plan_pilot_enabled:false,   // Phase 2 pilot (6 Nov 2026): the guided TRY..FINISH flow on Week 1 Monday, General English only. OFF until the owner enables it on staging.
+   practice_partner_enabled:true,       // released 2026-09-20 (owner decision; DEVICE_CHECKLIST 24/66 rows certified on staging)
+   practice_partner_matching_enabled:true,
+@@ -34268,6 +34274,7 @@ window.acctSave=()=>{
+   const p=S.profile||{};
+   p.name=(document.getElementById("acName").value||"").trim()||p.name||"there";
+   p.role=document.getElementById("acRole").value;
++  if(p.role!=="Other")delete p.roleOther;   /* the typed words belong to "Other" only */
+   p.goal=document.getElementById("acGoal").value;
+   p.slot=document.getElementById("acSlot").value;
+   const lvEl=document.getElementById("acLevel");if(lvEl)p.selfLevel=lvEl.value;
+@@ -34702,7 +34709,7 @@ function rProfile(el){
+   const initial=esc((p.name||"?")[0].toUpperCase());
+   const nm=p.name?esc(p.name):t("profile.guest");
+   const bits=[];
+-  if(p.role)bits.push(esc(optLabel(p.role,OB_ROLES,"role.")));
++  if(p.role)bits.push(esc(roleLabel(p)));
+   if(p.goal)bits.push(esc(optLabel(p.goal,OB_GOALS,"goal.")));
+   const sub=bits.length?bits.join(" · "):t("profile.sub_default");
+   const theme=document.documentElement.getAttribute("data-theme")||"dark";
+@@ -37020,7 +37027,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
+ /* ===== ONBOARDING (first launch) ===== */
+ /* track: a single-programme build (the two-app split) starts with its own
+    programme already chosen — the track step is never shown. */
+-let OB={step:0,name:"",role:"",goal:"",slot:"",selfLevel:"",lang:"",track:BE_APP_TRACK||"",trade:"",best:0};
++let OB={step:0,name:"",role:"",roleOther:"",goal:"",situations:[],slot:"",selfLevel:"",lang:"",track:BE_APP_TRACK||"",trade:"",best:0};
+ const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
+ /* OB_TARGET used to be a second, hand-lowercased copy of OB_LINE, and the
+    scorer read it directly. Once obWinLine() started returning the learner's
+@@ -37044,9 +37051,24 @@ const SLOT_ICONS=["sun","utensils","train","moon"];
+    learner is not asked to diagnose a skill they can't reasonably assess. */
+ const OB_LEVELS=["New to speaking English","Can get by","Comfortable but not confident","Fluent, want to sound sharper","Not sure"];
+ const LEVEL_ICONS=["mic","chat","waveform","trophy","help"];
++/* "Common situations" reuses the SAME category ids Shadow Studio's library
++   chips and curriculum session links already use (meetings/presentations/
++   interviews/everyday/skills) — not a new taxonomy — so a learner's answer
++   here can genuinely steer which Shadow video and vocabulary DailyPlan
++   picks, instead of being collected and never read (the slot question's old
++   mistake, see above). Multi-select: a learner can need English in more
++   than one of these. */
++const OB_SITUATIONS=["meetings","presentations","interviews","everyday","skills"];
++const SITUATION_ICONS=["chat","podium","trophy","sound","book"];
+ /* Roles/goals/slots are STORED as canonical English (S.profile.role etc.) but DISPLAYED translated.
+    optLabel maps a stored canonical value to its translated label by index; unknown values pass through. */
+ function optLabel(val,arr,prefix){const i=arr.indexOf(val);return i>=0?t(prefix+i):val}
++/* What the learner is shown back for "what do you do": their own words when
++   they chose Other and typed some, otherwise the translated canonical label.
++   Every display of the role goes through this — storing the free text in
++   profile.role instead would have made this unnecessary and cost the Account
++   settings round-trip (see obRoleOther). */
++function roleLabel(p){p=p||{};return (p.role==="Other"&&p.roleOther)?p.roleOther:optLabel(p.role||"",OB_ROLES,"role.")}
+ function obRender(){
+   let el=document.getElementById("obWrap");
+   /* A real modal dialog. Onboarding is painted over #v-home, which has already
+@@ -37059,9 +37081,14 @@ function obRender(){
+     el.setAttribute("aria-label",t("ob.hero_pre")+" "+t("ob.hero_em"));
+     document.body.appendChild(el)}
+   /* Welding leaves after the track step, so its dots only count the steps it will
+-     actually see. Showing seven and stopping at three would read as unfinished. */
+-  const total=BE_APP_TRACK?6:7;   /* the two-app split skips the programme step */
+-  const lit=BE_APP_TRACK&&OB.step>2?OB.step-1:OB.step;
++     actually see. Showing seven and stopping at three would read as unfinished.
++     The situations step (index 5) is General-English-only and never shown for
++     Welding either — same reasoning, same pattern, generalised below so it
++     works whether the programme is known from the start (a pinned store build)
++     or chosen mid-flow (the shared web build). */
++  const trackSkip=BE_APP_TRACK?1:0, sitSkip=OB.track==="welding"?1:0;
++  const total=(BE_APP_TRACK?7:8)-sitSkip;
++  const lit=OB.step-(OB.step>2?trackSkip:0)-(OB.step>5?sitSkip:0);
+   const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===lit?'on':''}"></span>`).join("")}</div>`;
+   const steps=[
+     `<div class="ob-logo ob-logo-img" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
+@@ -37107,7 +37134,9 @@ function obRender(){
+      :`<div class="ob-logo">${ic("briefcase")}</div>
+      <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
+      <p class="sub">${t("ob.role_sub")}</p>
+-     <div class="ob-chips">${OB_ROLES.map((r,i)=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()"><span class="btn-ic">${ic(ROLE_ICONS[i])}</span>${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
++     <div class="ob-chips">${OB_ROLES.map((r,i)=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="${r==='Other'?'obRoleOther()':`OB.role='${r}';obNext()`}"><span class="btn-ic">${ic(ROLE_ICONS[i])}</span>${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>
++     ${OB.role==="Other"?`<input id="obRoleOther" aria-label="${esc(t("ob.role_other_placeholder"))}" placeholder="${esc(t("ob.role_other_placeholder"))}" value="${esc(OB.roleOther||"")}" style="max-width:320px;margin:14px auto 0;display:block;text-align:center" onkeydown="if(event.key==='Enter')obRoleOtherNext()">
++       <button class="btn-primary ob-go" style="margin-top:14px" onclick="obRoleOtherNext()">${t("ob.continue")}</button>`:""}`,
+     OB.track==="welding"
+      ?(()=>{const tr=(window.Trades&&Trades.get(OB.trade))||null;
+         return `<div class="ob-logo ob-logo-weld">${ic("target")}</div>
+@@ -37121,6 +37150,12 @@ function obRender(){
+      <h1>${t("ob.goal_title")}</h1>
+      <p class="sub">${t("ob.goal_sub")}</p>
+      <div class="ob-chips ob-chips-list">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
++    /* Multi-select (no auto-advance): obSituationToggle re-renders the SAME step on every tap. */
++    `<div class="ob-logo">${ic("route")}</div>
++     <h1>${t("ob.situations_title")}</h1>
++     <p class="sub">${t("ob.situations_sub")}</p>
++     <div class="ob-chips ob-chips-list" role="group" aria-label="${esc(t("ob.situations_title"))}">${OB_SITUATIONS.map((s,i)=>`<button class="ob-chip ${OB.situations.includes(s)?'on':''}" aria-pressed="${OB.situations.includes(s)}" onclick="obSituationToggle('${s}')"><span class="btn-ic">${ic(SITUATION_ICONS[i])}</span>${esc(t("sh.cat_"+s))}</button>`).join("")}</div>
++     <button class="btn-primary ob-go" onclick="obNext()">${t("ob.continue")}</button>`,
+     `<div class="ob-logo">${ic("waveform")}</div>
+      <h1>${t("ob.level_title")}</h1>
+      <p class="sub">${t("ob.level_sub")}</p>
+@@ -37149,7 +37184,7 @@ function obRender(){
+      decided whether they want to search at all. Focus rests on Skip, so the
+      obvious action is one tap and the list is free to scroll. */
+   const sk=el.querySelector(".ob-skip-lang");if(sk)sk.focus();
+-  if(OB.step===6){
++  if(OB.step===7){
+     if(!_voiceOverride)_voiceOverride=OB_VOICES[Math.floor(Math.random()*OB_VOICES.length)];   // surprise a new user with a random natural voice
+     fbWarm(obWinLine());   // pre-load the clip so "Hear it first" plays instantly on iOS
+   }
+@@ -37162,7 +37197,11 @@ window.obNext=()=>{
+      ask: the programme is the app the learner installed, so the step is skipped
+      rather than shown with one option. OB.track is already set. */
+   if(BE_APP_TRACK&&OB.step===2)OB.step++;
+-  if(OB.step>6)return obFinish();
++  /* Step 5 is "common situations" — General English only, same reasoning as
++     the role/goal fork above (a welder's situations are already captured by
++     their trade). */
++  if(OB.track==="welding"&&OB.step===5)OB.step++;
++  if(OB.step>7)return obFinish();
+   obRender();
+ };
+ /* Choosing a profession is the fork in onboarding. General English carries on
+@@ -37203,6 +37242,20 @@ window.obTradePick=(id)=>{
+   obNext();
+ };
+ window.obGoalPick=(id)=>{OB.goal=id;obNext()};
++/* Other's own chip re-renders this SAME step with a text field rather than
++   advancing — "Other" alone throws away exactly the information this screen
++   exists to collect. Leaving the field blank and tapping Continue still
++   advances, with "Other" as the stored value, so the step is never a trap.
++   OB.role stays CANONICAL ("Other"); the learner's own words go in
++   OB.roleOther → S.profile.roleOther. Putting free text in role itself would
++   look tidier and break two things that already exist: the Account settings
++   role <select> (sel() in rData) only holds OB_ROLES, so an unrecognised
++   value shows "—" and the next Save writes "" over it; and optLabel's
++   pass-through would show the learner's English words untranslated in a
++   localised profile pill. roleLabel() below is what displays them instead. */
++window.obRoleOther=()=>{OB.role="Other";obRender();requestAnimationFrame(()=>{const i=document.getElementById("obRoleOther");if(i)i.focus()})};
++window.obRoleOtherNext=()=>{const el=document.getElementById("obRoleOther");OB.roleOther=el?(el.value||"").trim():"";OB.role="Other";obNext()};
++window.obSituationToggle=(s)=>{OB.situations=OB.situations.includes(s)?OB.situations.filter(x=>x!==s):[...OB.situations,s];obRender()};
+ window.obLevelPick=(id)=>{OB.selfLevel=id;obNext()};
+ window.obLangPick=async(code)=>{
+   OB.lang=code;
+@@ -37289,6 +37342,18 @@ function obConfetti(){
+ window.obFinish=()=>{
+   _voiceOverride=null;   // onboarding done → the app now defaults to Alloy (unless the user changes it in Settings)
+   S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",selfLevel:OB.selfLevel||"",lang:OB.lang||"en",ts:Date.now()};
++  /* roleOther: only ever set alongside role==="Other", and only when the
++     learner actually typed something — an empty string would be a field that
++     says "they answered" when they skipped. */
++  if(OB.role==="Other"&&OB.roleOther)S.profile.roleOther=OB.roleOther;
++  /* situations: the step is General-English-only (obNext skips it on Welding),
++     so a Welding profile is written with an EMPTY list rather than left
++     undefined — DailyPlan is GE-only anyway, but an explicit [] is the honest
++     record that nothing was asked, and it keeps every reader on one shape.
++     A fresh copy, not OB.situations itself: obSituationToggle rebuilds the
++     array each tap today, but handing S a live reference to onboarding state
++     is the kind of aliasing that only breaks later. */
++  S.profile.situations=OB.track==="welding"?[]:(OB.situations||[]).slice();
+   if(OB.track==="welding"&&OB.trade&&window.Trades)Trades.setActive(S,OB.trade);
+   if(OB.best>0)S.profile.baseline=OB.best;
+   save();
+@@ -37733,6 +37798,7 @@ async function fbFirstSync(u){
+     const snap=await ref.get();
+     let cloud=null;
+     if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
++    const lpLocal=S&&S.lp;     /* this device's own learner-profile edits; adopting the account copy must not drop them */
+     /* THE ACCOUNT IS THE SOURCE OF TRUTH ON SIGN-IN.
+        Signing in used to union local and cloud, which is why two devices on the
+        same account could sit side by side showing different clip counts: each
+@@ -37794,7 +37860,9 @@ async function fbFirstSync(u){
+       if(take===cloud&&S&&S.shTx){const keep={};Object.values(cloud.shOwnA||{}).forEach(L=>(Array.isArray(L)?L:[]).forEach(o=>{if(o&&o.vid&&S.shTx[o.vid]&&!(cloud.shTx&&cloud.shTx[o.vid]))keep[o.vid]=S.shTx[o.vid]}));
+         if(Object.keys(keep).length)take=Object.assign({},cloud,{shTx:Object.assign({},cloud.shTx,keep)})}
+       S=take;trackStateReloaded();
++      if(lpLocal&&!S.lp)S.lp=lpLocal;      /* never in the foreign-account branch above: that data is not this user's */
+     }
++    try{lpApplyCloud(snap.exists?snap.data():null);lpFlushSoon(0)}catch(e){console.warn("[lp] first sync:",e)}
+     localStorage.setItem(LS_KEY,JSON.stringify(S));
+     localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
+     /* too large for one document: nothing is written, the account copy stays as it was */
+@@ -37837,6 +37905,50 @@ let fbLastPushOk=null,fbLastPushErr="";
+    with the default from an idle callback, often just after it); the write
+    reads S when it runs, so nothing is lost. Ordinary edits still debounce. */
+ let fbPushDue=0,fbPushSoon=false;
++/* ===== Learner profile (S.lp) cloud sync — Onboarding V2 Phase 0 =====
++   Its own top-level field `lp` on users/{uid}; every other writer sets {json, savedAt, email,
++   updatedAt} with {merge:true}, which leaves `lp` untouched, so an older client or the Welding app
++   cannot erase it. One group = one atomic last-writer-wins entry (learner-profile.js). Writes are a
++   Firestore transaction that compares stamps first, using update() on the dotted path so the group
++   is REPLACED, not deep-merged (set+merge would keep a removed nested field alive). No-ops unless
++   the flag is on and General English is open, so Welding never reads, writes or stores it. */
++function lpOn(){try{return !!(window.LearnerProfile&&flag("onboarding_v2_enabled")&&isGeneralEnglish())}catch(e){return false}}
++let lpTimer=null,lpBusy=false;
++window.lpSet=(group,value)=>{if(!lpOn())return false;const ok=LearnerProfile.set(S,group,value);if(ok){save();lpFlushSoon()}return ok};
++window.lpClear=group=>{if(!lpOn())return false;const ok=LearnerProfile.clear(S,group);if(ok){save();lpFlushSoon()}return ok};
++window.lpApplyCloud=data=>{
++  if(!lpOn()||!data)return false;
++  const r=LearnerProfile.mergeCloud(S,data.lp,Date.now());
++  if(r.changed)save();
++  if(r.toPush.length)lpFlushSoon();
++  return r.changed;
++};
++function lpFlushSoon(d){if(!lpOn()||!FBUser||!FBdb)return;clearTimeout(lpTimer);lpTimer=setTimeout(lpFlush,d===undefined?1500:d)}
++async function lpFlush(){
++  if(!lpOn()||!FBUser||!FBdb||lpBusy)return;
++  lpBusy=true;
++  try{
++    const ref=FBdb.collection("users").doc(FBUser.uid);
++    for(const g of LearnerProfile.dirtyGroups(S)){
++      const mine=S.lp.g[g];if(!mine)continue;
++      const out=await FBdb.runTransaction(async tx=>{
++        const snap=await tx.get(ref);
++        const data=snap.exists?snap.data():null;
++        const cur=data&&data.lp&&data.lp.g&&data.lp.g[g];
++        /* the cloud already holds this or something newer: keep it, never overwrite */
++        if(cur&&typeof cur.t==="number"&&typeof cur.s==="string"&&!LearnerProfile.newer(mine,cur))return{kept:cur};
++        const entry={v:mine.v,t:mine.t,s:mine.s};
++        if(snap.exists)tx.update(ref,{["lp.g."+g]:entry,"lp.v":LearnerProfile.SCHEMA});
++        else tx.set(ref,{lp:{v:LearnerProfile.SCHEMA,g:{[g]:entry}}});
++        return{wrote:true};
++      });
++      if(out.kept)LearnerProfile.mergeCloud(S,{g:{[g]:out.kept}},Date.now());
++      else LearnerProfile.markSent(S,g,mine);
++    }
++    save();
++  }catch(e){console.warn("[lp] write deferred:",(e&&(e.code||e.message))||e)}   /* stays dirty; the next pull or save retries */
++  lpBusy=false;
++}
+ window.fbPush=function(delayMs){
+   if(!FBUser||!FBdb)return;
+   const d=delayMs===undefined?2500:delayMs;
+@@ -37928,6 +38040,9 @@ function fbSyncPayload(s){
+      a second device that adopted it would take over the first one's reminder
+      (see pushId). It lives in localStorage; this strip stops the old copies. */
+   delete out.pushId;
++  /* S.lp (the General English learner profile) never travels inside `json`: it syncs through its own
++     Firestore field, which no older client or the Welding app can overwrite (see learner-profile.js). */
++  delete out.lp;
+   /* Welding Mastery: the open round stays on the device; day records older than 120 days stay too */
+   if(out.wm&&window.WMEngine){const o={};Object.entries(out.wm).forEach(([a,v])=>{o[a]=WMEngine.trimForSync(v,Date.now())});out.wm=o}
+   /* the Challenge history travels (the line, the verdict, what to fix); the
+@@ -38114,6 +38229,7 @@ async function fbSyncPull(){
+     const snap=await ref.get();
+     let cloud=null;
+     if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
++    try{lpApplyCloud(snap.exists?snap.data():null)}catch(e){console.warn("[lp] apply failed:",e)}
+     if(cloud){
+       const before=fbSnapshotSig(S);
+       const merged=fbMerge(S,cloud);

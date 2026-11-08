@@ -80,7 +80,11 @@ const PRUNE = {
     dirs: ["scenes", "rp-photos"],
     files: ["catalogue/general.json", "catalogue/sources.json", "catalogue/survey.json",
             "tracks/general/missions.json", "tracks/general/mastery.json", "tracks/general/mastery-art3d.json",
-            "english-mastery-logo.svg"],
+            "english-mastery-logo.svg",
+            /* Onboarding V2 and the General English learner profile (7 Nov 2026): General English only, so the Welding
+               bundle does not carry the code at all. index.html guards every use (window.X &&), and the script tags are
+               removed below so the app does not even ask for them. */
+            "learner-profile.js", "onboarding-catalog.js", "onboarding-v2.js"],
     captionsOf: "general",
   },
 };
@@ -131,6 +135,83 @@ function drop(rel, kind) {
   rmSync(p, { recursive: true, force: true });
   pruned[kind]++;
 }
+
+/* ------------------------------------------------- General English reads no Welding
+   Owner (7 Nov 2026): the General English app shows no Welding text anywhere a learner can
+   read it. PRUNE removes the other programme's CONTENT FILES; this removes the other
+   programme's WORDS from the two files the General English app keeps for itself:
+     - the Help centre (manual/<lang>.html): the programmes section (id "man-track", present
+       in all 15 languages), its contents-list entry, the sections after it renumbered, and in
+       English the sentences that name Welding;
+     - the About page (flyer.html): the "English for your trade" benefit card, in the static
+       markup and in each of the 16 language blocks (it is always the second row).
+   The repository's own files are never touched, so app.lomonec.com (both programmes) and the
+   Welding bundle are exactly as before. Every edit must match exactly once, and a count that
+   is not what was expected fails the build, so a change to those files cannot silently
+   leave Welding text behind.
+   NOT touched, on purpose: privacy.html (the registered legal text, which describes both
+   apps), and the unreachable Welding JavaScript modules and i18n key names (see PRUNE). */
+function stripWeldingText() {
+  const fail = (m) => { throw new Error("General English text strip: " + m); };
+  const once = (h, from, to, label) => {
+    const n = h.split(from).length - 1;
+    if (n !== 1) fail(`${label} matched ${n} times (expected 1)`);
+    return h.replace(from, to);
+  };
+  const dir = resolve(out, "manual");
+  let files = 0;
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith(".html") || f === "index.html") continue;
+    const p = resolve(dir, f);
+    let h = readFileSync(p, "utf8");
+    const a = h.indexOf('<section id="man-track"');
+    if (a < 0) fail(`${f}: the programmes section (man-track) was not found`);
+    const b = h.indexOf("</section>", a);
+    if (b < 0 || h.slice(a + 10, b).includes("<section")) fail(`${f}: man-track is not a single closed section`);
+    const num = /class="no">(\d+)</.exec(h.slice(a, b));
+    if (!num) fail(`${f}: man-track has no section number`);
+    h = h.slice(0, a) + h.slice(b + "</section>".length);
+    const removed = Number(num[1]);
+    h = h.replace(/<span class="no">(\d+)<\/span>/g, (m, n) => Number(n) > removed ? `<span class="no">${Number(n) - 1}</span>` : m);
+    const lines = h.split("\n"), keep = lines.filter(l => !(/<li>.*man-track.*<\/li>/.test(l)));
+    if (lines.length - keep.length !== 1) fail(`${f}: expected exactly one contents entry for man-track, removed ${lines.length - keep.length}`);
+    h = keep.join("\n");
+    if (f === "en.html") {
+      for (const [re, label] of [[/^ *<div class="tip"><b>💡 On Welding English<\/b>.*<\/div>\n/m, "career-dashboard tip"],
+                                 [/^ *<p class="note">On Welding English, the Shadow tab.*<\/p>\n/m, "workshop-lines note"],
+                                 [/^ *<li><b>Professional Workplace Scenarios<\/b> and the <b>interview coaches<\/b> — on Welding English\.<\/li>\n/m, "workplace-scenarios item"]]) {
+        const n = (h.match(new RegExp(re.source, "gm")) || []).length;
+        if (n !== 1) fail(`en.html ${label} matched ${n} times (expected 1)`);
+        h = h.replace(re, "");
+      }
+      h = once(h, "the app language → where you want to learn (<b>General English</b> or <b>Welding</b>) → what you do", "the app language → what you do", "welcome-steps sentence");
+      h = once(h, "(follows the programme you have open), <b>General English</b> or <b>Welding English</b>, in small", "or <b>General English</b>, in small", "widget sentence");
+    }
+    if (/weld|boilermaker|pipefitter/i.test(h) && f === "en.html") fail("en.html still names Welding after the strip");
+    if (h.includes("man-track")) fail(`${f}: a reference to man-track is left`);
+    writeFileSync(p, h);
+    files++;
+  }
+  if (files !== 16) fail(`expected 16 manual pages (15 languages + English), stripped ${files}`);
+
+  const fp = resolve(out, "flyer.html");
+  let fl = readFileSync(fp, "utf8");
+  const card = /^ *<div class="b"><h3>English for your trade<span class="badge">NEW<\/span><\/h3>.*<\/div>\n/m;
+  if ((fl.match(new RegExp(card.source, "gm")) || []).length !== 1) fail("the static trade card was not found exactly once in flyer.html");
+  fl = fl.replace(card, "");
+  const L = fl.split("\n"); let blocks = 0;
+  for (let i = 0; i < L.length; i++) {
+    if (/^ *ben:\[\[/.test(L[i])) {
+      if (!/^ *\[".*"\],?\s*$/.test(L[i + 1])) fail(`flyer.html language block ${blocks + 1}: the second benefit row is not a single row`);
+      L.splice(i + 1, 1); blocks++;
+    }
+  }
+  if (blocks !== 16) fail(`expected 16 flyer language blocks, found ${blocks}`);
+  fl = L.join("\n");
+  if (/English for your trade|boilermaker|pipefitter/i.test(fl)) fail("flyer.html still mentions the trade card");
+  writeFileSync(fp, fl);
+  return { manual: files, flyerBlocks: blocks };
+}
 const idxEarly = resolve(out, "index.html");
 if (track) {
   const plan = PRUNE[track];
@@ -149,6 +230,17 @@ if (track) {
   for (const id of need) for (const sec of SECTIONS) {
     const f = resolve(out, "tracks", id, sec + ".json");
     if (!existsSync(f)) throw new Error(`pruning removed a curriculum section the ${track} app needs: tracks/${id}/${sec}.json`);
+  }
+  /* the General English-only scripts are gone, so their <script> tags go too (and the build fails if either is left behind) */
+  if (track === "welding") {
+    let page = readFileSync(idxEarly, "utf8");
+    for (const f of ["learner-profile.js", "onboarding-catalog.js", "onboarding-v2.js"]) {
+      const re = new RegExp('<script src="' + f.replace(".", "\\.") + '(\\?v=\\d+)?"></script>\\n?', "g");
+      if ((page.match(re) || []).length !== 1) throw new Error(`Welding bundle: the <script> tag for ${f} was not found exactly once in index.html`);
+      page = page.replace(re, "");
+      if (existsSync(resolve(out, f))) throw new Error(`${f} is still in the Welding bundle`);
+    }
+    writeFileSync(idxEarly, page);
   }
   /* and it must NOT carry the other programme's library */
   const gone = track === "welding" ? "catalogue/general.json" : "catalogue/welding.json";
@@ -178,6 +270,7 @@ if (track) {
       + page.slice(close + "</svg>".length));
     branded.push("#beSplash mark");
   }
+  if (track === "general-english") { const r = stripWeldingText(); branded.push(`General English text strip (${r.manual} help pages, ${r.flyerBlocks} About blocks)`); }
   /* manifest.json names the Play app this bundle belongs to. Left alone, the
      Welding bundle advertised com.bemastery.app: getInstalledRelatedApps()
      would have answered with the OTHER app, and any installer reading the
@@ -247,6 +340,18 @@ if (!/<meta name="viewport"/.test(html)) throw new Error("viewport meta missing"
    submission; the committed index.html is not touched. `--track` writes the
    same file with the app's programme — that one IS used for store builds. */
 const staging = process.argv.includes("--staging");
+/* DEVELOPMENT ONLY (owner-approved simulator hook, 7 Nov 2026): --dev-flags '{"flag":true}' turns feature flags
+   on inside a SIMULATOR/EMULATOR bundle so a flow behind a flag can be driven on a device-like target. It is
+   refused for --device / --archive / --staging by the build scripts, it writes the marker `dev:true`, and
+   check-release.mjs fails any bundle carrying that marker — so it cannot reach a store build. */
+const devFlagsArg = argAfter("--dev-flags");
+let devFlags = null;
+if (devFlagsArg !== null) {
+  if (staging) throw new Error("--dev-flags and --staging are contradictory");
+  try { devFlags = JSON.parse(devFlagsArg); } catch (e) { throw new Error("--dev-flags must be a JSON object, e.g. '{\"onboarding_v2_enabled\":true}'"); }
+  if (!devFlags || typeof devFlags !== "object" || Array.isArray(devFlags)) throw new Error("--dev-flags must be a JSON object");
+  if (!Object.keys(devFlags).length || Object.values(devFlags).some(v => typeof v !== "boolean")) throw new Error("--dev-flags takes at least one flag, each true or false");
+}
 /* Firebase follows the build (29 Sep 2026). The staging Workers verify the
    validation project be-mastery-test, so a staging bundle must sign in there:
    before this it kept the committed production block and signed staging
@@ -259,6 +364,7 @@ const build = {};
 if (staging) build.env = "staging";
 if (track) build.track = track;
 if (staging) build.flags = { billing_enabled: true };
+if (devFlags) { build.flags = Object.assign({}, build.flags, devFlags); build.dev = true; }
 /* --no-billing (13 Oct 2026): a PRODUCTION bundle — real Firebase, real
    Workers, real signing — with Premium purchasing switched off, for a
    TestFlight round that is about lessons, speaking and the Shadow Studio.
@@ -274,7 +380,7 @@ if (staging) build.flags = { billing_enabled: true };
 const noBilling = process.argv.includes("--no-billing");
 if (noBilling && staging) throw new Error("--no-billing and --staging are contradictory: staging turns billing ON");
 if (noBilling) build.flags = { billing_enabled: false };
-if (staging || track || noBilling) {
+if (staging || track || noBilling || devFlags) {
   writeFileSync(resolve(out, "be-build.js"), "window.BE_BUILD=" + JSON.stringify(build) + ";\n");
   const tag = '<script src="be-build.js"></script>';
   if (!page.includes("<head>")) throw new Error("<head> missing");
@@ -307,11 +413,16 @@ if (!staging) {
        purchasing OFF) and nothing else. No env, no other flag, no `true`. */
     let parsed; try { parsed = JSON.parse(txt.replace(/^window\.BE_BUILD=/, "").replace(/;\s*$/, "")); }
     catch (e) { throw new Error("be-build.js is not the expected one-line assignment: " + txt.trim()); }
-    const extra = Object.keys(parsed).filter(k => k !== "track" && k !== "flags");
+    if (parsed.dev) {
+      /* a development bundle: allowed here only because this very run asked for it, and refused by
+         check-release.mjs and by the build scripts for device/archive builds */
+      if (!devFlags) throw new Error("be-build.js carries the development marker but --dev-flags was not given");
+    }
+    const extra = Object.keys(parsed).filter(k => k !== "track" && k !== "flags" && !(devFlags && k === "dev"));
     if (extra.length) throw new Error("a production be-build.js may carry track (and at most flags.billing_enabled:false), got: " + txt.trim());
     if (parsed.flags !== undefined) {
       const keys = Object.keys(parsed.flags);
-      if (keys.length !== 1 || keys[0] !== "billing_enabled" || parsed.flags.billing_enabled !== false)
+      if (!devFlags && (keys.length !== 1 || keys[0] !== "billing_enabled" || parsed.flags.billing_enabled !== false))
         throw new Error("the only build flag a production bundle may carry is billing_enabled:false, got: " + txt.trim());
     }
     if (!parsed.track) throw new Error("be-build.js written without --track in a production bundle");

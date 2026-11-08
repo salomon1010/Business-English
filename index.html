@@ -70,6 +70,9 @@
 <script src="shadow-scenes.js?v=2"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
 <script src="daily-learning-plan.js?v=1"></script>
+<script src="learner-profile.js?v=2"></script>
+<script src="onboarding-catalog.js?v=1"></script>
+<script src="onboarding-v2.js?v=1"></script>
 <script src="career-center.js?v=80"></script>
 <script src="professional-skills-passport.js?v=85"></script>
 <script src="jurisdictions.js?v=79"></script>
@@ -3617,10 +3620,110 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .rec-btn-sm{width:34px;height:34px;vertical-align:middle;margin-left:6px}
 .rec-btn-sm svg{width:17px;height:17px}
 /* Phase 2 pilot: the TRY..FINISH step dots (daily_learning_plan_pilot_enabled) */
-.dlp-steps{display:flex;gap:6px;margin:10px 0}
+.dlp-sent-list{list-style:none;margin:10px 0 6px;padding:0;display:flex;flex-direction:column;gap:10px}
+.dlp-sent{border:1px solid var(--line2);border-radius:14px;background:var(--card);padding:12px 14px}
+.dlp-sent.has{border-color:color-mix(in srgb,var(--acc) 45%,var(--line2))}
+.dlp-sent-t{margin:0 0 9px;font-size:15px;line-height:1.5}
+.dlp-sent-go{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dlp-sent-n{margin:8px 0 0}
+.dlp-sent-bar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.dlp-sent-bar .btn-primary{flex:1 1 150px;min-height:48px}
+.dlp-sent-bar .btn-g{flex:0 1 auto;min-height:48px}
+.dlp-sent-h{display:flex;align-items:center;gap:8px;margin:0 0 6px}
+.dlp-sent-i{width:22px;height:22px;border-radius:50%;background:var(--line2);color:var(--mut);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.dlp-sent.ok{border-color:color-mix(in srgb,var(--green) 55%,var(--line2));background:color-mix(in srgb,var(--green) 7%,var(--card))}
+.dlp-sent.ok .dlp-sent-i{background:var(--green);color:#fff}
+.dlp-sent.lock{opacity:.6}
+.dlp-you{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--acc2,var(--acc));line-height:1.45}
+.dlp-skip{display:block;margin:12px auto 0;border:0;background:none;color:var(--mut);font-size:13px;text-decoration:underline;min-height:0;padding:4px 8px}
+.rec-btn-sm{width:40px;height:40px}
+.dlp-graph{margin-top:12px;padding:12px 14px;border:1px solid var(--line2);border-radius:14px;background:var(--card)}
+.dlp-graph-h{margin:0 0 6px}
+.dlp-graph-svg{width:100%;height:74px;display:block}
+.dlp-takes{list-style:none;margin:8px 0 0;padding:0;font-size:12.5px;color:var(--mut);display:flex;flex-direction:column;gap:3px}
+.dlp-takes b{color:var(--txt);font-weight:700;margin-inline-end:4px}
+.dlp-try .dlp-stage{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0 6px}
+.dlp-live{width:100%;max-width:460px;min-height:74px;max-height:190px;overflow-y:auto;padding:12px 14px;border:1px solid var(--line2);border-radius:14px;background:var(--bg2);color:var(--txt);font-size:15px;line-height:1.55;text-align:start}
+.dlp-live-ph{color:var(--mut)}
+.dlp-live-lbl{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+/* the microphone owns the screen: big, centred, low — the day's most important minute */
+.dlp-mic{position:relative;width:96px;height:96px;border-radius:50%;border:0;background:var(--grad);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 40px color-mix(in srgb,var(--acc) 45%,transparent);-webkit-tap-highlight-color:transparent}
+.dlp-mic .dlp-mic-ic{position:relative;z-index:1;display:grid;place-items:center}
+.dlp-mic svg{width:38px;height:38px}
+.dlp-mic-ring{position:absolute;inset:0;border-radius:50%;border:2px solid color-mix(in srgb,var(--acc) 70%,transparent);opacity:0}
+.dlp-mic.on{background:var(--red,#e5484d)}
+.dlp-mic.on .dlp-mic-ring{animation:dlpPulse 1.6s ease-out infinite}
+.dlp-mic.on::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid color-mix(in srgb,var(--red,#e5484d) 55%,transparent);animation:dlpPulse 1.6s ease-out .5s infinite}
+@keyframes dlpPulse{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.55);opacity:0}}
+.dlp-mic-t{font-size:14px;font-weight:600;color:var(--mut);font-variant-numeric:tabular-nums}
+.dlp-rep{margin-top:10px}
+@media (prefers-reduced-motion:reduce){.dlp-mic.on .dlp-mic-ring,.dlp-mic.on::after{animation:none;opacity:.5}}
+.dlp-pass{border:1px solid var(--line2);border-radius:14px;background:var(--card);padding:12px 14px;margin:10px 0}
+.dlp-pass-h{margin:0 0 2px;font-size:14.5px}
+.dlp-pass-det{margin:6px 0 10px}
+.dlp-pass-det summary{font-size:13px;color:var(--mut);cursor:pointer}
+.dlp-pass-meta{margin:2px 0 4px}
+.dlp-pass-q{margin:8px 0 10px;font-size:14px;line-height:1.5;color:var(--txt);border-inline-start:3px solid var(--acc);padding-inline-start:10px}
+.dlp-pass-go{display:flex;flex-wrap:wrap;gap:8px}
+.dlp-pass-go .btn{flex:1 1 auto;min-height:44px}
+.dlp-pass-why{margin:4px 2px 0}
+.dlp-steps{display:flex;gap:6px;margin:0 0 4px;align-items:center;min-height:44px}
 .dlp-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
 .dlp-dot.on{background:var(--accent);width:20px;border-radius:4px}
 .dlp-dot.done{background:var(--green)}
+/* A finished step is a way back, not a decoration (owner, 7 Nov 2026). The dot keeps its size; the
+   tap target around it is 44px, which is why the row carries negative margins instead of padding. */
+button.dlp-dot{border:0;padding:0;cursor:pointer;position:relative}
+/* The 44px tap area is drawn INSIDE the row (min-height:44px above), never over the title or the
+   back button: an invisible overlay that swallows a tap is the one bug this app keeps re-learning. */
+button.dlp-dot::after{content:"";position:absolute;inset:-18px -3px;border-radius:12px}
+button.dlp-dot:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.dlp-nav{display:flex;gap:8px;align-items:center;margin:0 0 10px;flex-wrap:wrap}
+.dlp-nav-b{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);background:var(--card);color:var(--mut);border-radius:999px;padding:7px 12px;font-size:12.5px;min-height:38px;cursor:pointer}
+.dlp-nav-b:hover{color:var(--txt);border-color:var(--line)}
+.dlp-nav-b .ic,.dlp-nav-b svg{width:14px;height:14px;flex:none}
+.dlp-rev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 12px;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.45;
+  background:color-mix(in srgb,var(--acc) 8%,var(--card));border:1px solid color-mix(in srgb,var(--acc) 35%,var(--line2))}
+.dlp-rev b{color:var(--acc2,var(--acc))}
+.dlp-rev svg{width:16px;height:16px;flex:none;color:var(--acc2,var(--acc))}
+.dlp-rev > span{flex:1 1 180px;min-width:0}
+.dlp-rev .btn{flex:none}
+.dlp-sh-h svg,.dlp-pass-h svg,.dlp-pass-done svg{width:14px;height:14px}
+/* the lesson's shadow stage, inside the Shadow workspace */
+.dlp-sh-card{margin-top:14px}
+.dlp-sh-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.dlp-sh-h .chip{flex:none}
+.dlp-sh-hear{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.dlp-sh-hear .btn{flex:1 1 auto;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.dlp-sh-hear .btn svg{width:16px;height:16px;flex:none}
+.dlp-sh-pace{margin:8px 0 0;display:flex;flex-direction:column;gap:2px}
+.dlp-sh-v{margin:6px 0 0;font-weight:600;color:var(--txt);font-size:13px}
+.dlp-sh-acts{margin-top:14px}
+.dlp-sh-acts .btn-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0}
+.dlp-sh-acts .btn-primary svg{width:18px;height:18px;flex:none}
+.dlp-sh-next-h{margin:12px 0 6px;font-size:14px;font-weight:700;color:var(--acc2,var(--acc));line-height:1.45}
+.dlp-pass-done{margin:4px 0 0;color:var(--green);font-weight:600}
+/* the method: written content, folded away once they know it */
+.dlp-how{margin:10px 0;border:1px solid var(--line2);border-radius:12px;background:var(--card2,var(--bg2))}
+.dlp-how > summary{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;font-size:13.5px;min-height:44px;list-style:none}
+.dlp-how > summary::-webkit-details-marker{display:none}
+.dlp-how > summary svg{width:16px;height:16px;flex:none;color:var(--acc2,var(--acc))}
+.dlp-how > summary .hm-chev{margin-inline-start:auto;display:inline-flex}
+.dlp-how[open] > summary .hm-chev svg{transform:rotate(180deg)}
+.dlp-how-b{padding:0 13px 12px}
+.dlp-how-sec{margin-top:10px}
+.dlp-how-sec b{font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--acc2,var(--acc))}
+.dlp-how-sec ul{margin:5px 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:5px}
+.dlp-how-sec li{font-size:13px;line-height:1.5;color:var(--txt)}
+/* the spoken coach */
+.dlp-cch{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line2));
+  background:color-mix(in srgb,var(--acc) 6%,var(--card))}
+.dlp-cch-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:13.5px}
+.dlp-cch-btn{display:inline-flex;align-items:center;gap:7px;min-height:44px}
+.dlp-cch-btn svg{width:16px;height:16px;flex:none}
+.dlp-cch-script{margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.dlp-cch-script p{margin:0;font-size:13.5px;line-height:1.55;color:var(--mut);transition:color .2s}
+.dlp-cch-script p.now{color:var(--txt);font-weight:600}
 .dlp-expr-list{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:10px}
 .dlp-expr-list li{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
@@ -7747,6 +7850,68 @@ const I18N_EN={
  "wc.body_trade":"Twenty-five focused minutes a day is all it takes.",
  "ob.role_title":"What do you do, {{name}}?",
  "ob.role_sub":"Every drill is a rehearsal for your real world — the standup, the update, the interview where you finally sound like yourself.",
+ "ob.role_other_placeholder":"Type what you do",
+ "ob.continue":"Continue",
+ "ob2.acc_note":"Your profession, goal and confidence are edited in Learning profile.",
+ "ob2.all_set":"All set",
+ "ob2.back":"Back",
+ "ob2.confirm":"Confirm",
+ "ob2.continue":"Continue",
+ "ob2.days":"Days a week",
+ "ob2.friend":"friend",
+ "ob2.groups":"Jump to a category",
+ "ob2.lang_all_group":"All languages",
+ "ob2.lang_app_group":"BE Mastery is available in these",
+ "ob2.lang_choose":"Choose your language",
+ "ob2.lang_note":"If BE Mastery is not translated into your language yet, it stays in English and we use yours for translations.",
+ "ob2.lang_sheet_sub":"Search by the language's own name or its English name.",
+ "ob2.main_focus":"Main focus",
+ "ob2.main_help":"Your lessons lead with this one. You can change it any time.",
+ "ob2.max_n":"You can pick up to {{n}}.",
+ "ob2.minutes":"Minutes a day",
+ "ob2.name_ph":"Your name",
+ "ob2.name_sub":"Your first name, or the name you like to be called.",
+ "ob2.name_title":"What should we call you?",
+ "ob2.no_results":"No matches. Try another word, or choose Other.",
+ "ob2.not_now":"Not now",
+ "ob2.not_set":"Not set",
+ "ob2.other_group":"Other",
+ "ob2.other_row":"Not listed — type it",
+ "ob2.pf_learning":"Learning profile",
+ "ob2.primary_need":"Pick at least two situations to choose a main focus.",
+ "ob2.prof_choose":"Choose your profession",
+ "ob2.prof_search":"Search professions",
+ "ob2.r_conf":"Speaking confidence",
+ "ob2.r_goal":"Main goal",
+ "ob2.r_native":"Native language",
+ "ob2.r_prof":"Profession",
+ "ob2.r_sit":"Daily situations",
+ "ob2.results_n":"{{n}} results",
+ "ob2.review_note":"This is self-reported. Your first recording gives us real evidence.",
+ "ob2.review_start":"Looks right — start",
+ "ob2.review_sub":"This is what we know so far. Tap a row to change it.",
+ "ob2.review_title":"Your learning profile",
+ "ob2.saved":"Saved",
+ "ob2.search":"Search",
+ "ob2.selected_n":"{{n}} selected",
+ "ob2.sit_sub":"Pick up to {{n}}. The first one becomes your main focus, and you can change that.",
+ "ob2.sit_none":"Nothing selected yet \u2014 you can skip this.",
+ "ob2.skip":"Skip",
+ "ob2.suggested":"Suggested",
+ "ob2.tod":"Time of day",
+ "ob2.tune_done":"Your practice is tuned.",
+ "ob2.tune_go":"Tune it now",
+ "ob2.tune_methods":"How do you like to practise?",
+ "ob2.tune_methods_sub":"Pick up to {{n}}.",
+ "ob2.tune_prio":"What would you like to improve most?",
+ "ob2.tune_prio_sub":"Pick up to {{n}}, in order of importance.",
+ "ob2.tune_sub":"A few quick choices so your practice fits you. Skip any time.",
+ "ob2.tune_title":"Tune your practice",
+ "ob2.tune_vocab":"Which words matter most to you?",
+ "ob2.tune_vocab_sub":"Pick up to {{n}}.",
+ "ob2.unfinished":"Not finished",
+ "ob.situations_title":"Where do you need English most?",
+ "ob.situations_sub":"Pick as many as you like. We'll lead with the rooms you actually walk into — and you can change this any time.",
  "ob.goal_title":"What's your #1 goal?",
  "ob.goal_sub":"We'll keep it in front of you every day, so you never lose sight of who you're becoming.",
  "ob.slot_title":"When is your daily 25 minutes?",
@@ -8459,9 +8624,153 @@ const I18N_EN={
  "dlp.type_ph":"Type what you'd say…",
  "dlp.save_text":"Save",
  "dlp.type_required_toast":"Type a few words first.",
+ "dlp.declared_label":"You asked to work on:",
+ "dlp.declared_note":"That is your choice. The correction below comes only from your own recording.",
+ "dlp.scenario_label":"Today's situation:",
  "dlp.try_prompt":"Introduce yourself in a few sentences, in your own words — nothing to get right yet.",
  "dlp.learn_sub":"Today's expressions — tap the speaker to hear each one.",
  "dlp.listen_sub":"The closest professional-register clip in the library: “{{title}}”.",
+ "dlp.pass_sub":"{{n}} passage(s) in the library where a professional actually says this week's language. Shadow them, then keep them — they are part of your course.",
+ "dlp.pass_where":"Passage {{n}} of {{of}} · teaches “{{phrase}}”",
+ "dlp.pass_keep":"Keep for practice",
+ "dlp.pass_kept":"Kept",
+ "dlp.pass_kept_toast":"Kept. Come back to it until it is yours.",
+ "dlp.pass_why":"Keeping a passage puts it in your clips, so you can shadow it again and again. Repetition is what makes it stick.",
+ "dlp.pass_none":"No passage in the library says this week's phrases, so this clip is the closest register match — not a line-by-line model.",
+ "dlp.pass_progress":"Practised on {{n}} of {{need}} days — keep coming back to it.",
+ "dlp.pass_mastered":"Mastered: you passed this on {{need}} different days.",
+ "dlp.rev_note":"You are looking back at a step you have finished. Nothing here is counted again.",
+ "dlp.rev_go":"Back to {{s}}",
+ "dlp.sh_h":"Shadow {{n}} of {{of}}",
+ "dlp.sh_how":"Say this paragraph with the speaker, then tap Record at the foot of the screen. Your report appears here.",
+ "dlp.sh_done_chip":"Shadowed",
+ "dlp.sh_again":"Shadow it again",
+ "dlp.sh_prog":"{{n}} of {{of}} passages shadowed",
+ "dlp.sh_need":"Shadow each of the {{of}} passages once to move on.",
+ "dlp.sh_row_done":"Shadowed · {{n}}% of the words heard",
+ "dlp.sh_model":"The speaker: {{n}} words in {{s}}s — {{wpm}} a minute",
+ "dlp.sh_you":"You: {{n}} words in {{s}}s — {{wpm}} a minute",
+ "dlp.sh_slower":"You were slower than the speaker. Shadowing works best at their pace.",
+ "dlp.sh_faster":"You were faster than the speaker. Slow down to their pace.",
+ "dlp.sh_matched":"Your pace matched the speaker.",
+ "dlp.sh_next":"Go to shadow {{n}} of {{of}}",
+ "dlp.sh_next_h":"Shadow {{n}} is done. You can say it again as often as you like — or move on to the next one.",
+ "dlp.sh_step":"Go to the next step",
+ "dlp.sh_step_h":"Both shadows are done. Your report is above.",
+ "dlp.how_h":"How to shadow",
+ "dlp.how_sub":"Shadowing is not reading aloud. It is saying a line back while the speaker is still talking — their speed, their rhythm, their music. This is the method.",
+ "dlp.how_before_h":"Before you record",
+ "dlp.how_before_1":"Listen to the paragraph twice with your mouth shut. Do nothing else.",
+ "dlp.how_before_2":"Read it aloud five times on your own. Your mouth has to know the words before it can keep up with anyone.",
+ "dlp.how_before_3":"Notice where the speaker breathes. Those pauses are where you will fall behind.",
+ "dlp.how_during_h":"While you shadow",
+ "dlp.how_during_1":"Start when they start and stay about half a word behind. Never run ahead of them.",
+ "dlp.how_during_2":"Copy the music first — the rhythm, and where the voice rises. The words follow the music, not the other way round.",
+ "dlp.how_during_3":"If you lose the thread, keep going. Stopping to fix one word costs you the whole line.",
+ "dlp.how_after_h":"When you stop",
+ "dlp.how_after_1":"Play your take straight after theirs. The gap you hear is the real report.",
+ "dlp.how_after_2":"Take the two or three words that slipped, say them on their own, then put them back in the line.",
+ "dlp.how_after_3":"Shadow the same paragraph again. Three passes on three different days is what makes it stick.",
+ "dlp.how_focus_h":"One thing per pass",
+ "dlp.how_focus_1":"First pass: rhythm. Are you landing on the same beats as the speaker?",
+ "dlp.how_focus_2":"Second pass: linking. Natural speech joins words together — “and I” becomes one sound.",
+ "dlp.how_focus_3":"Third pass: the hard sounds. Now fix the words, once the music is right.",
+ "dlp.cch_h":"Your shadowing coach",
+ "dlp.cch_play":"Play the coaching",
+ "dlp.cch_stop":"Stop",
+ "dlp.cch_speaking":"Speaking…",
+ "dlp.cch_done":"Done",
+ "dlp.cch_stopped":"Stopped",
+ "dlp.cch_wait":"Writing your coaching…",
+ "dlp.cch_score_good":"{{n}}% of the words came through. That is a clean shadow.",
+ "dlp.cch_score_mid":"{{n}}% of the words came through. Close, but not clean yet.",
+ "dlp.cch_score_low":"{{n}}% of the words came through. The line is still ahead of your mouth.",
+ "dlp.cch_skipped":"{{k}} words were skipped: {{words}}.",
+ "dlp.cch_subbed":"You said {{heard}} where the speaker said {{said}}.",
+ "dlp.cch_clean":"Every word was there.",
+ "dlp.cch_again_n":"This is attempt {{n}} on this paragraph.",
+ "dlp.cch_do_read":"Before the next take, read the paragraph aloud five times on your own. Shadowing only works once your mouth already knows the words.",
+ "dlp.cch_do_slow":"Drop the clip to 0.75 and shadow it there first. Speed is the last thing you add, not the first.",
+ "dlp.cch_do_behind":"You are running ahead of the speaker. Start when they start and stay half a word behind them, all the way to the end.",
+ "dlp.cch_do_eyes":"Now take your eyes off the text and shadow it from the sound alone. That is where the accent really moves.",
+ "dlp.cch_do_words":"Say {{words}} on their own three times, then put them straight back into the line and shadow it again.",
+ "dlp.cch_close":"One thing per pass. This time listen only to the rhythm, and land on the same beats.",
+ "dlp.cch_role_sit":"And this is the voice you take into {{sit}}: a {{role}} who is easy to follow gets listened to differently.",
+ "dlp.cch_role":"And a {{role}} who is easy to follow gets listened to differently. That is what these passes are buying you.",
+ "dlp.sh_skip":"Skip the second one and move on",
+ "dlp.sh_skipped_chip":"Skipped",
+ "dlp.sh_skip_note":"You shadowed one of the two. The second one is skipped.",
+ "dlp.sh_hear_model":"Hear the speaker",
+ "dlp.sh_hear_mine":"Hear your take",
+ "dlp.sh_no_take":"That recording is no longer on this device.",
+ "dlp.sh_still_counts":"Your shadow still counts, and the words above are from your own recording. Only the AI coaching is paused.",
+ "dlp.try_rep_once":"Your numbers below are from this take. The written report stays on your first one — Premium reports on every take.",
+ "dlp.try_next":"That is your starting point, {{name}}. Next you will see the sentences written for a {{p}} — the ones worth saying out loud.",
+ "dlp.try_next_x":"That is your starting point. Next you will see the sentences written for a {{p}} — the ones worth saying out loud.",
+ "dlp.hi_name":"{{name}},",
+ "dlp.you_are_role":"you are a {{role}}.",
+ "dlp.you_speak_in":"You speak English most in {{sit}}.",
+ "dlp.sent_for":"Written for you as a {{p}} — listen, then say each one out loud.",
+ "dlp.sent_role_fallback":"professional",
+ "dlp.sent_writing":"Writing sentences for your profile…",
+ "dlp.sent_offline":"Written on your device from this week's patterns — the coach was out of reach.",
+ "dlp.sent_hear":"Hear it",
+ "dlp.sent_say":"Say it",
+ "dlp.sent_ok":"Heard it — that matched.",
+ "dlp.sent_retry":"Not quite the whole sentence yet — say it again.",
+ "dlp.sent_progress":"{{n}} of {{of}} said aloud.",
+ "dlp.sent_master_note":"Say each one until at least {{n}}% of it comes back. The next sentence opens when this one does.",
+ "dlp.sent_locked":"Master the sentence above first — {{n}}% or more.",
+ "dlp.sent_passed":"Mastered",
+ "dlp.sent_pct":"{{n}}% of it came back",
+ "dlp.sent_again":"Say it again",
+ "dlp.sent_said":"What you said",
+ "dlp.sent_target":"The sentence",
+ "dlp.sent_nothing":"Nothing was heard.",
+ "dlp.sent_need":"Aim for {{n}}%.",
+ "dlp.sent_mastered_n":"{{n}} of {{of}} mastered",
+ "dlp.sent_polish_locked":"Master all {{n}} sentences, then you can ask for another version.",
+ "dlp.sent_skip":"Skip the practice and move on",
+ "dlp.sent_polish":"Another version",
+ "dlp.sent_polish_max":"You have had {{n}} versions — practise these before asking for more.",
+ "dlp.sent_continue_some":"Continue anyway",
+ "dlp.takes_h":"Your {{n}} takes at this step — hesitation per 100 words",
+ "dlp.takes_n":"Take {{n}}",
+ "dlp.takes_down":"Steadier: {{from}} → {{to}} fillers per 100 words.",
+ "dlp.takes_up":"More hesitation than your first take: {{from}} → {{to}} per 100 words.",
+ "dlp.takes_flat":"About the same as your first take — try one more.",
+ "dlp.live_hint":"Your words will appear here as you speak.",
+ "dlp.live_nolive":"Tap the microphone and speak. Your words appear here the moment you stop.",
+ "dlp.live_tap":"Tap to speak",
+ "dlp.live_listening":"Listening…",
+ "dlp.live_again":"Tap to record again",
+ "dlp.live_heard":"What we heard",
+ "dlp.m_used":"{{n}} of {{of}} expressions used",
+ "dlp.m_pace":"{{n}} words a minute",
+ "dlp.m_words":"{{n}} words",
+ "dlp.m_fillers":"{{n}} fillers",
+ "dlp.m_filler1":"1 filler",
+ "dlp.m_said_it":"Heard it",
+ "dlp.m_not_heard":"Not heard yet — say the whole phrase",
+ "dlp.ba_h":"Between your first attempt and your last, on the same task:",
+ "dlp.ba_steady":"You held steady between your first attempt and your last — nothing moved enough to call a change.",
+ "dlp.ba_none":"Record at the start and at the end to see what changed.",
+ "dlp.ba_numbers":"See the numbers",
+ "dlp.ba_before":"First attempt",
+ "dlp.ba_after":"Last attempt",
+ "dlp.ch_coverage_up":"You used more of the day's language: {{from}}% → {{to}}%.",
+ "dlp.ch_coverage_down":"You used less of the day's language: {{from}}% → {{to}}%.",
+ "dlp.ch_pace_up":"You spoke faster: {{from}} → {{to}} words a minute.",
+ "dlp.ch_pace_down":"You slowed down: {{from}} → {{to}} words a minute.",
+ "dlp.ch_fillers_up":"More hesitation: {{from}} → {{to}} fillers per 100 words.",
+ "dlp.ch_fillers_down":"Less hesitation: {{from}} → {{to}} fillers per 100 words.",
+ "dlp.ch_length_up":"You said more: {{from}} → {{to}} words.",
+ "dlp.ch_length_down":"You said less: {{from}} → {{to}} words.",
+ "dlp.overall_h":"Your coach on today's work",
+ "dlp.pass_topic":"On this week's subject — the closest clip in the library. It is not a model of this week's phrases; listen for the register and the rhythm.",
+ "dlp.pass_meta":"{{s}} seconds · {{n}} sentences · {{w}} words — long enough to shadow as one piece.",
+ "dlp.pass_read":"Read the passage",
+ "dlp.pass_free_over":"Keeping course passages is part of Premium after week {{n}}. Your kept passages stay.",
  "dlp.listen_none":"No matching clip in the library today — that's alright, move straight on.",
  "dlp.watch_shadow":"Watch & shadow it",
  "dlp.rehearse_sub":"Hear each expression, then record yourself saying it.",
@@ -11761,6 +12070,7 @@ function go(v,arg1,arg2){
   try{navBadges()}catch(e){}
   jumpTop();
   try{AdManager.afterNav(v)}catch(e){}   /* a pending natural break, and this page's native slot (Phase 8) */
+  try{window.OnboardingV2&&OnboardingV2.afterNav(v)}catch(e){}   /* "Tune your practice", once the first lesson is done (General English, flag) */
   if(v==="home")setTimeout(()=>whenIdle(()=>{if(!keepNudge())backupNudge()}),1200);   // only on the dashboard, never mid-task, never under a thumb
 }
 
@@ -14954,11 +15264,22 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
    existing sessGo('shadow',w,d) deep link for LISTEN. Nothing new is sent to a server. */
 function dlpOn(w,d){return isGeneralEnglish()&&w===1&&d==="Mon"&&flag("daily_learning_plan_pilot_enabled")&&!!window.DailyPlan}
 let _dlpEntry=null;
-function dlpVideoKeywords(){return DailyPlan.videoKeywordsFor(S.profile,["corporate","business","leadership","professional","startup","workplace","values"])}
+/* The profile the lesson plan reads. With the learner profile on, the lp groups are authoritative (primary situation first) and the
+   legacy S.profile fields only fill what lp does not have; with it off, exactly S.profile as before. Reading never writes. */
+function dlpProfile(){
+  try{
+    if(!lpOn()||!window.OnboardingCatalog)return S.profile;
+    const r=OnboardingCatalog.resolve(S.profile,LearnerProfile.view(S)),sit=r.primarySituation?[r.primarySituation].concat(r.situations.filter(x=>x!==r.primarySituation)):r.situations;
+    return Object.assign({},S.profile,{role:r.role||(S.profile&&S.profile.role)||"",situations:sit,selfLevel:r.selfLevel||(S.profile&&S.profile.selfLevel)||"",roleCat:r.roleCat,roleId:r.roleId,goalId:r.goalId,priorities:r.priorities,vocabGoals:r.vocabGoals,methods:r.methods,dailyMinutes:r.dailyMinutes});
+  }catch(e){return S.profile}
+}
+/* The plan chooses 3-5 expressions from the WEEK's phrases (all non-idiom ones), not from the first five the page happens to list */
+function dlpPool(w,fallback){try{if(!lpOn())return fallback;const all=(window.curriculumOrEmpty?curriculumOrEmpty().phrases:null)||[];const pool=(Array.isArray(all)?all:[]).filter(p=>p.w===w&&!p.i);return pool.length>=fallback.length?pool:fallback}catch(e){return fallback}}
+function dlpVideoKeywords(){return DailyPlan.videoKeywordsFor(dlpProfile(),["corporate","business","leadership","professional","startup","workplace","values"])}
 function dlpPack(){const p=curriculumOrEmpty();return {weeks:p.weeks,starters:p.starters,missions:{competencies:(window.MissionEngine?mvComps():[])}}}
 function rGuidedLesson(el,w,d,wk,dd,key,weekPhrases){
   const video=DailyPlan.pickSupportingVideo(trackShadowStarters(),dlpVideoKeywords());
-  const entry=DailyPlan.start(S,{trackId:"general",w,day:d,pack:dlpPack(),profile:S.profile,phrases:weekPhrases,video});
+  const entry=DailyPlan.start(S,{trackId:"general",w,day:d,pack:dlpPack(),profile:dlpProfile(),phrases:dlpPool(w,weekPhrases),video});
   if(!entry){el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button><div class="card"><p class="sub">${esc(t("dlp.unavailable"))}</p></div>`;return}
   const check=DailyPlan.validate(entry.plan);
   if(!check.valid){el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button><div class="card"><p class="sub">${esc(t("dlp.unavailable"))}</p></div>`;try{console.error("[dlp] invalid plan",check.errors)}catch(e){}return}
@@ -14966,18 +15287,56 @@ function rGuidedLesson(el,w,d,wk,dd,key,weekPhrases){
   dlpRenderStep(el,w,d,key);
 }
 function dlpStepData(step){return (_dlpEntry&&_dlpEntry.stepData[step])||null}
+/* What the learner CHOSE to work on. Shown as a preference only; the corrections below come from their recording, never from this list. */
+function dlpDeclaredNote(plan){
+  try{
+    const ids=(plan.pronunciationFocus&&plan.pronunciationFocus.declared)||[];if(!ids.length||!window.OnboardingCatalog)return "";
+    const names=ids.map(id=>{const it=OnboardingCatalog.find("priorities",id);if(!it)return "";const k="prio."+id,v=t(k);return v===k?it.label:v}).filter(Boolean).join(", ");
+    return names?`<p class="sub" style="margin:0 0 10px"><b>${esc(t("dlp.declared_label"))}</b> ${esc(names)}<br><small>${esc(t("dlp.declared_note"))}</small></p>`:"";
+  }catch(e){return ""}
+}
+/* ----------------------------------------------------- walking back through the lesson
+   Owner, 7 Nov 2026: "when the user is in step 3 you can go back to step 2 or step 1 and see
+   what happened during that time". So every step the learner has finished is a way back — the
+   dots are buttons, and a named Previous/Next pair sits above the card. Going back never
+   re-credits anything (DailyPlan.goStep refuses any step past the furthest reached) and the
+   strip says plainly that this is a look back, with one button to return to their place. */
+function dlpStepName(s){return t("dlp.step_"+s)}
+window.dlpStepGo=(step)=>{
+  const entry=_dlpEntry;if(!entry)return;
+  if(DailyPlan.STEPS.indexOf(step)>DailyPlan.reached(entry))return;
+  DailyPlan.goStep(S,entry.lessonId,step);save();
+  dlpRenderStep(document.getElementById("v-journey"),entry.plan.week,entry.plan.day,dayKey(entry.plan.week,entry.plan.day));
+};
+function dlpNavHTML(entry){
+  const ST=DailyPlan.STEPS,ix=ST.indexOf(entry.step),top=DailyPlan.reached(entry);
+  const b=(step,icn)=>`<button type="button" class="dlp-nav-b" onclick="dlpStepGo('${step}')">${ic(icn)}<span>${esc(dlpStepName(step))}</span></button>`;
+  const row=[ix>0?b(ST[ix-1],"rewind"):"",ix<top?b(ST[ix+1],"forward"):""].filter(Boolean).join("");
+  const rev=ix<top?`<p class="dlp-rev">${ic("info")}<span>${esc(t("dlp.rev_note"))}</span>
+    <button type="button" class="btn btn-g btn-sm" onclick="dlpStepGo('${ST[top]}')">${esc(t("dlp.rev_go",{s:dlpStepName(ST[top])}))}</button></p>`:"";
+  return (row?`<div class="dlp-nav" aria-label="${esc(t("dlp.nav_label"))}">${row}</div>`:"")+rev;
+}
 function dlpRenderStep(el,w,d,key){
   const entry=_dlpEntry;if(!entry)return;
-  const plan=entry.plan,ix=DailyPlan.STEPS.indexOf(entry.step);
-  const dots=`<div class="dlp-steps" role="list" aria-label="${esc(t("dlp.progress_label"))}">${DailyPlan.STEPS.map((s,i)=>`<span class="dlp-dot ${i<ix?'done':i===ix?'on':''}" role="listitem" title="${esc(t("dlp.step_"+s))}"></span>`).join("")}</div>`;
+  const plan=entry.plan,ix=DailyPlan.STEPS.indexOf(entry.step),top=DailyPlan.reached(entry);
+  const dots=`<div class="dlp-steps" role="list" aria-label="${esc(t("dlp.progress_label"))}">${DailyPlan.STEPS.map((s,i)=>{
+    const cls=`dlp-dot ${i<ix?'done':i===ix?'on':''}`,nm=esc(dlpStepName(s));
+    return i<=top&&i!==ix?`<button type="button" class="${cls}" role="listitem" onclick="dlpStepGo('${s}')" title="${nm}" aria-label="${nm}"></button>`
+      :`<span class="${cls}" role="listitem" title="${nm}"></span>`;
+  }).join("")}</div>`;
   const body={try:dlpTryHTML,learn:dlpLearnHTML,listen:dlpListenHTML,rehearse:dlpRehearseHTML,converse:dlpConverseHTML,improve:dlpImproveHTML,finish:dlpFinishHTML}[entry.step];
   el.innerHTML=`<button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
     ${dots}
     <span class="chip">${esc(t("dlp.step_"+entry.step))}</span>
     <h1 class="big">${esc(plan.competencyObjective)}</h1>
     <p class="sub" style="margin-bottom:10px">${esc(t("dlp.step_"+entry.step+"_sub"))}</p>
+    ${dlpNavHTML(entry)}
+    ${entry.step==="improve"?dlpDeclaredNote(plan):""}
     <div id="dlpBody">${body(plan,key,w,d)}</div>`;
   manIconizeInline(el);
+  /* Step 1 revisited must show the report it produced, not an empty slot: the stored Executive
+     Polish report is mounted by the session's own code, pointed at this card's wrap. */
+  if(entry.step==="try"){try{dlpSessCur(key,w,d);if(sessRepGet(key))sessRepMount(key)}catch(e){}}
 }
 window.dlpAdvance=(w,d,key)=>{
   const entry=_dlpEntry;if(!entry)return;
@@ -14987,8 +15346,7 @@ window.dlpAdvance=(w,d,key)=>{
 window.dlpBack=(w,d,key)=>{
   const entry=_dlpEntry;if(!entry)return;
   const ix=DailyPlan.STEPS.indexOf(entry.step);
-  if(ix>0)entry.step=DailyPlan.STEPS[ix-1];save();
-  dlpRenderStep(document.getElementById("v-journey"),w,d,key);
+  if(ix>0)dlpStepGo(DailyPlan.STEPS[ix-1]);
 };
 /* One recorder for TRY/REHEARSE/CONVERSE, each with its own ctx so takes never
    collide — phRecInto already handles mic-denial, too-short takes and saving. */
@@ -14996,6 +15354,42 @@ function dlpRerender(){
   if(!_dlpEntry)return;
   const el=document.getElementById("v-journey");if(!el)return;
   dlpRenderStep(el,_dlpEntry.plan.week,_dlpEntry.plan.day,dayKey(_dlpEntry.plan.week,_dlpEntry.plan.day));
+}
+/* ---------------------------------------------------------------- evaluation after each step
+   Transcription is UNMETERED, so every spoken step is measured on every plan; only the AI verdict
+   is rationed. dlpEvalPlan decides which steps may ask for one (owner, 7 Nov 2026). */
+function dlpEvalPlan(){
+  let premium=false;try{premium=!!entIsPremiumForDisplay()}catch(e){}
+  let account=false;try{account=!!FBUser}catch(e){}
+  return DailyPlan.evaluationPlan({account,premium});
+}
+/* the same "did they say it?" rule the index was built on, contractions folded both ways */
+let _dlpSays=null;
+const dlpHas=(text,phrase)=>{try{if(!_dlpSays)_dlpSays=DailyPlan.makeSays(ShadowSync.findExpression);return _dlpSays(text,phrase)}catch(e){return false}};
+/* Measure a step's recording: hear it, count what the lesson cares about, keep the numbers on the
+   step. Never throws and never blocks the learner — a step with no measurement simply has none. */
+async function dlpMeasure(step,targets,subIx){
+  try{
+    const ctx=recCtx("dlp-"+step+(subIx!=null?"-"+subIx:""));
+    const recs=await getRecs(ctx);
+    const r=recs&&recs[0];if(!r||!r.blob)return null;
+    const tr=await exTranscribe(r.blob);
+    if(!tr||!tr.text)return null;
+    const secs=r.secs||(tr.words&&tr.words.length?(tr.words[tr.words.length-1].end-tr.words[0].start):0);
+    const m=DailyPlan.measure(tr.text,targets||[],secs,dlpHas);
+    m.at=Date.now();m.tx=tr.text.slice(0,500);
+    return m;
+  }catch(e){return null}
+}
+/* one line of plain numbers under a step, shown the moment they exist */
+function dlpMetricsHTML(m){
+  if(!m)return "";
+  const bits=[];
+  if(m.targets)bits.push(t("dlp.m_used",{n:m.used,of:m.targets}));
+  if(m.wpm)bits.push(t("dlp.m_pace",{n:m.wpm}));
+  if(m.words)bits.push(t("dlp.m_words",{n:m.words}));
+  if(m.fillers)bits.push(m.fillers===1?t("dlp.m_filler1"):t("dlp.m_fillers",{n:m.fillers}));
+  return `<p class="ex-fine dlp-metrics">${esc(bits.join(" · "))}</p>`;
 }
 window.dlpRecord=(step,subIx)=>{
   const btn=document.getElementById("dlpRecBtn"+(subIx!=null?subIx:""));
@@ -15006,6 +15400,19 @@ window.dlpRecord=(step,subIx)=>{
     else{_dlpEntry.stepData[step]={recorded:true,mode:"audio"}}
     save();
     dlpRerender();
+    /* measure in the background: the learner is never kept waiting to continue */
+    (async()=>{
+      const plan=_dlpEntry&&_dlpEntry.plan;if(!plan)return;
+      const targets=subIx!=null?[plan.targetExpressions[subIx]].filter(Boolean):(plan.targetExpressions||[]);
+      const m=await dlpMeasure(step,targets,subIx);
+      if(!m||!_dlpEntry)return;
+      const d=_dlpEntry.stepData[step]||{};
+      if(subIx!=null){d[subIx]=Object.assign({},d[subIx],{m});}
+      else{Object.assign(d,{m});}
+      _dlpEntry.stepData[step]=d;
+      save();                                 /* persist only: setStep would ADVANCE the lesson */
+      try{dlpRerender()}catch(e){}
+    })();
   });
 };
 window.dlpTypeFallback=(step)=>{
@@ -15033,37 +15440,980 @@ function dlpContinueBtn(step,w,d,key,label){
   return `<button class="btn-primary" style="margin-top:16px" ${has?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(label||t("dlp.continue"))}</button>`;
 }
 
+/* ---------------------------------------------------------------- TRY: the baseline minute
+   Owner, 7 Nov 2026: the first attempt is the day's most important recording, so it is given the
+   whole stage — a big microphone low on the screen, the words appearing as they are spoken, and
+   then the SAME Executive Polish report the session page draws (delivery, corrections, the stronger
+   sentence, the upgrades, say it again). Nothing new is invented: the report is reached by setting
+   _sessCur and letting sessReport run, exactly as the CONVERSE step already does. */
 function dlpTryHTML(plan,key,w,d){
-  return `<div class="card">
-    <p class="sub">${esc(t("dlp.try_prompt"))}</p>
-    ${dlpRecOrTypeHTML("try")}
+  const sc=plan.personalizedScenario&&plan.personalizedScenario.personalized?`<p class="sub" style="margin-top:-4px"><b>${esc(t("dlp.scenario_label"))}</b> ${esc(plan.personalizedScenario.task)}</p>`:"";
+  const dd=dlpStepData("try")||{};
+  const done=!!(dd.recorded||dd.mode==="text");
+  return `<div class="card dlp-try">
+    ${(()=>{const y=dlpYouLine();return y?`<p class="dlp-you">${esc(y)}</p>`:""})()}
+    <p class="sub">${esc(t("dlp.try_prompt"))}</p>${sc}
+    <div class="dlp-stage">
+      <div class="dlp-live" id="dlpLive" aria-live="polite"><span class="dlp-live-ph">${esc(t("dlp.live_hint"))}</span></div>
+      <button class="dlp-mic" id="dlpMic" type="button" onclick="dlpTryRec('${key}',${w},'${d}')" aria-label="${esc(t("dlp.live_tap"))}">
+        <span class="dlp-mic-ring" aria-hidden="true"></span><span class="dlp-mic-ic" aria-hidden="true">${ic("mic")}</span>
+      </button>
+      <div class="dlp-mic-t" id="dlpMicT">${esc(done?t("dlp.live_again"):t("dlp.live_tap"))}</div>
+    </div>
+    <details class="dlp-pass-det"><summary>${esc(t("dlp.no_mic"))}</summary>
+      <textarea id="dlpTypetry" rows="3" placeholder="${esc(t("dlp.type_ph"))}" style="width:100%;margin-top:8px">${esc(dd.mode==="text"?dd.text:"")}</textarea>
+      <button class="btn btn-g" style="margin-top:8px" onclick="dlpTypeFallback('try')">${esc(t("dlp.save_text"))}</button>
+    </details>
+    <div id="sessRepWrap" class="dlp-rep"></div>
+    ${dlpMetricsHTML(dd.m)}
+    ${dd.repOnFirst?`<p class="ex-fine">${esc(t("dlp.try_rep_once"))}</p>`:""}
+    ${dlpTakesHTML(dd.takes)}
+    ${done?`<p class="ex-fine dlp-next">${esc(dlpLearnerName()?t("dlp.try_next",{name:dlpLearnerName(),p:dlpProfileLabel()||t("dlp.sent_role_fallback")}):t("dlp.try_next_x",{p:dlpProfileLabel()||t("dlp.sent_role_fallback")}))}</p>`:""}
     ${dlpContinueBtn("try",w,d,key)}
   </div>`;
 }
-function dlpLearnHTML(plan,key,w,d){
-  const saved=dlpStepData("learn");
-  return `<div class="card">
-    <p class="sub">${esc(t("dlp.learn_sub"))}</p>
-    <ul class="dlp-expr-list">${plan.targetExpressions.map((x,i)=>`<li>“${esc(x)}” <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(x)},.95)">${ic("sound")}</button></li>`).join("")}</ul>
-    <button class="btn-primary" style="margin-top:14px" onclick="dlpLearnSave(${w},'${d}','${key}')">${saved?esc(t("dlp.continue")):esc(t("dlp.save_continue"))}</button>
+/* the live words, where the device can hear them. iOS WKWebView ships no speech engine and
+   Android's in-app WebView does not deliver one either, so this is a BONUS: when it is absent the
+   panel says the words will arrive with the report, which they do (Whisper, moments later). */
+/* What the speaking report is judged against on this step. The task field is free text the Worker
+   reads, so the learner's profile rides in it and the report speaks to a Welder preparing
+   presentations, not to "a professional". Set before recording AND when the step is revisited, so
+   a stored report can be mounted back into the card. */
+function dlpSessCur(key,w,d){
+  const e=_dlpEntry;if(!e)return;
+  const task=dlpFitTask((e.plan.personalizedScenario||{}).task||"",dlpProfileLine(),300);
+  _sessCur={key,w,d,ctx:sessCtx(w,d,{focus:e.plan.competencyObjective,task,out:""},(e.plan.targetExpressions||[]).map(x=>({p:x}))),ws:null};
+}
+let _dlpSR=null;
+function dlpLiveStart(){
+  const el=document.getElementById("dlpLive");if(!el)return;
+  if(!SR||IS_ANDROID_APP){el.innerHTML=`<span class="dlp-live-ph">${esc(t("dlp.live_nolive"))}</span>`;return}
+  try{
+    const r=new SR();_dlpSR=r;r.lang="en-US";r.continuous=true;r.interimResults=true;
+    let banked="";
+    r.onresult=e=>{const cur=(typeof srText==="function")?srText(e.results):"";
+      const all=((banked+" "+cur).trim());
+      el.textContent=all||"";el.scrollTop=el.scrollHeight;};
+    r.onend=()=>{if(_dlpSR===r&&rec.mr&&rec.mr.state==="recording"){try{banked=el.textContent||"";r.start()}catch(e){}}};
+    r.onerror=()=>{};
+    r.start();
+  }catch(e){_dlpSR=null}
+}
+function dlpLiveStop(){try{if(_dlpSR){const r=_dlpSR;_dlpSR=null;r.onend=null;r.stop()}}catch(e){}}
+window.dlpTryRec=(key,w,d)=>{
+  const btn=document.getElementById("dlpMic"),lab=document.getElementById("dlpMicT");
+  const stopping=rec.mr&&rec.mr.state==="recording";
+  if(!stopping){
+    /* the report draws into #sessRepWrap, and sessReport only runs for the open key */
+    dlpSessCur(key,w,d);
+    const live=document.getElementById("dlpLive");if(live)live.textContent="";
+    dlpLiveStart();
+    if(btn)btn.classList.add("on");if(lab)lab.textContent=t("dlp.live_listening");
+    dlpTick(true);
+  }
+  phRecInto(key,t("dlp.step_try"),null,()=>{
+    /* the take is saved: Continue opens NOW, whatever the AI does next. A learner whose network is
+       down must still be able to move on, and may record again as often as they like. */
+    _dlpEntry.stepData.try=Object.assign({},_dlpEntry.stepData.try,{recorded:true,mode:"audio"});
+    save();
+    try{dlpRerender()}catch(e){}
+  },async blob=>{
+    dlpLiveStop();dlpTick(false);
+    /* re-query: the card was rebuilt by the re-render above, so the captured nodes are detached */
+    const mb=document.getElementById("dlpMic"),ml=document.getElementById("dlpMicT");
+    if(mb)mb.classList.remove("on");if(ml)ml.textContent=t("dlp.live_again");
+    try{exPlayBlob(blob)}catch(e){}
+    /* The free allowance is sized to ONE complete day (owner, 7 Nov 2026): the baseline report,
+       the report on the conversation take, and the closing verdict. Repeating this minute is
+       encouraged, so a repeat must NOT spend the verdict the learner still needs to finish —
+       on Free the AI report is bought for the FIRST take and later takes are measured on the
+       device (transcription is unmetered, so the words, the numbers and the graph all survive).
+       Premium, with 120 a day, gets the full report on every take. */
+    const EP=dlpEvalPlan();
+    const prevTakes=((_dlpEntry&&_dlpEntry.stepData.try)||{}).takes||[];
+    const buyReport=EP.try==="ai"&&(EP.premium||prevTakes.length===0);
+    const repAt=(sessRepGet(key)||{}).at||0;
+    if(buyReport){try{await sessReport(key,blob,0)}catch(e){}}
+    const fresh=((sessRepGet(key)||{}).at||0)>repAt;
+    /* and the plain numbers the rest of the lesson uses */
+    try{
+      const m=await dlpMeasure("try",(_dlpEntry&&_dlpEntry.plan.targetExpressions)||[]);
+      if(m&&_dlpEntry){
+        const d=_dlpEntry.stepData.try||{};
+        /* every take is kept, so a learner who repeats the minute can see the line move
+           (owner, 7 Nov 2026). The newest is also `m`, which the rest of the lesson reads. */
+        const takes=(d.takes||[]).concat([m]).slice(-DLP_TAKES_MAX);
+        _dlpEntry.stepData.try=Object.assign({},d,{m,takes,repOnFirst:!buyReport});
+        /* the words themselves, in the panel, so the learner reads back exactly what was heard
+           even where the device has no live engine. From THIS take's transcript when no new
+           report was bought — never the previous report's, which would be another minute. */
+        try{
+          const live=document.getElementById("dlpLive");
+          const txt=fresh?((sessRepGet(key)||{}).tx||m.tx):m.tx;
+          if(live&&txt)live.innerHTML=`<span class="dlp-live-lbl">${esc(t("dlp.live_heard"))}</span>${esc(txt)}`;
+        }catch(e){}
+        save();                               /* persist only — never advance from a measurement */
+        try{dlpRerender()}catch(e){}
+      }
+    }catch(e){}
+  });
+};
+const DLP_TAKES_MAX=10;
+/* How the baseline moved across the takes at THIS step. Hesitation per 100 words is the line,
+   because that is what a first minute really shows; the numbers under it are the raw counts, so
+   nothing here is an interpretation the learner cannot check. Drawn only from 2 takes — one take
+   is not a trend. */
+function dlpTakesHTML(takes){
+  const L=(takes||[]).filter(x=>x&&x.words);
+  if(L.length<2)return "";
+  const W=280,H=74,pad=10;
+  const v=L.map(x=>Number(x.fillerRate)||0);
+  const max=Math.max(2,...v),min=0;
+  const x=i=>pad+(W-pad*2)*(L.length===1?0.5:i/(L.length-1));
+  const y=n=>H-pad-(H-pad*2)*((n-min)/((max-min)||1));
+  const pts=v.map((n,i)=>`${x(i).toFixed(1)},${y(n).toFixed(1)}`).join(" ");
+  const first=v[0],last=v[v.length-1];
+  const dir=last<first-0.5?"down":last>first+0.5?"up":"flat";
+  return `<div class="dlp-graph">
+    <p class="ex-fine dlp-graph-h">${esc(t("dlp.takes_h",{n:L.length}))}</p>
+    <svg viewBox="0 0 ${W} ${H}" class="dlp-graph-svg" role="img" aria-label="${esc(t("dlp.takes_h",{n:L.length}))}">
+      <polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${v.map((n,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(n).toFixed(1)}" r="3.5" fill="var(--acc)"/>`).join("")}
+    </svg>
+    <p class="ex-fine">${esc(t("dlp.takes_"+dir,{from:first,to:last}))}</p>
+    <ul class="dlp-takes">${L.map((m,i)=>`<li><b>${esc(t("dlp.takes_n",{n:i+1}))}</b> ${esc(t("dlp.m_words",{n:m.words}))}${m.wpm?" · "+esc(t("dlp.m_pace",{n:m.wpm})):""} · ${esc(m.fillers===1?t("dlp.m_filler1"):t("dlp.m_fillers",{n:m.fillers}))}</li>`).join("")}</ul>
   </div>`;
 }
+let _dlpTick=null;
+function dlpTick(on){
+  clearInterval(_dlpTick);_dlpTick=null;
+  const lab=document.getElementById("dlpMicT");if(!on||!lab)return;
+  const t0=Date.now();
+  _dlpTick=setInterval(()=>{
+    const el=document.getElementById("dlpMicT");if(!el){clearInterval(_dlpTick);return}
+    const s=Math.floor((Date.now()-t0)/1000);
+    el.textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+  },250);
+}
+/* ---------------------------------------------------------------- LEARN: say it as YOU would
+   Owner, 7 Nov 2026: a stub ("My focus is on…") is not something anyone can practise. This step
+   writes FULL sentences for this learner — from the profile they gave at onboarding AND from what
+   they actually said in TRY — and they listen and repeat each one. The AI names the profile back
+   to them, so the coaching is plainly theirs and not generic.
+   Cost: ONE call writes the five sentences; "Another version" rewrites them (three at most). The
+   per-sentence check is on-device, and Premium adds a verdict — the tiering already agreed. */
+const DLP_SENTENCES=5, DLP_POLISH_MAX=3;
+/* The learner by name and by profile, addressed directly. The owner's rule (7 Nov 2026): the
+   person must see themselves in the step before they press record — their name, their profession,
+   and where they actually speak English. Every piece is dropped when it was never answered, so
+   nothing is invented and the line stays grammatical with any one of them missing. */
+function dlpLearnerName(){try{return (S.profile&&S.profile.name)?String(S.profile.name).trim():""}catch(e){return ""}}
+function dlpYouLine(){
+  const name=dlpLearnerName(),role=dlpRoleLoc(),sit=dlpSitLoc();   /* the learner reads this one */
+  const bits=[];
+  if(name)bits.push(t("dlp.hi_name",{name}));
+  if(role)bits.push(t("dlp.you_are_role",{role}));
+  if(sit)bits.push(t("dlp.you_speak_in",{sit}));
+  return bits.join(" ");
+}
+function dlpProfileLabel(){
+  try{
+    const r=(window.OnboardingV2&&OnboardingV2.resolved&&OnboardingV2.resolved())||null;
+    if(r&&r.roleId==="other.other"&&r.roleOther)return String(r.roleOther);
+    if(r&&r.roleId&&window.OnboardingCatalog){const p=OnboardingCatalog.find("professions",r.roleId);if(p)return p.label}
+    const pr=dlpProfile()||{};return String(pr.role||"").trim();
+  }catch(e){return ""}
+}
+/* EVERY answer the learner gave, in plain lines the model can use. The Learning profile holds far
+   more than a job title — goal, situations, what they want to improve, which words matter, how they
+   like to practise, how long they have (owner, 7 Nov 2026) — and the coaching is only theirs if it
+   uses the lot. Returns "" when nothing was answered, so nothing is ever invented. */
+function dlpProfileBrief(short){
+  try{
+    const C=window.OnboardingCatalog;if(!C)return "";
+    const r=(window.OnboardingV2&&OnboardingV2.resolved&&OnboardingV2.resolved())||{};
+    const lab=(cat,id)=>{const x=C.find(cat,id);return x?x.label:""};
+    const many=(cat,ids)=>(ids||[]).map(i=>lab(cat,i)).filter(Boolean).join(", ");
+    const L=[];
+    const nm=dlpLearnerName();if(nm)L.push("Their name: "+nm+" (address them by it, once)");
+    const role=dlpProfileLabel();if(role)L.push("Profession: "+role);
+    const sit=many("situations",r.situations);if(sit)L.push("Speaks English most in: "+sit);
+    if(short)return L.join("\n");
+    const goal=lab("goals",r.goalId);if(goal)L.push("Main goal: "+goal);
+    if(r.selfLevel)L.push("Own view of their English: "+r.selfLevel);
+    const pri=many("priorities",r.priorities);if(pri)L.push("Wants to improve first: "+pri);
+    const voc=many("vocab",r.vocabGoals);if(voc)L.push("Words that matter to them: "+voc);
+    const met=many("methods",r.methods);if(met)L.push("Likes to practise by: "+met);
+    const mins=lab("minutes",r.dailyMinutes),days=lab("days",r.practiceDays),tod=lab("timeOfDay",r.timeOfDay);
+    const when=[mins,days,tod].filter(Boolean).join(", ");if(when)L.push("Time they have: "+when);
+    if(r.nativeLang&&window.LANGS){const l=LANGS.find(x=>x.code===r.nativeLang);if(l)L.push("Native language: "+l.en)}
+    return L.join("\n");
+  }catch(e){return ""}
+}
+/* The same profile, compressed into ONE sentence that fits the task field the speaking report
+   already reads (anCtx whitelists its fields, so this is how the profile reaches it). */
+function dlpProfileLine(){
+  const role=dlpProfileLabel(),sit=dlpSituationLabel();
+  let pri="";try{const C=window.OnboardingCatalog,r=OnboardingV2.resolved();
+    const p=(r.priorities||[])[0];if(p&&C){const x=C.find("priorities",p);if(x)pri=x.label.toLowerCase()}}catch(e){}
+  const name=dlpLearnerName();
+  if(!name&&!role&&!sit&&!pri)return "";
+  /* ENGLISH on purpose: this is prompt text the Worker folds into an English instruction, not copy
+     the learner reads. The report itself still comes back in their own language.
+     Owner, 7 Nov 2026: no report may read as generic. It names the learner, says what they do and
+     where they speak English, and ends on what sharper English buys THEM in that job — so the
+     learner hears a coach who knows them, not a template. Every piece is dropped when it was never
+     answered, so nothing is invented. */
+  const who="The speaker is "+(name?name+", ":"")+"a "+(role||"professional")
+    +(sit?" who speaks English most in "+sit.toLowerCase():"")
+    +(pri?((sit?" and":" who")+" wants to work on "+pri+" first"):"")+".";
+  const out=[who];
+  if(name)out.push("Use their name.");
+  if(role)out.push("Say what sharper English lets a "+role+" do at work.");
+  return out.join(" ");
+}
+/* The Worker caps `task` at 300 characters (anCtx). Rather than truncate mid-sentence and hand the
+   model half an instruction, whole sentences are dropped off the END of the persona until it fits;
+   the task itself is never cut. */
+function dlpFitTask(task,persona,max){
+  max=max||300;
+  const t0=String(task||"").trim();
+  const bits=String(persona||"").trim().match(/[^.!?]+[.!?]+/g)||[];
+  let out=t0;
+  for(const b of bits){const next=(out?out+" ":"")+b.trim();if(next.length>max)break;out=next}
+  return out.slice(0,max);
+}
+/* TWO LABELS, ON PURPOSE. dlpProfileLabel / dlpSituationLabel return the catalogue's ENGLISH
+   label, because they feed prompt text the Worker folds into an English instruction. Anything the
+   LEARNER reads goes through these instead, which prefer the translated key (the same
+   `t(k)===k ? fallback` rule dlpDeclaredNote already uses) — otherwise a French learner is told
+   they are a "Welder" who speaks English in "Presentations". */
+function dlpLocLabel(pfx,cat,id){
+  try{const C=window.OnboardingCatalog,it=C&&C.find(cat,id);if(!it)return "";
+    const k=pfx+"."+id,v=t(k);return v===k?it.label:v}catch(e){return ""}
+}
+function dlpRoleLoc(){
+  try{const r=(window.OnboardingV2&&OnboardingV2.resolved&&OnboardingV2.resolved())||null;
+    if(r&&r.roleId==="other.other"&&r.roleOther)return String(r.roleOther);
+    const v=r&&r.roleId?dlpLocLabel("prof","professions",r.roleId):"";
+    return v||dlpProfileLabel();
+  }catch(e){return dlpProfileLabel()}
+}
+function dlpSitLoc(){
+  try{const r=(window.OnboardingV2&&OnboardingV2.resolved&&OnboardingV2.resolved())||null;
+    const id=r&&(r.primarySituation||(r.situations||[])[0]);
+    return id?(dlpLocLabel("sit","situations",id)||dlpSituationLabel()):"";
+  }catch(e){return dlpSituationLabel()}
+}
+function dlpSituationLabel(){
+  try{
+    const r=(window.OnboardingV2&&OnboardingV2.resolved&&OnboardingV2.resolved())||null;
+    const id=r&&(r.primarySituation||(r.situations||[])[0]);
+    if(id&&window.OnboardingCatalog){const sx=OnboardingCatalog.find("situations",id);if(sx)return sx.label}
+  }catch(e){}
+  return "";
+}
+/* the chat route, asked plainly. Returns null on anything unexpected — the step then uses the
+   sentences it can build on the device, so LEARN always has something to practise. */
+/* `purpose` decides whether this costs the learner a verdict. "coach" is metered (ai_coach);
+   "practice" is not — the same rule the app already applies to captions, TTS and the Shadow
+   helpers. A judgement ABOUT the learner is a verdict; writing them practice material is not.
+   Owner, 7 Nov 2026: the free allowance must cover one complete lesson day, so the lesson's
+   content generation must not eat it. */
+async function dlpChat(system,content,purpose){
+  const pu=purpose==="practice"?"practice":"coach";
+  /* sttOff(), not aiOff(null): an uncosted route still needs an account, but entLocked(null)
+     answers "locked" for a name that is not a capability, which would withhold it outright. */
+  if(pu==="practice"?sttOff():aiOff("ai_coach"))return null;
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({chat:{purpose:pu,system,messages:[{role:"user",content}]}})});
+    if(!r.ok)return null;
+    const j=await r.json();
+    return String((j&&(j.reply||j.text))||"").trim()||null;
+  }catch(e){return null}
+}
+/* Always-available sentences: the week's own patterns completed with this learner's role, so the
+   step works with no network and never shows a stub. */
+function dlpLocalSentences(plan,round){
+  const role=dlpProfileLabel()||t("dlp.sent_role_fallback");
+  const sit=dlpSituationLabel();
+  const r=role.toLowerCase(),inSit=sit?" in "+sit.toLowerCase():"";
+  /* Each pattern is completed by what naturally FOLLOWS it, not by one generic tail — a blanket
+     ending produced "I work closely with my work as a data engineer." (caught in testing). */
+  const TAIL=[
+    [/\bwork as\b\s*$/i,          k=>[`a ${r}.`,`a ${r} on this team.`,`a ${r}, and I have done it for a while.`][k]],
+    [/\bresponsible for\b\s*$/i,  k=>[`what my team delivers${inSit}.`,`the quality of the work that leaves my hands.`,`making sure nothing goes out half-finished.`][k]],
+    [/\bfocus is on\b\s*$/i,      k=>[`doing that work well${inSit}.`,`being understood the first time${inSit}.`,`saying less and meaning more.`][k]],
+    [/\bwork closely with\b\s*$/i,k=>[`the people who depend on that work.`,`the team that picks up the job after me.`,`everyone who has to read my work later.`][k]],
+    [/\bbackground in\b\s*$/i,    k=>[`this field, and I have grown into my role as a ${r}.`,`the trade, and I learned it on the job.`,`this work, and I still learn something most weeks.`][k]],
+    [/\bpart of my role is\b\s*$/i,k=>[`making that work clear to other people.`,`explaining what I did and why.`,`catching the problem before anyone else does.`][k]],
+    [/\brole sits at\b.*$/i,       k=>[`where the work meets the people who use it.`,`the point where plans become real work.`,`the handover between two teams.`][k]],
+    [/\bfocused on improving\b\s*$/i,k=>[`how clearly I explain what I do.`,`how I sound when the room is listening.`,`saying it once, properly.`][k]],
+    /* a pattern that ends on a preposition needs an object, not another clause:
+       "…stakeholders to the work I do as a data engineer" was the giveaway */
+    [/\bto\s*$/i,                  k=>[`keep that work moving.`,`get the job finished on time.`,`agree what good looks like.`][k]],
+    [/\bwith\s*$/i,                k=>[`the people who depend on it.`,`the crew on the next shift.`,`whoever signs the work off.`][k]],
+    [/\bfor\s*$/i,                 k=>[`the results my team is judged on.`,`the standard the job is held to.`,`what we promised to deliver.`][k]],
+    [/\b(in|on|about)\s*$/i,       k=>[`the work itself.`,`the detail that matters most.`,`the part that is easy to get wrong.`][k]],
+  ];
+  /* a different ending each round, so "Another version" really is another version offline too */
+  const ALT=[
+    [`the work I do as a ${r}.`,`what my day actually looks like as a ${r}.`,`the part of the job people never see.`],
+    [`a ${r}.`,`a ${r}, and I have done it for a while now.`,`a ${r} on this team.`],
+  ];
+  const k=Math.max(0,Math.min(2,Number(round)||0));
+  const fill=x=>{
+    const base=String(x||"").replace(/\s*(\.{3}|…)\s*$/,"").trim();
+    for(const [re,tail] of TAIL)if(re.test(base))return `${base} ${tail(k)}`;
+    return `${base} ${ALT[0][k]}`;
+  };
+  /* rotate which patterns are used as well as how they end: round 1 starts where round 0 stopped */
+  const all=(plan.targetExpressions||[]).filter(Boolean);
+  if(!all.length)return [];
+  const start=(k*DLP_SENTENCES)%all.length;
+  const pick=[];for(let j=0;j<Math.min(DLP_SENTENCES,all.length);j++)pick.push(all[(start+j)%all.length]);
+  return pick.map(x=>({text:fill(x),from:x}));
+}
+async function dlpBuildSentences(plan,key,w,d,polish){
+  const e=_dlpEntry;if(!e)return;
+  const host=document.getElementById("dlpSentWrap");
+  if(host)host.innerHTML=`<div class="card" style="margin:0">${DS.aiInline(t("dlp.sent_writing"))}</div>`;
+  const role=dlpProfileLabel(),sit=dlpSituationLabel();
+  const said=((e.stepData.try||{}).m||{}).tx||"";
+  const sys=`You write short spoken-English practice sentences for ONE professional. Reply with STRICT JSON only: {"profile":"<the profile in 2-4 words>","intro":"<one sentence, max 22 words, addressed to them by name if a name is given, naming their profession>","sentences":["<sentence>","..."]}. Exactly ${DLP_SENTENCES} sentences. Each is a COMPLETE spoken sentence of 8-18 words that this person could say out loud about their own work. Natural spoken business English, no jargon, no placeholders, no brackets, no names. Build on the patterns given. Never invent facts about them beyond what is provided.`;
+  const brief=dlpProfileBrief()||`Profession: ${role||"a professional"}`;
+  /* on a polish, every sentence they have already been given, so the next five are genuinely new */
+  const seen=((e.stepData.learn||{}).seen||[]).slice(-15);
+  const usr=[brief,
+    `Patterns to build on: ${(plan.targetExpressions||[]).join(" | ")}`,
+    said?`What they actually said about themselves, in their own words: "${said.slice(0,400)}"`:"",
+    polish?`They have already practised these — write FIVE DIFFERENT ones for the same person, saying other true things about the same work:\n${seen.map(x=>"- "+x).join("\n")}`:""].filter(Boolean).join("\n");
+  /* the round this call PRODUCES, not the one it came from: a polish must never re-emit round 0 */
+  const round=polish?((e.stepData.learn||{}).polished||0)+1:((e.stepData.learn||{}).polished||0);
+  const raw=await dlpChat(sys,usr,"practice");   /* content, not a verdict */
+  let out=null;
+  try{
+    const j=JSON.parse(String(raw||"").replace(/^```(json)?|```$/g,"").trim());
+    const list=(j&&Array.isArray(j.sentences)?j.sentences:[]).map(x=>String(x||"").trim())
+      .filter(x=>x.split(/\s+/).length>=6&&!/[\[\]{}]|\.\.\.|…/.test(x)).slice(0,DLP_SENTENCES);
+    if(list.length>=3)out={profile:String(j.profile||role||"").slice(0,60),intro:String(j.intro||"").slice(0,200),sentences:list.map(x=>({text:x}))};
+  }catch(err){}
+  const local=!out;
+  if(local)out={profile:role,intro:"",sentences:dlpLocalSentences(plan,round)};
+  const prev=e.stepData.learn||{};
+  const seenAll=((prev.seen)||[]).concat(out.sentences.map(x=>x.text)).slice(-20);
+  e.stepData.learn=Object.assign({},prev,{saved:true,count:out.sentences.length,
+    profile:out.profile,intro:out.intro,sentences:out.sentences,local,seen:seenAll,
+    polished:polish?((prev.polished||0)+1):(prev.polished||0),
+    takes:polish?{}:(prev.takes||{}),res:polish?{}:(prev.res||{}),pass:polish?{}:(prev.pass||{})});
+  save();                                     /* persist only: the learner moves on when they choose */
+  try{dlpRerender()}catch(err){}
+}
+/* 80% of the sentence, heard back. The same bar and the same alignment as the Foundations
+   one-minute test (fndAlign / FND_PASS) — one rule for "you have said it properly", not two. */
+/* a function, not a const: FND_PASS is declared far below this point and a `const` here would
+   read it inside its temporal dead zone, throwing at load and taking the rest of the script with it */
+function dlpPass(){return FND_PASS}
+window.dlpLearnPolish=(key,w,d)=>{
+  const L=dlpStepData("learn")||{};
+  if(!L.done)return toast(t("dlp.sent_polish_locked",{n:(L.sentences||[]).length||DLP_SENTENCES}));
+  if((L.polished||0)>=DLP_POLISH_MAX)return toast(t("dlp.sent_polish_max",{n:DLP_POLISH_MAX}));
+  dlpBuildSentences(_dlpEntry.plan,key,w,d,true);
+};
+/* Step 2 uses the FOUNDATIONS report, not a second one of its own (owner, 7 Nov 2026). The key
+   is namespaced so it can never collide with a Foundations "<day>-<i>", and the host says where
+   the report draws and what its buttons do — everything else is the shared renderer. */
+function dlpSentKey(i){return "dlp:learn:"+i}
+function dlpSentHost(i,sentence){
+  _fndHost[dlpSentKey(i)]={
+    sentence, boxId:"dlpRes"+i,
+    lang:(S.profile&&S.profile.lang)||"en",     /* the learner's own language, not the pack's gloss */
+    again:`dlpSentRec(${i})`, recheck:`dlpSentRec(${i})`,
+    drill:w=>`fndDrillKey(${jarg(dlpSentKey(i))},${jarg(w)})`,
+    wordCtx:w=>recCtx("dlp-learn-"+i+"-w-"+w.replace(/[^a-z0-9]/g,"")),
+    evidence:null                                /* the Foundations evidence log is not this lesson's */
+  };
+  return dlpSentKey(i);
+}
+/* one sentence: hear it, say it, and how close it came */
+function dlpSentRowHTML(sx,i,L){
+  const P=L.pass||{},R=L.res||{};
+  const passed=!!P[i], r=R[i]||null;
+  const locked=i>0&&!P[i-1]&&!passed;        /* master the one above first */
+  return `<li class="dlp-sent${passed?" ok":r?" has":""}${locked?" lock":""}">
+    <div class="dlp-sent-h">
+      <span class="dlp-sent-i">${i+1}</span>
+      ${passed?`<span class="chip done">${ic("check")} ${esc(t("dlp.sent_passed"))}</span>`:""}
+    </div>
+    <p class="dlp-sent-t">“${esc(sx.text)}”</p>
+    ${locked?`<p class="ex-fine dlp-sent-n">${esc(t("dlp.sent_locked",{n:dlpPass()}))}</p>`:`
+    <div class="dlp-sent-go">
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(sx.text)},.95)">${ic("sound")} ${esc(t("dlp.sent_hear"))}</button>
+      <button class="rec-btn rec-btn-sm" id="dlpRecBtn${i}" onclick="dlpSentRec(${i})" aria-label="${esc(r?t("dlp.sent_again"):t("dlp.sent_say"))}">${ic("mic")}</button>
+
+    </div>`}
+    <div id="dlpRes${i}"></div>
+  </li>`;
+}
+function dlpLearnHTML(plan,key,w,d){
+  const L=dlpStepData("learn")||{};
+  if(!L.sentences){setTimeout(()=>{try{dlpBuildSentences(plan,key,w,d,false)}catch(e){}},30);
+    return `<div class="card"><p class="sub">${esc(t("dlp.learn_sub"))}</p><div id="dlpSentWrap">${DS.aiInline(t("dlp.sent_writing"))}</div></div>`;}
+  const total=L.sentences.length, P=L.pass||{};
+  const done=L.sentences.filter((_,i)=>P[i]).length;
+  const nm=dlpLearnerName();
+  const head=(nm?esc(nm)+" — ":"")+(L.intro?esc(L.intro):esc(t("dlp.sent_for",{p:L.profile||t("dlp.sent_role_fallback")})));
+  /* the report is drawn into the row AFTER the list exists, by the shared Foundations renderer */
+  setTimeout(()=>{try{dlpSentReports()}catch(e){}},0);
+  const canGo=!!L.done;                      /* one full set mastered, ever */
+  const canPolish=canGo&&(L.polished||0)<DLP_POLISH_MAX;
+  return `<div class="card">
+    <p class="sub">${head}</p>
+    ${L.local?`<p class="ex-fine">${esc(t("dlp.sent_offline"))}</p>`:""}
+    <p class="ex-fine">${esc(t("dlp.sent_master_note",{n:dlpPass()}))}</p>
+    <div id="dlpSentWrap"><ul class="dlp-sent-list">${L.sentences.map((sx,i)=>dlpSentRowHTML(sx,i,L)).join("")}</ul></div>
+    <p class="ex-fine">${esc(t("dlp.sent_mastered_n",{n:done,of:total}))}</p>
+    <div class="dlp-sent-bar">
+      <button class="btn btn-g" ${canPolish?"":"disabled"} onclick="dlpLearnPolish('${key}',${w},'${d}')">${ic("sparkle")} ${esc(t("dlp.sent_polish"))}${(L.polished||0)?` (${L.polished}/${DLP_POLISH_MAX})`:""}</button>
+      <button class="btn-primary" ${canGo?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
+    </div>
+    ${canGo?"":`<p class="ex-fine">${esc(t("dlp.sent_polish_locked",{n:total}))}</p>`}
+    <button class="btn btn-g btn-sm dlp-skip" onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.sent_skip"))}</button>
+  </div>`;
+}
+/* repaint the report of every sentence that has one: the row markup is rebuilt on every render,
+   so the shared renderer has to be pointed at the new nodes */
+function dlpSentReports(){
+  const L=dlpStepData("learn")||{};
+  (L.sentences||[]).forEach((sx,i)=>{
+    const key=dlpSentKey(i);
+    /* After a reload — or after walking back to this step from a later one — the in-memory report
+       is gone but the transcript was saved. The alignment is pure, so the SAME report is rebuilt
+       from what was actually heard; nothing is re-transcribed and nothing is invented. */
+    if(!_fndRep[key]&&!_fndBusy[key]){
+      const r=(L.res||{})[i];
+      if(!r||!r.heard)return;
+      _fndRep[key]={heard:r.heard,al:fndAlign(sx.text,r.heard),pct:r.pct};
+    }
+    dlpSentHost(i,sx.text);
+    fndDrawScoreKey(key);
+  });
+}
+/* say one sentence back: aligned on the device, with a coaching line where the plan allows one */
+window.dlpSentRec=(i)=>{
+  const e=_dlpEntry;if(!e)return;
+  const L=e.stepData.learn||{};const sx=(L.sentences||[])[i];if(!sx)return;
+  const P=L.pass||{};
+  if(i>0&&!P[i-1]&&!P[i])return toast(t("dlp.sent_locked",{n:dlpPass()}));
+  const key=dlpSentHost(i,sx.text);
+  const btn=document.getElementById("dlpRecBtn"+i);
+  phRecInto(recCtx("dlp-learn-"+i),t("dlp.step_learn"),btn,null,async blob=>{
+    try{exPlayBlob(blob)}catch(err){}
+    /* exactly the Foundations check: busy → transcribe → align → the same report */
+    _fndBusy[key]=1;delete _fndRep[key];_fndDrill[key]={};fndDrawScoreKey(key);
+    const heard=await fbTranscribe(new Blob([blob],{type:blob.type||"audio/webm"}));
+    delete _fndBusy[key];
+    if(!heard){_fndRep[key]={err:_fbTxWhy||"silent"};fndDrawScoreKey(key);return}
+    const al=fndAlign(sx.text,heard);
+    _fndRep[key]={heard,al,pct:al.pct};
+    const E=_dlpEntry;if(!E)return;
+    const LL=E.stepData.learn||{};
+    LL.res=LL.res||{};LL.pass=LL.pass||{};LL.takes=LL.takes||{};
+    LL.res[i]={pct:al.pct,heard:String(heard).slice(0,300),at:Date.now()};
+    LL.takes[i]={at:Date.now(),pct:al.pct,tx:String(heard).slice(0,300)};
+    if(al.pct>=dlpPass())LL.pass[i]=true;
+    if((LL.sentences||[]).length&&(LL.sentences||[]).every((_,k)=>LL.pass[k]))LL.done=true;
+    E.stepData.learn=LL;save();               /* persist only: the learner moves on when they choose */
+    try{dlpRerender()}catch(err){}            /* rebuilds the rows, then repaints the reports */
+    if(al.pct<dlpPass()){
+      fndTipsLoadKey(key);                    /* the IPA, the respelling and the tip per wrong word */
+      setTimeout(()=>{const r=document.getElementById("dlpRes"+i);if(r)r.scrollIntoView({behavior:"smooth",block:"nearest"})},250);
+    }
+  });
+};
+/* kept for older entries and tests: the sentences step saves itself as it is built */
 window.dlpLearnSave=(w,d,key)=>{
   (_dlpEntry.plan.targetExpressions||[]).forEach(x=>vocPut(x));
-  _dlpEntry.stepData.learn={saved:true,count:(_dlpEntry.plan.targetExpressions||[]).length};
+  _dlpEntry.stepData.learn=Object.assign({},_dlpEntry.stepData.learn,{saved:true,count:(_dlpEntry.plan.targetExpressions||[]).length});
   save();
   dlpAdvance(w,d,key);
 };
+/* The week's passages that actually SPEAK the curriculum's phrases (tracks/general/clip-index.json,
+   built offline). Never a near-miss: every entry was matched with ShadowSync.findExpression, the same
+   check the Challenge uses. A week the library cannot serve has no entry, and the step says so. */
+function dlpPassages(w,n){
+  try{
+    if(!isGeneralEnglish())return [];        /* the one check every General-English-only feature makes */
+    const ix=(curriculumOrEmpty().clipIndex)||null;
+    const list=ix&&ix[String(w)];
+    return Array.isArray(list)?list.slice(0,n||2):[];
+  }catch(e){return []}
+}
+/* a curriculum clip is the COURSE, not the learner's own collection: it is stamped with the lesson
+   it belongs to, kept apart from the personal cap, and the two are counted separately */
+function dlpClipIs(c){return !!(c&&c.cur&&c.cur.w)}
+/* Mastery of a kept passage, counted from REAL graded attempts (aList("chHist")) on that passage's
+   own segments — never from taps or time spent. The rule is the one the product already uses for
+   Welding/English Mastery: three passes on three DIFFERENT days, so a single lucky run is not mastery. */
+const DLP_MASTER_DAYS=3;
+function dlpClipMastery(c){
+  const out={attempts:0,passes:0,days:0,need:DLP_MASTER_DAYS,mastered:false};
+  if(!c||!c.vid)return out;
+  try{
+    const inRange=e=>{
+      if(e.vid!==c.vid)return false;
+      if(c.from==null||c.to==null)return true;                 /* an older clip without a range: count the video */
+      const m=/^s(\d+)$/.exec(String(e.seg||""));if(!m)return false;
+      const i=+m[1];return i>=c.from&&i<=c.to;
+    };
+    const days=new Set();
+    aList("chHist").forEach(e=>{
+      if(!e||e.kind!=="challenge"||!inRange(e))return;
+      out.attempts++;
+      if(e.pass){out.passes++;days.add(new Date(e.ts).toISOString().slice(0,10))}
+    });
+    out.days=days.size;out.mastered=days.size>=DLP_MASTER_DAYS;
+  }catch(e){}
+  return out;
+}
+function dlpClipSaved(p){try{return aList("clips").some(c=>dlpClipIs(c)&&c.vid===p.vid&&c.para===p.para)}catch(e){return false}}
 function dlpListenHTML(plan,key,w,d){
-  _dlpEntry.stepData.listen=_dlpEntry.stepData.listen||{seen:true};
-  const v=plan.supportingVideo;
+  const ps=dlpPassages(w,2),v=plan.supportingVideo;
+  /* LISTEN is done once a passage was actually opened — not merely because the step rendered */
+  if(!ps.length)_dlpEntry.stepData.listen=_dlpEntry.stepData.listen||{seen:true,none:true};
+  const nextUp=ps.findIndex((_,i)=>!dlpShSettled(i));     /* one accent per screen: the next one to do */
+  const row=(p,ix)=>{
+    const saved=dlpClipSaved(p),r=dlpShRec(ix),mine=dlpShHasRec(ix),skipped=dlpShSkipped(ix);
+    return `<div class="dlp-pass">
+      <p class="dlp-pass-h"><b>${esc(shClipTitle({vid:p.vid,title:p.title}))}</b>${mine?`<span class="chip done" style="margin-inline-start:6px">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:skipped?`<span class="chip" style="margin-inline-start:6px">${esc(t("dlp.sh_skipped_chip"))}</span>`:""}</p>
+      <p class="ex-fine">${esc(p.match==="topic"?t("dlp.pass_topic"):t("dlp.pass_where",{n:p.para,of:p.of,phrase:p.phrase}))}</p>
+      <p class="ex-fine dlp-pass-meta">${esc(t("dlp.pass_meta",{s:Math.round(p.seconds||0),n:p.sentences||1,w:p.words||0}))}</p>
+      ${mine&&r.pct!=null?`<p class="ex-fine dlp-pass-done">${esc(t("dlp.sh_row_done",{n:r.pct}))}</p>`:""}
+      <details class="dlp-pass-det"><summary>${esc(t("dlp.pass_read"))}</summary><p class="dlp-pass-q">“${esc(p.text)}”</p></details>
+      <div class="dlp-pass-go">
+        <button class="btn ${ix===nextUp?"btn-p":"btn-g"}" onclick="dlpShadowGo('${esc(p.vid)}',${(p.startMs||0)/1000},${(p.endMs||0)/1000},${JSON.stringify(String(p.title||"")).replace(/"/g,"&quot;")},${w},'${d}',${p.para})">${ic("shadowing")} ${esc(t(mine?"dlp.sh_again":"dlp.watch_shadow"))}</button>
+        <button class="btn ${saved?"":"btn-g"}" ${saved?"disabled":""} onclick="dlpSaveClip(${w},'${d}',${p.para})">${ic("star")} ${esc(t(saved?"dlp.pass_kept":"dlp.pass_keep"))}</button>
+      </div>${saved?dlpMasteryHTML(p):""}</div>`;
+  };
+  /* Owner, 7 Nov 2026: both passages must be shadowed once before this step is through. A
+     shadow counts from the RECORDING, not from a successful report, so a failed transcription
+     never traps the learner here — the same offline-first rule Foundations uses. */
+  const c=dlpShCount(w),all=dlpShAllDone(w),maySkip=dlpShMaySkip(w);
   return `<div class="card">
-    ${v?`<p class="sub">${esc(t("dlp.listen_sub",{title:v.title}))}</p><p class="ex-fine">${esc(v.matchReason)}</p>
+    ${ps.length?`<p class="sub">${esc(t("dlp.pass_sub",{n:ps.length}))}</p>
+      <p class="ex-fine">${esc(t("dlp.sh_prog",{n:c.done,of:c.total}))}</p>
+      ${dlpShMethodHTML(c.done===0)}${ps.map(row).join("")}
+      <p class="ex-fine dlp-pass-why">${esc(t("dlp.pass_why"))}</p>
+      ${all?(c.done<c.total?`<p class="ex-fine">${esc(t("dlp.sh_skip_note"))}</p>`:""):`<p class="ex-fine">${esc(t("dlp.sh_need",{of:c.total}))}</p>`}`
+     :v?`<p class="sub">${esc(t("dlp.listen_sub",{title:v.title}))}</p><p class="ex-fine">${esc(v.matchReason)}</p>
+      <p class="ex-fine">${esc(t("dlp.pass_none"))}</p>
       <button class="btn btn-g" style="margin-top:8px" onclick="sessGo('shadow',${w},'${d}')">${ic("shadowing")} ${esc(t("dlp.watch_shadow"))}</button>`
      :`<p class="sub">${esc(t("dlp.listen_none"))}</p>`}
-    ${dlpContinueBtn("listen",w,d,key,t("dlp.continue"))}
+    <button class="btn-primary" style="margin-top:16px" ${all&&dlpStepData("listen")?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
+    ${maySkip?`<button class="btn btn-g btn-sm dlp-skip" onclick="dlpShSkip()">${esc(t("dlp.sh_skip"))}</button>`:""}
   </div>`;
 }
+/* Land ON the passage: the studio's own shClipGo seeks the clip and pins that paragraph in Shadow
+   mode, so the learner arrives where the lesson pointed instead of at the top of a 262-paragraph
+   library entry. Opening it is also what marks LISTEN done. */
+/* the learner's own progress on a kept passage: passes on separate days, and what is left */
+function dlpMasteryHTML(p){
+  const c=(aList("clips")||[]).find(x=>dlpClipIs(x)&&x.vid===p.vid&&x.para===p.para);
+  if(!c)return "";
+  const m=dlpClipMastery(c);
+  return `<p class="ex-fine dlp-pass-m">${esc(m.mastered?t("dlp.pass_mastered"):t("dlp.pass_progress",{n:m.days,need:m.need}))}</p>`;
+}
+window.dlpShadowGo=(vid,startS,endS,title,w,d,para)=>{
+  try{
+    if(_dlpEntry){const L=_dlpEntry.stepData.listen=_dlpEntry.stepData.listen||{};
+      L.seen=true;L.opened={vid,para};L.at=Date.now();
+      save();}                                /* persist only: opening a passage must not skip the step */
+  }catch(e){}
+  /* arm the lesson's stage so the studio carries the lesson's card, report and next step */
+  try{const ix=dlpPassages(w,2).findIndex(x=>x.vid===vid&&x.para===para);if(ix>=0)dlpShArm(w,d,ix)}catch(e){}
+  SESS_RETURN={v:"shadow",w,d};go("shadow");
+  setTimeout(()=>{try{shClipGo({vid,start:startS,end:endS,title:title||vid})}catch(e){}},250);
+};
+/* Keep the passage so it can be practised again. A curriculum clip carries its lesson, so Progress
+   can show it and the Challenge can count towards it. */
+window.dlpSaveClip=(w,d,para)=>{
+  const p=dlpPassages(w,2).find(x=>x.para===para);if(!p)return;
+  if(dlpClipSaved(p))return;
+  if(!dlpClipRoom(w))return;
+  aList("clips").unshift({vid:p.vid,start:Math.floor((p.startMs||0)/100)/10,end:Math.ceil((p.endMs||0)/100)/10,
+    title:p.title||p.vid,ts:Date.now(),txt:p.text||"",para:p.para,of:p.of,phrase:p.phrase,from:p.from,to:p.to,
+    cur:{w,d,lessonId:(_dlpEntry&&_dlpEntry.lessonId)||DailyPlan.lessonId("general",w,d)}});
+  save();toast(t("dlp.pass_kept_toast"));
+  try{dlpRenderStep(document.getElementById("v-journey"),w,d,(_dlpEntry&&_dlpEntry.step)||"listen")}catch(e){}
+};
+/* ============================================================ STEP 3: THE LESSON'S SHADOWS
+   Owner, 7 Nov 2026: "the shadow report should follow the same analysis AI, like step 1 and
+   step 2 … a report talking about how the shadow went and how you can improve that shadow. As
+   soon as the shadow is done once the user can do it multiple times, but one button should
+   appear asking him to go to the next shadow on the list … he has to complete those two
+   shadows. After that shadow … one button should come asking him to go to the next step."
+
+   The shadowing itself happens where the video is — in the Shadow workspace — so the lesson
+   goes WITH the learner instead of waiting for them: dlpShadowGo arms a stage, and a lesson card
+   sits under the paragraph in the studio carrying the target, the report and the one next step.
+   The report is the Foundations report, exactly as step 2 is (the same host mechanism, the same
+   renderer, the same word drills), with one shadowing-specific addition: the speaker's pace
+   beside the learner's, both measured, never guessed.
+   The transcript comes from the studio's OWN recorder seam (fbRecStart's onDone — the one the V2
+   missions use), so there is no second recorder, no second transcription and no second report:
+   while a lesson shadow is armed the studio's own coach panel does not draw. */
+let _dlpSh=null;                       /* {w,d,ix,total,vid,para} + pend while a take is graded */
+function dlpShArm(w,d,ix){
+  const ps=dlpPassages(w,2),p=ps[ix];if(!p)return null;
+  _dlpSh={w,d,ix,total:ps.length,vid:p.vid,para:p.para};
+  return _dlpSh;
+}
+/* the lesson's record of its shadows, one entry per passage, inside the LISTEN step */
+function dlpShState(){
+  const e=_dlpEntry;if(!e)return {};
+  const L=e.stepData.listen=e.stepData.listen||{};
+  L.sh=L.sh||{};return L.sh;
+}
+/* read-only: rendering a step must never create state */
+function dlpShRec(ix){const e=_dlpEntry,L=e&&e.stepData.listen,sh=L&&L.sh;return (sh&&sh[String(ix)])||null}
+/* a skipped passage carries an `at` too, so "did they shadow it" must say so explicitly */
+function dlpShHasRec(ix){const r=dlpShRec(ix);return !!(r&&r.at&&!r.skipped)}
+function dlpShSkipped(ix){const r=dlpShRec(ix);return !!(r&&r.skipped)}
+/* SETTLED = shadowed, or deliberately skipped. Owner, 7 Nov 2026: "when one shadow is done, you
+   can skip the second one" — so the skip exists, but only once one real shadow is behind them. */
+function dlpShSettled(ix){return dlpShHasRec(ix)||dlpShSkipped(ix)}
+function dlpShCount(w){const ps=dlpPassages(w,2);
+  return {done:ps.filter((_,i)=>dlpShHasRec(i)).length,settled:ps.filter((_,i)=>dlpShSettled(i)).length,total:ps.length}}
+function dlpShAllDone(w){const c=dlpShCount(w);return c.total===0||c.settled>=c.total}
+function dlpShMaySkip(w){const c=dlpShCount(w);return c.done>=1&&c.settled<c.total}
+/* every passage not yet settled is marked skipped — the record says skipped, never shadowed */
+function dlpShSkipRest(w){
+  const ps=dlpPassages(w,2),st=dlpShState();
+  ps.forEach((p,i)=>{if(!dlpShSettled(i))st[String(i)]=Object.assign({},st[String(i)]||{},{vid:p.vid,para:p.para,skipped:true,at:Date.now()})});
+  save();
+}
+window.dlpShSkip=()=>{
+  const sh=_dlpSh,e=_dlpEntry;if(!e)return;
+  const w=sh?sh.w:(e.plan&&e.plan.week),d=sh?sh.d:(e.plan&&e.plan.day);
+  dlpShSkipRest(w);
+  const L=e.stepData.listen=e.stepData.listen||{};L.seen=true;L.shadowed=true;L.skipped=true;
+  try{shCloseWork()}catch(err){}
+  SESS_RETURN=null;
+  DailyPlan.setStep(S,e.lessonId,"listen",L);save();
+  _dlpSh=null;
+  go("session",w,d);
+};
+/* the next passage still to shadow, after the one on screen */
+function dlpShNextIx(){
+  const sh=_dlpSh;if(!sh)return -1;
+  for(let i=0;i<sh.total;i++)if(i!==sh.ix&&!dlpShHasRec(i))return i;
+  return -1;
+}
+/* Live only in the workspace, on the lesson's own clip, in Shadow mode — never over somebody's
+   own library clip and never while the Challenge is open. */
+function dlpShLive(){
+  try{return !!(_dlpSh&&_dlpEntry&&svMode==="shadow"&&shClip.vid===_dlpSh.vid&&!!svShSeg())}catch(e){return false}
+}
+function dlpShKey(ix,from){return "dlp:shadow:"+ix+":"+from}
+function dlpShHost(ix,from,sentence){
+  const k=dlpShKey(ix,from);
+  _fndHost[k]={sentence,boxId:"dlpShRes",
+    lang:(S.profile&&S.profile.lang)||"en",
+    again:"shRec()",recheck:"shRec()",       /* the studio's own recorder is the only one here */
+    drill:w=>`fndDrillKey(${jarg(k)},${jarg(w)})`,
+    wordCtx:w=>recCtx("dlp-shadow-"+ix+"-w-"+w.replace(/[^a-z0-9]/g,"")),
+    evidence:null};
+  return k;
+}
+/* ---------------------------------------------------------------- how to shadow
+   Owner, 7 Nov 2026: "generally people are just shadowing, they don't know exactly how to do."
+   So the lesson TEACHES the method, not only the score: what to do before, during and after, and
+   what to listen for on each pass. This is written content, the same for every learner and on
+   every plan — it is the established shadowing method, not something a model invented on the spot.
+   The AI's job is to say which part of it THIS attempt needs, not to make the method up. */
+const DLP_HOW=[["before",3],["during",3],["after",3],["focus",3]];
+function dlpShMethodHTML(open){
+  return `<details class="dlp-how" ${open?"open":""}>
+    <summary>${ic("info")} <b>${esc(t("dlp.how_h"))}</b><span class="hm-chev">${ic("chevron")}</span></summary>
+    <div class="dlp-how-b">
+      <p class="ex-fine">${esc(t("dlp.how_sub"))}</p>
+      ${DLP_HOW.map(([k,n])=>`<div class="dlp-how-sec"><b>${esc(t("dlp.how_"+k+"_h"))}</b>
+        <ul>${Array.from({length:n},(_,i)=>`<li>${esc(t("dlp.how_"+k+"_"+(i+1)))}</li>`).join("")}</ul></div>`).join("")}
+    </div>
+  </details>`;
+}
+/* words a minute, from a real duration — null when there is nothing honest to divide */
+function dlpWpm(words,secs){return (words>0&&secs>=1)?Math.round(words/(secs/60)):null}
+function dlpShPaceHTML(r){
+  if(!r||!r.heard)return "";
+  const mw=String(r.target||"").split(/\s+/).filter(Boolean).length,ms=r.modelSecs||0;
+  const yw=String(r.heard).split(/\s+/).filter(Boolean).length,ys=r.secs||0;
+  const mp=dlpWpm(mw,ms),yp=dlpWpm(yw,ys);
+  if(!mp||!yp)return "";
+  /* "matched" has to mean matched: the band is a tenth of the speaker's own pace (never under 10
+     a minute), so 99 against 115 reads as slower — which it is — instead of being waved through. */
+  const tol=Math.max(10,Math.round(mp*0.12)),diff=yp-mp;
+  const v=diff<-tol?"slower":diff>tol?"faster":"matched";
+  return `<div class="dlp-sh-pace">
+    <p class="ex-fine">${esc(t("dlp.sh_model",{n:mw,s:Math.round(ms),wpm:mp}))}</p>
+    <p class="ex-fine">${esc(t("dlp.sh_you",{n:yw,s:Math.round(ys),wpm:yp}))}</p>
+    <p class="dlp-sh-v">${esc(t("dlp.sh_"+v))}</p>
+  </div>`;
+}
+/* ---------------------------------------------------------------- the spoken shadowing coach
+   Owner, 7 Nov 2026: after the shadow, the coach SPEAKS — what happened in this take (which words
+   were skipped, which came out as something else, the pace), then what to do about it, drawn from
+   the method above. It names the learner and their job, because a report that could be anybody's
+   is not coaching.
+   It runs on every plan. The script is assembled from the alignment the device already has, so a
+   free learner is never handed an empty card; where the plan allows a verdict, one model call
+   rewrites the same script in the learner's own terms. Nothing is invented either way. */
+/* aiOff already folds in the spent allowance for a metered capability (ENT_METERED.ai_coach),
+   so a learner with no credit left never spends a request to be told they have none. */
+function dlpShCoachAi(){try{return dlpEvalPlan().shadowCoach==="ai"&&!aiOff("ai_coach")&&!aiAllowOut()}catch(e){return false}}
+function dlpShFixWords(al){return al?[...new Set(al.tgt.filter(x=>x.st==="miss").map(x=>x.w))]:[]}
+function dlpShSubs(al){return al?al.tgt.filter(x=>x.st==="sub"&&x.heard).slice(0,2):[]}
+/* the assembled script: every sentence is a measurement or a step of the method */
+function dlpShCoachLines(r){
+  if(!r)return [];
+  if(r.ai&&(r.ai.read||(r.ai.tips||[]).length)){
+    const L=[];if(r.ai.read)L.push(r.ai.read);(r.ai.tips||[]).forEach(x=>L.push(x));
+    return L.slice(0,5);
+  }
+  const al=(r.heard&&r.target)?fndAlign(r.target,r.heard):null;
+  const L=[],pct=r.pct;
+  const nm=dlpLearnerName();
+  if(pct!=null)L.push((nm?nm+" — ":"")+t(pct>=dlpPass()?"dlp.cch_score_good":pct>=55?"dlp.cch_score_mid":"dlp.cch_score_low",{n:pct}));
+  const miss=dlpShFixWords(al),subs=dlpShSubs(al);
+  if(miss.length)L.push(t("dlp.cch_skipped",{k:miss.length,words:miss.slice(0,5).join(", ")}));
+  subs.forEach(x=>L.push(t("dlp.cch_subbed",{heard:x.heard,said:x.w})));
+  if(!miss.length&&!subs.length)L.push(t("dlp.cch_clean"));
+  if((r.n||1)>1)L.push(t("dlp.cch_again_n",{n:r.n}));
+  /* the step of the method this attempt actually needs */
+  const mw=String(r.target||"").split(/\s+/).filter(Boolean).length,yw=String(r.heard||"").split(/\s+/).filter(Boolean).length;
+  const mp=dlpWpm(mw,r.modelSecs||0),yp=dlpWpm(yw,r.secs||0);
+  if(pct!=null&&pct<55)L.push(t("dlp.cch_do_read"));
+  else if(mp&&yp&&yp>mp+Math.max(10,Math.round(mp*0.12)))L.push(t("dlp.cch_do_behind"));
+  else if(mp&&yp&&yp<mp-Math.max(10,Math.round(mp*0.12)))L.push(t("dlp.cch_do_slow"));
+  else if(miss.length)L.push(t("dlp.cch_do_words",{words:miss.slice(0,3).join(", ")}));
+  else L.push(t("dlp.cch_do_eyes"));
+  L.push(t("dlp.cch_close"));
+  /* and why it matters to THIS learner — their job, their situation, no AI needed (owner, 7 Nov
+     2026: no report may read as generic). Dropped entirely when they told us neither. */
+  const role=dlpRoleLoc(),sit=dlpSitLoc();
+  if(role)L.push(sit?t("dlp.cch_role_sit",{role,sit:sit.toLowerCase()}):t("dlp.cch_role",{role}));
+  return L;
+}
+const DLP_CCH_SYS=(lang,who)=>`You are a shadowing coach. Shadowing means saying a recording back WHILE the speaker is still talking — about half a word behind — copying their rhythm, their linking and their sounds. ${who} Write in ${lang}.
+You are given the paragraph the learner shadowed, what the speech recogniser heard them say, the words that did not come through, and both speaking paces.
+"read": at most two sentences on how THIS attempt went. Open with the learner's name. Name only words that appear in the two texts you were given. Use only the numbers you were given.
+"tips": two or three short imperative sentences of shadowing technique that fix exactly what went wrong here, from the standard method — listen twice before opening your mouth; read it aloud on your own several times first; slow the clip and shadow it slow before fast; start when they start and stay half a word behind; copy the rhythm before the words; say the slipped words alone then put them back in the line; take your eyes off the text; shadow it again on another day. End the last tip by naming, in one clause, what this buys them in their own job.
+Never invent a word the learner said. No praise that the numbers do not support.
+Respond with ONLY minified JSON: {"read":"...","tips":["...","..."]}`;
+async function dlpShAdvice(k,r){
+  if(!r||!r.heard||!r.target||!dlpShCoachAi())return null;
+  const lang=(S.profile&&S.profile.lang)||"en",L=LANGS.find(x=>x.code===lang);
+  const al=fndAlign(r.target,r.heard);
+  const miss=dlpShFixWords(al),subs=dlpShSubs(al);
+  const mw=String(r.target).split(/\s+/).filter(Boolean).length,yw=String(r.heard).split(/\s+/).filter(Boolean).length;
+  const body=[
+    "The paragraph: \""+String(r.target).slice(0,600)+"\"",
+    "What was heard: \""+String(r.heard).slice(0,600)+"\"",
+    "Words that did not come through: "+(miss.length?miss.join(", "):"none"),
+    subs.length?"Said instead: "+subs.map(x=>'"'+x.heard+'" for "'+x.w+'"').join("; "):"",
+    "Words matched: "+r.pct+"%",
+    "Speaker: "+mw+" words in "+Math.round(r.modelSecs||0)+"s. Learner: "+yw+" words in "+Math.round(r.secs||0)+"s.",
+    "Attempt number: "+(r.n||1),
+  ].filter(Boolean).join("\n");
+  try{
+    const txt=await dlpChat(DLP_CCH_SYS(L?L.en:"English",dlpProfileBrief(true).split("\n").join(" ")),body,"coach");
+    if(!txt)return null;
+    /* the route answers a string; a model that wraps its JSON in a fence must not cost the take */
+    const m=String(txt).match(/\{[\s\S]*\}/);if(!m)return null;
+    let j=null;try{j=JSON.parse(m[0])}catch(e){return null}
+    const read=String((j&&j.read)||"").trim().slice(0,320);
+    const tips=(Array.isArray(j&&j.tips)?j.tips:[]).map(x=>String(x||"").trim().slice(0,240)).filter(Boolean).slice(0,3);
+    if(!read&&!tips.length)return null;
+    return {read,tips,at:Date.now()};
+  }catch(e){return null}
+}
+let _dlpCchOn=false;
+function dlpShCoachHTML(r){
+  const lines=dlpShCoachLines(r);if(!lines.length)return "";
+  return `<div class="dlp-cch" id="dlpCch">
+    <div class="dlp-cch-hd"><b>${esc(t("dlp.cch_h"))}</b>${r.aiWait?DS.aiInline(t("dlp.cch_wait")):""}</div>
+    <button class="btn btn-p dlp-cch-btn" id="dlpCchBtn" onclick="dlpShCoach()">${ic("play")} ${esc(t("dlp.cch_play"))}</button>
+    <div class="dlp-cch-script" id="dlpCchScript">${lines.map((l,i)=>`<p data-i="${i}">${esc(l)}</p>`).join("")}</div>
+  </div>`;
+}
+function dlpCchPaint(on){
+  const b=document.getElementById("dlpCchBtn");if(!b)return;
+  b.innerHTML=(on?ic("stop"):ic("play"))+" "+esc(on?t("dlp.cch_stop"):t("dlp.cch_play"));
+  b.classList.toggle("on",!!on);manIconizeInline(b);
+  if(!on)document.querySelectorAll("#dlpCchScript p.now").forEach(e=>e.classList.remove("now"));
+}
+window.dlpShCoachStop=()=>{if(!_dlpCchOn)return;_dlpCchOn=false;try{fbStopAudio()}catch(e){}try{speechSynthesis.cancel()}catch(e){}dlpCchPaint(false)};
+window.dlpShCoach=async()=>{
+  if(_dlpCchOn){dlpShCoachStop();return}
+  const sh=_dlpSh;if(!sh)return;
+  const lines=dlpShCoachLines(dlpShRec(sh.ix));if(!lines.length)return;
+  _dlpCchOn=true;dlpCchPaint(true);
+  const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  const voice=exVoice(),style=exVoiceStyle();
+  const browser=txt=>new Promise(res=>{try{fbSay(txt,1)}catch(e){return res()}
+    const t0=Date.now();const h=setInterval(()=>{if(!_dlpCchOn||!speechSynthesis.speaking||Date.now()-t0>20000){clearInterval(h);res()}},250)});
+  try{
+    for(let i=0;i<lines.length;i++){
+      if(!_dlpCchOn)break;
+      document.querySelectorAll("#dlpCchScript p.now").forEach(e=>e.classList.remove("now"));
+      const el=document.querySelector(`#dlpCchScript p[data-i="${i}"]`);
+      if(el){el.classList.add("now");try{el.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(e){}}
+      if(canApi){try{await fbSayLine(lines[i],voice,style,()=>_dlpCchOn)}catch(e){if(_dlpCchOn)await browser(lines[i])}}
+      else await browser(lines[i]);
+      if(_dlpCchOn)await new Promise(r=>setTimeout(r,320));
+    }
+  }finally{_dlpCchOn=false;dlpCchPaint(false)}
+};
+/* THE TAKE PLAYS BACK, whatever the AI did (owner, 7 Nov 2026). "The gap you hear is the real
+   report" is the method's own instruction, and it needs no account, no network and no allowance:
+   the audio is on the device. Matched to the report by timestamp, so going back to shadow 1 does
+   not play shadow 2's take; the newest take of the clip stands in for an older record. */
+window.dlpShPlayMine=async(ix)=>{
+  const r=dlpShRec(ix);if(!r)return;
+  try{
+    const recs=await getRecs(r.ctx||shRecCtx(r.vid));
+    if(!recs||!recs.length)return toast(t("dlp.sh_no_take"));
+    let pick=recs[0];
+    if(r.at)for(const x of recs){if(Math.abs((x.ts||0)-r.at)<60000){pick=x;break}}
+    if(!pick||!pick.blob)return toast(t("dlp.sh_no_take"));
+    exPlayBlob(pick.blob);
+  }catch(e){toast(t("dlp.sh_no_take"))}
+};
+function dlpShHearHTML(ix){
+  return `<div class="dlp-sh-hear">
+    <button class="btn btn-g btn-sm" onclick="svShReplay()">${ic("sound")} ${esc(t("dlp.sh_hear_model"))}</button>
+    <button class="btn btn-g btn-sm" onclick="dlpShPlayMine(${ix})">${ic("play")} ${esc(t("dlp.sh_hear_mine"))}</button>
+  </div>`;
+}
+/* OUT OF CREDIT, BUT THE SHADOW STILL WORKS (owner, 7 Nov 2026). When the day's verdicts are
+   spent the learner still records, still hears themselves back, still gets the word-by-word
+   report (transcription and alignment cost nothing) and still moves on — what stops is the AI
+   coaching. The app's ONE gate card says so, with the time it comes back and the Premium offer;
+   there is deliberately no second notice written here. */
+function dlpShAllowHTML(){
+  try{
+    const card=premLockHTML("ai_coach","dlp_shadow");
+    return card?card+`<p class="ex-fine">${esc(t("dlp.sh_still_counts"))}</p>`:"";
+  }catch(e){return ""}
+}
+/* The card in the workspace. Redrawn on every svRender and after every report, so it always
+   describes the paragraph actually on screen. */
+function dlpShSync(){
+  const card=document.getElementById("dlpShCard");if(!card)return;
+  if(!dlpShLive()){card.hidden=true;card.innerHTML="";return}
+  const sh=_dlpSh,sg=svShSeg(),k=dlpShKey(sh.ix,sg.from);
+  const r=dlpShRec(sh.ix);
+  /* walking back to a shadow already done: rebuild its report from the transcript that was kept */
+  if(!_fndRep[k]&&!_fndBusy[k]&&r&&r.heard&&r.segFrom===sg.from&&r.target)
+    _fndRep[k]={heard:r.heard,al:fndAlign(r.target,r.heard),pct:r.pct};
+  const nx=dlpShNextIx(),mine=dlpShHasRec(sh.ix);
+  /* one primary, and — once a real shadow is behind them — a plain way past the rest */
+  const skip=dlpShMaySkip(sh.w)?`<button class="btn btn-g btn-sm dlp-skip" onclick="dlpShSkip()">${esc(t("dlp.sh_skip"))}</button>`:"";
+  const acts=!mine?`<p class="ex-fine">${esc(t("dlp.sh_how"))}</p>${skip}`
+    :nx>=0?`<p class="dlp-sh-next-h">${esc(t("dlp.sh_next_h",{n:sh.ix+1}))}</p>
+      <div class="dlp-sh-acts"><button class="btn-primary" id="dlpShGo" onclick="dlpShNext(${nx})">${ic("shadowing")} ${esc(t("dlp.sh_next",{n:nx+1,of:sh.total}))}</button>${skip}</div>`
+    :`<p class="dlp-sh-next-h">${esc(t("dlp.sh_step_h"))}</p>
+      <div class="dlp-sh-acts"><button class="btn-primary" id="dlpShGo" onclick="dlpShFinish()">${ic("check")} ${esc(t("dlp.sh_step"))}</button></div>`;
+  card.hidden=false;
+  card.innerHTML=`<div class="dlp-sh-h"><span class="chip">${esc(t("dlp.sh_h",{n:sh.ix+1,of:sh.total}))}</span>
+      ${mine?`<span class="chip done">${ic("check")} ${esc(t("dlp.sh_done_chip"))}</span>`:""}</div>
+    <div id="dlpShRes"></div>
+    ${mine?dlpShHearHTML(sh.ix):""}
+    ${mine?dlpShPaceHTML(r):""}
+    ${mine?dlpShAllowHTML():""}
+    ${mine?dlpShCoachHTML(r):""}
+    ${dlpShMethodHTML(!mine||(r&&r.pct!=null&&r.pct<dlpPass()))}
+    ${acts}`;
+  dlpShHost(sh.ix,sg.from,sg.text);
+  if(_fndRep[k]||_fndBusy[k])fndDrawScoreKey(k);   /* the shared renderer draws its own "checking" state */
+  manIconizeInline(card);
+}
+/* Stop was tapped: the card shows it is working, and the paragraph the take was made against is
+   pinned here and now. Without that, stepping to the next paragraph while Whisper is still running
+   would have the report graded against a paragraph the learner never said. */
+function dlpShBusy(){
+  if(!dlpShLive())return;
+  const sg=svShSeg(),k=dlpShKey(_dlpSh.ix,sg.from);
+  _dlpSh.pend={ix:_dlpSh.ix,from:sg.from,text:sg.text,
+    modelSecs:(sg.endMs>sg.startMs)?(sg.endMs-sg.startMs)/1000:0};
+  _fndBusy[k]=1;delete _fndRep[k];_fndDrill[k]={};
+  dlpShSync();
+}
+/* the take the studio just filed, graded exactly as step 2 grades a sentence */
+function dlpShOnDone(){return dlpShLive()?((h,i)=>{try{dlpShGraded(h,i).catch(()=>{})}catch(e){}}):null}
+async function dlpShGraded(heard,info){
+  const sh=_dlpSh;if(!sh||!_dlpEntry)return;
+  const pend=sh.pend||null;
+  let sg=null;try{sg=svShSeg()}catch(e){}
+  /* The take is honoured even if the learner has walked away from the Shadow page while the
+     transcript was being made: they DID shadow it, and the paragraph was pinned at the stop. */
+  if(!pend&&!dlpShLive())return;
+  const from=pend?pend.from:sg.from,target=pend?pend.text:sg.text;
+  const k=dlpShHost(pend?pend.ix:sh.ix,from,target);
+  sh.pend=null;delete _fndBusy[k];
+  const secs=(info&&info.seconds)||0;
+  const modelSecs=pend?pend.modelSecs:((sg.endMs>sg.startMs)?(sg.endMs-sg.startMs)/1000:0);
+  /* THE RECORDING finishes the shadow, the report is the feedback (the Foundations rule): a
+     learner whose transcription fails is not held at step 3 for ever. */
+  /* the PASSAGE this take belongs to, not whatever is armed now — they can differ if the stage
+     moved on while the transcript was being made */
+  const ix=pend?pend.ix:sh.ix,pp=dlpPassages(sh.w,2)[ix]||{},rec0=dlpShRec(ix)||{};
+  dlpShState()[String(ix)]=Object.assign({},rec0,{vid:pp.vid||sh.vid,para:pp.para,segFrom:from,
+    at:Date.now(),n:(rec0.n||0)+1,secs,modelSecs,target:String(target).slice(0,600),
+    ctx:(info&&info.recCtx)||shRecCtx(sh.vid),
+    skipped:false,ai:null,aiWait:false});   /* a passage they come back to is no longer skipped */
+  save();
+  if(!heard){_fndRep[k]={err:_fbTxWhy||"silent"};dlpShSync();return}
+  const al=fndAlign(target,heard);
+  _fndRep[k]={heard,al,pct:al.pct};
+  const R=dlpShState()[String(ix)];
+  R.heard=String(heard).slice(0,600);R.pct=al.pct;
+  save();
+  dlpShSync();
+  if(al.pct<dlpPass())fndTipsLoadKey(k);      /* the IPA, the respelling and the tip per word */
+  /* the coach speaks either way; where the plan allows a verdict, the model rewrites the script
+     in this learner's own terms — by name, by job, and what it buys them there */
+  if(dlpShCoachAi()){
+    R.aiWait=true;dlpShSync();
+    const ai=await dlpShAdvice(k,R);
+    const R2=dlpShRec(ix);if(!R2||R2.at!==R.at)return;   /* a newer take owns the card now */
+    R2.aiWait=false;if(ai)R2.ai=ai;
+    save();dlpShSync();
+  }
+  try{const b=document.getElementById("dlpShGo");
+    if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2600);
+      b.scrollIntoView({behavior:"smooth",block:"center"})}}catch(e){}
+}
+/* the highlighted button: the next passage of this lesson, in the same workspace */
+window.dlpShNext=(ix)=>{
+  const sh=_dlpSh;if(!sh)return;
+  const ps=dlpPassages(sh.w,2),p=ps[ix];if(!p)return;
+  if(!dlpShArm(sh.w,sh.d,ix))return;
+  try{dlpShSync()}catch(e){}
+  shClipGo({vid:p.vid,start:(p.startMs||0)/1000,end:(p.endMs||0)/1000,title:p.title||p.vid});
+};
+/* both shadows done: out of the workspace, back to the lesson, on to REHEARSE */
+window.dlpShFinish=()=>{
+  const sh=_dlpSh;if(!sh)return;
+  const e=_dlpEntry;if(!e)return;
+  const L=e.stepData.listen=e.stepData.listen||{};L.seen=true;L.shadowed=true;
+  try{shCloseWork()}catch(err){}
+  SESS_RETURN=null;
+  DailyPlan.setStep(S,e.lessonId,"listen",L);save();
+  _dlpSh=null;
+  go("session",sh.w,sh.d);
+};
 function dlpRehearseHTML(plan,key,w,d){
   const data=dlpStepData("rehearse")||{};
   const any=Object.keys(data).length>0;
@@ -15074,6 +16424,9 @@ function dlpRehearseHTML(plan,key,w,d){
       <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(x)},.95)">${ic("sound")}</button>
       <button class="rec-btn rec-btn-sm" id="dlpRecBtn${i}" onclick="dlpRecord('rehearse',${i})" aria-label="Record">${ic("mic")}</button>
       ${data[i]?`<span class="chip done" style="margin-left:6px">${esc(t("dlp.recorded_state"))}</span>`:""}
+      ${(()=>{const m=data[i]&&data[i].m;if(!m)return "";
+        const got=m.used>0;
+        return `<p class="ex-fine dlp-metrics">${esc(got?t("dlp.m_said_it"):t("dlp.m_not_heard"))}${m.wpm?" · "+esc(t("dlp.m_pace",{n:m.wpm})):""}</p>`})()}
     </li>`).join("")}</ul>
     <button class="btn-primary" style="margin-top:16px" ${any?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
   </div>`;
@@ -15083,6 +16436,7 @@ function dlpConverseHTML(plan,key,w,d){
   return `<div class="card">
     <p class="sub">${esc(t("dlp.converse_prompt"))}</p>
     ${dlpRecOrTypeHTML("converse")}
+    ${dlpMetricsHTML((dlpStepData("converse")||{}).m)}
     ${aiOk?`<button class="btn btn-g" style="margin-top:10px" onclick="dlpConverseWithAI()">${ic("chat")} ${esc(t("dlp.converse_ai"))}</button>`:""}
     ${dlpContinueBtn("converse",w,d,key)}
   </div>`;
@@ -15138,6 +16492,27 @@ function dlpImproveHTML(plan,key,w,d){
   },30);
   return `<div class="card">${DS.aiInline(t("ex.step_stt"))}</div>`;
 }
+/* Premium only: ONE verdict over the whole lesson, asked once per completed day. It is the AI's
+   read of the last recording against the day's task — not a second scoring of each step, which
+   would spend an allowance per step for no extra insight. */
+async function dlpOverall(key,w,d){
+  const plan=dlpEvalPlan();if(!plan.overall)return;
+  const e=_dlpEntry;if(!e||e.stepData.overall)return;
+  const host=document.getElementById("dlpOverall");if(!host)return;
+  const m=(e.stepData.converse||{}).m||(e.stepData.try||{}).m;
+  if(!m||!m.tx){return}
+  host.innerHTML=`<div style="margin-top:10px">${DS.aiInline(t("ex.step_measure"))}</div>`;
+  try{
+    /* the closing verdict is as personal as the rest: the learner's name and job ride in the task */
+    const ctx=sessCtx(w,d,{focus:e.plan.competencyObjective,task:dlpFitTask(e.plan.personalizedScenario.task,dlpProfileLine(),300),out:""},(e.plan.targetExpressions||[]).map(x=>({p:x})));
+    const ai=await exAI(m.tx,{wpm:m.wpm,fillers:m.fillers},ctx);
+    if(!ai){host.innerHTML=`<p class="ex-fine">${esc(t("dlp.improve_unreachable"))}</p>`;return}
+    e.stepData.overall={at:Date.now(),done:true};
+    save();                                   /* persist only */
+    const line=(ai.key_message||ai.quick_win||"").toString().slice(0,300);
+    host.innerHTML=line?`<div class="card" style="margin-top:10px"><b>${esc(t("dlp.overall_h"))}</b><p class="sub" style="margin-top:6px">${esc(line)}</p></div>`:"";
+  }catch(err){host.innerHTML=""}
+}
 function dlpFinishHTML(plan,key,w,d){
   if(!_dlpEntry.completedAt){
     DailyPlan.complete(S,_dlpEntry.lessonId);
@@ -15145,9 +16520,24 @@ function dlpFinishHTML(plan,key,w,d){
     save();
   }
   const status=DailyPlan.evidenceStatus(DailyPlan.completedAttempts(_dlpEntry));
+  const before=(dlpStepData("try")||{}).m,after=(dlpStepData("converse")||{}).m;
+  const cmp=DailyPlan.compareAttempts(before,after);
+  /* The day's own question: the same task at the start and at the end. Both sides were measured
+     from real recordings, so nothing here is an estimate — and when nothing moved it says so. */
+  const row=c=>`<li>${esc(t("dlp.ch_"+c.k+"_"+c.dir,{from:c.from,to:c.to}))}</li>`;
+  const ba=!cmp.comparable
+    ?`<p class="sub">${esc(t("dlp.ba_none"))}</p>`
+    :cmp.steady
+    ?`<p class="sub">${esc(t("dlp.ba_steady"))}</p>`
+    :`<p class="sub">${esc(t("dlp.ba_h"))}</p><ul class="dlp-expr-list">${cmp.changes.map(row).join("")}</ul>`;
   return `<div class="card">
     <p class="fb-pron-good">${tIc("dlp.finish_done","check")}</p>
-    <p class="sub">${esc(t("dlp.finish_evidence_"+status))}</p>
+    ${ba}
+    ${before||after?`<details class="dlp-pass-det"><summary>${esc(t("dlp.ba_numbers"))}</summary>
+      <p class="ex-fine">${esc(t("dlp.ba_before"))}</p>${dlpMetricsHTML(before)}
+      <p class="ex-fine">${esc(t("dlp.ba_after"))}</p>${dlpMetricsHTML(after)}</details>`:""}
+    <p class="ex-fine">${esc(t("dlp.finish_evidence_"+status))}</p>
+    <div id="dlpOverall"></div>${(()=>{setTimeout(()=>{try{dlpOverall(key,w,d)}catch(e){}},40);return ""})()}
     <button class="btn-primary" style="margin-top:14px" onclick="go('home')">${esc(t("dlp.back_home"))}</button>
   </div>`;
 }
@@ -15591,6 +16981,10 @@ ${(()=>{
          It has no size of its own, so it costs nothing when there is no ad. -->
     <div id="shAdHost"></div>
     <div class="sv" id="shV2" style="display:none"></div>
+    ${/* The guided lesson's shadow stage (step 3). data-sv-keep so the workspace's own
+         show/hide sweep leaves it alone — dlpShSync owns whether it is there at all, and it is
+         empty and hidden for every learner who did not arrive from the lesson. */""}
+    <div class="card dlp-sh-card" id="dlpShCard" data-sv-keep="1" hidden></div>
     <div class="grid g2" id="shLower" style="margin-top:16px">
       <div class="card">
         <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
@@ -17165,8 +18559,23 @@ window.shLoopToggle=()=>{
    English with plans on); everywhere else, as before, no cap. A clip already
    kept is never removed by a limit. */
 function shClipCap(){return shOwnSplit()?planLimit("savedClips"):Infinity}
+/* Two different things share one list (owner, 7 Nov 2026). A PERSONAL clip is the learner's own
+   collection and is capped by the plan (Free 1). A CURRICULUM clip is the course itself — it does
+   not eat that cap, because a learner following the 12 weeks would spend it on the first lesson.
+   On Free the curriculum keeps clips for WEEK 1 only, so the mechanic is real before it is sold. */
+const DLP_FREE_CLIP_WEEKS=1;
+function dlpClipFreeWeeks(){return DLP_FREE_CLIP_WEEKS}
+function shPersonalClips(){try{return aList("clips").filter(c=>!dlpClipIs(c))}catch(e){return aList("clips")}}
+function dlpClipRoom(w){
+  if(!shOwnSplit())return true;                       /* no plans in force: unchanged behaviour */
+  if(planKey()==="premium")return true;
+  if(Number(w)<=dlpClipFreeWeeks())return true;
+  toast(t("dlp.pass_free_over",{n:dlpClipFreeWeeks()}));
+  try{if(premOffered())premiumOpen("curriculum_clip")}catch(e){}
+  return false;
+}
 function shClipRoom(){
-  const n=aList("clips").length,max=shClipCap();if(n<max)return true;
+  const n=shPersonalClips().length,max=shClipCap();if(n<max)return true;
   const top=planLimit("savedClips","premium");
   if(planKey()==="premium"||!premOffered())toast(t("sh.clips_full_toast",{max}));
   else askConfirm({icon:"star",danger:false,title:t("sh.clips_limit_t",{max}),body:t("sh.clips_limit_b",{max,top}),
@@ -17175,7 +18584,7 @@ function shClipRoom(){
 }
 /* a clip's name: what YouTube called the video, else the library's title, else its id */
 function shClipTitle(c){const x=String(c&&c.title||"");if(x&&x!==c.vid)return x;try{if(shCatHas(c.vid))return _shCat.videos[c.vid].title}catch(e){}return x||String(c&&c.vid||"")}
-function shClipSavedSay(){const max=shClipCap();toast(max===Infinity?t("sh.clip_saved_toast"):t("sh.clip_saved_n",{n:aList("clips").length,max}))}
+function shClipSavedSay(){const max=shClipCap();toast(max===Infinity?t("sh.clip_saved_toast"):t("sh.clip_saved_n",{n:shPersonalClips().length,max}))}
 /* open a kept clip straight into Shadow, on the passage it was saved from.
    A clip that is no passage (marked by hand, or a video without words) opens
    looping on its marks, as it always did. */
@@ -20171,8 +21580,12 @@ window.shRec=()=>{
   try{svChStopAll()}catch(e){}   /* a take still playing back must not talk over the new one */
   const wasRecording=rec.mr&&rec.mr.state==="recording";
   recToggle(shRecCtx(shClip.vid),"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
-  if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:shRecCtx(shClip.vid)});
-  else fbRecStop();
+  /* The guided lesson takes the take over through the same onDone seam the V2 missions use, so
+     its own report replaces the studio coach panel instead of appearing beside it. Nothing
+     changes for anybody else: dlpShOnDone is null unless a lesson shadow is armed on this clip. */
+  let onDone=null;try{onDone=dlpShOnDone()}catch(e){}
+  if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:shRecCtx(shClip.vid),onDone});
+  else {fbRecStop();try{dlpShBusy()}catch(e){}}
 };
 window.sessRec=(key,label)=>{
   /* The take only (2026-09-24). The browser speech recognition that used to run
@@ -25706,6 +27119,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
    own PARTNER_ENABLED switch as the server-side boundary. */
 const FLAGS_DEFAULT={
+  onboarding_v2_enabled:false,   // Onboarding V2 (owner-approved name, 6 Nov 2026), General English only. Phase 0 = sync safety only: gates the learner-profile (S.lp) cloud sync. OFF in production until the owner approves the sync compatibility separately.
   daily_learning_plan_pilot_enabled:false,   // Phase 2 pilot (6 Nov 2026): the guided TRY..FINISH flow on Week 1 Monday, General English only. OFF until the owner enables it on staging.
   practice_partner_enabled:true,       // released 2026-09-20 (owner decision; DEVICE_CHECKLIST 24/66 rows certified on staging)
   practice_partner_matching_enabled:true,
@@ -25809,7 +27223,12 @@ const FLAGS_STAGING={
    new one. Home V2 is the Home the owner approved and tested on an iPhone;
    FLAGS_DEFAULT turned it on for the website too in be12-v653 (owner, 8 Oct 2026).
    Only the names listed here differ from FLAGS_DEFAULT. */
-const FLAGS_IOS={home_v2_enabled:true};
+/* The STORE apps' own defaults (iOS shell + the Play TWA). A flag here is on in a store build while
+   app.lomonec.com keeps FLAGS_DEFAULT, so a feature can be tested on a real phone through TestFlight
+   without changing the web. Onboarding V2 + the Week 1 Monday guided lesson were added for the
+   TestFlight round of 7 Nov 2026 (owner) — they ride on EVERY store build from here, Play included,
+   so this list is the thing to review before any production store release. */
+const FLAGS_IOS={home_v2_enabled:true,onboarding_v2_enabled:true,daily_learning_plan_pilot_enabled:true};
 /* The Play app gets the SAME store-app defaults (owner, 6 Oct 2026: "everything
    that works in the Apple version must work on Android"). It is a Trusted Web
    Activity on app.lomonec.com, so it is recognised, not built: Chrome's referrer
@@ -26364,7 +27783,7 @@ window.aiOff=aiOff;window.aiOn=aiOn;
 const PLAN_LIMITS=Object.freeze({
   free:Object.freeze({savedShadow:2,youtubeImports:1,polishHistory:1,savedClips:1,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null}),
-  premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,savedClips:30,
+  premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,savedClips:100,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null})
 });
 function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){return false}}
@@ -28452,9 +29871,9 @@ function svRender(){
   shLowerShow(svMode==="shadow");
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
-  if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svShAfterDraw();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
+  if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svShAfterDraw();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();try{dlpShSync()}catch(e){}return}
   svShPinned=false;
-  svShBarSync();
+  svShBarSync();try{dlpShSync()}catch(e){}
   svTxFresh=true;svScrollKey=null;   // a list that has just appeared starts at the line being spoken, not at the top
   box.innerHTML=`
     ${tabsEl?"":`<div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>`}
@@ -33744,29 +35163,49 @@ window.fndPlayMine=async(day,i)=>{
   if(r&&r.blob)exPlayBlob(r.blob);else toast(t("fnd.mine_none"));
 };
 /* ---- word practice: say the word alone until it is heard ---- */
-window.fndDrill=(day,i,word)=>{
-  const key=day+"-"+i,D=_fndDrill[key]=_fndDrill[key]||{};
-  const btn=document.querySelector(`#fndRes${i} [data-drill="${CSS.escape(word)}"]`);
-  phRecInto(recCtx("fnd"+day+"-"+i+"-w-"+word.replace(/[^a-z0-9]/g,"")),("Word — "+word).slice(0,40),btn,null,async blob=>{
-    D[word]={st:"busy"};fndDrawScore(day,i);
+window.fndDrill=(day,i,word)=>fndDrillKey(day+"-"+i,word);
+window.fndDrillKey=(key,word)=>{
+  const H=fndH(key),D=_fndDrill[key]=_fndDrill[key]||{};
+  const btn=document.querySelector(`#${H.boxId} [data-drill="${CSS.escape(word)}"]`);
+  phRecInto(H.wordCtx(word),("Word — "+word).slice(0,40),btn,null,async blob=>{
+    D[word]={st:"busy"};fndDrawScoreKey(key);
     const heard=await fbTranscribe(new Blob([blob],{type:blob.type||"audio/webm"}));
-    if(!heard){D[word]={st:"err",why:_fbTxWhy||"silent"};fndDrawScore(day,i);return}
+    if(!heard){D[word]={st:"err",why:_fbTxWhy||"silent"};fndDrawScoreKey(key);return}
     const ok=fndToks(heard).includes(word);
     const prev=D[word]&&D[word].n||0;
     D[word]={st:ok?"ok":"no",heard,n:prev+1};
-    fndEvNote(day,i,null,word);
-    fndDrawScore(day,i);
+    if(H.evidence)H.evidence(null,word);
+    fndDrawScoreKey(key);
   });
 };
 function fndTipKey(w,lang){return lang+":"+w}
 const FND_TIP_SYSTEM=lang=>`You are a patient English pronunciation coach for a complete beginner whose first language is ${lang}. The user gives an English sentence and the words from it that the learner did not say clearly. For EACH word give: its General American IPA (use ˈ for stress, no slashes), an easy respelling with the stressed syllable in CAPITALS (like un-der-STAND), and ONE short tip in ${lang} (at most 16 words) on how to say it — the mouth position or the sound a ${lang} speaker usually gets wrong. Respond with ONLY minified JSON: {"reply":"word=ipa=respelling=tip|word=ipa=respelling=tip"} with every word exactly as given, in order, nothing else.`;
-function fndFixWords(day,i){const r=_fndRep[day+"-"+i];if(!r||!r.al)return [];return [...new Set(r.al.tgt.filter(x=>x.st!=="ok").map(x=>x.w))]}
-async function fndTipsLoad(day,i){
-  const lang=fndGl(),L=LANGS.find(x=>x.code===lang),name=L?L.en:"French";
-  const bad=fndFixWords(day,i).filter(w=>!_fndTips[fndTipKey(w,lang)]).slice(0,6);
+/* ---- ONE report, two homes ----------------------------------------------------------------
+   The Foundations day report (percentage, what you said, the sentence, the words to correct with
+   IPA + a tip + Practise this word, then Say it again) is the evaluation the owner wants in the
+   guided lesson's step 2 as well — "exactly the same thing, don't change anything" (7 Nov 2026).
+   So it is not copied: a HOST says where a report lives and what its buttons do, and Foundations
+   is the DEFAULT host, resolved from the "<day>-<i>" key exactly as before. Registering a host
+   under another key is the only way a second caller gets in; nothing about Foundations moves. */
+const _fndHost={};
+function fndH(key){
+  const h=_fndHost[key];if(h)return h;
+  const p=String(key).split("-"),day=+p[0],i=+p[1];
+  return {sentence:fndSentence(day,i),boxId:"fndRes"+i,lang:fndGl(),
+    again:`fndRecord(${day},${i})`,recheck:`fndRecheck(${day},${i})`,
+    drill:w=>`fndDrill(${day},${i},${jarg(w)})`,
+    wordCtx:w=>recCtx("fnd"+day+"-"+i+"-w-"+w.replace(/[^a-z0-9]/g,"")),
+    evidence:(pct,word)=>fndEvNote(day,i,pct,word)};
+}
+function fndFixWordsKey(key){const r=_fndRep[key];if(!r||!r.al)return [];return [...new Set(r.al.tgt.filter(x=>x.st!=="ok").map(x=>x.w))]}
+function fndFixWords(day,i){return fndFixWordsKey(day+"-"+i)}
+function fndTipsLoad(day,i){return fndTipsLoadKey(day+"-"+i)}
+async function fndTipsLoadKey(key){
+  const H=fndH(key),lang=H.lang,L=LANGS.find(x=>x.code===lang),name=L?L.en:"French";
+  const bad=fndFixWordsKey(key).filter(w=>!_fndTips[fndTipKey(w,lang)]).slice(0,6);
   if(!bad.length||!POLISH_API||!navigator.onLine)return;
   try{
-    const r=await svAiChat(FND_TIP_SYSTEM(name),`Sentence: "${fndSentence(day,i).slice(0,300)}"\nWords: ${bad.join(", ")}`,"practice");
+    const r=await svAiChat(FND_TIP_SYSTEM(name),`Sentence: "${H.sentence.slice(0,300)}"\nWords: ${bad.join(", ")}`,"practice");
     if(!r.ok)return;
     const j=await r.json();
     String((j&&j.reply)||"").split("|").forEach(row=>{
@@ -33777,34 +35216,37 @@ async function fndTipsLoad(day,i){
     const ks=Object.keys(_fndTips);while(ks.length>400)delete _fndTips[ks.shift()];
     try{localStorage.setItem("be_fnd_tips",JSON.stringify(_fndTips))}catch(e){}
   }catch(e){return}
-  if(cur.v==="foundations")fndDrawScore(day,i);
+  if(_fndHost[key]||cur.v==="foundations")fndDrawScoreKey(key);
 }
 /* one group of the report: a collapsible section */
 function fndGroup(kind,title,body,open){return `<details class="fnd-grp" data-g="${kind}" ${open?"open":""}><summary>${title}<span class="hm-chev">${ic("chevron")}</span></summary><div class="fnd-grp-b">${body}</div></details>`}
-function fndErrHTML(day,i,why){
+function fndErrHTML(day,i,why){return fndErrHTMLKey(day+"-"+i,why)}
+function fndErrHTMLKey(key,why){
+  const H=fndH(key);
   const msg=why==="account"?t("fnd.err_account"):why==="offline"?t("fnd.err_offline"):why==="silent"?t("fnd.err_silent"):why==="restoring"?t("fnd.err_restoring"):t("fnd.err_busy");
   const act=why==="account"?`<button class="btn-primary" onclick="fbOpenModal('in')">${t("fnd.sign_in")}</button>`
-    :why==="silent"?`<button class="btn-primary" onclick="fndRecord(${day},${i})">${ic("mic")} ${t("fnd.say_again")}</button>`
-    :`<button class="btn-primary" onclick="fndRecheck(${day},${i})">${ic("repeat")} ${t("fnd.check_again")}</button>`;
+    :why==="silent"?`<button class="btn-primary" onclick="${H.again}">${ic("mic")} ${t("fnd.say_again")}</button>`
+    :`<button class="btn-primary" onclick="${H.recheck}">${ic("repeat")} ${t("fnd.check_again")}</button>`;
   return `<div class="fnd-check err" role="alert"><p class="fnd-err">${ic("info")} ${msg}</p><div class="fnd-err-acts">${act}</div></div>`;
 }
-function fndDrawScore(day,i){
-  const box=document.getElementById("fndRes"+i);if(!box)return;
-  const key=day+"-"+i;
+function fndDrawScore(day,i){return fndDrawScoreKey(day+"-"+i)}
+function fndDrawScoreKey(key){
+  const H=fndH(key);
+  const box=document.getElementById(H.boxId);if(!box)return;
   if(_fndBusy[key]){box.innerHTML=DS.aiInline(t("fnd.checking"));return}
   const r=_fndRep[key];if(!r)return;
-  if(r.err){box.innerHTML=fndErrHTML(day,i,r.err);manIconizeInline(box);return}
-  const pass=r.pct>=FND_PASS,lang=fndGl(),D=_fndDrill[key]||{};
+  if(r.err){box.innerHTML=fndErrHTMLKey(key,r.err);manIconizeInline(box);return}
+  const pass=r.pct>=FND_PASS,lang=H.lang,D=_fndDrill[key]||{};
   const col=pass?"var(--green)":r.pct>=50?"var(--gold)":"var(--red)";
   /* what the learner said, as heard, with the words that do not belong underlined */
   const heardTok=String(r.heard).split(/\s+/).filter(Boolean);
   let hi=0;
   const saidHTML=heardTok.map(raw=>{const n=fndNorm(raw);if(!n)return esc(raw);const x=r.al.hrd[hi++];return `<span class="fnd-w ${x&&x.st==="ok"?"ok":"bad"}">${esc(raw)}</span>`}).join(" ");
   /* the sentence, with the words that were not heard underlined */
-  const shownTok=fndSentence(day,i).split(/\s+/).filter(Boolean);
+  const shownTok=String(H.sentence||"").split(/\s+/).filter(Boolean);
   let ti=0;
   const tgtHTML=shownTok.map(raw=>{const m=raw.match(/^([^A-Za-z0-9'’]*)(.*?)([^A-Za-z0-9'’]*)$/)||["","",raw,""];if(!fndNorm(m[2]))return esc(raw);const x=r.al.tgt[ti++];return `${esc(m[1])}<span class="fnd-w ${x&&x.st==="ok"?"ok":"bad"}">${esc(m[2])}</span>${esc(m[3])}`}).join(" ");
-  const fix=fndFixWords(day,i);
+  const fix=fndFixWordsKey(key);
   const rows=fix.map(w=>{
     const x=r.al.tgt.find(y=>y.w===w),tip=_fndTips[fndTipKey(w,lang)],ipa=(tip&&tip.ipa)||SV_IPA_SEED[w]||"";
     const how=tip?esc(tip.tip):(POLISH_API&&navigator.onLine?DS.aiInline(t("fnd.tip_wait")):esc(t("fnd.tip_generic")));
@@ -33818,7 +35260,7 @@ function fndDrawScore(day,i){
       <div class="fnd-fix-tip">${how}</div>
       <div class="fnd-fix-acts">
         <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w)},.6)" aria-label="${esc(t("fnd.hear_word",{w}))}">${ic("sound")}</button>
-        <button class="btn ${d&&d.st==="ok"?"btn-g":"btn-p"} btn-sm" data-drill="${esc(w)}" onclick="fndDrill(${day},${i},${jarg(w)})">${ic("mic")} ${t(d&&d.st==="ok"?"fnd.word_again":"fnd.word_practise")}</button>
+        <button class="btn ${d&&d.st==="ok"?"btn-g":"btn-p"} btn-sm" data-drill="${esc(w)}" onclick="${H.drill(w)}">${ic("mic")} ${t(d&&d.st==="ok"?"fnd.word_again":"fnd.word_practise")}</button>
         ${dst}
       </div>
     </div>`}).join("");
@@ -33830,7 +35272,7 @@ function fndDrawScore(day,i){
     ${fndGroup("target",t("fnd.g_target"),`<div class="fnd-said">${tgtHTML}</div>`,true)}
     ${fix.length?fndGroup("fix",t("fnd.g_fix",{n:fix.length}),rows,true):""}
   </details>
-  ${pass?"":`<p class="fnd-next-h">${t(allFixed?"fnd.now_sentence":"fnd.then_sentence",{n:FND_PASS})}</p><button class="btn-primary fnd-again" onclick="fndRecord(${day},${i})">${ic("mic")} ${t("fnd.say_again")}</button>`}`;
+  ${pass?"":`<p class="fnd-next-h">${t(allFixed?"fnd.now_sentence":"fnd.then_sentence",{n:FND_PASS})}</p><button class="btn-primary fnd-again" onclick="${H.again}">${ic("mic")} ${t("fnd.say_again")}</button>`}`;
   manIconizeInline(box);
 }
 /* ---- the 15-day evaluation: what the learner actually did, honestly summed ---- */
@@ -34267,8 +35709,9 @@ window.acVoiceKeep=v=>{S.profile=S.profile||{};S.profile.voice=v;save()};
 window.acctSave=()=>{
   const p=S.profile||{};
   p.name=(document.getElementById("acName").value||"").trim()||p.name||"there";
-  p.role=document.getElementById("acRole").value;
-  p.goal=document.getElementById("acGoal").value;
+  /* with the learner profile on (General English V2), role / goal / level are edited in Profile → Learning profile and are not written here */
+  const roEl=document.getElementById("acRole");if(roEl)p.role=roEl.value;
+  const goEl=document.getElementById("acGoal");if(goEl)p.goal=goEl.value;
   p.slot=document.getElementById("acSlot").value;
   const lvEl=document.getElementById("acLevel");if(lvEl)p.selfLevel=lvEl.value;
   const av=document.getElementById("acVoice");if(av)p.voice=av.value;
@@ -34718,6 +36161,7 @@ function rProfile(el){
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
+    ${(()=>{try{return window.OnboardingV2&&OnboardingV2.active()&&lpOn()?pfRow("target",t("ob2.pf_learning"),"OnboardingV2.openLearningProfile()",esc(OnboardingV2.resolved().roleId==="other.other"?OnboardingV2.resolved().roleOther:((OnboardingCatalog.find("professions",OnboardingV2.resolved().roleId)||{}).label)||""))+pfRow("route",t("ob2.tune_title"),"OnboardingV2.tuneOpen()",OnboardingCatalog.tuneRemaining(OnboardingV2.resolved()).length?esc(t("ob2.unfinished")):esc(t("ob2.all_set"))):""}catch(e){return ""}})()}
     ${/* The two-app split (owner, 6 Nov 2026): every other entry point into the
           Programme page is already hidden in a single-programme build —
           homeProgrammeRowHTML(), homeTracksHTML(), areaScopeHTML() and
@@ -34828,14 +36272,14 @@ async function rData(el,embedded){
       </div>
       <label class="set-lbl" for="acName">${t("acc.first_name")}</label>
       <input id="acName" value="${esc(p.name||"")}" placeholder="${esc(t("acc.first_name_ph"))}">
-      <label class="set-lbl" for="acRole">${t("acc.what_you_do")}</label>
+      ${lpOn()?`<button type="button" class="btn btn-g" style="width:100%;margin:6px 0 4px" onclick="OnboardingV2.openLearningProfile()">${esc(t("ob2.pf_learning"))}</button><p class="set-card-sub" style="margin:0 0 8px">${esc(t("ob2.acc_note"))}</p>`:`<label class="set-lbl" for="acRole">${t("acc.what_you_do")}</label>
       ${sel("acRole",OB_ROLES,p.role,"role.")}
       <label class="set-lbl" for="acGoal">${t("acc.goal_label")}</label>
-      ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
+      ${sel("acGoal",OB_GOALS,p.goal,"goal.")}`}
       <label class="set-lbl" for="acSlot">${t("acc.slot_label")}</label>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
-      <label class="set-lbl" for="acLevel">${t("acc.level_label")}</label>
-      ${sel("acLevel",OB_LEVELS,p.selfLevel,"level.")}
+      ${lpOn()?"":`<label class="set-lbl" for="acLevel">${t("acc.level_label")}</label>
+      ${sel("acLevel",OB_LEVELS,p.selfLevel,"level.")}`}
       <h3 class="set-h" id="setRem">${t("rem.label")}</h3>
       ${window.SmartCoach&&SmartCoach.on()?SmartCoach.cardHTML():""}
       <div class="rem-box">
@@ -37155,6 +38599,9 @@ function obRender(){
   }
   requestAnimationFrame(obFit);   // every step must fit the screen it's on
 }
+/* Onboarding V2 (General English, flag onboarding_v2_enabled) replaces the first-run flow; otherwise the released flow runs unchanged */
+function obStart(){try{if(!window.__obV2Off&&window.OnboardingV2&&OnboardingV2.active()){OnboardingV2.start();return}}catch(e){console.warn("[ob2]",e)}obRender()}
+window.obStart=obStart;
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
   OB.step++;
@@ -37443,7 +38890,7 @@ function webGateLift(){
   obRender();
   try{const n=document.getElementById("obName");if(n&&OB.name)n.value=OB.name}catch(e){}
 }
-if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else{obRender();try{restoreAsk()}catch(e){}}}   /* the Android shell's first run explains the move and offers sign-in, over onboarding */
+if(!S.profile){if(webGateOn()){webGateRender();webGateLang()}else{obStart();try{restoreAsk()}catch(e){}}}   /* the Android shell's first run explains the move and offers sign-in, over onboarding */
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
 else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}try{pushNativeBoot()}catch(e){}try{widgetNativeBoot()}catch(e){}try{widgetFeedBoot()}catch(e){}}
@@ -37733,6 +39180,7 @@ async function fbFirstSync(u){
     const snap=await ref.get();
     let cloud=null;
     if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
+    const lpLocal=S&&S.lp;     /* this device's own learner-profile edits; adopting the account copy must not drop them */
     /* THE ACCOUNT IS THE SOURCE OF TRUTH ON SIGN-IN.
        Signing in used to union local and cloud, which is why two devices on the
        same account could sit side by side showing different clip counts: each
@@ -37794,7 +39242,9 @@ async function fbFirstSync(u){
       if(take===cloud&&S&&S.shTx){const keep={};Object.values(cloud.shOwnA||{}).forEach(L=>(Array.isArray(L)?L:[]).forEach(o=>{if(o&&o.vid&&S.shTx[o.vid]&&!(cloud.shTx&&cloud.shTx[o.vid]))keep[o.vid]=S.shTx[o.vid]}));
         if(Object.keys(keep).length)take=Object.assign({},cloud,{shTx:Object.assign({},cloud.shTx,keep)})}
       S=take;trackStateReloaded();
+      if(lpLocal&&!S.lp)S.lp=lpLocal;      /* never in the foreign-account branch above: that data is not this user's */
     }
+    try{lpApplyCloud(snap.exists?snap.data():null);lpFlushSoon(0)}catch(e){console.warn("[lp] first sync:",e)}
     localStorage.setItem(LS_KEY,JSON.stringify(S));
     localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
     /* too large for one document: nothing is written, the account copy stays as it was */
@@ -37837,6 +39287,50 @@ let fbLastPushOk=null,fbLastPushErr="";
    with the default from an idle callback, often just after it); the write
    reads S when it runs, so nothing is lost. Ordinary edits still debounce. */
 let fbPushDue=0,fbPushSoon=false;
+/* ===== Learner profile (S.lp) cloud sync — Onboarding V2 Phase 0 =====
+   Its own top-level field `lp` on users/{uid}; every other writer sets {json, savedAt, email,
+   updatedAt} with {merge:true}, which leaves `lp` untouched, so an older client or the Welding app
+   cannot erase it. One group = one atomic last-writer-wins entry (learner-profile.js). Writes are a
+   Firestore transaction that compares stamps first, using update() on the dotted path so the group
+   is REPLACED, not deep-merged (set+merge would keep a removed nested field alive). No-ops unless
+   the flag is on and General English is open, so Welding never reads, writes or stores it. */
+function lpOn(){try{return !!(window.LearnerProfile&&flag("onboarding_v2_enabled")&&isGeneralEnglish())}catch(e){return false}}
+let lpTimer=null,lpBusy=false;
+window.lpSet=(group,value)=>{if(!lpOn())return false;const ok=LearnerProfile.set(S,group,value);if(ok){save();lpFlushSoon()}return ok};
+window.lpClear=group=>{if(!lpOn())return false;const ok=LearnerProfile.clear(S,group);if(ok){save();lpFlushSoon()}return ok};
+window.lpApplyCloud=data=>{
+  if(!lpOn()||!data)return false;
+  const r=LearnerProfile.mergeCloud(S,data.lp,Date.now());
+  if(r.changed){try{window.OnboardingV2&&OnboardingV2.mirror()}catch(e){}save()}
+  if(r.toPush.length)lpFlushSoon();
+  return r.changed;
+};
+function lpFlushSoon(d){if(!lpOn()||!FBUser||!FBdb)return;clearTimeout(lpTimer);lpTimer=setTimeout(lpFlush,d===undefined?1500:d)}
+async function lpFlush(){
+  if(!lpOn()||!FBUser||!FBdb||lpBusy)return;
+  lpBusy=true;
+  try{
+    const ref=FBdb.collection("users").doc(FBUser.uid);
+    for(const g of LearnerProfile.dirtyGroups(S)){
+      const mine=S.lp.g[g];if(!mine)continue;
+      const out=await FBdb.runTransaction(async tx=>{
+        const snap=await tx.get(ref);
+        const data=snap.exists?snap.data():null;
+        const cur=data&&data.lp&&data.lp.g&&data.lp.g[g];
+        /* the cloud already holds this or something newer: keep it, never overwrite */
+        if(cur&&typeof cur.t==="number"&&typeof cur.s==="string"&&!LearnerProfile.newer(mine,cur))return{kept:cur};
+        const entry={v:mine.v,t:mine.t,s:mine.s};
+        if(snap.exists)tx.update(ref,{["lp.g."+g]:entry,"lp.v":LearnerProfile.SCHEMA});
+        else tx.set(ref,{lp:{v:LearnerProfile.SCHEMA,g:{[g]:entry}}});
+        return{wrote:true};
+      });
+      if(out.kept)LearnerProfile.mergeCloud(S,{g:{[g]:out.kept}},Date.now());
+      else LearnerProfile.markSent(S,g,mine);
+    }
+    save();
+  }catch(e){console.warn("[lp] write deferred:",(e&&(e.code||e.message))||e)}   /* stays dirty; the next pull or save retries */
+  lpBusy=false;
+}
 window.fbPush=function(delayMs){
   if(!FBUser||!FBdb)return;
   const d=delayMs===undefined?2500:delayMs;
@@ -37928,6 +39422,9 @@ function fbSyncPayload(s){
      a second device that adopted it would take over the first one's reminder
      (see pushId). It lives in localStorage; this strip stops the old copies. */
   delete out.pushId;
+  /* S.lp (the General English learner profile) never travels inside `json`: it syncs through its own
+     Firestore field, which no older client or the Welding app can overwrite (see learner-profile.js). */
+  delete out.lp;
   /* Welding Mastery: the open round stays on the device; day records older than 120 days stay too */
   if(out.wm&&window.WMEngine){const o={};Object.entries(out.wm).forEach(([a,v])=>{o[a]=WMEngine.trimForSync(v,Date.now())});out.wm=o}
   /* the Challenge history travels (the line, the verdict, what to fix); the
@@ -38114,6 +39611,7 @@ async function fbSyncPull(){
     const snap=await ref.get();
     let cloud=null;
     if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
+    try{lpApplyCloud(snap.exists?snap.data():null)}catch(e){console.warn("[lp] apply failed:",e)}
     if(cloud){
       const before=fbSnapshotSig(S);
       const merged=fbMerge(S,cloud);

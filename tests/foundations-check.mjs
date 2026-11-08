@@ -46,6 +46,12 @@ async function learner(track) {
   await p.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove());
     window.phRecInto = (c, l, bt, after, onBlob) => { window.__recCtx = c; onBlob(new Blob(["take" + Math.random()], { type: "audio/webm" })); };
     window.exPlayBlob = () => { window.__played = (window.__played || 0) + 1; };
+    /* This suite is about the REPORT, not about who is signed in. billing_enabled is on in
+       FLAGS_DEFAULT, so aiNoAccount() is true for the fixture's account-less learner and
+       fbTranscribe bails before it ever reaches the routed endpoint — which silently turned
+       every check below into "please sign in" (found 7 Nov 2026; it fails the same way on
+       the committed HEAD). Stub the question, keep the rest honest. */
+    window.aiNoAccount = () => false;
     go("foundations", 2); });
   await sleep(700);
   return { ctx, p, errs };

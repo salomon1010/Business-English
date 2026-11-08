@@ -18,8 +18,13 @@ cd "$here"
 # they do not — so the two apps can never be crossed.
 staging=false
 prog=general
+devflags=""
+prev=""
 for a in "$@"; do
+  if [ "$prev" = "--dev-flags" ]; then devflags="$a"; prev=""; continue; fi
   case "$a" in
+    # DEVELOPMENT ONLY: feature flags forced on inside an EMULATOR bundle (debug APK only)
+    --dev-flags) prev="--dev-flags" ;;
     --staging) staging=true ;;
     general|general-english) prog=general ;;
     welding) prog=welding ;;
@@ -28,7 +33,9 @@ for a in "$@"; do
 done
 track=$([ "$prog" = welding ] && echo welding || echo general-english)
 rm -rf www   # a fresh bundle every time: a staging leftover (be-build.js) must never reach a production build
-if [ "$staging" = true ]; then npm run --silent sync-web -- --track "$track" --staging; else npm run --silent sync-web -- --track "$track"; fi
+if [ "$staging" = true ]; then npm run --silent sync-web -- --track "$track" --staging
+elif [ -n "$devflags" ]; then echo "DEVELOPMENT BUILD: feature flags forced on -> $devflags (never upload this bundle)"; npm run --silent sync-web -- --track "$track" --dev-flags "$devflags"
+else npm run --silent sync-web -- --track "$track"; fi
 npx cap sync android
 # Firebase config for notifications (FCM), kept outside the repo: production → be-mastery,
 # --staging → be-mastery-test. Missing file = a build without push (BEPush.available() is false).

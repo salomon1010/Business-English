@@ -1,0 +1,28 @@
+diff --git a/tests/profile-selflevel.mjs b/tests/profile-selflevel.mjs
+index 3c34c1fa..9698255f 100644
+--- a/tests/profile-selflevel.mjs
++++ b/tests/profile-selflevel.mjs
+@@ -17,7 +17,7 @@ if (!BASE) {
+ }
+ const b = await chromium.launch();
+ 
+-console.log("\n# fresh onboarding: the level step replaces the old slot step, same position, same step count");
++console.log("\n# fresh onboarding: the level step replaces the old slot step (it now follows the optional situations step)");
+ {
+   const ctx = await b.newContext();
+   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+@@ -27,11 +27,12 @@ console.log("\n# fresh onboarding: the level step replaces the old slot step, sa
+   await p.evaluate(() => obTrackPick("general-english")); await sleep(500);
+   await p.evaluate(() => { OB.role = "Engineering / Data"; obNext(); }); await sleep(500);
+   await p.evaluate(() => obGoalPick("🎤 Speak confidently in meetings")); await sleep(500);
++  await p.evaluate(() => obNext()); await sleep(400);   /* the optional "common situations" step (own suite: onboarding-situations.mjs) */
+   const s5 = await p.evaluate(() => ({ step: OB.step, title: document.querySelector("#obWrap h1")?.innerText || "", chips: [...document.querySelectorAll(".ob-chip")].map(x => x.innerText.trim()) }));
+-  ok("1 · step 5 is now the self-level question, with exactly 5 plain-language options, no CEFR jargon", s5.step === 5 && /English today/.test(s5.title) && s5.chips.join("|") === "New to speaking English|Can get by|Comfortable but not confident|Fluent, want to sound sharper|Not sure", JSON.stringify(s5));
++  ok("1 · step 6 (after the optional situations step) is the self-level question, with exactly 5 plain-language options, no CEFR jargon", s5.step === 6 && /English today/.test(s5.title) && s5.chips.join("|") === "New to speaking English|Can get by|Comfortable but not confident|Fluent, want to sound sharper|Not sure", JSON.stringify(s5));
+   await p.evaluate(() => obLevelPick("Can get by")); await sleep(500);
+   const s6 = await p.evaluate(() => ({ step: OB.step, selfLevel: OB.selfLevel, title: document.querySelector("#obWrap h1")?.innerText || "" }));
+-  ok("2 · picking a level stores it and advances to the win step, unchanged", s6.step === 6 && s6.selfLevel === "Can get by" && /first win/.test(s6.title), JSON.stringify(s6));
++  ok("2 · picking a level stores it and advances to the win step, unchanged", s6.step === 7 && s6.selfLevel === "Can get by" && /first win/.test(s6.title), JSON.stringify(s6));
+   await p.evaluate(() => obFinish()); await sleep(300);
+   const profile = await p.evaluate(() => S.profile);
+   ok("3 · S.profile carries selfLevel alongside the existing fields, slot stays present but empty (never asked, harmless for any code that still reads it)", profile.selfLevel === "Can get by" && profile.name === "Alex" && profile.role === "Engineering / Data" && profile.slot === "", JSON.stringify(profile));

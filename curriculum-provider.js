@@ -15,7 +15,7 @@
      deliberately has no missions.json, and professional-tracks.js lists the
      section in NEVER_INHERIT so the absent file resolves to null rather than
      quietly inheriting General English's. */
-  const OPTIONAL=["foundations","missions"];
+  const OPTIONAL=["foundations","missions","clip-index"];
   const packs=new Map();
   const loading=new Map();
 
@@ -53,7 +53,11 @@
          three-sentence placement check. null when the track has none. */
       foundations:sections.foundations||null,
       /* V2 competency missions. null for any track that ships no missions.json. */
-      missions:sections.missions||null
+      missions:sections.missions||null,
+      /* The library passages that actually SPEAK this track's phrases, per week, built offline by
+         scripts/shadow/build-clip-index.mjs. null for a track that ships no clip-index.json, and a
+         week with no passage is simply absent — the lesson says so rather than inventing one. */
+      clipIndex:(sections["clip-index"]&&sections["clip-index"].weeks)||null
     });
   }
   /* One file, up to three tries. A phone on a flaky connection — or one that

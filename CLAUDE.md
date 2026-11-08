@@ -312,6 +312,48 @@ not JS, and `new Function` chokes on it. Check it separately with
   English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
   so they are track-scoped like everything else. No `track()` events — the
   Worker allow-list has none for it, and a silently-dropped call is a lie.
+- **Guided daily lesson (Week 1 Monday pilot, General English only, flag
+  `daily_learning_plan_pilot_enabled`) — `docs/DAILY_LESSON.md`.** Seven steps
+  (`DailyPlan.STEPS` = try·learn·listen·rehearse·converse·improve·finish) in the
+  pure `daily-learning-plan.js`, drawn by the `dlp*` block in index.html into
+  `#v-journey` via `rSession` → `rGuidedLesson`. **The free allowance is sized to
+  exactly ONE complete day (owner, 7 Nov 2026):** baseline + conversation +
+  closing report = 3 verdicts, against `VERDICTS_FREE_PER_DAY` = 3, held by
+  `tests/lesson-allowance.test.mjs` which reads the cap out of
+  `backend/polish-worker.js`. **Steps 2 and 3 use the FOUNDATIONS report, not a
+  second one** (owner: "exactly the same thing, don't change anything"): a HOST
+  (`_fndHost[key]` → `fndH`) says where a report draws and what its buttons do,
+  Foundations stays the default host, and `fndDrawScoreKey` / `fndDrillKey` /
+  `fndTipsLoadKey` are shared — change the report once and all three move. A
+  report lives in memory but its transcript is saved, so it is rebuilt with the
+  pure `fndAlign` after a reload or a walk back. **Step 3 shadows in the studio:**
+  `dlpShadowGo` arms `_dlpSh`, a lesson card (`#dlpShCard`, `data-sv-keep`) sits
+  under the paragraph, the take arrives through `fbRecStart`'s `onDone` seam (the
+  V2 missions' seam — no second recorder, and the studio's own coach panel does
+  not draw beside it), and ONE highlighted button offers the next shadow and then
+  the next step, with a SKIP beside it once one real shadow is behind them
+  (`dlpShSkip`; a skipped passage is recorded as skipped, never as shadowed). The
+  RECORDING finishes a shadow, the report is feedback — a failed transcription
+  never traps the learner. **The step also TEACHES the method** (`dlp.how_*`:
+  before / during / after / one thing per pass — written content, every plan) and
+  a **spoken coach** (`dlpShCoach`, `fbSayLine`) reads out what happened in the
+  take and which step of the method fixes it; `evaluationPlan().shadowCoach` says
+  only whether a model rewrites that script (Premium), never whether the learner
+  gets one. **Out of credit, the shadow still works** (owner, 7 Nov 2026): the
+  take plays straight back (`dlpShPlayMine`, matched by timestamp) beside Hear
+  the speaker, the word report and the spoken coach stay, the way on stays, and
+  the app's ONE gate card (`premLockHTML("ai_coach")` via `dlpShAllowHTML`) says
+  when the verdicts come back and offers Premium — no second notice is written. **No report reads as generic** (owner, 7 Nov 2026): `dlpProfileLine()`
+  puts the learner's name, job and situation into the speaking report's `task`
+  (trimmed by whole sentences by `dlpFitTask`, which the Worker caps at 300), and
+  `dlpRoleLoc` / `dlpSitLoc` are the LEARNER-facing labels (translated) as against
+  `dlpProfileLabel` / `dlpSituationLabel`, which are prompt text and stay English.
+  **Walking back:** `entry.reached`
+  is the high-water mark, `DailyPlan.goStep` refuses any step past it, and the
+  dots' 44px tap areas are drawn inside the dots row so nothing above is covered.
+  Tests: `tests/lesson-shadow.mjs` (72), `learn-mastery.mjs` (36),
+  `lesson-evaluation.test.mjs` (25), `lesson-allowance.test.mjs` (18),
+  `curriculum-clips.mjs` (32).
 - **Session speaking report (2026-09-24, both areas).** The Record yourself
   card on every *classic* session page (`rSession`: every Welding day, General
   English Week 1 and its non-mission days — V2 mission days keep their own

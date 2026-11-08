@@ -1,0 +1,156 @@
+/* Personalised onboarding (6 Nov 2026): "Common situations" (multi-select) and a
+   typed "Other" profession are saved into the EXISTING S.profile and read by
+   DailyLearningPlan. No second profile store.
+
+   Covers: persistence, reload, DailyPlan consuming the saved answers,
+   existing-learner compatibility (profile with no situations key), Account
+   settings round-trip, and General English / Welding isolation.
+
+   Run: cd tests && node onboarding-situations.mjs */
+import { chromium } from "playwright";
+import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
+
+const res = [];
+const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 400)}`); };
+
+let BASE = process.env.BASE, server = null;
+if (!BASE) {
+  server = spawn("python3", ["-m", "http.server", String(process.env.PORT || 8931), "--bind", "127.0.0.1"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" });
+  await sleep(800); BASE = "http://127.0.0.1:" + (process.env.PORT || 8931);
+}
+const b = await chromium.launch();
+const jsErr = errs => errs.filter(e => !/MIME type|net::ERR/.test(e));
+const FLAGS = JSON.stringify({ daily_learning_plan_pilot_enabled: true });
+const FND = { placed: "full", finished: true, day: 1, done: {} };
+
+async function fresh() {
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(f => { if (!sessionStorage.getItem("f")) { sessionStorage.setItem("f", "1"); localStorage.setItem("be_flags", f); } }, FLAGS);
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html"); await sleep(1500);
+  return { ctx, p, errs };
+}
+const heading = p => p.evaluate(() => document.querySelector("#obWrap h1")?.innerText || "");
+async function toRole(p, track = "general-english") {
+  await p.evaluate(() => { document.getElementById("obName").value = "Alex"; obNext(); }); await sleep(350);
+  await p.evaluate(() => obLangPick("en")); await sleep(700);
+  await p.evaluate(t => obTrackPick(t), track); await sleep(450);
+}
+/* a finished learner on Week 1 Monday: open the guided lesson, return its stored plan */
+async function lessonPlan(p) {
+  await p.evaluate(F => { S.fnd = S.fnd || {}; S.fnd["general-english"] = F; save(); }, FND);
+  await p.evaluate(() => go("session", 1, "Mon")); await sleep(800);
+  return p.evaluate(() => { const e = S.dlp && S.dlp["general:w1Mon"]; return e ? { personalized: e.plan.personalizedScenario.personalized, task: e.plan.personalizedScenario.task, ctx: e.plan.learnerContext, fallbackTask: e.plan.staticFallback.task, video: e.plan.supportingVideo && e.plan.supportingVideo.id } : null; });
+}
+
+console.log("\n# General English: the situations step, multi-select, typed Other");
+let savedProfile;
+{
+  const { ctx, p, errs } = await fresh();
+  await toRole(p);
+  /* Other: tapping it must NOT advance — it opens a field */
+  await p.evaluate(() => obRoleOther()); await sleep(300);
+  const o1 = await p.evaluate(() => ({ step: OB.step, input: !!document.getElementById("obRoleOther"), cont: !!document.querySelector("#obWrap .ob-go") }));
+  ok("1 · tapping Other stays on the role step and shows a text field + Continue", o1.step === 3 && o1.input && o1.cont, JSON.stringify(o1));
+  await p.evaluate(() => { document.getElementById("obRoleOther").value = "  Radiographer "; obRoleOtherNext(); }); await sleep(500);
+  const s1 = await p.evaluate(() => ({ step: OB.step, role: OB.role, other: OB.roleOther }));
+  ok("2 · Continue stores canonical role \"Other\" + trimmed own words, and advances to the goal step", s1.step === 4 && s1.role === "Other" && s1.other === "Radiographer", JSON.stringify(s1));
+  await p.evaluate(() => obGoalPick("🏆 Ace interviews in English")); await sleep(500);
+  const st = await p.evaluate(() => ({ step: OB.step, title: document.querySelector("#obWrap h1")?.innerText, chips: [...document.querySelectorAll("#obWrap .ob-chip")].map(x => x.innerText.trim()), dots: document.querySelectorAll(".ob-dot").length, lit: [...document.querySelectorAll(".ob-dot")].findIndex(d => d.classList.contains("on")), cont: !!document.querySelector("#obWrap .ob-go") }));
+  ok("3 · situations step renders with the 5 shared category labels and a Continue button", /English most/.test(st.title) && st.chips.join("|") === "Meetings|Presentations|Interviews|Everyday|Learning skills" && st.cont, JSON.stringify(st));
+  ok("4 · web build General English shows 8 dots with the 6th lit", st.dots === 8 && st.lit === 5, JSON.stringify({ dots: st.dots, lit: st.lit, step: st.step }));
+  await p.evaluate(() => document.querySelectorAll("#obWrap .ob-chip")[2].click()); await sleep(250);
+  await p.evaluate(() => document.querySelectorAll("#obWrap .ob-chip")[0].click()); await sleep(250);
+  await p.evaluate(() => document.querySelectorAll("#obWrap .ob-chip")[4].click()); await sleep(250);
+  await p.evaluate(() => document.querySelectorAll("#obWrap .ob-chip")[4].click()); await sleep(250);
+  const tg = await p.evaluate(() => ({ step: OB.step, sit: OB.situations.slice(), pressed: [...document.querySelectorAll("#obWrap .ob-chip")].map(x => x.getAttribute("aria-pressed")) }));
+  ok("5 · chips toggle without advancing; order of picking is kept; a second tap un-picks", tg.step === 5 && tg.sit.join(",") === "interviews,meetings" && tg.pressed.join(",") === "true,false,true,false,false", JSON.stringify(tg));
+  await p.evaluate(() => obNext()); await sleep(400);
+  ok("6 · Continue moves on to the self-level question", /English today/.test(await heading(p)));
+  await p.evaluate(() => obLevelPick("Comfortable but not confident")); await sleep(500);
+  await p.evaluate(() => obFinish()); await sleep(400);
+  savedProfile = await p.evaluate(() => JSON.parse(JSON.stringify(S.profile)));
+  ok("7 · obFinish writes situations (in order), roleOther, role, selfLevel into S.profile", savedProfile.situations.join(",") === "interviews,meetings" && savedProfile.role === "Other" && savedProfile.roleOther === "Radiographer" && savedProfile.selfLevel === "Comfortable but not confident", JSON.stringify(savedProfile));
+  ok("8 · roleLabel shows the learner's own words, not the word Other", await p.evaluate(() => roleLabel(S.profile)) === "Radiographer");
+  const stored = await p.evaluate(() => JSON.parse(localStorage.getItem("be12_v1")).profile);
+  ok("9 · it is in localStorage (be12_v1), i.e. the same store that syncs", stored.situations.join(",") === "interviews,meetings" && stored.roleOther === "Radiographer", JSON.stringify(stored));
+
+  await p.reload(); await sleep(1800);
+  const after = await p.evaluate(() => ({ prof: S.profile, ob: !!document.getElementById("obWrap") }));
+  ok("10 · after a reload the answers survive and onboarding does not return", !after.ob && after.prof.situations.join(",") === "interviews,meetings" && after.prof.roleOther === "Radiographer", JSON.stringify(after));
+
+  const plan = await lessonPlan(p);
+  ok("11 · DailyPlan consumes them: Week 1 Monday is personalised to the FIRST saved situation (interviews)", plan && plan.personalized === true && /job interview/.test(plan.task) && plan.task !== plan.fallbackTask, JSON.stringify(plan));
+  ok("12 · the plan's learnerContext carries the saved situations and role", plan && plan.ctx.situations.join(",") === "interviews,meetings" && plan.ctx.role === "Other", JSON.stringify(plan && plan.ctx));
+  ok("13 · no JavaScript errors through onboarding, reload and the lesson", !jsErr(errs).length, errs.join(" | "));
+  await ctx.close();
+}
+
+console.log("\n# Situations are optional: none picked → plain curriculum, nothing invented");
+{
+  const { ctx, p, errs } = await fresh();
+  await toRole(p);
+  await p.evaluate(() => { OB.role = "Student"; obNext(); }); await sleep(400);
+  await p.evaluate(() => obGoalPick("💼 Sound more executive")); await sleep(400);
+  await p.evaluate(() => obNext()); await sleep(400);   /* Continue with nothing selected */
+  ok("14 · Continue with nothing selected is allowed (the step is never a trap)", /English today/.test(await heading(p)));
+  await p.evaluate(() => obFinish()); await sleep(400);
+  const pr = await p.evaluate(() => JSON.parse(JSON.stringify(S.profile)));
+  ok("15 · profile.situations is an empty list and roleOther is absent", Array.isArray(pr.situations) && pr.situations.length === 0 && !("roleOther" in pr), JSON.stringify(pr));
+  const plan = await lessonPlan(p);
+  ok("16 · the lesson is the unpersonalised curriculum task", plan && plan.personalized === false && plan.task === plan.fallbackTask, JSON.stringify(plan));
+  ok("17 · no JavaScript errors", !jsErr(errs).length, errs.join(" | "));
+  await ctx.close();
+}
+
+console.log("\n# Existing learner (profile written before these fields existed)");
+{
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(([f, F]) => { localStorage.setItem("be_flags", f); localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "Existing", role: "Engineering / Data", goal: "🎤 Speak confidently in meetings", slot: "", selfLevel: "Can get by", lang: "en", ts: 1 }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": F }, areaSplit: true, days: {}, dates: [], dayLog: {}, steps: {}, vocab: {} })); }, [FLAGS, FND]);
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(BASE + "/index.html"); await sleep(1800);
+  ok("18 · not sent through onboarding again", !(await p.evaluate(() => !!document.getElementById("obWrap"))));
+  const plan = await lessonPlan(p);
+  ok("19 · the lesson still builds; no situations key → unpersonalised, situations reads as [], role carried through", plan && plan.personalized === false && Array.isArray(plan.ctx.situations) && plan.ctx.situations.length === 0 && plan.ctx.role === "Engineering / Data", JSON.stringify(plan));
+  ok("20 · Home/Profile role label for a canonical role is unchanged", await p.evaluate(() => roleLabel(S.profile)) === "Engineering / Data");
+  /* Account settings round trip must not drop the new fields */
+  await p.evaluate(() => { S.profile.situations = ["everyday"]; S.profile.role = "Other"; S.profile.roleOther = "Nurse"; save(); go("data"); }); await sleep(800);
+  await p.evaluate(() => { document.getElementById("acGoal").value = "💼 Sound more executive"; acctSave(); }); await sleep(400);
+  const kept = await p.evaluate(() => ({ s: S.profile.situations, o: S.profile.roleOther, r: S.profile.role }));
+  ok("21 · saving Account settings keeps situations and the typed role while role stays Other", kept.s.join(",") === "everyday" && kept.o === "Nurse" && kept.r === "Other", JSON.stringify(kept));
+  await p.evaluate(() => go("data")); await sleep(600);
+  await p.evaluate(() => { document.getElementById("acRole").value = "Student"; acctSave(); }); await sleep(400);
+  const moved = await p.evaluate(() => ({ s: S.profile.situations, has: "roleOther" in S.profile, r: S.profile.role }));
+  ok("22 · changing role away from Other drops roleOther but keeps situations", moved.r === "Student" && !moved.has && moved.s.join(",") === "everyday", JSON.stringify(moved));
+  ok("23 · no JavaScript errors", !jsErr(errs).length, errs.join(" | "));
+  await ctx.close();
+}
+
+console.log("\n# Welding isolation");
+{
+  const { ctx, p, errs } = await fresh();
+  await toRole(p, "welding");
+  const tradeStep = await p.evaluate(() => ({ step: OB.step, dots: document.querySelectorAll(".ob-dot").length }));
+  ok("24 · Welding (web build) counts 7 dots, not 8 — the situations step is never promised", tradeStep.dots === 7, JSON.stringify(tradeStep));
+  const trade = await p.evaluate(() => Trades.groups()[0].trades[0].id);
+  await p.evaluate(id => obTradePick(id), trade); await sleep(500);
+  /* a value left over in onboarding state must not leak into a Welding profile */
+  await p.evaluate(() => { OB.situations = ["meetings"]; OB.roleOther = "leak"; });
+  await p.evaluate(() => obGoalPick(Trades.get(OB.trade).goals[0].id)); await sleep(500);
+  const afterGoal = await p.evaluate(() => ({ step: OB.step, title: document.querySelector("#obWrap h1")?.innerText || "" }));
+  ok("25 · after the Welding goal the next screen is self-level, never situations", afterGoal.step === 6 && /English today/.test(afterGoal.title) && !/English most/.test(afterGoal.title), JSON.stringify(afterGoal));
+  await p.evaluate(() => obLevelPick("Can get by")); await sleep(500);
+  await p.evaluate(() => obFinish()); await sleep(400);
+  const wp = await p.evaluate(() => JSON.parse(JSON.stringify(S.profile)));
+  ok("26 · Welding profile gets situations: [] and no roleOther, whatever onboarding state held", Array.isArray(wp.situations) && wp.situations.length === 0 && !("roleOther" in wp), JSON.stringify(wp));
+  ok("27 · the active programme is still Welding", await p.evaluate(() => S.professionalTracks.activeId) === "welding");
+  await p.evaluate(() => go("session", 1, "Mon")); await sleep(700);
+  ok("28 · Welding Week 1 Monday is not the personalised General English flow", !(await p.evaluate(() => !!document.querySelector(".dlp-steps"))) && !(await p.evaluate(() => !!(S.dlp && S.dlp["general:w1Mon"]))));
+  ok("29 · no JavaScript errors", !jsErr(errs).length, errs.join(" | "));
+  await ctx.close();
+}
+
+const fails = res.filter(x => !x).length;
+console.log(`\n${res.length - fails}/${res.length} passed`);
+await b.close(); if (server) server.kill();
+process.exit(fails ? 1 : 0);

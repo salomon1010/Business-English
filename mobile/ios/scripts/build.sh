@@ -23,9 +23,13 @@ export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Develope
 [ -d "$DEVELOPER_DIR" ] || { echo "Xcode not found at $DEVELOPER_DIR"; exit 1; }
 cd "$here"
 
-prog=general-english; staging=false; nobilling=false; mode=simulator
+prog=general-english; staging=false; nobilling=false; mode=simulator; devflags=""
+prev=""
 for a in "$@"; do
+  if [ "$prev" = "--dev-flags" ]; then devflags="$a"; prev=""; continue; fi
   case "$a" in
+    # DEVELOPMENT ONLY: turn feature flags on inside a SIMULATOR bundle (never device/archive/staging)
+    --dev-flags) prev="--dev-flags" ;;
     --staging) staging=true ;;
     # a PRODUCTION bundle with Premium purchasing off, for a TestFlight round
     # that is not about billing (sync-web.mjs --no-billing explains why)
@@ -37,10 +41,15 @@ for a in "$@"; do
     *) echo "usage: $(basename "$0") [general|welding] [--staging|--no-billing] [--device|--archive]"; exit 2 ;;
   esac
 done
+if [ -n "$devflags" ]; then
+  if [ "$mode" != "simulator" ] || [ "$staging" = true ]; then echo "--dev-flags is for Simulator builds only (never --device, --archive or --staging)"; exit 2; fi
+  echo "DEVELOPMENT BUILD: feature flags forced on -> $devflags (never submit this bundle)"
+fi
 
 rm -rf www   # a fresh bundle every time: a staging leftover (be-build.js) must never reach a production build
 if [ "$staging" = true ]; then node scripts/sync-web.mjs --track "$prog" --staging
 elif [ "$nobilling" = true ]; then node scripts/sync-web.mjs --track "$prog" --no-billing
+elif [ -n "$devflags" ]; then node scripts/sync-web.mjs --track "$prog" --dev-flags "$devflags"
 else node scripts/sync-web.mjs --track "$prog"; fi
 npx cap sync ios
 
