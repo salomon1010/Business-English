@@ -3728,6 +3728,20 @@ button.dlp-dot:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 @keyframes dlpOrbOut{0%{transform:scale(.82);opacity:.75}100%{transform:scale(1.35);opacity:0}}
 @keyframes dlpOrbBar{0%,100%{transform:scaleY(.6)}50%{transform:scaleY(1.25)}}
 @media (prefers-reduced-motion:reduce){.dlp-orb-ring,.dlp-orb-bars rect{animation:none}.dlp-orb-ring{opacity:.35}}
+/* the day's own score on the closing report */
+.dlp-score{display:flex;gap:14px;align-items:flex-start;margin:14px 0 4px;padding:13px;border-radius:14px;
+  background:var(--card2,var(--bg2));border:1px solid var(--line2)}
+.dlp-score-ring{width:92px;height:92px;flex:none}
+.dlp-score-n{font-size:22px;font-weight:800;font-family:inherit}
+.dlp-score-b{flex:1;min-width:0}
+.dlp-score-b > b{font-size:14px}
+.dlp-score-rows{list-style:none;margin:7px 0 6px;padding:0;display:flex;flex-direction:column;gap:3px}
+.dlp-score-rows li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--mut)}
+.dlp-score-rows li span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.dlp-score-rows li span.ok{color:var(--green)}
+.dlp-fin-rep{width:100%;margin-top:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
+.dlp-fin-rep svg{width:17px;height:17px;flex:none}
+@media (max-width:380px){.dlp-score{flex-direction:column;align-items:center;text-align:center}.dlp-score-rows li{justify-content:center;gap:8px}}
 .dlp-conv-hd{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:14px}
 .dlp-conv-t{margin:0;font-size:21px;line-height:1.25}
 .dlp-conv-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -8823,6 +8837,9 @@ const I18N_EN={
  "dlp.retry":"Try again",
  "dlp.finish_btn":"Finish",
  "dlp.finish_done":"Lesson complete",
+ "dlp.score_h":"How much of today you finished",
+ "dlp.score_note":"Counted from what you actually did — a recording made, a sentence past the bar, a shadow recorded, a talking point covered.",
+ "dlp.score_a11y":"{{n}}% of today finished",
  "dlp.finish_evidence_not_assessed":"Nice work — today's objective was pronunciation and introducing yourself. Keep practising and a coaching focus will appear here.",
  "dlp.finish_evidence_initial":"One attempt recorded so far. One more like this and we'll start seeing a pattern.",
  "dlp.finish_evidence_developing":"A pattern is forming — keep going and we'll be able to name a specific focus.",
@@ -10795,6 +10812,8 @@ const I18N_EN={
  "ex.st_again":"Say it again",
  "ex.st_again_sub":"This is the minute that changes you. Record it before you leave.",
  "ex.coach_play":"Play coach feedback",
+ "ex.coach_open":"Right, {{name}} — here is how that sounded, and what it means for a {{role}}.",
+ "ex.coach_open_x":"Right, {{name}} — here is how that sounded.",
  "ex.coach_stop":"Stop",
  "ex.coach_speaking":"The coach is speaking…",
  "ex.coach_done":"That is the briefing. Now work down the five steps.",
@@ -15476,8 +15495,20 @@ function dlpRecOrTypeHTML(step){
       <button class="btn btn-g" style="margin-top:8px" onclick="dlpTypeFallback('${step}')">${esc(t("dlp.save_text"))}</button>
     </details>`;
 }
+/* A DAY ALREADY DONE IS FREE TO WALK THROUGH (owner, 8 Nov 2026: "let the Continue button free
+   … so the user is able to go back and forth on the day he already worked on"). The gates — both
+   shadows, all five sentences, all three talking points — are there to stop somebody skipping
+   work they have not done. Once a step has been passed, or the whole lesson is finished, there is
+   no work to skip: re-doing the exercise to get past a screen you already earned is a punishment,
+   not a lesson. The gate therefore applies only at the FRONTIER, never behind it. */
+function dlpStepFree(step){
+  const e=_dlpEntry;if(!e)return false;
+  if(e.completedAt)return true;
+  const ST=DailyPlan.STEPS,i=ST.indexOf(step||e.step);
+  return i>=0&&i<DailyPlan.reached(e);
+}
 function dlpContinueBtn(step,w,d,key,label){
-  const has=!!dlpStepData(step);
+  const has=!!dlpStepData(step)||dlpStepFree(step);
   return `<button class="btn-primary" style="margin-top:16px" ${has?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(label||t("dlp.continue"))}</button>`;
 }
 
@@ -15972,7 +16003,7 @@ function dlpSentPageHTML(step,plan,key,w,d){
   const head=(nm?esc(nm)+" — ":"")+(L.intro?esc(L.intro):esc(t(forK,{p:L.profile||dlpRoleLoc()||t("dlp.sent_role_fallback")})));
   /* the report is drawn into the row AFTER the list exists, by the shared Foundations renderer */
   setTimeout(()=>{try{dlpSentReports(st)}catch(e){}},0);
-  const canGo=!!L.done;                      /* one full set mastered, ever */
+  const canGo=!!L.done||dlpStepFree(st);     /* one full set mastered, ever — or a step already passed */
   const canPolish=(L.polished||0)<DLP_POLISH_MAX;
   /* WHY the device wrote them, not just THAT it did (owner, 8 Nov 2026). On a phone the usual
      reason is that nobody is signed in — every AI route needs an account — and "the coach was out
@@ -16126,7 +16157,7 @@ function dlpListenHTML(plan,key,w,d){
       <p class="ex-fine">${esc(t("dlp.pass_none"))}</p>
       <button class="btn btn-g" style="margin-top:8px" onclick="sessGo('shadow',${w},'${d}')">${ic("shadowing")} ${esc(t("dlp.watch_shadow"))}</button>`
      :`<p class="sub">${esc(t("dlp.listen_none"))}</p>`}
-    <button class="btn-primary" style="margin-top:16px" ${all&&dlpStepData("listen")?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
+    <button class="btn-primary" style="margin-top:16px" ${(all&&dlpStepData("listen"))||dlpStepFree("listen")?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
     ${maySkip?`<button class="btn btn-g btn-sm dlp-skip" onclick="dlpShSkip()">${esc(t("dlp.sh_skip"))}</button>`:""}
   </div>`;
 }
@@ -16648,7 +16679,7 @@ function dlpConverseHTML(plan,key,w,d){
       <button class="btn btn-p" onclick="dlpConverseGo()">${tIc(went?"dlp.conv_again":"rp.start","chat")}</button>
       ${went?`<button class="btn btn-g" onclick="dlpConverseReport()">${ic("chart")} ${esc(t("rp.rep_btn"))}</button>`:""}
     </div>
-    <button class="btn-primary" style="margin-top:16px" ${all?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
+    <button class="btn-primary" style="margin-top:16px" ${all||dlpStepFree("converse")?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
   </div>`;
 }
 window.dlpConverseGo=()=>{
@@ -16790,6 +16821,42 @@ async function dlpOverall(key,w,d){
     host.innerHTML=line?`<div class="card" style="margin-top:10px"><b>${esc(t("dlp.overall_h"))}</b><p class="sub" style="margin-top:6px">${esc(line)}</p></div>`:"";
   }catch(err){host.innerHTML=""}
 }
+/* HOW MUCH OF THE DAY WAS ACTUALLY DONE (owner, 8 Nov 2026: "you should have a percentage of
+   accomplishment of that day, on the last report"). Counted from real evidence only — a take
+   that exists, a sentence that passed the 80% bar, a shadow that was recorded, a talking point
+   the engine credited. A skipped shadow is NOT accomplishment, and nothing here is rounded up.
+   Each STEP counts once, so a five-sentence step cannot drown a one-take step; the percentage is
+   the average of the steps' own fractions, which is why the rows add up to what the number says. */
+function dlpDayScore(plan){
+  const rows=[],add=(k,done,of)=>{if(of>0)rows.push({k,done:Math.max(0,Math.min(of,done)),of})};
+  const T=dlpStepData("try")||{},L=dlpStepData("learn")||{},R=dlpStepData("rehearse")||{},C=dlpStepData("converse")||{};
+  add("try",(T.recorded||T.mode==="text")?1:0,1);
+  const ln=(L.sentences||[]).length;add("learn",Object.keys(L.pass||{}).filter(k=>(L.pass||{})[k]).length,ln);
+  const ps=(typeof dlpPassages==="function")?dlpPassages(plan.week,2):[];
+  if(ps.length)add("listen",ps.filter((_,i)=>dlpShHasRec(i)).length,ps.length);
+  const rn=(R.sentences||[]).length;add("rehearse",Object.keys(R.pass||{}).filter(k=>(R.pass||{})[k]).length,rn);
+  if(C.sc&&(C.sc.points||[]).length)add("converse",C.covered||0,(C.sc.points||[]).length);
+  const pct=rows.length?Math.round(100*rows.reduce((a,r)=>a+r.done/r.of,0)/rows.length):0;
+  return {pct,rows};
+}
+function dlpDayScoreHTML(plan){
+  const sc=dlpDayScore(plan);if(!sc.rows.length)return "";
+  const col=sc.pct>=80?"var(--green)":sc.pct>=50?"var(--gold)":"var(--red)";
+  const C=2*Math.PI*42,off=C*(1-sc.pct/100);
+  return `<div class="dlp-score">
+    <svg viewBox="0 0 100 100" class="dlp-score-ring" role="img" aria-label="${esc(t("dlp.score_a11y",{n:sc.pct}))}">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="var(--line2)" stroke-width="8"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 50 50)"/>
+      <text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="dlp-score-n" fill="${col}">${sc.pct}%</text>
+    </svg>
+    <div class="dlp-score-b">
+      <b>${esc(t("dlp.score_h"))}</b>
+      <ul class="dlp-score-rows">${sc.rows.map(r=>`<li><span>${esc(t("dlp.step_"+r.k))}</span><span class="${r.done>=r.of?"ok":""}">${r.done}/${r.of}</span></li>`).join("")}</ul>
+      <p class="ex-fine">${esc(t("dlp.score_note"))}</p>
+    </div>
+  </div>`;
+}
 function dlpFinishHTML(plan,key,w,d){
   if(!_dlpEntry.completedAt){
     DailyPlan.complete(S,_dlpEntry.lessonId);
@@ -16807,8 +16874,11 @@ function dlpFinishHTML(plan,key,w,d){
     :cmp.steady
     ?`<p class="sub">${esc(t("dlp.ba_steady"))}</p>`
     :`<p class="sub">${esc(t("dlp.ba_h"))}</p><ul class="dlp-expr-list">${cmp.changes.map(row).join("")}</ul>`;
+  const conv=dlpStepData("converse")||{};
   return `<div class="card">
     <p class="fb-pron-good">${tIc("dlp.finish_done","check")}</p>
+    ${dlpDayScoreHTML(plan)}
+    ${conv.sc&&conv.at?`<button class="btn btn-p dlp-fin-rep" onclick="dlpConverseReport()">${ic("chart")} ${esc(t("rp.rep_btn"))}</button>`:""}
     ${ba}
     ${before||after?`<details class="dlp-pass-det"><summary>${esc(t("dlp.ba_numbers"))}</summary>
       <p class="ex-fine">${esc(t("dlp.ba_before"))}</p>${dlpMetricsHTML(before)}
@@ -26440,11 +26510,31 @@ window.exSay=(s,rate)=>{
   if(useApi){fbSayApi(text,rate,exHost.voice).catch(()=>{fbStopAudio();exSayBrowser(text,rate)});return}
   fbStopAudio();exSayBrowser(text,rate);
 };
+/* THE COACH SAYS THEIR NAME (owner, 8 Nov 2026: "introduce the name in the voice on each report
+   … he has to read the first name and the job profile"). It is prepended on the DEVICE rather
+   than asked of the model: a prompt can be ignored, and the owner's point is that the learner
+   must hear the app know them every single time. Dropped silently when they never gave a name,
+   so nothing is addressed to nobody. */
+function exCoachOpen(){
+  try{
+    const nm=(S.profile&&S.profile.name)?String(S.profile.name).trim().split(/\s+/)[0]:"";
+    if(!nm)return "";
+    let role="";try{role=(typeof dlpRoleLoc==="function"&&dlpRoleLoc())||(S.profile&&S.profile.role)||""}catch(e){role=(S.profile&&S.profile.role)||""}
+    return role?t("ex.coach_open",{name:nm,role}):t("ex.coach_open_x",{name:nm});
+  }catch(e){return ""}
+}
 function exCoachLines(rep){
   const ai=rep.ai,m=rep.m;
   const split=x=>(String(x).match(/[^.!?]+[.!?]+["”']?/g)||[String(x)]).map(y=>y.trim()).filter(Boolean);
-  if(ai&&ai.coach_script)return split(ai.coach_script).slice(0,10);
+  const open=exCoachOpen();
+  if(ai&&ai.coach_script){
+    const L=split(ai.coach_script).slice(0,10);
+    /* never twice: a model that already opened with the name keeps its own line */
+    const nm=(S.profile&&S.profile.name)?String(S.profile.name).trim().split(/\s+/)[0]:"";
+    return (open&&!(nm&&L[0]&&L[0].indexOf(nm)>=0))?[open].concat(L).slice(0,11):L;
+  }
   const out=[];
+  if(open)out.push(open);
   const d=exDeliveryNote(m);if(d)out.push(d);
   const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
   out.push(qw.title+". "+qw.goal);

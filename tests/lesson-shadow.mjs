@@ -170,6 +170,52 @@ const r=await p.evaluate(async()=>{
   out.foreign={hidden:card().hidden,html:card().innerHTML,live:dlpShLive(),onDone:dlpShOnDone()};
   shClip.vid=_dlpSh.vid;
 
+  /* ---------- a day already done is free to walk back through ---------- */
+  (function(){
+    const pl={week:1,day:"Mon",competencyObjective:"X",personalizedScenario:{personalized:false,task:"t"},
+      targetExpressions:["I work as"],pronunciationFocus:{declared:[]},supportingVideo:null};
+    const fr={lessonId:"F1",plan:pl,step:"listen",reached:"listen",stepData:{}};
+    S.dlp.F1=fr;_dlpEntry=fr;
+    out.free={atFrontier:dlpStepFree("listen"),listenShut:/style="margin-top:16px" disabled/.test(dlpListenHTML(pl,"k",1,"Mon"))};
+    fr.reached="finish";                              /* they went past it once */
+    out.free.behind=dlpStepFree("listen");
+    out.free.listenOpen=!/style="margin-top:16px" disabled/.test(dlpListenHTML(pl,"k",1,"Mon"));
+    /* and a finished lesson is free everywhere, even at its own frontier */
+    const done={lessonId:"F2",plan:pl,step:"listen",reached:"listen",completedAt:Date.now(),stepData:{}};
+    S.dlp.F2=done;_dlpEntry=done;
+    out.free.completed=dlpStepFree("listen");
+    out.free.scoreEmpty=dlpDayScore(pl).pct;
+  })();
+
+  /* ---------- the day's own percentage, counted from evidence only ---------- */
+  (function(){
+    const pl={week:1,day:"Mon",competencyObjective:"X",personalizedScenario:{personalized:false,task:"t"},
+      targetExpressions:["I work as"],pronunciationFocus:{declared:[]},supportingVideo:null};
+    const e2={lessonId:"S1",plan:pl,step:"finish",reached:"finish",stepData:{
+      try:{recorded:true},
+      learn:{sentences:[1,2,3,4,5].map(i=>({text:"s"+i})),pass:{0:true,1:true,2:true,3:true,4:true}},
+      rehearse:{sentences:[1,2,3,4,5].map(i=>({text:"r"+i})),pass:{0:true}},
+      converse:{sc:{points:["a","b","c"]},covered:3,at:1},
+      listen:{sh:{"0":{at:1,heard:"x"}}}}};
+    S.dlp.S1=e2;_dlpEntry=e2;
+    const sc=dlpDayScore(pl);
+    out.score={pct:sc.pct,rows:sc.rows.map(r=>r.k+":"+r.done+"/"+r.of)};
+    out.scoreHTML=dlpDayScoreHTML(pl);
+    /* a SKIPPED shadow is not accomplishment */
+    e2.stepData.listen.sh["1"]={skipped:true,at:1};
+    out.scoreSkip=dlpDayScore(pl).rows.find(r=>r.k==="listen");
+  })();
+
+  /* ---------- every spoken report opens with their name ---------- */
+  out.coach={
+    withAi:exCoachLines({ai:{coach_script:"You sounded calm. Try again."},m:{}}),
+    noAi:exCoachLines({ai:null,m:{wpm:100,fillers:1,words:50}}),
+    alreadyNamed:exCoachLines({ai:{coach_script:"Hassan, you sounded calm. Try again."},m:{}}),
+  };
+  const keepName=S.profile.name;S.profile.name="";
+  out.coach.noName=exCoachLines({ai:{coach_script:"You sounded calm."},m:{}});
+  S.profile.name=keepName;
+
   /* ---------- the engine's step history ---------- */
   const e2={lessonId:"L2",plan,step:"improve",stepData:{},reached:"improve"};
   S.dlp.L2=e2;
@@ -313,6 +359,17 @@ const rows=[
  ["skipping settles the rest and records it as skipped, never as shadowed", r.skipped.rec.skipped===true&&!r.skipped.rec.heard&&r.skipped.settled===true&&r.skipped.hasRec===false],
  ["after a skip the step opens, still counting one shadowed of two", r.skipped.all===true&&r.skipped.count.done===1&&r.skipped.count.settled===2],
  ["after a skip the skip is gone and the step says what happened", r.skipped.may===false&&!/class="btn-primary" style="margin-top:16px" disabled/.test(r.skipped.listen)&&r.skipped.listen.includes("dlp-pass")],
+ ["a gate holds at the frontier", r.free.atFrontier===false&&r.free.listenShut===true],
+ ["…and opens behind it, so a finished day walks back and forth", r.free.behind===true&&r.free.listenOpen===true],
+ ["…and a completed lesson is free everywhere", r.free.completed===true],
+ ["the day's percentage is the average of the steps' own fractions", r.score.pct===74&&r.score.rows.join(" ")==="try:1/1 learn:5/5 listen:1/2 rehearse:1/5 converse:3/3"],
+ ["…drawn as a ring with the rows that add up to it", r.scoreHTML.includes("dlp-score-ring")&&r.scoreHTML.includes("74%")],
+ ["…and a SKIPPED shadow is not accomplishment", r.scoreSkip.done===1&&r.scoreSkip.of===2],
+ ["an empty day scores nothing rather than something", r.free.scoreEmpty===0],
+ ["every spoken report opens with their first name and job", /Hassan/.test(r.coach.withAi[0])&&/Welder/i.test(r.coach.withAi[0])],
+ ["…including the one assembled without the AI", /Hassan/.test(r.coach.noAi[0])],
+ ["…but never twice when the model already said it", r.coach.alreadyNamed.length===2&&/Hassan/.test(r.coach.alreadyNamed[0])],
+ ["…and nothing is addressed to nobody", !/^Right, /.test(r.coach.noName[0]||"")],
  ["no page errors", errs.length===0],
 ];
 let bad=0;
