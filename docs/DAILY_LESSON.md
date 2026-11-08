@@ -14,8 +14,8 @@ Engine: `daily-learning-plan.js` (pure, unit-tested). Screens: the `dlp*` block 
 | 1 | try | One baseline minute, big mic, live words | The Executive Polish speaking report (`sessReport`) |
 | 2 | learn | Five sentences written for **them**, mastered one at a time | The **Foundations report** (`fndAlign` ≥ `FND_PASS`) |
 | 3 | listen | Shadow the week's two curriculum passages in the studio | The **Foundations report**, plus the speaker's pace against theirs |
-| 4 | rehearse | Each target expression, said alone | Device measurement; Premium adds a verdict |
-| 5 | converse | A reply in their own words | Speaking report |
+| 4 | rehearse | Five sentences from their **working day**, mastered one at a time | The **Foundations report** — the same page as step 2 |
+| 5 | converse | A spoken **conversation** with an AI partner, three talking points | The role-play engine + the speaking report |
 | 6 | improve | Pronunciation focus | — |
 | 7 | finish | Before/after on the day's own numbers | `DailyPlan.compareAttempts` — costs nothing |
 
@@ -152,6 +152,52 @@ Rules that keep it honest:
 - Step 3's Continue stays disabled until every passage has been shadowed once.
 - Only one passage button is accented at a time: the next one still to do.
 
+## Steps 2 and 4 are one page
+
+Owner, 8 Nov 2026: *"I don't want this kind of page any more. I want complete sentences."* Step 4
+used to list the week's bare patterns with a recorder beside each. It is now
+`dlpSentPageHTML(step, …)` — the same exercise as step 2, with `step` the LAST argument
+everywhere and defaulting to `"learn"`, so every older call site keeps its meaning. Step 2 keeps
+its element ids; step 4 has its own, and its own report keys (`dlp:rehearse:<i>`).
+
+Only the content differs (`DLP_SENT_ANGLE`): step 2 introduces the learner; step 4 is a real
+moment in their working day. Both prompts receive every sentence already seen in **either** step,
+so nothing is handed back twice. "Another version" is available from the start (three times), and
+round 3 differs from round 2 in both steps. Neither step buys a verdict: the AI writes the
+sentences (content, unmetered), the device grades them.
+
+When the sentences came from the device, the page now says **why** — on a phone the real reason is
+usually that nobody is signed in, and `aiOffNote()` says so with a Sign in button.
+
+## Step 5 — the conversation
+
+Owner, 8 Nov 2026: the day ends in a spoken conversation, shaped like Life Simulations.
+
+The role-play engine is not rebuilt: `rpStart` / `rpUserTurn` / `rpSummary` / `rpReport` already do
+the conversation, the talking-point judging, the summary and the speaking report. What step 5 adds
+is a **scenario built from the lesson** (`dlpScenarioBuild`), handed to that engine by id:
+
+- `dlpDayBrief()` gives the writer the whole day — the objective, the expressions, what the
+  learner said in step 1, and the sentences they practised in steps 2 and 4;
+- it returns a persona, a role in the learner's own working world, a scenario, **three talking
+  points** and a first line that **greets the learner by name** (enforced after the fact, so a
+  model that forgets cannot drop it);
+- `dlpRpBrief()` goes into the conversation's system prompt: the learner's name, with an explicit
+  instruction to use it, and their job and situation;
+- `rpById` resolves `dlp-lesson` to it. It is never in the catalogue — it belongs to one day.
+- The partner is **drawn, not photographed**: `dlpOrbHTML` (`rpAvatar` branches on `sc.ai`), a
+  core that breathes and two rings that travel out, still under `prefers-reduced-motion`.
+
+**The talking points are the gate.** `dlpConverseDone` is called by `rpSummary` the moment the
+conversation ends; Continue opens only when all three are covered, judged by the engine's own
+strict rule (`ConversationOrchestrator.creditable`), never by the model's claim alone. A second,
+worse run cannot take away a point already earned. What the learner said is measured for the
+day's before/after — words, expressions, hesitation — but **pace is not claimed**, because a
+conversation turn carries no duration.
+
+Step 6 reads that conversation and opens its speaking report, rather than a single take into
+`recCtx("dlp-converse")` that no longer exists.
+
 ## Walking back
 
 Owner, 7 Nov 2026: from step 3 you can look at step 2 and step 1 again.
@@ -174,5 +220,7 @@ Owner, 7 Nov 2026: from step 3 you can look at step 2 and step 1 again.
 | `tests/lesson-evaluation.test.mjs` (25) | who may spend a verdict, the measurements, the before/after, the step history |
 | `tests/lesson-allowance.test.mjs` (18) | the free day costs exactly the free cap |
 | `tests/learn-mastery.mjs` (36) | step 2: the 80% gate, locking, polish rounds, the shared report |
+| `tests/lesson-converse.mjs` (21) | step 5: the scenario built from the day, the name in the greeting and the prompt, the AI figure, the gate, the measurement |
+| `tests/rehearse-sentences.mjs` (17) | step 4: complete sentences, its own keys, three rewrites |
 | `tests/lesson-shadow.mjs` (72) | step 3 and the navigation: the armed stage, the shared report, the pace lines, the coach script, the method, the skip, playback, the spent-credit card, the two buttons, the gate, the pinned paragraph, the dots' tap area |
 | `tests/curriculum-clips.mjs` (32) | the clip index is real and matched |

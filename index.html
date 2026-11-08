@@ -3715,6 +3715,25 @@ button.dlp-dot:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .dlp-how-sec b{font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--acc2,var(--acc))}
 .dlp-how-sec ul{margin:5px 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:5px}
 .dlp-how-sec li{font-size:13px;line-height:1.5;color:var(--txt)}
+/* THE AI FIGURE (step 5). A drawn presence rather than a stock face: a core that breathes and
+   two rings that travel outwards, which is the visual language people already read as "an
+   assistant is listening". Both themes, and still under prefers-reduced-motion. */
+.dlp-orb{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.dlp-orb-core{position:relative;width:100%;height:100%;z-index:1;filter:drop-shadow(0 6px 18px color-mix(in srgb,var(--acc) 45%,transparent))}
+.dlp-orb-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--acc) 55%,transparent);animation:dlpOrbOut 3.2s ease-out infinite}
+.dlp-orb-ring.b{animation-delay:1.6s}
+.dlp-orb-bars rect{animation:dlpOrbBar 1.5s ease-in-out infinite;transform-origin:50% 50%}
+.dlp-orb-bars rect:nth-child(2){animation-delay:.25s}
+.dlp-orb-bars rect:nth-child(3){animation-delay:.5s}
+@keyframes dlpOrbOut{0%{transform:scale(.82);opacity:.75}100%{transform:scale(1.35);opacity:0}}
+@keyframes dlpOrbBar{0%,100%{transform:scaleY(.6)}50%{transform:scaleY(1.25)}}
+@media (prefers-reduced-motion:reduce){.dlp-orb-ring,.dlp-orb-bars rect{animation:none}.dlp-orb-ring{opacity:.35}}
+.dlp-conv-hd{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:14px}
+.dlp-conv-t{margin:0;font-size:21px;line-height:1.25}
+.dlp-conv-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.dlp-conv-acts .btn{flex:1 1 auto;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.dlp-conv-acts .btn svg{width:17px;height:17px;flex:none}
+.dlp-conv .rp-point.done .rp-pn svg{width:14px;height:14px}
 /* the spoken coach */
 .dlp-cch{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line2));
   background:color-mix(in srgb,var(--acc) 6%,var(--card))}
@@ -8779,7 +8798,25 @@ const I18N_EN={
  "dlp.rehearse_sub":"Hear each expression, then record yourself saying it.",
  "dlp.converse_prompt":"Introduce yourself to a new colleague, using at least one of today's expressions.",
  "dlp.converse_ai":"Practise this with the AI coach instead",
+ "dlp.conv_sub":"One conversation to finish the day.",
+ "dlp.conv_building":"Setting up your conversation…",
+ "dlp.conv_local":"Built on your device — the coach was out of reach.",
+ "dlp.conv_how":"Read the scenario and your talking points, then start. You have to get all three said.",
+ "dlp.conv_left":"{{n}} still to cover. Start again and work them in.",
+ "dlp.conv_all":"All your talking points are covered. That finishes the conversation.",
+ "dlp.conv_again":"Talk again",
+ "dlp.rp_persona":"Ava",
+ "dlp.rp_role":"a colleague who works with a {{p}}",
+ "dlp.rp_title":"Talk it through",
+ "dlp.rp_scenario":"A short conversation about your work. You are talking to someone who knows what a {{p}} does, in the kind of moment you meet in {{sit}}.",
+ "dlp.rp_sit_fallback":"your working week",
+ "dlp.rp_p1":"Say what you do as a {{p}}, in one clear answer",
+ "dlp.rp_p2":"Give one real example from your own work, with what came of it",
+ "dlp.rp_p3":"Ask for something you need, or say what happens next",
+ "dlp.rp_greet":"{{name}} — good to catch you. Tell me what you have been working on.",
+ "dlp.rp_greet_x":"Good to catch you. Tell me what you have been working on.",
  "dlp.improve_none":"Nothing to improve yet — go back and record your response first.",
+ "dlp.improve_conv":"You covered {{n}} of {{of}} talking points. Your speaking report is below — it is built on what you actually said.",
  "dlp.improve_unreachable":"We couldn't reach the coach to grade this take — your recording and progress are still saved. Try again shortly.",
  "dlp.improve_text_only":"You typed your response — good practice. We can't assess pronunciation without a recording, so here's today's expressions to keep in mind:",
  "dlp.improve_h":"One thing to sharpen",
@@ -16498,15 +16535,150 @@ window.dlpShFinish=()=>{
    five full sentences from this learner's own working day, mastered at 80%, rewritten up to
    three times. The old per-expression recorder (dlpRecord('rehearse', i)) is gone with it. */
 function dlpRehearseHTML(plan,key,w,d){return dlpSentPageHTML("rehearse",plan,key,w,d)}
+/* ============================================================ STEP 5: TALK TO THE AI
+   Owner, 8 Nov 2026: step 5 is the Life Simulations experience, driven by the lesson. A brief
+   screen (who you are about to talk to, the scenario, your talking points), then the real spoken
+   conversation, then the summary and the SAME speaking report. The learner cannot move on until
+   every talking point is checked, and the AI must use their name and their profile.
+
+   None of that is built again here: rpStart / rpUserTurn / rpSummary / rpReport already do it.
+   What this adds is a SCENARIO built from the lesson — the day's objective, the expressions, what
+   the learner actually said in step 1 and the sentences they mastered in steps 2 and 4 — so the
+   conversation is the end of the day's work rather than a separate exercise. */
+const DLP_RP_ID="dlp-lesson";
+function dlpScenarioGet(){const c=dlpStepData("converse")||{};return c.sc||null}
+/* Everything the day has produced, as plain lines the model can use. */
+function dlpDayBrief(plan){
+  const L=k=>((dlpStepData(k)||{}).sentences||[]).map(x=>x.text).slice(0,5);
+  const said=((dlpStepData("try")||{}).m||{}).tx||"";
+  return [dlpProfileBrief(),
+    "Today's objective: "+(plan.competencyObjective||""),
+    "Today's expressions: "+((plan.targetExpressions||[]).join(" | ")),
+    said?'What they said in their first minute today: "'+said.slice(0,400)+'"':"",
+    L("learn").length?"Sentences they practised about themselves:\n"+L("learn").map(x=>"- "+x).join("\n"):"",
+    L("rehearse").length?"Sentences they practised about their working day:\n"+L("rehearse").map(x=>"- "+x).join("\n"):"",
+  ].filter(Boolean).join("\n");
+}
+/* The conversation's extra instruction: the person on the other side knows who they are talking
+   to. The owner's rule of 8 Nov 2026 — "I need the AI to call his name. I didn't see that in any
+   other AI report." — so it is in the SYSTEM prompt, not left to chance. */
+function dlpRpBrief(plan){
+  const nm=dlpLearnerName(),role=dlpProfileLabel(),sit=dlpSituationLabel();
+  const L=[];
+  if(nm)L.push(`The learner's name is ${nm}. Use it: greet them by name, and use it again once or twice later. Never more than that — it should sound like a person, not a sales call.`);
+  if(role)L.push(`They are a ${role}${sit?", and they speak English most in "+sit.toLowerCase():""}. Keep the conversation inside that world: the examples, the problems and the vocabulary are theirs, not a generic office's.`);
+  L.push("They have spent today practising the expressions and sentences listed above. Give them natural openings to use those, but never tell them which one to say.");
+  return L.join(" ");
+}
+/* The device's own scenario, when the coach cannot be reached: still about their job, still with
+   three real talking points, still greeting them by name. Never a placeholder. */
+function dlpScenarioLocal(plan){
+  const nm=dlpLearnerName(),role=dlpRoleLoc()||t("dlp.sent_role_fallback"),sit=dlpSitLoc();
+  return {persona:t("dlp.rp_persona"),role:t("dlp.rp_role",{p:role}),
+    title:plan.competencyObjective||t("dlp.rp_title"),
+    scenario:t("dlp.rp_scenario",{p:role,sit:(sit||t("dlp.rp_sit_fallback")).toLowerCase()}),
+    points:[t("dlp.rp_p1",{p:role}),t("dlp.rp_p2"),t("dlp.rp_p3")],
+    greet:nm?t("dlp.rp_greet",{name:nm}):t("dlp.rp_greet_x")};
+}
+async function dlpScenarioBuild(plan,key,w,d){
+  const e=_dlpEntry;if(!e)return null;
+  const lang=(S.profile&&S.profile.lang)||"en";
+  const sys=`You design ONE short spoken role-play for a single English learner, to close their day's lesson. Reply with STRICT JSON only: {"persona":"<a first name for the person they will talk to>","role":"<that person's role, 2-5 words, in the learner's own working world>","title":"<the conversation in 3-6 words>","scenario":"<two sentences: the situation, and what the other person is like>","points":["<talking point>","<talking point>","<talking point>"],"greet":"<the other person's FIRST line, one or two sentences, which MUST greet the learner by their name>"}
+The three talking points are what the LEARNER has to get said before the conversation is over. Each is one short imperative clause, something a real person in their job would actually need to say, and together they use what they practised today. Not "introduce yourself" three times. Everything in the learner's own working world. Write it all in English (the conversation is an English lesson).`;
+  const raw=await dlpChat(sys,dlpDayBrief(plan),"practice");   /* content, not a verdict */
+  let out=null;
+  try{
+    const j=JSON.parse(String(raw||"").replace(/^```(json)?|```$/g,"").trim());
+    const pts=(j&&Array.isArray(j.points)?j.points:[]).map(x=>String(x||"").trim()).filter(x=>x.split(/\s+/).length>=3).slice(0,3);
+    const greet=String((j&&j.greet)||"").trim();
+    if(pts.length===3&&greet)out={persona:String(j.persona||"").trim().slice(0,24)||t("dlp.rp_persona"),
+      role:String(j.role||"").trim().slice(0,40)||t("dlp.rp_role",{p:dlpRoleLoc()||""}),
+      title:String(j.title||"").trim().slice(0,60)||plan.competencyObjective,
+      scenario:String(j.scenario||"").trim().slice(0,300),points:pts,greet:greet.slice(0,220)};
+  }catch(err){}
+  const local=!out;
+  if(local)out=dlpScenarioLocal(plan);
+  /* the learner's name has to be in the first line whatever the model did */
+  const nm=dlpLearnerName();
+  if(nm&&out.greet.indexOf(nm)<0)out.greet=nm+" — "+out.greet.charAt(0).toLowerCase()+out.greet.slice(1);
+  const sc=Object.assign({id:DLP_RP_ID,ai:true,cat:"work",ic:"sparkle",local},out,{brief:dlpRpBrief(plan)});
+  const prev=e.stepData.converse||{};
+  e.stepData.converse=Object.assign({},prev,{sc,built:Date.now()});
+  save();
+  try{dlpRerender()}catch(err){}
+  return sc;
+}
+/* The AI figure. Not a stock face: a drawn presence that breathes while it speaks, which is what
+   the owner asked for ("find a way to make it very pretty … the AI figure when he's speaking").
+   Pure SVG + CSS, both themes, and still under prefers-reduced-motion. */
+function dlpOrbHTML(size){
+  const n=Math.max(36,Math.min(160,Number(size)||84));
+  return `<span class="dlp-orb" style="width:${n}px;height:${n}px" aria-hidden="true">
+    <span class="dlp-orb-ring"></span><span class="dlp-orb-ring b"></span>
+    <svg viewBox="0 0 100 100" class="dlp-orb-core">
+      <defs><radialGradient id="dlpOrbG" cx="35%" cy="30%"><stop offset="0%" stop-color="var(--acc2,var(--acc))"/><stop offset="100%" stop-color="var(--acc)"/></radialGradient></defs>
+      <circle cx="50" cy="50" r="34" fill="url(#dlpOrbG)"/>
+      <g class="dlp-orb-bars" fill="#fff" opacity=".92">
+        <rect x="36" y="42" width="5" height="16" rx="2.5"/><rect x="47" y="34" width="5" height="32" rx="2.5"/><rect x="58" y="44" width="5" height="12" rx="2.5"/>
+      </g>
+    </svg></span>`;
+}
+/* THE BRIEF, then the conversation, then the summary — the shape the owner asked for, drawn from
+   the lesson's own scenario. The talking points are the gate: Continue opens only when every one
+   has been covered in a real spoken turn (the engine's own strict judgement, never the model's
+   claim alone — see rpUserTurn / ConversationOrchestrator.creditable). */
 function dlpConverseHTML(plan,key,w,d){
-  const aiOk=ppAvailable()&&flag("practice_partner_ai_fallback_enabled")&&isGeneralEnglish();
-  return `<div class="card">
-    <p class="sub">${esc(t("dlp.converse_prompt"))}</p>
-    ${dlpRecOrTypeHTML("converse")}
-    ${dlpMetricsHTML((dlpStepData("converse")||{}).m)}
-    ${aiOk?`<button class="btn btn-g" style="margin-top:10px" onclick="dlpConverseWithAI()">${ic("chat")} ${esc(t("dlp.converse_ai"))}</button>`:""}
-    ${dlpContinueBtn("converse",w,d,key)}
+  const C=dlpStepData("converse")||{},sc=C.sc;
+  if(!sc){setTimeout(()=>{try{dlpScenarioBuild(plan,key,w,d)}catch(e){}},30);
+    return `<div class="card"><p class="sub">${esc(t("dlp.conv_sub"))}</p><div>${DS.aiInline(t("dlp.conv_building"))}</div></div>`;}
+  const total=(sc.points||[]).length,done=C.covered||0,all=total>0&&done>=total;
+  const went=!!C.at;
+  return `<div class="card dlp-conv">
+    <div class="dlp-conv-hd">${dlpOrbHTML(84)}
+      <small class="rp-persona">${esc(sc.persona)}${sc.role?" · "+esc(sc.role):""}</small>
+      <h2 class="dlp-conv-t">${esc(sc.title)}</h2></div>
+    ${sc.local?`<p class="ex-fine">${esc((()=>{try{return aiOffNote("ai_coach")||t("dlp.conv_local")}catch(e){return t("dlp.conv_local")}})())}</p>`:""}
+    <h4 class="rp-h4">${esc(t("rp.scenario_h"))}</h4>
+    <p class="sub" style="margin-bottom:14px">${esc(sc.scenario)}</p>
+    <h4 class="rp-h4">${esc(t("rp.points_h"))}${went?` <span class="chip${all?" done":""}">${done}/${total}</span>`:""}</h4>
+    <div class="rp-points">${(sc.points||[]).map((pt,i)=>`<div class="rp-point ${(C.pts||[]).indexOf(i+1)>=0?"done":""}"><span class="rp-pn">${(C.pts||[]).indexOf(i+1)>=0?ic("check"):i+1}</span><span>${esc(pt)}</span></div>`).join("")}</div>
+    <p class="ex-fine">${esc(all?t("dlp.conv_all"):went?t("dlp.conv_left",{n:total-done}):t("dlp.conv_how"))}</p>
+    <div class="dlp-conv-acts">
+      <button class="btn btn-p" onclick="dlpConverseGo()">${tIc(went?"dlp.conv_again":"rp.start","chat")}</button>
+      ${went?`<button class="btn btn-g" onclick="dlpConverseReport()">${ic("chart")} ${esc(t("rp.rep_btn"))}</button>`:""}
+    </div>
+    <button class="btn-primary" style="margin-top:16px" ${all?"":"disabled"} onclick="dlpAdvance(${w},'${d}','${key}')">${esc(t("dlp.continue"))}</button>
   </div>`;
+}
+window.dlpConverseGo=()=>{
+  const e=_dlpEntry;if(!e)return;
+  const sc=dlpScenarioGet();if(!sc)return;
+  /* come back to the lesson, not to the scenario library, when the conversation ends */
+  SESS_RETURN={v:"roleplay",w:e.plan.week,d:e.plan.day};
+  go("roleplay");
+  setTimeout(()=>{try{rpStart(DLP_RP_ID)}catch(err){}},250);
+};
+window.dlpConverseReport=()=>{try{rpReport()}catch(e){toast(t("rp.rep_none"))}};
+/* written by rpSummary the moment the conversation ends */
+function dlpConverseDone(n,total,ts){
+  const e=_dlpEntry;if(!e)return;
+  const C=e.stepData.converse||{};
+  const pts=[];try{(_rpLast&&_rpLast.covered||new Set()).forEach(x=>pts.push(x))}catch(err){}
+  /* the BEST run stands: a second, worse attempt must not take away a point already earned */
+  const keep=(C.pts||[]);const merged=[...new Set(keep.concat(pts))];
+  /* The day's before/after needs an "after", and the conversation is now where the learner
+     speaks last. Their own turns are measured — words, the day's expressions, hesitation. Pace
+     is NOT claimed: a conversation turn carries no duration, so wpm stays null rather than
+     invented. */
+  let m=null;
+  try{
+    const txt=((_rpLast&&_rpLast.turns)||[]).map(x=>x.text).join(" ").trim();
+    if(txt)m=DailyPlan.measure(txt,(e.plan.targetExpressions||[]),0,dlpHas);
+    if(m){m.at=Date.now();m.tx=txt.slice(0,500)}
+  }catch(err){}
+  e.stepData.converse=Object.assign({},C,{at:Date.now(),ts:ts||C.ts||0,
+    covered:Math.max(C.covered||0,merged.length),total,pts:merged,recorded:true,mode:"audio"},m?{m}:{});
+  save();
 }
 window.dlpConverseWithAI=()=>{
   /* Same seeding pattern svApplyAI already uses: hand the target expression to
@@ -16518,7 +16690,22 @@ window.dlpConverseWithAI=()=>{
 };
 function dlpImproveHTML(plan,key,w,d){
   const conv=dlpStepData("converse");
-  if(!conv){return `<div class="card"><p class="sub">${esc(t("dlp.improve_none"))}</p>${dlpContinueBtn("improve",w,d,key)}</div>`}
+  if(!conv||!conv.at){return `<div class="card"><p class="sub">${esc(t("dlp.improve_none"))}</p>${dlpContinueBtn("improve",w,d,key)}</div>`}
+  /* Step 5 is a CONVERSATION now (owner, 8 Nov 2026), not a single take into recCtx("dlp-converse").
+     Its own speaking report is already built when the conversation ends, so this step opens that
+     rather than re-running a pipeline over a recording that no longer exists. */
+  if(conv.sc){
+    _dlpEntry.stepData.improve=_dlpEntry.stepData.improve||{seen:true,mode:"conversation"};
+    const m=conv.m;
+    return `<div class="card">
+      <p class="sub">${esc(t("dlp.improve_conv",{n:conv.covered||0,of:conv.total||0}))}</p>
+      ${dlpMetricsHTML(m)}
+      <div class="dlp-conv-acts">
+        <button class="btn btn-p" onclick="dlpConverseReport()">${ic("chart")} ${esc(t("rp.rep_btn"))}</button>
+        <button class="btn btn-g" onclick="dlpConverseGo()">${ic("chat")} ${esc(t("dlp.conv_again"))}</button>
+      </div>
+      ${dlpContinueBtn("improve",w,d,key,t("dlp.finish_btn"))}</div>`;
+  }
   if(conv.mode==="text"){
     _dlpEntry.stepData.improve=_dlpEntry.stepData.improve||{seen:true,mode:"text"};
     return `<div class="card"><p class="sub">${esc(t("dlp.improve_text_only"))}</p>
@@ -37165,7 +37352,12 @@ const SCENARIOS=[
 ];
 function trackScenarios(){return trackAiMentors().length?trackAiMentors():SCENARIOS}
 function trackScenarioCategories(){return trackRoleplayCategories().length?trackRoleplayCategories():RP_CATS}
-function rpById(id){return trackScenarios().find(s=>s.id===id)}
+/* The guided lesson builds a scenario of its own (step 5) and hands it to this engine by id.
+   It is not in the catalogue and must never appear there — it belongs to one day's lesson. */
+function rpById(id){
+  if(id===DLP_RP_ID){try{const s=dlpScenarioGet();if(s)return s}catch(e){}}
+  return trackScenarios().find(s=>s.id===id);
+}
 /* Scenario artwork. Drop a square image at rp-photos/<scenario id>.jpg and it
    is used automatically — no code change. If the file is missing the browser
    fires onerror and we fall back to the icon tile, so a half-finished photo set
@@ -37208,6 +37400,7 @@ function simFaceHTML(person){
     ?`<img src="rp-photos/${key}.jpg" alt="" onerror="this.parentNode.classList.remove('has-photo');this.remove()">`:""}${initial}</span>`;
 }
 function rpAvatar(sc,size){
+  if(sc&&sc.ai){try{return dlpOrbHTML(size)}catch(e){}}   /* the lesson's AI partner is drawn, not photographed */
   const h=rpHue(sc.id),key=rpPhotoKey(sc);
   return `<span class="rp-av${key?" has-photo":""}" style="width:${size}px;height:${size}px;background:linear-gradient(150deg,hsl(${h} 62% 52%),hsl(${(h+38)%360} 68% 44%))">
     ${key?`<img src="rp-photos/${key}.jpg" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-photo');this.remove()">`:""}
@@ -37589,6 +37782,7 @@ async function rpAI(){
 YOUR ROLE: You speak ONLY as ${sc.persona}. The other person in this conversation is the learner — never write their lines, never answer on their behalf, and never repeat their position back as if it were yours. If they make a request or state a number, you RESPOND to it as ${sc.persona} would.
 
 STYLE: Stay fully in character, warm and natural. The learner is practising spoken English at roughly an intermediate level, so keep every reply to one or two short sentences, use everyday words, and keep things moving with a question or prompt. Never say you are an AI.
+${sc.brief?"\nWHO YOU ARE TALKING TO: "+sc.brief+"\n":""}
 
 THEIR GOALS (things the LEARNER is trying to say during this conversation):
 ${sc.points.map((p,i)=>`${i+1}) ${p}`).join("\n")}
@@ -38200,6 +38394,9 @@ function rpSummary(){
      conversation object is torn down — and which points were covered, so the
      speaking report carries the app's own judgement, never the model's. */
   _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text),covered:new Set(covered)};
+  /* the guided lesson's own step 5: the step cannot be left until every talking point is covered,
+     so the result is written back on the lesson the moment the conversation ends */
+  if(sc.id===DLP_RP_ID){try{dlpConverseDone(covered.size,sc.points.length,_rpLastTs||0)}catch(e){}}
   if(rpWeldWorkshop(sc)){rpWeldScreen(sc,_rpLast.turns,spoke?_rpLastTs:0,covered);rpConv=null;return}
   /* every attempt gets its report, opened or not — built now, while the audio
      is still in memory, and linked to this entry for the scenario history */

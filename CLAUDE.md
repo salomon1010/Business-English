@@ -351,7 +351,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   **Walking back:** `entry.reached`
   is the high-water mark, `DailyPlan.goStep` refuses any step past it, and the
   dots' 44px tap areas are drawn inside the dots row so nothing above is covered.
-  Tests: `tests/lesson-shadow.mjs` (72), `learn-mastery.mjs` (36),
+  **Steps 2 and 4 are ONE page** (owner, 8 Nov 2026): `dlpSentPageHTML(step,…)`, `step` last and
+  defaulting to "learn". Step 4 used to list the bare patterns; it is now five complete sentences
+  from the learner's working day (`DLP_SENT_ANGLE`), same 80% gate, same three rewrites, and
+  neither step buys a verdict. **Step 5 is the lesson's own spoken conversation**: the roleplay
+  engine is reused unchanged — `dlpScenarioBuild` writes a scenario from the whole day and
+  `rpById` resolves `dlp-lesson` to it, the partner is DRAWN (`dlpOrbHTML`, `rpAvatar` branches on
+  `sc.ai`), the AI is told the learner's name and told to use it, and the three talking points are
+  the gate: `dlpConverseDone` (called by `rpSummary`) decides whether Continue opens, on the
+  engine's own strict judgement. Step 6 opens that conversation's speaking report.
+  Tests: `tests/lesson-converse.mjs` (21), `rehearse-sentences.mjs` (17),
+  `tests/lesson-shadow.mjs` (72), `learn-mastery.mjs` (36),
   `lesson-evaluation.test.mjs` (25), `lesson-allowance.test.mjs` (18),
   `curriculum-clips.mjs` (32).
 - **Session speaking report (2026-09-24, both areas).** The Record yourself
