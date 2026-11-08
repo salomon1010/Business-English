@@ -85,6 +85,8 @@ const lev = WP.choose({ roleId: "x.y", roleCat: "tech", selfLevel: "Can get by" 
 ok("level outranks tier: a gentle related-role clip beats an exact-role clip they cannot follow", lev.ranked[0].id === "BBBBBBBBBBB", lev.ranked.map(r => r.id + ":" + r.tier + ":" + r.tooHard).join());
 ok("pace is null, not guessed, for a clip with no transcript", intros.every(c => c.wpm === null));
 ok("an unknown pace is never penalised", WP.choose({ selfLevel: "New to speaking English" }, 9, [mk("CCCCCCCCCCC", { wpm: null })]).ranked[0].tooHard === false);
+const unk = WP.choose({ selfLevel: "Can get by" }, 9, [mk("FFFFFFFFFFF", { wpm: null, hasText: false }), mk("GGGGGGGGGGG", { wpm: 165 })]);
+ok("…but an unknown pace is never REWARDED: a measured clip outranks it on a tie", unk.candidates[0].id === "GGGGGGGGGGG", unk.candidates.map(c => c.id + ":" + c.wpm).join());
 
 console.log("\n# gaps keep the existing lesson usable");
 const gap = WP.choose(re, 6, q(6));

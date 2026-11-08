@@ -161,17 +161,22 @@
       rows.push({ id: c.id, key: c.key, start: c.start, end: c.end, dur: c.dur, tier: tier, why: whyOf(c, u, tier),
         wpm: c.wpm, over: over, tooHard: over > TOLERANCE, source: c.source, editorial: c.editorial,
         blockers: r.blockers, boundaries: c.boundaries, role: c.role, roleGroup: c.roleGroup, title: c.title,
+        _unk: c.wpm === null ? 1 : 0,
         _gap: c.wpm !== null ? Math.abs(c.wpm - Math.min(TARGET_WPM, ceiling)) : 0, _cap: c.hasText ? 0 : 1 });
     });
     rows.sort(function (a, b) {
       if (a.tooHard !== b.tooHard) return a.tooHard ? 1 : -1;     /* level decides suitability first */
       if (a.tier !== b.tier) return a.tier - b.tier;
+      /* a clip whose pace cannot be measured is not "gentle" — it is unknown. Without this it scored
+         over:0 and gap:0, the best possible values, and a BLOCKED clip with no transcript outranked
+         every measured one on a tie. Known pace first; unknown is never rewarded for being unknown. */
+      if (a._unk !== b._unk) return a._unk - b._unk;
       if (a.over !== b.over) return a.over - b.over;              /* tie-break 1: the gentler pace */
       if (a._gap !== b._gap) return a._gap - b._gap;              /* tie-break 2: nearest a comfortable pace */
       if (a._cap !== b._cap) return a._cap - b._cap;              /* tie-break 3: one with a transcript */
       return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;          /* last: arbitrary but STABLE */
     });
-    rows.forEach(function (r) { delete r._gap; delete r._cap; });
+    rows.forEach(function (r) { delete r._gap; delete r._cap; delete r._unk; });
     var ranked = rows.filter(function (r) { return !r.blockers.length; });
     return { week: week, ranked: ranked, picked: ranked.length ? 0 : -1, degraded: degraded, gap: !ranked.length,
       candidates: rows, wouldPick: rows.length ? rows[0] : null, held: held };
